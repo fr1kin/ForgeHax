@@ -1,0 +1,16 @@
+[
+{
+  "modid": "forgehax",
+  "name": "Forge Hax",
+  "description": "Hax 4 forge",
+  "version": "1.0",
+  "mcversion": "1.10.2",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["fr1kin"],
+  "credits": "get rekt",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
