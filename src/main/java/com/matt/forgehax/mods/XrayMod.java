@@ -26,10 +26,9 @@ public class XrayMod extends ToggleMod {
         super(modName, defaultValue, description, key);
     }
 
-    public void reloadRenderers(boolean b) {
+    public void reloadRenderers() {
         if(MC.renderGlobal != null) {
             MC.renderGlobal.loadRenderers();
-            //MC.getBlockRendererDispatcher().get
         }
     }
 
@@ -38,14 +37,14 @@ public class XrayMod extends ToggleMod {
         previousForgeLightPipelineEnabled = ForgeModContainer.forgeLightPipelineEnabled;
         ForgeModContainer.forgeLightPipelineEnabled = false;
         ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
-        reloadRenderers(true);
+        reloadRenderers();
     }
 
     @Override
     public void onDisabled() {
         ForgeModContainer.forgeLightPipelineEnabled = previousForgeLightPipelineEnabled;
         ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
-        reloadRenderers(false);
+        reloadRenderers();
     }
 
     @Override
@@ -64,6 +63,7 @@ public class XrayMod extends ToggleMod {
     public void onConfigUpdated(List<Property> changed) {
         if(changed.contains(opacity)) {
             ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (float)(opacity.getDouble() / 255.f);
+            reloadRenderers();
         }
     }
 
@@ -74,7 +74,6 @@ public class XrayMod extends ToggleMod {
         if(!event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT) && !isInternalCall) {
             event.setCanceled(true);
         } else if(event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT) && !isInternalCall){
-            GlStateManager.enableDepth();
             isInternalCall = true;
             GlStateManager.disableAlpha();
             MC.renderGlobal.renderBlockLayer(BlockRenderLayer.SOLID, event.getPartialTicks(), 0, MC.getRenderViewEntity());
@@ -87,6 +86,7 @@ public class XrayMod extends ToggleMod {
             MC.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
             MC.renderGlobal.renderBlockLayer(BlockRenderLayer.CUTOUT, event.getPartialTicks(), 0, MC.getRenderViewEntity());
             MC.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+            GlStateManager.disableAlpha();
         }
     }
 
@@ -94,8 +94,6 @@ public class XrayMod extends ToggleMod {
     public void onPostRenderBlockLayer(RenderBlockLayerEvent.Post event) {
         if(!event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
             isInternalCall = false;
-        } else {
-            GlStateManager.disableDepth();
         }
     }
 
