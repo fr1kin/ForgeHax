@@ -16,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ToggleMod extends BaseMod {
-    // for easily accessing other modules settings
-    public final static Map<String, Property> SETTINGS = Maps.newHashMap();
-
     // setting every mod should have to enable/disable it
     private Property enabled = null;
     // toggle key bind
