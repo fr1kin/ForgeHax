@@ -9,12 +9,6 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AntiAfkMod extends ToggleMod {
-    public static AntiAfkMod INSTANCE;
-
-    public static AntiAfkMod instance() {
-        return INSTANCE;
-    }
-
     public Property tickInterval;
     public Property moveDistance;
 
@@ -26,7 +20,6 @@ public class AntiAfkMod extends ToggleMod {
 
     public AntiAfkMod(String categoryName, boolean defaultValue, String description, int key) {
         super(categoryName, defaultValue, description, key);
-        INSTANCE = this;
     }
 
     public KeyBindingHandler getMoveBinding() {

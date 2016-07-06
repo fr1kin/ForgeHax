@@ -6,19 +6,12 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoWalkMod extends ToggleMod {
-    public static AutoWalkMod INSTANCE;
-
-    public static AutoWalkMod instance() {
-        return INSTANCE;
-    }
-
     public Property lockView;
 
     private boolean isBound = false;
 
     public AutoWalkMod(String categoryName, boolean defaultValue, String description, int key) {
         super(categoryName, defaultValue, description, key);
-        INSTANCE = this;
     }
 
     @Override

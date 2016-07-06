@@ -5,17 +5,10 @@ import com.matt.forgehax.util.Bindings;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoSprintMod extends ToggleMod {
-    public static AutoSprintMod INSTANCE;
-
-    public static AutoSprintMod instance() {
-        return INSTANCE;
-    }
-
     private boolean isBound = false;
 
     public AutoSprintMod(String categoryName, boolean defaultValue, String description, int key) {
         super(categoryName, defaultValue, description, key);
-        INSTANCE = this;
     }
 
     private void startSprinting() {

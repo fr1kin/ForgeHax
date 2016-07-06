@@ -7,6 +7,7 @@ import com.matt.forgehax.asm.events.RenderBlockLayerEvent;
 import com.matt.forgehax.asm.events.SetupTerrainEvent;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -71,31 +72,27 @@ public class XrayMod extends ToggleMod {
 
     @SubscribeEvent
     public void onPreRenderBlockLayer(RenderBlockLayerEvent.Pre event) {
-        if(!event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT) && !isInternalCall) {
-            event.setCanceled(true);
-        } else if(event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT) && !isInternalCall){
-            isInternalCall = true;
-            GlStateManager.disableAlpha();
-            MC.renderGlobal.renderBlockLayer(BlockRenderLayer.SOLID, event.getPartialTicks(), 0, MC.getRenderViewEntity());
-
-            isInternalCall = true;
-            GlStateManager.enableAlpha();
-            MC.renderGlobal.renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), 0, MC.getRenderViewEntity());
-
-            isInternalCall = true;
-            MC.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-            MC.renderGlobal.renderBlockLayer(BlockRenderLayer.CUTOUT, event.getPartialTicks(), 0, MC.getRenderViewEntity());
-            MC.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
-            GlStateManager.disableAlpha();
+        if(!isInternalCall) {
+            if (!event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
+                event.setCanceled(true);
+            } else if (event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
+                isInternalCall = true;
+                Entity renderEntity = MC.getRenderViewEntity();
+                GlStateManager.disableAlpha();
+                MC.renderGlobal.renderBlockLayer(BlockRenderLayer.SOLID, event.getPartialTicks(), 0, renderEntity);
+                GlStateManager.enableAlpha();
+                MC.renderGlobal.renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), 0, renderEntity);
+                MC.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+                MC.renderGlobal.renderBlockLayer(BlockRenderLayer.CUTOUT, event.getPartialTicks(), 0, renderEntity);
+                MC.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+                GlStateManager.disableAlpha();
+                isInternalCall = false;
+            }
         }
     }
 
     @SubscribeEvent
-    public void onPostRenderBlockLayer(RenderBlockLayerEvent.Post event) {
-        if(!event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
-            isInternalCall = false;
-        }
-    }
+    public void onPostRenderBlockLayer(RenderBlockLayerEvent.Post event) {}
 
     @SubscribeEvent
     public void onRenderBlockInLayer(RenderBlockInLayerEvent event) {
