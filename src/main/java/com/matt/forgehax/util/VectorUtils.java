@@ -4,6 +4,7 @@ import com.matt.forgehax.ForgeHaxBase;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.opengl.GL11;
@@ -17,7 +18,7 @@ public class VectorUtils extends ForgeHaxBase {
     static Matrix4f viewMatrix = new Matrix4f();
     static Matrix4f projectionMatrix = new Matrix4f();
 
-    public static Vector3f Vec3TransformCoordinate(Vector3f vec, Matrix4f matrix) {
+    private static Vector3f Vec3TransformCoordinate(Vector3f vec, Matrix4f matrix) {
         Vector3f vOutput = new Vector3f(0, 0, 0);
 
         vOutput.x = (vec.x * matrix.m00) + (vec.y * matrix.m10) + (vec.z * matrix.m20) + matrix.m30;
@@ -32,6 +33,9 @@ public class VectorUtils extends ForgeHaxBase {
         return vOutput;
     }
 
+    /**
+     * Convert 3D coord into 2D coordinate projected onto the screen
+     */
     public static ScreenPos toScreen(double x, double y, double z) {
         Entity view = MC.getRenderViewEntity();
 
@@ -68,10 +72,23 @@ public class VectorUtils extends ForgeHaxBase {
 
         return new ScreenPos(pos.x, pos.y, bVisible);
     }
+    public static ScreenPos toScreen(Vec3d vec3d) {
+        return toScreen(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord);
+    }
 
-    public static Angle vectorToAngle(Vec3d vecIn) {
-        double pitch = Math.toDegrees(Math.asin(-vecIn.zCoord));
-        double yaw = Math.toDegrees(Math.atan2(vecIn.xCoord, vecIn.yCoord));
+    /**
+     * Convert a vector to a angle
+     */
+    public static Angle vectorAngle(Vec3d vec3d) {
+        double pitch, yaw;
+        if(vec3d.xCoord == 0 && vec3d.zCoord == 0) {
+            yaw = 0.D;
+            pitch = 90.D;
+        } else {
+            yaw = Math.toDegrees(Math.atan2(vec3d.zCoord, vec3d.xCoord)) - 90.f;
+            double mag = Math.sqrt(vec3d.xCoord * vec3d.xCoord + vec3d.zCoord * vec3d.zCoord);
+            pitch = Math.toDegrees(-1 * Math.atan2(vec3d.yCoord, mag));
+        }
         return new Angle(pitch, yaw);
     }
 

@@ -5,8 +5,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-public class OnLocalPlayerUpdate extends LivingEvent {
-    public OnLocalPlayerUpdate(EntityLivingBase e) {
+public class LocalPlayerUpdateEvent extends LivingEvent {
+    public LocalPlayerUpdateEvent(EntityLivingBase e) {
         super(e);
     }
 }

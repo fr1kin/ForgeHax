@@ -1,9 +1,8 @@
 package com.matt.forgehax;
 
-import com.matt.forgehax.events.OnLocalPlayerUpdate;
+import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.listeners.WorldListener;
 import com.matt.forgehax.mods.BaseMod;
-import com.matt.forgehax.mods.ToggleMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.monster.EntityPigZombie;
@@ -29,7 +28,7 @@ public class ForgeHaxEventHandler {
     public void onUpdate(LivingEvent.LivingUpdateEvent event) {
         if(mc.theWorld != null &&
                 event.getEntityLiving().equals(mc.thePlayer)) {
-            Event ev = new OnLocalPlayerUpdate(event.getEntityLiving());
+            Event ev = new LocalPlayerUpdateEvent(event.getEntityLiving());
             MinecraftForge.EVENT_BUS.post(ev);
             event.setCanceled(ev.isCanceled());
         } else if(event.getEntityLiving() instanceof EntityPigZombie) {

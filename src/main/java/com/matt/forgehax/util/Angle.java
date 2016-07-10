@@ -7,7 +7,7 @@ import net.minecraft.util.math.Vec3d;
  * Thanks LuaStoned
  */
 public class Angle {
-    double p = 0, y = 0, r = 0;
+    public double p = 0, y = 0, r = 0;
 
     public Angle(double p, double y, double r) {
         this.p = p;
@@ -17,6 +17,11 @@ public class Angle {
     public Angle(double p, double y) {
         this.p = p;
         this.y = y;
+    }
+    public Angle(Angle copy) {
+        this.p = copy.p;
+        this.y = copy.y;
+        this.r = copy.r;
     }
 
     public boolean equals(Angle other) {
@@ -82,7 +87,7 @@ public class Angle {
                 + (MathHelper.sin(roll) * MathHelper.sin(yaw) * MathHelper.cos(pitch));
         double z = MathHelper.cos(yaw) * MathHelper.cos(pitch);
 
-        return new Vec3d(x, z, y); // luacraft orders the vectors differently and im 2 lazy to rename
+        return new Vec3d(x, y, z);
     }
 
     public Vec3d right() {
@@ -93,7 +98,7 @@ public class Angle {
         double y = MathHelper.sin(roll) * MathHelper.cos(yaw);
         double z = -MathHelper.sin(yaw);
 
-        return new Vec3d(x, z, y); // luacraft orders the vectors differently and im 2 lazy to rename
+        return new Vec3d(x, y, z);
     }
 
     public Vec3d up() {
@@ -107,6 +112,14 @@ public class Angle {
                 + (MathHelper.sin(roll) * MathHelper.sin(yaw) * MathHelper.sin(pitch));
         double z = MathHelper.cos(yaw) * MathHelper.sin(pitch);
 
-        return new Vec3d(x, z, y); // luacraft orders the vectors differently and im 2 lazy to rename
+        return new Vec3d(x, y, z);
+    }
+
+    public Angle normalize() {
+        return new Angle(
+                Utils.normalizeAngle(p),
+                Utils.normalizeAngle(y),
+                Utils.normalizeAngle(r)
+        );
     }
 }

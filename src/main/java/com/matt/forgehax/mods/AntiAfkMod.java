@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.events.OnLocalPlayerUpdate;
+import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.Bindings;
 import com.matt.forgehax.util.KeyBindingHandler;
 import net.minecraft.util.math.Vec3d;
@@ -67,7 +67,7 @@ public class AntiAfkMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onUpdate(OnLocalPlayerUpdate event) {
+    public void onUpdate(LocalPlayerUpdateEvent event) {
         tickCounter++;
         if(isMoving()) {
             // we are moving/starting to move

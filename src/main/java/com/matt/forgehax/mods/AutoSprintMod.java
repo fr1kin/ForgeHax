@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.events.OnLocalPlayerUpdate;
+import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.Bindings;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -40,7 +40,7 @@ public class AutoSprintMod extends ToggleMod {
      * Start sprinting every update tick
      */
     @SubscribeEvent
-    public void onUpdate(OnLocalPlayerUpdate event) {
+    public void onUpdate(LocalPlayerUpdateEvent event) {
         if(event.getEntityLiving().moveForward > 0 &&
                 !event.getEntityLiving().isCollidedHorizontally &&
                 !event.getEntityLiving().isSneaking()) {

@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.events.OnLocalPlayerUpdate;
+import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.Bindings;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -25,7 +25,7 @@ public class AutoWalkMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onUpdate(OnLocalPlayerUpdate event) {
+    public void onUpdate(LocalPlayerUpdateEvent event) {
         if(!isBound) {
             Bindings.forward.bind();
             isBound = true;

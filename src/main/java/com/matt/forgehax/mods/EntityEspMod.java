@@ -75,13 +75,14 @@ public class EntityEspMod extends ToggleMod {
      * Check if we should draw the entity
      */
     public boolean shouldDraw(EntityLivingBase entity) {
-        return !entity.equals(MC.thePlayer) &&
-                !entity.isDead &&
+        return PlayerUtils.isTargetEntity(entity) || (
+                !entity.equals(MC.thePlayer) &&
+                EntityUtils.isAlive(entity) &&
                 EntityUtils.isValidEntity(entity) && (
                 (isDrawOptionPropertyEnabled(hostileMobs) && EntityUtils.isHostileMob(entity)) || // check this first
                 (isDrawOptionPropertyEnabled(players) && EntityUtils.isPlayer(entity)) ||
                 (isDrawOptionPropertyEnabled(friendlyMobs) && EntityUtils.isFriendlyMob(entity))
-        );
+        ));
     }
 
     @Override
@@ -121,93 +122,109 @@ public class EntityEspMod extends ToggleMod {
             event.setCanceled(true);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.LOW)
     public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
         if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
             ArmorOptions armorMode = getArmorOptionValue(armorEsp);
             for (Entity entity : MC.theWorld.loadedEntityList) {
-                if(!(entity instanceof EntityLivingBase) ||
-                        !shouldDraw((EntityLivingBase) entity))
-                    continue;
-                EntityLivingBase living = (EntityLivingBase) (entity);
-                Vec3d bottomVec = EntityUtils.getRenderPos(living, event.getPartialTicks());
-                Vec3d topVec = bottomVec.add(new Vec3d(0, (entity.getRenderBoundingBox().maxY - entity.posY), 0));
-                VectorUtils.ScreenPos top = VectorUtils.toScreen(topVec.xCoord, topVec.yCoord, topVec.zCoord);
-                VectorUtils.ScreenPos bot = VectorUtils.toScreen(bottomVec.xCoord, bottomVec.yCoord, bottomVec.zCoord);
-                if (top.isVisible || bot.isVisible) {
-                    DrawOptions drawMode = getDrawOptionValue(living);
+                if(EntityUtils.isLiving(entity) && shouldDraw((EntityLivingBase) entity)) {
+                    EntityLivingBase living = (EntityLivingBase) (entity);
+                    Vec3d bottomVec = EntityUtils.getRenderPos(living, event.getPartialTicks());
+                    Vec3d topVec = bottomVec.add(new Vec3d(0, (entity.getRenderBoundingBox().maxY - entity.posY), 0));
+                    VectorUtils.ScreenPos top = VectorUtils.toScreen(topVec.xCoord, topVec.yCoord, topVec.zCoord);
+                    VectorUtils.ScreenPos bot = VectorUtils.toScreen(bottomVec.xCoord, bottomVec.yCoord, bottomVec.zCoord);
+                    if (top.isVisible || bot.isVisible) {
+                        DrawOptions drawMode = getDrawOptionValue(living);
 
-                    int topX = top.x;
-                    int topY = top.y + 1;
-                    int botX = bot.x;
-                    int botY = bot.y + 1;
-                    int h = (bot.y - top.y);
-                    int w = h;
+                        int topX = top.x;
+                        int topY = top.y + 1;
+                        int botX = bot.x;
+                        int botY = bot.y + 1;
+                        int height = (bot.y - top.y);
+                        int width = height;
 
-                    // optical esp
-                    if(drawMode.equals(DrawOptions.ADVANCED))
-                        RenderUtils.drawOutlinedRect((top.x - (w / 2)), top.y, w, h, EntityUtils.getDrawColor(living), 2.f);
+                        // optical esp
+                        // drawMode == null means they are the target but the esp is disabled for them
+                        if (PlayerUtils.isTargetEntity(entity) ||
+                                drawMode != null && drawMode.equals(DrawOptions.ADVANCED)) {
+                            int x = (top.x - (width / 2));
+                            int y = top.y;
+                            int w = width;
+                            int h = height;
+                            // outer
+                            RenderUtils.drawOutlinedRect(x - 1, y - 1, w + 2, h + 2, Utils.Colors.BLACK, 2.f);
+                            // inner
+                            RenderUtils.drawOutlinedRect(x, y, w, h, EntityUtils.getDrawColor(living), 2.f);
+                            // outer
+                            RenderUtils.drawOutlinedRect(x + 1, y + 1, w - 2, h - 2, Utils.Colors.BLACK, 2.f);
+                        }
 
-                    //----TOP ESP----
+                        // no more drawing
+                        if(drawMode == null)
+                            continue;
 
-                    // health esp
-                    if(drawMode.equals(DrawOptions.ADVANCED) || drawMode.equals(DrawOptions.SIMPLE)) {
-                        double hp = (living.getHealth() / living.getMaxHealth());
-                        int posX = topX - (HEALTHBAR_WIDTH / 2);
-                        int posY = topY - HEALTHBAR_HEIGHT - 2;
-                        RenderUtils.drawRect(posX, posY, HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT, Utils.toRGBA(0, 0, 0, 255));
-                        RenderUtils.drawRect(
-                                posX + 1,
-                                posY + 1,
-                                (int) ((float) (HEALTHBAR_WIDTH - 2) * hp),
-                                HEALTHBAR_HEIGHT - 2,
-                                Utils.toRGBA((int) ((255 - hp) * 255), (int) (255 * hp), 0, 255)
-                        );
-                        topY -= HEALTHBAR_HEIGHT + 1;
-                    }
+                        //----TOP ESP----
 
-                    // name esp
-                    if(drawMode.equals(DrawOptions.ADVANCED) || drawMode.equals(DrawOptions.SIMPLE) || drawMode.equals(DrawOptions.NAME)) {
-                        String text = living.getDisplayName().getFormattedText();
-                        RenderUtils.drawTextShadow(text, topX - (RenderUtils.getTextWidth(text) / 2), topY - RenderUtils.getTextHeight() - 1, Utils.toRGBA(255, 255, 255, 255));
-                        topY -= RenderUtils.getTextHeight() + 1;
-                    }
+                        // health esp
+                        if (drawMode.equals(DrawOptions.ADVANCED) || drawMode.equals(DrawOptions.SIMPLE)) {
+                            double hp = (living.getHealth() / living.getMaxHealth());
+                            int posX = topX - (HEALTHBAR_WIDTH / 2);
+                            int posY = topY - HEALTHBAR_HEIGHT - 2;
+                            RenderUtils.drawRect(posX, posY, HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT, Utils.toRGBA(0, 0, 0, 255));
+                            RenderUtils.drawRect(
+                                    posX + 1,
+                                    posY + 1,
+                                    (int) ((float) (HEALTHBAR_WIDTH - 2) * hp),
+                                    HEALTHBAR_HEIGHT - 2,
+                                    Utils.toRGBA((int) ((255 - hp) * 255), (int) (255 * hp), 0, 255)
+                            );
+                            topY -= HEALTHBAR_HEIGHT + 1;
+                        }
 
-                    //----BOTTOM ESP----
+                        // name esp
+                        if (drawMode.equals(DrawOptions.ADVANCED) || drawMode.equals(DrawOptions.SIMPLE) || drawMode.equals(DrawOptions.NAME)) {
+                            double distance = living.getPositionVector().distanceTo(MC.thePlayer.getPositionVector());
+                            String text = living.getDisplayName().getFormattedText() + String.format(" (%.1f)", distance);
+                            RenderUtils.drawTextShadow(text, topX - (RenderUtils.getTextWidth(text) / 2), topY - RenderUtils.getTextHeight() - 1, Utils.toRGBA(255, 255, 255, 255));
+                            topY -= RenderUtils.getTextHeight() + 1;
+                        }
 
-                    // armor esp
-                    if(drawMode.equals(DrawOptions.ADVANCED) && !armorMode.equals(ArmorOptions.DISABLED)) {
-                        List<ItemStack> armor = Lists.newArrayList();
-                        for (ItemStack stack : living.getEquipmentAndArmor())
-                            if (stack != null) // only add non-null items
-                                armor.add(0, stack);
-                        if (armor.size() > 0) {
-                            int endY = botY + 16;
-                            int posX = topX - ((16 * armor.size()) / 2);
-                            for (int i = 0; i < armor.size(); i++) {
-                                ItemStack stack = armor.get(i);
-                                int startX = posX + (i * 16);
-                                int startY = botY;
-                                RenderUtils.drawItemWithOverlay(stack, startX, startY);
-                                // enchantment esp
-                                if(armorMode.equals(ArmorOptions.ENCHANTMENTS)) {
-                                    List<EnchantmentUtils.EntityEnchantment> enchantments = EnchantmentUtils.getEnchantmentsSorted(stack.getEnchantmentTagList());
-                                    if (enchantments != null) {
-                                        for (EnchantmentUtils.EntityEnchantment enchant : enchantments) {
-                                            RenderUtils.drawTextShadow(enchant.getShortName(),
-                                                    startX,
-                                                    startY,
-                                                    Utils.toRGBA(255, 255, 255, 255),
-                                                    0.50D
-                                            );
-                                            startY += RenderUtils.getTextHeight(0.50D);
-                                            if (startY > endY)
-                                                endY = startY;
+                        //----BOTTOM ESP----
+
+                        // armor esp
+                        if (drawMode.equals(DrawOptions.ADVANCED) && !armorMode.equals(ArmorOptions.DISABLED)) {
+                            List<ItemStack> armor = Lists.newArrayList();
+                            for (ItemStack stack : living.getEquipmentAndArmor())
+                                if (stack != null) // only add non-null items
+                                    armor.add(0, stack);
+                            if (armor.size() > 0) {
+                                int endY = botY + 16;
+                                int posX = topX - ((16 * armor.size()) / 2);
+                                for (int i = 0; i < armor.size(); i++) {
+                                    ItemStack stack = armor.get(i);
+                                    int startX = posX + (i * 16);
+                                    int startY = botY;
+                                    RenderUtils.drawItemWithOverlay(stack, startX, startY);
+                                    // enchantment esp
+                                    if (armorMode.equals(ArmorOptions.ENCHANTMENTS)) {
+                                        List<EnchantmentUtils.EntityEnchantment> enchantments = EnchantmentUtils.getEnchantmentsSorted(stack.getEnchantmentTagList());
+                                        if (enchantments != null) {
+                                            for (EnchantmentUtils.EntityEnchantment enchant : enchantments) {
+                                                RenderUtils.drawTextShadow(enchant.getShortName(),
+                                                        startX,
+                                                        startY,
+                                                        Utils.toRGBA(255, 255, 255, 255),
+                                                        0.50D
+                                                );
+                                                startY += RenderUtils.getTextHeight(0.50D);
+                                                if (startY > endY)
+                                                    endY = startY;
+                                            }
                                         }
                                     }
                                 }
+                                botY = endY + 1;
                             }
-                            botY = endY + 1;
                         }
                     }
                 }

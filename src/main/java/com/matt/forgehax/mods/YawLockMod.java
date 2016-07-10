@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.events.OnLocalPlayerUpdate;
+import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.PlayerUtils;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -37,7 +37,7 @@ public class YawLockMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onUpdate(OnLocalPlayerUpdate event) {
+    public void onUpdate(LocalPlayerUpdateEvent event) {
         double yaw = getYawDirection();
         if(!autoAngle.getBoolean())
             yaw = customAngle.getDouble();

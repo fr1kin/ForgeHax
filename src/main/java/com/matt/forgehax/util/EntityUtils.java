@@ -13,12 +13,18 @@ import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 public class EntityUtils extends ForgeHaxBase {
     public static boolean isBatsDisabled = false;
@@ -67,6 +73,10 @@ public class EntityUtils extends ForgeHaxBase {
         return entity.ticksExisted > 1;
     }
 
+    public static boolean isAlive(Entity entity) {
+        return isLiving(entity) && !entity.isDead && ((EntityLivingBase)(entity)).getHealth() > 0;
+    }
+
     /**
      * If the mob by default wont attack the player, but will if the player attacks it
      */
@@ -104,14 +114,60 @@ public class EntityUtils extends ForgeHaxBase {
     }
 
     public static int getDrawColor(EntityLivingBase living) {
-        if(isPlayer(living)) {
-            return Utils.toRGBA(255, 0, 0, 255);
+        if(PlayerUtils.isTargetEntity(living)) {
+            return Utils.Colors.WHITE;
+        } else if(isPlayer(living)) {
+            return Utils.Colors.RED;
         } else if(isHostileMob(living)) {
-            return Utils.toRGBA(255, 128, 0, 255);
+            return Utils.Colors.ORANGE;
         } else if(isFriendlyMob(living)) {
-            return Utils.toRGBA(0, 255, 0, 255);
+            return Utils.Colors.GREEN;
         } else {
-            return Utils.toRGBA(255, 255, 255, 255);
+            return Utils.Colors.WHITE;
         }
     }
+
+    public static Vec3d getEyePos(Entity entity) {
+        return new Vec3d(
+                entity.posX,
+                entity.posY + entity.getEyeHeight(),
+                entity.posZ
+        );
+    }
+
+    public static Vec3d getEyePosTick(Entity entity, float partialTicks) {
+        return getRenderPos(entity, partialTicks).add(new Vec3d(0, entity.getEyeHeight(), 0));
+    }
+
+    public static Vec3d getOBBCenter(Entity entity) {
+        AxisAlignedBB obb = entity.getEntityBoundingBox();
+        return new Vec3d(
+                (obb.maxX + obb.minX) / 2.D,
+                (obb.maxY + obb.minY) / 2.D,
+                (obb.maxZ + obb.minZ) / 2.D
+        );
+    }
+
+    public static RayTraceResult traceEntity(World world, Vec3d start, Vec3d end, List<Entity> filter) {
+		RayTraceResult result = null;
+		double hitDistance = -1;
+
+		for (Object obj : world.loadedEntityList) {
+			Entity entity = (Entity) obj;
+
+			if (filter.contains(entity))
+				continue;
+
+			double distance = start.distanceTo(entity.getPositionVector());
+			RayTraceResult trace = entity.getEntityBoundingBox().calculateIntercept(start, end);
+
+			if (trace != null && (hitDistance == -1 || distance < hitDistance)) {
+				hitDistance = distance;
+				result = trace;
+				result.entityHit = entity;
+			}
+		}
+
+		return result;
+	}
 }

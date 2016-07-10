@@ -19,4 +19,23 @@ public class Utils extends ForgeHaxBase {
             output[i] = o[i].name();
         return output;
     }
+
+    public static double normalizeAngle(double angle) {
+        while (angle <= -180) angle += 360;
+        while (angle > 180) angle -= 360;
+        return angle;
+    }
+
+    public static double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    public static class Colors {
+        public final static int WHITE           = Utils.toRGBA(255,     255,    255,    255);
+        public final static int BLACK           = Utils.toRGBA(0,       0,      0,      255);
+        public final static int RED             = Utils.toRGBA(255,     0,      0,      255);
+        public final static int GREEN           = Utils.toRGBA(0,       255,    0,      255);
+        public final static int BLUE            = Utils.toRGBA(0,       0,      255,    255);
+        public final static int ORANGE          = Utils.toRGBA(255,     128,    0,      255);
+    }
 }

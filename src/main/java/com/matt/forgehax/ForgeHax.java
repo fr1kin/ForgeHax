@@ -3,6 +3,7 @@ package com.matt.forgehax;
 import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.mods.*;
+import com.matt.forgehax.mods.base.ContainersMod;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -75,7 +76,7 @@ public class ForgeHax {
         }
     }
 
-    public void registerMod(ToggleMod mod) {
+    public void registerMod(BaseMod mod) {
         mods.put(mod.getModName(), mod);
     }
 
@@ -148,12 +149,14 @@ public class ForgeHax {
                 //---- get log ----//
                 log = event.getModLog();
                 //---- initialize mods ----//
+                registerMod(new ContainersMod("Containers", "Mod containers for xray and entity lists"));
                 if(isInDevMode) {
                     registerMod(new DebugModeMod("debugmode", true, "Enables debug mode", Keyboard.KEY_END));
                     registerMod(new DebugDisplayMod("debugdisplay", true, "Display transformer hook reports", Keyboard.KEY_END));
                     registerMod(new DebugOutputMod("debugoutput", true, "Output debug info on hooks", Keyboard.KEY_HOME));
                 }
                 registerMod(new ActiveModListMod(       "activemods",           true,   "Shows list of all active mods",                            Keyboard.KEY_END));
+                registerMod(new AimbotMod(              "aimbot",               true,   "Auto aim/attack entities",                                 Keyboard.KEY_END));
                 registerMod(new AntiAfkMod(             "antiafk",              false,  "Moves automatically to prevent being kicked",              Keyboard.KEY_END));
                 registerMod(new AntiBatsMod(            "antibats",             true,   "666 KILL BATS 666",                                        Keyboard.KEY_END));
                 registerMod(new AntiEffectsMod(         "antipotioneffects",    true,   "Removes potion effects",                                   Keyboard.KEY_END));
@@ -166,6 +169,7 @@ public class ForgeHax {
                 registerMod(new AutoWalkMod(            "autowalk",             false,  "Automatically walks forward",                              Keyboard.KEY_END));
                 registerMod(new ChamsMod(               "chams",                true,   "Render living models behind walls",                        Keyboard.KEY_END));
                 registerMod(new EntityEspMod(           "entityesp",            true,   "Shows entity locations and info",                          Keyboard.KEY_END));
+                registerMod(new FullBrightMod(          "fullbright",           true,   "Makes everything render with maximum brightness",          Keyboard.KEY_END));
                 registerMod(new XrayMod(                "xray",                 true,   "See blocks through walls",                                 Keyboard.KEY_END));
                 registerMod(new YawLockMod(             "yawlock",              false,  "Locks yaw to prevent moving into walls",                   Keyboard.KEY_END));
                 //---- initialize configuration ----//
