@@ -4,26 +4,15 @@ import com.matt.forgehax.ForgeHaxBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.monster.*;
-import net.minecraft.entity.passive.EntityAnimal;
-import net.minecraft.entity.passive.EntityBat;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 public class EntityUtils extends ForgeHaxBase {
@@ -105,28 +94,40 @@ public class EntityUtils extends ForgeHaxBase {
                 EntityUtils.isMobAggressive(entity);
     }
 
-    public static Vec3d getRenderPos(Entity entity, float partialTicks) {
+    /**
+     * Find the entities interpolated amount
+     */
+    public static Vec3d getInterpolatedAmount(Entity entity, double x, double y, double z) {
         return new Vec3d(
-                entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks,
-                entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks,
-                entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks
+                (entity.posX - entity.lastTickPosX) * x,
+                (entity.posY - entity.lastTickPosY) * y,
+                (entity.posZ - entity.lastTickPosZ) * z
         );
     }
-
-    public static int getDrawColor(EntityLivingBase living) {
-        if(PlayerUtils.isTargetEntity(living)) {
-            return Utils.Colors.WHITE;
-        } else if(isPlayer(living)) {
-            return Utils.Colors.RED;
-        } else if(isHostileMob(living)) {
-            return Utils.Colors.ORANGE;
-        } else if(isFriendlyMob(living)) {
-            return Utils.Colors.GREEN;
-        } else {
-            return Utils.Colors.WHITE;
-        }
+    public static Vec3d getInterpolatedAmount(Entity entity, Vec3d vec) {
+        return getInterpolatedAmount(entity, vec.xCoord, vec.yCoord, vec.zCoord);
+    }
+    public static Vec3d getInterpolatedAmount(Entity entity, double ticks) {
+        return getInterpolatedAmount(entity, ticks, ticks, ticks);
     }
 
+    /**
+     * Find the entities interpolated position
+     */
+    public static Vec3d getInterpolatedPos(Entity entity, float ticks) {
+        return new Vec3d(entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ).add(getInterpolatedAmount(entity, ticks));
+    }
+
+    /**
+     * Find the entities interpolated eye position
+     */
+    public static Vec3d getInterpolatedEyePos(Entity entity, float ticks) {
+        return getInterpolatedPos(entity, ticks).addVector(0, entity.getEyeHeight(), 0);
+    }
+
+    /**
+     * Get entities eye position
+     */
     public static Vec3d getEyePos(Entity entity) {
         return new Vec3d(
                 entity.posX,
@@ -135,10 +136,9 @@ public class EntityUtils extends ForgeHaxBase {
         );
     }
 
-    public static Vec3d getEyePosTick(Entity entity, float partialTicks) {
-        return getRenderPos(entity, partialTicks).add(new Vec3d(0, entity.getEyeHeight(), 0));
-    }
-
+    /**
+     * Find the center of the entities hit box
+     */
     public static Vec3d getOBBCenter(Entity entity) {
         AxisAlignedBB obb = entity.getEntityBoundingBox();
         return new Vec3d(
@@ -148,6 +148,9 @@ public class EntityUtils extends ForgeHaxBase {
         );
     }
 
+    /**
+     * Create a trace
+     */
     public static RayTraceResult traceEntity(World world, Vec3d start, Vec3d end, List<Entity> filter) {
 		RayTraceResult result = null;
 		double hitDistance = -1;
@@ -170,4 +173,21 @@ public class EntityUtils extends ForgeHaxBase {
 
 		return result;
 	}
+
+    /**
+     * Find the entities draw color
+     */
+    public static int getDrawColor(EntityLivingBase living) {
+        if(PlayerUtils.isTargetEntity(living)) {
+            return Utils.Colors.WHITE;
+        } else if(isPlayer(living)) {
+            return Utils.Colors.RED;
+        } else if(isHostileMob(living)) {
+            return Utils.Colors.ORANGE;
+        } else if(isFriendlyMob(living)) {
+            return Utils.Colors.GREEN;
+        } else {
+            return Utils.Colors.WHITE;
+        }
+    }
 }

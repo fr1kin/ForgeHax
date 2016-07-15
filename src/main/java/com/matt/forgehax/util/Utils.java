@@ -1,10 +1,17 @@
 package com.matt.forgehax.util;
 
+import com.google.common.collect.Lists;
 import com.matt.forgehax.ForgeHaxBase;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.Packet;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Utils extends ForgeHaxBase {
+    public static final List<Packet> OUTGOING_PACKET_IGNORE_LIST = Collections.synchronizedList(Lists.<Packet>newArrayList());
+
     public static int toRGBA(int r, int g, int b, int a) {
         return (r << 16) + (g << 8) + (b << 0) + (a << 24);
     }
@@ -28,6 +35,20 @@ public class Utils extends ForgeHaxBase {
 
     public static double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
+    }
+
+    public static Angle getLookAtAngles(Vec3d startPos, Vec3d endPos) {
+        return VectorUtils.vectorAngle(endPos.subtract(startPos)).normalize();
+    }
+    public static Angle getLookAtAngles(Vec3d endPos) {
+        return getLookAtAngles(EntityUtils.getEyePos(MC.thePlayer), endPos);
+    }
+    public static Angle getLookAtAngles(Entity entity) {
+        return getLookAtAngles(EntityUtils.getOBBCenter(entity));
+    }
+
+    public static double scale(double x, double from_min, double from_max, double to_min, double to_max) {
+        return to_min + (to_max - to_min) * ((x - from_min) / (from_max - from_min));
     }
 
     public static class Colors {

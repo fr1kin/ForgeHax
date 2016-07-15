@@ -3,7 +3,8 @@ package com.matt.forgehax;
 import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.mods.*;
-import com.matt.forgehax.mods.base.ContainersMod;
+import com.matt.forgehax.mods.core.ContainersMod;
+import com.matt.forgehax.util.container.ContainerManager;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -65,14 +66,16 @@ public class ForgeHax {
     }
 
     public void setupConfigFolder() {
+        File userDir = new File(getBaseDirectory(), "users");
+        userDir.mkdirs();
         if(!isInDevMode) {
-            configFolder = new File(getBaseDirectory(), MC.getSession().getProfile().getId().toString());
+            configFolder = new File(userDir, MC.getSession().getProfile().getId().toString());
             if (!configFolder.exists()) {
                 newProfile = true;
                 configFolder.mkdirs();
             }
         } else {
-            configFolder = new File(getBaseDirectory(), "devmode");
+            configFolder = new File(userDir, "devmode");
         }
     }
 
@@ -164,12 +167,15 @@ public class ForgeHax {
                 registerMod(new AntiHurtCamMod(         "antihurtcam",          true,   "Removes hurt camera effect",                               Keyboard.KEY_END));
                 registerMod(new AntiKnockbackMod(       "antiknockback",        true,   "Removes knockback movement",                               Keyboard.KEY_END));
                 registerMod(new AntiOverlayMod(         "antioverlay",          true,   "Removes screen overlays",                                  Keyboard.KEY_END));
+                registerMod(new AutoProjectile(         "autoprojectile",       true,   "Automatically sets pitch to best trajectory",              Keyboard.KEY_END));
                 registerMod(new AutoReconnectMod(       "autoreconnect",        true,   "Automatically reconnects to server"));
                 registerMod(new AutoSprintMod(          "autosprint",           false,  "Automatically sprints",                                    Keyboard.KEY_END));
                 registerMod(new AutoWalkMod(            "autowalk",             false,  "Automatically walks forward",                              Keyboard.KEY_END));
                 registerMod(new ChamsMod(               "chams",                true,   "Render living models behind walls",                        Keyboard.KEY_END));
                 registerMod(new EntityEspMod(           "entityesp",            true,   "Shows entity locations and info",                          Keyboard.KEY_END));
                 registerMod(new FullBrightMod(          "fullbright",           true,   "Makes everything render with maximum brightness",          Keyboard.KEY_END));
+                registerMod(new NoCaveCulling(          "nocaveculling",        false,  "Disables mojangs dumb cave culling shit",                  Keyboard.KEY_END));
+                registerMod(new ProjectilesMod(         "projectiles",          true,   "Draws projectile path",                                    Keyboard.KEY_END));
                 registerMod(new XrayMod(                "xray",                 true,   "See blocks through walls",                                 Keyboard.KEY_END));
                 registerMod(new YawLockMod(             "yawlock",              false,  "Locks yaw to prevent moving into walls",                   Keyboard.KEY_END));
                 //---- initialize configuration ----//
@@ -180,6 +186,8 @@ public class ForgeHax {
                 setupConfigFolder();
                 // setup config
                 config = new ForgeHaxConfig(new File(getConfigFolder(), CONFIG_FILE_NAME));
+                // init containers
+                ContainerManager.initialize();
             }
             default:
                 break;

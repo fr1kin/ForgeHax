@@ -7,7 +7,11 @@ import net.minecraft.util.math.Vec3d;
  * Thanks LuaStoned
  */
 public class Angle {
-    public double p = 0, y = 0, r = 0;
+    private double p = 0, y = 0, r = 0;
+
+    public Angle() {
+        p = y = r = 0.D;
+    }
 
     public Angle(double p, double y, double r) {
         this.p = p;
@@ -121,5 +125,53 @@ public class Angle {
                 Utils.normalizeAngle(y),
                 Utils.normalizeAngle(r)
         );
+    }
+
+    // convert polar coords to cartesian coords
+    public Vec3d getCartesianCoords() {
+        double c = Math.cos(getPitch(true));
+        return new Vec3d(
+                Math.cos(getYaw(true)) * c,
+                Math.sin(getPitch(true)),
+                Math.sin(getYaw(true)) * c
+        );
+    }
+
+    public double getPitch(boolean inRadians) {
+        return inRadians ? Math.toRadians(p) : p;
+    }
+    public double getPitch() {
+        return getPitch(false);
+    }
+
+    public double getYaw(boolean inRadians) {
+        return inRadians ? Math.toRadians(y) : y;
+    }
+    public double getYaw() {
+        return getYaw(false);
+    }
+
+    public double getRoll(boolean inRadians) {
+        return inRadians ? Math.toRadians(r) : r;
+    }
+    public double getRoll() {
+        return getRoll(false);
+    }
+
+    public void setPitch(double p) {
+        this.p = p;
+    }
+
+    public void setYaw(double y) {
+        this.y = y;
+    }
+
+    public void setRoll(double r) {
+        this.r = r;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(p, y, r) = %.2f, %.2f, %.2f", p, y, r);
     }
 }

@@ -92,6 +92,14 @@ public class VectorUtils extends ForgeHaxBase {
         return new Angle(pitch, yaw);
     }
 
+    public static Vec3d multiplyBy(Vec3d vec1, Vec3d vec2) {
+        return new Vec3d(vec1.xCoord * vec2.xCoord, vec1.yCoord * vec2.yCoord, vec1.zCoord * vec2.zCoord);
+    }
+
+    public static Vec3d copy(Vec3d toCopy) {
+        return new Vec3d(toCopy.xCoord, toCopy.yCoord, toCopy.zCoord);
+    }
+
     public static class ScreenPos {
         public final int x;
         public final int y;

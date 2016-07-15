@@ -23,7 +23,7 @@ public class YawLockMod extends ToggleMod {
     }
 
     public double getYawDirection() {
-        return Math.round((PlayerUtils.me().rotationYaw + 1.f) / 45.f) * 45.f;
+        return Math.round((PlayerUtils.getViewAngles().getYaw() + 1.f) / 45.f) * 45.f;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class YawLockMod extends ToggleMod {
             yaw = customAngle.getDouble();
         PlayerUtils.setViewAngles(event.getEntityLiving().rotationPitch, yaw);
         // disable after first set if set to do once
-        if(doOnce.getBoolean())
+        if(isEnabled() && doOnce.getBoolean())
             toggle();
     }
 }

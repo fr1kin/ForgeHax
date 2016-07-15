@@ -1,9 +1,8 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.ForgeHaxHooks;
-import com.matt.forgehax.util.RenderUtils;
+import com.matt.forgehax.util.SurfaceUtils;
 import com.matt.forgehax.util.Utils;
-import net.minecraft.network.NetworkManager;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -27,8 +26,8 @@ public class DebugDisplayMod extends ToggleMod {
                     entry.getValue().hasResponded ? "true" : "false"
             );
             int color = isResponding ? Utils.toRGBA(0, 255, 0, 255) : Utils.toRGBA(255, 0, 0, 255);
-            RenderUtils.drawTextShadow(text, posX - RenderUtils.getTextWidth(text) - 1, posY, color);
-            posY += RenderUtils.getTextHeight() + 1;
+            SurfaceUtils.drawTextShadow(text, posX - SurfaceUtils.getTextWidth(text) - 1, posY, color);
+            posY += SurfaceUtils.getTextHeight() + 1;
         }
     }
 }

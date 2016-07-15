@@ -12,4 +12,5 @@ public class Bindings extends ForgeHaxBase {
     public static KeyBindingHandler sneak = new KeyBindingHandler(MC.gameSettings.keyBindSneak);
 
     public static KeyBindingHandler attack = new KeyBindingHandler(MC.gameSettings.keyBindAttack);
+    public static KeyBindingHandler use = new KeyBindingHandler(MC.gameSettings.keyBindUseItem);
 }
