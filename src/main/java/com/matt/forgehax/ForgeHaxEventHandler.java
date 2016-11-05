@@ -4,19 +4,9 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.listeners.WorldListener;
 import com.matt.forgehax.mods.BaseMod;
-import com.matt.forgehax.util.Angle;
-import com.matt.forgehax.util.PlayerUtils;
-import com.matt.forgehax.util.ProjectileUtils;
 import com.matt.forgehax.util.Utils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.monster.EntityPigZombie;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.client.CPacketPlayerDigging;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -71,7 +61,7 @@ public class ForgeHaxEventHandler extends ForgeHaxBase {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onSentPacket(PacketEvent.SendEvent.Post event) {
+    public void onSentPacket(PacketEvent.Send.Post event) {
         if(Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
             // remove packet from list (we wont be seeing it ever again)
             Utils.OUTGOING_PACKET_IGNORE_LIST.remove(event.getPacket());

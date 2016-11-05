@@ -1,19 +1,22 @@
 package com.matt.forgehax.util.container;
 
+import com.matt.forgehax.util.container.lists.ItemList;
+import com.matt.forgehax.util.container.lists.PlayerList;
+
 import java.io.File;
 
 public class ContainerFactories {
-    public static class PlayerList implements IContainerFactory {
+    public static class PlayerListFactory implements IContainerFactory {
         @Override
         public Object newInstance(String name, File file) {
-            return new com.matt.forgehax.util.container.PlayerList(name, file);
+            return new PlayerList(name, file);
         }
     }
 
-    public static class XrayList implements IContainerFactory {
+    public static class ItemListFactory implements IContainerFactory {
         @Override
         public Object newInstance(String name, File file) {
-            return null;
+            return new ItemList(name, file);
         }
     }
 }

@@ -2,12 +2,18 @@ package com.matt.forgehax.util;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.VectorUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils extends ForgeHaxBase {
     public static final List<Packet> OUTGOING_PACKET_IGNORE_LIST = Collections.synchronizedList(Lists.<Packet>newArrayList());
@@ -25,6 +31,18 @@ public class Utils extends ForgeHaxBase {
         for(int i = 0; i < output.length; i++)
             output[i] = o[i].name();
         return output;
+    }
+
+    public static UUID stringToUUID(String uuid) {
+        if(uuid.contains("-")) {
+            // if it contains the hyphen we don't have to manually put them in
+            return UUID.fromString(uuid);
+        } else {
+            // otherwise we have to put
+            Pattern pattern = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
+            Matcher matcher = pattern.matcher(uuid);
+            return UUID.fromString(matcher.replaceAll("$1-$2-$3-$4-$5"));
+        }
     }
 
     public static double normalizeAngle(double angle) {
@@ -58,5 +76,6 @@ public class Utils extends ForgeHaxBase {
         public final static int GREEN           = Utils.toRGBA(0,       255,    0,      255);
         public final static int BLUE            = Utils.toRGBA(0,       0,      255,    255);
         public final static int ORANGE          = Utils.toRGBA(255,     128,    0,      255);
+        public final static int PURPLE          = Utils.toRGBA(163,     73,     163,    255);
     }
 }

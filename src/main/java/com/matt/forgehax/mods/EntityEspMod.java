@@ -2,6 +2,11 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.util.*;
+import com.matt.forgehax.util.draw.SurfaceUtils;
+import com.matt.forgehax.util.entity.EnchantmentUtils;
+import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
+import com.matt.forgehax.util.math.VectorUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -76,7 +81,7 @@ public class EntityEspMod extends ToggleMod {
      * Check if we should draw the entity
      */
     public boolean shouldDraw(EntityLivingBase entity) {
-        return PlayerUtils.isTargetEntity(entity) || (
+        return LocalPlayerUtils.isTargetEntity(entity) || (
                 !entity.equals(MC.thePlayer) &&
                 EntityUtils.isAlive(entity) &&
                 EntityUtils.isValidEntity(entity) && (
@@ -151,7 +156,7 @@ public class EntityEspMod extends ToggleMod {
 
                         // optical esp
                         // drawMode == null means they are the target but the esp is disabled for them
-                        if (PlayerUtils.isTargetEntity(entity) ||
+                        if (LocalPlayerUtils.isTargetEntity(entity) ||
                                 drawMode != null && drawMode.equals(DrawOptions.ADVANCED)) {
                             int x = (top.x - (width / 2));
                             int y = top.y;

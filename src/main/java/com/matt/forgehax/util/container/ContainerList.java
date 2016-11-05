@@ -77,8 +77,8 @@ public class ContainerList extends ForgeHaxBase {
      * Remove pair from map
      * Note: Will not update file
      */
-    protected void remove(String keyName) {
-        root.remove(keyName);
+    protected boolean remove(String keyName) {
+        return root.remove(keyName) != null;
     }
 
     /**
@@ -117,13 +117,13 @@ public class ContainerList extends ForgeHaxBase {
                     MOD.getLog().error(String.format("Failed to read file %s: %s", file.getName(), e.getMessage()));
                 }
             } catch(IOException e) {
-                e.printStackTrace();
+                MOD.printStackTrace(e);
             } finally {
                 try {
                     if (buffer != null)
                         buffer.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    MOD.printStackTrace(e);
                 }
             }
         }
@@ -140,18 +140,28 @@ public class ContainerList extends ForgeHaxBase {
             buffer.write(gson.toJson(root));
             buffer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            MOD.printStackTrace(e);
         }
     }
 
-    public void delete() {
+    /**
+     * Deletes this file
+     */
+    public boolean delete() {
+        boolean deletedFile = false;
         try {
-            Files.deleteIfExists(file.toPath());
+            deletedFile = Files.deleteIfExists(file.toPath());
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            root = null;
+            MOD.printStackTrace(e);
         }
+        return deletedFile;
+    }
+
+    /**
+     * Size of the
+     */
+    public int size() {
+        return root.entrySet().size();
     }
 
     /**
@@ -166,11 +176,11 @@ public class ContainerList extends ForgeHaxBase {
     /**
      * Convert map data to json object
      */
-    protected JsonObject toJsonObject(JsonObject root) {
+    protected JsonObject toJsonObject(JsonObject json) {
         for(Map.Entry<String, JsonElement> entry : root.entrySet()) {
-            root.add(entry.getKey(), entry.getValue());
+            json.add(entry.getKey(), entry.getValue());
         }
-        return root;
+        return json;
     }
     protected JsonObject toJsonObject() {
         return toJsonObject(new JsonObject());

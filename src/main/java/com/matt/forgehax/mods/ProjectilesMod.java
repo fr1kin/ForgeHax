@@ -1,9 +1,13 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.util.*;
+import com.matt.forgehax.util.draw.RenderUtils;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
+import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.ProjectileUtils;
+import com.matt.forgehax.util.math.VectorUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -21,7 +25,7 @@ public class ProjectilesMod extends ToggleMod {
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent event) {
         EntityPlayer localPlayer = MC.thePlayer;
-        Angle viewAngles = PlayerUtils.getViewAngles();
+        Angle viewAngles = LocalPlayerUtils.getViewAngles();
         Vec3d selfPos = ProjectileUtils.getFiringPos(localPlayer);
         // TODO: Maybe check off hand?
         ItemStack heldItem = localPlayer.getHeldItemMainhand();
@@ -33,9 +37,9 @@ public class ProjectilesMod extends ToggleMod {
             return;
         double pitch, yaw;
         Property autoProjectile = SETTINGS.get("autoprojectile-enabled");
-        if(PlayerUtils.isProjectileTargetAcquired()) {
-            pitch = PlayerUtils.getFakeViewAngles().getPitch();
-            yaw = PlayerUtils.getFakeViewAngles().getYaw();
+        if(LocalPlayerUtils.isProjectileTargetAcquired()) {
+            pitch = LocalPlayerUtils.getFakeViewAngles().getPitch();
+            yaw = LocalPlayerUtils.getFakeViewAngles().getYaw();
         } else if(autoProjectile != null && autoProjectile.getBoolean()) {
             pitch = ProjectileUtils.getBestPitch(heldItem, trace.hitVec);
             yaw = viewAngles.getYaw();

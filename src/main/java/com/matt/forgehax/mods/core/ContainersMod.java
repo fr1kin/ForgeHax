@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods.core;
 
 import com.google.common.collect.Lists;
-import com.matt.forgehax.gui.categories.BlockListCategory;
+import com.matt.forgehax.gui.categories.ItemListCategory;
 import com.matt.forgehax.gui.categories.PlayerListCategory;
 import com.matt.forgehax.mods.BaseMod;
 import net.minecraft.client.gui.GuiScreen;
@@ -16,7 +16,7 @@ import java.util.List;
 public class ContainersMod extends BaseMod {
     public static List<IConfigElement> getContainers() {
         List<IConfigElement> elements = Lists.newArrayList();
-        elements.add(new DummyConfigElement.DummyCategoryElement("Blocks", "", BlockListCategory.class));
+        elements.add(new DummyConfigElement.DummyCategoryElement("Blocks", "", ItemListCategory.class));
         elements.add(new DummyConfigElement.DummyCategoryElement("Players", "", PlayerListCategory.class));
         return elements;
     }

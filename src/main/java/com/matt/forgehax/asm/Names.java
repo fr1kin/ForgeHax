@@ -26,6 +26,10 @@ public class Names {
             .setName("net/minecraft/entity/Entity")
             .setObfuscatedName("rw");
 
+    public final AsmClass LIVING_BASE = new AsmClass()
+            .setName("net/minecraft/entity/EntityLivingBase")
+            .setObfuscatedName("sf");
+
     public final AsmClass VEC3D = new AsmClass()
             .setName("net/minecraft/util/math/Vec3d")
             .setObfuscatedName("bcb");
@@ -37,6 +41,10 @@ public class Names {
     public final AsmClass IBLOCKSTATE = new AsmClass()
             .setName("net/minecraft/block/state/IBlockState")
             .setObfuscatedName("ars");
+
+    public final AsmClass BLOCKPOS = new AsmClass()
+            .setName("net/minecraft/util/math/BlockPos")
+            .setObfuscatedName("cm");
 
     public final AsmClass BLOCK = new AsmClass()
             .setName("net/minecraft/block/Block")
@@ -77,6 +85,10 @@ public class Names {
     //----forgehax hooks----
     public final AsmClass FORGEHAX_HOOKS = new AsmClass()
             .setName(Type.getInternalName(ForgeHaxHooks.class));
+
+    public final AsmField IS_SAFEWALK_ACTIVE = FORGEHAX_HOOKS.childField()
+            .setName("isSafeWalkActivated")
+            .setType(boolean.class);
 
     public final AsmMethod ON_HURTCAMEFFECT = FORGEHAX_HOOKS.childMethod()
             .setName("onHurtcamEffect")
@@ -147,4 +159,14 @@ public class Names {
             .setName("onComputeVisibility")
             .setArgumentTypes(VISGRAPH, SETVISIBILITY)
             .setReturnType(void.class);
+
+    public final AsmMethod ON_DO_BLOCK_COLLISIONS = FORGEHAX_HOOKS.childMethod()
+            .setName("onDoBlockCollisions")
+            .setArgumentTypes(ENTITY, BLOCKPOS, IBLOCKSTATE)
+            .setReturnType(boolean.class);
+
+    public final AsmMethod ON_APPLY_CLIMBABLE_BLOCK_MOVEMENT = FORGEHAX_HOOKS.childMethod()
+            .setName("onApplyClimbableBlockMovement")
+            .setArgumentTypes(LIVING_BASE)
+            .setReturnType(boolean.class);
 }

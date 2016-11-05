@@ -4,6 +4,13 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.*;
+import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
+import com.matt.forgehax.util.entity.PlayerUtils;
+import com.matt.forgehax.util.key.Bindings;
+import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.ProjectileUtils;
+import com.matt.forgehax.util.math.VectorUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +24,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -28,6 +34,7 @@ import java.util.Collections;
 public class AimbotMod extends ToggleMod {
     public Property silent;
     public Property autoAttack;
+    public Property projectileAutoAttack;
     public Property holdTarget;
     public Property projectileAimbot;
     public Property projectileTraceCheck;
@@ -48,20 +55,19 @@ public class AimbotMod extends ToggleMod {
     public boolean canAttack(EntityPlayer localPlayer, Entity target) {
         return localPlayer.getCooledAttackStrength(0.f) >= (cooldownPercent.getDouble() / 100.f) &&
                 (autoAttack.getBoolean() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
-
     }
 
     public boolean isHoldingProjectileItem() {
         return ProjectileUtils.isThrowable(MC.thePlayer.getHeldItemMainhand());
     }
 
-    public boolean canBowAimbot() {
+    public boolean isProjectileAimbotActivated() {
         return projectileAimbot.getBoolean() &&
                 isHoldingProjectileItem();
     }
 
     public boolean isVisible(Entity target) {
-        if(canBowAimbot() && projectileTraceCheck.getBoolean()) {
+        if(isProjectileAimbotActivated() && projectileTraceCheck.getBoolean()) {
             return ProjectileUtils.projectileTrajectoryHitsEntity(target, EntityUtils.getEyePos(getLocalPlayer()), getAimPos(target), null);
         } else return getLocalPlayer().canEntityBeSeen(target);
     }
@@ -83,7 +89,7 @@ public class AimbotMod extends ToggleMod {
                 EntityUtils.isAlive(entity) &&
                 !entity.equals(MC.thePlayer) &&
                 EntityUtils.isValidEntity(entity) && (
-                (EntityUtils.isPlayer(entity) && players.getBoolean()) ||
+                (EntityUtils.isPlayer(entity) && players.getBoolean() && !PlayerUtils.isFriend((EntityPlayer)entity)) ||
                         (EntityUtils.isHostileMob(entity) && hostileMobs.getBoolean()) ||
                         (EntityUtils.isFriendlyMob(entity) && friendlyMobs.getBoolean())
                 ) &&
@@ -96,7 +102,7 @@ public class AimbotMod extends ToggleMod {
      * Check if entity is in attack range
      */
     public boolean isInRange(Vec3d fromPos, Vec3d toPos) {
-        double dist = canBowAimbot() ? projectileRange.getDouble() : range.getDouble();
+        double dist = isProjectileAimbotActivated() ? projectileRange.getDouble() : range.getDouble();
         return dist <= 0 || fromPos.distanceTo(toPos) <= dist;
     }
 
@@ -116,8 +122,6 @@ public class AimbotMod extends ToggleMod {
      * Finds entity closest to crosshair
      */
     public Entity findTargetEntity(Vec3d selfPos, Vec3d selfLookVec, Angle viewAngles) {
-        long start = System.currentTimeMillis();
-
         final World world = Minecraft.getMinecraft().theWorld;
         final Vec3d selfLookVecNormal = selfLookVec.normalize();
         Entity target = null;
@@ -142,7 +146,7 @@ public class AimbotMod extends ToggleMod {
         }
 
         //System.out.printf("Took %d ms\n", System.currentTimeMillis() - start);
-        PlayerUtils.setTargetEntity(target);
+        LocalPlayerUtils.setTargetEntity(target);
         return target;
     }
 
@@ -156,6 +160,11 @@ public class AimbotMod extends ToggleMod {
                 ),
                 autoAttack = configuration.get(getModName(),
                         "aim_autoattack",
+                        true,
+                        "Automatically attack"
+                ),
+                projectileAutoAttack = configuration.get(getModName(),
+                        "projectile_autoattack",
                         true,
                         "Automatically attack"
                 ),
@@ -218,29 +227,35 @@ public class AimbotMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        PlayerUtils.setTargetEntity(null);
-        PlayerUtils.setActiveFakeAngles(false);
-        PlayerUtils.setProjectileTargetAcquired(false);
-        PlayerUtils.setFakeViewAngles(null);
+        LocalPlayerUtils.setTargetEntity(null);
+        LocalPlayerUtils.setActiveFakeAngles(false);
+        LocalPlayerUtils.setProjectileTargetAcquired(false);
+        LocalPlayerUtils.setFakeViewAngles(null);
     }
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         EntityPlayer localPlayer = MC.thePlayer;
-        Entity target = PlayerUtils.getTargetEntity();
+        Entity target = LocalPlayerUtils.getTargetEntity();
+        // local player eye pos
         Vec3d selfPos = EntityUtils.getEyePos(localPlayer);
+        // local player look vec
         Vec3d selfLookVec = localPlayer.getLookVec();
+        // local player view angles
         Angle viewAngles = VectorUtils.vectorAngle(selfLookVec);
         if(holdTarget.getBoolean()) {
             if(target == null ||
-                    !isValidTarget(target, EntityUtils.getOBBCenter(target), selfPos, selfLookVec, viewAngles))
+                    !isValidTarget(target, EntityUtils.getOBBCenter(target), selfPos, selfLookVec, viewAngles)) {
                 target = findTargetEntity(selfPos, selfLookVec, viewAngles);
-        } else target = findTargetEntity(selfPos, selfLookVec, viewAngles);
+            }
+        } else {
+            target = findTargetEntity(selfPos, selfLookVec, viewAngles);
+        }
         if(target != null) {
             if(!isHoldingProjectileItem()) {
                 Angle aim = Utils.getLookAtAngles(target);
                 if (!silent.getBoolean())
-                    PlayerUtils.setViewAngles(aim);
+                    LocalPlayerUtils.setViewAngles(aim);
                 if (canAttack(localPlayer, target)) {
                     // attack entity
                     MC.playerController.attackEntity(MC.thePlayer, target);
@@ -248,8 +263,8 @@ public class AimbotMod extends ToggleMod {
                     localPlayer.swingArm(EnumHand.MAIN_HAND);
                     // for rotation packets
                     if (silent.getBoolean()) {
-                        PlayerUtils.setActiveFakeAngles(true);
-                        PlayerUtils.setFakeViewAngles(aim);
+                        LocalPlayerUtils.setActiveFakeAngles(true);
+                        LocalPlayerUtils.setFakeViewAngles(aim);
                         return;
                     }
                 }
@@ -261,20 +276,20 @@ public class AimbotMod extends ToggleMod {
                 ProjectileUtils.ProjectileTraceResult result = new ProjectileUtils.ProjectileTraceResult();
                 boolean exists = ProjectileUtils.projectileTrajectoryHitsEntity(target, selfPos, getAimPos(target), result);
                 if(!exists || result.shootAngle == null) {
-                    PlayerUtils.setProjectileTargetAcquired(false);
+                    LocalPlayerUtils.setProjectileTargetAcquired(false);
                 } else {
                     // we have a projectile target
-                    PlayerUtils.setProjectileTargetAcquired(true);
+                    LocalPlayerUtils.setProjectileTargetAcquired(true);
                     // set view angles
-                    PlayerUtils.setFakeViewAngles(result.shootAngle);
+                    LocalPlayerUtils.setFakeViewAngles(result.shootAngle);
                     if (!silent.getBoolean() && Bindings.use.getBinding().isKeyDown()) {
-                        PlayerUtils.setViewAngles(result.shootAngle);
+                        LocalPlayerUtils.setViewAngles(result.shootAngle);
                     }
                     // fake angles no active (wont change rotation packets)
-                    PlayerUtils.setActiveFakeAngles(false);
+                    LocalPlayerUtils.setActiveFakeAngles(false);
                     // bow auto attack will release the use key when
                     // the force is greater than or equal to the max force
-                    if(autoAttack.getBoolean() &&
+                    if(projectileAutoAttack.getBoolean() &&
                             Bindings.use.getBinding().isKeyDown() &&
                             ProjectileUtils.getForce(heldItem) >= result.maxForce) {
                         Bindings.use.setPressed(false);
@@ -284,35 +299,19 @@ public class AimbotMod extends ToggleMod {
             }
         }
         // disable aiming from last tick
-        PlayerUtils.setActiveFakeAngles(false);
-        PlayerUtils.setProjectileTargetAcquired(false);
-    }
-
-    @SubscribeEvent
-    public void onRenderWorld(RenderWorldLastEvent event) {
-        /*
-        Entity target = PlayerUtils.getTargetEntity();
-        if(target != null) {
-            Vec3d myPos = getLocalPlayer().getPositionVector();
-            Vec3d tarPos = target.getPositionVector();
-            Vec3d direction = tarPos.subtract(myPos).normalize();
-
-            //direction = new Vec3d(direction.xCoord, 1, direction.zCoord);
-            Vec3d draw = tarPos.add(direction.scale(2));
-
-            RenderUtils.drawBox(draw.subtract(0.05, 0.05, 0.05), draw.addVector(0.05, 0.05, 0.05), Utils.Colors.ORANGE, 2f, true);
-        }*/
+        LocalPlayerUtils.setActiveFakeAngles(false);
+        LocalPlayerUtils.setProjectileTargetAcquired(false);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onPacketSending(PacketEvent.SendEvent.Pre event) {
+    public void onPacketSending(PacketEvent.Send.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer) {
             // send fake angles if any rotation updates are sent to the server
             CPacketPlayer packet = (CPacketPlayer)event.getPacket();
             if(packet.rotating &&
-                    PlayerUtils.isFakeAnglesActive() &&
-                    PlayerUtils.getFakeViewAngles() != null) {
-                Angle viewAngles = PlayerUtils.getFakeViewAngles();
+                    LocalPlayerUtils.isFakeAnglesActive() &&
+                    LocalPlayerUtils.getFakeViewAngles() != null) {
+                Angle viewAngles = LocalPlayerUtils.getFakeViewAngles();
                 packet.pitch = (float) viewAngles.getPitch();
                 packet.yaw = (float) viewAngles.getYaw();
             }
@@ -320,7 +319,7 @@ public class AimbotMod extends ToggleMod {
             // called when the bow release packet is sent by the client
             // make sure the packet isn't being called inside this method
             if(((CPacketPlayerDigging) event.getPacket()).getAction().equals(CPacketPlayerDigging.Action.RELEASE_USE_ITEM) &&
-                    PlayerUtils.isProjectileTargetAcquired() &&
+                    LocalPlayerUtils.isProjectileTargetAcquired() &&
                     !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
                 // make sure the player is still holding a valid weapon
                 EntityPlayer localPlayer = MC.thePlayer;
@@ -328,20 +327,20 @@ public class AimbotMod extends ToggleMod {
                 if(heldItem != null &&
                         ProjectileUtils.isBow(heldItem)) { // bow only
                     // send server our new view angles
-                    PlayerUtils.sendRotatePacket(PlayerUtils.getFakeViewAngles());
+                    LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getFakeViewAngles());
                     // tell server we let go of bow
                     Packet usePacket = new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN);
                     // add to ignore list
                     Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
                     getNetworkManager().sendPacket(usePacket);
                     // revert back to the old view angles
-                    PlayerUtils.sendRotatePacket(PlayerUtils.getViewAngles());
+                    LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
                     // cancel this event (wont send the packet)
                     event.setCanceled(true);
                 }
             }
         } else if(event.getPacket() instanceof CPacketPlayerTryUseItem &&
-                PlayerUtils.isProjectileTargetAcquired() &&
+                LocalPlayerUtils.isProjectileTargetAcquired() &&
                 !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket()) &&
                 ((CPacketPlayerTryUseItem) event.getPacket()).getHand().equals(EnumHand.MAIN_HAND)) {
             EntityPlayer localPlayer = MC.thePlayer;
@@ -350,14 +349,14 @@ public class AimbotMod extends ToggleMod {
                     ProjectileUtils.isThrowable(heldItem) &&
                     !ProjectileUtils.isBow(heldItem)) {
                 // send server our new view angles
-                PlayerUtils.sendRotatePacket(PlayerUtils.getFakeViewAngles());
+                LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getFakeViewAngles());
                 // tell server we let go of bow
                 Packet usePacket = new CPacketPlayerTryUseItem(((CPacketPlayerTryUseItem) event.getPacket()).getHand());
                 // add to ignore list
                 Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
                 getNetworkManager().sendPacket(usePacket);
                 // revert back to the old view angles
-                PlayerUtils.sendRotatePacket(PlayerUtils.getViewAngles());
+                LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
                 // cancel this event (wont send the packet)
                 event.setCanceled(true);
             }

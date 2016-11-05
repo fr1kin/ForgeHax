@@ -19,7 +19,7 @@ public class AntiEffectsMod extends ToggleMod {
     public void loadConfig(Configuration configuration) {
         addSettings(
                 noParticles = configuration.get(getModName(),
-                        "anti-particles",
+                        "anti_particles",
                         true,
                         "Stops the particle effect from rendering on other entities")
         );

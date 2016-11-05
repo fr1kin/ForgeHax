@@ -10,18 +10,18 @@ import net.minecraftforge.fml.client.FMLClientHandler;
  * 2 lazy to import static
  */
 public class ForgeHaxBase {
-    protected static final Minecraft MC = FMLClientHandler.instance().getClient();
-    protected static final ForgeHax MOD = ForgeHax.instance();
+    public static final Minecraft MC = FMLClientHandler.instance().getClient();
+    public static final ForgeHax MOD = ForgeHax.instance();
 
-    protected static final EntityPlayer getLocalPlayer() {
+    public static final EntityPlayer getLocalPlayer() {
         return MC.thePlayer;
     }
 
-    protected static final World getWorld() {
+    public static final World getWorld() {
         return MC.theWorld;
     }
 
-    protected static final NetworkManager getNetworkManager() {
+    public static final NetworkManager getNetworkManager() {
         return FMLClientHandler.instance().getClientToServerNetworkManager();
     }
 }

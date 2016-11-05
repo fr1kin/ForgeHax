@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.util.EntityUtils;
+import com.matt.forgehax.util.entity.EntityUtils;
 import net.minecraft.entity.passive.EntityBat;
 import net.minecraft.init.SoundEvents;
 import net.minecraftforge.client.event.RenderLivingEvent;

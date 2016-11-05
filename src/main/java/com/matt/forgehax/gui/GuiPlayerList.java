@@ -1,19 +1,29 @@
 package com.matt.forgehax.gui;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
-import com.matt.forgehax.util.SurfaceUtils;
+import com.matt.forgehax.gui.categories.PlayerListCategory;
+import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.Utils;
-import com.matt.forgehax.util.container.PlayerList;
+import com.matt.forgehax.util.container.lists.PlayerList;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.GuiScrollingList;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class GuiPlayerList extends GuiScrollingList {
+    private Minecraft MC;
     private GuiScreen parent;
-    private PlayerList selectedList;
+
+    private PlayerList playerList;
+    private List<Map.Entry<String, JsonElement>> selectedPlayerList = Lists.newArrayList();
+
+    private List<ResourceLocation> playerSkins = Lists.newArrayList();
 
     private int selectedIndex = -1;
 
@@ -29,20 +39,38 @@ public class GuiPlayerList extends GuiScrollingList {
                 screenWidth,
                 screenHeight
         );
+        MC = parent.mc;
+        this.parent = parent;
         if(selectedList != null) {
-            this.selectedList = selectedList;
-            selectedIndex = selectedList.entrySet().size() - 1;
+            playerList = selectedList;
+            for (Map.Entry<String, JsonElement> entry : selectedList.entrySet()) {
+                selectedPlayerList.add(entry);
+                PlayerList.PlayerData data = new PlayerList.PlayerData(entry.getValue().getAsJsonObject()).setUuid(entry.getKey());
+                ResourceLocation resourceLocation = AbstractClientPlayer.getLocationSkin(data.getName());
+                AbstractClientPlayer.getDownloadImageSkin(resourceLocation, data.getName());
+                playerSkins.add(resourceLocation);
+            }
         }
     }
 
-    @Override
-    protected int getSize() {
-        return selectedList != null ? selectedList.entrySet().size() : 0;
+    public boolean isValidIndex(int index) {
+        return index > -1 &&
+                index < selectedPlayerList.size();
+    }
+
+    public Map.Entry<String, JsonElement> getCurrentlySelected() {
+        return isValidIndex(selectedIndex) ? selectedPlayerList.get(selectedIndex) : null;
+    }
+
+    public int getSize() {
+        return selectedPlayerList.size();
     }
 
     @Override
     protected void elementClicked(int index, boolean doubleClick) {
         selectedIndex = index;
+        if(parent instanceof PlayerListCategory.GuiPlayerManager)
+            ((PlayerListCategory.GuiPlayerManager) parent).updateButtonLocks();
     }
 
     @Override
@@ -58,25 +86,21 @@ public class GuiPlayerList extends GuiScrollingList {
 
     @Override
     protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-        int x = entryRight - listWidth + slotHeight;
-        int y = slotTop;
+        int x = entryRight - listWidth + (slotBuffer / 2);
+        int y = slotTop + 2;
 
-        if(selectedList == null)
-            return;
-
-        int index = 0;
-        Map.Entry<String, JsonElement> selected = null;
-        for(Map.Entry<String, JsonElement> entry : selectedList.entrySet()) {
-            if(index == selectedIndex) {
-                selected = entry;
-                break;
+        Map.Entry<String, JsonElement> selected = selectedPlayerList.get(slotIdx);
+        if(selected != null) {
+            PlayerList.PlayerData data = playerList.getPlayerData(selected.getKey());
+            String name = data.getGuiName();
+            String uuid = data.getUuid().toString();
+            ResourceLocation skin = playerSkins.get(slotIdx);
+            if(skin != null) {
+                SurfaceUtils.drawHead(skin, x, y, 3);
+                x += 3 * 12 + 2;
             }
-            index++;
+            SurfaceUtils.drawText(name, x, y, Utils.Colors.WHITE);
+            SurfaceUtils.drawText(uuid, x, y + SurfaceUtils.getTextHeight() + 1, Utils.Colors.WHITE);
         }
-
-        if(selected == null)
-            return;
-
-        
     }
 }

@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.util.ServerQueueManager;
-import com.matt.forgehax.util.Utils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
@@ -18,13 +17,9 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class AutoReconnectMod extends ToggleMod {
     private static ServerData lastConnectedServer;
-
-    private static ServerQueueManager queueManager;
 
     public void updateLastConnectedServer() {
         ServerData data = MC.getCurrentServerData();
@@ -32,14 +27,8 @@ public class AutoReconnectMod extends ToggleMod {
             lastConnectedServer = data;
     }
 
-    public void updateQueueManager() {
-        ServerData data = MC.getCurrentServerData();
-        if(queueManager == null || !queueManager.equals(data))
-            queueManager = new ServerQueueManager(data);
-    }
-
     public Property delayTime;
-    public Property mode2b2t;
+    public Property delayConnectTime;
 
     public AutoReconnectMod(String modName, boolean defaultValue, String description) {
         super(modName, defaultValue, description, -1);
@@ -54,19 +43,19 @@ public class AutoReconnectMod extends ToggleMod {
                         5,
                         "Delay between each connect"
                 ),
-                mode2b2t = configuration.get(getModCategory().getName(),
-                        "2b2t mode",
-                        true,
-                        "Shows ETA wait time in 2b2t queue, and other things"
+                delayConnectTime = configuration.get(getModCategory().getName(),
+                        "delay_connect",
+                        5,
+                        "Login delay"
                 )
         );
     }
 
     @SubscribeEvent
     public void onGuiOpened(GuiOpenEvent event) {
-        if(event.getGui() instanceof GuiDisconnected) {
+        if(event.getGui() instanceof GuiDisconnected &&
+                !(event.getGui() instanceof GuiDisconnectedOverride)) {
             updateLastConnectedServer();
-            updateQueueManager();
             GuiDisconnected disconnected = (GuiDisconnected)event.getGui();
             event.setGui(new GuiDisconnectedOverride(
                     disconnected.parentScreen,
@@ -81,7 +70,6 @@ public class AutoReconnectMod extends ToggleMod {
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         // we got on the server or stopped joining, now undo queue
-        queueManager = null;
     }
 
     @SubscribeEvent
@@ -104,9 +92,12 @@ public class AutoReconnectMod extends ToggleMod {
             message = chatComp;
             reconnectTime = System.currentTimeMillis() + (long)(delay * 1000);
             // set variable 'reason' to the previous classes value
-            ReflectionHelper.setPrivateValue(GuiDisconnected.class, this, reason, "reason"); // TODO: Find obbed mapping name
+            try {
+                ReflectionHelper.setPrivateValue(GuiDisconnected.class, this, reason, "reason", "field_146306_a", "a"); // TODO: Find obbed mapping name
+            } catch (Exception e) {
+                MOD.getLog().error(e.getMessage());
+            }
             // parse server return text and find queue pos
-            handleQueue();
         }
 
         public long getTimeUntilReconnect() {
@@ -125,15 +116,6 @@ public class AutoReconnectMod extends ToggleMod {
             return lastConnectedServer != null ? lastConnectedServer : MC.getCurrentServerData();
         }
 
-        public void handleQueue() {
-            Matcher matcher = Pattern.compile("POSITION\\s(\\d+)\\sOUT\\sOF\\s(\\d+)").matcher(message.getFormattedText());
-            if(matcher.find()) {
-                if(queueManager != null) {
-                    queueManager.setPos(Integer.parseInt(matcher.group(1)));
-                }
-            }
-        }
-
         private void reconnect() {
             ServerData data = getLastConnectedServerData();
             if(data != null) {
@@ -144,13 +126,13 @@ public class AutoReconnectMod extends ToggleMod {
         @Override
         public void initGui() {
             super.initGui();
-            List<String> multilineMessage = this.fontRendererObj.listFormattedStringToWidth(this.message.getFormattedText(), this.width - 50);
-            int textHeight = multilineMessage.size() * this.fontRendererObj.FONT_HEIGHT;
+            List<String> multilineMessage = fontRendererObj.listFormattedStringToWidth(message.getFormattedText(), width - 50);
+            int textHeight = multilineMessage.size() * fontRendererObj.FONT_HEIGHT;
 
             if(getLastConnectedServerData() != null) {
-                this.buttonList.add(reconnectButton = new GuiButton(buttonList.size(),
-                        this.width / 2 - 100,
-                        (this.height / 2 + textHeight / 2 + this.fontRendererObj.FONT_HEIGHT) + 23,
+                buttonList.add(reconnectButton = new GuiButton(buttonList.size(),
+                        width / 2 - 100,
+                        (height / 2 + textHeight / 2 + fontRendererObj.FONT_HEIGHT) + 23,
                         getFormattedReconnectText()
                 ));
             }
@@ -171,22 +153,6 @@ public class AutoReconnectMod extends ToggleMod {
                 reconnectButton.displayString = getFormattedReconnectText();
             if(System.currentTimeMillis() >= reconnectTime)
                 reconnect();
-        }
-
-        @Override
-        public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-            super.drawScreen(mouseX, mouseY, partialTicks);
-            if(queueManager != null) {
-                // TODO: fix
-                double seconds = queueManager.getEstimatedTime() / 1000.D;
-                double minutes = seconds / 60.D;
-                double hours = seconds / 60.D;
-                MC.fontRendererObj.drawStringWithShadow(
-                        String.format("Pos: %d [ETA: %.2f hours, %.2f minutes, %.2f seconds]",
-                                queueManager.getPos(),
-                                hours, minutes, seconds
-                        ), 10, 10, Utils.toRGBA(255, 255, 255, 255));
-            }
         }
     }
 }

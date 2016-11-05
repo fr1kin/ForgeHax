@@ -14,16 +14,6 @@ public class NoCaveCulling extends ToggleMod {
         }
     }
 
-    @Override
-    public void onEnabled() {
-        reloadRenderers();
-    }
-
-    @Override
-    public void onDisabled() {
-        reloadRenderers();
-    }
-
     @SubscribeEvent
     public void onComputeVisibility(ComputeVisibilityEvent event) {
         event.getSetVisibility().setAllVisible(true);

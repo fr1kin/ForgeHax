@@ -1,14 +1,13 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.util.Angle;
-import com.matt.forgehax.util.PlayerUtils;
-import com.matt.forgehax.util.ProjectileUtils;
+import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
+import com.matt.forgehax.util.math.ProjectileUtils;
 import com.matt.forgehax.util.Utils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.util.EnumFacing;
@@ -23,10 +22,10 @@ public class AutoProjectile extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onSendingPacket(PacketEvent.SendEvent.Pre event) {
+    public void onSendingPacket(PacketEvent.Send.Pre event) {
         EntityPlayer localPlayer = MC.thePlayer;
-        if (!PlayerUtils.isProjectileTargetAcquired() &&
-                !PlayerUtils.isFakeAnglesActive()) {
+        if (!LocalPlayerUtils.isProjectileTargetAcquired() &&
+                !LocalPlayerUtils.isFakeAnglesActive()) {
             if (event.getPacket() instanceof CPacketPlayerDigging &&
                     ((CPacketPlayerDigging) event.getPacket()).getAction().equals(CPacketPlayerDigging.Action.RELEASE_USE_ITEM) &&
                     !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
@@ -36,9 +35,9 @@ public class AutoProjectile extends ToggleMod {
                         getNetworkManager() != null &&
                         trace != null &&
                         ProjectileUtils.isBow(heldItem)) {
-                    Angle oldViewAngles = PlayerUtils.getViewAngles();
+                    Angle oldViewAngles = LocalPlayerUtils.getViewAngles();
                     // send new angles
-                    PlayerUtils.sendRotatePacket(
+                    LocalPlayerUtils.sendRotatePacket(
                             ProjectileUtils.getBestPitch(heldItem, trace.hitVec),
                             oldViewAngles.getYaw()
                     );
@@ -48,7 +47,7 @@ public class AutoProjectile extends ToggleMod {
                     Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
                     getNetworkManager().sendPacket(usePacket);
                     // revert back to old angles
-                    PlayerUtils.sendRotatePacket(oldViewAngles);
+                    LocalPlayerUtils.sendRotatePacket(oldViewAngles);
                     event.setCanceled(true);
                 }
             } else if (event.getPacket() instanceof CPacketPlayerTryUseItem &&
@@ -61,9 +60,9 @@ public class AutoProjectile extends ToggleMod {
                         ProjectileUtils.isThrowable(heldItem) &&
                         !ProjectileUtils.isBow(heldItem)) {
                     // send server our new view angles
-                    PlayerUtils.sendRotatePacket(
+                    LocalPlayerUtils.sendRotatePacket(
                             ProjectileUtils.getBestPitch(heldItem, trace.hitVec),
-                            PlayerUtils.getViewAngles().getYaw()
+                            LocalPlayerUtils.getViewAngles().getYaw()
                     );
                     // tell server we let go of bow
                     Packet usePacket = new CPacketPlayerTryUseItem(((CPacketPlayerTryUseItem) event.getPacket()).getHand());
@@ -71,7 +70,7 @@ public class AutoProjectile extends ToggleMod {
                     Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
                     getNetworkManager().sendPacket(usePacket);
                     // revert back to the old view angles
-                    PlayerUtils.sendRotatePacket(PlayerUtils.getViewAngles());
+                    LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
                     // cancel this event (wont send the packet)
                     event.setCanceled(true);
                 }

@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.util.SurfaceUtils;
+import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.Utils;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.util.EntityUtils;
-import net.minecraft.client.renderer.BlockModelRenderer;
+import com.matt.forgehax.util.entity.EntityUtils;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.event.RenderLivingEvent;
