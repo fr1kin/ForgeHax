@@ -11,19 +11,31 @@ import org.lwjgl.Sys;
  * Created on 9/4/2016 by fr1kin
  */
 public class TestCode {
-    private boolean isSafeWalkActived = false;
+    private static boolean isNoSlowOn = false;
+
+    private boolean movementInput = false;
     private boolean onGround = false;
 
     public boolean isSneaking() {
         return true;
     }
 
+    public boolean isHandActive() {
+        return true;
+    }
+
+    public boolean isRiding() {
+        return true;
+    }
+
     public void moveEntity() {
-        boolean flag = (this.onGround) && (this.isSneaking() || ForgeHaxHooks.isSafeWalkActivated) && this instanceof Object;
-        if(flag) {
-            System.out.printf("acadsa");
-        } else {
-            System.out.printf("fdsafdsafda");
+        this.isSneaking();
+
+        if (this.isHandActive() && !this.isRiding() && !isNoSlowOn)
+        {
+            this.movementInput = false;
         }
+
+        boolean flag3 = false;
     }
 }

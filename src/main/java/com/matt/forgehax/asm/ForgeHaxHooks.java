@@ -64,6 +64,8 @@ public class ForgeHaxHooks {
 
     public static boolean isSafeWalkActivated = false;
 
+    public static boolean isNoSlowDownActivated = false;
+
     public static boolean onHurtcamEffect(float partialTicks) {
         reportHook("onHurtcamEffect");
         return MinecraftForge.EVENT_BUS.post(new HurtCamEffectEvent(partialTicks));

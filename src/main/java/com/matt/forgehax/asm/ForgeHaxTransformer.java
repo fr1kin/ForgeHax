@@ -31,6 +31,7 @@ public class ForgeHaxTransformer implements IClassTransformer {
         transformingClasses.put("net.minecraft.network.NetworkManager", new NetManagerPatch());
         transformingClasses.put("net.minecraft.network.NetworkManager$4", new NetManager$4Patch());
         transformingClasses.put("net.minecraft.client.renderer.chunk.VisGraph", new VisGraphPatch());
+        transformingClasses.put("net.minecraft.client.entity.EntityPlayerSP", new EntityPlayerSPPatch());
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -12,6 +13,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * Created on 9/3/2016 by fr1kin
  */
 public class FreecamMod extends ToggleMod {
+    public Property speed;
+
     private double posX, posY, posZ;
     private float pitch, yaw;
 
@@ -19,6 +22,17 @@ public class FreecamMod extends ToggleMod {
 
     public FreecamMod(String modName, boolean defaultValue, String description, int key) {
         super(modName, defaultValue, description, key);
+    }
+
+    @Override
+    public void loadConfig(Configuration configuration) {
+        addSettings(
+                speed = configuration.get(getModName(),
+                        "speed",
+                        0.05,
+                        "Freecam speed"
+                )
+        );
     }
 
     @Override
@@ -36,16 +50,9 @@ public class FreecamMod extends ToggleMod {
             clonedPlayer.copyLocationAndAnglesFrom(localPlayer);
             clonedPlayer.rotationYawHead = localPlayer.rotationYawHead;
             MC.theWorld.addEntityToWorld(-100, clonedPlayer);
-            try {
-                Property fly = SETTINGS.get("fly-enabled");
-                Property noclip = SETTINGS.get("noclip-enabled");
-                fly.set(true);
-                noclip.set(true);
-                MOD.mods.get("fly").update();
-                MOD.mods.get("noclip").update();
-            } catch (Exception e) {
-                MOD.printStackTrace(e);
-            }
+            MC.thePlayer.capabilities.isFlying = true;
+            MC.thePlayer.capabilities.setFlySpeed((float)speed.getDouble());
+            MC.thePlayer.noClip = true;
         }
     }
 
@@ -58,17 +65,20 @@ public class FreecamMod extends ToggleMod {
             clonedPlayer = null;
             posX = posY = posZ = 0.D;
             pitch = yaw = 0.f;
-            try {
-                Property fly = SETTINGS.get("fly-enabled");
-                Property noclip = SETTINGS.get("noclip-enabled");
-                fly.set(false);
-                noclip.set(false);
-                MOD.mods.get("fly").update();
-                MOD.mods.get("noclip").update();
-            } catch (Exception e) {
-                MOD.printStackTrace(e);
-            }
+            MC.thePlayer.capabilities.isFlying = false;
+            MC.thePlayer.capabilities.setFlySpeed(0.05f);
+            MC.thePlayer.noClip = false;
+            MC.thePlayer.motionX = MC.thePlayer.motionY = MC.thePlayer.motionZ = 0.f;
         }
+    }
+
+    @SubscribeEvent
+    public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
+        MC.thePlayer.capabilities.isFlying = true;
+        MC.thePlayer.capabilities.setFlySpeed((float)speed.getDouble());
+        MC.thePlayer.noClip = true;
+        MC.thePlayer.onGround = false;
+        MC.thePlayer.fallDistance = 0;
     }
 
     @SubscribeEvent

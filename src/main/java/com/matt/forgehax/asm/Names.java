@@ -90,6 +90,10 @@ public class Names {
             .setName("isSafeWalkActivated")
             .setType(boolean.class);
 
+    public final AsmField IS_NOSLOWDOWN_ACTIVE = FORGEHAX_HOOKS.childField()
+            .setName("isNoSlowDownActivated")
+            .setType(boolean.class);
+
     public final AsmMethod ON_HURTCAMEFFECT = FORGEHAX_HOOKS.childMethod()
             .setName("onHurtcamEffect")
             .setArgumentTypes(float.class)

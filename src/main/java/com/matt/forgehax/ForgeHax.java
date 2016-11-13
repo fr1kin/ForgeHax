@@ -195,6 +195,7 @@ public class ForgeHax {
                 registerMod(new ChatSpammerMod(         "chatspammer",          false,  "Add lines of spam into forgehax/spam.txt",                 Keyboard.KEY_END));
                 registerMod(new ChestEspMod(            "chestesp",             true,   "Shows chests",                                             Keyboard.KEY_END));
                 //registerMod(new CraftChestCart(         "craftchestcart",       false,   "traps",                                                    Keyboard.KEY_END));
+                registerMod(new ElytraFly(              "elytrafly",            false,  "Elytra fly",                                               Keyboard.KEY_END));
                 registerMod(new EntityEspMod(           "entityesp",            true,   "Shows entity locations and info",                          Keyboard.KEY_END));
                 registerMod(new FastBreak(              "fastbreak",            true,   "Fast break retard",                                        Keyboard.KEY_END));
                 registerMod(new FastPlaceMod(           "fastplace",            true,   "Fast place",                                               Keyboard.KEY_END));
@@ -205,6 +206,7 @@ public class ForgeHax {
                 registerMod(new NoclipMod(              "noclip",               false,  "Enables player noclip",                                    Keyboard.KEY_END));
                 registerMod(new NoFallMod(              "nofall",               false,  "Prevents fall damage from being taken",                    Keyboard.KEY_END));
                 registerMod(new NoSlowdown(             "noslowdown",           true,   "Disables block slowdown",                                  Keyboard.KEY_END));
+                //registerMod(new PortalFinderMod(        "portalfinder",         true,   "Finds portals",                                            Keyboard.KEY_END));
                 registerMod(new ProjectilesMod(         "projectiles",          true,   "Draws projectile path",                                    Keyboard.KEY_END));
                 registerMod(new SafeWalkMod(            "safewalk",             false,  "Prevents you from falling off blocks",                     Keyboard.KEY_END));
                 registerMod(new SpawnerEspMod(          "spawneresp",           true,   "Spawner esp",                                              Keyboard.KEY_END));
