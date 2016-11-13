@@ -24,8 +24,7 @@ public class ChestEspMod extends ToggleMod {
     public void onRenderWorld(RenderWorldLastEvent event) {
         for(TileEntity tileEntity : getWorld().loadedTileEntityList) {
             BlockPos pos = tileEntity.getPos();
-            if(tileEntity instanceof TileEntityChest ||
-                    tileEntity instanceof TileEntityDispenser) {
+            if(tileEntity instanceof TileEntityChest || tileEntity instanceof TileEntityFurnace || tileEntity instanceof TileEntityDispenser|| tileEntity instanceof TileEntityHopper) {
                 RenderUtils.drawBox(
                         pos,
                         pos.add(1, 1, 1),
