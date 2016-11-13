@@ -14,9 +14,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 /**
  * Created on 9/4/2016 by fr1kin
  */
-public class ChestEspMod extends ToggleMod {
+public class StorageESPMod extends ToggleMod {
 
-    public ChestEspMod(String modName, boolean defaultValue, String description, int key) {
+    public StorageESPMod(String modName, boolean defaultValue, String description, int key) {
         super(modName, defaultValue, description, key);
     }
 
