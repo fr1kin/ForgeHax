@@ -1,0 +1,119 @@
+---- Minecraft Crash Report ----
+// Surprise! Haha. Well, this is awkward.
+
+Time: 7/3/16 7:11 PM
+Description: Unexpected error
+
+java.lang.NoSuchMethodError: com.matt.forgehax.asm.ForgeHaxHooks.onPostRenderBlockLayer(Lnet/minecraft/block/Block;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/BlockRenderLayer;Z)Lcom/matt/forgehax/asm/events/RenderBlockInLayerEvent;
+	at net.minecraft.block.Block.canRenderInLayer(Block.java:2233)
+	at net.minecraft.client.renderer.chunk.RenderChunk.rebuildChunk(RenderChunk.java:185)
+	at net.minecraft.client.renderer.chunk.ChunkRenderWorker.processTask(ChunkRenderWorker.java:122)
+	at net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.updateChunkNow(ChunkRenderDispatcher.java:171)
+	at net.minecraft.client.renderer.RenderGlobal.setupTerrain(RenderGlobal.java:977)
+	at net.minecraft.client.renderer.EntityRenderer.renderWorldPass(EntityRenderer.java:1339)
+	at net.minecraft.client.renderer.EntityRenderer.renderWorld(EntityRenderer.java:1282)
+	at net.minecraft.client.renderer.EntityRenderer.updateCameraAndRender(EntityRenderer.java:1091)
+	at net.minecraft.client.Minecraft.runGameLoop(Minecraft.java:1139)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:406)
+	at net.minecraft.client.main.Main.main(Main.java:118)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at net.minecraft.launchwrapper.Launch.launch(Launch.java:135)
+	at net.minecraft.launchwrapper.Launch.main(Launch.java:28)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at net.minecraftforge.gradle.GradleStartCommon.launch(GradleStartCommon.java:97)
+	at GradleStart.main(GradleStart.java:26)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Client thread
+Stacktrace:
+	at net.minecraft.block.Block.canRenderInLayer(Block.java:2233)
+	at net.minecraft.client.renderer.chunk.RenderChunk.rebuildChunk(RenderChunk.java:185)
+	at net.minecraft.client.renderer.chunk.ChunkRenderWorker.processTask(ChunkRenderWorker.java:122)
+	at net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.updateChunkNow(ChunkRenderDispatcher.java:171)
+	at net.minecraft.client.renderer.RenderGlobal.setupTerrain(RenderGlobal.java:977)
+	at net.minecraft.client.renderer.EntityRenderer.renderWorldPass(EntityRenderer.java:1339)
+	at net.minecraft.client.renderer.EntityRenderer.renderWorld(EntityRenderer.java:1282)
+
+-- Affected level --
+Details:
+	Level name: MpServer
+	All players: 1 total; [EntityPlayerSP['f1ki'/240, l='MpServer', x=-750.76, y=79.00, z=466.17]]
+	Chunk stats: MultiplayerChunkCache: 477, 477
+	Level seed: 0
+	Level generator: ID 00 - default, ver 1. Features enabled: false
+	Level generator options: 
+	Level spawn location: World: (108,64,252), Chunk: (at 12,4,12 in 6,15; contains blocks 96,0,240 to 111,255,255), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,0,0 to 511,255,511)
+	Level time: 493093 game time, 5346 day time
+	Level dimension: 0
+	Level storage version: 0x00000 - Unknown?
+	Level weather: Rain time: 0 (now: false), thunder time: 0 (now: false)
+	Level game mode: Game mode: creative (ID 1). Hardcore: false. Cheats: false
+	Forced entities: 81 total; [EntitySheep['Sheep'/395, l='MpServer', x=-729.17, y=80.00, z=519.21], EntitySheep['Sheep'/396, l='MpServer', x=-741.71, y=79.00, z=541.78], EntitySheep['Sheep'/402, l='MpServer', x=-772.49, y=82.00, z=502.72], EntitySheep['Sheep'/403, l='MpServer', x=-763.20, y=79.00, z=525.50], EntitySheep['Sheep'/404, l='MpServer', x=-757.79, y=78.00, z=519.51], EntitySheep['Sheep'/405, l='MpServer', x=-730.27, y=75.00, z=490.22], EntitySheep['Sheep'/406, l='MpServer', x=-747.77, y=78.00, z=523.52], EntityMinecartChest['Minecart with Chest'/407, l='MpServer', x=-764.50, y=23.06, z=538.50], EntitySheep['Sheep'/408, l='MpServer', x=-756.80, y=80.00, z=533.22], EntityPlayerSP['f1ki'/240, l='MpServer', x=-750.76, y=79.00, z=466.17], EntityItem['item.tile.torch'/409, l='MpServer', x=-764.05, y=28.00, z=411.80], EntityBat['Bat'/410, l='MpServer', x=-767.25, y=29.10, z=423.90], EntityMinecartChest['Minecart with Chest'/411, l='MpServer', x=-763.50, y=28.06, z=461.50], EntityBat['Bat'/412, l='MpServer', x=-728.75, y=34.03, z=426.88], EntityBat['Bat'/413, l='MpServer', x=-737.26, y=23.12, z=458.84], EntityMinecartChest['Minecart with Chest'/414, l='MpServer', x=-767.50, y=21.06, z=475.50], EntityBat['Bat'/415, l='MpServer', x=-730.64, y=36.03, z=434.82], EntityBat['Bat'/416, l='MpServer', x=-731.45, y=62.29, z=440.02], EntityBat['Bat'/417, l='MpServer', x=-726.43, y=61.76, z=436.77], EntityChicken['Chicken'/314, l='MpServer', x=-817.66, y=79.00, z=420.88], EntitySheep['Sheep'/317, l='MpServer', x=-826.28, y=76.00, z=444.22], EntitySheep['Sheep'/318, l='MpServer', x=-826.59, y=76.00, z=441.10], EntitySheep['Sheep'/319, l='MpServer', x=-820.21, y=76.00, z=437.46], EntitySheep['Sheep'/320, l='MpServer', x=-827.35, y=76.00, z=444.55], EntitySheep['Sheep'/450, l='MpServer', x=-681.27, y=76.00, z=530.58], EntitySheep['Sheep'/457, l='MpServer', x=-691.54, y=79.00, z=483.78], EntitySheep['Sheep'/330, l='MpServer', x=-799.20, y=83.00, z=523.50], EntitySheep['Sheep'/458, l='MpServer', x=-692.21, y=79.00, z=490.64], EntitySheep['Sheep'/331, l='MpServer', x=-801.50, y=84.00, z=536.26], EntitySheep['Sheep'/459, l='MpServer', x=-698.67, y=79.00, z=493.75], EntitySheep['Sheep'/332, l='MpServer', x=-793.19, y=84.00, z=539.52], EntitySheep['Sheep'/460, l='MpServer', x=-699.75, y=79.00, z=491.46], EntitySheep['Sheep'/333, l='MpServer', x=-796.50, y=83.00, z=538.73], EntitySheep['Sheep'/461, l='MpServer', x=-695.52, y=78.00, z=482.19], EntitySheep['Sheep'/462, l='MpServer', x=-673.73, y=81.00, z=472.49], EntitySheep['Sheep'/335, l='MpServer', x=-782.65, y=89.00, z=540.20], EntitySheep['Sheep'/463, l='MpServer', x=-696.24, y=77.00, z=504.55], EntitySheep['Sheep'/336, l='MpServer', x=-782.50, y=87.00, z=537.19], EntitySheep['Sheep'/337, l='MpServer', x=-781.55, y=87.00, z=538.23], EntitySheep['Sheep'/465, l='MpServer', x=-674.70, y=79.00, z=498.20], EntitySheep['Sheep'/466, l='MpServer', x=-675.26, y=79.00, z=497.19], EntitySheep['Sheep'/339, l='MpServer', x=-772.28, y=89.00, z=544.55], EntitySheep['Sheep'/467, l='MpServer', x=-675.33, y=78.00, z=508.58], EntityBat['Bat'/340, l='MpServer', x=-770.24, y=27.48, z=420.65], EntitySheep['Sheep'/468, l='MpServer', x=-680.58, y=78.00, z=520.24], EntityChicken['Chicken'/341, l='MpServer', x=-794.14, y=100.00, z=459.81], EntitySheep['Sheep'/469, l='MpServer', x=-688.50, y=76.00, z=409.50], EntityMinecartChest['Minecart with Chest'/342, l='MpServer', x=-769.50, y=28.06, z=440.50], EntitySheep['Sheep'/470, l='MpServer', x=-692.74, y=75.00, z=406.47], EntityMinecartChest['Minecart with Chest'/343, l='MpServer', x=-777.50, y=24.06, z=435.50], EntitySheep['Sheep'/471, l='MpServer', x=-691.70, y=77.00, z=409.51], EntityChicken['Chicken'/344, l='MpServer', x=-796.18, y=95.00, z=468.43], EntityItem['item.item.egg'/345, l='MpServer', x=-795.40, y=95.00, z=468.64], EntityChicken['Chicken'/346, l='MpServer', x=-799.49, y=99.00, z=464.72], EntitySheep['Sheep'/347, l='MpServer', x=-799.81, y=97.00, z=471.38], EntityChicken['Chicken'/348, l='MpServer', x=-792.17, y=96.00, z=464.28], EntityBat['Bat'/349, l='MpServer', x=-775.55, y=30.10, z=453.70], EntityChicken['Chicken'/477, l='MpServer', x=-682.52, y=76.00, z=412.79], EntityBat['Bat'/350, l='MpServer', x=-789.88, y=24.10, z=493.75], EntitySheep['Sheep'/478, l='MpServer', x=-698.73, y=79.00, z=445.51], EntitySheep['Sheep'/351, l='MpServer', x=-790.51, y=86.00, z=491.73], EntitySheep['Sheep'/479, l='MpServer', x=-696.63, y=79.00, z=445.78], EntitySheep['Sheep'/352, l='MpServer', x=-784.19, y=91.00, z=483.50], EntitySheep['Sheep'/480, l='MpServer', x=-713.79, y=78.00, z=463.53], EntitySheep['Sheep'/353, l='MpServer', x=-803.49, y=84.00, z=519.73], EntitySheep['Sheep'/481, l='MpServer', x=-714.81, y=78.00, z=460.75], EntitySheep['Sheep'/354, l='MpServer', x=-783.20, y=92.00, z=493.46], EntityBat['Bat'/355, l='MpServer', x=-807.25, y=50.10, z=405.25], EntitySheep['Sheep'/483, l='MpServer', x=-672.76, y=78.00, z=425.58], EntitySheep['Sheep'/356, l='MpServer', x=-815.51, y=79.00, z=424.73], EntityBat['Bat'/358, l='MpServer', x=-782.25, y=13.72, z=394.52], EntitySheep['Sheep'/486, l='MpServer', x=-686.83, y=79.00, z=450.64], EntityBat['Bat'/359, l='MpServer', x=-777.25, y=23.99, z=399.80], EntitySheep['Sheep'/360, l='MpServer', x=-770.23, y=70.00, z=388.52], EntitySheep['Sheep'/361, l='MpServer', x=-805.50, y=78.00, z=444.50], EntitySheep['Sheep'/363, l='MpServer', x=-762.50, y=70.00, z=389.50], EntitySheep['Sheep'/364, l='MpServer', x=-764.19, y=71.00, z=395.35], EntitySheep['Sheep'/367, l='MpServer', x=-760.79, y=70.00, z=388.18], EntitySheep['Sheep'/368, l='MpServer', x=-802.50, y=91.00, z=455.27], EntityBat['Bat'/241, l='MpServer', x=-741.05, y=19.81, z=467.87], EntityBat['Bat'/242, l='MpServer', x=-745.95, y=21.91, z=473.72]]
+	Retry entities: 0 total; []
+	Server brand: fml,forge
+	Server type: Integrated singleplayer server
+Stacktrace:
+	at net.minecraft.client.multiplayer.WorldClient.addWorldInfoToCrashReport(WorldClient.java:450)
+	at net.minecraft.client.Minecraft.addGraphicsAndWorldToCrashReport(Minecraft.java:2779)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:435)
+	at net.minecraft.client.main.Main.main(Main.java:118)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at net.minecraft.launchwrapper.Launch.launch(Launch.java:135)
+	at net.minecraft.launchwrapper.Launch.main(Launch.java:28)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at net.minecraftforge.gradle.GradleStartCommon.launch(GradleStartCommon.java:97)
+	at GradleStart.main(GradleStart.java:26)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.10.2
+	Operating System: Windows 7 (amd64) version 6.1
+	Java Version: 1.8.0_20, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Memory: 3431280832 bytes (3272 MB) / 4047503360 bytes (3860 MB) up to 4047503360 bytes (3860 MB)
+	JVM Flags: 2 total; -Xmx4g -Xms4g
+	IntCache: cache: 0, tcache: 0, allocated: 13, tallocated: 95
+	FML: MCP 9.32 Powered by Forge 12.18.0.2006 5 mods loaded, 5 mods active
+	States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored
+	UCHIJAAAA	mcp{9.19} [Minecraft Coder Pack] (minecraft.jar) 
+	UCHIJAAAA	FML{8.0.99.99} [Forge Mod Loader] (forgeSrc-1.10.2-12.18.0.2006-1.10.0-PROJECT(ForgeHax).jar) 
+	UCHIJAAAA	Forge{12.18.0.2006} [Minecraft Forge] (forgeSrc-1.10.2-12.18.0.2006-1.10.0-PROJECT(ForgeHax).jar) 
+	UCHIJAAAA	forgehaxcore{1.0} [ForgeHax Core] (minecraft.jar) 
+	UCHIJAAAA	forgehax{1.0} [Forge Hax] (ForgeHax) 
+	Loaded coremods (and transformers): 
+ForgeHaxCoreMod (unknown)
+  com.matt.forgehax.asm.ForgeHaxTransformer
+  com.matt.forgehax.asm.ForgeHaxAccessTransformer
+	GL info: ' Vendor: 'NVIDIA Corporation' Version: '4.5.0 NVIDIA 368.39' Renderer: 'GeForce GTX 760/PCIe/SSE2'
+	Launched Version: 1.10.2
+	LWJGL: 2.9.4
+	OpenGL: GeForce GTX 760/PCIe/SSE2 GL version 4.5.0 NVIDIA 368.39, NVIDIA Corporation
+	GL Caps: Using GL 1.3 multitexturing.
+Using GL 1.3 texture combiners.
+Using framebuffer objects because OpenGL 3.0 is supported and separate blending is supported.
+Shaders are available because OpenGL 2.1 is supported.
+VBOs are available because OpenGL 1.5 is supported.
+
+	Using VBOs: No
+	Is Modded: Definitely; Client brand changed to 'fml,forge'
+	Type: Client (map_client.txt)
+	Resource Packs: 
+	Current Language: English (US)
+	Profiler Position: N/A (disabled)
+	CPU: 8x AMD FX(tm)-8350 Eight-Core Processor 

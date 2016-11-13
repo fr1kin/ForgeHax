@@ -1,0 +1,411 @@
+# Configuration file
+
+activemods {
+    # Shows list of all active mods
+    B:enabled=true
+}
+
+
+aimbot {
+    # Automatically attack
+    B:aim_autoattack=true
+
+    # What cooldown % to attack again at
+    D:aim_cooldown_percent=100.0
+
+    # Aimbot field of view
+    D:aim_fov=40.0
+
+    # Keeps target until it is no longer a valid attack target
+    B:aim_hold_target=false
+
+    # Attack range
+    D:aim_range=4.5
+
+    # Won't lock onto target
+    B:aim_silent=true
+
+    # Auto aim/attack entities
+    B:enabled=false
+
+    # Aimbot for bows, snowballs, and eggs
+    B:projectile_aimbot=true
+
+    # Automatically attack
+    B:projectile_autoattack=true
+
+    # Attack range for projectiles
+    D:projectile_range=0.0
+
+    # Requires beefy computer, will check if targets can be hit by the bows trajectory
+    B:projectile_trace_check=true
+
+    # Attack friendly mobs
+    B:tar_friendly_mobs=false
+
+    # Attack hostile mobs
+    B:tar_hostile_mobs=true
+
+    # Attack players
+    B:tar_players=true
+}
+
+
+antiafk {
+    # Distance to move before stopping
+    D:distance=0.25
+
+    # Moves automatically to prevent being kicked
+    B:enabled=false
+
+    # Amount of ticks to wait before moving again
+    I:interval=200
+}
+
+
+antibats {
+    # 666 KILL BATS 666
+    B:enabled=true
+}
+
+
+antifire {
+    # Removes fire
+    B:enabled=true
+}
+
+
+antifog {
+    # Removes fog
+    B:enabled=true
+}
+
+
+antihurtcam {
+    # Removes hurt camera effect
+    B:enabled=true
+}
+
+
+antiknockback {
+    # Removes knockback movement
+    B:enabled=false
+    D:modifierX=0.0
+    D:modifierY=0.0
+    D:modifierZ=0.0
+
+    # X motion multiplier
+    D:multiplierX=0.0
+
+    # Y motion multiplier
+    D:multiplierY=0.0
+
+    # Z motion multiplier
+    D:multiplierZ=0.0
+}
+
+
+antioverlay {
+    # Removes screen overlays
+    B:enabled=true
+}
+
+
+antipotioneffects {
+    B:anti-particles=true
+
+    # Stops the particle effect from rendering on other entities
+    B:anti_particles=true
+
+    # Removes potion effects
+    B:enabled=true
+}
+
+
+autoblockcraft {
+    B:block_to_craft=true
+
+    # Block to craft
+    S:crafting_block=MELON_BLOCK
+
+    # Automatically crafts blocks for you
+    B:enabled=true
+
+    # Time between clicks in ms
+    I:sleep_delay=100
+}
+
+
+autoeat {
+    # Auto eats when you get hungry
+    B:enabled=true
+}
+
+
+autofish {
+    # Auto fish
+    B:enabled=true
+}
+
+
+autoprojectile {
+    # Automatically sets pitch to best trajectory
+    B:enabled=false
+}
+
+
+autoreconnect {
+    B:"2b2t mode"=true
+
+    # Delay between each connect
+    I:delay=4
+
+    # Login delay
+    I:delay_connect=5
+
+    # Automatically reconnects to server
+    B:enabled=true
+}
+
+
+autorespawn {
+    # Auto respawn on death
+    B:enabled=true
+}
+
+
+autosprint {
+    # Automatically sprints
+    B:enabled=false
+}
+
+
+autowalk {
+    # Automatically walks forward
+    B:enabled=false
+
+    # Stop moving at unloaded chunks
+    B:stop_at_unloaded_chunks=true
+}
+
+
+bedmode {
+    # Sleep walking
+    B:enabled=true
+}
+
+
+chams {
+    # Render living models behind walls
+    B:enabled=false
+
+    # Enables friendly mob chams
+    B:"friendly mobs"=false
+
+    # Enables hostile mob chams
+    B:"hostile mobs"=false
+
+    # Enables player chams
+    B:players=true
+}
+
+
+chatspammer {
+    # Delay between messages in ms
+    I:delay=5000
+
+    # Add lines of spam into forgehax/spam.txt
+    B:enabled=false
+}
+
+
+chestesp {
+    # Shows chests
+    B:enabled=false
+}
+
+
+containers {
+}
+
+
+craftchestcart {
+    B:enabled=false
+    D:sleep=100.0
+    I:sleepTime=75
+}
+
+
+debugdisplay {
+    B:enabled=false
+}
+
+
+debugmode {
+    B:enabled=false
+}
+
+
+debugoutput {
+    B:enabled=false
+}
+
+
+elytrafly {
+    # Elytra fly
+    B:enabled=true
+
+    # Flight speed
+    D:speed=0.2
+}
+
+
+entityesp {
+    # Shows info about entities armor if set to advanced esp mode
+    S:"armor esp"=ENCHANTMENTS
+
+    # Shows distance in name tags if selected settings >name
+    B:"distance esp"=false
+
+    # Shows entity locations and info
+    B:enabled=true
+
+    # Enables friendly mob esp
+    S:"friendly mobs"=NAME
+
+    # Enables hostile mob esp
+    S:"hostile mobs"=NAME
+
+    # Enables player esp
+    S:players=ADVANCED
+}
+
+
+fastbreak {
+    # Fast break retard
+    B:enabled=true
+}
+
+
+fastplace {
+    # Fast place
+    B:enabled=false
+}
+
+
+fly {
+    # Enables flying
+    B:enabled=false
+
+    # Flight speed
+    D:speed=5.0
+
+    # Bypass vanilla fly checks
+    B:vanilla_bypass=false
+}
+
+
+freecam {
+    # Freecam mode
+    B:enabled=false
+
+    # Freecam speed
+    D:speed=0.7
+}
+
+
+fullbright {
+    # Makes everything render with maximum brightness
+    B:enabled=true
+}
+
+
+nocaveculling {
+    # Disables mojangs dumb cave culling shit
+    B:enabled=true
+}
+
+
+noclip {
+    # Enables player noclip
+    B:enabled=false
+}
+
+
+nofall {
+    # Prevents fall damage from being taken
+    B:enabled=false
+}
+
+
+noslowdown {
+    # Disables block slowdown
+    B:enabled=true
+}
+
+
+portalfinder {
+    B:enabled=false
+}
+
+
+projectiles {
+    # Draws projectile path
+    B:enabled=true
+}
+
+
+safewalk {
+    # Prevents you from falling off blocks
+    B:enabled=false
+}
+
+
+spawneresp {
+    # Spawner esp
+    B:enabled=true
+}
+
+
+step {
+    # Step up blocks
+    B:enabled=false
+}
+
+
+teleport {
+    # Type '.setpos [x] [y] [z] [onGround]' in chat to use
+    B:enabled=true
+
+    # Packet teleport types
+    I:teleport_mode=0
+
+    # .setpos will tp you relative to your current position
+    B:teleport_relative=true
+}
+
+
+xray {
+    # See blocks through walls
+    B:enabled=false
+
+    # How transparent the blocks will be
+    I:opacity=150
+}
+
+
+yawlock {
+    # Custom angle to snap to
+    D:angle=0.0
+
+    # Automatically finds angle to snap to based on the direction you're facing
+    B:auto=true
+
+    # Locks yaw to prevent moving into walls
+    B:enabled=false
+
+    # Will only fire update once
+    B:once=false
+}
+
+

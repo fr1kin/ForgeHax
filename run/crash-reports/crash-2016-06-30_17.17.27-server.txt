@@ -1,0 +1,112 @@
+---- Minecraft Crash Report ----
+// Ooh. Shiny.
+
+Time: 6/30/16 5:17 PM
+Description: Ticking entity
+
+java.lang.NullPointerException: Ticking entity
+	at com.matt.forgehax.mods.AntiBatsMod.onPlaySound(AntiBatsMod.java:32)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_16_AntiBatsMod_onPlaySound_PlaySoundAtEntityEvent.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:68)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:159)
+	at net.minecraftforge.event.ForgeEventFactory.onPlaySoundAtEntity(ForgeEventFactory.java:362)
+	at net.minecraft.world.World.playSound(World.java:1134)
+	at net.minecraft.entity.Entity.playSound(Entity.java:1081)
+	at net.minecraft.entity.EntityLiving.playLivingSound(EntityLiving.java:237)
+	at net.minecraft.entity.EntityLiving.onEntityUpdate(EntityLiving.java:252)
+	at net.minecraft.entity.Entity.onUpdate(Entity.java:435)
+	at net.minecraft.entity.EntityLivingBase.onUpdate(EntityLivingBase.java:2136)
+	at net.minecraft.entity.EntityLiving.onUpdate(EntityLiving.java:342)
+	at net.minecraft.world.World.updateEntityWithOptionalForce(World.java:2106)
+	at net.minecraft.world.WorldServer.updateEntityWithOptionalForce(WorldServer.java:872)
+	at net.minecraft.world.World.updateEntity(World.java:2073)
+	at net.minecraft.world.World.updateEntities(World.java:1886)
+	at net.minecraft.world.WorldServer.updateEntities(WorldServer.java:644)
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:783)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:687)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:156)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:536)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Server thread
+Stacktrace:
+	at com.matt.forgehax.mods.AntiBatsMod.onPlaySound(AntiBatsMod.java:32)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_16_AntiBatsMod_onPlaySound_PlaySoundAtEntityEvent.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:68)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:159)
+	at net.minecraftforge.event.ForgeEventFactory.onPlaySoundAtEntity(ForgeEventFactory.java:362)
+	at net.minecraft.world.World.playSound(World.java:1134)
+	at net.minecraft.entity.Entity.playSound(Entity.java:1081)
+	at net.minecraft.entity.EntityLiving.playLivingSound(EntityLiving.java:237)
+	at net.minecraft.entity.EntityLiving.onEntityUpdate(EntityLiving.java:252)
+	at net.minecraft.entity.Entity.onUpdate(Entity.java:435)
+	at net.minecraft.entity.EntityLivingBase.onUpdate(EntityLivingBase.java:2136)
+	at net.minecraft.entity.EntityLiving.onUpdate(EntityLiving.java:342)
+	at net.minecraft.world.World.updateEntityWithOptionalForce(World.java:2106)
+	at net.minecraft.world.WorldServer.updateEntityWithOptionalForce(WorldServer.java:872)
+	at net.minecraft.world.World.updateEntity(World.java:2073)
+
+-- Entity being ticked --
+Details:
+	Entity Type: Chicken (net.minecraft.entity.passive.EntityChicken)
+	Entity ID: 47
+	Entity Name: Chicken
+	Entity's Exact location: 1040.83, 4.00, -1254.84
+	Entity's Block location: World: (1040,4,-1255), Chunk: (at 0,0,9 in 65,-79; contains blocks 1040,0,-1264 to 1055,255,-1249), Region: (2,-3; contains chunks 64,-96 to 95,-65, blocks 1024,0,-1536 to 1535,255,-1025)
+	Entity's Momentum: 0.00, -0.08, 0.00
+	Entity's Passengers: []
+	Entity's Vehicle: ~~ERROR~~ NullPointerException: null
+Stacktrace:
+	at net.minecraft.world.World.updateEntities(World.java:1886)
+	at net.minecraft.world.WorldServer.updateEntities(WorldServer.java:644)
+
+-- Affected level --
+Details:
+	Level name: New World
+	All players: 1 total; [EntityPlayerMP['Player275'/212, l='New World', x=1297.58, y=4.00, z=-1105.69]]
+	Chunk stats: ServerChunkCache: 785 Drop: 0
+	Level seed: -4230200092335554328
+	Level generator: ID 01 - flat, ver 0. Features enabled: true
+	Level generator options: 
+	Level spawn location: World: (1078,4,-1163), Chunk: (at 6,0,5 in 67,-73; contains blocks 1072,0,-1168 to 1087,255,-1153), Region: (2,-3; contains chunks 64,-96 to 95,-65, blocks 1024,0,-1536 to 1535,255,-1025)
+	Level time: 23448 game time, 8968 day time
+	Level dimension: 0
+	Level storage version: 0x04ABD - Anvil
+	Level weather: Rain time: 96409 (now: false), thunder time: 59521 (now: false)
+	Level game mode: Game mode: creative (ID 1). Hardcore: false. Cheats: true
+Stacktrace:
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:783)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:687)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:156)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:536)
+	at java.lang.Thread.run(Thread.java:745)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.10.2
+	Operating System: Windows 7 (amd64) version 6.1
+	Java Version: 1.8.0_20, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Memory: 3676274232 bytes (3505 MB) / 4217372672 bytes (4022 MB) up to 4217372672 bytes (4022 MB)
+	JVM Flags: 2 total; -Xmx4g -Xms4g
+	IntCache: cache: 0, tcache: 0, allocated: 0, tallocated: 0
+	FML: MCP 9.32 Powered by Forge 12.18.0.2002 5 mods loaded, 5 mods active
+	States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored
+	UCHIJAAAA	mcp{9.19} [Minecraft Coder Pack] (minecraft.jar) 
+	UCHIJAAAA	FML{8.0.99.99} [Forge Mod Loader] (forgeSrc-1.10.2-12.18.0.2002-1.10.0.jar) 
+	UCHIJAAAA	Forge{12.18.0.2002} [Minecraft Forge] (forgeSrc-1.10.2-12.18.0.2002-1.10.0.jar) 
+	UCHIJAAAA	forgehaxcore{1.0} [ForgeHax Core] (minecraft.jar) 
+	UCHIJAAAA	forgehax{1.0} [Forge Hax] (ForgeHax) 
+	Loaded coremods (and transformers): 
+ForgeHaxCoreMod (unknown)
+  com.matt.forgehax.asm.ForgeHaxTransformer
+	GL info: ~~ERROR~~ RuntimeException: No OpenGL context found in the current thread.
+	Profiler Position: N/A (disabled)
+	Player Count: 1 / 8; [EntityPlayerMP['Player275'/212, l='New World', x=1297.58, y=4.00, z=-1105.69]]
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Definitely; Client brand changed to 'fml,forge'

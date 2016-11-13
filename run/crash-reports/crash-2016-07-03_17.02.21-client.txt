@@ -1,0 +1,142 @@
+---- Minecraft Crash Report ----
+// This doesn't make any sense!
+
+Time: 7/3/16 5:02 PM
+Description: Initializing game
+
+java.lang.VerifyError: Bad local variable type
+Exception Details:
+  Location:
+    net/minecraft/client/renderer/RenderGlobal.renderBlockLayer(Lnet/minecraft/util/BlockRenderLayer;DILnet/minecraft/entity/Entity;)I @402: iload
+  Reason:
+    Type top (current frame, locals[15]) is not assignable to integer
+  Current Frame:
+    bci: @402
+    flags: { }
+    locals: { 'net/minecraft/client/renderer/RenderGlobal', 'net/minecraft/util/BlockRenderLayer', double, double_2nd, integer, 'net/minecraft/entity/Entity' }
+    stack: { }
+  Bytecode:
+    0x0000000: 2b28 b806 2f9a 0183 b803 d32b b206 35a6
+    0x0000010: 00bc 2ab4 00e4 b404 5413 0637 b602 fc19
+    0x0000020: 05b4 02d0 2ab4 0639 6739 0619 05b4 02ee
+    0x0000030: 2ab4 063b 6739 0819 05b4 02d3 2ab4 063d
+    0x0000040: 6739 0a18 0618 066b 1808 1808 6b63 180a
+    0x0000050: 180a 6b63 0f97 9e00 6b2a 1905 b402 d0b5
+    0x0000060: 0639 2a19 05b4 02ee b506 3b2a 1905 b402
+    0x0000070: d3b5 063d 0336 0c2a b400 9eb9 0369 0100
+    0x0000080: 3a0d 190d b903 7001 0099 0038 190d b903
+    0x0000090: 7401 00c0 0011 3a0e 190e b403 78b4 04c0
+    0x00000a0: 2bb6 0641 9900 1a15 0c84 0c01 100f a200
+    0x00000b0: 102a b402 9a19 0eb4 0378 b606 4457 a7ff
+    0x00000c0: c42a b400 e4b4 0454 b604 572a b400 e4b4
+    0x00000d0: 0454 1306 46b6 02fc 0336 0f2b b206 35a6
+    0x00000e0: 0007 04a7 0004 0336 1015 1099 0011 2ab4
+    0x00000f0: 009e b903 4601 0004 64a7 0004 0336 1115
+    0x0000100: 1099 0007 02a7 000c 2ab4 009e b903 4601
+    0x0000110: 0036 1215 1099 0007 02a7 0004 0436 1315
+    0x0000120: 1136 1415 1415 129f 0039 2ab4 009e 1514
+    0x0000130: b903 4f02 00c0 0011 b403 783a 0c19 0cb6
+    0x0000140: 03f8 2bb6 0649 9a00 1084 0f01 2ab4 0111
+    0x0000150: 190c 2bb6 064d 1514 1513 6036 14a7 ffc6
+    0x0000160: 2ab4 00e4 b404 54bb 0148 59b7 0149 1306
+    0x0000170: 4fb6 014f 2bb6 0652 b601 56b6 033f 2a2b
+    0x0000180: b706 552b 28b8 0659 2ab4 00e4 b404 54b6
+    0x0000190: 0457 150f ac                           
+  Stackmap Table:
+    full_frame(@130,{Object[#2],Object[#1585],Double,Integer,Object[#717],Double,Double,Double,Integer,Object[#877]},{})
+    append_frame(@190,Object[#17])
+    chop_frame(@193,3)
+    chop_frame(@203,3)
+    full_frame(@230,{Object[#2],Object[#1585],Double,Integer,Object[#717],Top,Top,Top,Top,Top,Top,Top,Top,Top,Integer},{})
+    same_locals_1_stack_item_frame(@231,Integer)
+    append_frame(@252,Integer)
+    same_locals_1_stack_item_frame(@253,Integer)
+    append_frame(@264,Integer)
+    same_locals_1_stack_item_frame(@273,Integer)
+    append_frame(@284,Integer)
+    same_locals_1_stack_item_frame(@285,Integer)
+    append_frame(@291,Integer,Integer)
+    full_frame(@342,{Object[#2],Object[#1585],Double,Integer,Object[#717],Top,Top,Top,Top,Top,Top,Object[#890],Top,Top,Integer,Integer,Integer,Integer,Integer,Integer},{})
+    full_frame(@352,{Object[#2],Object[#1585],Double,Integer,Object[#717],Top,Top,Top,Top,Top,Top,Top,Top,Top,Integer,Integer,Integer,Integer,Integer,Integer},{})
+    full_frame(@392,{Object[#2],Object[#1585],Double,Integer,Object[#717]},{})
+
+	at net.minecraft.client.Minecraft.startGame(Minecraft.java:554)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:386)
+	at net.minecraft.client.main.Main.main(Main.java:118)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at net.minecraft.launchwrapper.Launch.launch(Launch.java:135)
+	at net.minecraft.launchwrapper.Launch.main(Launch.java:28)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at net.minecraftforge.gradle.GradleStartCommon.launch(GradleStartCommon.java:97)
+	at GradleStart.main(GradleStart.java:26)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Client thread
+Stacktrace:
+	at net.minecraft.client.Minecraft.startGame(Minecraft.java:554)
+
+-- Initialization --
+Details:
+Stacktrace:
+	at net.minecraft.client.Minecraft.run(Minecraft.java:386)
+	at net.minecraft.client.main.Main.main(Main.java:118)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at net.minecraft.launchwrapper.Launch.launch(Launch.java:135)
+	at net.minecraft.launchwrapper.Launch.main(Launch.java:28)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at net.minecraftforge.gradle.GradleStartCommon.launch(GradleStartCommon.java:97)
+	at GradleStart.main(GradleStart.java:26)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.10.2
+	Operating System: Windows 7 (amd64) version 6.1
+	Java Version: 1.8.0_20, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Memory: 3624792880 bytes (3456 MB) / 3970433024 bytes (3786 MB) up to 3970433024 bytes (3786 MB)
+	JVM Flags: 2 total; -Xmx4g -Xms4g
+	IntCache: cache: 0, tcache: 0, allocated: 0, tallocated: 0
+	FML: MCP 9.32 Powered by Forge 12.18.0.2006 5 mods loaded, 5 mods active
+	States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored
+	UCH	mcp{9.19} [Minecraft Coder Pack] (minecraft.jar) 
+	UCH	FML{8.0.99.99} [Forge Mod Loader] (forgeSrc-1.10.2-12.18.0.2006-1.10.0-PROJECT(ForgeHax).jar) 
+	UCH	Forge{12.18.0.2006} [Minecraft Forge] (forgeSrc-1.10.2-12.18.0.2006-1.10.0-PROJECT(ForgeHax).jar) 
+	UCH	forgehaxcore{1.0} [ForgeHax Core] (minecraft.jar) 
+	UCH	forgehax{1.0} [Forge Hax] (ForgeHax) 
+	Loaded coremods (and transformers): 
+ForgeHaxCoreMod (unknown)
+  com.matt.forgehax.asm.ForgeHaxTransformer
+  com.matt.forgehax.asm.ForgeHaxAccessTransformer
+	GL info: ' Vendor: 'NVIDIA Corporation' Version: '4.5.0 NVIDIA 368.39' Renderer: 'GeForce GTX 760/PCIe/SSE2'
+	Launched Version: 1.10.2
+	LWJGL: 2.9.4
+	OpenGL: GeForce GTX 760/PCIe/SSE2 GL version 4.5.0 NVIDIA 368.39, NVIDIA Corporation
+	GL Caps: Using GL 1.3 multitexturing.
+Using GL 1.3 texture combiners.
+Using framebuffer objects because OpenGL 3.0 is supported and separate blending is supported.
+Shaders are available because OpenGL 2.1 is supported.
+VBOs are available because OpenGL 1.5 is supported.
+
+	Using VBOs: No
+	Is Modded: Definitely; Client brand changed to 'fml,forge'
+	Type: Client (map_client.txt)
+	Resource Packs: 
+	Current Language: English (US)
+	Profiler Position: N/A (disabled)
+	CPU: 8x AMD FX(tm)-8350 Eight-Core Processor 

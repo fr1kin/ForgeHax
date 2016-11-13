@@ -1,0 +1,98 @@
+---- Minecraft Crash Report ----
+// Sorry :(
+
+Time: 6/11/16 8:46 PM
+Description: Ticking player
+
+java.lang.NullPointerException: Ticking player
+	at com.matt.forgehax.mods.AntiAfkMod.setPlayerMoving(AntiAfkMod.java:39)
+	at com.matt.forgehax.mods.AntiAfkMod.onUpdate(AntiAfkMod.java:103)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_9_AntiAfkMod_onUpdate_OnLocalPlayerUpdate.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:49)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:140)
+	at com.matt.forgehax.ForgeHaxEventHandler.onUpdate(ForgeHaxEventHandler.java:24)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_7_ForgeHaxEventHandler_onUpdate_LivingUpdateEvent.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:49)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:140)
+	at net.minecraftforge.common.ForgeHooks.onLivingUpdate(ForgeHooks.java:470)
+	at net.minecraft.entity.EntityLivingBase.onUpdate(EntityLivingBase.java:2092)
+	at net.minecraft.entity.player.EntityPlayer.onUpdate(EntityPlayer.java:253)
+	at net.minecraft.entity.player.EntityPlayerMP.onUpdateEntity(EntityPlayerMP.java:341)
+	at net.minecraft.network.NetHandlerPlayServer.update(NetHandlerPlayServer.java:175)
+	at net.minecraftforge.fml.common.network.handshake.NetworkDispatcher$1.update(NetworkDispatcher.java:196)
+	at net.minecraft.network.NetworkManager.processReceivedPackets(NetworkManager.java:308)
+	at net.minecraft.network.NetworkSystem.networkTick(NetworkSystem.java:195)
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:804)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:685)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:155)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:534)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Server thread
+Stacktrace:
+	at com.matt.forgehax.mods.AntiAfkMod.setPlayerMoving(AntiAfkMod.java:39)
+	at com.matt.forgehax.mods.AntiAfkMod.onUpdate(AntiAfkMod.java:103)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_9_AntiAfkMod_onUpdate_OnLocalPlayerUpdate.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:49)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:140)
+	at com.matt.forgehax.ForgeHaxEventHandler.onUpdate(ForgeHaxEventHandler.java:24)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_7_ForgeHaxEventHandler_onUpdate_LivingUpdateEvent.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:49)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:140)
+	at net.minecraftforge.common.ForgeHooks.onLivingUpdate(ForgeHooks.java:470)
+	at net.minecraft.entity.EntityLivingBase.onUpdate(EntityLivingBase.java:2092)
+	at net.minecraft.entity.player.EntityPlayer.onUpdate(EntityPlayer.java:253)
+
+-- Player being ticked --
+Details:
+	Entity Type: null (net.minecraft.entity.player.EntityPlayerMP)
+	Entity ID: 323
+	Entity Name: Player451
+	Entity's Exact location: 114.52, 84.00, 252.55
+	Entity's Block location: World: (114,84,252), Chunk: (at 2,5,12 in 7,15; contains blocks 112,0,240 to 127,255,255), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,0,0 to 511,255,511)
+	Entity's Momentum: 0.00, -0.08, 0.00
+	Entity's Passengers: []
+	Entity's Vehicle: ~~ERROR~~ NullPointerException: null
+Stacktrace:
+	at net.minecraft.entity.player.EntityPlayerMP.onUpdateEntity(EntityPlayerMP.java:341)
+	at net.minecraft.network.NetHandlerPlayServer.update(NetHandlerPlayServer.java:175)
+	at net.minecraftforge.fml.common.network.handshake.NetworkDispatcher$1.update(NetworkDispatcher.java:196)
+	at net.minecraft.network.NetworkManager.processReceivedPackets(NetworkManager.java:308)
+
+-- Ticking connection --
+Details:
+	Connection: net.minecraft.network.NetworkManager@3cea8e4c
+Stacktrace:
+	at net.minecraft.network.NetworkSystem.networkTick(NetworkSystem.java:195)
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:804)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:685)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:155)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:534)
+	at java.lang.Thread.run(Thread.java:745)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.9.4
+	Operating System: Windows 7 (amd64) version 6.1
+	Java Version: 1.8.0_20, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Memory: 306881224 bytes (292 MB) / 1737490432 bytes (1657 MB) up to 3795845120 bytes (3620 MB)
+	JVM Flags: 0 total; 
+	IntCache: cache: 0, tcache: 0, allocated: 13, tallocated: 95
+	FML: MCP 9.28 Powered by Forge 12.17.0.1954 4 mods loaded, 4 mods active
+	States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored
+	UCHIJAAAA	mcp{9.19} [Minecraft Coder Pack] (minecraft.jar) 
+	UCHIJAAAA	FML{8.0.99.99} [Forge Mod Loader] (forgeSrc-1.9.4-12.17.0.1954.jar) 
+	UCHIJAAAA	Forge{12.17.0.1954} [Minecraft Forge] (forgeSrc-1.9.4-12.17.0.1954.jar) 
+	UCHIJAAAA	forgehax{1.0} [Forge Hax] (ForgeHax) 
+	Loaded coremods (and transformers): 
+	GL info: ~~ERROR~~ RuntimeException: No OpenGL context found in the current thread.
+	Profiler Position: N/A (disabled)
+	Player Count: 1 / 8; [EntityPlayerMP['Player451'/323, l='test world', x=114.52, y=84.00, z=252.55]]
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Definitely; Client brand changed to 'fml,forge'

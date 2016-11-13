@@ -1,0 +1,99 @@
+---- Minecraft Crash Report ----
+// On the bright side, I bought you a teddy bear!
+
+Time: 6/29/16 4:13 PM
+Description: Ticking entity
+
+java.lang.NullPointerException: Ticking entity
+	at com.matt.forgehax.mods.AntiPotionEffects.onLivingUpdate(AntiPotionEffects.java:37)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_12_AntiPotionEffects_onLivingUpdate_LivingUpdateEvent.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:68)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:159)
+	at net.minecraftforge.common.ForgeHooks.onLivingUpdate(ForgeHooks.java:488)
+	at net.minecraft.entity.EntityLivingBase.onUpdate(EntityLivingBase.java:2135)
+	at net.minecraft.entity.EntityLiving.onUpdate(EntityLiving.java:342)
+	at net.minecraft.world.World.updateEntityWithOptionalForce(World.java:2099)
+	at net.minecraft.world.WorldServer.updateEntityWithOptionalForce(WorldServer.java:872)
+	at net.minecraft.world.World.updateEntity(World.java:2066)
+	at net.minecraft.world.World.updateEntities(World.java:1886)
+	at net.minecraft.world.WorldServer.updateEntities(WorldServer.java:644)
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:783)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:687)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:156)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:536)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Server thread
+Stacktrace:
+	at com.matt.forgehax.mods.AntiPotionEffects.onLivingUpdate(AntiPotionEffects.java:37)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_12_AntiPotionEffects_onLivingUpdate_LivingUpdateEvent.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:68)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:159)
+	at net.minecraftforge.common.ForgeHooks.onLivingUpdate(ForgeHooks.java:488)
+	at net.minecraft.entity.EntityLivingBase.onUpdate(EntityLivingBase.java:2135)
+	at net.minecraft.entity.EntityLiving.onUpdate(EntityLiving.java:342)
+	at net.minecraft.world.World.updateEntityWithOptionalForce(World.java:2099)
+	at net.minecraft.world.WorldServer.updateEntityWithOptionalForce(WorldServer.java:872)
+	at net.minecraft.world.World.updateEntity(World.java:2066)
+
+-- Entity being ticked --
+Details:
+	Entity Type: Pig (net.minecraft.entity.passive.EntityPig)
+	Entity ID: 13
+	Entity Name: Pig
+	Entity's Exact location: -63.30, 71.00, 245.50
+	Entity's Block location: World: (-64,71,245), Chunk: (at 0,4,5 in -4,15; contains blocks -64,0,240 to -49,255,255), Region: (-1,0; contains chunks -32,0 to -1,31, blocks -512,0,0 to -1,255,511)
+	Entity's Momentum: 0.00, -0.08, 0.00
+	Entity's Passengers: []
+	Entity's Vehicle: ~~ERROR~~ NullPointerException: null
+Stacktrace:
+	at net.minecraft.world.World.updateEntities(World.java:1886)
+	at net.minecraft.world.WorldServer.updateEntities(WorldServer.java:644)
+
+-- Affected level --
+Details:
+	Level name: test world
+	All players: 0 total; []
+	Chunk stats: ServerChunkCache: 625 Drop: 0
+	Level seed: -4708337502974059311
+	Level generator: ID 00 - default, ver 1. Features enabled: true
+	Level generator options: 
+	Level spawn location: World: (108,64,252), Chunk: (at 12,4,12 in 6,15; contains blocks 96,0,240 to 111,255,255), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,0,0 to 511,255,511)
+	Level time: 412448 game time, 12107 day time
+	Level dimension: 0
+	Level storage version: 0x04ABD - Anvil
+	Level weather: Rain time: 93373 (now: false), thunder time: 7325 (now: false)
+	Level game mode: Game mode: creative (ID 1). Hardcore: false. Cheats: true
+Stacktrace:
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:783)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:687)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:156)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:536)
+	at java.lang.Thread.run(Thread.java:745)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.10
+	Operating System: Windows 7 (amd64) version 6.1
+	Java Version: 1.8.0_20, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Memory: 978117536 bytes (932 MB) / 1775763456 bytes (1693 MB) up to 3795845120 bytes (3620 MB)
+	JVM Flags: 0 total; 
+	IntCache: cache: 0, tcache: 0, allocated: 12, tallocated: 94
+	FML: MCP 9.32 Powered by Forge 12.18.0.1986 4 mods loaded, 4 mods active
+	States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored
+	UCHIJAAAA	mcp{9.19} [Minecraft Coder Pack] (minecraft.jar) 
+	UCHIJAAAA	FML{8.0.99.99} [Forge Mod Loader] (forgeSrc-1.10-12.18.0.1986-1.10.0.jar) 
+	UCHIJAAAA	Forge{12.18.0.1986} [Minecraft Forge] (forgeSrc-1.10-12.18.0.1986-1.10.0.jar) 
+	UCHIJAAAA	forgehax{1.0} [Forge Hax] (ForgeHax) 
+	Loaded coremods (and transformers): 
+	GL info: ~~ERROR~~ RuntimeException: No OpenGL context found in the current thread.
+	Profiler Position: N/A (disabled)
+	Player Count: 0 / 8; []
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Definitely; Client brand changed to 'fml,forge'
