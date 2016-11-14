@@ -3,7 +3,7 @@ package com.matt.forgehax.mods;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.matt.forgehax.ForgeHaxBase;
-import com.matt.forgehax.util.ModProperty;
+import com.matt.forgehax.util.mod.ModProperty;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.ConfigCategory;

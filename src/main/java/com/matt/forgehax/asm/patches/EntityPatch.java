@@ -1,6 +1,7 @@
 package com.matt.forgehax.asm.patches;
 
 import com.matt.forgehax.asm.events.WebMotionEvent;
+import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
 import com.matt.forgehax.asm.helper.ClassTransformer;
 import org.objectweb.asm.Type;
@@ -24,9 +25,17 @@ public class EntityPatch extends ClassTransformer {
             .setReturnType(void.class)
             .setHooks(NAMES.ON_WEB_MOTION);
 
+    public final AsmMethod DO_APPLY_COLLISIONS = new AsmMethod()
+            .setName("doBlockCollisions")
+            .setObfuscatedName("ac")
+            .setArgumentTypes()
+            .setReturnType(void.class)
+            .setHooks(NAMES.ON_DO_BLOCK_COLLISIONS);
+
     public EntityPatch() {
         registerHook(APPLY_ENTITY_COLLISION);
         registerHook(MOVE_ENTITY);
+        registerHook(DO_APPLY_COLLISIONS);
     }
 
     @Override
@@ -38,6 +47,10 @@ public class EntityPatch extends ClassTransformer {
         } else if(method.name.equals(MOVE_ENTITY.getRuntimeName()) &&
                 method.desc.equals(MOVE_ENTITY.getDescriptor())) {
             updatePatchedMethods(applyMoveEntityPatch(method));
+            return true;
+        } else if(method.name.equals(DO_APPLY_COLLISIONS.getRuntimeName()) &&
+                method.desc.equals(DO_APPLY_COLLISIONS.getDescriptor())) {
+            updatePatchedMethods(doBlockCollisionsPatch(method));
             return true;
         } else return false;
     }
@@ -127,7 +140,15 @@ public class EntityPatch extends ClassTransformer {
             DLOAD, DSTORE
     };
 
+    private final int[] isPlayerSneakingSig = {
+            IFEQ, ALOAD, INSTANCEOF, IFEQ, ICONST_1, GOTO,
+            0x00, 0x00,
+            ICONST_0
+    };
+
     private boolean applyMoveEntityPatch(MethodNode method) {
+        boolean isPatched = false;
+        // for web motion
         AbstractInsnNode preNode = findPattern("moveEntity", "preNode",
                 method.instructions.getFirst(), moveEntityMotionPreSig, "xxxx??xxxx");
         AbstractInsnNode postNode = findPattern("moveEntity", "postNode",
@@ -194,6 +215,79 @@ public class EntityPatch extends ClassTransformer {
 
             method.instructions.insertBefore(preNode, insnList);
             method.instructions.insert(postNode, pop);
+            isPatched = true;
+        }
+
+        // for sneak flag
+        AbstractInsnNode sneakFlagNode = findPattern("moveEntity", "sneakFlagNode",
+                method.instructions.getFirst(), isPlayerSneakingSig, "xxxxxx??x");
+        if(sneakFlagNode != null &&
+                sneakFlagNode instanceof JumpInsnNode) {
+            // the original label to the jump
+            LabelNode jumpToLabel = ((JumpInsnNode) sneakFlagNode).label;
+            // the or statement jump if isSneaking returns false
+            LabelNode orJump = new LabelNode();
+
+            InsnList insnList = new InsnList();
+            insnList.add(new JumpInsnNode(IFNE, orJump)); // if not equal, jump past the ForgeHaxHooks.isSafeWalkActivated
+            insnList.add(new FieldInsnNode(GETSTATIC,
+                    NAMES.IS_SAFEWALK_ACTIVE.getParentClass().getRuntimeName(),
+                    NAMES.IS_SAFEWALK_ACTIVE.getRuntimeName(),
+                    NAMES.IS_SAFEWALK_ACTIVE.getTypeDescriptor()
+            ));// get the value of isSafeWalkActivated
+            insnList.add(new JumpInsnNode(IFEQ, jumpToLabel));
+            insnList.add(orJump);
+
+            AbstractInsnNode previousNode = sneakFlagNode.getPrevious();
+            method.instructions.remove(sneakFlagNode); // delete IFEQ
+            method.instructions.insert(previousNode, insnList); // insert new instructions
+            isPatched &= true;
+        }
+
+        return isPatched;
+    }
+
+    private final int[] doBlockCollisionsPreSig = {
+            ALOAD, INVOKEINTERFACE, ALOAD, GETFIELD, ALOAD, ALOAD, ALOAD, INVOKEVIRTUAL,
+            0x00, 0x00,
+            GOTO
+    };
+    private final int[] doBlockCollisionsPostSig = {
+            INVOKEVIRTUAL,
+            0x00, 0x00,
+            GOTO,
+            0x00, 0x00, 0x00,
+            ASTORE,
+            0x00, 0x00,
+            ALOAD, LDC, INVOKESTATIC, ASTORE,
+            0x00, 0x00,
+            ALOAD, LDC, INVOKEVIRTUAL, ASTORE
+    };
+
+    private boolean doBlockCollisionsPatch(MethodNode method) {
+        AbstractInsnNode preNode = findPattern("doBlockCollisions", "preNode",
+                method.instructions.getFirst(), doBlockCollisionsPreSig, "xxxxxxxx??x");
+        AbstractInsnNode postNode = findPattern("doBlockCollisions", "postNode",
+                method.instructions.getFirst(), doBlockCollisionsPostSig, "x??x???x??xxxx??xxxx");
+        if(preNode != null &&
+                postNode != null) {
+            LabelNode endJump = new LabelNode();
+
+            InsnList insnList = new InsnList();
+            insnList.add(new VarInsnNode(ALOAD, 0)); // push this
+            insnList.add(new VarInsnNode(ALOAD, 4)); // push this
+            insnList.add(new VarInsnNode(ALOAD, 8)); // push this
+            insnList.add(new MethodInsnNode(INVOKESTATIC,
+                    NAMES.ON_DO_BLOCK_COLLISIONS.getParentClass().getRuntimeName(),
+                    NAMES.ON_DO_BLOCK_COLLISIONS.getRuntimeName(),
+                    NAMES.ON_DO_BLOCK_COLLISIONS.getDescriptor(),
+                    false
+            ));
+            insnList.add(new JumpInsnNode(IFNE, endJump));
+
+            method.instructions.insertBefore(preNode, insnList);
+            method.instructions.insert(postNode, endJump);
+
             return true;
         } else return false;
     }

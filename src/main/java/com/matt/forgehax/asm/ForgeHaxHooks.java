@@ -3,15 +3,15 @@ package com.matt.forgehax.asm;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.events.*;
-import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.patches.EntityRendererPatch;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.chunk.SetVisibility;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.Packet;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -26,20 +26,21 @@ public class ForgeHaxHooks {
     public final static Map<String, DebugData> responding = Maps.newLinkedHashMap();
 
     static {
-        responding.put("onHurtcamEffect", new DebugData("net.minecraft.client.renderer.EntityRenderer"));
-        responding.put("onSendingPacket", new DebugData("net.minecraft.network.NetworkManager", "net.minecraft.network.NetworkManager$4"));
-        responding.put("onSentPacket", new DebugData("net.minecraft.network.NetworkManager", "net.minecraft.network.NetworkManager$4"));
-        responding.put("onPreReceived", new DebugData("net.minecraft.network.NetworkManager"));
-        responding.put("onPostReceived", new DebugData("net.minecraft.network.NetworkManager"));
-        responding.put("onWaterMovement", new DebugData("net.minecraft.world.World"));
-        responding.put("onApplyCollisionMotion", new DebugData("net.minecraft.entity.Entity"));
-        responding.put("onWebMotion", new DebugData("net.minecraft.entity.Entity"));
-        responding.put("onPutColorMultiplier", new DebugData("net.minecraft.client.renderer.VertexBuffer"));
-        responding.put("onPreRenderBlockLayer", new DebugData("net.minecraft.client.renderer.RenderGlobal"));
-        responding.put("onPostRenderBlockLayer", new DebugData("net.minecraft.client.renderer.RenderGlobal"));
-        responding.put("onRenderBlockInLayer", new DebugData("net.minecraft.block.Block"));
-        responding.put("onSetupTerrain", new DebugData("net.minecraft.client.renderer.RenderGlobal"));
-        responding.put("onComputeVisibility", new DebugData("net.minecraft.client.renderer.chunk.VisGraph"));
+        responding.put("onHurtcamEffect",                   new DebugData("net.minecraft.client.renderer.EntityRenderer"));
+        responding.put("onSendingPacket",                   new DebugData("net.minecraft.network.NetworkManager", "net.minecraft.network.NetworkManager$4"));
+        responding.put("onSentPacket",                      new DebugData("net.minecraft.network.NetworkManager", "net.minecraft.network.NetworkManager$4"));
+        responding.put("onPreReceived",                     new DebugData("net.minecraft.network.NetworkManager"));
+        responding.put("onPostReceived",                    new DebugData("net.minecraft.network.NetworkManager"));
+        responding.put("onWaterMovement",                   new DebugData("net.minecraft.world.World"));
+        responding.put("onApplyCollisionMotion",            new DebugData("net.minecraft.entity.Entity"));
+        responding.put("onWebMotion",                       new DebugData("net.minecraft.entity.Entity"));
+        responding.put("onDoBlockCollisions",               new DebugData("net.minecraft.entity.Entity"));
+        responding.put("onPutColorMultiplier",              new DebugData("net.minecraft.client.renderer.VertexBuffer"));
+        responding.put("onPreRenderBlockLayer",             new DebugData("net.minecraft.client.renderer.RenderGlobal"));
+        responding.put("onPostRenderBlockLayer",            new DebugData("net.minecraft.client.renderer.RenderGlobal"));
+        responding.put("onRenderBlockInLayer",              new DebugData("net.minecraft.block.Block"));
+        responding.put("onSetupTerrain",                    new DebugData("net.minecraft.client.renderer.RenderGlobal"));
+        responding.put("onComputeVisibility",               new DebugData("net.minecraft.client.renderer.chunk.VisGraph"));
     }
 
     private static void reportHook(String name) {
@@ -61,6 +62,10 @@ public class ForgeHaxHooks {
         }
     }
 
+    public static boolean isSafeWalkActivated = false;
+
+    public static boolean isNoSlowDownActivated = false;
+
     public static boolean onHurtcamEffect(float partialTicks) {
         reportHook("onHurtcamEffect");
         return MinecraftForge.EVENT_BUS.post(new HurtCamEffectEvent(partialTicks));
@@ -68,22 +73,22 @@ public class ForgeHaxHooks {
 
     public static boolean onSendingPacket(Packet<?> packet) {
         reportHook("onSendingPacket");
-        return MinecraftForge.EVENT_BUS.post(new PacketEvent.SendEvent.Pre(packet));
+        return MinecraftForge.EVENT_BUS.post(new PacketEvent.Send.Pre(packet));
     }
 
     public static void onSentPacket(Packet<?> packet) {
         reportHook("onSentPacket");
-        MinecraftForge.EVENT_BUS.post(new PacketEvent.SendEvent.Post(packet));
+        MinecraftForge.EVENT_BUS.post(new PacketEvent.Send.Post(packet));
     }
 
     public static boolean onPreReceived(Packet<?> packet) {
         reportHook("onPreReceived");
-        return MinecraftForge.EVENT_BUS.post(new PacketEvent.ReceivedEvent.Pre(packet));
+        return MinecraftForge.EVENT_BUS.post(new PacketEvent.Received.Pre(packet));
     }
 
     public static void onPostReceived(Packet<?> packet) {
         reportHook("onPostReceived");
-        MinecraftForge.EVENT_BUS.post(new PacketEvent.ReceivedEvent.Post(packet));
+        MinecraftForge.EVENT_BUS.post(new PacketEvent.Received.Post(packet));
     }
 
     public static boolean onWaterMovement(Entity entity, Vec3d moveDir) {
@@ -154,6 +159,15 @@ public class ForgeHaxHooks {
     public static void onComputeVisibility(VisGraph visGraph, SetVisibility setVisibility) {
         reportHook("onComputeVisibility");
         MinecraftForge.EVENT_BUS.post(new ComputeVisibilityEvent(visGraph, setVisibility));
+    }
+
+    public static boolean onDoBlockCollisions(Entity entity, BlockPos pos, IBlockState state) {
+        reportHook("onDoBlockCollisions");
+        return MinecraftForge.EVENT_BUS.post(new DoBlockCollisionsEvent(entity, pos, state));
+    }
+
+    public static boolean onApplyClimbableBlockMovement(EntityLivingBase livingBase) {
+        return MinecraftForge.EVENT_BUS.post(new ApplyClimbableBlockMovement(livingBase));
     }
 
     public static class DebugData {

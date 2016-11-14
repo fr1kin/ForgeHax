@@ -26,7 +26,7 @@ archivesBaseName = "forgehax-1.10.2"
 
 minecraft {
     //version = "1.9.4-12.17.0.1968"
-    version = "1.10.2-12.18.0.2010"
+    version = "1.10.2-12.18.1.2073"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.

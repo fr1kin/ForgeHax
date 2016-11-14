@@ -1,1 +1,4 @@
 ForgeHax.iml
+build/*
+run/*
+.idea/*

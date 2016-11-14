@@ -1,19 +1,11 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.matt.forgehax.util.ModProperty;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.common.config.ConfigCategory;
-import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.client.config.DummyConfigElement;
-import net.minecraftforge.fml.client.config.IConfigElement;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 import java.util.List;
-import java.util.Map;
 
 public abstract class ToggleMod extends BaseMod {
     // setting every mod should have to enable/disable it

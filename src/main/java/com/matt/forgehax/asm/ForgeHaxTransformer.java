@@ -31,6 +31,7 @@ public class ForgeHaxTransformer implements IClassTransformer {
         transformingClasses.put("net.minecraft.network.NetworkManager", new NetManagerPatch());
         transformingClasses.put("net.minecraft.network.NetworkManager$4", new NetManager$4Patch());
         transformingClasses.put("net.minecraft.client.renderer.chunk.VisGraph", new VisGraphPatch());
+        transformingClasses.put("net.minecraft.client.entity.EntityPlayerSP", new EntityPlayerSPPatch());
     }
 
     @Override
@@ -39,6 +40,7 @@ public class ForgeHaxTransformer implements IClassTransformer {
             List<String> log = Lists.newArrayList();
             ClassTransformer transformer = transformingClasses.get(realName);
             try {
+                ForgeHaxCoreMod.print("Transforming class %s (%s)\n", realName, name);
                 ClassNode classNode = new ClassNode();
                 ClassReader classReader = new ClassReader(bytes);
                 classReader.accept(classNode, 0);

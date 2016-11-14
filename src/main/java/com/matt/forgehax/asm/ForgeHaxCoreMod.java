@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ForgeHaxCoreMod implements IFMLLoadingPlugin {
-    public static boolean isObfuscated = true;
+    public static boolean isObfuscated = false;
     public static Logger logger;
 
     @Override

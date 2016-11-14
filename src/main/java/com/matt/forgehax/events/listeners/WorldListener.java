@@ -1,7 +1,7 @@
 package com.matt.forgehax.events.listeners;
 
-import com.matt.forgehax.events.OnEntityAdded;
-import com.matt.forgehax.events.OnEntityRemoved;
+import com.matt.forgehax.events.EntityAddedEvent;
+import com.matt.forgehax.events.EntityRemovedEvent;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -45,12 +45,12 @@ public class WorldListener implements IWorldEventListener {
 
     @Override
     public void onEntityAdded(Entity entityIn) {
-        MinecraftForge.EVENT_BUS.post(new OnEntityAdded(entityIn));
+        MinecraftForge.EVENT_BUS.post(new EntityAddedEvent(entityIn));
     }
 
     @Override
     public void onEntityRemoved(Entity entityIn) {
-        MinecraftForge.EVENT_BUS.post(new OnEntityRemoved(entityIn));
+        MinecraftForge.EVENT_BUS.post(new EntityRemovedEvent(entityIn));
     }
 
     @Override

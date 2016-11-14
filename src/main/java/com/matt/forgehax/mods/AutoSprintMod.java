@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
-import com.matt.forgehax.util.Bindings;
+import com.matt.forgehax.util.key.Bindings;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoSprintMod extends ToggleMod {

@@ -4,8 +4,6 @@ import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.WebMotionEvent;
-import net.minecraft.client.renderer.BlockModelRenderer;
-import net.minecraft.entity.Entity;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.util.math.Vec3d;
@@ -14,9 +12,9 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AntiKnockbackMod extends ToggleMod {
-    private Property modifierX;
-    private Property modifierY;
-    private Property modifierZ;
+    private Property multiplierX;
+    private Property multiplierY;
+    private Property multiplierZ;
 
     public AntiKnockbackMod(String modName, boolean defaultValue, String description, int key) {
         super(modName, defaultValue, description, key);
@@ -25,20 +23,20 @@ public class AntiKnockbackMod extends ToggleMod {
     @Override
     public void loadConfig(Configuration configuration) {
         addSettings(
-                modifierX = configuration.get(getModName(),
-                        "modifierX",
+                multiplierX = configuration.get(getModName(),
+                        "multiplierX",
                         0.D,
-                        "X motion modifier"
+                        "X motion multiplier"
                 ),
-                modifierY = configuration.get(getModName(),
-                        "modifierY",
+                multiplierY = configuration.get(getModName(),
+                        "multiplierY",
                         0.D,
-                        "Y motion modifier"
+                        "Y motion multiplier"
                 ),
-                modifierZ = configuration.get(getModName(),
-                        "modifierZ",
+                multiplierZ = configuration.get(getModName(),
+                        "multiplierZ",
                         0.D,
-                        "Z motion modifier"
+                        "Z motion multiplier"
                 )
         );
     }
@@ -47,17 +45,26 @@ public class AntiKnockbackMod extends ToggleMod {
      * Stops TNT and knockback velocity
      */
     @SubscribeEvent
-    public void onPacketRecieved(PacketEvent.ReceivedEvent.Pre event) {
+    public void onPacketRecieved(PacketEvent.Received.Pre event) {
         if(event.getPacket() instanceof SPacketExplosion) {
-            ((SPacketExplosion) event.getPacket()).motionX *= modifierX.getDouble();
-            ((SPacketExplosion) event.getPacket()).motionY *= modifierY.getDouble();
-            ((SPacketExplosion) event.getPacket()).motionZ *= modifierZ.getDouble();
+            // for tnt knockback
+            ((SPacketExplosion) event.getPacket()).motionX *= multiplierX.getDouble();
+            ((SPacketExplosion) event.getPacket()).motionY *= multiplierY.getDouble();
+            ((SPacketExplosion) event.getPacket()).motionZ *= multiplierZ.getDouble();
         }
         if(event.getPacket() instanceof SPacketEntityVelocity) {
+            // for player knockback
             if(((SPacketEntityVelocity) event.getPacket()).getEntityID() == MC.thePlayer.getEntityId()) {
-                ((SPacketEntityVelocity) event.getPacket()).motionX *= modifierX.getDouble();
-                ((SPacketEntityVelocity) event.getPacket()).motionY *= modifierY.getDouble();
-                ((SPacketEntityVelocity) event.getPacket()).motionZ *= modifierZ.getDouble();
+                double multiX = multiplierX.getDouble();
+                double multiY = multiplierY.getDouble();
+                double multiZ = multiplierZ.getDouble();
+                if(multiX == 0 && multiY == 0 && multiZ == 0) {
+                    event.setCanceled(true);
+                } else {
+                    ((SPacketEntityVelocity) event.getPacket()).motionX *= multiX;
+                    ((SPacketEntityVelocity) event.getPacket()).motionY *= multiY;
+                    ((SPacketEntityVelocity) event.getPacket()).motionZ *= multiZ;
+                }
             }
         }
     }
@@ -69,9 +76,9 @@ public class AntiKnockbackMod extends ToggleMod {
     public void onWaterMovementEvent(WaterMovementEvent event) {
         if(event.getEntity().equals(MC.thePlayer)) {
             Vec3d moveDir = event.getMoveDir().normalize();
-            event.getEntity().motionX += (moveDir.xCoord * 0.014D) * modifierX.getDouble();
-            event.getEntity().motionY += (moveDir.yCoord * 0.014D) * modifierY.getDouble();
-            event.getEntity().motionZ += (moveDir.zCoord * 0.014D) * modifierZ.getDouble();
+            event.getEntity().motionX += (moveDir.xCoord * 0.014D) * multiplierX.getDouble();
+            event.getEntity().motionY += (moveDir.yCoord * 0.014D) * multiplierY.getDouble();
+            event.getEntity().motionZ += (moveDir.zCoord * 0.014D) * multiplierZ.getDouble();
             event.setCanceled(true);
         }
     }
@@ -83,9 +90,9 @@ public class AntiKnockbackMod extends ToggleMod {
     public void onApplyCollisionMotion(ApplyCollisionMotionEvent event) {
         if(event.getEntity().equals(MC.thePlayer)) {
             event.getEntity().addVelocity(
-                    event.getMotionX() * modifierX.getDouble(),
-                    event.getMotionY() * modifierY.getDouble(),
-                    event.getMotionZ() * modifierZ.getDouble()
+                    event.getMotionX() * multiplierX.getDouble(),
+                    event.getMotionY() * multiplierY.getDouble(),
+                    event.getMotionZ() * multiplierZ.getDouble()
             );
             event.setCanceled(true);
         }

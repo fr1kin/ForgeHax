@@ -2,6 +2,11 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.util.*;
+import com.matt.forgehax.util.draw.SurfaceUtils;
+import com.matt.forgehax.util.entity.EnchantmentUtils;
+import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
+import com.matt.forgehax.util.math.VectorUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -37,6 +42,7 @@ public class EntityEspMod extends ToggleMod {
     public Property friendlyMobs;
 
     public Property armorEsp;
+    public Property distanceEsp;
 
     public EntityEspMod(String categoryName, boolean defaultValue, String description, int key) {
         super(categoryName, defaultValue, description, key);
@@ -75,7 +81,7 @@ public class EntityEspMod extends ToggleMod {
      * Check if we should draw the entity
      */
     public boolean shouldDraw(EntityLivingBase entity) {
-        return PlayerUtils.isTargetEntity(entity) || (
+        return LocalPlayerUtils.isTargetEntity(entity) || (
                 !entity.equals(MC.thePlayer) &&
                 EntityUtils.isAlive(entity) &&
                 EntityUtils.isValidEntity(entity) && (
@@ -112,7 +118,12 @@ public class EntityEspMod extends ToggleMod {
                         "armor esp",
                         ArmorOptions.ENCHANTMENTS.name(),
                         "Shows info about entities armor if set to advanced esp mode",
-                        ARMOR_OPTIONS)
+                        ARMOR_OPTIONS),
+                distanceEsp = configuration.get(getModName(),
+                        "distance esp",
+                        false,
+                        "Shows distance in name tags if selected settings >name"
+                )
         );
     }
 
@@ -129,7 +140,7 @@ public class EntityEspMod extends ToggleMod {
             for (Entity entity : MC.theWorld.loadedEntityList) {
                 if(EntityUtils.isLiving(entity) && shouldDraw((EntityLivingBase) entity)) {
                     EntityLivingBase living = (EntityLivingBase) (entity);
-                    Vec3d bottomVec = EntityUtils.getRenderPos(living, event.getPartialTicks());
+                    Vec3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
                     Vec3d topVec = bottomVec.add(new Vec3d(0, (entity.getRenderBoundingBox().maxY - entity.posY), 0));
                     VectorUtils.ScreenPos top = VectorUtils.toScreen(topVec.xCoord, topVec.yCoord, topVec.zCoord);
                     VectorUtils.ScreenPos bot = VectorUtils.toScreen(bottomVec.xCoord, bottomVec.yCoord, bottomVec.zCoord);
@@ -145,18 +156,18 @@ public class EntityEspMod extends ToggleMod {
 
                         // optical esp
                         // drawMode == null means they are the target but the esp is disabled for them
-                        if (PlayerUtils.isTargetEntity(entity) ||
+                        if (LocalPlayerUtils.isTargetEntity(entity) ||
                                 drawMode != null && drawMode.equals(DrawOptions.ADVANCED)) {
                             int x = (top.x - (width / 2));
                             int y = top.y;
                             int w = width;
                             int h = height;
                             // outer
-                            RenderUtils.drawOutlinedRect(x - 1, y - 1, w + 2, h + 2, Utils.Colors.BLACK, 2.f);
+                            SurfaceUtils.drawOutlinedRect(x - 1, y - 1, w + 2, h + 2, Utils.Colors.BLACK, 2.f);
                             // inner
-                            RenderUtils.drawOutlinedRect(x, y, w, h, EntityUtils.getDrawColor(living), 2.f);
+                            SurfaceUtils.drawOutlinedRect(x, y, w, h, EntityUtils.getDrawColor(living), 2.f);
                             // outer
-                            RenderUtils.drawOutlinedRect(x + 1, y + 1, w - 2, h - 2, Utils.Colors.BLACK, 2.f);
+                            SurfaceUtils.drawOutlinedRect(x + 1, y + 1, w - 2, h - 2, Utils.Colors.BLACK, 2.f);
                         }
 
                         // no more drawing
@@ -170,8 +181,8 @@ public class EntityEspMod extends ToggleMod {
                             double hp = (living.getHealth() / living.getMaxHealth());
                             int posX = topX - (HEALTHBAR_WIDTH / 2);
                             int posY = topY - HEALTHBAR_HEIGHT - 2;
-                            RenderUtils.drawRect(posX, posY, HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT, Utils.toRGBA(0, 0, 0, 255));
-                            RenderUtils.drawRect(
+                            SurfaceUtils.drawRect(posX, posY, HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT, Utils.toRGBA(0, 0, 0, 255));
+                            SurfaceUtils.drawRect(
                                     posX + 1,
                                     posY + 1,
                                     (int) ((float) (HEALTHBAR_WIDTH - 2) * hp),
@@ -183,10 +194,12 @@ public class EntityEspMod extends ToggleMod {
 
                         // name esp
                         if (drawMode.equals(DrawOptions.ADVANCED) || drawMode.equals(DrawOptions.SIMPLE) || drawMode.equals(DrawOptions.NAME)) {
-                            double distance = living.getPositionVector().distanceTo(MC.thePlayer.getPositionVector());
-                            String text = living.getDisplayName().getFormattedText() + String.format(" (%.1f)", distance);
-                            RenderUtils.drawTextShadow(text, topX - (RenderUtils.getTextWidth(text) / 2), topY - RenderUtils.getTextHeight() - 1, Utils.toRGBA(255, 255, 255, 255));
-                            topY -= RenderUtils.getTextHeight() + 1;
+                            String text = living.getDisplayName().getFormattedText();
+                            if(distanceEsp.getBoolean() && (drawMode.equals(DrawOptions.SIMPLE) || drawMode.equals(DrawOptions.ADVANCED))) {
+                                text += String.format(" (%.1f)", living.getPositionVector().distanceTo(MC.thePlayer.getPositionVector()));
+                            }
+                            SurfaceUtils.drawTextShadow(text, topX - (SurfaceUtils.getTextWidth(text) / 2), topY - SurfaceUtils.getTextHeight() - 1, Utils.toRGBA(255, 255, 255, 255));
+                            topY -= SurfaceUtils.getTextHeight() + 1;
                         }
 
                         //----BOTTOM ESP----
@@ -204,19 +217,19 @@ public class EntityEspMod extends ToggleMod {
                                     ItemStack stack = armor.get(i);
                                     int startX = posX + (i * 16);
                                     int startY = botY;
-                                    RenderUtils.drawItemWithOverlay(stack, startX, startY);
+                                    SurfaceUtils.drawItemWithOverlay(stack, startX, startY);
                                     // enchantment esp
                                     if (armorMode.equals(ArmorOptions.ENCHANTMENTS)) {
                                         List<EnchantmentUtils.EntityEnchantment> enchantments = EnchantmentUtils.getEnchantmentsSorted(stack.getEnchantmentTagList());
                                         if (enchantments != null) {
                                             for (EnchantmentUtils.EntityEnchantment enchant : enchantments) {
-                                                RenderUtils.drawTextShadow(enchant.getShortName(),
+                                                SurfaceUtils.drawTextShadow(enchant.getShortName(),
                                                         startX,
                                                         startY,
                                                         Utils.toRGBA(255, 255, 255, 255),
                                                         0.50D
                                                 );
-                                                startY += RenderUtils.getTextHeight(0.50D);
+                                                startY += SurfaceUtils.getTextHeight(0.50D);
                                                 if (startY > endY)
                                                     endY = startY;
                                             }

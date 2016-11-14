@@ -104,6 +104,7 @@ public class XrayMod extends ToggleMod {
 
     @SubscribeEvent
     public void onComputeVisibility(ComputeVisibilityEvent event) {
-        event.getSetVisibility().setAllVisible(true);
+        if(!SETTINGS.get("nocaveculling-enabled").getBoolean())
+            event.getSetVisibility().setAllVisible(true);
     }
 }

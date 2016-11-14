@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
-import com.matt.forgehax.util.PlayerUtils;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -23,7 +23,7 @@ public class YawLockMod extends ToggleMod {
     }
 
     public double getYawDirection() {
-        return Math.round((PlayerUtils.me().rotationYaw + 1.f) / 45.f) * 45.f;
+        return Math.round((LocalPlayerUtils.getViewAngles().getYaw() + 1.f) / 45.f) * 45.f;
     }
 
     @Override
@@ -41,9 +41,9 @@ public class YawLockMod extends ToggleMod {
         double yaw = getYawDirection();
         if(!autoAngle.getBoolean())
             yaw = customAngle.getDouble();
-        PlayerUtils.setViewAngles(event.getEntityLiving().rotationPitch, yaw);
+        LocalPlayerUtils.setViewAngles(event.getEntityLiving().rotationPitch, yaw);
         // disable after first set if set to do once
-        if(doOnce.getBoolean())
+        if(isEnabled() && doOnce.getBoolean())
             toggle();
     }
 }
