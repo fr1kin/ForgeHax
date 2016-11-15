@@ -36,6 +36,8 @@ public class AimbotMod extends ToggleMod {
     public Property autoAttack;
     public Property projectileAutoAttack;
     public Property holdTarget;
+    public Property visibilityCheck;
+
     public Property projectileAimbot;
     public Property projectileTraceCheck;
 
@@ -48,12 +50,22 @@ public class AimbotMod extends ToggleMod {
     public Property hostileMobs;
     public Property friendlyMobs;
 
+    public Property lagCompensation;
+
+    private final LagCompensator compensator = LagCompensator.getInstance();
+
     public AimbotMod(String modName, boolean defaultValue, String description, int key) {
         super(modName, defaultValue, description, key);
     }
 
+    private float getLagComp() {
+        if(lagCompensation.getBoolean()) {
+            return -(20 - compensator.getTickRate());
+        } else return 0.f;
+    }
+
     public boolean canAttack(EntityPlayer localPlayer, Entity target) {
-        return localPlayer.getCooledAttackStrength(0.f) >= (cooldownPercent.getDouble() / 100.f) &&
+        return localPlayer.getCooledAttackStrength(getLagComp()) >= (cooldownPercent.getDouble() / 100.f) &&
                 (autoAttack.getBoolean() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
     }
 
@@ -69,7 +81,7 @@ public class AimbotMod extends ToggleMod {
     public boolean isVisible(Entity target) {
         if(isProjectileAimbotActivated() && projectileTraceCheck.getBoolean()) {
             return ProjectileUtils.projectileTrajectoryHitsEntity(target, EntityUtils.getEyePos(getLocalPlayer()), getAimPos(target), null);
-        } else return getLocalPlayer().canEntityBeSeen(target);
+        } else return !visibilityCheck.getBoolean() || getLocalPlayer().canEntityBeSeen(target);
     }
 
     public Vec3d getAimPos(Entity entity) {
@@ -163,6 +175,11 @@ public class AimbotMod extends ToggleMod {
                         true,
                         "Automatically attack"
                 ),
+                visibilityCheck = configuration.get(getModName(),
+                        "aim_vischeck",
+                        true,
+                        "If the aimbot will do visibility checks"
+                ),
                 projectileAutoAttack = configuration.get(getModName(),
                         "projectile_autoattack",
                         true,
@@ -221,6 +238,11 @@ public class AimbotMod extends ToggleMod {
                         "tar_friendly_mobs",
                         true,
                         "Attack friendly mobs"
+                ),
+                lagCompensation = configuration.get(getModName(),
+                        "aim_lagcomp",
+                        true,
+                        "Compensate for tps lag"
                 )
         );
     }
@@ -265,6 +287,7 @@ public class AimbotMod extends ToggleMod {
                     if (silent.getBoolean()) {
                         LocalPlayerUtils.setActiveFakeAngles(true);
                         LocalPlayerUtils.setFakeViewAngles(aim);
+                        LocalPlayerUtils.sendRotatePacket(aim);
                         return;
                     }
                 }

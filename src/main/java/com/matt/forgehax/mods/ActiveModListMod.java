@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.util.LagCompensator;
 import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.Utils;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -15,9 +16,11 @@ public class ActiveModListMod extends ToggleMod {
     public void onRenderScreen(RenderGameOverlayEvent.Text event) {
         int posX = 1;
         int posY = 1;
+        SurfaceUtils.drawTextShadow(String.format("Tick-rate: %d", LagCompensator.getInstance().getTickRate()), posX, posY, Utils.Colors.WHITE);
+        posY += SurfaceUtils.getTextHeight() + 1;
         for(BaseMod mod : MOD.mods.values()) {
             if(mod.isEnabled() && !mod.isHidden()) {
-                SurfaceUtils.drawTextShadow(">" + mod.getModName(), posX, posY, Utils.toRGBA(255, 255, 255, 255));
+                SurfaceUtils.drawTextShadow(">" + mod.getModName(), posX, posY, Utils.Colors.WHITE);
                 posY += SurfaceUtils.getTextHeight() + 1;
             }
         }
