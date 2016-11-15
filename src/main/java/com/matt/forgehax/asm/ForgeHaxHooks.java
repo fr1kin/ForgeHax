@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.events.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.chunk.SetVisibility;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.entity.Entity;
@@ -13,6 +14,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.nio.ByteOrder;
@@ -168,6 +170,10 @@ public class ForgeHaxHooks {
 
     public static boolean onApplyClimbableBlockMovement(EntityLivingBase livingBase) {
         return MinecraftForge.EVENT_BUS.post(new ApplyClimbableBlockMovement(livingBase));
+    }
+
+    public static void onBlockRender(BlockPos pos, IBlockState state, IBlockAccess access, VertexBuffer buffer) {
+        //MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
     }
 
     public static class DebugData {

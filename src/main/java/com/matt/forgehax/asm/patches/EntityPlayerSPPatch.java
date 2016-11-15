@@ -10,7 +10,7 @@ import static org.objectweb.asm.Opcodes.*;
  * Created on 11/13/2016 by fr1kin
  */
 public class EntityPlayerSPPatch extends ClassTransformer {
-    public final AsmMethod APPLY_ENTITY_COLLISION = new AsmMethod()
+    public final AsmMethod ON_LIVING_UPDATE = new AsmMethod()
             .setName("onLivingUpdate")
             .setObfuscatedName("n")
             .setArgumentTypes()
@@ -18,13 +18,13 @@ public class EntityPlayerSPPatch extends ClassTransformer {
             .setHooks();
 
     public EntityPlayerSPPatch() {
-        registerHook(APPLY_ENTITY_COLLISION);
+        registerHook(ON_LIVING_UPDATE);
     }
 
     @Override
     public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(APPLY_ENTITY_COLLISION.getRuntimeName()) &&
-                method.desc.equals(APPLY_ENTITY_COLLISION.getDescriptor())) {
+        if(method.name.equals(ON_LIVING_UPDATE.getRuntimeName()) &&
+                method.desc.equals(ON_LIVING_UPDATE.getDescriptor())) {
             updatePatchedMethods(applyLivingUpdatePatch(method));
             return true;
         } else return false;
@@ -50,7 +50,7 @@ public class EntityPlayerSPPatch extends ClassTransformer {
                     NAMES.IS_NOSLOWDOWN_ACTIVE.getRuntimeName(),
                     NAMES.IS_NOSLOWDOWN_ACTIVE.getTypeDescriptor()
             ));// get the value of IS_NOSLOWDOWN_ACTIVE
-            insnList.add(new JumpInsnNode(IFEQ, jumpTo));
+            insnList.add(new JumpInsnNode(IFNE, jumpTo));
 
             method.instructions.insert(applySlowdownSpeedNode, insnList);
             return true;

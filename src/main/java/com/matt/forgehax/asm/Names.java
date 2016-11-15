@@ -66,6 +66,14 @@ public class Names {
             .setName("net/minecraft/network/NetworkManager$4")
             .setObfuscatedName("eo$4");
 
+    public final AsmClass IBLOCKACCESS = new AsmClass()
+            .setName("net/minecraft/world/IBlockAccess")
+            .setObfuscatedName("aih");
+
+    public final AsmClass VERTEXBUFFER = new AsmClass()
+            .setName("net/minecraft/client/renderer/VertexBuffer")
+            .setObfuscatedName("bnt");
+
     // hook names
 
     // ----event classes----
@@ -173,4 +181,9 @@ public class Names {
             .setName("onApplyClimbableBlockMovement")
             .setArgumentTypes(LIVING_BASE)
             .setReturnType(boolean.class);
+
+    public final AsmMethod ON_RENDER_BLOCK = FORGEHAX_HOOKS.childMethod()
+            .setName("onBlockRender")
+            .setArgumentTypes(BLOCKPOS, IBLOCKSTATE, IBLOCKACCESS, VERTEXBUFFER)
+            .setReturnType(void.class);
 }

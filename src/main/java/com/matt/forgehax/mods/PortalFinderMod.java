@@ -1,15 +1,26 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.asm.events.BlockRenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.RenderUtils;
+import com.matt.forgehax.util.entity.EntityUtils;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockLog;
+import net.minecraft.block.BlockPortal;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEndGateway;
 import net.minecraft.tileentity.TileEntityEndPortal;
 import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Created on 11/10/2016 by fr1kin
@@ -32,6 +43,15 @@ public class PortalFinderMod extends ToggleMod {
                         true
                 );
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onBlockRender(BlockRenderEvent event) {
+        Block block = event.getState().getBlock();
+        if(block instanceof BlockPortal) {
+            AxisAlignedBB bb = event.getState().getBoundingBox(event.getAccess(), event.getPos());
+
         }
     }
 }
