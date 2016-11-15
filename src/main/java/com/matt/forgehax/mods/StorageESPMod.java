@@ -24,7 +24,8 @@ public class StorageESPMod extends ToggleMod {
     public void onRenderWorld(RenderWorldLastEvent event) {
         for(TileEntity tileEntity : getWorld().loadedTileEntityList) {
             BlockPos pos = tileEntity.getPos();
-            if(tileEntity instanceof TileEntityChest || tileEntity instanceof TileEntityFurnace || tileEntity instanceof TileEntityDispenser|| tileEntity instanceof TileEntityHopper) {
+            if(tileEntity instanceof TileEntityChest || tileEntity instanceof TileEntityDispenser) {
+
                 RenderUtils.drawBox(
                         pos,
                         pos.add(1, 1, 1),
@@ -37,6 +38,22 @@ public class StorageESPMod extends ToggleMod {
                         pos,
                         pos.add(1, 1, 1),
                         Utils.Colors.PURPLE,
+                        2,
+                        true
+                );
+            } else if(tileEntity instanceof TileEntityFurnace) {
+                RenderUtils.drawBox(
+                        pos,
+                        pos.add(1, 1, 1),
+                        Utils.Colors.GRAY,
+                        2,
+                        true
+                );
+            } else if(tileEntity instanceof TileEntityHopper) {
+                RenderUtils.drawBox(
+                        pos,
+                        pos.add(1, 1, 1),
+                        Utils.Colors.DARK_RED,
                         2,
                         true
                 );

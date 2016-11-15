@@ -77,5 +77,7 @@ public class Utils extends ForgeHaxBase {
         public final static int BLUE            = Utils.toRGBA(0,       0,      255,    255);
         public final static int ORANGE          = Utils.toRGBA(255,     128,    0,      255);
         public final static int PURPLE          = Utils.toRGBA(163,     73,     163,    255);
+        public final static int GRAY            = Utils.toRGBA(127,     127,    127,    255);
+        public final static int DARK_RED        = Utils.toRGBA(64,      0,      0,      255);
     }
 }
