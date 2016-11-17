@@ -213,6 +213,7 @@ public class ForgeHax {
 				registerMod(new XrayMod("xray", true, "See blocks through walls", Keyboard.KEY_END));
 				registerMod(new YawLockMod("yawlock", false, "Locks yaw to prevent moving into walls", Keyboard.KEY_END));
 				registerMod(new ElytraFlight("elytraflight", false, "Elytra Flight", Keyboard.KEY_END));
+				registerMod(new DropInvMod("dropinvmod", true, "hax", Keyboard.KEY_END));
 
 				//---- initialize configuration ----//
 				// create folder containing all account settings
