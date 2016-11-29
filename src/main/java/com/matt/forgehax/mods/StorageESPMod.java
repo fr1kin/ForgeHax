@@ -3,7 +3,10 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.RenderUtils;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.item.EntityMinecartChest;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -65,6 +68,16 @@ public class StorageESPMod extends ToggleMod {
                         pos,
                         pos.add(1, 1, 1),
                         Utils.Colors.ORANGE,
+                        2,
+                        true
+                );
+            } else if(entity instanceof EntityItemFrame &&
+                    ((EntityItemFrame) entity).getDisplayedItem().getItem() instanceof ItemShulkerBox) {
+                BlockPos pos = entity.getPosition();
+                RenderUtils.drawBox(
+                        pos,
+                        pos.add(1, -1, 1),
+                        Utils.Colors.YELLOW,
                         2,
                         true
                 );
