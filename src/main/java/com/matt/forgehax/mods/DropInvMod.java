@@ -94,11 +94,11 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
         clientToServer = new ClientToServer(talkingPort);
     }
 
-    private void dupeItems() {
+    private void dupeItems(boolean sendKickPacket) {
         switch (sendOrder.getString()) {
             case "PRE":
             {
-                getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
+                if(sendKickPacket) getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
                 for(int i = 9; i < 45; i++) {
                     MC.playerController.windowClick(0, i, 1, ClickType.THROW,
                             MC.thePlayer);
@@ -112,12 +112,12 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
                     MC.playerController.windowClick(0, i, 1, ClickType.THROW,
                             MC.thePlayer);
                 }
-                getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
+                if(sendKickPacket) getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
             }
         }
     }
 
-    private void dropInv() {
+    private void dropInv(boolean sendKickPacket) {
         if(dropDelay.getInt() > 0) {
             new Thread(new Runnable() {
                 @Override
@@ -127,11 +127,11 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    dupeItems();
+                    dupeItems(sendKickPacket);
                 }
             }).start();
         } else {
-            dupeItems();
+            dupeItems(sendKickPacket);
         }
     }
 
@@ -153,7 +153,7 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
     public void onTick(LocalPlayerUpdateEvent event) {
         if(timeConnected != -1 &&
                 System.currentTimeMillis() > timeConnected) {
-            dropInv();
+            if(!talkToClients.getBoolean()) dropInv(true);
             timeConnected = -1;
         }
     }
@@ -161,7 +161,7 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
     @SubscribeEvent
     public void onKeyPressed(InputEvent.KeyInputEvent event) {
         if(MC.gameSettings.keyBindDrop.isPressed()) {
-            dropInv();
+            dropInv(true);
         }
     }
 
@@ -171,7 +171,7 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    dropInv();
+                    dropInv(false);
                 }
             }).start();
         }
