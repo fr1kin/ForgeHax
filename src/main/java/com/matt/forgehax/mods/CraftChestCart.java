@@ -90,7 +90,7 @@ public class CraftChestCart extends ToggleMod {
                     return slot.slotNumber;
                 else if (stack != null &&
                         stack.isItemEqual(slot.getStack()) &&
-                        slot.getStack().stackSize >= stack.stackSize)
+                        slot.getStack().func_190916_E() >= stack.func_190916_E())
                     return slot.slotNumber;
             }
             return -1;
@@ -105,7 +105,7 @@ public class CraftChestCart extends ToggleMod {
                 Slot slot = getInventory().getSlot(i);
                 if (slot.getHasStack() &&
                         item.isItemEqual(slot.getStack()) &&
-                        slot.getStack().stackSize < slot.getStack().getMaxStackSize())
+                        slot.getStack().func_190916_E() < slot.getStack().getMaxStackSize())
                     return slot.slotNumber;
             }
             return -1;
@@ -133,7 +133,7 @@ public class CraftChestCart extends ToggleMod {
 
         public boolean isValidStacks(ItemStack recipeStack, ItemStack stack) {
             return recipeStack.isItemEqual(stack) &&
-                    stack.stackSize >= recipeStack.stackSize;
+                    stack.func_190916_E() >= recipeStack.func_190916_E();
         }
 
         public boolean fillSlotWithItemFromInv(int id, ItemStack stack) throws Exception {
@@ -186,7 +186,7 @@ public class CraftChestCart extends ToggleMod {
                 ItemStack slotStack = slot.getStack();
                 return slotStack != null &&
                         slotStack.getItem().equals(stack.getItem()) &&
-                        slotStack.stackSize < stack.stackSize;
+                        slotStack.func_190916_E() < stack.func_190916_E();
             } else return false;
         }
 

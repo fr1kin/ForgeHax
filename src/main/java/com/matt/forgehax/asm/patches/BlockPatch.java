@@ -43,39 +43,20 @@ public class BlockPatch extends ClassTransformer {
         AbstractInsnNode postNode = findPattern("canRenderInLayer", "postNode",
                 node.instructions.getFirst(), canRenderBlockLayerPostSig, "x");
         if(preNode != null && postNode != null) {
-            LabelNode endJump = new LabelNode();
-
             InsnList insnPre = new InsnList();
-            insnPre.add(new VarInsnNode(ISTORE, 3));
+            // starting after INVOKEVIRTUAL on Block.getBlockLayer()
+            insnPre.add(new VarInsnNode(ASTORE, 3));
             insnPre.add(new VarInsnNode(ALOAD, 0));
             insnPre.add(new VarInsnNode(ALOAD, 1));
+            insnPre.add(new VarInsnNode(ALOAD, 3));
             insnPre.add(new VarInsnNode(ALOAD, 2));
-            insnPre.add(new VarInsnNode(ILOAD, 3));
             insnPre.add(new MethodInsnNode(INVOKESTATIC,
                     NAMES.ON_RENDERBLOCK_INLAYER.getParentClass().getRuntimeName(),
                     NAMES.ON_RENDERBLOCK_INLAYER.getRuntimeName(),
                     NAMES.ON_RENDERBLOCK_INLAYER.getDescriptor(),
                     false
             ));
-            insnPre.add(new VarInsnNode(ASTORE, 4));
-            insnPre.add(new VarInsnNode(ALOAD, 4));
-            insnPre.add(new MethodInsnNode(INVOKEVIRTUAL,
-                    NAMES.RENDER_BLOCK_IN_LAYER_EVENT.getRuntimeName(),
-                    "isCanceled",
-                    "()Z",
-                    false
-            ));
-            insnPre.add(new JumpInsnNode(IFEQ, endJump));
-            insnPre.add(new VarInsnNode(ALOAD, 4));
-            insnPre.add(new MethodInsnNode(INVOKEVIRTUAL,
-                    NAMES.RENDER_BLOCK_IN_LAYER_EVENT.getRuntimeName(),
-                    "getReturnValue",
-                    "()Z",
-                    false
-            ));
-            insnPre.add(new InsnNode(IRETURN));
-            insnPre.add(endJump);
-            insnPre.add(new VarInsnNode(ILOAD, 3));
+            // now our result is on the stack
 
             node.instructions.insert(preNode, insnPre);
             return true;

@@ -4,9 +4,13 @@ import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.mods.*;
 import com.matt.forgehax.mods.core.ContainersMod;
+import com.matt.forgehax.mods.debug.DebugDisplayMod;
+import com.matt.forgehax.mods.debug.DebugModeMod;
+import com.matt.forgehax.mods.debug.DebugOutputMod;
 import com.matt.forgehax.util.LagCompensator;
 import com.matt.forgehax.util.container.ContainerManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.MoverType;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -169,9 +173,11 @@ public class ForgeHax {
 				//---- initialize mods ----//
 				registerMod(new ContainersMod("Containers", "Mod containers for xray and entity lists"));
 				if (isInDevMode) {
-	                /*registerMod(new DebugModeMod("debugmode", true, "Enables debug mode", Keyboard.KEY_END));
+					/*
+	                registerMod(new DebugModeMod("debugmode", true, "Enables debug mode", Keyboard.KEY_END));
                     registerMod(new DebugDisplayMod("debugdisplay", true, "Display transformer hook reports", Keyboard.KEY_END));
-                    registerMod(new DebugOutputMod("debugoutput", true, "Output debug info on hooks", Keyboard.KEY_HOME));*/
+                    registerMod(new DebugOutputMod("debugoutput", true, "Output debug info on hooks", Keyboard.KEY_HOME));
+                    //*/
 				}
 				registerMod(new ActiveModListMod("activemods", true, "Shows list of all active mods", Keyboard.KEY_END));
 				registerMod(new AimbotMod("aimbot", true, "Auto aim/attack entities", Keyboard.KEY_END));
@@ -214,6 +220,7 @@ public class ForgeHax {
 				registerMod(new YawLockMod("yawlock", false, "Locks yaw to prevent moving into walls", Keyboard.KEY_END));
 				registerMod(new ElytraFlight("elytraflight", false, "Elytra Flight", Keyboard.KEY_END));
 				registerMod(new DropInvMod("dropinvmod", true, "hax", Keyboard.KEY_END));
+				registerMod(new AntiLevitationMod("antilevitation", true, "No levitation", Keyboard.KEY_END));
 
 				//---- initialize configuration ----//
 				// create folder containing all account settings

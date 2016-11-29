@@ -96,9 +96,8 @@ public class XrayMod extends ToggleMod {
 
     @SubscribeEvent
     public void onRenderBlockInLayer(RenderBlockInLayerEvent event) {
-        if(event.getLayer().equals(BlockRenderLayer.TRANSLUCENT) && !event.getLayer().equals(event.getBlock().getBlockLayer())) {
-            event.setReturnValue(true);
-            event.setCanceled(true);
+        if(event.getCompareToLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
+            event.setLayer(event.getCompareToLayer());
         }
     }
 

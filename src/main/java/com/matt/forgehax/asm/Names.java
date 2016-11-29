@@ -12,67 +12,71 @@ public class Names {
 
     public final AsmClass PACKET = new AsmClass()
             .setName("net/minecraft/network/Packet")
-            .setObfuscatedName("fj");
+            .setObfuscatedName("fm");
 
     public final AsmClass AXISALIGNEDBB = new AsmClass()
             .setName("net/minecraft/util/math/AxisAlignedBB")
-            .setObfuscatedName("bby");
+            .setObfuscatedName("bdr");
 
     public final AsmClass MATERIAL = new AsmClass()
             .setName("net/minecraft/block/material/Material")
-            .setObfuscatedName("axx");
+            .setObfuscatedName("azq");
 
     public final AsmClass ENTITY = new AsmClass()
             .setName("net/minecraft/entity/Entity")
-            .setObfuscatedName("rw");
+            .setObfuscatedName("sm");
 
     public final AsmClass LIVING_BASE = new AsmClass()
             .setName("net/minecraft/entity/EntityLivingBase")
-            .setObfuscatedName("sf");
+            .setObfuscatedName("sv");
 
     public final AsmClass VEC3D = new AsmClass()
             .setName("net/minecraft/util/math/Vec3d")
-            .setObfuscatedName("bcb");
+            .setObfuscatedName("bdu");
 
     public final AsmClass BLOCK_RENDER_LAYER = new AsmClass()
             .setName("net/minecraft/util/BlockRenderLayer")
-            .setObfuscatedName("ahv");
+            .setObfuscatedName("aji");
 
     public final AsmClass IBLOCKSTATE = new AsmClass()
             .setName("net/minecraft/block/state/IBlockState")
-            .setObfuscatedName("ars");
+            .setObfuscatedName("atj");
 
     public final AsmClass BLOCKPOS = new AsmClass()
             .setName("net/minecraft/util/math/BlockPos")
-            .setObfuscatedName("cm");
+            .setObfuscatedName("co");
 
     public final AsmClass BLOCK = new AsmClass()
             .setName("net/minecraft/block/Block")
-            .setObfuscatedName("akf");
+            .setObfuscatedName("als");
 
     public final AsmClass ICAMERA = new AsmClass()
             .setName("net/minecraft/client/renderer/culling/ICamera")
-            .setObfuscatedName("brf");
+            .setObfuscatedName("btj");
 
     public final AsmClass VISGRAPH = new AsmClass()
             .setName("net/minecraft/client/renderer/chunk/VisGraph")
-            .setObfuscatedName("brb");
+            .setObfuscatedName("btf");
 
     public final AsmClass SETVISIBILITY = new AsmClass()
             .setName("net/minecraft/client/renderer/chunk/SetVisibility")
-            .setObfuscatedName("brc");
+            .setObfuscatedName("btg");
 
     public final AsmClass NETWORK_MANAGER$4 = new AsmClass()
             .setName("net/minecraft/network/NetworkManager$4")
-            .setObfuscatedName("eo$4");
+            .setObfuscatedName("er$4");
 
     public final AsmClass IBLOCKACCESS = new AsmClass()
             .setName("net/minecraft/world/IBlockAccess")
-            .setObfuscatedName("aih");
+            .setObfuscatedName("aju");
 
     public final AsmClass VERTEXBUFFER = new AsmClass()
             .setName("net/minecraft/client/renderer/VertexBuffer")
-            .setObfuscatedName("bnt");
+            .setObfuscatedName("bpw");
+
+    public final AsmClass MOVERTYPE = new AsmClass()
+            .setName("net/minecraft/entity/MoverType")
+            .setObfuscatedName("tb");
 
     // hook names
 
@@ -159,8 +163,8 @@ public class Names {
 
     public final AsmMethod ON_RENDERBLOCK_INLAYER = FORGEHAX_HOOKS.childMethod()
             .setName("onRenderBlockInLayer")
-            .setArgumentTypes(BLOCK, IBLOCKSTATE, BLOCK_RENDER_LAYER, boolean.class)
-            .setReturnType(RENDER_BLOCK_IN_LAYER_EVENT);
+            .setArgumentTypes(BLOCK, IBLOCKSTATE, BLOCK_RENDER_LAYER, BLOCK_RENDER_LAYER)
+            .setReturnType(BLOCK_RENDER_LAYER);
 
     public final AsmMethod ON_SETUP_TERRAIN = FORGEHAX_HOOKS.childMethod()
             .setName("onSetupTerrain")

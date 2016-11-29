@@ -44,6 +44,11 @@ public class WorldListener implements IWorldEventListener {
     }
 
     @Override
+    public void func_190570_a(int p_190570_1_, boolean p_190570_2_, boolean p_190570_3_, double p_190570_4_, double p_190570_6_, double p_190570_8_, double p_190570_10_, double p_190570_12_, double p_190570_14_, int... p_190570_16_) {
+
+    }
+
+    @Override
     public void onEntityAdded(Entity entityIn) {
         MinecraftForge.EVENT_BUS.post(new EntityAddedEvent(entityIn));
     }

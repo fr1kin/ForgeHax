@@ -6,19 +6,17 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-@Cancelable
 public class RenderBlockInLayerEvent extends Event {
     private final Block block;
     private final IBlockState state;
-    private final BlockRenderLayer layer;
+    private final BlockRenderLayer compareToLayer;
+    private BlockRenderLayer layer;
 
-    private boolean returnValue;
-
-    public RenderBlockInLayerEvent(Block block, IBlockState state, BlockRenderLayer layer, boolean returnValue) {
+    public RenderBlockInLayerEvent(Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
         this.block = block;
         this.state = state;
         this.layer = layer;
-        this.returnValue = returnValue;
+        this.compareToLayer = compareToLayer;
     }
 
     public Block getBlock() {
@@ -29,15 +27,15 @@ public class RenderBlockInLayerEvent extends Event {
         return layer;
     }
 
+    public void setLayer(BlockRenderLayer layer) {
+        this.layer = layer;
+    }
+
+    public BlockRenderLayer getCompareToLayer() {
+        return compareToLayer;
+    }
+
     public IBlockState getState() {
         return state;
-    }
-
-    public boolean getReturnValue() {
-        return returnValue;
-    }
-
-    public void setReturnValue(boolean returnValue) {
-        this.returnValue = returnValue;
     }
 }

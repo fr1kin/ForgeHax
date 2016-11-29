@@ -36,7 +36,7 @@ public class VectorUtils extends ForgeHaxBase {
 
         Vec3d viewNormal = view.getLook(MC.getRenderPartialTicks()).normalize();
 
-        Vec3d camPos = ActiveRenderInfo.getPosition();
+        Vec3d camPos = ActiveRenderInfo.position;
         Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
 
         float vecX = (float) ((camPos.xCoord + eyePos.xCoord) - x);

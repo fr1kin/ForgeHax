@@ -20,8 +20,8 @@ public class EntityPatch extends ClassTransformer {
 
     public final AsmMethod MOVE_ENTITY = new AsmMethod()
             .setName("moveEntity")
-            .setObfuscatedName("d")
-            .setArgumentTypes(double.class, double.class, double.class)
+            .setObfuscatedName("a")
+            .setArgumentTypes(NAMES.MOVERTYPE, double.class, double.class, double.class)
             .setReturnType(void.class)
             .setHooks(NAMES.ON_WEB_MOTION);
 
@@ -149,6 +149,11 @@ public class EntityPatch extends ClassTransformer {
     private boolean applyMoveEntityPatch(MethodNode method) {
         boolean isPatched = false;
         // for web motion
+        /*
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // DISCONTINUED USAGE OF THIS METHOD
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         AbstractInsnNode preNode = findPattern("moveEntity", "preNode",
                 method.instructions.getFirst(), moveEntityMotionPreSig, "xxxx??xxxx");
         AbstractInsnNode postNode = findPattern("moveEntity", "postNode",
@@ -159,9 +164,9 @@ public class EntityPatch extends ClassTransformer {
             int identifier = 59;
             InsnList insnList = new InsnList();
             insnList.add(new VarInsnNode(ALOAD, 0)); // push this
-            insnList.add(new VarInsnNode(DLOAD, 1)); // push this
-            insnList.add(new VarInsnNode(DLOAD, 3)); // push this
-            insnList.add(new VarInsnNode(DLOAD, 5)); // push this
+            insnList.add(new VarInsnNode(DLOAD, 2)); // push this
+            insnList.add(new VarInsnNode(DLOAD, 4)); // push this
+            insnList.add(new VarInsnNode(DLOAD, 6)); // push this
             insnList.add(new MethodInsnNode(INVOKESTATIC,
                     NAMES.ON_WEB_MOTION.getParentClass().getRuntimeName(),
                     NAMES.ON_WEB_MOTION.getRuntimeName(),
@@ -217,6 +222,7 @@ public class EntityPatch extends ClassTransformer {
             method.instructions.insert(postNode, pop);
             isPatched = true;
         }
+        */
 
         // for sneak flag
         AbstractInsnNode sneakFlagNode = findPattern("moveEntity", "sneakFlagNode",
@@ -241,7 +247,9 @@ public class EntityPatch extends ClassTransformer {
             AbstractInsnNode previousNode = sneakFlagNode.getPrevious();
             method.instructions.remove(sneakFlagNode); // delete IFEQ
             method.instructions.insert(previousNode, insnList); // insert new instructions
-            isPatched &= true;
+            isPatched = true;
+        } else {
+            isPatched = false;
         }
 
         return isPatched;
@@ -265,6 +273,7 @@ public class EntityPatch extends ClassTransformer {
     };
 
     private boolean doBlockCollisionsPatch(MethodNode method) {
+        /*
         AbstractInsnNode preNode = findPattern("doBlockCollisions", "preNode",
                 method.instructions.getFirst(), doBlockCollisionsPreSig, "xxxxxxxx??x");
         AbstractInsnNode postNode = findPattern("doBlockCollisions", "postNode",
@@ -290,5 +299,7 @@ public class EntityPatch extends ClassTransformer {
 
             return true;
         } else return false;
+        */
+        return true;
     }
 }

@@ -15,7 +15,6 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion(value = "1.10.2")
 @IFMLLoadingPlugin.SortingIndex(value = 1001)
 public class ForgeHaxTransformer implements IClassTransformer {
     private Map<String, ClassTransformer> transformingClasses = Maps.newHashMap();

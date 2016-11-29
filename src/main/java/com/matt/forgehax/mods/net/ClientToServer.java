@@ -23,6 +23,10 @@ public class ClientToServer {
         sendMessage(IServerCallback.DISCONNECT);
     }
 
+    public void sendConnectedMessage() {
+        sendMessage(IServerCallback.CONNECTED);
+    }
+
     private void sendMessage(int message) {
         Socket socket = null;
         try {
@@ -32,14 +36,11 @@ public class ClientToServer {
 
             writer.println(message);
         } catch (UnknownHostException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             try {
                 if(socket != null) socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }

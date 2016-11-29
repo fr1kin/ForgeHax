@@ -7,6 +7,7 @@ import com.matt.forgehax.util.container.ContainerList;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.registry.GameData;
@@ -23,7 +24,7 @@ public class ItemList extends ContainerList {
     }
 
     public static List<ItemStack> getRegisteredItems() {
-        List<ItemStack> itemList = Lists.newArrayList();
+        NonNullList<ItemStack> itemList = NonNullList.func_191196_a();
         for(Item item : Item.REGISTRY) {
             if(item != null) {
                 item.getSubItems(item, null, itemList);

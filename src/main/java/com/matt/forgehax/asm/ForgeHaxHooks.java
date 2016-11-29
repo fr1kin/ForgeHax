@@ -144,11 +144,11 @@ public class ForgeHaxHooks {
         MinecraftForge.EVENT_BUS.post(new RenderBlockLayerEvent.Post(layer, partialTicks));
     }
 
-    public static RenderBlockInLayerEvent onRenderBlockInLayer(Block block, IBlockState state, BlockRenderLayer layer, boolean result) {
+    public static BlockRenderLayer onRenderBlockInLayer(Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
         reportHook("onRenderBlockInLayer");
-        RenderBlockInLayerEvent event = new RenderBlockInLayerEvent(block, state, layer, result);
+        RenderBlockInLayerEvent event = new RenderBlockInLayerEvent(block, state, layer, compareToLayer);
         MinecraftForge.EVENT_BUS.post(event);
-        return event;
+        return event.getLayer();
     }
 
     public static boolean onSetupTerrain(Entity renderEntity, boolean playerSpectator) {

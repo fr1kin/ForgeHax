@@ -6,6 +6,9 @@ package com.matt.forgehax.mods.net;
 public interface IServerCallback {
     int IGNORE = -1;
     int DISCONNECT = 0;
+    int CONNECTED = 1;
 
     void onConnecting();
+
+    void onClientConnected();
 }

@@ -50,9 +50,13 @@ public class Server {private final int port;
                 switch (scanner.nextInt()) {
                     case IServerCallback.IGNORE:
                         break;
-                    default:
                     case IServerCallback.DISCONNECT:
                         callback.onConnecting();
+                        break;
+                    case IServerCallback.CONNECTED:
+                        callback.onClientConnected();
+                        break;
+                    default:
                         break;
                 }
 

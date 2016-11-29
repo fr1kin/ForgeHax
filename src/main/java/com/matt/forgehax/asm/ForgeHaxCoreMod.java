@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ForgeHaxCoreMod implements IFMLLoadingPlugin {
-    public static boolean isObfuscated = false;
+    public static boolean isObfuscated = true;
     public static Logger logger;
 
     @Override
@@ -27,8 +27,7 @@ public class ForgeHaxCoreMod implements IFMLLoadingPlugin {
 
     @Override
     public void injectData(Map<String, Object> data) {
-        if(data.containsKey("runtimeDeobfuscationEnabled"))
-            isObfuscated = (Boolean) data.get("runtimeDeobfuscationEnabled");
+        if(data.containsKey("runtimeDeobfuscationEnabled")) isObfuscated = (Boolean) data.get("runtimeDeobfuscationEnabled");
     }
 
     @Override
