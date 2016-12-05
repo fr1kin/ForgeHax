@@ -5,16 +5,29 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.mods.net.ClientToServer;
 import com.matt.forgehax.mods.net.IServerCallback;
 import com.matt.forgehax.mods.net.Server;
+import net.minecraft.client.gui.GuiDisconnected;
+import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.login.client.CPacketEncryptionResponse;
-import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.client.CPacketUseEntity;
+import net.minecraft.network.play.server.SPacketDisconnect;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import org.lwjgl.input.Keyboard;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Created on 11/15/2016 by fr1kin
@@ -34,6 +47,10 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
     public Property waitDelay;
 
     public Property sendOrder;
+
+    public Property sendKickPacket;
+
+    public Property autoDuper;
 
     private long timeConnected = -1;
 
@@ -72,6 +89,16 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
                         ORDERS[0],
                         "When to send the kick packet",
                         ORDERS
+                ),
+                sendKickPacket = configuration.get(getModName(),
+                        "force_kick",
+                        true,
+                        "Force kick yourself"
+                ),
+                autoDuper = configuration.get(getModName(),
+                        "auto_dupe",
+                        false,
+                        "Auto duper"
                 )
         );
     }
@@ -94,58 +121,108 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
         clientToServer = new ClientToServer(talkingPort);
     }
 
-    private void dupeItems(boolean sendKickPacket) {
-        switch (sendOrder.getString()) {
-            case "PRE":
-            {
-                if(sendKickPacket) getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
-                for(int i = 9; i < 45; i++) {
-                    MC.playerController.windowClick(0, i, 1, ClickType.THROW,
-                            MC.thePlayer);
+    private void handleMouseClick(int slotId, int mouseButton, ClickType type) {
+        if(MC.currentScreen != null &&
+                MC.currentScreen instanceof GuiContainer) {
+            MC.playerController.windowClick(
+                    ((GuiContainer) MC.currentScreen).inventorySlots.windowId,
+                    slotId,
+                    mouseButton,
+                    type,
+                    MC.thePlayer
+            );
+        }
+    }
+
+    private void quickMoveSelectedToChest() {
+        if(MC.currentScreen instanceof GuiChest) {
+            GuiChest guiChest = (GuiChest)MC.currentScreen;
+            // find first player inv slot
+            int slotStartPlayerInv = -1;
+            for(Slot slot : guiChest.inventorySlots.inventorySlots) {
+                if(slot.inventory instanceof InventoryPlayer) {
+                    slotStartPlayerInv = slot.getSlotIndex();
+                    break;
                 }
-                break;
             }
-            default:
-            case "POST":
-            {
-                for(int i = 9; i < 45; i++) {
-                    MC.playerController.windowClick(0, i, 1, ClickType.THROW,
-                            MC.thePlayer);
-                }
-                if(sendKickPacket) getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
+            if(slotStartPlayerInv == -1) {
+                MOD.getLog().error("Failed to find player inventory slot starting index");
+                return;
+            }
+            for(int i = slotStartPlayerInv; i < guiChest.inventorySlots.inventorySlots.size(); i++) {
+                if(guiChest.inventorySlots.getSlot(i).getHasStack())
+                    handleMouseClick(i, 0, ClickType.QUICK_MOVE);
             }
         }
     }
 
-    private void dropInv(boolean sendKickPacket) {
+    private void dropAllInventory() {
+        if (MC.thePlayer != null &&
+                MC.playerController != null) {
+            for (int i = 9; i < 45; i++) {
+                if (!MC.thePlayer.inventory.getStackInSlot(i).equals(ItemStack.field_190927_a)) {
+                    MC.playerController.windowClick(0, i, 1, ClickType.THROW,
+                            MC.thePlayer);
+                }
+            }
+        }
+    }
+
+    private void pauseThread() {
+        if(dropDelay.getLong() > 0) {
+            try {
+                Thread.sleep(dropDelay.getLong());
+            } catch (InterruptedException e) {
+            }
+        }
+    }
+
+    private void dupeItems() {
+        switch (sendOrder.getString()) {
+            case "POST":
+            {
+                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
+                pauseThread();
+                quickMoveSelectedToChest();
+                break;
+            }
+            default:
+            case "PRE":
+            {
+                quickMoveSelectedToChest();
+                pauseThread();
+                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
+            }
+        }
+    }
+
+    private void createInvDropThread() {
         if(dropDelay.getInt() > 0) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        Thread.sleep(dropDelay.getLong());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    dupeItems(sendKickPacket);
+                    dupeItems();
                 }
             }).start();
         } else {
-            dupeItems(sendKickPacket);
+            dupeItems();
         }
     }
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         clientToServer.sendConnectedMessage();
-        timeConnected = System.currentTimeMillis() + waitDelay.getInt();
+        if(autoDuper.getBoolean()) {
+            timeConnected = System.currentTimeMillis() + waitDelay.getInt();
+        } else {
+            timeConnected = -1;
+        }
     }
 
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send.Pre event) {
         if(event.getPacket() instanceof CPacketEncryptionResponse) {
             clientToServer.sendDisconnectMessage();
-            MOD.getLog().info("Sent disconnect msg");
         }
     }
 
@@ -153,44 +230,25 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
     public void onTick(LocalPlayerUpdateEvent event) {
         if(timeConnected != -1 &&
                 System.currentTimeMillis() > timeConnected) {
-            if(!talkToClients.getBoolean()) dropInv(true);
+            createInvDropThread();
             timeConnected = -1;
         }
     }
 
     @SubscribeEvent
-    public void onKeyPressed(InputEvent.KeyInputEvent event) {
-        if(MC.gameSettings.keyBindDrop.isPressed()) {
-            dropInv(true);
+    public void onGuiKeyPressed(GuiScreenEvent.KeyboardInputEvent.Pre event) {
+        if(Keyboard.getEventKey() == Keyboard.KEY_G) {
+            createInvDropThread();
         }
     }
 
     @Override
     public void onConnecting() {
         if(talkToClients.getBoolean()) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    dropInv(false);
-                }
-            }).start();
+            createInvDropThread();
         }
     }
 
     @Override
-    public void onClientConnected() {
-        /*
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(dropDelay.getLong());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(MC.currentScreen != null)
-                    connectToServer = true;
-            }
-        }).start();*/
-    }
+    public void onClientConnected() {}
 }
