@@ -182,7 +182,7 @@ public class ForgeHaxHooks {
     }
 
     public static boolean isBlockFiltered(Entity entity, IBlockState state) {
-        return entity instanceof EntityPlayer && entity.equals(Minecraft.getMinecraft().player) && LIST_BLOCK_FILTER.contains(state.getBlock().getClass());
+        return entity instanceof EntityPlayer && LIST_BLOCK_FILTER.contains(state.getBlock().getClass());
     }
 
     public static boolean onApplyClimbableBlockMovement(EntityLivingBase livingBase) {

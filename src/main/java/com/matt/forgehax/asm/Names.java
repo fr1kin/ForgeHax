@@ -16,31 +16,31 @@ public class Names {
 
     public final AsmClass AXISALIGNEDBB = new AsmClass()
             .setName("net/minecraft/util/math/AxisAlignedBB")
-            .setObfuscatedName("bdr");
+            .setObfuscatedName("bdt");
 
     public final AsmClass MATERIAL = new AsmClass()
             .setName("net/minecraft/block/material/Material")
-            .setObfuscatedName("azq");
+            .setObfuscatedName("azs");
 
     public final AsmClass ENTITY = new AsmClass()
             .setName("net/minecraft/entity/Entity")
-            .setObfuscatedName("sm");
+            .setObfuscatedName("sn");
 
     public final AsmClass LIVING_BASE = new AsmClass()
             .setName("net/minecraft/entity/EntityLivingBase")
-            .setObfuscatedName("sv");
+            .setObfuscatedName("sw");
 
     public final AsmClass VEC3D = new AsmClass()
             .setName("net/minecraft/util/math/Vec3d")
-            .setObfuscatedName("bdu");
+            .setObfuscatedName("bdw");
 
     public final AsmClass BLOCK_RENDER_LAYER = new AsmClass()
             .setName("net/minecraft/util/BlockRenderLayer")
-            .setObfuscatedName("aji");
+            .setObfuscatedName("ajk");
 
     public final AsmClass IBLOCKSTATE = new AsmClass()
             .setName("net/minecraft/block/state/IBlockState")
-            .setObfuscatedName("atj");
+            .setObfuscatedName("atl");
 
     public final AsmClass BLOCKPOS = new AsmClass()
             .setName("net/minecraft/util/math/BlockPos")
@@ -48,19 +48,19 @@ public class Names {
 
     public final AsmClass BLOCK = new AsmClass()
             .setName("net/minecraft/block/Block")
-            .setObfuscatedName("als");
+            .setObfuscatedName("alu");
 
     public final AsmClass ICAMERA = new AsmClass()
             .setName("net/minecraft/client/renderer/culling/ICamera")
-            .setObfuscatedName("btj");
+            .setObfuscatedName("btl");
 
     public final AsmClass VISGRAPH = new AsmClass()
             .setName("net/minecraft/client/renderer/chunk/VisGraph")
-            .setObfuscatedName("btf");
+            .setObfuscatedName("bth");
 
     public final AsmClass SETVISIBILITY = new AsmClass()
             .setName("net/minecraft/client/renderer/chunk/SetVisibility")
-            .setObfuscatedName("btg");
+            .setObfuscatedName("bti");
 
     public final AsmClass NETWORK_MANAGER$4 = new AsmClass()
             .setName("net/minecraft/network/NetworkManager$4")
@@ -68,15 +68,15 @@ public class Names {
 
     public final AsmClass IBLOCKACCESS = new AsmClass()
             .setName("net/minecraft/world/IBlockAccess")
-            .setObfuscatedName("aju");
+            .setObfuscatedName("ajw");
 
     public final AsmClass VERTEXBUFFER = new AsmClass()
             .setName("net/minecraft/client/renderer/VertexBuffer")
-            .setObfuscatedName("bpw");
+            .setObfuscatedName("bpy");
 
     public final AsmClass MOVERTYPE = new AsmClass()
             .setName("net/minecraft/entity/MoverType")
-            .setObfuscatedName("tb");
+            .setObfuscatedName("tc");
 
     // hook names
 

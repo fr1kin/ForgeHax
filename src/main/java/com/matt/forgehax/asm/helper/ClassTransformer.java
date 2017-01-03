@@ -50,6 +50,7 @@ public abstract class ClassTransformer {
 
     protected void updatePatchedMethods(boolean result) {
         allMethodsPatched = allMethodsPatched && result;
+        if(!result) log("updatePatchedMethods", "Failed to find method");
     }
 
     public void markUnsuccessful() {
