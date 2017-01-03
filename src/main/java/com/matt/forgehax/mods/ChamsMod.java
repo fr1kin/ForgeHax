@@ -19,7 +19,7 @@ public class ChamsMod extends ToggleMod {
     }
 
     public boolean shouldDraw(EntityLivingBase entity) {
-        return !entity.equals(MC.thePlayer) &&
+        return !entity.equals(MC.player) &&
                 !entity.isDead && (
                         (hostileMobs.getBoolean() && EntityUtils.isHostileMob(entity)) || // check this first
                         (players.getBoolean() && EntityUtils.isPlayer(entity)) ||

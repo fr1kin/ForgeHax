@@ -159,8 +159,8 @@ public class ForgeHax {
 		PrintWriter pw = new PrintWriter(sw);
 		exception.printStackTrace(pw);
 		getLog().error(sw);
-		if (MC.thePlayer != null) {
-			MC.thePlayer.addChatMessage(new TextComponentString("ERROR: " + exception.getMessage()));
+		if (MC.player != null) {
+			MC.player.sendChatMessage("ERROR: " + exception.getMessage());
 		}
 	}
 
@@ -174,54 +174,54 @@ public class ForgeHax {
 				registerMod(new ContainersMod("Containers", "Mod containers for xray and entity lists"));
 				if (isInDevMode) {
 					/*
-	                registerMod(new DebugModeMod("debugmode", true, "Enables debug mode", Keyboard.KEY_END));
-                    registerMod(new DebugDisplayMod("debugdisplay", true, "Display transformer hook reports", Keyboard.KEY_END));
-                    registerMod(new DebugOutputMod("debugoutput", true, "Output debug info on hooks", Keyboard.KEY_HOME));
+	                registerMod(new DebugModeMod("debugmode", false, "Enables debug mode", Keyboard.KEY_END));
+                    registerMod(new DebugDisplayMod("debugdisplay", false, "Display transformer hook reports", Keyboard.KEY_END));
+                    registerMod(new DebugOutputMod("debugoutput", false, "Output debug info on hooks", Keyboard.KEY_HOME));
                     //*/
 				}
-				registerMod(new ActiveModListMod("activemods", true, "Shows list of all active mods", Keyboard.KEY_END));
-				registerMod(new AimbotMod("aimbot", true, "Auto aim/attack entities", Keyboard.KEY_END));
+				registerMod(new ActiveModListMod("activemods", false, "Shows list of all active mods", Keyboard.KEY_END));
+				registerMod(new AimbotMod("aimbot", false, "Auto aim/attack entities", Keyboard.KEY_END));
 				registerMod(new AntiAfkMod("antiafk", false, "Moves automatically to prevent being kicked", Keyboard.KEY_END));
-				registerMod(new AntiBatsMod("antibats", true, "666 KILL BATS 666", Keyboard.KEY_END));
-				registerMod(new AntiEffectsMod("antipotioneffects", true, "Removes potion effects", Keyboard.KEY_END));
-				registerMod(new AntiFireMod("antifire", true, "Removes fire", Keyboard.KEY_END));
-				registerMod(new AntiFogMod("antifog", true, "Removes fog", Keyboard.KEY_END));
-				registerMod(new AntiHurtCamMod("antihurtcam", true, "Removes hurt camera effect", Keyboard.KEY_END));
-				registerMod(new AntiKnockbackMod("antiknockback", true, "Removes knockback movement", Keyboard.KEY_END));
-				registerMod(new AntiOverlayMod("antioverlay", true, "Removes screen overlays", Keyboard.KEY_END));
-				registerMod(new AutoBlockCraft("autoblockcraft", true, "Automatically crafts blocks for you", Keyboard.KEY_END));
-				registerMod(new AutoEatMod("autoeat", true, "Auto eats when you get hungry", Keyboard.KEY_END));
+				registerMod(new AntiBatsMod("antibats", false, "666 KILL BATS 666", Keyboard.KEY_END));
+				registerMod(new AntiEffectsMod("antipotioneffects", false, "Removes potion effects", Keyboard.KEY_END));
+				registerMod(new AntiFireMod("antifire", false, "Removes fire", Keyboard.KEY_END));
+				registerMod(new AntiFogMod("antifog", false, "Removes fog", Keyboard.KEY_END));
+				registerMod(new AntiHurtCamMod("antihurtcam", false, "Removes hurt camera effect", Keyboard.KEY_END));
+				registerMod(new AntiKnockbackMod("antiknockback", false, "Removes knockback movement", Keyboard.KEY_END));
+				registerMod(new AntiOverlayMod("antioverlay", false, "Removes screen overlays", Keyboard.KEY_END));
+				registerMod(new AutoBlockCraft("autoblockcraft", false, "Automatically crafts blocks for you", Keyboard.KEY_END));
+				registerMod(new AutoEatMod("autoeat", false, "Auto eats when you get hungry", Keyboard.KEY_END));
 				registerMod(new AutoFishMod("autofish", false, "Auto fish", Keyboard.KEY_END));
-				registerMod(new AutoProjectile("autoprojectile", true, "Automatically sets pitch to best trajectory", Keyboard.KEY_END));
-				registerMod(new AutoReconnectMod("autoreconnect", true, "Automatically reconnects to server"));
-				registerMod(new AutoRespawnMod("autorespawn", true, "Auto respawn on death", Keyboard.KEY_END));
+				registerMod(new AutoProjectile("autoprojectile", false, "Automatically sets pitch to best trajectory", Keyboard.KEY_END));
+				registerMod(new AutoReconnectMod("autoreconnect", false, "Automatically reconnects to server"));
+				registerMod(new AutoRespawnMod("autorespawn", false, "Auto respawn on death", Keyboard.KEY_END));
 				registerMod(new AutoSprintMod("autosprint", false, "Automatically sprints", Keyboard.KEY_END));
 				registerMod(new AutoWalkMod("autowalk", false, "Automatically walks forward", Keyboard.KEY_END));
-				registerMod(new BedModeMod("bedmode", true, "Sleep walking", Keyboard.KEY_END));
-				registerMod(new ChamsMod("chams", true, "Render living models behind walls", Keyboard.KEY_END));
+				registerMod(new BedModeMod("bedmode", false, "Sleep walking", Keyboard.KEY_END));
+				registerMod(new ChamsMod("chams", false, "Render living models behind walls", Keyboard.KEY_END));
 				registerMod(new ChatSpammerMod("chatspammer", false, "Add lines of spam into forgehax/spam.txt", Keyboard.KEY_END));
-				registerMod(new StorageESPMod("storageesp", true, "Shows storage", Keyboard.KEY_END));
-				registerMod(new EntityEspMod("entityesp", true, "Shows entity locations and info", Keyboard.KEY_END));
-				registerMod(new FastBreak("fastbreak", true, "Fast break retard", Keyboard.KEY_END));
-				registerMod(new FastPlaceMod("fastplace", true, "Fast place", Keyboard.KEY_END));
+				registerMod(new StorageESPMod("storageesp", false, "Shows storage", Keyboard.KEY_END));
+				registerMod(new EntityEspMod("entityesp", false, "Shows entity locations and info", Keyboard.KEY_END));
+				registerMod(new FastBreak("fastbreak", false, "Fast break retard", Keyboard.KEY_END));
+				registerMod(new FastPlaceMod("fastplace", false, "Fast place", Keyboard.KEY_END));
 				registerMod(new FlyMod("fly", false, "Enables flying", Keyboard.KEY_END));
 				registerMod(new FreecamMod("freecam", false, "Freecam mode", Keyboard.KEY_END));
-				registerMod(new FullBrightMod("fullbright", true, "Makes everything render with maximum brightness", Keyboard.KEY_END));
+				registerMod(new FullBrightMod("fullbright", false, "Makes everything render with maximum brightness", Keyboard.KEY_END));
 				registerMod(new NoCaveCulling("nocaveculling", false, "Disables mojangs dumb cave culling shit", Keyboard.KEY_END));
 				registerMod(new NoclipMod("noclip", false, "Enables player noclip", Keyboard.KEY_END));
 				registerMod(new NoFallMod("nofall", false, "Prevents fall damage from being taken", Keyboard.KEY_END));
-				registerMod(new NoSlowdown("noslowdown", true, "Disables block slowdown", Keyboard.KEY_END));
-				registerMod(new ProjectilesMod("projectiles", true, "Draws projectile path", Keyboard.KEY_END));
+				registerMod(new NoSlowdown("noslowdown", false, "Disables block slowdown", Keyboard.KEY_END));
+				registerMod(new ProjectilesMod("projectiles", false, "Draws projectile path", Keyboard.KEY_END));
 				registerMod(new SafeWalkMod("safewalk", false, "Prevents you from falling off blocks", Keyboard.KEY_END));
-				registerMod(new SpawnerEspMod("spawneresp", true, "Spawner esp", Keyboard.KEY_END));
-				registerMod(new StepMod("step", true, "Step up blocks", Keyboard.KEY_END));
-				registerMod(new TeleportMod("teleport", true, "Type '.setpos [x] [y] [z] [onGround]' in chat to use", Keyboard.KEY_END));
+				registerMod(new SpawnerEspMod("spawneresp", false, "Spawner esp", Keyboard.KEY_END));
+				registerMod(new StepMod("step", false, "Step up blocks", Keyboard.KEY_END));
+				registerMod(new TeleportMod("teleport", false, "Type '.setpos [x] [y] [z] [onGround]' in chat to use", Keyboard.KEY_END));
 				registerMod(new XrayMod("xray", true, "See blocks through walls", Keyboard.KEY_END));
 				registerMod(new YawLockMod("yawlock", false, "Locks yaw to prevent moving into walls", Keyboard.KEY_END));
 				registerMod(new ElytraFlight("elytraflight", false, "Elytra Flight", Keyboard.KEY_END));
-				registerMod(new DropInvMod("dropinvmod", true, "hax", Keyboard.KEY_END));
-				registerMod(new AntiLevitationMod("antilevitation", true, "No levitation", Keyboard.KEY_END));
-				registerMod(new CoordHaxMod("coordhax", true, "hax", Keyboard.KEY_END));
+				registerMod(new DropInvMod("dropinvmod", false, "hax", Keyboard.KEY_END));
+				registerMod(new AntiLevitationMod("antilevitation", false, "No levitation", Keyboard.KEY_END));
+				registerMod(new CoordHaxMod("coordhax", false, "hax", Keyboard.KEY_END));
 
 				//---- initialize configuration ----//
 				// create folder containing all account settings

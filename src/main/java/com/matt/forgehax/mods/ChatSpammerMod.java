@@ -64,7 +64,7 @@ public class ChatSpammerMod extends ToggleMod {
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-        if(MC.thePlayer == null) return;
+        if(MC.player == null) return;
         switch (event.phase) {
             case START:
                 break;
@@ -73,7 +73,7 @@ public class ChatSpammerMod extends ToggleMod {
                 if(System.currentTimeMillis() >= timeLastMessageSent + delay.getInt()) {
                     try {
                         //TODO: maybe use a double linked list
-                        MC.thePlayer.sendChatMessage(spamList.get(index % spamList.size()));
+                        MC.player.sendChatMessage(spamList.get(index % spamList.size()));
                         timeLastMessageSent = System.currentTimeMillis();
                     } catch(Exception e) {
                         MOD.printStackTrace(e);

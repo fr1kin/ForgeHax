@@ -80,7 +80,7 @@ public class TeleportMod extends ToggleMod {
                         case 2:
                             getNetworkManager().sendPacket(new CPacketConfirmTeleport());
                     }
-                    getLocalPlayer().addChatMessage(new TextComponentString("Attempted teleport using mode " + mode.getInt()));
+                    MC.player.sendChatMessage("Attempted teleport using mode " + mode.getInt());
                 } catch (Exception e) {
                     ForgeHax.instance().printStackTrace(e);
                 }

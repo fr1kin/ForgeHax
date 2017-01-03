@@ -7,6 +7,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import org.lwjgl.Sys;
 
+import java.util.Random;
+
 /**
  * Created on 9/4/2016 by fr1kin
  */
@@ -15,6 +17,8 @@ public class TestCode {
 
     private boolean movementInput = false;
     private boolean onGround = false;
+
+    private double stepHeight = 0;
 
     public boolean isSneaking() {
         return true;
@@ -29,13 +33,12 @@ public class TestCode {
     }
 
     public void moveEntity() {
-        this.isSneaking();
+        double d3 = 0, y = 0, d2 = 0, d4 = 0, x = 0, z = 0;
 
-        if (this.isHandActive() && !this.isRiding() && !isNoSlowOn)
-        {
+        boolean flag = this.onGround || d3 != y && d3 < 0.0D;
+
+        if (this.stepHeight > 0.0F && flag && (d2 != x || d4 != z)) {
             this.movementInput = false;
         }
-
-        boolean flag3 = false;
     }
 }

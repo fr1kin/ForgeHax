@@ -2,14 +2,17 @@ package com.matt.forgehax.asm;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.events.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.chunk.SetVisibility;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
@@ -21,6 +24,7 @@ import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ForgeHaxHooks {
     public static boolean isInDebugMode = true;
@@ -64,9 +68,18 @@ public class ForgeHaxHooks {
         }
     }
 
-    public static boolean isSafeWalkActivated = false;
+    /**
+     * static fields
+     */
 
+    public static boolean isSafeWalkActivated = false;
     public static boolean isNoSlowDownActivated = false;
+
+    public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = Sets.newHashSet();
+
+    /**
+     * static hooks
+     */
 
     public static boolean onHurtcamEffect(float partialTicks) {
         reportHook("onHurtcamEffect");
@@ -166,6 +179,10 @@ public class ForgeHaxHooks {
     public static boolean onDoBlockCollisions(Entity entity, BlockPos pos, IBlockState state) {
         reportHook("onDoBlockCollisions");
         return MinecraftForge.EVENT_BUS.post(new DoBlockCollisionsEvent(entity, pos, state));
+    }
+
+    public static boolean isBlockFiltered(Entity entity, IBlockState state) {
+        return entity instanceof EntityPlayer && entity.equals(Minecraft.getMinecraft().player) && LIST_BLOCK_FILTER.contains(state.getBlock().getClass());
     }
 
     public static boolean onApplyClimbableBlockMovement(EntityLivingBase livingBase) {

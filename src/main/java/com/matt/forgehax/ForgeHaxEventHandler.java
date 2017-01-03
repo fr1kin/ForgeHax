@@ -116,8 +116,8 @@ public class ForgeHaxEventHandler extends ForgeHaxBase {
      */
     @SubscribeEvent
     public void onUpdate(LivingEvent.LivingUpdateEvent event) {
-        if(MC.theWorld != null &&
-                event.getEntityLiving().equals(MC.thePlayer)) {
+        if(MC.world != null &&
+                event.getEntityLiving().equals(MC.player)) {
             Event ev = new LocalPlayerUpdateEvent(event.getEntityLiving());
             MinecraftForge.EVENT_BUS.post(ev);
             event.setCanceled(ev.isCanceled());

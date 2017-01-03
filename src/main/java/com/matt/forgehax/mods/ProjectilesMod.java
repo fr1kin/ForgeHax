@@ -24,7 +24,7 @@ public class ProjectilesMod extends ToggleMod {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent event) {
-        EntityPlayer localPlayer = MC.thePlayer;
+        EntityPlayer localPlayer = MC.player;
         Angle viewAngles = LocalPlayerUtils.getViewAngles();
         Vec3d selfPos = ProjectileUtils.getFiringPos(localPlayer);
         // TODO: Maybe check off hand?
@@ -76,7 +76,7 @@ public class ProjectilesMod extends ToggleMod {
             RayTraceResult tr = getWorld().rayTraceBlocks(selfPos.add(startPos), selfPos.add(endPos), false, true, false);
 
             if(tr != null &&
-                    !MC.theWorld.getBlockState(tr.getBlockPos()).getBlock().isPassable(getWorld(), tr.getBlockPos())) {
+                    !MC.world.getBlockState(tr.getBlockPos()).getBlock().isPassable(getWorld(), tr.getBlockPos())) {
                 break;
             }
 

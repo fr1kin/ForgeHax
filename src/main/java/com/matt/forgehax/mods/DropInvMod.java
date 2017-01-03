@@ -9,13 +9,16 @@ import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiShulkerBox;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.login.client.CPacketEncryptionResponse;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.network.play.server.SPacketDisconnect;
+import net.minecraft.tileentity.TileEntityShulkerBox;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.config.Configuration;
@@ -53,6 +56,8 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
     public Property autoDuper;
 
     private long timeConnected = -1;
+
+    private boolean isThreadActive = false;
 
     private static final String[] ORDERS = {"PRE", "POST"};
 
@@ -129,14 +134,15 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
                     slotId,
                     mouseButton,
                     type,
-                    MC.thePlayer
+                    MC.player
             );
         }
     }
 
     private void quickMoveSelectedToChest() {
-        if(MC.currentScreen instanceof GuiChest) {
-            GuiChest guiChest = (GuiChest)MC.currentScreen;
+        if(MC.currentScreen instanceof GuiChest ||
+                MC.currentScreen instanceof GuiShulkerBox) {
+            GuiContainer guiChest = (GuiContainer)MC.currentScreen;
             // find first player inv slot
             int slotStartPlayerInv = -1;
             for(Slot slot : guiChest.inventorySlots.inventorySlots) {
@@ -157,21 +163,21 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
     }
 
     private void dropAllInventory() {
-        if (MC.thePlayer != null &&
+        if (MC.player != null &&
                 MC.playerController != null) {
             for (int i = 9; i < 45; i++) {
-                if (!MC.thePlayer.inventory.getStackInSlot(i).equals(ItemStack.field_190927_a)) {
+                if (!MC.player.inventory.getStackInSlot(i).equals(ItemStack.EMPTY)) {
                     MC.playerController.windowClick(0, i, 1, ClickType.THROW,
-                            MC.thePlayer);
+                            MC.player);
                 }
             }
         }
     }
 
     private void pauseThread() {
-        if(dropDelay.getLong() > 0) {
+        if(dropDelay.getInt() > 0) {
             try {
-                Thread.sleep(dropDelay.getLong());
+                Thread.sleep(dropDelay.getInt());
             } catch (InterruptedException e) {
             }
         }
@@ -181,7 +187,7 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
         switch (sendOrder.getString()) {
             case "POST":
             {
-                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
+                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
                 pauseThread();
                 quickMoveSelectedToChest();
                 break;
@@ -191,12 +197,16 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
             {
                 quickMoveSelectedToChest();
                 pauseThread();
-                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.thePlayer, EnumHand.MAIN_HAND));
+                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
             }
         }
+        isThreadActive = false;
     }
 
     private void createInvDropThread() {
+        if(isThreadActive || MC.player == null || MC.world == null) return;
+        isThreadActive = true;
+        MOD.getLog().info(String.format("Inv drop thread created (%d ms thread pause)", dropDelay.getInt()));
         if(dropDelay.getInt() > 0) {
             new Thread(new Runnable() {
                 @Override
@@ -237,7 +247,8 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
 
     @SubscribeEvent
     public void onGuiKeyPressed(GuiScreenEvent.KeyboardInputEvent.Pre event) {
-        if(Keyboard.getEventKey() == Keyboard.KEY_G) {
+        if(Keyboard.getEventKey() == Keyboard.KEY_G &&
+                Keyboard.isKeyDown(Keyboard.KEY_G)) {
             createInvDropThread();
         }
     }

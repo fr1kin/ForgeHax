@@ -52,7 +52,7 @@ public class LagCompensator {
                 numTicks++;
             }
         }
-        return Math.round(MathHelper.clamp_float(sumTickRates / numTicks, MIN_TICKRATE, MAX_TICKRATE));
+        return Math.round(MathHelper.clamp(sumTickRates / numTicks, MIN_TICKRATE, MAX_TICKRATE));
     }
 
     public LagCompensatorEventHandler getEventHandler() {
@@ -63,7 +63,7 @@ public class LagCompensator {
         if(timeLastTimeUpdate != -1) {
             // how long (in seconds) it took the server to complete 20 ticks
             float timeElapsed = ((float)(System.currentTimeMillis() - timeLastTimeUpdate) / 1000.f);
-            tickRates[nextIndex % tickRates.length] = MathHelper.clamp_float((float)MAX_TICKRATE / timeElapsed, MIN_TICKRATE, MAX_TICKRATE);
+            tickRates[nextIndex % tickRates.length] = MathHelper.clamp((float)MAX_TICKRATE / timeElapsed, MIN_TICKRATE, MAX_TICKRATE);
             nextIndex++;
         }
         timeLastTimeUpdate = System.currentTimeMillis();

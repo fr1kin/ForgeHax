@@ -59,7 +59,7 @@ public class Utils extends ForgeHaxBase {
         return VectorUtils.vectorAngle(endPos.subtract(startPos)).normalize();
     }
     public static Angle getLookAtAngles(Vec3d endPos) {
-        return getLookAtAngles(EntityUtils.getEyePos(MC.thePlayer), endPos);
+        return getLookAtAngles(EntityUtils.getEyePos(MC.player), endPos);
     }
     public static Angle getLookAtAngles(Entity entity) {
         return getLookAtAngles(EntityUtils.getOBBCenter(entity));

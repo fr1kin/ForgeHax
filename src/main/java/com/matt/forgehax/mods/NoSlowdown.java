@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.DoBlockCollisionsEvent;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockSoulSand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class NoSlowdown extends ToggleMod {
@@ -13,11 +14,17 @@ public class NoSlowdown extends ToggleMod {
     @Override
     public void onEnabled() {
         ForgeHaxHooks.isNoSlowDownActivated = true;
+        try {
+            ForgeHaxHooks.LIST_BLOCK_FILTER.add(BlockSoulSand.class);
+        } catch (Exception e) {}
     }
 
     @Override
     public void onDisabled() {
         ForgeHaxHooks.isNoSlowDownActivated = false;
+        try {
+            ForgeHaxHooks.LIST_BLOCK_FILTER.remove(BlockSoulSand.class);
+        } catch (Exception e) {}
     }
 
     @SubscribeEvent

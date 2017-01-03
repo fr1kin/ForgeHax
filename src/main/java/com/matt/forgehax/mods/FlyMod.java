@@ -51,7 +51,7 @@ public class FlyMod extends ToggleMod {
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         EntityPlayer localPlayer = getLocalPlayer();
-        MC.thePlayer.capabilities.isFlying = false;
+        MC.player.capabilities.isFlying = false;
 
         double speedFactor = speed.getDouble();
         localPlayer.motionX = 0;

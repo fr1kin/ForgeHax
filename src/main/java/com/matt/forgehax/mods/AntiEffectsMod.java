@@ -27,8 +27,8 @@ public class AntiEffectsMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        if(MC.theWorld != null) {
-            for (Entity entity : MC.theWorld.loadedEntityList) {
+        if(MC.world != null) {
+            for (Entity entity : MC.world.loadedEntityList) {
                 if (entity instanceof EntityLivingBase)
                     entity.setInvisible(true);
             }
@@ -38,7 +38,7 @@ public class AntiEffectsMod extends ToggleMod {
     @SubscribeEvent
     public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
         EntityLivingBase living = event.getEntityLiving();
-        if(living.equals(MC.thePlayer)) {
+        if(living.equals(MC.player)) {
             living.setInvisible(false);
             living.removePotionEffect(MobEffects.NAUSEA);
             living.removePotionEffect(MobEffects.INVISIBILITY);

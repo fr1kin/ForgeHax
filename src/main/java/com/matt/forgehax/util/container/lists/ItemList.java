@@ -24,7 +24,7 @@ public class ItemList extends ContainerList {
     }
 
     public static List<ItemStack> getRegisteredItems() {
-        NonNullList<ItemStack> itemList = NonNullList.func_191196_a();
+        NonNullList<ItemStack> itemList = NonNullList.create();
         for(Item item : Item.REGISTRY) {
             if(item != null) {
                 item.getSubItems(item, null, itemList);

@@ -203,7 +203,7 @@ public class PlayerListCategory extends GuiConfigEntries.CategoryEntry {
             } else if(button.equals(buttonAddPlayer) &&
                     selectedList != null) {
                 // pop up a new screen to insert players name
-                FMLClientHandler.instance().displayGuiScreen(mc.thePlayer, new GuiAddPlayer(this));
+                FMLClientHandler.instance().displayGuiScreen(mc.player, new GuiAddPlayer(this));
             } else if(button.equals(buttonRemovePlayer) &&
                     selectedList != null) {
                 // get currently selected player in list
@@ -218,7 +218,7 @@ public class PlayerListCategory extends GuiConfigEntries.CategoryEntry {
                     selectedList != null) {
                 // get currently selected player in list
                 Map.Entry<String, JsonElement> selectedPlayer = guiPlayerList.getCurrentlySelected();
-                FMLClientHandler.instance().displayGuiScreen(mc.thePlayer, new GuiEditPlayer(this, selectedList.getPlayerData(selectedPlayer.getKey())));
+                FMLClientHandler.instance().displayGuiScreen(mc.player, new GuiEditPlayer(this, selectedList.getPlayerData(selectedPlayer.getKey())));
             }
         }
 

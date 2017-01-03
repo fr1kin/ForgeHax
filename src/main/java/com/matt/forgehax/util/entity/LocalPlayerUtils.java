@@ -129,7 +129,7 @@ public class LocalPlayerUtils extends ForgeHaxBase {
             FMLClientHandler.instance().getClientToServerNetworkManager().sendPacket(new CPacketPlayer.Rotation(
                     (float)yaw,
                     (float)pitch,
-                    MC.thePlayer.onGround
+                    MC.player.onGround
             ));
             lastAngle.setPitch(pitch);
             lastAngle.setYaw(yaw);

@@ -23,7 +23,7 @@ public class AutoProjectile extends ToggleMod {
 
     @SubscribeEvent
     public void onSendingPacket(PacketEvent.Send.Pre event) {
-        EntityPlayer localPlayer = MC.thePlayer;
+        EntityPlayer localPlayer = MC.player;
         if (!LocalPlayerUtils.isProjectileTargetAcquired() &&
                 !LocalPlayerUtils.isFakeAnglesActive()) {
             if (event.getPacket() instanceof CPacketPlayerDigging &&

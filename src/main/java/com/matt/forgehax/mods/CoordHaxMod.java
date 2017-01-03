@@ -78,8 +78,8 @@ public class CoordHaxMod extends ToggleMod {
     }
 
     public void addChatMsg(String str, Object... args) {
-        if(MC.thePlayer != null) {
-            MC.thePlayer.addChatMessage(new TextComponentString(String.format(str, args)));
+        if(MC.player != null) {
+            MC.player.sendChatMessage(String.format(str, args));
         }
     }
 
@@ -124,8 +124,8 @@ public class CoordHaxMod extends ToggleMod {
 
     @SubscribeEvent
     public void onPacketRecieved(PacketEvent.Received.Pre event) {
-        if(MC.thePlayer != null) {
-            BlockPos myPos = MC.thePlayer.getPosition();
+        if(MC.player != null) {
+            BlockPos myPos = MC.player.getPosition();
             for (Field field : PacketCache.getBlockPosFields(event.getPacket())) {
                 try {
                     BlockPos pos = (BlockPos) field.get(event.getPacket());

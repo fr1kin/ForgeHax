@@ -70,7 +70,7 @@ public class AimbotMod extends ToggleMod {
     }
 
     public boolean isHoldingProjectileItem() {
-        return ProjectileUtils.isThrowable(MC.thePlayer.getHeldItemMainhand());
+        return ProjectileUtils.isThrowable(MC.player.getHeldItemMainhand());
     }
 
     public boolean isProjectileAimbotActivated() {
@@ -99,7 +99,7 @@ public class AimbotMod extends ToggleMod {
     public boolean isValidTarget(Entity entity, Vec3d entPos, Vec3d selfPos, Vec3d lookVec, Angle viewAngles) {
         return EntityUtils.isLiving(entity) &&
                 EntityUtils.isAlive(entity) &&
-                !entity.equals(MC.thePlayer) &&
+                !entity.equals(MC.player) &&
                 EntityUtils.isValidEntity(entity) && (
                 (EntityUtils.isPlayer(entity) && players.getBoolean() && !PlayerUtils.isFriend((EntityPlayer)entity)) ||
                         (EntityUtils.isHostileMob(entity) && hostileMobs.getBoolean()) ||
@@ -134,7 +134,7 @@ public class AimbotMod extends ToggleMod {
      * Finds entity closest to crosshair
      */
     public Entity findTargetEntity(Vec3d selfPos, Vec3d selfLookVec, Angle viewAngles) {
-        final World world = Minecraft.getMinecraft().theWorld;
+        final World world = Minecraft.getMinecraft().world;
         final Vec3d selfLookVecNormal = selfLookVec.normalize();
         Entity target = null;
         double shortestDistance = -1;
@@ -257,7 +257,7 @@ public class AimbotMod extends ToggleMod {
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        EntityPlayer localPlayer = MC.thePlayer;
+        EntityPlayer localPlayer = MC.player;
         Entity target = LocalPlayerUtils.getTargetEntity();
         // local player eye pos
         Vec3d selfPos = EntityUtils.getEyePos(localPlayer);
@@ -280,7 +280,7 @@ public class AimbotMod extends ToggleMod {
                     LocalPlayerUtils.setViewAngles(aim);
                 if (canAttack(localPlayer, target)) {
                     // attack entity
-                    MC.playerController.attackEntity(MC.thePlayer, target);
+                    MC.playerController.attackEntity(MC.player, target);
                     // swing hand
                     localPlayer.swingArm(EnumHand.MAIN_HAND);
                     // for rotation packets
@@ -345,7 +345,7 @@ public class AimbotMod extends ToggleMod {
                     LocalPlayerUtils.isProjectileTargetAcquired() &&
                     !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
                 // make sure the player is still holding a valid weapon
-                EntityPlayer localPlayer = MC.thePlayer;
+                EntityPlayer localPlayer = MC.player;
                 ItemStack heldItem = localPlayer.getHeldItemMainhand();
                 if(heldItem != null &&
                         ProjectileUtils.isBow(heldItem)) { // bow only
@@ -366,7 +366,7 @@ public class AimbotMod extends ToggleMod {
                 LocalPlayerUtils.isProjectileTargetAcquired() &&
                 !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket()) &&
                 ((CPacketPlayerTryUseItem) event.getPacket()).getHand().equals(EnumHand.MAIN_HAND)) {
-            EntityPlayer localPlayer = MC.thePlayer;
+            EntityPlayer localPlayer = MC.player;
             ItemStack heldItem = localPlayer.getHeldItemMainhand();
             if(heldItem != null &&
                     ProjectileUtils.isThrowable(heldItem) &&

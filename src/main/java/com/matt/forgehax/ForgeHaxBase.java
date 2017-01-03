@@ -14,11 +14,11 @@ public class ForgeHaxBase {
     public static final ForgeHax MOD = ForgeHax.instance();
 
     public static final EntityPlayer getLocalPlayer() {
-        return MC.thePlayer;
+        return MC.player;
     }
 
     public static final World getWorld() {
-        return MC.theWorld;
+        return MC.world;
     }
 
     public static final NetworkManager getNetworkManager() {

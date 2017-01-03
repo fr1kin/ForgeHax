@@ -13,9 +13,9 @@ import org.lwjgl.opengl.GL11;
 public class RenderUtils extends ForgeHaxBase {
     public static Vec3d getRenderPos() {
         return new Vec3d(
-                MC.thePlayer.lastTickPosX + (MC.thePlayer.posX - MC.thePlayer.lastTickPosX) * MC.getRenderPartialTicks(),
-                MC.thePlayer.lastTickPosY + (MC.thePlayer.posY - MC.thePlayer.lastTickPosY) * MC.getRenderPartialTicks(),
-                MC.thePlayer.lastTickPosZ + (MC.thePlayer.posZ - MC.thePlayer.lastTickPosZ) * MC.getRenderPartialTicks()
+                MC.player.lastTickPosX + (MC.player.posX - MC.player.lastTickPosX) * MC.getRenderPartialTicks(),
+                MC.player.lastTickPosY + (MC.player.posY - MC.player.lastTickPosY) * MC.getRenderPartialTicks(),
+                MC.player.lastTickPosZ + (MC.player.posZ - MC.player.lastTickPosZ) * MC.getRenderPartialTicks()
         );
     }
 

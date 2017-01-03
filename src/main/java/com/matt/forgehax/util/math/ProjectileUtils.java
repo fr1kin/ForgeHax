@@ -76,7 +76,7 @@ public class ProjectileUtils extends ForgeHaxBase {
         switch (Item.getIdFromItem(itemStack.getItem())) {
             case 261: // bow
             {
-                int duration = itemStack.getMaxItemUseDuration() - MC.thePlayer.getItemInUseCount();
+                int duration = itemStack.getMaxItemUseDuration() - MC.player.getItemInUseCount();
                 force = (double)duration / 20.0F;
                 //   force = (force * force + force * 2.0F) / 3.0F;
                 if (force > 1.0F)
@@ -201,7 +201,7 @@ public class ProjectileUtils extends ForgeHaxBase {
             endPos = VectorUtils.copy(startPos);
         }
 
-        RayTraceResult trace = MC.theWorld.rayTraceBlocks(startPos, endPos);
+        RayTraceResult trace = MC.world.rayTraceBlocks(startPos, endPos);
         if(trace != null &&
                 trace.typeOfHit.equals(RayTraceResult.Type.BLOCK))
             return trace.hitVec;
@@ -261,7 +261,7 @@ public class ProjectileUtils extends ForgeHaxBase {
      * Finds the pitch degree that yields the furthest distance
      */
     public static double getBestPitch(ItemStack itemStack, Vec3d hitPos) {
-        EntityPlayer localPlayer = MC.thePlayer;
+        EntityPlayer localPlayer = MC.player;
         Vec3d initPos = EntityUtils.getEyePos(localPlayer);
 
         Angle angle = new Angle();
@@ -294,7 +294,7 @@ public class ProjectileUtils extends ForgeHaxBase {
      */
     public static boolean projectileTrajectoryHitsEntity(Entity target, Vec3d shootPos, Vec3d targetPos, ProjectileTraceResult result) {
         // gg fps
-        EntityPlayer localPlayer = MC.thePlayer;
+        EntityPlayer localPlayer = MC.player;
         Vec3d selfPos = localPlayer.getPositionVector();
         ItemStack heldItem = localPlayer.getHeldItemMainhand();
         // work backwards

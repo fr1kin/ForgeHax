@@ -38,7 +38,7 @@ public class AutoEatMod extends ToggleMod {
             ItemFood itemFood = (ItemFood) foodStack.getItem();
             if (20 - foodStats.getFoodLevel() >= itemFood.getHealAmount(foodStack)) {
                 isEating = true;
-                MC.thePlayer.inventory.currentItem = foodSlot;
+                MC.player.inventory.currentItem = foodSlot;
                 Bindings.use.setPressed(true);
                 return;
             }

@@ -181,6 +181,11 @@ public class Names {
             .setArgumentTypes(ENTITY, BLOCKPOS, IBLOCKSTATE)
             .setReturnType(boolean.class);
 
+    public final AsmMethod IS_BLOCK_COLLISION_FILTERED = FORGEHAX_HOOKS.childMethod()
+            .setName("isBlockFiltered")
+            .setArgumentTypes(ENTITY, IBLOCKSTATE)
+            .setReturnType(boolean.class);
+
     public final AsmMethod ON_APPLY_CLIMBABLE_BLOCK_MOVEMENT = FORGEHAX_HOOKS.childMethod()
             .setName("onApplyClimbableBlockMovement")
             .setArgumentTypes(LIVING_BASE)

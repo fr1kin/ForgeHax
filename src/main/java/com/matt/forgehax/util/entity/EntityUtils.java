@@ -38,7 +38,7 @@ public class EntityUtils extends ForgeHaxBase {
             }
         } else if(entity instanceof EntityWolf) {
             return ((EntityWolf) entity).isAngry() &&
-                    !MC.thePlayer.equals(((EntityWolf) entity).getOwner());
+                    !MC.player.equals(((EntityWolf) entity).getOwner());
         } else if(entity instanceof EntityEnderman) {
             return ((EntityEnderman) entity).isScreaming();
         }

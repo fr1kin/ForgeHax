@@ -30,7 +30,7 @@ public class GuiAddPlayer extends GuiScreen {
     }
 
     public void exitScreen() {
-        FMLClientHandler.instance().displayGuiScreen(mc.thePlayer, parent);
+        FMLClientHandler.instance().displayGuiScreen(mc.player, parent);
         if(parent instanceof GuiConfig) {
             ((GuiConfig) parent).needsRefresh = true;
         }
@@ -95,7 +95,7 @@ public class GuiAddPlayer extends GuiScreen {
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         if(keyCode == Keyboard.KEY_ESCAPE) {
-            FMLClientHandler.instance().displayGuiScreen(mc.thePlayer, parent);
+            FMLClientHandler.instance().displayGuiScreen(mc.player, parent);
         } else {
             textFieldPlayerName.textboxKeyTyped(typedChar, keyCode);
         }

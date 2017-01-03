@@ -19,7 +19,7 @@ public class EntityPatch extends ClassTransformer {
             .setHooks(NAMES.ON_APPLY_COLLISION);
 
     public final AsmMethod MOVE_ENTITY = new AsmMethod()
-            .setName("moveEntity")
+            .setName("move")
             .setObfuscatedName("a")
             .setArgumentTypes(NAMES.MOVERTYPE, double.class, double.class, double.class)
             .setReturnType(void.class)
@@ -141,18 +141,15 @@ public class EntityPatch extends ClassTransformer {
     };
 
     private final int[] isPlayerSneakingSig = {
-            IFEQ, ALOAD, INSTANCEOF, IFEQ, ICONST_1, GOTO,
+            IFEQ, ALOAD, INSTANCEOF, IFEQ,
             0x00, 0x00,
-            ICONST_0
+            LDC, DSTORE
     };
 
     private boolean applyMoveEntityPatch(MethodNode method) {
-        boolean isPatched = false;
         // for web motion
         /*
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // DISCONTINUED USAGE OF THIS METHOD
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // unused code
 
         AbstractInsnNode preNode = findPattern("moveEntity", "preNode",
                 method.instructions.getFirst(), moveEntityMotionPreSig, "xxxx??xxxx");
@@ -225,8 +222,27 @@ public class EntityPatch extends ClassTransformer {
         */
 
         // for sneak flag
-        AbstractInsnNode sneakFlagNode = findPattern("moveEntity", "sneakFlagNode",
-                method.instructions.getFirst(), isPlayerSneakingSig, "xxxxxx??x");
+        /*
+            ALOAD 0
+            INVOKEVIRTUAL net/minecraft/entity/Entity.isSneaking ()Z
+            IFEQ L53 // search for this node
+            ALOAD 0
+            INSTANCEOF net/minecraft/entity/player/EntityPlayer
+            IFEQ L53
+           L54
+            LINENUMBER 747 L54
+            LDC 0.05
+            DSTORE 20
+           L55
+           FRAME APPEND [D]
+            DLOAD 2
+            DCONST_0
+            DCMPL
+            IFEQ L56
+            ALOAD 0
+         */
+        AbstractInsnNode sneakFlagNode = findPattern("move", "sneakFlagNode",
+                method.instructions.getFirst(), isPlayerSneakingSig, "xxxx??xx");
         if(sneakFlagNode != null &&
                 sneakFlagNode instanceof JumpInsnNode) {
             // the original label to the jump
@@ -247,59 +263,44 @@ public class EntityPatch extends ClassTransformer {
             AbstractInsnNode previousNode = sneakFlagNode.getPrevious();
             method.instructions.remove(sneakFlagNode); // delete IFEQ
             method.instructions.insert(previousNode, insnList); // insert new instructions
-            isPatched = true;
-        } else {
-            isPatched = false;
+            return true;
         }
-
-        return isPatched;
+        return false;
     }
 
     private final int[] doBlockCollisionsPreSig = {
-            ALOAD, INVOKEINTERFACE, ALOAD, GETFIELD, ALOAD, ALOAD, ALOAD, INVOKEVIRTUAL,
-            0x00, 0x00,
-            GOTO
-    };
-    private final int[] doBlockCollisionsPostSig = {
-            INVOKEVIRTUAL,
-            0x00, 0x00,
-            GOTO,
-            0x00, 0x00, 0x00,
             ASTORE,
             0x00, 0x00,
-            ALOAD, LDC, INVOKESTATIC, ASTORE,
-            0x00, 0x00,
-            ALOAD, LDC, INVOKEVIRTUAL, ASTORE
+            ALOAD, INVOKEINTERFACE, ALOAD, GETFIELD, ALOAD, ALOAD, ALOAD, INVOKEVIRTUAL
+    };
+    private final int[] doBlockCollisionsPostSig = {
+            GOTO
     };
 
     private boolean doBlockCollisionsPatch(MethodNode method) {
-        /*
         AbstractInsnNode preNode = findPattern("doBlockCollisions", "preNode",
-                method.instructions.getFirst(), doBlockCollisionsPreSig, "xxxxxxxx??x");
+                method.instructions.getFirst(), doBlockCollisionsPreSig, "x??xxxxxxxx");
         AbstractInsnNode postNode = findPattern("doBlockCollisions", "postNode",
-                method.instructions.getFirst(), doBlockCollisionsPostSig, "x??x???x??xxxx??xxxx");
+                preNode, doBlockCollisionsPostSig, "x");
         if(preNode != null &&
                 postNode != null) {
             LabelNode endJump = new LabelNode();
 
             InsnList insnList = new InsnList();
-            insnList.add(new VarInsnNode(ALOAD, 0)); // push this
-            insnList.add(new VarInsnNode(ALOAD, 4)); // push this
-            insnList.add(new VarInsnNode(ALOAD, 8)); // push this
+            insnList.add(new VarInsnNode(ALOAD, 0)); // push entity
+            insnList.add(new VarInsnNode(ALOAD, 8)); // push block state
             insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_DO_BLOCK_COLLISIONS.getParentClass().getRuntimeName(),
-                    NAMES.ON_DO_BLOCK_COLLISIONS.getRuntimeName(),
-                    NAMES.ON_DO_BLOCK_COLLISIONS.getDescriptor(),
+                    NAMES.IS_BLOCK_COLLISION_FILTERED.getParentClass().getRuntimeName(),
+                    NAMES.IS_BLOCK_COLLISION_FILTERED.getRuntimeName(),
+                    NAMES.IS_BLOCK_COLLISION_FILTERED.getDescriptor(),
                     false
             ));
             insnList.add(new JumpInsnNode(IFNE, endJump));
 
-            method.instructions.insertBefore(preNode, insnList);
-            method.instructions.insert(postNode, endJump);
+            method.instructions.insertBefore(postNode, endJump);
+            method.instructions.insert(preNode, insnList);
 
             return true;
         } else return false;
-        */
-        return true;
     }
 }

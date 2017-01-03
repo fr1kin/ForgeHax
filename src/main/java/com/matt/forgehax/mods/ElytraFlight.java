@@ -28,13 +28,13 @@ public class ElytraFlight extends ToggleMod {
 	public void onDisabled() {
 
 		// Are we still here?
-		if (MC.thePlayer != null) {
+		if (MC.player != null) {
 
 			// Disable creativeflight.
-			MC.thePlayer.capabilities.isFlying = false;
+			MC.player.capabilities.isFlying = false;
 
 			// Ensure the player starts flying again.
-			getNetworkManager().sendPacket(new CPacketEntityAction(MC.thePlayer, Action.START_FALL_FLYING));
+			getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
 		}
 
 	}
@@ -44,11 +44,11 @@ public class ElytraFlight extends ToggleMod {
 	public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
 
 		// Enable our flight as soon as the player starts flying his elytra.
-		if (MC.thePlayer.isElytraFlying()) {
-			MC.thePlayer.capabilities.isFlying = true;
+		if (MC.player.isElytraFlying()) {
+			MC.player.capabilities.isFlying = true;
 		}
 
-		MC.thePlayer.capabilities.setFlySpeed((float) speed.getDouble());
+		MC.player.capabilities.setFlySpeed((float) speed.getDouble());
 
 	}
 }

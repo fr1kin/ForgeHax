@@ -37,7 +37,7 @@ public class CraftChestCart extends ToggleMod {
     public void onGuiOpen(GuiOpenEvent event) {
         if (event.getGui() != null &&
                 event.getGui() instanceof GuiInventory) {
-            GuiInventoryOverride list = new GuiInventoryOverride(MC.thePlayer, (long)sleep.getInt());
+            GuiInventoryOverride list = new GuiInventoryOverride(MC.player, (long)sleep.getInt());
             event.setGui(list);
             list.autoCraftCarts();
         }
@@ -67,11 +67,11 @@ public class CraftChestCart extends ToggleMod {
         }
 
         public Container getInventory() {
-            return MC.thePlayer.inventoryContainer;
+            return MC.player.inventoryContainer;
         }
 
         public InventoryPlayer getPlayerInventory() {
-            return MC.thePlayer.inventory;
+            return MC.player.inventory;
         }
 
         public Slot getSlot(int index) {
@@ -90,7 +90,7 @@ public class CraftChestCart extends ToggleMod {
                     return slot.slotNumber;
                 else if (stack != null &&
                         stack.isItemEqual(slot.getStack()) &&
-                        slot.getStack().func_190916_E() >= stack.func_190916_E())
+                        slot.getStack().getCount() >= stack.getCount())
                     return slot.slotNumber;
             }
             return -1;
@@ -105,7 +105,7 @@ public class CraftChestCart extends ToggleMod {
                 Slot slot = getInventory().getSlot(i);
                 if (slot.getHasStack() &&
                         item.isItemEqual(slot.getStack()) &&
-                        slot.getStack().func_190916_E() < slot.getStack().getMaxStackSize())
+                        slot.getStack().getCount() < slot.getStack().getMaxStackSize())
                     return slot.slotNumber;
             }
             return -1;
@@ -133,7 +133,7 @@ public class CraftChestCart extends ToggleMod {
 
         public boolean isValidStacks(ItemStack recipeStack, ItemStack stack) {
             return recipeStack.isItemEqual(stack) &&
-                    stack.func_190916_E() >= recipeStack.func_190916_E();
+                    stack.getCount() >= recipeStack.getCount();
         }
 
         public boolean fillSlotWithItemFromInv(int id, ItemStack stack) throws Exception {
@@ -186,7 +186,7 @@ public class CraftChestCart extends ToggleMod {
                 ItemStack slotStack = slot.getStack();
                 return slotStack != null &&
                         slotStack.getItem().equals(stack.getItem()) &&
-                        slotStack.func_190916_E() < stack.func_190916_E();
+                        slotStack.getCount() < stack.getCount();
             } else return false;
         }
 

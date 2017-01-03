@@ -1,9 +1,11 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.WebMotionEvent;
+import net.minecraft.block.BlockSoulSand;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.util.math.Vec3d;
@@ -54,7 +56,7 @@ public class AntiKnockbackMod extends ToggleMod {
         }
         if(event.getPacket() instanceof SPacketEntityVelocity) {
             // for player knockback
-            if(((SPacketEntityVelocity) event.getPacket()).getEntityID() == MC.thePlayer.getEntityId()) {
+            if(((SPacketEntityVelocity) event.getPacket()).getEntityID() == MC.player.getEntityId()) {
                 double multiX = multiplierX.getDouble();
                 double multiY = multiplierY.getDouble();
                 double multiZ = multiplierZ.getDouble();
@@ -74,7 +76,7 @@ public class AntiKnockbackMod extends ToggleMod {
      */
     @SubscribeEvent
     public void onWaterMovementEvent(WaterMovementEvent event) {
-        if(event.getEntity().equals(MC.thePlayer)) {
+        if(event.getEntity().equals(MC.player)) {
             Vec3d moveDir = event.getMoveDir().normalize();
             event.getEntity().motionX += (moveDir.xCoord * 0.014D) * multiplierX.getDouble();
             event.getEntity().motionY += (moveDir.yCoord * 0.014D) * multiplierY.getDouble();
@@ -88,7 +90,7 @@ public class AntiKnockbackMod extends ToggleMod {
      */
     @SubscribeEvent
     public void onApplyCollisionMotion(ApplyCollisionMotionEvent event) {
-        if(event.getEntity().equals(MC.thePlayer)) {
+        if(event.getEntity().equals(MC.player)) {
             event.getEntity().addVelocity(
                     event.getMotionX() * multiplierX.getDouble(),
                     event.getMotionY() * multiplierY.getDouble(),
@@ -100,7 +102,7 @@ public class AntiKnockbackMod extends ToggleMod {
 
     @SubscribeEvent
     public void onWebMotion(WebMotionEvent event) {
-        if(event.getEntity().equals(MC.thePlayer)) {
+        if(event.getEntity().equals(MC.player)) {
             double modifier = 1;
             event.setX(event.getX() * (0.25D * modifier));
             event.setY(event.getY() * (0.05000000074505806D * modifier));

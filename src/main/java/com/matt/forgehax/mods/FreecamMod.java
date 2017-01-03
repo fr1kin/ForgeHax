@@ -45,14 +45,14 @@ public class FreecamMod extends ToggleMod {
             pitch = localPlayer.rotationPitch;
             yaw = localPlayer.rotationYaw;
 
-            clonedPlayer = new EntityOtherPlayerMP(MC.theWorld, MC.getSession().getProfile());
+            clonedPlayer = new EntityOtherPlayerMP(MC.world, MC.getSession().getProfile());
             clonedPlayer.clonePlayer(localPlayer, false);
             clonedPlayer.copyLocationAndAnglesFrom(localPlayer);
             clonedPlayer.rotationYawHead = localPlayer.rotationYawHead;
-            MC.theWorld.addEntityToWorld(-100, clonedPlayer);
-            MC.thePlayer.capabilities.isFlying = true;
-            MC.thePlayer.capabilities.setFlySpeed((float)speed.getDouble());
-            MC.thePlayer.noClip = true;
+            MC.world.addEntityToWorld(-100, clonedPlayer);
+            MC.player.capabilities.isFlying = true;
+            MC.player.capabilities.setFlySpeed((float)speed.getDouble());
+            MC.player.noClip = true;
         }
     }
 
@@ -60,25 +60,25 @@ public class FreecamMod extends ToggleMod {
     public void onDisabled() {
         EntityPlayer localPlayer = getLocalPlayer();
         if(localPlayer != null) {
-            MC.thePlayer.setPositionAndRotation(posX, posY, posZ, yaw, pitch);
-            MC.theWorld.removeEntityFromWorld(-100);
+            MC.player.setPositionAndRotation(posX, posY, posZ, yaw, pitch);
+            MC.world.removeEntityFromWorld(-100);
             clonedPlayer = null;
             posX = posY = posZ = 0.D;
             pitch = yaw = 0.f;
-            MC.thePlayer.capabilities.isFlying = false;
-            MC.thePlayer.capabilities.setFlySpeed(0.05f);
-            MC.thePlayer.noClip = false;
-            MC.thePlayer.motionX = MC.thePlayer.motionY = MC.thePlayer.motionZ = 0.f;
+            MC.player.capabilities.isFlying = false;
+            MC.player.capabilities.setFlySpeed(0.05f);
+            MC.player.noClip = false;
+            MC.player.motionX = MC.player.motionY = MC.player.motionZ = 0.f;
         }
     }
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        MC.thePlayer.capabilities.isFlying = true;
-        MC.thePlayer.capabilities.setFlySpeed((float)speed.getDouble());
-        MC.thePlayer.noClip = true;
-        MC.thePlayer.onGround = false;
-        MC.thePlayer.fallDistance = 0;
+        MC.player.capabilities.isFlying = true;
+        MC.player.capabilities.setFlySpeed((float)speed.getDouble());
+        MC.player.noClip = true;
+        MC.player.onGround = false;
+        MC.player.fallDistance = 0;
     }
 
     @SubscribeEvent

@@ -82,7 +82,7 @@ public class EntityEspMod extends ToggleMod {
      */
     public boolean shouldDraw(EntityLivingBase entity) {
         return LocalPlayerUtils.isTargetEntity(entity) || (
-                !entity.equals(MC.thePlayer) &&
+                !entity.equals(MC.player) &&
                 EntityUtils.isAlive(entity) &&
                 EntityUtils.isValidEntity(entity) && (
                 (isDrawOptionPropertyEnabled(hostileMobs) && EntityUtils.isHostileMob(entity)) || // check this first
@@ -137,7 +137,7 @@ public class EntityEspMod extends ToggleMod {
     public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
         if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
             ArmorOptions armorMode = getArmorOptionValue(armorEsp);
-            for (Entity entity : MC.theWorld.loadedEntityList) {
+            for (Entity entity : MC.world.loadedEntityList) {
                 if(EntityUtils.isLiving(entity) && shouldDraw((EntityLivingBase) entity)) {
                     EntityLivingBase living = (EntityLivingBase) (entity);
                     Vec3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
@@ -196,7 +196,7 @@ public class EntityEspMod extends ToggleMod {
                         if (drawMode.equals(DrawOptions.ADVANCED) || drawMode.equals(DrawOptions.SIMPLE) || drawMode.equals(DrawOptions.NAME)) {
                             String text = living.getDisplayName().getFormattedText();
                             if(distanceEsp.getBoolean() && (drawMode.equals(DrawOptions.SIMPLE) || drawMode.equals(DrawOptions.ADVANCED))) {
-                                text += String.format(" (%.1f)", living.getPositionVector().distanceTo(MC.thePlayer.getPositionVector()));
+                                text += String.format(" (%.1f)", living.getPositionVector().distanceTo(MC.player.getPositionVector()));
                             }
                             SurfaceUtils.drawTextShadow(text, topX - (SurfaceUtils.getTextWidth(text) / 2), topY - SurfaceUtils.getTextHeight() - 1, Utils.toRGBA(255, 255, 255, 255));
                             topY -= SurfaceUtils.getTextHeight() + 1;
