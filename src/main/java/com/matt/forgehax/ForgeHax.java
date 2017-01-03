@@ -46,7 +46,7 @@ public class ForgeHax {
 
 	public Logger log;
 
-	public Map<String, BaseMod> mods = Maps.newLinkedHashMap();
+	public Map<String, BaseMod> mods = Maps.newTreeMap();
 
 	public boolean newProfile = false;
 
