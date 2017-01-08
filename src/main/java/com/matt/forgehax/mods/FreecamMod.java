@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
@@ -65,14 +66,14 @@ public class FreecamMod extends ToggleMod {
             clonedPlayer = null;
             posX = posY = posZ = 0.D;
             pitch = yaw = 0.f;
-            MC.player.capabilities.isFlying = false;
+            MC.player.capabilities.isFlying = SETTINGS.get("elytraflight-enabled").getBoolean();
             MC.player.capabilities.setFlySpeed(0.05f);
             MC.player.noClip = false;
             MC.player.motionX = MC.player.motionY = MC.player.motionZ = 0.f;
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         MC.player.capabilities.isFlying = true;
         MC.player.capabilities.setFlySpeed((float)speed.getDouble());

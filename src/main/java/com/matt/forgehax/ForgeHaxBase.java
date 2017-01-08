@@ -1,6 +1,7 @@
 package com.matt.forgehax;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.world.World;
@@ -13,7 +14,7 @@ public class ForgeHaxBase {
     public static final Minecraft MC = FMLClientHandler.instance().getClient();
     public static final ForgeHax MOD = ForgeHax.instance();
 
-    public static final EntityPlayer getLocalPlayer() {
+    public static final EntityPlayerSP getLocalPlayer() {
         return MC.player;
     }
 

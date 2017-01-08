@@ -60,7 +60,8 @@ public class EntityUtils extends ForgeHaxBase {
     }
 
     public static boolean isValidEntity(Entity entity) {
-        return entity.ticksExisted > 1;
+        Entity riding = getLocalPlayer().getRidingEntity();
+        return entity.ticksExisted > 1 && entity.getEntityId() != -100 && (riding == null || !riding.equals(entity));
     }
 
     public static boolean isAlive(Entity entity) {

@@ -222,6 +222,7 @@ public class ForgeHax {
 				registerMod(new DropInvMod("dropinvmod", false, "hax", Keyboard.KEY_END));
 				registerMod(new AntiLevitationMod("antilevitation", false, "No levitation", Keyboard.KEY_END));
 				registerMod(new CoordHaxMod("coordhax", false, "hax", Keyboard.KEY_END));
+				registerMod(new ElytraPlus("elytraplus", false, "fly faster", Keyboard.KEY_END));
 
 				//---- initialize configuration ----//
 				// create folder containing all account settings
