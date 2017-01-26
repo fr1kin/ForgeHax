@@ -23,42 +23,30 @@ public class TeleportMod extends ToggleMod {
 
     @Override
     public void loadConfig(Configuration configuration) {
-        addSettings(
-                mode = configuration.get(getModName(),
-                        "teleport_mode",
-                        0,
-                        "Packet teleport types",
-                        0, 5
-                ),
-                relative = configuration.get(getModName(),
-                        "teleport_relative",
-                        false,
-                        ".setpos will tp you relative to your current position"
-                )
-        );
+        addSettings(mode = configuration.get(getModName(), "teleport_mode", 0, "Packet teleport types", 0, 5), relative = configuration.get(getModName(), "teleport_relative", false, ".setpos will tp you relative to your current position"));
     }
 
     @SubscribeEvent
     public void onPacketSent(PacketEvent.Send.Pre event) {
-        if(event.getPacket() instanceof CPacketChatMessage) {
+        if (event.getPacket() instanceof CPacketChatMessage) {
             String message = ((CPacketChatMessage) event.getPacket()).getMessage();
             Scanner scanner = new Scanner(message);
             scanner.useDelimiter(" ");
-            if(scanner.next().equals(".setpos")) {
+            if (scanner.next().equals(".setpos")) {
                 double x = 0, y = 0, z = 0;
                 boolean onGround = true;
                 try {
                     x = Double.parseDouble(scanner.next());
                     y = Double.parseDouble(scanner.next());
                     z = Double.parseDouble(scanner.next());
-                    if(scanner.hasNext()) {
+                    if (scanner.hasNext()) {
                         try {
                             onGround = Boolean.parseBoolean(scanner.next());
                         } catch (Exception e) {
                             ForgeHax.instance().printStackTrace(e);
                         }
                     }
-                    if(relative.getBoolean()) {
+                    if (relative.getBoolean()) {
                         Vec3d pos = getLocalPlayer().getPositionVector();
                         x = pos.xCoord + x;
                         y = pos.yCoord + y;
@@ -67,9 +55,8 @@ public class TeleportMod extends ToggleMod {
                     switch (mode.getInt()) {
                         default:
                         case 0:
-                            if(getLocalPlayer().isRiding() &&
-                                    getLocalPlayer().getRidingEntity() != null) {
-                                getLocalPlayer().getRidingEntity().setPosition(x ,y ,z);
+                            if (getLocalPlayer().isRiding() && getLocalPlayer().getRidingEntity() != null) {
+                                getLocalPlayer().getRidingEntity().setPosition(x, y, z);
                             } else {
                                 getLocalPlayer().setPosition(x, y, z);
                             }
@@ -79,8 +66,26 @@ public class TeleportMod extends ToggleMod {
                             break;
                         case 2:
                             getNetworkManager().sendPacket(new CPacketConfirmTeleport());
+                            break;
+                        case 3:
+                            if (getLocalPlayer().getRidingEntity() != null) {
+                                getLocalPlayer().getRidingEntity().setEntityBoundingBox(getLocalPlayer().getRidingEntity().getEntityBoundingBox().offset(x, y, z));
+                            } else {
+                                getLocalPlayer().setEntityBoundingBox(getLocalPlayer().getEntityBoundingBox().offset(x, y, z));
+                            }
+                            break;
+                        case 4:
+                            MC.player.setPosition(MC.player.posX + (1F * -Double.NaN * x + 0F * -Double.NaN * z), MC.player.posY, MC.player.posZ + (1F * -Double.NaN * z - 0F * -Double.NaN * x));
+                            break;
+                        case 5:
+                            for (int i = 0; i < z; ++i) {
+                                MC.player.connection.sendPacket(new CPacketPlayer.Position(MC.player.posX, MC.player.posY + 0.049, MC.player.posZ, false));
+                                MC.player.connection.sendPacket(new CPacketPlayer.Position(MC.player.posX, MC.player.posY, MC.player.posZ, false));
+                            }
+                            MC.player.connection.sendPacket(new CPacketPlayer.Position(MC.player.posX, MC.player.posY, MC.player.posZ, false));
+                            break;
                     }
-                    MC.player.sendChatMessage("Attempted teleport using mode " + mode.getInt());
+                    //getLocalPlayer().sendChatMessage("Attempted teleport using mode " + mode.getInt());
                 } catch (Exception e) {
                     ForgeHax.instance().printStackTrace(e);
                 }

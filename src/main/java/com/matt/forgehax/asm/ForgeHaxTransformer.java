@@ -1,5 +1,7 @@
 package com.matt.forgehax.asm;
 
+import com.fr1kin.asmhelper.ASMHelper;
+import com.fr1kin.asmhelper.detours.Detour;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.helper.ClassTransformer;
@@ -33,6 +35,8 @@ public class ForgeHaxTransformer implements IClassTransformer {
         transformingClasses.put("net.minecraft.client.entity.EntityPlayerSP", new EntityPlayerSPPatch());
         transformingClasses.put("net.minecraft.client.renderer.BlockRendererDispatcher", new BlockRendererDispatcherPatch());
     }
+
+    private static boolean doOnce = false;
 
     @Override
     public byte[] transform(String name, String realName, byte[] bytes) {

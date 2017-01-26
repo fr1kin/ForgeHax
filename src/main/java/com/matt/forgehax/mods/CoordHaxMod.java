@@ -79,7 +79,7 @@ public class CoordHaxMod extends ToggleMod {
 
     public void addChatMsg(String str, Object... args) {
         if(MC.player != null) {
-            MC.player.sendChatMessage(String.format(str, args));
+            //MC.player.sendChatMessage(String.format(str, args));
         }
     }
 

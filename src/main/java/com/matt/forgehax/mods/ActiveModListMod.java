@@ -20,7 +20,7 @@ public class ActiveModListMod extends ToggleMod {
         posY += SurfaceUtils.getTextHeight() + 1;
         for(BaseMod mod : MOD.mods.values()) {
             if(mod.isEnabled() && !mod.isHidden()) {
-                SurfaceUtils.drawTextShadow(">" + mod.getModName(), posX, posY, Utils.Colors.WHITE);
+                SurfaceUtils.drawTextShadow(">" + mod.getDisplayText(), posX, posY, Utils.Colors.WHITE);
                 posY += SurfaceUtils.getTextHeight() + 1;
             }
         }

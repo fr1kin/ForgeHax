@@ -223,4 +223,8 @@ public abstract class BaseMod extends ForgeHaxBase {
      * Called while the bind key is pressed down
      */
     public void onBindKeyDown(KeyBinding bind) {}
+
+    public String getDisplayText() {
+        return getModName();
+    }
 }

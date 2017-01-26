@@ -4,26 +4,20 @@ import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.mods.*;
 import com.matt.forgehax.mods.core.ContainersMod;
-import com.matt.forgehax.mods.debug.DebugDisplayMod;
-import com.matt.forgehax.mods.debug.DebugModeMod;
-import com.matt.forgehax.mods.debug.DebugOutputMod;
 import com.matt.forgehax.util.LagCompensator;
 import com.matt.forgehax.util.container.ContainerManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.MoverType;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
-import scala.collection.parallel.ParIterableLike;
 
 import java.io.*;
 import java.util.Map;
 
-@Mod(modid = ForgeHax.MODID, version = ForgeHax.VERSION, guiFactory = "com.matt.forgehax.ForgeHaxGuiFactory")
+@Mod(modid = ForgeHax.MODID, version = ForgeHax.VERSION, guiFactory = "com.matt.forgehax.ForgeHaxGuiFactory", clientSideOnly = true)
 public class ForgeHax {
 	public static final String MODID = "forgehax";
 	public static final String VERSION = "1.0";
