@@ -7,10 +7,8 @@ import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.Objects;
 
@@ -66,7 +64,7 @@ public class FlyMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onOutgoingPacketSent(PacketEvent.Received.Pre event) {
+    public void onOutgoingPacketSent(PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
             SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();
             try {

@@ -2,7 +2,9 @@ package com.matt.forgehax.asm2.util;
 
 import com.fr1kin.asmhelper.types.IASMType;
 import com.google.common.collect.Maps;
-import com.matt.forgehax.asm2.constants.McpConstants;
+import com.matt.forgehax.asm2.ConstantHooks;
+import com.matt.forgehax.asm2.ConstantMc;
+import com.matt.forgehax.asm2.ConstantOverrides;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -102,22 +104,24 @@ public class FileDumper {
         dumpMcpTypeMap(new File(dumpDir, "methods.txt"), obfuscationHelper.getMcpMethodData());
         dumpMcpTypeMap(new File(dumpDir, "fields.txt"), obfuscationHelper.getMcpFieldData());
 
-        McpConstants constants = McpConstants.getInstance();
-
         Map<String, IASMType> types = Maps.newHashMap();
 
-        try {
-            for (Field field : constants.getClass().getFields()) {
-                try {
-                    Object instance = field.get(constants);
-                    if (instance instanceof IASMType)
-                        types.put(field.getName(), (IASMType)instance);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+        Class<?>[] constants = new Class[] {ConstantHooks.class, ConstantMc.class, ConstantOverrides.class};
+
+        for(Class<?> clazz : constants) {
+            try {
+                for (Field field : clazz.getFields()) {
+                    try {
+                        Object instance = field.get(null);
+                        if (instance instanceof IASMType)
+                            types.put(field.getName(), (IASMType) instance);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         dumpASMTypes(new File(dumpDir, "asm_types.txt"), types);

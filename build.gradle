@@ -1,4 +1,3 @@
-
 // For those who want the bleeding edge
 buildscript {
     repositories {
@@ -40,6 +39,7 @@ dependencies {
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"
     //compile "some.group:artifact:version"
+    compile files('libs/asmhelper-1.0.jar')
       
     // real examples
     //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
@@ -56,16 +56,26 @@ dependencies {
     // for more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
 }
 
 jar {
     manifest {
-
         attributes 'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
                 'FMLCorePluginContainsFMLMod': 'true',
                 'FMLAT': 'forgehax_at.cfg'
+        /*
+        attributes 'FMLCorePlugin': 'com.matt.forgehax.asm2.CoreMod',
+                'FMLCorePluginContainsFMLMod': 'true'*/
     }
+
+    /*
+    // depending on your project settings, use user.dir (project dir) or user.home (user home)
+    def s = minecraft.mappings.split('_')
+    def obfFolder = System.getProperty("user.home") + '\\.gradle\\caches\\minecraft\\de\\oceanlabs\\mcp\\' + (s[0] == "stable" ? "mcp_stable" : "mcp_snapshot") + '\\' + s[1] + '\\'
+
+    from obfFolder + 'fields.csv'
+    from obfFolder + 'methods.csv'
+    from obfFolder + 'params.csv'*/
 }
 
 processResources

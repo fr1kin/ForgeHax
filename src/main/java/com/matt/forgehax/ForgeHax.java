@@ -238,13 +238,13 @@ public class ForgeHax {
 	public void init(FMLInitializationEvent event) {
 		switch (event.getSide()) {
 			case CLIENT: {
-				// register config
+				// registerAll config
 				MinecraftForge.EVENT_BUS.register(config);
-				// register event handler
+				// registerAll event handler
 				MinecraftForge.EVENT_BUS.register(new ForgeHaxEventHandler());
-				// register lag compenstator
+				// registerAll lag compenstator
 				MinecraftForge.EVENT_BUS.register(LagCompensator.getInstance().getEventHandler());
-				// register mod events
+				// registerAll mod events
 				for (Map.Entry<String, BaseMod> entry : mods.entrySet()) {
 					if (entry.getValue().isEnabled()) {
 						entry.getValue().onEnabled();

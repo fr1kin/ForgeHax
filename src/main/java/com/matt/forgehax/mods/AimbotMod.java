@@ -327,7 +327,7 @@ public class AimbotMod extends ToggleMod {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onPacketSending(PacketEvent.Send.Pre event) {
+    public void onPacketSending(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer) {
             // send fake angles if any rotation updates are sent to the server
             CPacketPlayer packet = (CPacketPlayer)event.getPacket();

@@ -11,7 +11,6 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.config.Configuration;
@@ -333,14 +332,14 @@ public class ChatSpammerMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send.Pre event) {
+    public void onPacketSend(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketChatMessage) {
             updateLastMessageSentTime();
         }
     }
 
     @SubscribeEvent
-    public void onPacketRecieved(PacketEvent.Received.Pre event) {
+    public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketPlayerListItem && System.currentTimeMillis() > timeWhenToReportJoinEvents) {
             SPacketPlayerListItem playerListPacket = (SPacketPlayerListItem)event.getPacket();
             final Commands command;

@@ -83,7 +83,7 @@ public class FreecamMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send.Pre event) {
+    public void onPacketSend(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer) {
             event.setCanceled(true);
         }

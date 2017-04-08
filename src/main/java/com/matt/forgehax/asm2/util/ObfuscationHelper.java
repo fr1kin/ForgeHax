@@ -24,7 +24,7 @@ import java.util.function.Function;
 public class ObfuscationHelper {
     private static ObfuscationHelper instance = null;
 
-    public static ObfuscationHelper newInstance(boolean obfuscated, Logger logger) {
+    public static ObfuscationHelper getOrCreateInstanceOf(boolean obfuscated, Logger logger) {
         if(Objects.isNull(instance)) {
             try {
                 instance = obfuscated ? new ObfuscationHelper(logger) : new ObfuscationHelperPass(logger);

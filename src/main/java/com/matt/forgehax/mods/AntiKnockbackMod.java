@@ -1,11 +1,9 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.WebMotionEvent;
-import net.minecraft.block.BlockSoulSand;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.util.math.Vec3d;
@@ -47,7 +45,7 @@ public class AntiKnockbackMod extends ToggleMod {
      * Stops TNT and knockback velocity
      */
     @SubscribeEvent
-    public void onPacketRecieved(PacketEvent.Received.Pre event) {
+    public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketExplosion) {
             // for tnt knockback
             ((SPacketExplosion) event.getPacket()).motionX *= multiplierX.getDouble();

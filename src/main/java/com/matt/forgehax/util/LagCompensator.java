@@ -1,6 +1,5 @@
 package com.matt.forgehax.util;
 
-import com.google.common.collect.Queues;
 import com.matt.forgehax.asm.events.PacketEvent;
 import net.minecraft.network.play.server.SPacketTimeUpdate;
 import net.minecraft.util.math.MathHelper;
@@ -8,7 +7,6 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Arrays;
-import java.util.Queue;
 
 /**
  * Created on 11/14/2016 by fr1kin
@@ -88,7 +86,7 @@ public class LagCompensator {
         }
 
         @SubscribeEvent
-        public void onPacketPreceived(PacketEvent.Received.Pre event) {
+        public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
             if(event.getPacket() instanceof SPacketTimeUpdate) {
                 lagCompensator.onTimeUpdate();
             }

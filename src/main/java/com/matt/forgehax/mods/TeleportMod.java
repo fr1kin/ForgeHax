@@ -6,7 +6,6 @@ import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.client.CPacketConfirmTeleport;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -27,7 +26,7 @@ public class TeleportMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onPacketSent(PacketEvent.Send.Pre event) {
+    public void onPacketSent(PacketEvent.Outgoing.Pre event) {
         if (event.getPacket() instanceof CPacketChatMessage) {
             String message = ((CPacketChatMessage) event.getPacket()).getMessage();
             Scanner scanner = new Scanner(message);

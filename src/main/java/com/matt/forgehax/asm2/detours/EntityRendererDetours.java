@@ -6,14 +6,14 @@ import com.fr1kin.asmhelper.utils.locator.Locators;
 /**
  * Created on 1/17/2017 by fr1kin
  */
-public class EntiyRendererDetours extends ClassDetour {
-    public EntiyRendererDetours() {
-        super(MCP.CLASS_ENTITYRENDERER);
+public class EntityRendererDetours extends ClassDetour {
+    public EntityRendererDetours() {
+        super(CLASS_ENTITYRENDERER);
     }
 
     @Override
     protected void initialize() {
-        register(Detours.newCancellablePrePosDetour(MCP.METHOD_ENTITYRENDERER_HURTCAM_EFFECT, HOOKS.METHOD_ONHURTCAMEFFECT,
+        registerAll(Detours.newCancellablePrePostDetour(METHOD_ENTITYRENDERER_HURTCAMEFFECT, METHOD_HOOK_ONHURTCAMEFFECT,
                 Locators::firstLabelNode,
                 Locators::returnNode
         ));

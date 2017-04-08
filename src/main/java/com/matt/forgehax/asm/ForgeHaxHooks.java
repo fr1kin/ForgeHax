@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.events.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.chunk.SetVisibility;
 import net.minecraft.client.renderer.chunk.VisGraph;
@@ -18,6 +18,8 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldProviderHell;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.nio.ByteOrder;
@@ -88,22 +90,22 @@ public class ForgeHaxHooks {
 
     public static boolean onSendingPacket(Packet<?> packet) {
         reportHook("onSendingPacket");
-        return MinecraftForge.EVENT_BUS.post(new PacketEvent.Send.Pre(packet));
+        return MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Pre(packet));
     }
 
     public static void onSentPacket(Packet<?> packet) {
         reportHook("onSentPacket");
-        MinecraftForge.EVENT_BUS.post(new PacketEvent.Send.Post(packet));
+        MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Post(packet));
     }
 
     public static boolean onPreReceived(Packet<?> packet) {
         reportHook("onPreReceived");
-        return MinecraftForge.EVENT_BUS.post(new PacketEvent.Received.Pre(packet));
+        return MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Pre(packet));
     }
 
     public static void onPostReceived(Packet<?> packet) {
         reportHook("onPostReceived");
-        MinecraftForge.EVENT_BUS.post(new PacketEvent.Received.Post(packet));
+        MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Post(packet));
     }
 
     public static boolean onWaterMovement(Entity entity, Vec3d moveDir) {
@@ -191,6 +193,12 @@ public class ForgeHaxHooks {
 
     public static void onBlockRender(BlockPos pos, IBlockState state, IBlockAccess access, VertexBuffer buffer) {
         //MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
+    }
+
+    public static boolean spoofedNetherHasNoSky = true;
+
+    public static boolean hasNoSky(boolean original, WorldProvider in) {
+        return in instanceof WorldProviderHell ? spoofedNetherHasNoSky : original;
     }
 
     public static class DebugData {

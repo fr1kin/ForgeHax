@@ -5,32 +5,22 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.mods.net.ClientToServer;
 import com.matt.forgehax.mods.net.IServerCallback;
 import com.matt.forgehax.mods.net.Server;
-import net.minecraft.client.gui.GuiDisconnected;
-import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiShulkerBox;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.login.client.CPacketEncryptionResponse;
 import net.minecraft.network.play.client.CPacketUseEntity;
-import net.minecraft.network.play.server.SPacketDisconnect;
-import net.minecraft.tileentity.TileEntityShulkerBox;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Keyboard;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * Created on 11/15/2016 by fr1kin
@@ -230,7 +220,7 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send.Pre event) {
+    public void onPacketSend(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketEncryptionResponse) {
             clientToServer.sendDisconnectMessage();
         }

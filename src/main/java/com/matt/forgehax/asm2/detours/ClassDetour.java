@@ -3,8 +3,9 @@ package com.matt.forgehax.asm2.detours;
 import com.fr1kin.asmhelper.detours.Detour;
 import com.fr1kin.asmhelper.types.ASMClass;
 import com.google.common.collect.Lists;
-import com.matt.forgehax.asm2.constants.ForgeHaxConstants;
-import com.matt.forgehax.asm2.constants.McpConstants;
+import com.matt.forgehax.asm2.ConstantHooks;
+import com.matt.forgehax.asm2.ConstantMc;
+import com.matt.forgehax.asm2.Constants;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,10 +13,7 @@ import java.util.List;
 /**
  * Created on 1/17/2017 by fr1kin
  */
-public abstract class ClassDetour {
-    protected static final McpConstants MCP            = McpConstants.getInstance();
-    protected static final ForgeHaxConstants HOOKS     = ForgeHaxConstants.getInstance();
-
+public abstract class ClassDetour implements Constants {
     private final ASMClass detouredClass;
     private final List<Detour> detours = Lists.newArrayList();
 
@@ -24,8 +22,8 @@ public abstract class ClassDetour {
         initialize();
     }
 
-    public void register(Detour detour) {
-        detours.add(detour);
+    public void registerAll(Detour... detours) {
+        this.detours.addAll(Lists.newArrayList(detours));
     }
 
     public ASMClass getDetouredClass() {

@@ -34,6 +34,7 @@ public class ForgeHaxTransformer implements IClassTransformer {
         transformingClasses.put("net.minecraft.client.renderer.chunk.VisGraph", new VisGraphPatch());
         transformingClasses.put("net.minecraft.client.entity.EntityPlayerSP", new EntityPlayerSPPatch());
         transformingClasses.put("net.minecraft.client.renderer.BlockRendererDispatcher", new BlockRendererDispatcherPatch());
+       // transformingClasses.put("net.minecraft.world.WorldProvider", new WorldProviderPatch());
     }
 
     private static boolean doOnce = false;

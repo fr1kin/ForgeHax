@@ -4,17 +4,21 @@ import com.fr1kin.asmhelper.ASMHelper;
 import com.fr1kin.asmhelper.types.ASMClass;
 import com.fr1kin.asmhelper.types.ASMField;
 import com.fr1kin.asmhelper.types.ASMMethod;
+import com.matt.forgehax.asm2.Core;
 import com.matt.forgehax.asm2.CoreMod;
 import com.matt.forgehax.asm2.util.ObfuscationHelper;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
+
+import java.util.Objects;
 
 /**
  * Created on 1/14/2017 by fr1kin
  */
 public class ASMObfClass extends ASMClass {
     public static ASMClass getOrCreateClass(final Type type) {
-        Type obfType = Type.getObjectType(CoreMod.getObfuscationHelper().getObfClassName(type.getInternalName()));
+        Objects.requireNonNull(Core.getObfuscationHelper(), "obfuscation helper is null");
+        Type obfType = Type.getObjectType(Core.getObfuscationHelper().getObfClassName(type.getInternalName()));
         return ASM_CLASS_CACHE.computeIfAbsent(obfType, key -> new ASMObfClass(obfType, type));
     }
 
@@ -39,7 +43,7 @@ public class ASMObfClass extends ASMClass {
 
     @Override
     public ASMMethod childMethod(String name, boolean isStatic, Type methodType) {
-        ObfuscationHelper obfHelper = CoreMod.getObfuscationHelper();
+        ObfuscationHelper obfHelper = Core.getObfuscationHelper();
         return new ASMMethod(
                 obfHelper.getObfMethodName(
                         getMcpClass().getName(),
@@ -51,7 +55,7 @@ public class ASMObfClass extends ASMClass {
 
     @Override
     public ASMField childField(String name, boolean isStatic, Type type) {
-        ObfuscationHelper obfHelper = CoreMod.getObfuscationHelper();
+        ObfuscationHelper obfHelper = Core.getObfuscationHelper();
         return new ASMField(
                 obfHelper.getObfFieldName(
                         getMcpClass().getName(),

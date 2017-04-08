@@ -1,6 +1,5 @@
 package com.matt.forgehax;
 
-import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.listeners.WorldListener;
@@ -17,9 +16,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 
 import javax.net.ssl.*;
-import java.io.*;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
@@ -168,7 +164,7 @@ public class ForgeHaxEventHandler extends ForgeHaxBase {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onSentPacket(PacketEvent.Send.Post event) {
+    public void onSentPacket(PacketEvent.Outgoing.Post event) {
         if(Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
             // remove packet from list (we wont be seeing it ever again)
             Utils.OUTGOING_PACKET_IGNORE_LIST.remove(event.getPacket());

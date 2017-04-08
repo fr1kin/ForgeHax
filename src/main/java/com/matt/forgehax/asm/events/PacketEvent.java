@@ -15,38 +15,38 @@ public class PacketEvent extends Event {
         return packet;
     }
 
-    public static class Send extends PacketEvent {
-        public Send(Packet<?> packetIn) {
+    public static class Outgoing extends PacketEvent {
+        public Outgoing(Packet<?> packetIn) {
             super(packetIn);
         }
 
         @Cancelable
-        public static class Pre extends Send {
+        public static class Pre extends Outgoing {
             public Pre(Packet<?> packetIn) {
                 super(packetIn);
             }
         }
 
-        public static class Post extends Send {
+        public static class Post extends Outgoing {
             public Post(Packet<?> packetIn) {
                 super(packetIn);
             }
         }
     }
 
-    public static class Received extends PacketEvent {
-        public Received(Packet<?> packetIn) {
+    public static class Incoming extends PacketEvent {
+        public Incoming(Packet<?> packetIn) {
             super(packetIn);
         }
 
         @Cancelable
-        public static class Pre extends Received {
+        public static class Pre extends Incoming {
             public Pre(Packet<?> packetIn) {
                 super(packetIn);
             }
         }
 
-        public static class Post extends Received {
+        public static class Post extends Incoming {
             public Post(Packet<?> packetIn) {
                 super(packetIn);
             }

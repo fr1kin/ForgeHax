@@ -78,6 +78,10 @@ public class Names {
             .setName("net/minecraft/entity/MoverType")
             .setObfuscatedName("tc");
 
+    public final AsmClass WORLD_PROVIDER = new AsmClass()
+            .setName("net/minecraft/world/WorldProvider")
+            .setObfuscatedName("avf");
+
     // hook names
 
     // ----event classes----
@@ -195,4 +199,9 @@ public class Names {
             .setName("onBlockRender")
             .setArgumentTypes(BLOCKPOS, IBLOCKSTATE, IBLOCKACCESS, VERTEXBUFFER)
             .setReturnType(void.class);
+
+    public final AsmMethod HAS_NO_SKY = FORGEHAX_HOOKS.childMethod()
+            .setName("hasNoSky")
+            .setArgumentTypes(boolean.class, WORLD_PROVIDER)
+            .setReturnType(boolean.class);
 }

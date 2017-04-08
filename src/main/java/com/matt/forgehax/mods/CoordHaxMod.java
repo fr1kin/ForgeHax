@@ -8,7 +8,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -18,7 +17,6 @@ import org.lwjgl.input.Keyboard;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 /**
@@ -111,7 +109,7 @@ public class CoordHaxMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send.Pre event) {
+    public void onPacketSend(PacketEvent.Outgoing.Pre event) {
         if( getWorld() != null &&
                 selectedShulkerBoxOpenPacket == null &&
                 event.getPacket() instanceof CPacketPlayerTryUseItemOnBlock) {
@@ -123,7 +121,7 @@ public class CoordHaxMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onPacketRecieved(PacketEvent.Received.Pre event) {
+    public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if(MC.player != null) {
             BlockPos myPos = MC.player.getPosition();
             for (Field field : PacketCache.getBlockPosFields(event.getPacket())) {
