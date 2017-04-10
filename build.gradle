@@ -97,3 +97,23 @@ processResources
         exclude 'mcmod.info'
     }
 }
+
+task setGameDir() {
+    // Check if custom gamedir has been passed, if not use default ones per platform
+    if(!project.hasProperty("gameDir")) {
+        if(org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+            project.ext.gameDir = System.getenv("APPDATA") + "/.minecraft"
+        } else if(org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+            project.ext.gameDir = System.properties["user.home"] + "/Library/Application Support/minecraft"
+        } else {
+            project.ext.gameDir = System.properties["user.home"] + "/.minecraft"
+        }
+    }
+}
+
+task copyJar(type: Copy, dependsOn: [setGameDir]) {
+    from jar
+    into ("$gameDir/mods/" + minecraft.version)
+}
+
+build.finalizedBy copyJar

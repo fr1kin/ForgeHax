@@ -5,6 +5,8 @@ import com.matt.forgehax.asm.helper.AsmField;
 import com.matt.forgehax.asm.helper.AsmMethod;
 import org.objectweb.asm.Type;
 
+import java.util.List;
+
 public class Names {
     public static final Names INSTANCE = new Names();
 
@@ -81,6 +83,10 @@ public class Names {
     public final AsmClass WORLD_PROVIDER = new AsmClass()
             .setName("net/minecraft/world/WorldProvider")
             .setObfuscatedName("avf");
+
+    public final AsmClass WORLD = new AsmClass()
+            .setName("net/minecraft/world/World")
+            .setObfuscatedName("ajs");
 
     // hook names
 
@@ -204,4 +210,9 @@ public class Names {
             .setName("hasNoSky")
             .setArgumentTypes(boolean.class, WORLD_PROVIDER)
             .setReturnType(boolean.class);
+
+    public final AsmMethod ON_BLOCK_ADD_COLLISION = FORGEHAX_HOOKS.childMethod()
+            .setName("onAddCollisionBoxToList")
+            .setArgumentTypes(BLOCK, IBLOCKSTATE, WORLD, List.class, BLOCKPOS)
+            .setReturnType(void.class);
 }

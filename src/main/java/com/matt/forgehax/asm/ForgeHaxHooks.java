@@ -15,9 +15,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldProviderHell;
 import net.minecraftforge.common.MinecraftForge;
@@ -199,6 +201,10 @@ public class ForgeHaxHooks {
 
     public static boolean hasNoSky(boolean original, WorldProvider in) {
         return in instanceof WorldProviderHell ? spoofedNetherHasNoSky : original;
+    }
+
+    public static void onAddCollisionBoxToList(Block block, IBlockState state, World world, List<AxisAlignedBB> collidingBoxes, BlockPos pos) {
+        MinecraftForge.EVENT_BUS.post(new AddCollisionBoxToListEvent(block, state, world, collidingBoxes, pos));
     }
 
     public static class DebugData {
