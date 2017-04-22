@@ -1,7 +1,6 @@
 package com.matt.forgehax;
 
 import com.matt.forgehax.mods.BaseMod;
-import com.matt.forgehax.mods.ToggleMod;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -9,7 +8,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.io.File;
 import java.util.Map;
 
-public class ForgeHaxConfig extends ForgeHaxBase {
+public class ForgeHaxConfig implements Globals {
     public Configuration config;
 
     public ForgeHaxConfig(File file)

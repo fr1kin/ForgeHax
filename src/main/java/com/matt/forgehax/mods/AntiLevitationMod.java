@@ -14,8 +14,8 @@ public class AntiLevitationMod extends ToggleMod {
 
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
-        if(getLocalPlayer().isPotionActive(Potion.getPotionFromResourceLocation("levitation"))) {
-            getLocalPlayer().removeActivePotionEffect(Potion.getPotionFromResourceLocation("levitation"));
+        if(WRAPPER.getLocalPlayer().isPotionActive(Potion.getPotionFromResourceLocation("levitation"))) {
+            WRAPPER.getLocalPlayer().removeActivePotionEffect(Potion.getPotionFromResourceLocation("levitation"));
         }
     }
 }

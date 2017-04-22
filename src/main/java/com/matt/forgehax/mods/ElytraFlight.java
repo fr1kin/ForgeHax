@@ -34,7 +34,7 @@ public class ElytraFlight extends ToggleMod {
 			MC.player.capabilities.isFlying = false;
 
 			// Ensure the player starts flying again.
-			getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
+			WRAPPER.getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
 		}
 
 	}

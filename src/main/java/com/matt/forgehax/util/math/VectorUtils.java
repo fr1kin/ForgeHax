@@ -1,6 +1,6 @@
 package com.matt.forgehax.util.math;
 
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
@@ -8,7 +8,7 @@ import net.minecraft.util.math.Vec3d;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-public class VectorUtils extends ForgeHaxBase {
+public class VectorUtils implements Globals {
     // thanks Gregor
     static Matrix4f viewMatrix = new Matrix4f();
     static Matrix4f projectionMatrix = new Matrix4f();

@@ -6,6 +6,7 @@ import com.matt.forgehax.mods.*;
 import com.matt.forgehax.mods.core.ContainersMod;
 import com.matt.forgehax.util.LagCompensator;
 import com.matt.forgehax.util.container.ContainerManager;
+import com.matt.forgehax.util.key.BindSerializer;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -20,7 +21,7 @@ import java.util.Map;
 @Mod(modid = ForgeHax.MODID, version = ForgeHax.VERSION, guiFactory = "com.matt.forgehax.ForgeHaxGuiFactory", clientSideOnly = true)
 public class ForgeHax {
 	public static final String MODID = "forgehax";
-	public static final String VERSION = "1.0";
+	public static final String VERSION = "1.2";
 
 	public static final Minecraft MC = Minecraft.getMinecraft();
 
@@ -30,7 +31,7 @@ public class ForgeHax {
 
 	public static ForgeHax INSTANCE;
 
-	public static ForgeHax instance() {
+	public static ForgeHax getInstance() {
 		return INSTANCE;
 	}
 
@@ -38,11 +39,11 @@ public class ForgeHax {
 	private File configFolder;
 	private ForgeHaxConfig config;
 
+	private BindSerializer bindSerializer;
+
 	public Logger log;
 
 	public Map<String, BaseMod> mods = Maps.newTreeMap();
-
-	public boolean newProfile = false;
 
 	public ForgeHax() {
 		INSTANCE = this;
@@ -64,88 +65,18 @@ public class ForgeHax {
 		return config;
 	}
 
+	public BindSerializer getBindSerializer() {
+		return bindSerializer;
+	}
+
 	public void setupConfigFolder() {
 		File userDir = new File(getBaseDirectory(), "users");
 		userDir.mkdirs();
-		if (!isInDevMode) {
-			configFolder = new File(userDir, MC.getSession().getProfile().getId().toString());
-			if (!configFolder.exists()) {
-				newProfile = true;
-				configFolder.mkdirs();
-			}
-		} else {
-			configFolder = new File(userDir, "devmode");
-		}
+		configFolder = new File(userDir, "devmode");
 	}
 
 	public void registerMod(BaseMod mod) {
 		mods.put(mod.getModName(), mod);
-	}
-
-	/**
-	 * No idea if I will end up using any of this
-	 */
-
-	private File getLastProfileFile() {
-		return new File(getBaseDirectory(), "last_profile.txt");
-	}
-
-	private File getLastUsedProfileFolder() {
-		File profile = getLastProfileFile();
-		if (profile.exists()) {
-			FileReader reader = null;
-			BufferedReader buffer = null;
-			try {
-				reader = new FileReader(profile);
-				buffer = new BufferedReader(reader);
-				String profileName = buffer.readLine();
-				for (File file : getBaseDirectory().listFiles()) {
-					if (file.getName().equals(profileName) && file.isDirectory()) {
-						return file;
-					}
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				try {
-					if (reader != null) {
-						reader.close();
-					}
-					if (buffer != null) {
-						buffer.close();
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return null;
-	}
-
-	private void updateLastUsedProfile(File lastUsedProfile) {
-		FileOutputStream output = null;
-		try {
-			output = new FileOutputStream(getLastProfileFile());
-			output.write(lastUsedProfile.getName().getBytes());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (output != null) {
-					output.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public boolean isNewProfile() {
-		return newProfile;
 	}
 
 	public void printStackTrace(Exception exception) {
@@ -164,6 +95,18 @@ public class ForgeHax {
 			case CLIENT: {
 				//---- get log ----//
 				log = event.getModLog();
+
+				//---- initialize configuration ----//
+				// create folder containing all account settings
+				baseFolder = new File(event.getModConfigurationDirectory(), "forgehax");
+				baseFolder.mkdirs();
+				// setup folder that contains settings (supports multiple accounts)
+				setupConfigFolder();
+				// initialize bind serializer
+				bindSerializer = new BindSerializer(getConfigFolder());
+				// add shutdown hook to serialize all binds
+				Runtime.getRuntime().addShutdownHook(new Thread(bindSerializer::serialize));
+
 				//---- initialize mods ----//
 				registerMod(new ContainersMod("Containers", "Mod containers for xray and entity lists"));
 				if (isInDevMode) {
@@ -218,12 +161,7 @@ public class ForgeHax {
 				registerMod(new CoordHaxMod("coordhax", false, "hax", Keyboard.KEY_END));
 				registerMod(new ElytraPlus("elytraplus", false, "fly faster", Keyboard.KEY_END));
 
-				//---- initialize configuration ----//
-				// create folder containing all account settings
-				baseFolder = new File(event.getModConfigurationDirectory(), "forgehax");
-				baseFolder.mkdirs();
-				// setup folder that contains settings (supports multiple accounts)
-				setupConfigFolder();
+				//---- initialize configuration part 2 ----//
 				// setup config
 				config = new ForgeHaxConfig(new File(getConfigFolder(), CONFIG_FILE_NAME));
 				// init containers
@@ -251,12 +189,12 @@ public class ForgeHax {
 						entry.getValue().register();
 					}
 				}
+				// load all previous binds
+				bindSerializer.deserialize();
 				break;
 			}
 			default:
 				break;
 		}
 	}
-
-
 }

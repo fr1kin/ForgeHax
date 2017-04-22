@@ -20,7 +20,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
-public class ForgeHaxEventHandler extends ForgeHaxBase {
+public class ForgeHaxEventHandler implements Globals {
     private static final WorldListener WORLD_LISTENER = new WorldListener();
 
     private boolean isLoaded = false;

@@ -1,6 +1,6 @@
 package com.matt.forgehax.util.draw;
 
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.entity.EntityUtils;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -10,7 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
-public class RenderUtils extends ForgeHaxBase {
+public class RenderUtils implements Globals {
     public static Vec3d getRenderPos() {
         return new Vec3d(
                 MC.player.lastTickPosX + (MC.player.posX - MC.player.lastTickPosX) * MC.getRenderPartialTicks(),
@@ -65,7 +65,7 @@ public class RenderUtils extends ForgeHaxBase {
         Tessellator tessellator = Tessellator.getInstance();
         VertexBuffer buffer = tessellator.getBuffer();
 
-        Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), MC.getRenderPartialTicks());
+        Vec3d renderPos = EntityUtils.getInterpolatedPos(WRAPPER.getLocalPlayer(), MC.getRenderPartialTicks());
 
         Vec3d min = startPos.subtract(renderPos);
         Vec3d max = endPos.subtract(renderPos);

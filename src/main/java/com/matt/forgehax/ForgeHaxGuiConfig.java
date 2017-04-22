@@ -2,8 +2,6 @@ package com.matt.forgehax;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.mods.BaseMod;
-import com.matt.forgehax.mods.ToggleMod;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.client.config.GuiConfig;
@@ -26,7 +24,7 @@ public class ForgeHaxGuiConfig extends GuiConfig {
 
     private static List<IConfigElement> getConfigElements() {
         List<IConfigElement> elements = Lists.newArrayList();
-        for(Map.Entry<String,BaseMod> entry : ForgeHax.instance().mods.entrySet()) {
+        for(Map.Entry<String,BaseMod> entry : ForgeHax.getInstance().mods.entrySet()) {
             entry.getValue().onConfigBuildGui(elements);
         }
         return elements;

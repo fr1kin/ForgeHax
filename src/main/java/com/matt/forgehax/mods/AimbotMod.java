@@ -80,8 +80,8 @@ public class AimbotMod extends ToggleMod {
 
     public boolean isVisible(Entity target) {
         if(isProjectileAimbotActivated() && projectileTraceCheck.getBoolean()) {
-            return ProjectileUtils.projectileTrajectoryHitsEntity(target, EntityUtils.getEyePos(getLocalPlayer()), getAimPos(target), null);
-        } else return !visibilityCheck.getBoolean() || getLocalPlayer().canEntityBeSeen(target);
+            return ProjectileUtils.projectileTrajectoryHitsEntity(target, EntityUtils.getEyePos(WRAPPER.getLocalPlayer()), getAimPos(target), null);
+        } else return !visibilityCheck.getBoolean() || WRAPPER.getLocalPlayer().canEntityBeSeen(target);
     }
 
     public Vec3d getAimPos(Entity entity) {
@@ -355,7 +355,7 @@ public class AimbotMod extends ToggleMod {
                     Packet usePacket = new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN);
                     // add to ignore list
                     Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
-                    getNetworkManager().sendPacket(usePacket);
+                    WRAPPER.getNetworkManager().sendPacket(usePacket);
                     // revert back to the old view angles
                     LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
                     // cancel this event (wont send the packet)
@@ -377,7 +377,7 @@ public class AimbotMod extends ToggleMod {
                 Packet usePacket = new CPacketPlayerTryUseItem(((CPacketPlayerTryUseItem) event.getPacket()).getHand());
                 // add to ignore list
                 Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
-                getNetworkManager().sendPacket(usePacket);
+                WRAPPER.getNetworkManager().sendPacket(usePacket);
                 // revert back to the old view angles
                 LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
                 // cancel this event (wont send the packet)

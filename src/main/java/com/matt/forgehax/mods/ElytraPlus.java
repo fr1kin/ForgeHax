@@ -28,7 +28,7 @@ public class ElytraPlus extends ToggleMod {
 
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
-        if(getLocalPlayer().isElytraFlying()) {
+        if(WRAPPER.getLocalPlayer().isElytraFlying()) {
 
         }
     }

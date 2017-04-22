@@ -32,7 +32,7 @@ public class AutoProjectile extends ToggleMod {
                 ItemStack heldItem = localPlayer.getHeldItemMainhand();
                 RayTraceResult trace = localPlayer.rayTrace(9999.D, 0.f);
                 if (heldItem != null &&
-                        getNetworkManager() != null &&
+                        WRAPPER.getNetworkManager() != null &&
                         trace != null &&
                         ProjectileUtils.isBow(heldItem)) {
                     Angle oldViewAngles = LocalPlayerUtils.getViewAngles();
@@ -45,7 +45,7 @@ public class AutoProjectile extends ToggleMod {
                     Packet usePacket = new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN);
                     // add to ignore list
                     Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
-                    getNetworkManager().sendPacket(usePacket);
+                    WRAPPER.getNetworkManager().sendPacket(usePacket);
                     // revert back to old angles
                     LocalPlayerUtils.sendRotatePacket(oldViewAngles);
                     event.setCanceled(true);
@@ -68,7 +68,7 @@ public class AutoProjectile extends ToggleMod {
                     Packet usePacket = new CPacketPlayerTryUseItem(((CPacketPlayerTryUseItem) event.getPacket()).getHand());
                     // add to ignore list
                     Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
-                    getNetworkManager().sendPacket(usePacket);
+                    WRAPPER.getNetworkManager().sendPacket(usePacket);
                     // revert back to the old view angles
                     LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
                     // cancel this event (wont send the packet)

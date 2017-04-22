@@ -12,8 +12,8 @@ public class AutoRespawnMod extends ToggleMod {
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        if(getLocalPlayer().getHealth() <= 0) {
-            getLocalPlayer().respawnPlayer();
+        if(WRAPPER.getLocalPlayer().getHealth() <= 0) {
+            WRAPPER.getLocalPlayer().respawnPlayer();
         }
     }
 }

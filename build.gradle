@@ -10,7 +10,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.1"
+version = "1.2"
 group= "com.matt.forgehax" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 
 sourceCompatibility = targetCompatibility = "1.8"
@@ -67,15 +67,6 @@ jar {
         attributes 'FMLCorePlugin': 'com.matt.forgehax.asm2.CoreMod',
                 'FMLCorePluginContainsFMLMod': 'true'*/
     }
-
-    /*
-    // depending on your project settings, use user.dir (project dir) or user.home (user home)
-    def s = minecraft.mappings.split('_')
-    def obfFolder = System.getProperty("user.home") + '\\.gradle\\caches\\minecraft\\de\\oceanlabs\\mcp\\' + (s[0] == "stable" ? "mcp_stable" : "mcp_snapshot") + '\\' + s[1] + '\\'
-
-    from obfFolder + 'fields.csv'
-    from obfFolder + 'methods.csv'
-    from obfFolder + 'params.csv'*/
 }
 
 processResources

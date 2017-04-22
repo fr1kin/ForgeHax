@@ -13,13 +13,13 @@ public class NoclipMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        if(getLocalPlayer() != null)
-            getLocalPlayer().noClip = false;
+        if(WRAPPER.getLocalPlayer() != null)
+            WRAPPER.getLocalPlayer().noClip = false;
     }
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        EntityPlayer localPlayer = getLocalPlayer();
+        EntityPlayer localPlayer = WRAPPER.getLocalPlayer();
         localPlayer.noClip = true;
         localPlayer.onGround = false;
         localPlayer.fallDistance = 0;

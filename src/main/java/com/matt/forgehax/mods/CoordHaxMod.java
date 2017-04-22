@@ -104,16 +104,16 @@ public class CoordHaxMod extends ToggleMod {
         if((tickCount % rate.getInt()) == 0 &&
                 shouldBeSending &&
                 selectedShulkerBoxOpenPacket != null) {
-            getNetworkManager().sendPacket(selectedShulkerBoxOpenPacket);
+            WRAPPER.getNetworkManager().sendPacket(selectedShulkerBoxOpenPacket);
         }
     }
 
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Outgoing.Pre event) {
-        if( getWorld() != null &&
+        if(WRAPPER.getWorld() != null &&
                 selectedShulkerBoxOpenPacket == null &&
                 event.getPacket() instanceof CPacketPlayerTryUseItemOnBlock) {
-            IBlockState state = getWorld().getBlockState(((CPacketPlayerTryUseItemOnBlock) event.getPacket()).getPos());
+            IBlockState state = WRAPPER.getWorld().getBlockState(((CPacketPlayerTryUseItemOnBlock) event.getPacket()).getPos());
             if(state.getBlock() instanceof BlockShulkerBox) {
                 selectedShulkerBoxOpenPacket = event.getPacket();
             }

@@ -2,7 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.mod.ModProperty;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
@@ -17,7 +17,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseMod extends ForgeHaxBase {
+public abstract class BaseMod implements Globals {
     public final static Map<String, Property> SETTINGS = Maps.newHashMap();
     public final static Map<String, KeyBinding> BINDINGS = Maps.newHashMap();
 
@@ -139,6 +139,7 @@ public abstract class BaseMod extends ForgeHaxBase {
     protected final KeyBinding addBind(String name, int keyCode) {
         KeyBinding bind = new KeyBinding(name, keyCode, "ForgeHax");
         ClientRegistry.registerKeyBinding(bind);
+        MOD.getBindSerializer().addBinding(bind);
         BINDINGS.put(name, bind);
         binds.add(bind);
         return bind;
@@ -225,6 +226,11 @@ public abstract class BaseMod extends ForgeHaxBase {
     public void onBindKeyDown(KeyBinding bind) {}
 
     public String getDisplayText() {
+        return getModName();
+    }
+
+    @Override
+    public String toString() {
         return getModName();
     }
 }

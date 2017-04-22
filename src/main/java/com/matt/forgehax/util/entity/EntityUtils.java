@@ -1,6 +1,6 @@
 package com.matt.forgehax.util.entity;
 
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.Utils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class EntityUtils extends ForgeHaxBase {
+public class EntityUtils implements Globals {
     public static boolean isBatsDisabled = false;
 
     /**
@@ -60,7 +60,7 @@ public class EntityUtils extends ForgeHaxBase {
     }
 
     public static boolean isValidEntity(Entity entity) {
-        Entity riding = getLocalPlayer().getRidingEntity();
+        Entity riding = WRAPPER.getLocalPlayer().getRidingEntity();
         return entity.ticksExisted > 1 && entity.getEntityId() != -100 && (riding == null || !riding.equals(entity));
     }
 

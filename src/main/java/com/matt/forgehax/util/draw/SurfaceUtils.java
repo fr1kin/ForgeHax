@@ -1,6 +1,6 @@
 package com.matt.forgehax.util.draw;
 
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL11;
 /**
  * 2D rendering
  */
-public class SurfaceUtils extends ForgeHaxBase {
+public class SurfaceUtils implements Globals {
     public static void drawLine(int startX, int startY, int endX, int endY, int color) {
         float r = (float)(color >> 16 & 255) / 255.0F;
         float g = (float)(color >> 8 & 255) / 255.0F;

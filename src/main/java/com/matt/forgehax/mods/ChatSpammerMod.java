@@ -220,7 +220,7 @@ public class ChatSpammerMod extends ToggleMod {
     }
 
     private boolean isLocalPlayer(String username) {
-        return Objects.nonNull(getLocalPlayer()) && getLocalPlayer().getDisplayName().getUnformattedText().equals(username);
+        return Objects.nonNull(WRAPPER.getLocalPlayer()) && WRAPPER.getLocalPlayer().getDisplayName().getUnformattedText().equals(username);
     }
 
     private boolean isLocalPlayer(GameProfile profile) {
@@ -318,9 +318,9 @@ public class ChatSpammerMod extends ToggleMod {
                 break;
             case END:
             {
-                if(Objects.nonNull(getLocalPlayer()) && System.currentTimeMillis() >= timeLastMessageSent + getTimeDelay()) {
+                if(Objects.nonNull(WRAPPER.getLocalPlayer()) && System.currentTimeMillis() >= timeLastMessageSent + getTimeDelay()) {
                     if(!queue.isEmpty()) {
-                        getLocalPlayer().sendChatMessage(queue.poll().getMessage());
+                        WRAPPER.getLocalPlayer().sendChatMessage(queue.poll().getMessage());
                         updateLastMessageSentTime();
                     } else if(System.currentTimeMillis() >= timeLastMessageSent + defaultSpammerDelay.getLong()) {
                         addToMessageQueue(EMPTY_SENDER, Commands.DEFAULT, SpamPriority.LOWEST, EMPTY_MAP);
@@ -354,7 +354,7 @@ public class ChatSpammerMod extends ToggleMod {
                     command = null;
                     break;
             }
-            if(Objects.nonNull(command) && Objects.nonNull(getLocalPlayer())) {
+            if(Objects.nonNull(command) && Objects.nonNull(WRAPPER.getLocalPlayer())) {
                 try {
                     playerListPacket.getEntries()
                             .stream()
@@ -384,10 +384,10 @@ public class ChatSpammerMod extends ToggleMod {
                 String username = matcher.group(2).replaceAll("<", "").replaceAll(">", "");
                 String message = matcher.group(3);
                 if (message.startsWith(" ")) message = message.substring(1);
-                if (Objects.nonNull(getLocalPlayer()) &&
+                if (Objects.nonNull(WRAPPER.getLocalPlayer()) &&
                         !Strings.isNullOrEmpty(username) &&
                         !Strings.isNullOrEmpty(message) &&
-                        !getLocalPlayer().getGameProfile().getName().equals(username) &&
+                        !WRAPPER.getLocalPlayer().getGameProfile().getName().equals(username) &&
                         PlayerCooldownChecker.isInCooldown(username) &&
                         !isUsersMessageInQueue(username)) {
                     for (Commands command : Commands.values()) {

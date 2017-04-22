@@ -177,7 +177,7 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
         switch (sendOrder.getString()) {
             case "POST":
             {
-                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
+                if(sendKickPacket.getBoolean()) WRAPPER.getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
                 pauseThread();
                 quickMoveSelectedToChest();
                 break;
@@ -187,7 +187,7 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
             {
                 quickMoveSelectedToChest();
                 pauseThread();
-                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
+                if(sendKickPacket.getBoolean()) WRAPPER.getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
             }
         }
         isThreadActive = false;

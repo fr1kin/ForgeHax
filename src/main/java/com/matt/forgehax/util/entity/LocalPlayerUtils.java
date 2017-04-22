@@ -1,6 +1,6 @@
 package com.matt.forgehax.util.entity;
 
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.math.Angle;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 /**
  * Class for dealing with the local player only
  */
-public class LocalPlayerUtils extends ForgeHaxBase {
+public class LocalPlayerUtils implements Globals {
     private static boolean projectileTargetAcquired = false;
     private static boolean activeFakeAngles = false;
     private static Entity targetEntity = null;
@@ -58,15 +58,15 @@ public class LocalPlayerUtils extends ForgeHaxBase {
         setViewAngles(angles.getPitch(), angles.getYaw());
     }
     public static void setViewAngles(double p, double y) {
-        getLocalPlayer().rotationYaw = (float)y;
-        getLocalPlayer().rotationPitch = (float)p;
+        WRAPPER.getLocalPlayer().rotationYaw = (float)y;
+        WRAPPER.getLocalPlayer().rotationPitch = (float)p;
     }
 
     /**
      * Gets the players current view angles
      */
     public static Angle getViewAngles() {
-        return new Angle(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
+        return new Angle(WRAPPER.getLocalPlayer().rotationPitch, WRAPPER.getLocalPlayer().rotationYaw);
     }
 
     /**
@@ -95,7 +95,7 @@ public class LocalPlayerUtils extends ForgeHaxBase {
     */
 
     public static Vec3d getVelocity() {
-        return new Vec3d(getLocalPlayer().motionX, getLocalPlayer().motionY, getLocalPlayer().motionZ);
+        return new Vec3d(WRAPPER.getLocalPlayer().motionX, WRAPPER.getLocalPlayer().motionY, WRAPPER.getLocalPlayer().motionZ);
     }
 
     /**

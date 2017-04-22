@@ -12,8 +12,8 @@ public class BedModeMod extends ToggleMod {
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        getLocalPlayer().sleeping = false;
-        getLocalPlayer().sleepTimer = 0;
+        WRAPPER.getLocalPlayer().sleeping = false;
+        WRAPPER.getLocalPlayer().sleepTimer = 0;
     }
 
     @SubscribeEvent

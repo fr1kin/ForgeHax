@@ -1,12 +1,12 @@
 package com.matt.forgehax.util.container;
 
 import com.google.common.collect.Maps;
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 
 import java.io.File;
 import java.util.*;
 
-public class ContainerManager extends ForgeHaxBase {
+public class ContainerManager implements Globals {
     public final static File FILTER_DIR = new File(MOD.getBaseDirectory(), "fitlers");
 
     public enum Category {

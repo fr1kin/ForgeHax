@@ -1,6 +1,6 @@
 package com.matt.forgehax.util.math;
 
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -14,7 +14,7 @@ import net.minecraft.util.math.Vec3d;
 /**
  * thx victormeriqui and k0bra :)))))
  */
-public class ProjectileUtils extends ForgeHaxBase {
+public class ProjectileUtils implements Globals {
     private static final int SIMULATION_ITERATIONS = 150;
     private static final int BESTPOS_ITERATIONS = 10;
 
@@ -333,10 +333,10 @@ public class ProjectileUtils extends ForgeHaxBase {
 
                 Vec3d wrlStart = selfPos.add(startPos), wrlEnd = selfPos.add(endPos);
 
-                RayTraceResult tr = getWorld().rayTraceBlocks(wrlStart, wrlEnd);
+                RayTraceResult tr = WRAPPER.getWorld().rayTraceBlocks(wrlStart, wrlEnd);
                 // if we have hit a block
                 if (tr != null &&
-                        !getWorld().getBlockState(tr.getBlockPos()).getBlock().isPassable(getWorld(), tr.getBlockPos())) {
+                        !WRAPPER.getWorld().getBlockState(tr.getBlockPos()).getBlock().isPassable(WRAPPER.getWorld(), tr.getBlockPos())) {
                     break;
                 }
 

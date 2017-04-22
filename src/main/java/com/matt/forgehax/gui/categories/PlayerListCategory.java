@@ -308,7 +308,7 @@ public class PlayerListCategory extends GuiConfigEntries.CategoryEntry {
                                 selectedList.addPlayerByName(name);
                             } catch (Exception e) {
                                 errorMessage = e.getMessage();
-                                ForgeHax.instance().printStackTrace(e);
+                                ForgeHax.getInstance().printStackTrace(e);
                             } finally {
                                 doRefresh = true;
                                 isCurrentlyAddingPlayer = false;

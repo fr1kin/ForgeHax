@@ -45,7 +45,7 @@ public class AutoWalkMod extends ToggleMod {
             Bindings.forward.setPressed(true);
 
         if(stopAtUnloadedChunks.getBoolean()) {
-            if(!getWorld().getChunkFromBlockCoords(getLocalPlayer().getPosition()).isLoaded())
+            if(!WRAPPER.getWorld().getChunkFromBlockCoords(WRAPPER.getLocalPlayer().getPosition()).isLoaded())
                 Bindings.forward.setPressed(false);
         }
     }

@@ -36,11 +36,11 @@ public class NoFallMod extends ToggleMod {
                 );
                 Utils.OUTGOING_PACKET_IGNORE_LIST.add(packet);
                 Utils.OUTGOING_PACKET_IGNORE_LIST.add(reposition);
-                getNetworkManager().sendPacket(packet);
-                getNetworkManager().sendPacket(reposition);
+                WRAPPER.getNetworkManager().sendPacket(packet);
+                WRAPPER.getNetworkManager().sendPacket(reposition);
                 lastFallDistance = 0;
             } else {
-                lastFallDistance = getLocalPlayer().fallDistance;
+                lastFallDistance = WRAPPER.getLocalPlayer().fallDistance;
             }
         }
     }

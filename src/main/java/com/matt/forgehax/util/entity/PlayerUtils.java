@@ -1,14 +1,13 @@
 package com.matt.forgehax.util.entity;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.container.ContainerManager;
 import com.matt.forgehax.util.container.lists.PlayerList;
 import net.minecraft.entity.player.EntityPlayer;
 
-import static com.matt.forgehax.ForgeHaxBase.*;
-
-public class PlayerUtils {
+public class PlayerUtils implements Globals {
     public static boolean isLocalPlayer(EntityPlayer player) {
-        EntityPlayer localPlayer = getLocalPlayer();
+        EntityPlayer localPlayer = WRAPPER.getLocalPlayer();
         return localPlayer != null && localPlayer.equals(player);
     }
 

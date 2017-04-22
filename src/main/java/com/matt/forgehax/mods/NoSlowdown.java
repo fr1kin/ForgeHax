@@ -29,7 +29,7 @@ public class NoSlowdown extends ToggleMod {
 
     @SubscribeEvent
     public void onDoApplyBlockMovement(DoBlockCollisionsEvent event) {
-        if(event.getEntity().equals(getLocalPlayer())) {
+        if(event.getEntity().equals(WRAPPER.getLocalPlayer())) {
             if(Block.getIdFromBlock(event.getState().getBlock()) == 88) { // soul sand
                 event.setCanceled(true);
             }

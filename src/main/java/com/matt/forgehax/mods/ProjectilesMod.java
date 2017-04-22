@@ -73,10 +73,10 @@ public class ProjectilesMod extends ToggleMod {
 
             RenderUtils.drawLine(endPos, startPos, Utils.Colors.WHITE, true, 1.5f);
 
-            RayTraceResult tr = getWorld().rayTraceBlocks(selfPos.add(startPos), selfPos.add(endPos), false, true, false);
+            RayTraceResult tr = WRAPPER.getWorld().rayTraceBlocks(selfPos.add(startPos), selfPos.add(endPos), false, true, false);
 
             if(tr != null &&
-                    !MC.world.getBlockState(tr.getBlockPos()).getBlock().isPassable(getWorld(), tr.getBlockPos())) {
+                    !MC.world.getBlockState(tr.getBlockPos()).getBlock().isPassable(WRAPPER.getWorld(), tr.getBlockPos())) {
                 break;
             }
 

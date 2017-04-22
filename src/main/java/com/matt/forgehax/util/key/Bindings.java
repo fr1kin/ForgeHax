@@ -1,8 +1,8 @@
 package com.matt.forgehax.util.key;
 
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 
-public class Bindings extends ForgeHaxBase {
+public class Bindings implements Globals {
     public static KeyBindingHandler forward = new KeyBindingHandler(MC.gameSettings.keyBindForward);
     public static KeyBindingHandler back = new KeyBindingHandler(MC.gameSettings.keyBindBack);
     public static KeyBindingHandler left = new KeyBindingHandler(MC.gameSettings.keyBindLeft);

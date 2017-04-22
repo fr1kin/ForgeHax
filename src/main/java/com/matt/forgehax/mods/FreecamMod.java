@@ -38,7 +38,7 @@ public class FreecamMod extends ToggleMod {
 
     @Override
     public void onEnabled() {
-        EntityPlayer localPlayer = getLocalPlayer();
+        EntityPlayer localPlayer = WRAPPER.getLocalPlayer();
         if(localPlayer != null) {
             posX = localPlayer.posX;
             posY = localPlayer.posY;
@@ -59,7 +59,7 @@ public class FreecamMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        EntityPlayer localPlayer = getLocalPlayer();
+        EntityPlayer localPlayer = WRAPPER.getLocalPlayer();
         if(localPlayer != null) {
             MC.player.setPositionAndRotation(posX, posY, posZ, yaw, pitch);
             MC.world.removeEntityFromWorld(-100);

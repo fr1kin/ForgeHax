@@ -32,7 +32,7 @@ public class PortalFinderMod extends ToggleMod {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent event) {
-        for (TileEntity tileEntity : getWorld().loadedTileEntityList) {
+        for (TileEntity tileEntity : WRAPPER.getWorld().loadedTileEntityList) {
             BlockPos pos = tileEntity.getPos();
             if (tileEntity instanceof TileEntityEndGateway) {
                 RenderUtils.drawBox(

@@ -20,8 +20,8 @@ public class StepMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        if(getLocalPlayer() != null) {
-            getLocalPlayer().stepHeight = DEFAULT_STEP_HEIGHT;
+        if(WRAPPER.getLocalPlayer() != null) {
+            WRAPPER.getLocalPlayer().stepHeight = DEFAULT_STEP_HEIGHT;
         }
     }
 
@@ -75,7 +75,7 @@ public class StepMod extends ToggleMod {
                     ));
                     for(Packet toSend : sendList) {
                         Utils.OUTGOING_PACKET_IGNORE_LIST.add(toSend);
-                        getNetworkManager().sendPacket(toSend);
+                        WRAPPER.getNetworkManager().sendPacket(toSend);
                     }
                     event.setCanceled(true);
                 }

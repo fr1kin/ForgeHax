@@ -1,20 +1,17 @@
 package com.matt.forgehax.util.container;
 
-import com.google.common.collect.Maps;
 import com.google.gson.*;
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Used to store list/map data into json files easily
  */
-public class ContainerList extends ForgeHaxBase {
+public class ContainerList implements Globals {
     private final File file;
     private final String name;
     // use linked hash map to retain order

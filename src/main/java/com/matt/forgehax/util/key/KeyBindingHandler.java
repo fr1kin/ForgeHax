@@ -1,10 +1,10 @@
 package com.matt.forgehax.util.key;
 
-import com.matt.forgehax.ForgeHaxBase;
+import com.matt.forgehax.Globals;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 
-public class KeyBindingHandler extends ForgeHaxBase {
+public class KeyBindingHandler implements Globals {
     private static final IKeyConflictContext OVERRIDE_KEYCONFLICT_CONTEXT = new IKeyConflictContext() {
         @Override
         public boolean isActive() {
