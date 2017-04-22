@@ -26,6 +26,7 @@ public class BlockPatch extends ClassTransformer {
 
     public BlockPatch() {
         registerHook(CAN_RENDER_IN_LAYER);
+        registerHook(ADD_COLLISION_BOX_TO_LIST);
     }
 
     @Override
