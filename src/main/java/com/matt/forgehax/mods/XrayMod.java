@@ -103,7 +103,7 @@ public class XrayMod extends ToggleMod {
 
     @SubscribeEvent
     public void onComputeVisibility(ComputeVisibilityEvent event) {
-        if(!SETTINGS.get("nocaveculling-enabled").getBoolean())
+        if(MOD.getMod("NoCaveCulling").getProperty("enabled").getBoolean())
             event.getSetVisibility().setAllVisible(true);
     }
 }

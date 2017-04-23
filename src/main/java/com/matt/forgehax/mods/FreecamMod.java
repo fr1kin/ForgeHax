@@ -66,7 +66,7 @@ public class FreecamMod extends ToggleMod {
             clonedPlayer = null;
             posX = posY = posZ = 0.D;
             pitch = yaw = 0.f;
-            MC.player.capabilities.isFlying = SETTINGS.get("elytraflight-enabled").getBoolean();
+            MC.player.capabilities.isFlying = MOD.getMod("ElytraFlight").getProperty("enabled").getBoolean();
             MC.player.capabilities.setFlySpeed(0.05f);
             MC.player.noClip = false;
             MC.player.motionX = MC.player.motionY = MC.player.motionZ = 0.f;

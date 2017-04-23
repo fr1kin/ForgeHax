@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.Map;
 
 @Mod(modid = ForgeHax.MODID, version = ForgeHax.VERSION, guiFactory = "com.matt.forgehax.ForgeHaxGuiFactory", clientSideOnly = true)
@@ -65,17 +66,22 @@ public class ForgeHax {
 		return config;
 	}
 
-	public BindSerializer getBindSerializer() {
-		return bindSerializer;
+	public Map<String, BaseMod> getMods() {
+		return Collections.unmodifiableMap(mods);
+	}
+
+	public BaseMod getMod(String name) {
+		return mods.get(name);
 	}
 
 	public void setupConfigFolder() {
 		File userDir = new File(getBaseDirectory(), "users");
 		userDir.mkdirs();
 		configFolder = new File(userDir, "devmode");
+		configFolder.mkdirs();
 	}
 
-	public void registerMod(BaseMod mod) {
+	protected void registerMod(BaseMod mod) {
 		mods.put(mod.getModName(), mod);
 	}
 

@@ -36,7 +36,7 @@ public class ProjectilesMod extends ToggleMod {
         if(trace == null)
             return;
         double pitch, yaw;
-        Property autoProjectile = SETTINGS.get("autoprojectile-enabled");
+        Property autoProjectile = MOD.getMod("AutoProjectile").getProperty("enabled");
         if(LocalPlayerUtils.isProjectileTargetAcquired()) {
             pitch = LocalPlayerUtils.getFakeViewAngles().getPitch();
             yaw = LocalPlayerUtils.getFakeViewAngles().getYaw();

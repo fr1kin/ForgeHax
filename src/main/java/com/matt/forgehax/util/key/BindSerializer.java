@@ -3,6 +3,7 @@ package com.matt.forgehax.util.key;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.mods.BaseMod;
 import net.minecraft.client.settings.KeyBinding;
 
 import java.io.*;
@@ -16,21 +17,16 @@ import java.util.Set;
  */
 public class BindSerializer implements Globals {
     private final File bindingsJson;
-    private final Set<KeyBinding> bindings = Sets.newConcurrentHashSet();
 
     public BindSerializer(File base) {
         this.bindingsJson = new File(base, "bindings.json");
     }
 
-    public void addBinding(KeyBinding binding) {
-        bindings.add(binding);
-    }
-
     public void serialize() {
-        JsonObject root = new JsonObject();
-        bindings.forEach(key -> {
-            root.addProperty(key.getKeyDescription(), key.getKeyCode());
-        });
+        final JsonObject root = new JsonObject();
+        MOD.getMods().forEach((name, mod) -> mod.getKeyBinds().forEach(bind -> {
+            root.addProperty(name + ":" + bind.getKeyDescription(), bind.getKeyCode());
+        }));
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -56,10 +52,10 @@ public class BindSerializer implements Globals {
 
         final JsonObject root = (head != null && head.isJsonObject()) ? head.getAsJsonObject() : new JsonObject();
 
-        bindings.forEach(key -> {
-            JsonElement element = root.get(key.getKeyDescription());
-            if(element != null) key.setKeyCode(element.getAsInt());
-        });
+        MOD.getMods().forEach((name, mod) -> mod.getKeyBinds().forEach(bind -> {
+            JsonElement element = root.get(name + ":" + bind.getKeyDescription());
+            if(element != null) bind.setKeyCode(element.getAsInt());
+        }));
 
         MOD.getLog().info("ForgeHax binds deserialized");
     }
