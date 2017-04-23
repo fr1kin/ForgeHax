@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.mods.*;
 import com.matt.forgehax.mods.core.ContainersMod;
-import com.matt.forgehax.util.LagCompensator;
+import com.matt.forgehax.util.TickManager;
 import com.matt.forgehax.util.container.ContainerManager;
 import com.matt.forgehax.util.key.BindSerializer;
 import net.minecraft.client.Minecraft;
@@ -13,7 +13,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.input.Keyboard;
 
 import java.io.*;
 import java.util.Collections;
@@ -187,7 +186,7 @@ public class ForgeHax {
 				// registerAll event handler
 				MinecraftForge.EVENT_BUS.register(new ForgeHaxEventHandler());
 				// registerAll lag compenstator
-				MinecraftForge.EVENT_BUS.register(LagCompensator.getInstance().getEventHandler());
+				TickManager.getInstance().registerEventHandler();
 				// registerAll mod events
 				for (Map.Entry<String, BaseMod> entry : mods.entrySet()) {
 					if (entry.getValue().isEnabled()) {

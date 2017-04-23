@@ -52,20 +52,18 @@ public class AimbotMod extends ToggleMod {
 
     public Property lagCompensation;
 
-    private final LagCompensator compensator = LagCompensator.getInstance();
-
     public AimbotMod() {
         super("Aimbot", false, "Automatically attack entities and players");
     }
 
-    private float getLagComp() {
+    private double getLagComp() {
         if(lagCompensation.getBoolean()) {
-            return -(20 - compensator.getTickRate());
-        } else return 0.f;
+            return -(20.D - TickManager.getInstance().getData().getAverage());
+        } else return 0.D;
     }
 
     public boolean canAttack(EntityPlayer localPlayer, Entity target) {
-        return localPlayer.getCooledAttackStrength(getLagComp()) >= (cooldownPercent.getDouble() / 100.f) &&
+        return localPlayer.getCooledAttackStrength((float)getLagComp()) >= (cooldownPercent.getDouble() / 100.f) &&
                 (autoAttack.getBoolean() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
     }
 
