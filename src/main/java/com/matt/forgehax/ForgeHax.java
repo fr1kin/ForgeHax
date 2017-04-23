@@ -30,7 +30,7 @@ public class ForgeHax {
 
 	private static final boolean isInDevMode = ForgeHaxHooks.isInDebugMode;
 
-	public static ForgeHax INSTANCE;
+	public static ForgeHax INSTANCE = null;
 
 	public static ForgeHax getInstance() {
 		return INSTANCE;
