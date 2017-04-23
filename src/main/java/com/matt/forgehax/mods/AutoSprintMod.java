@@ -2,22 +2,37 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.key.Bindings;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoSprintMod extends ToggleMod {
     private boolean isBound = false;
 
-    public AutoSprintMod(String categoryName, boolean defaultValue, String description, int key) {
-        super(categoryName, defaultValue, description, key);
+    public static final String[] modes = new String[] {"ALWAYS", "LEGIT"};
+
+    public Property mode;
+
+    public AutoSprintMod() {
+        super("AutoSprint", false, "Automatically sprints");
     }
 
     private void startSprinting() {
-        if(!isBound) {
-            Bindings.sprint.bind();
-            isBound = true;
+        switch (mode.getString()) {
+            case "ALWAYS":
+                if(!WRAPPER.getLocalPlayer().isCollidedHorizontally)
+                    WRAPPER.getLocalPlayer().setSprinting(true);
+                break;
+            default:
+            case "LEGIT":
+                if (!isBound) {
+                    Bindings.sprint.bind();
+                    isBound = true;
+                }
+                if (!Bindings.sprint.getBinding().isKeyDown())
+                    Bindings.sprint.setPressed(true);
+                break;
         }
-        if(!Bindings.sprint.getBinding().isKeyDown())
-            Bindings.sprint.setPressed(true);
     }
 
     private void stopSprinting() {
@@ -26,6 +41,18 @@ public class AutoSprintMod extends ToggleMod {
             Bindings.sprint.unbind();
             isBound = false;
         }
+    }
+
+    @Override
+    public void loadConfig(Configuration configuration) {
+        addSettings(
+                mode = configuration.get(getModCategory().getName(),
+                        "mode",
+                        modes[0],
+                        "Sprint mode (ALWAYS=setSprinting,LEGIT=simulate key press)",
+                        modes
+                )
+        );
     }
 
     /**

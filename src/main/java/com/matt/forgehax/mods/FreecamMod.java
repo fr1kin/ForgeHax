@@ -21,8 +21,8 @@ public class FreecamMod extends ToggleMod {
 
     private EntityOtherPlayerMP clonedPlayer;
 
-    public FreecamMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public FreecamMod() {
+        super("Freecam", false, "Freecam mode");
     }
 
     @Override

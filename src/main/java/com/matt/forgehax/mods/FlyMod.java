@@ -17,8 +17,8 @@ public class FlyMod extends ToggleMod {
 
     private boolean zoomies = true;
 
-    public FlyMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public FlyMod() {
+        super("Fly", false, "Enables flying");
     }
 
     @Override

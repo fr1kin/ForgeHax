@@ -18,8 +18,8 @@ public class AntiAfkMod extends ToggleMod {
 
     private int tickCounter = 0;
 
-    public AntiAfkMod(String categoryName, boolean defaultValue, String description, int key) {
-        super(categoryName, defaultValue, description, key);
+    public AntiAfkMod() {
+        super("AntiAFK", false, "Moves automatically to prevent being kicked");
     }
 
     public KeyBindingHandler getMoveBinding() {

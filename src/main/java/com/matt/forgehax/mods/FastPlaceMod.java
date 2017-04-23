@@ -7,8 +7,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * Created on 9/4/2016 by fr1kin
  */
 public class FastPlaceMod extends ToggleMod {
-    public FastPlaceMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public FastPlaceMod() {
+        super("FastPlace", false, "Fast place");
     }
 
     @SubscribeEvent

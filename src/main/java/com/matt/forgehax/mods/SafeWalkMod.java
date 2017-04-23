@@ -6,8 +6,8 @@ import com.matt.forgehax.asm.ForgeHaxHooks;
  * Created on 9/4/2016 by fr1kin
  */
 public class SafeWalkMod extends ToggleMod {
-    public SafeWalkMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public SafeWalkMod() {
+        super("SafeWalk", false, "Prevents you from falling off blocks");
     }
 
     @Override

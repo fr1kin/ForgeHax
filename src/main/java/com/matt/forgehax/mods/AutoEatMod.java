@@ -16,8 +16,8 @@ import java.util.List;
 public class AutoEatMod extends ToggleMod {
     private boolean isEating = false;
 
-    public AutoEatMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AutoEatMod() {
+        super("AutoEat", false, "Auto eats when you get hungry");
     }
 
     @SubscribeEvent

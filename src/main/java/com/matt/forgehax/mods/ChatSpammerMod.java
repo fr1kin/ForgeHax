@@ -130,8 +130,8 @@ public class ChatSpammerMod extends ToggleMod {
 
     private String errorMessage = "";
 
-    public ChatSpammerMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public ChatSpammerMod() {
+        super("ChatSpammer", false, "Add lines of spam into forgehax/spam.json");
     }
 
     private boolean addToMessageQueue(String sender, Commands command, SpamPriority priority, Map<String, Object> values) {

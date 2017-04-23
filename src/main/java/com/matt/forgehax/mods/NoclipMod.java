@@ -7,8 +7,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class NoclipMod extends ToggleMod {
-    public NoclipMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public NoclipMod() {
+        super("Noclip", false, "Enables player noclip");
     }
 
     @Override

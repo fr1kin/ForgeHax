@@ -51,8 +51,8 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
 
     private static final String[] ORDERS = {"PRE", "POST"};
 
-    public DropInvMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public DropInvMod() {
+        super("DropInv", false, "hax");
         initializeServer();
     }
 

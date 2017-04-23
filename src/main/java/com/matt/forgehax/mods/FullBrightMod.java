@@ -4,8 +4,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class FullBrightMod extends ToggleMod {
-    public FullBrightMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public FullBrightMod() {
+        super("FullBright", false, "Makes everything render with maximum brightness");
     }
 
     @Override

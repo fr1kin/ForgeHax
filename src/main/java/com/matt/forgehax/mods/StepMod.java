@@ -14,8 +14,8 @@ import java.util.List;
 public class StepMod extends ToggleMod {
     public final static float DEFAULT_STEP_HEIGHT = 0.6f;
 
-    public StepMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public StepMod() {
+        super("Step", false, "Step up blocks");
     }
 
     @Override

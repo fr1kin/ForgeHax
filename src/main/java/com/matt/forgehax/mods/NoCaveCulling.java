@@ -4,8 +4,8 @@ import com.matt.forgehax.asm.events.ComputeVisibilityEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class NoCaveCulling extends ToggleMod {
-    public NoCaveCulling(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public NoCaveCulling() {
+        super("NoCaveCulling", false, "Disables mojangs dumb cave culling shit");
     }
 
     public void reloadRenderers() {

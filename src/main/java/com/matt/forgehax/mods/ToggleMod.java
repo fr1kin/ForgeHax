@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public abstract class ToggleMod extends BaseMod {
     }
 
     public ToggleMod(String modName, boolean defaultValue, String description) {
-        this(modName, defaultValue, description, -1);
+        this(modName, defaultValue, description, Keyboard.KEY_NONE);
     }
 
     /**

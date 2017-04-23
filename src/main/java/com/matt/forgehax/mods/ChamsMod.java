@@ -14,8 +14,8 @@ public class ChamsMod extends ToggleMod {
     public Property hostileMobs;
     public Property friendlyMobs;
 
-    public ChamsMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public ChamsMod() {
+        super("Chams", false, "Render living models behind walls");
     }
 
     public boolean shouldDraw(EntityLivingBase entity) {

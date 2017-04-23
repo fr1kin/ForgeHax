@@ -4,8 +4,8 @@ import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AntiFogMod extends ToggleMod {
-    public AntiFogMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AntiFogMod() {
+        super("AntiFog", false, "Removes fog");
     }
 
     @SubscribeEvent

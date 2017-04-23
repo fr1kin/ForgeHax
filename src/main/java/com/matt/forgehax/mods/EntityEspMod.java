@@ -44,8 +44,8 @@ public class EntityEspMod extends ToggleMod {
     public Property armorEsp;
     public Property distanceEsp;
 
-    public EntityEspMod(String categoryName, boolean defaultValue, String description, int key) {
-        super(categoryName, defaultValue, description, key);
+    public EntityEspMod() {
+        super("EntityESP", false, "Shows entity locations and info");
     }
 
     public DrawOptions getDrawOptionValue(Property prop) {

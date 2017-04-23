@@ -7,8 +7,8 @@ import net.minecraft.block.BlockSoulSand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class NoSlowdown extends ToggleMod {
-    public NoSlowdown(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public NoSlowdown() {
+        super("NoSlowDown", false, "Disables block slowdown");
     }
 
     @Override

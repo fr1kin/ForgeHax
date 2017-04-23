@@ -30,8 +30,8 @@ public class AutoReconnectMod extends ToggleMod {
     public Property delayTime;
     public Property delayConnectTime;
 
-    public AutoReconnectMod(String modName, boolean defaultValue, String description) {
-        super(modName, defaultValue, description, -1);
+    public AutoReconnectMod() {
+        super("AutoReconnect", false, "Automatically reconnects to server");
     }
 
     @Override

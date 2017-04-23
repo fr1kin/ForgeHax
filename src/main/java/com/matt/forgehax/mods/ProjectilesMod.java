@@ -18,8 +18,8 @@ public class ProjectilesMod extends ToggleMod {
     private static final int TIME = 10;
     private static final double DETAIL = 0.2D;
 
-    public ProjectilesMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public ProjectilesMod() {
+        super("Projectiles", false, "Draws projectile path");
     }
 
     @SubscribeEvent

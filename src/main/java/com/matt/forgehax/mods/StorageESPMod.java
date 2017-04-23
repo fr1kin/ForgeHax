@@ -19,8 +19,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 public class StorageESPMod extends ToggleMod {
 
-    public StorageESPMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public StorageESPMod() {
+        super("StorageESP", false, "Shows storage");
     }
 
     @SubscribeEvent

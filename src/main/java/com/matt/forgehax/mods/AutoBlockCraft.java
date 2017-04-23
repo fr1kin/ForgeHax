@@ -45,8 +45,8 @@ public class AutoBlockCraft extends ToggleMod {
         }
     }
 
-    public AutoBlockCraft(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AutoBlockCraft() {
+        super("AutoBlockCraft", false, "Automatically crafts blocks for you");
     }
 
     public CraftableBlocks getSelectedOption() {

@@ -13,8 +13,8 @@ public class ElytraFlight extends ToggleMod {
 
 	private Property speed;
 
-	public ElytraFlight(String modName, boolean defaultValue, String description, int key) {
-		super(modName, defaultValue, description, key);
+	public ElytraFlight() {
+		super("ElytraFlight", false, "Elytra Flight");
 	}
 
 	@Override

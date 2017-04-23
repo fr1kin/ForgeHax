@@ -4,8 +4,8 @@ import com.matt.forgehax.asm.events.HurtCamEffectEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AntiHurtCamMod extends ToggleMod {
-    public AntiHurtCamMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AntiHurtCamMod() {
+        super("AntiHurtcam", false, "Removes hurt camera effect");
     }
 
     @SubscribeEvent

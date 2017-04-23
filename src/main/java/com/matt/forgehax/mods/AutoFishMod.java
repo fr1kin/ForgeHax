@@ -27,8 +27,8 @@ public class AutoFishMod extends ToggleMod {
     public Property maxSoundDistance;
     public Property failSafeTime;
 
-    public AutoFishMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AutoFishMod() {
+        super("AutoFish", false, "Auto fish");
     }
 
     private boolean isCorrectSplashPacket(SPacketSoundEffect packet) {

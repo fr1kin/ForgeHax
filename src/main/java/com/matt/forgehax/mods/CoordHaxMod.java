@@ -31,8 +31,8 @@ public class CoordHaxMod extends ToggleMod {
     private boolean shouldBeSending = false;
     private Packet selectedShulkerBoxOpenPacket = null;
 
-    public CoordHaxMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public CoordHaxMod() {
+        super("CoordLogger", false, "hax");
     }
 
     @Override

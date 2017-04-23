@@ -16,7 +16,7 @@ import java.util.List;
 public class ContainersMod extends BaseMod {
     public static List<IConfigElement> getContainers() {
         List<IConfigElement> elements = Lists.newArrayList();
-        elements.add(new DummyConfigElement.DummyCategoryElement("Blocks", "", ItemListCategory.class));
+        //elements.add(new DummyConfigElement.DummyCategoryElement("Blocks", "", ItemListCategory.class));
         elements.add(new DummyConfigElement.DummyCategoryElement("Players", "", PlayerListCategory.class));
         return elements;
     }

@@ -54,8 +54,8 @@ public class AimbotMod extends ToggleMod {
 
     private final LagCompensator compensator = LagCompensator.getInstance();
 
-    public AimbotMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AimbotMod() {
+        super("Aimbot", false, "Automatically attack entities and players");
     }
 
     private float getLagComp() {

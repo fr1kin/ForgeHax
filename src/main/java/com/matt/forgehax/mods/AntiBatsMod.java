@@ -8,8 +8,8 @@ import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AntiBatsMod extends ToggleMod {
-    public AntiBatsMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AntiBatsMod() {
+        super("AntiBats", false, "666 KILL BATS 666");
     }
 
     @Override

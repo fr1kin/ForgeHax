@@ -11,8 +11,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class ElytraPlus extends ToggleMod {
     public Property speed;
 
-    public ElytraPlus(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public ElytraPlus() {
+        super("ElytraPlus", false, "fly faster");
     }
 
     @Override

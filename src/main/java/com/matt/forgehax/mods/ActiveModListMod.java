@@ -5,10 +5,11 @@ import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.Utils;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.input.Keyboard;
 
 public class ActiveModListMod extends ToggleMod {
-    public ActiveModListMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public ActiveModListMod() {
+        super("ActiveMods", false, "Shows list of all active mods");
         setHidden(true);
     }
 

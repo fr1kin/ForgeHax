@@ -5,8 +5,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class FastBreak extends ToggleMod {
-    public FastBreak(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public FastBreak() {
+        super("FastBreak", false, "Fast break retard");
     }
 
     @SubscribeEvent

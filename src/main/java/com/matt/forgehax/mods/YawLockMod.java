@@ -17,8 +17,8 @@ public class YawLockMod extends ToggleMod {
     public Property autoAngle;
     public Property customAngle;
 
-    public YawLockMod(String categoryName, boolean defaultValue, String description, int key) {
-        super(categoryName, defaultValue, description, key);
+    public YawLockMod() {
+        super("YawLock", false, "Locks yaw to prevent moving into walls");
         INSTANCE = this;
     }
 

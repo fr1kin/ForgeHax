@@ -17,8 +17,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoProjectile extends ToggleMod {
-    public AutoProjectile(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AutoProjectile() {
+        super("AutoProjectile", false, "Automatically sets pitch to best trajectory");
     }
 
     @SubscribeEvent

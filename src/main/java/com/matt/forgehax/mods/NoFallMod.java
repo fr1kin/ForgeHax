@@ -6,8 +6,8 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class NoFallMod extends ToggleMod {
-    public NoFallMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public NoFallMod() {
+        super("NoFall", false, "Prevents fall damage from being taken");
     }
 
     private float lastFallDistance = 0;

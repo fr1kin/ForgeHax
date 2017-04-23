@@ -23,8 +23,8 @@ public class XrayMod extends ToggleMod {
 
     private boolean previousForgeLightPipelineEnabled = false;
 
-    public XrayMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public XrayMod() {
+        super("Xray", false, "See blocks through walls");
     }
 
     public void reloadRenderers() {

@@ -11,8 +11,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * Created on 9/29/2016 by fr1kin
  */
 public class SpawnerEspMod extends ToggleMod {
-    public SpawnerEspMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public SpawnerEspMod() {
+        super("SpawnerESP", false, "Spawner esp");
     }
 
     @SubscribeEvent

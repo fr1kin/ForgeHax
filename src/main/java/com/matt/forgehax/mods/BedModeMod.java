@@ -6,8 +6,8 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class BedModeMod extends ToggleMod {
-    public BedModeMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public BedModeMod() {
+        super("BedMode", false, "Sleep walking");
     }
 
     @SubscribeEvent

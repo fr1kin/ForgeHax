@@ -16,8 +16,8 @@ public class AntiKnockbackMod extends ToggleMod {
     private Property multiplierY;
     private Property multiplierZ;
 
-    public AntiKnockbackMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AntiKnockbackMod() {
+        super("AntiKnockback", false, "Removes knockback movement");
     }
 
     @Override

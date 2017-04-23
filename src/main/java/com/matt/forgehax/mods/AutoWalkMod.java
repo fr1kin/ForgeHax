@@ -11,8 +11,8 @@ public class AutoWalkMod extends ToggleMod {
 
     private boolean isBound = false;
 
-    public AutoWalkMod(String categoryName, boolean defaultValue, String description, int key) {
-        super(categoryName, defaultValue, description, key);
+    public AutoWalkMod() {
+        super("AutoWalk", false, "Automatically walks forward");
     }
 
     @Override

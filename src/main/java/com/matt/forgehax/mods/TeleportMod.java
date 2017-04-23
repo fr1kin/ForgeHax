@@ -16,8 +16,8 @@ public class TeleportMod extends ToggleMod {
     public Property mode;
     public Property relative;
 
-    public TeleportMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public TeleportMod() {
+        super("Teleport", false, "Type '.setpos [x] [y] [z] [onGround]' in chat to use");
     }
 
     @Override

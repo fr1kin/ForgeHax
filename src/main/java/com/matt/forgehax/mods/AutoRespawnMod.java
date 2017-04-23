@@ -6,8 +6,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 public class AutoRespawnMod extends ToggleMod {
-    public AutoRespawnMod(String modName, boolean defaultValue, String description, int key) {
-        super(modName, defaultValue, description, key);
+    public AutoRespawnMod() {
+        super("AutoRespawn", false, "Auto respawn on death");
     }
 
     @SubscribeEvent
