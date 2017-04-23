@@ -41,16 +41,20 @@ public class LagCompensator {
         reset();
     }
 
-    public int getTickRate() {
-        float numTicks = 0;
-        float sumTickRates = 0;
+    public float getTickRate() {
+        float numTicks = 0.f;
+        float sumTickRates = 0.f;
         for(float tickRate : tickRates) {
             if(tickRate > 0) {
                 sumTickRates += tickRate;
                 numTicks++;
             }
         }
-        return Math.round(MathHelper.clamp(sumTickRates / numTicks, MIN_TICKRATE, MAX_TICKRATE));
+        return MathHelper.clamp(sumTickRates / numTicks, MIN_TICKRATE, MAX_TICKRATE);
+    }
+
+    public int getClampedTickRate() {
+        return Math.round(getTickRate());
     }
 
     public LagCompensatorEventHandler getEventHandler() {
