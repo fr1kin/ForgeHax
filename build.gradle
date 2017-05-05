@@ -40,6 +40,7 @@ dependencies {
     //compile "some.group:artifact:version:classifier"
     //compile "some.group:artifact:version"
     compile files('libs/asmhelper-1.0.jar')
+    compile files('libs/journeymap-1.11.2-5.4.6.jar')
       
     // real examples
     //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env

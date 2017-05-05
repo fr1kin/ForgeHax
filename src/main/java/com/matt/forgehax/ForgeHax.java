@@ -80,7 +80,7 @@ public class ForgeHax {
 		configFolder.mkdirs();
 	}
 
-	protected void registerMod(BaseMod mod) {
+	public void registerMod(BaseMod mod) {
 		mods.put(mod.getModName(), mod);
 	}
 
@@ -166,6 +166,7 @@ public class ForgeHax {
 				//registerMod(new CoordHaxMod()); // disabled
 				registerMod(new ElytraPlus());
 				registerMod(new ChunkMarker());
+				registerMod(new JourneyMapBrightnessFix());
 
 				//---- initialize configuration part 2 ----//
 				// setup config

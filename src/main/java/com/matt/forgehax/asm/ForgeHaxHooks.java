@@ -4,6 +4,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.events.*;
+import journeymap.client.cartography.RGB;
+import journeymap.client.cartography.Stratum;
+import journeymap.client.cartography.render.BaseRenderer;
+import journeymap.client.model.ChunkMD;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -13,6 +17,7 @@ import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.network.Packet;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -23,14 +28,16 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldProviderHell;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
+import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ForgeHaxHooks {
+public class ForgeHaxHooks implements ASMCommon {
     public static boolean isInDebugMode = true;
 
     public final static Map<String, DebugData> responding = Maps.newLinkedHashMap();
@@ -205,6 +212,66 @@ public class ForgeHaxHooks {
 
     public static void onAddCollisionBoxToList(Block block, IBlockState state, World world, List<AxisAlignedBB> collidingBoxes, BlockPos pos) {
         MinecraftForge.EVENT_BUS.post(new AddCollisionBoxToListEvent(block, state, world, collidingBoxes, pos));
+    }
+
+    public static boolean ENABLE_JOURNEYMAP_LIGHTING_FIX = false;
+
+    private static Field __tweakBrightenDaylightDiff = null;
+    private static Field __tweakMoonlightLevel = null;
+    private static Field __tweakBrightenLightsourceBlock = null;
+    private static Field __tweakDarkenWaterColorMultiplier = null;
+    private static Field __tweakWaterColorBlend = null;
+    private static Field __tweakMinimumDarkenNightWater = null;
+
+    public static boolean onJournyMapSetStratumColor(Object thisPtr, Object stratumPtr, int lightAttenuation, Integer waterColor, boolean waterAbove, boolean underground, boolean mapCaveLighting) {
+        if(!ENABLE_JOURNEYMAP_LIGHTING_FIX) return false;
+        try {
+            BaseRenderer baseRenderer = (BaseRenderer)thisPtr;
+            Stratum stratum = (Stratum) stratumPtr;
+
+            // this speeds up reflection calls
+            if(__tweakBrightenDaylightDiff == null) __tweakBrightenDaylightDiff =  ReflectionHelper.findField(BaseRenderer.class, "tweakBrightenDaylightDiff");
+            if(__tweakMoonlightLevel == null) __tweakMoonlightLevel =  ReflectionHelper.findField(BaseRenderer.class, "tweakMoonlightLevel");
+            if(__tweakBrightenLightsourceBlock == null) __tweakBrightenLightsourceBlock =  ReflectionHelper.findField(BaseRenderer.class, "tweakBrightenLightsourceBlock");
+            if(__tweakDarkenWaterColorMultiplier == null) __tweakDarkenWaterColorMultiplier =  ReflectionHelper.findField(BaseRenderer.class, "tweakDarkenWaterColorMultiplier");
+            if(__tweakWaterColorBlend == null) __tweakWaterColorBlend =  ReflectionHelper.findField(BaseRenderer.class, "tweakWaterColorBlend");
+            if(__tweakMinimumDarkenNightWater == null) __tweakMinimumDarkenNightWater =  ReflectionHelper.findField(BaseRenderer.class, "tweakMinimumDarkenNightWater");
+
+            int basicColor;
+            if (stratum.isUninitialized()) {
+                throw new IllegalStateException("Stratum wasn't initialized for setStratumColors");
+            }
+            float daylightDiff = (float)Math.max(1, Math.max(stratum.getLightLevel(), 15 - lightAttenuation)) / 15.0f;
+            daylightDiff +=  __tweakBrightenDaylightDiff.getFloat(baseRenderer);
+            float moonLightLevel = __tweakMoonlightLevel.getFloat(baseRenderer);
+            float nightLightDiff = Math.max(moonLightLevel, Math.max((float)stratum.getLightLevel(), moonLightLevel - (float)lightAttenuation)) / 15.0f;
+            if (stratum.isWater()) {
+                basicColor = waterColor;
+            } else {
+                ChunkMD chunkMD = stratum.getChunkMd();
+                basicColor = stratum.getBlockMD().getColor(chunkMD, stratum.getBlockPos());
+            }
+            Block block = stratum.getBlockMD().getBlockState().getBlock();
+            if (block == Blocks.GLOWSTONE || block == Blocks.LIT_REDSTONE_LAMP) {
+                basicColor = RGB.adjustBrightness(basicColor, __tweakBrightenLightsourceBlock.getFloat(baseRenderer));
+            }
+            if (waterAbove && waterColor != null) {
+                int adjustedWaterColor = RGB.multiply(waterColor, __tweakBrightenDaylightDiff.getInt(baseRenderer));
+                int adjustedBasicColor = RGB.adjustBrightness(basicColor, Math.max(daylightDiff, nightLightDiff));
+                stratum.setDayColor(RGB.blendWith(adjustedBasicColor, adjustedWaterColor, __tweakWaterColorBlend.getInt(baseRenderer)));
+                stratum.setNightColor(RGB.adjustBrightness(stratum.getDayColor(), Math.max(nightLightDiff, __tweakMinimumDarkenNightWater.getInt(baseRenderer))));
+            } else {
+                stratum.setDayColor(RGB.adjustBrightness(basicColor, daylightDiff));
+                stratum.setNightColor(RGB.darkenAmbient(basicColor, nightLightDiff, baseRenderer.getAmbientColor()));
+            }
+            if (underground) {
+                stratum.setCaveColor(mapCaveLighting ? stratum.getNightColor() : stratum.getDayColor());
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        // cancel older calculation
+        return true;
     }
 
     public static class DebugData {

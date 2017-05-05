@@ -88,6 +88,11 @@ public class Names {
             .setName("net/minecraft/world/World")
             .setObfuscatedName("ajs");
 
+    // JOURNYMAP special
+
+    public final AsmClass JOURNYMAP_STRATUM = new AsmClass()
+            .setName("journeymap/client/cartography/Stratum");
+
     // hook names
 
     // ----event classes----
@@ -215,4 +220,9 @@ public class Names {
             .setName("onAddCollisionBoxToList")
             .setArgumentTypes(BLOCK, IBLOCKSTATE, WORLD, List.class, BLOCKPOS)
             .setReturnType(void.class);
+
+    public final AsmMethod JOURNYMAP_ON_SET_STRATUM_COLOR = FORGEHAX_HOOKS.childMethod()
+            .setName("onJournyMapSetStratumColor")
+            .setArgumentTypes(Object.class, Object.class, int.class, Integer.class, boolean.class, boolean.class, boolean.class)
+            .setReturnType(boolean.class);
 }
