@@ -4,6 +4,7 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.Utils;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 public class NoFallMod extends ToggleMod {
     public NoFallMod() {
@@ -36,11 +37,11 @@ public class NoFallMod extends ToggleMod {
                 );
                 Utils.OUTGOING_PACKET_IGNORE_LIST.add(packet);
                 Utils.OUTGOING_PACKET_IGNORE_LIST.add(reposition);
-                WRAPPER.getNetworkManager().sendPacket(packet);
-                WRAPPER.getNetworkManager().sendPacket(reposition);
+                getNetworkManager().sendPacket(packet);
+                getNetworkManager().sendPacket(reposition);
                 lastFallDistance = 0;
             } else {
-                lastFallDistance = WRAPPER.getLocalPlayer().fallDistance;
+                lastFallDistance = getLocalPlayer().fallDistance;
             }
         }
     }

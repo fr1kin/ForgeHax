@@ -1,14 +1,17 @@
 package com.matt.forgehax.asm.patches;
 
+import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
+import com.matt.forgehax.asm.helper.transforming.Inject;
 import org.objectweb.asm.tree.*;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.IRETURN;
 
 public class BlockPatch extends ClassTransformer {
     public final AsmMethod CAN_RENDER_IN_LAYER = new AsmMethod()
@@ -25,47 +28,32 @@ public class BlockPatch extends ClassTransformer {
             .setReturnType(void.class);
 
     public BlockPatch() {
-        registerHook(CAN_RENDER_IN_LAYER);
-        registerHook(ADD_COLLISION_BOX_TO_LIST);
+        super("net/minecraft/block/Block");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(CAN_RENDER_IN_LAYER.getRuntimeName()) &&
-                method.desc.equals(CAN_RENDER_IN_LAYER.getDescriptor())) {
-            updatePatchedMethods(canRenderinLayerPatch(method));
-            return true;
-        } else if(method.name.equals(ADD_COLLISION_BOX_TO_LIST.getRuntimeName()) &&
-                method.desc.equals(ADD_COLLISION_BOX_TO_LIST.getDescriptor())) {
-            updatePatchedMethods(addCollisionBoxToListPatch(method));
-            return true;
+    @RegisterPatch
+    private class CanRenderInLayer extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return CAN_RENDER_IN_LAYER;
         }
-        return false;
-    }
 
-    private final int[] canRenderBlockLayerPreSig = {
-            INVOKEVIRTUAL
-    };
+        @Inject(description = "Changes in layer code so that we can change it")
+        public void inject(MethodNode main) {
+            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[]{INVOKEVIRTUAL}, "x");
 
-    private final int[] canRenderBlockLayerPostSig = {
-            IRETURN
-    };
+            Objects.requireNonNull(node, "Find pattern failed for node");
 
-    private boolean canRenderinLayerPatch(MethodNode node) {
-        boolean ret = false;
-        AbstractInsnNode preNode = findPattern("canRenderInLayer", "preNode",
-                node.instructions.getFirst(), canRenderBlockLayerPreSig, "x");
-        AbstractInsnNode postNode = findPattern("canRenderInLayer", "postNode",
-                node.instructions.getFirst(), canRenderBlockLayerPostSig, "x");
-        if(preNode != null && postNode != null) {
-            InsnList insnPre = new InsnList();
+            InsnList insnList = new InsnList();
+
             // starting after INVOKEVIRTUAL on Block.getBlockLayer()
-            insnPre.add(new VarInsnNode(ASTORE, 3));
-            insnPre.add(new VarInsnNode(ALOAD, 0));
-            insnPre.add(new VarInsnNode(ALOAD, 1));
-            insnPre.add(new VarInsnNode(ALOAD, 3));
-            insnPre.add(new VarInsnNode(ALOAD, 2));
-            insnPre.add(new MethodInsnNode(INVOKESTATIC,
+
+            insnList.add(new VarInsnNode(ASTORE, 3)); // store the result from getBlockLayer()
+            insnList.add(new VarInsnNode(ALOAD, 0)); // push this
+            insnList.add(new VarInsnNode(ALOAD, 1)); // push block state
+            insnList.add(new VarInsnNode(ALOAD, 3)); // push this.getBlockLayer() result
+            insnList.add(new VarInsnNode(ALOAD, 2)); // push the block layer of the block we are comparing to
+            insnList.add(new MethodInsnNode(INVOKESTATIC,
                     NAMES.ON_RENDERBLOCK_INLAYER.getParentClass().getRuntimeName(),
                     NAMES.ON_RENDERBLOCK_INLAYER.getRuntimeName(),
                     NAMES.ON_RENDERBLOCK_INLAYER.getDescriptor(),
@@ -73,32 +61,37 @@ public class BlockPatch extends ClassTransformer {
             ));
             // now our result is on the stack
 
-            node.instructions.insert(preNode, insnPre);
-            ret = true;
+            main.instructions.insert(node, insnList);
         }
-        return ret;
     }
 
-    private boolean addCollisionBoxToListPatch(MethodNode methodNode) {
-        AbstractInsnNode pos = findPattern("addCollisionBoxToList", "pos",
-                methodNode.instructions.getFirst(), new int[] {ALOAD}, "x");
-        if(pos != null) {
-            InsnList insnPre = new InsnList();
-            insnPre.add(new VarInsnNode(ALOAD, 0)); //this
-            insnPre.add(new VarInsnNode(ALOAD, 1)); //state
-            insnPre.add(new VarInsnNode(ALOAD, 2)); //world
-            insnPre.add(new VarInsnNode(ALOAD, 5)); //list
-            insnPre.add(new VarInsnNode(ALOAD, 3)); //pos
-            insnPre.add(new MethodInsnNode(INVOKESTATIC,
+    @RegisterPatch
+    private class AddCollisionBoxToList extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return ADD_COLLISION_BOX_TO_LIST;
+        }
+
+        @Inject(description = "Inserts hook call")
+        public void inject(MethodNode main) {
+            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {ALOAD}, "x");
+
+            Objects.requireNonNull(node, "Find pattern failed for node");
+
+            InsnList insnList = new InsnList();
+            insnList.add(new VarInsnNode(ALOAD, 0)); //this
+            insnList.add(new VarInsnNode(ALOAD, 1)); //state
+            insnList.add(new VarInsnNode(ALOAD, 2)); //world
+            insnList.add(new VarInsnNode(ALOAD, 5)); //list
+            insnList.add(new VarInsnNode(ALOAD, 3)); //pos
+            insnList.add(new MethodInsnNode(INVOKESTATIC,
                     NAMES.ON_BLOCK_ADD_COLLISION.getParentClass().getRuntimeName(),
                     NAMES.ON_BLOCK_ADD_COLLISION.getRuntimeName(),
                     NAMES.ON_BLOCK_ADD_COLLISION.getDescriptor(),
                     false
             ));
 
-            methodNode.instructions.insert(pos, insnPre);
-            return true;
+            main.instructions.insert(node, insnList);
         }
-        return false;
     }
 }

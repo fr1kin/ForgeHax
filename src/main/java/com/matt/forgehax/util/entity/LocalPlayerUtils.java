@@ -8,6 +8,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
 import javax.annotation.Nullable;
+import static com.matt.forgehax.Wrapper.*;
 
 /**
  * Class for dealing with the local player only
@@ -58,15 +59,15 @@ public class LocalPlayerUtils implements Globals {
         setViewAngles(angles.getPitch(), angles.getYaw());
     }
     public static void setViewAngles(double p, double y) {
-        WRAPPER.getLocalPlayer().rotationYaw = (float)y;
-        WRAPPER.getLocalPlayer().rotationPitch = (float)p;
+        getLocalPlayer().rotationYaw = (float)y;
+        getLocalPlayer().rotationPitch = (float)p;
     }
 
     /**
      * Gets the players current view angles
      */
     public static Angle getViewAngles() {
-        return new Angle(WRAPPER.getLocalPlayer().rotationPitch, WRAPPER.getLocalPlayer().rotationYaw);
+        return new Angle(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
     }
 
     /**
@@ -95,7 +96,7 @@ public class LocalPlayerUtils implements Globals {
     */
 
     public static Vec3d getVelocity() {
-        return new Vec3d(WRAPPER.getLocalPlayer().motionX, WRAPPER.getLocalPlayer().motionY, WRAPPER.getLocalPlayer().motionZ);
+        return new Vec3d(getLocalPlayer().motionX, getLocalPlayer().motionY, getLocalPlayer().motionZ);
     }
 
     /**

@@ -8,6 +8,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import static com.matt.forgehax.Wrapper.*;
 
 public class ElytraFlight extends ToggleMod {
 
@@ -34,7 +35,7 @@ public class ElytraFlight extends ToggleMod {
 			MC.player.capabilities.isFlying = false;
 
 			// Ensure the player starts flying again.
-			WRAPPER.getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
+			getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
 		}
 
 	}

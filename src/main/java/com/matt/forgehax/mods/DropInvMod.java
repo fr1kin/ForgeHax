@@ -21,6 +21,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
+import static com.matt.forgehax.Wrapper.*;
 
 /**
  * Created on 11/15/2016 by fr1kin
@@ -177,7 +178,7 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
         switch (sendOrder.getString()) {
             case "POST":
             {
-                if(sendKickPacket.getBoolean()) WRAPPER.getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
+                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
                 pauseThread();
                 quickMoveSelectedToChest();
                 break;
@@ -187,7 +188,7 @@ public class DropInvMod extends ToggleMod implements IServerCallback {
             {
                 quickMoveSelectedToChest();
                 pauseThread();
-                if(sendKickPacket.getBoolean()) WRAPPER.getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
+                if(sendKickPacket.getBoolean()) getNetworkManager().sendPacket(new CPacketUseEntity(MC.player, EnumHand.MAIN_HAND));
             }
         }
         isThreadActive = false;

@@ -4,6 +4,7 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import net.minecraft.client.gui.GuiSleepMP;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 public class BedModeMod extends ToggleMod {
     public BedModeMod() {
@@ -12,8 +13,8 @@ public class BedModeMod extends ToggleMod {
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        WRAPPER.getLocalPlayer().sleeping = false;
-        WRAPPER.getLocalPlayer().sleepTimer = 0;
+        getLocalPlayer().sleeping = false;
+        getLocalPlayer().sleepTimer = 0;
     }
 
     @SubscribeEvent

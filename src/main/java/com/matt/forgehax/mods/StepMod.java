@@ -10,6 +10,7 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
+import static com.matt.forgehax.Wrapper.*;
 
 public class StepMod extends ToggleMod {
     public final static float DEFAULT_STEP_HEIGHT = 0.6f;
@@ -20,8 +21,8 @@ public class StepMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        if(WRAPPER.getLocalPlayer() != null) {
-            WRAPPER.getLocalPlayer().stepHeight = DEFAULT_STEP_HEIGHT;
+        if(getLocalPlayer() != null) {
+            getLocalPlayer().stepHeight = DEFAULT_STEP_HEIGHT;
         }
     }
 
@@ -75,7 +76,7 @@ public class StepMod extends ToggleMod {
                     ));
                     for(Packet toSend : sendList) {
                         Utils.OUTGOING_PACKET_IGNORE_LIST.add(toSend);
-                        WRAPPER.getNetworkManager().sendPacket(toSend);
+                        getNetworkManager().sendPacket(toSend);
                     }
                     event.setCanceled(true);
                 }

@@ -15,6 +15,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.List;
+import static com.matt.forgehax.Wrapper.*;
 
 public class EntityUtils implements Globals {
     public static boolean isBatsDisabled = false;
@@ -60,7 +61,7 @@ public class EntityUtils implements Globals {
     }
 
     public static boolean isValidEntity(Entity entity) {
-        Entity riding = WRAPPER.getLocalPlayer().getRidingEntity();
+        Entity riding = getLocalPlayer().getRidingEntity();
         return entity.ticksExisted > 1 && entity.getEntityId() != -100 && (riding == null || !riding.equals(entity));
     }
 

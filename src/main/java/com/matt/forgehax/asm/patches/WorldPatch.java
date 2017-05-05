@@ -1,8 +1,14 @@
 package com.matt.forgehax.asm.patches;
 
+import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.Inject;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
 import org.objectweb.asm.tree.*;
+
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -15,36 +21,32 @@ public class WorldPatch extends ClassTransformer {
             .setHooks(NAMES.ON_WATER_MOVEMENT);
 
     public WorldPatch() {
-        registerHook(HANDLE_MATERIAL_ACCELERATION);
+        super("net/minecraft/world/World");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(HANDLE_MATERIAL_ACCELERATION.getRuntimeName()) &&
-                method.desc.equals(HANDLE_MATERIAL_ACCELERATION.getDescriptor())) {
-            updatePatchedMethods(handleMaterialAccelerationPatch(method));
-            return true;
-        } else return false;
-    }
+    @RegisterPatch
+    private class HandleMaterialAcceleration extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return HANDLE_MATERIAL_ACCELERATION;
+        }
 
-    private final int[] handleMaterialAccelerationPreSignature = {
-            ALOAD, INVOKEVIRTUAL, ASTORE,
-            0x00, 0x00,
-            LDC, DSTORE,
-            0x00, 0x00,
-            ALOAD, DUP, GETFIELD, ALOAD, GETFIELD, LDC, DMUL, DADD, PUTFIELD
-    };
+        @Inject
+        public void inject(MethodNode method) {
+            AbstractInsnNode preNode = AsmHelper.findPattern(method.instructions.getFirst(), new int[] {
+                    ALOAD, INVOKEVIRTUAL, ASTORE,
+                    0x00, 0x00,
+                    LDC, DSTORE,
+                    0x00, 0x00,
+                    ALOAD, DUP, GETFIELD, ALOAD, GETFIELD, LDC, DMUL, DADD, PUTFIELD
+            }, "xxx??xx??xxxxxxxxx");
+            AbstractInsnNode postNode = AsmHelper.findPattern(method.instructions.getFirst(), new int[] {
+                    ILOAD, IRETURN
+            }, "xx");
 
-    private final int[] handleMaterialAccelerationPostSignature = {
-            ILOAD, IRETURN
-    };
+            Objects.requireNonNull(preNode, "Find pattern failed for preNode");
+            Objects.requireNonNull(postNode, "Find pattern failed for postNode");
 
-    private boolean handleMaterialAccelerationPatch(MethodNode method) {
-        AbstractInsnNode preNode = findPattern("handleMaterialAcceleration", "preNode", method.instructions.getFirst(),
-                handleMaterialAccelerationPreSignature, "xxx??xx??xxxxxxxxx");
-        AbstractInsnNode postNode = findPattern("handleMaterialAcceleration", "postNode", method.instructions.getFirst(),
-                handleMaterialAccelerationPostSignature, "xx");
-        if(preNode != null && postNode != null) {
             LabelNode endJump = new LabelNode();
 
             InsnList insnPre = new InsnList();
@@ -60,9 +62,6 @@ public class WorldPatch extends ClassTransformer {
 
             method.instructions.insertBefore(preNode, insnPre);
             method.instructions.insertBefore(postNode, endJump);
-            return true;
-        } else {
-            return false;
         }
     }
 }

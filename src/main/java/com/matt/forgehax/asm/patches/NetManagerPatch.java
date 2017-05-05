@@ -2,11 +2,15 @@ package com.matt.forgehax.asm.patches;
 
 import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.Inject;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.GenericFutureListener;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -26,53 +30,34 @@ public class NetManagerPatch extends ClassTransformer {
             .setHooks(NAMES.ON_POST_RECEIVED, NAMES.ON_PRE_RECEIVED);
 
     public NetManagerPatch() {
-        registerHook(DISPATCH_PACKET);
-        registerHook(CHANNEL_READ0);
+        super("net/minecraft/network/NetworkManager");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(DISPATCH_PACKET.getRuntimeName()) &&
-                method.desc.equals(DISPATCH_PACKET.getDescriptor())) {
-            updatePatchedMethods(patchDispatchPacket(method));
-            return true;
-        } else if(method.name.equals(CHANNEL_READ0.getRuntimeName()) &&
-                method.desc.equals(CHANNEL_READ0.getDescriptor())) {
-            updatePatchedMethods(patchChannelRead0(method));
-            return true;
+    @RegisterPatch
+    private class DispatchPacket extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return DISPATCH_PACKET;
         }
-        return false;
-    }
 
-    private final int[] patternPreDispatch = new int[] {
-            ALOAD, ALOAD, IF_ACMPEQ, ALOAD, INSTANCEOF, IFNE,
-            0x00, 0x00,
-            ALOAD, ALOAD, INVOKEVIRTUAL
-    };
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    ALOAD, ALOAD, IF_ACMPEQ, ALOAD, INSTANCEOF, IFNE,
+                    0x00, 0x00,
+                    ALOAD, ALOAD, INVOKEVIRTUAL
+            }, "xxxxxx??xxx");
+            AbstractInsnNode postNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    POP,
+                    0x00, 0x00,
+                    GOTO,
+                    0x00, 0x00, 0x00,
+                    ALOAD, GETFIELD, INVOKEINTERFACE, NEW, DUP
+            }, "x??x???xxxxx");
 
-    private final int[] patternPostDispatch = new int[] {
-            POP,
-            0x00, 0x00,
-            GOTO,
-            0x00, 0x00, 0x00,
-            ALOAD, GETFIELD, INVOKEINTERFACE, NEW, DUP
-    };
+            Objects.requireNonNull(preNode, "Find pattern failed for preNode");
+            Objects.requireNonNull(postNode, "Find pattern failed for postNode");
 
-    private boolean patchDispatchPacket(MethodNode method) {
-        AbstractInsnNode preNode = null, postNode = null;
-        try {
-            preNode = AsmHelper.findPattern(method.instructions.getFirst(),
-                    patternPreDispatch, "xxxxxx??xxx");
-        } catch (Exception e) {
-            log("dispatchPacket", "preNode error: %s\n", e.getMessage());
-        }
-        try {
-            postNode = AsmHelper.findPattern(method.instructions.getFirst(),
-                    patternPostDispatch, "x??x???xxxxx");
-        } catch (Exception e) {
-            log("dispatchPacket", "postNode error: %s\n", e.getMessage());
-        }
-        if(preNode != null && postNode != null) {
             LabelNode endJump = new LabelNode();
 
             InsnList insnPre = new InsnList();
@@ -95,39 +80,32 @@ public class NetManagerPatch extends ClassTransformer {
             ));
             insnPost.add(endJump);
 
-            method.instructions.insertBefore(preNode, insnPre);
-            method.instructions.insert(postNode, insnPost);
-            return true;
-        } else {
-            return false;
+            main.instructions.insertBefore(preNode, insnPre);
+            main.instructions.insert(postNode, insnPost);
         }
     }
 
-    private final int[] patternPreSend = new int[] {
-            ALOAD, ALOAD, GETFIELD, INVOKEINTERFACE
-    };
-
-    private final int[] patternPostSend = new int[] {
-            INVOKEINTERFACE,
-            0x00, 0x00,
-            GOTO,
-    };
-
-    private boolean patchChannelRead0(MethodNode method) {
-        AbstractInsnNode preNode = null, postNode = null;
-        try {
-            preNode = AsmHelper.findPattern(method.instructions.getFirst(),
-                    patternPreSend, "xxxx");
-        } catch (Exception e) {
-            log("channelRead0", "preNode error: %s\n", e.getMessage());
+    @RegisterPatch
+    private class ChannelRead0 extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return CHANNEL_READ0;
         }
-        try {
-            postNode = AsmHelper.findPattern(method.instructions.getFirst(),
-                    patternPostSend, "x??x");
-        } catch (Exception e) {
-            log("channelRead0", "postNode error: %s\n", e.getMessage());
-        }
-        if(preNode != null && postNode != null) {
+
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    ALOAD, ALOAD, GETFIELD, INVOKEINTERFACE
+            }, "xxxx");
+            AbstractInsnNode postNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    INVOKEINTERFACE,
+                    0x00, 0x00,
+                    GOTO,
+            }, "x??x");
+
+            Objects.requireNonNull(preNode, "Find pattern failed for preNode");
+            Objects.requireNonNull(postNode, "Find pattern failed for postNode");
+
             LabelNode endJump = new LabelNode();
 
             InsnList insnPre = new InsnList();
@@ -150,11 +128,8 @@ public class NetManagerPatch extends ClassTransformer {
             ));
             insnPost.add(endJump);
 
-            method.instructions.insertBefore(preNode, insnPre);
-            method.instructions.insert(postNode, insnPost);
-            return true;
-        } else {
-            return false;
+            main.instructions.insertBefore(preNode, insnPre);
+            main.instructions.insert(postNode, insnPost);
         }
     }
 }

@@ -1,22 +1,67 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.collect.Lists;
 import com.matt.forgehax.util.TickManager;
 import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.Utils;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.List;
+
 public class ActiveModListMod extends ToggleMod {
+    public Property factor;
+
     public ActiveModListMod() {
         super("ActiveMods", false, "Shows list of all active mods");
         setHidden(true);
+    }
+
+    private String generateTickRateText() {
+        StringBuilder builder = new StringBuilder("Tick-rate: ");
+        TickManager.TickRateData data = TickManager.getInstance().getData();
+        int factor = this.factor.getInt();
+        int sections = data.getSampleSize() / factor;
+        if((sections * factor) < data.getSampleSize()) {
+            TickManager.TickRateData.CalculationData point = data.getPoint();
+            builder.append(String.format("%.2f", point.getAverage()));
+            builder.append(" (");
+            builder.append(data.getSampleSize());
+            builder.append(")");
+            if(sections > 0) builder.append(", ");
+        }
+        if(sections > 0) {
+            for(int i = sections; i > 0; i--) {
+                int at = i * factor;
+                TickManager.TickRateData.CalculationData point = data.getPoint(at);
+                builder.append(String.format("%.2f", point.getAverage()));
+                builder.append(" (");
+                builder.append(at);
+                builder.append(")");
+                if((i - 1) != 0) builder.append(", ");
+            }
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public void loadConfig(Configuration configuration) {
+        addSettings(
+                factor = configuration.get(getModName(),
+                        "factor",
+                        25,
+                        "Different points to show the tick rate"
+                )
+        );
     }
 
     @SubscribeEvent
     public void onRenderScreen(RenderGameOverlayEvent.Text event) {
         int posX = 1;
         int posY = 1;
-        SurfaceUtils.drawTextShadow(String.format("Tick-rate: %.2f", TickManager.getInstance().getData().getAverage()), posX, posY, Utils.Colors.WHITE);
+        SurfaceUtils.drawTextShadow(generateTickRateText(), posX, posY, Utils.Colors.WHITE);
         posY += SurfaceUtils.getTextHeight() + 1;
         for(BaseMod mod : MOD.mods.values()) {
             if(mod.isEnabled() && !mod.isHidden()) {

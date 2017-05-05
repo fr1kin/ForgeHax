@@ -4,6 +4,8 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static com.matt.forgehax.Wrapper.*;
+
 /**
  * Created on 11/28/2016 by fr1kin
  */
@@ -14,8 +16,8 @@ public class AntiLevitationMod extends ToggleMod {
 
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
-        if(WRAPPER.getLocalPlayer().isPotionActive(Potion.getPotionFromResourceLocation("levitation"))) {
-            WRAPPER.getLocalPlayer().removeActivePotionEffect(Potion.getPotionFromResourceLocation("levitation"));
+        if(getLocalPlayer().isPotionActive(Potion.getPotionFromResourceLocation("levitation"))) {
+            getLocalPlayer().removeActivePotionEffect(Potion.getPotionFromResourceLocation("levitation"));
         }
     }
 }

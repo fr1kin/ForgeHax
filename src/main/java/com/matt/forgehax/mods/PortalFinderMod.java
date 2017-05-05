@@ -21,6 +21,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
+import static com.matt.forgehax.Wrapper.*;
 
 /**
  * Created on 11/10/2016 by fr1kin
@@ -32,7 +33,7 @@ public class PortalFinderMod extends ToggleMod {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent event) {
-        for (TileEntity tileEntity : WRAPPER.getWorld().loadedTileEntityList) {
+        for (TileEntity tileEntity : getWorld().loadedTileEntityList) {
             BlockPos pos = tileEntity.getPos();
             if (tileEntity instanceof TileEntityEndGateway) {
                 RenderUtils.drawBox(

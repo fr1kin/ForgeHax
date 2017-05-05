@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.events.DoBlockCollisionsEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSoulSand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 public class NoSlowdown extends ToggleMod {
     public NoSlowdown() {
@@ -29,7 +30,7 @@ public class NoSlowdown extends ToggleMod {
 
     @SubscribeEvent
     public void onDoApplyBlockMovement(DoBlockCollisionsEvent event) {
-        if(event.getEntity().equals(WRAPPER.getLocalPlayer())) {
+        if(event.getEntity().equals(getLocalPlayer())) {
             if(Block.getIdFromBlock(event.getState().getBlock()) == 88) { // soul sand
                 event.setCanceled(true);
             }

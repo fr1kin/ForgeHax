@@ -5,6 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 public class NoclipMod extends ToggleMod {
     public NoclipMod() {
@@ -13,13 +14,13 @@ public class NoclipMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        if(WRAPPER.getLocalPlayer() != null)
-            WRAPPER.getLocalPlayer().noClip = false;
+        if(getLocalPlayer() != null)
+            getLocalPlayer().noClip = false;
     }
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        EntityPlayer localPlayer = WRAPPER.getLocalPlayer();
+        EntityPlayer localPlayer = getLocalPlayer();
         localPlayer.noClip = true;
         localPlayer.onGround = false;
         localPlayer.fallDistance = 0;

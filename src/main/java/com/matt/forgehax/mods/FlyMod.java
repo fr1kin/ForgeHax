@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Objects;
+import static com.matt.forgehax.Wrapper.*;
 
 @SuppressWarnings("MethodCallSideOnly")
 public class FlyMod extends ToggleMod {
@@ -23,8 +24,8 @@ public class FlyMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        if(Objects.nonNull(WRAPPER.getLocalPlayer()))
-            WRAPPER.getLocalPlayer().noClip = false;
+        if(Objects.nonNull(getLocalPlayer()))
+            getLocalPlayer().noClip = false;
     }
 
     @SubscribeEvent
@@ -41,9 +42,9 @@ public class FlyMod extends ToggleMod {
             double posX = MC.player.posX + MC.player.motionX;
             double posY = MC.player.posY + (MC.gameSettings.keyBindJump.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001) - (MC.gameSettings.keyBindSneak.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000002);
             double posZ = MC.player.posZ + MC.player.motionX;
-            WRAPPER.getNetworkManager().sendPacket(new CPacketPlayer.PositionRotation(MC.player.posX + MC.player.motionX, MC.player.posY + (MC.gameSettings.keyBindJump.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001) - (MC.gameSettings.keyBindSneak.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000002), MC.player.posZ + MC.player.motionZ, MC.player.rotationYaw, MC.player.rotationPitch, false));
-            WRAPPER.getNetworkManager().sendPacket(new CPacketPlayer.PositionRotation(MC.player.posX + MC.player.motionX, 1337 + MC.player.posY, MC.player.posZ + MC.player.motionZ, MC.player.rotationYaw, MC.player.rotationPitch, true));
-            WRAPPER.getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
+            getNetworkManager().sendPacket(new CPacketPlayer.PositionRotation(MC.player.posX + MC.player.motionX, MC.player.posY + (MC.gameSettings.keyBindJump.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001) - (MC.gameSettings.keyBindSneak.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000002), MC.player.posZ + MC.player.motionZ, MC.player.rotationYaw, MC.player.rotationPitch, false));
+            getNetworkManager().sendPacket(new CPacketPlayer.PositionRotation(MC.player.posX + MC.player.motionX, 1337 + MC.player.posY, MC.player.posZ + MC.player.motionZ, MC.player.rotationYaw, MC.player.rotationPitch, true));
+            getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
             MC.player.setPosition(posX, posY, posZ);
 
             zoomies = !zoomies;

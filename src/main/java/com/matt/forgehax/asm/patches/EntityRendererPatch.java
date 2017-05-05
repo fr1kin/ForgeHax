@@ -2,8 +2,13 @@ package com.matt.forgehax.asm.patches;
 
 import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.Inject;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
 import org.objectweb.asm.tree.*;
+
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -16,42 +21,24 @@ public class EntityRendererPatch extends ClassTransformer {
             .setHooks(NAMES.ON_HURTCAMEFFECT);
 
     public EntityRendererPatch() {
-        registerHook(HURTCAMERAEFFECT);
+        super("net/minecraft/client/renderer/EntityRenderer");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(HURTCAMERAEFFECT.getRuntimeName()) &&
-                method.desc.equals(HURTCAMERAEFFECT.getDescriptor())) {
-            updatePatchedMethods(hurtCameraEffectPatch(method));
-            return true;
+    @RegisterPatch
+    private class HurtCameraEffect extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return HURTCAMERAEFFECT;
         }
-        return false;
-    }
 
-    private final int[] hurtCameraEffectPreSignature = {
-            ALOAD, GETFIELD, INVOKEVIRTUAL, INSTANCEOF, IFEQ
-    };
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {ALOAD}, "x");
+            AbstractInsnNode postNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {RETURN}, "x");
 
-    private final int[] hurtCameraEffectPostSignature = {
-            RETURN
-    };
+            Objects.requireNonNull(preNode, "Find pattern failed for preNode");
+            Objects.requireNonNull(postNode, "Find pattern failed for postNode");
 
-    private boolean hurtCameraEffectPatch(MethodNode method) {
-        AbstractInsnNode preNode = null, postNode = null;
-        try {
-            preNode = AsmHelper.findPattern(method.instructions.getFirst(),
-                    hurtCameraEffectPreSignature, "xxxxx");
-        } catch (Exception e) {
-            log("hurtCameraEffect", "preNode error: %s\n", e.getMessage());
-        }
-        try {
-            postNode = AsmHelper.findPattern(method.instructions.getFirst(),
-                    hurtCameraEffectPostSignature, "x");
-        } catch (Exception e) {
-            log("hurtCameraEffect", "postNode error: %s\n", e.getMessage());
-        }
-        if(preNode != null && postNode != null) {
             LabelNode endJump = new LabelNode();
 
             InsnList insnPre = new InsnList();
@@ -64,9 +51,8 @@ public class EntityRendererPatch extends ClassTransformer {
             ));
             insnPre.add(new JumpInsnNode(IFNE, endJump));
 
-            method.instructions.insertBefore(preNode, insnPre);
-            method.instructions.insertBefore(postNode, endJump);
-            return true;
-        } else return false;
+            main.instructions.insertBefore(preNode, insnPre);
+            main.instructions.insertBefore(postNode, endJump);
+        }
     }
 }

@@ -10,6 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import static com.matt.forgehax.Wrapper.*;
 
 /**
  * thx victormeriqui and k0bra :)))))
@@ -333,10 +334,10 @@ public class ProjectileUtils implements Globals {
 
                 Vec3d wrlStart = selfPos.add(startPos), wrlEnd = selfPos.add(endPos);
 
-                RayTraceResult tr = WRAPPER.getWorld().rayTraceBlocks(wrlStart, wrlEnd);
+                RayTraceResult tr = getWorld().rayTraceBlocks(wrlStart, wrlEnd);
                 // if we have hit a block
                 if (tr != null &&
-                        !WRAPPER.getWorld().getBlockState(tr.getBlockPos()).getBlock().isPassable(WRAPPER.getWorld(), tr.getBlockPos())) {
+                        !getWorld().getBlockState(tr.getBlockPos()).getBlock().isPassable(getWorld(), tr.getBlockPos())) {
                     break;
                 }
 

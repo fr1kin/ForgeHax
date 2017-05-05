@@ -1,12 +1,14 @@
 package com.matt.forgehax.asm.patches;
 
-import com.matt.forgehax.asm.events.WebMotionEvent;
 import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.ClassTransformer;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.LocalVariablesSorter;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.Inject;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
 import org.objectweb.asm.tree.*;
+
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -33,57 +35,30 @@ public class EntityPatch extends ClassTransformer {
             .setHooks(NAMES.ON_DO_BLOCK_COLLISIONS);
 
     public EntityPatch() {
-        registerHook(APPLY_ENTITY_COLLISION);
-        registerHook(MOVE_ENTITY);
-        registerHook(DO_APPLY_COLLISIONS);
+        super("net/minecraft/entity/Entity");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(APPLY_ENTITY_COLLISION.getRuntimeName()) &&
-                method.desc.equals(APPLY_ENTITY_COLLISION.getDescriptor())) {
-            updatePatchedMethods(applyEntityCollisionPatch(method));
-            return true;
-        } else if(method.name.equals(MOVE_ENTITY.getRuntimeName()) &&
-                method.desc.equals(MOVE_ENTITY.getDescriptor())) {
-            updatePatchedMethods(applyMoveEntityPatch(method));
-            return true;
-        } else if(method.name.equals(DO_APPLY_COLLISIONS.getRuntimeName()) &&
-                method.desc.equals(DO_APPLY_COLLISIONS.getDescriptor())) {
-            updatePatchedMethods(doBlockCollisionsPatch(method));
-            return true;
-        } else return false;
-    }
+    @RegisterPatch
+    private class ApplyEntityCollision extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return APPLY_ENTITY_COLLISION;
+        }
 
-    private final int[] applyPushToThisPreNode = {
-            ALOAD, DLOAD, DNEG, DCONST_0, DLOAD, DNEG, INVOKEVIRTUAL
-    };
-    private final int[] applyPushToThisPostNode = {
-            INVOKEVIRTUAL
-    };
+        @Inject
+        private void inject(MethodNode main) {
+            AbstractInsnNode thisEntityPreNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {ALOAD, DLOAD, DNEG, DCONST_0, DLOAD, DNEG, INVOKEVIRTUAL}, "xxxxxxx");
+            // start at preNode, and scan for next INVOKEVIRTUAL sig
+            AbstractInsnNode thisEntityPostNode = AsmHelper.findPattern(thisEntityPreNode, new int[] {INVOKEVIRTUAL}, "x");
+            AbstractInsnNode otherEntityPreNode = AsmHelper.findPattern(thisEntityPostNode, new int[] {ALOAD, DLOAD, DCONST_0, DLOAD, INVOKEVIRTUAL}, "xxxxx");
+            // start at preNode, and scan for next INVOKEVIRTUAL sig
+            AbstractInsnNode otherEntityPostNode = AsmHelper.findPattern(otherEntityPreNode, new int[] {INVOKEVIRTUAL}, "x");
 
-    private final int[] applyPushToOtherPreNode = {
-            ALOAD, DLOAD, DCONST_0, DLOAD, INVOKEVIRTUAL
-    };
-    private final int[] applyPushToOtherPostNode = {
-            INVOKEVIRTUAL
-    };
+            Objects.requireNonNull(thisEntityPreNode, "Find pattern failed for thisEntityPreNode");
+            Objects.requireNonNull(thisEntityPostNode, "Find pattern failed for thisEntityPostNode");
+            Objects.requireNonNull(otherEntityPreNode, "Find pattern failed for otherEntityPreNode");
+            Objects.requireNonNull(otherEntityPostNode, "Find pattern failed for otherEntityPostNode");
 
-    private boolean applyEntityCollisionPatch(MethodNode method) {
-        AbstractInsnNode thisEntityPreNode = findPattern("applyEntityCollision", "thisEntityPreNode",
-                method.instructions.getFirst(), applyPushToThisPreNode, "xxxxxxx");
-        // start at preNode, and scan for next INVOKEVIRTUAL sig
-        AbstractInsnNode thisEntityPostNode = findPattern("applyEntityCollision", "thisEntityPostNode",
-                thisEntityPreNode, applyPushToThisPostNode, "x");
-        AbstractInsnNode otherEntityPreNode = findPattern("applyEntityCollision", "otherEntityPreNode",
-                thisEntityPostNode, applyPushToOtherPreNode, "xxxxx");
-        // start at preNode, and scan for next INVOKEVIRTUAL sig
-        AbstractInsnNode otherEntityPostNode = findPattern("applyEntityCollision", "otherEntityPostNode",
-                otherEntityPreNode, applyPushToOtherPostNode, "x");
-        if(thisEntityPostNode != null &&
-                thisEntityPreNode != null &&
-                otherEntityPostNode != null &&
-                otherEntityPreNode != null) {
             LabelNode endJumpForThis = new LabelNode();
             LabelNode endJumpForOther = new LabelNode();
 
@@ -117,134 +92,31 @@ public class EntityPatch extends ClassTransformer {
             ));
             insnOtherPre.add(new JumpInsnNode(IFNE, endJumpForOther));
 
-            method.instructions.insertBefore(thisEntityPreNode, insnThisPre);
-            method.instructions.insert(thisEntityPostNode, endJumpForThis);
+            main.instructions.insertBefore(thisEntityPreNode, insnThisPre);
+            main.instructions.insert(thisEntityPostNode, endJumpForThis);
 
-            method.instructions.insertBefore(otherEntityPreNode, insnOtherPre);
-            method.instructions.insert(otherEntityPostNode, endJumpForOther);
-
-            return true;
-        } else return false;
+            main.instructions.insertBefore(otherEntityPreNode, insnOtherPre);
+            main.instructions.insert(otherEntityPostNode, endJumpForOther);
+        }
     }
 
-    private final int[] moveEntityMotionPreSig = {
-            DLOAD, LDC, DMUL, DSTORE,
-            0x00, 0x00,
-            DLOAD, LDC, DMUL, DSTORE,
-    };
-    private final int[] moveEntityMotionPostSig = {
-            PUTFIELD,
-            0x00, 0x00, 0x00,
-            DLOAD, DSTORE,
-            0x00, 0x00,
-            DLOAD, DSTORE
-    };
-
-    private final int[] isPlayerSneakingSig = {
-            IFEQ, ALOAD, INSTANCEOF, IFEQ,
-            0x00, 0x00,
-            LDC, DSTORE
-    };
-
-    private boolean applyMoveEntityPatch(MethodNode method) {
-        // for web motion
-        /*
-        // unused code
-
-        AbstractInsnNode preNode = findPattern("moveEntity", "preNode",
-                method.instructions.getFirst(), moveEntityMotionPreSig, "xxxx??xxxx");
-        AbstractInsnNode postNode = findPattern("moveEntity", "postNode",
-                method.instructions.getFirst(), moveEntityMotionPostSig, "x???xx??xx");
-        if(preNode != null && postNode != null) {
-            LabelNode endJump = new LabelNode();
-
-            int identifier = 59;
-            InsnList insnList = new InsnList();
-            insnList.add(new VarInsnNode(ALOAD, 0)); // push this
-            insnList.add(new VarInsnNode(DLOAD, 2)); // push this
-            insnList.add(new VarInsnNode(DLOAD, 4)); // push this
-            insnList.add(new VarInsnNode(DLOAD, 6)); // push this
-            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_WEB_MOTION.getParentClass().getRuntimeName(),
-                    NAMES.ON_WEB_MOTION.getRuntimeName(),
-                    NAMES.ON_WEB_MOTION.getDescriptor(),
-                    false
-            ));
-            insnList.add(new VarInsnNode(ASTORE, identifier));
-            // set x
-            insnList.add(new LabelNode());
-            insnList.add(new VarInsnNode(ALOAD, identifier));
-            insnList.add(new MethodInsnNode(INVOKEVIRTUAL,
-                    NAMES.WEB_MOTION_EVENT.getRuntimeName(),
-                    "getX",
-                    "()D",
-                    false
-            ));
-            insnList.add(new VarInsnNode(DSTORE, 1));
-            // set y
-            insnList.add(new LabelNode());
-            insnList.add(new VarInsnNode(ALOAD, identifier));
-            insnList.add(new MethodInsnNode(INVOKEVIRTUAL,
-                    NAMES.WEB_MOTION_EVENT.getRuntimeName(),
-                    "getY",
-                    "()D",
-                    false
-            ));
-            insnList.add(new VarInsnNode(DSTORE, 3));
-            // set z
-            insnList.add(new LabelNode());
-            insnList.add(new VarInsnNode(ALOAD, identifier));
-            insnList.add(new MethodInsnNode(INVOKEVIRTUAL,
-                    NAMES.WEB_MOTION_EVENT.getRuntimeName(),
-                    "getZ",
-                    "()D",
-                    false
-            ));
-            insnList.add(new VarInsnNode(DSTORE, 5));
-            // check if event is canceled
-            insnList.add(new LabelNode());
-            insnList.add(new VarInsnNode(ALOAD, identifier));
-            insnList.add(new MethodInsnNode(INVOKEVIRTUAL,
-                    NAMES.WEB_MOTION_EVENT.getRuntimeName(),
-                    "isCanceled",
-                    "()Z",
-                    false
-            ));
-            insnList.add(new JumpInsnNode(IFNE, endJump));
-
-            InsnList pop = new InsnList();
-            pop.insert(endJump);
-
-            method.instructions.insertBefore(preNode, insnList);
-            method.instructions.insert(postNode, pop);
-            isPatched = true;
+    @RegisterPatch
+    private class MoveEntity extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return MOVE_ENTITY;
         }
-        */
 
-        // for sneak flag
-        /*
-            ALOAD 0
-            INVOKEVIRTUAL net/minecraft/entity/Entity.isSneaking ()Z
-            IFEQ L53 // search for this node
-            ALOAD 0
-            INSTANCEOF net/minecraft/entity/player/EntityPlayer
-            IFEQ L53
-           L54
-            LINENUMBER 747 L54
-            LDC 0.05
-            DSTORE 20
-           L55
-           FRAME APPEND [D]
-            DLOAD 2
-            DCONST_0
-            DCMPL
-            IFEQ L56
-            ALOAD 0
-         */
-        AbstractInsnNode sneakFlagNode = findPattern("move", "sneakFlagNode",
-                method.instructions.getFirst(), isPlayerSneakingSig, "xxxx??xx");
-        if(sneakFlagNode != null &&
-                sneakFlagNode instanceof JumpInsnNode) {
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode sneakFlagNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    IFEQ, ALOAD, INSTANCEOF, IFEQ,
+                    0x00, 0x00,
+                    LDC, DSTORE
+            }, "xxxx??xx");
+
+            Objects.requireNonNull(sneakFlagNode, "Find pattern failed for sneakFlagNode");
+
             // the original label to the jump
             LabelNode jumpToLabel = ((JumpInsnNode) sneakFlagNode).label;
             // the or statement jump if isSneaking returns false
@@ -261,29 +133,30 @@ public class EntityPatch extends ClassTransformer {
             insnList.add(orJump);
 
             AbstractInsnNode previousNode = sneakFlagNode.getPrevious();
-            method.instructions.remove(sneakFlagNode); // delete IFEQ
-            method.instructions.insert(previousNode, insnList); // insert new instructions
-            return true;
+            main.instructions.remove(sneakFlagNode); // delete IFEQ
+            main.instructions.insert(previousNode, insnList); // insert new instructions
         }
-        return false;
     }
 
-    private final int[] doBlockCollisionsPreSig = {
-            ASTORE,
-            0x00, 0x00,
-            ALOAD, INVOKEINTERFACE, ALOAD, GETFIELD, ALOAD, ALOAD, ALOAD, INVOKEVIRTUAL
-    };
-    private final int[] doBlockCollisionsPostSig = {
-            GOTO
-    };
+    @RegisterPatch
+    private class DoBlockCollisions extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return DO_APPLY_COLLISIONS;
+        }
 
-    private boolean doBlockCollisionsPatch(MethodNode method) {
-        AbstractInsnNode preNode = findPattern("doBlockCollisions", "preNode",
-                method.instructions.getFirst(), doBlockCollisionsPreSig, "x??xxxxxxxx");
-        AbstractInsnNode postNode = findPattern("doBlockCollisions", "postNode",
-                preNode, doBlockCollisionsPostSig, "x");
-        if(preNode != null &&
-                postNode != null) {
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    ASTORE,
+                    0x00, 0x00,
+                    ALOAD, INVOKEINTERFACE, ALOAD, GETFIELD, ALOAD, ALOAD, ALOAD, INVOKEVIRTUAL
+            }, "x??xxxxxxxx");
+            AbstractInsnNode postNode = AsmHelper.findPattern(preNode, new int[] {GOTO}, "x");
+
+            Objects.requireNonNull(preNode, "Find pattern failed for preNode");
+            Objects.requireNonNull(postNode, "Find pattern failed for postNode");
+
             LabelNode endJump = new LabelNode();
 
             InsnList insnList = new InsnList();
@@ -297,10 +170,8 @@ public class EntityPatch extends ClassTransformer {
             ));
             insnList.add(new JumpInsnNode(IFNE, endJump));
 
-            method.instructions.insertBefore(postNode, endJump);
-            method.instructions.insert(preNode, insnList);
-
-            return true;
-        } else return false;
+            main.instructions.insertBefore(postNode, endJump);
+            main.instructions.insert(preNode, insnList);
+        }
     }
 }

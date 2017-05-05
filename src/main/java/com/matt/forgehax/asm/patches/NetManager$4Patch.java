@@ -1,7 +1,13 @@
 package com.matt.forgehax.asm.patches;
 
 import com.matt.forgehax.asm.helper.*;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.Inject;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
 import org.objectweb.asm.tree.*;
+
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -14,41 +20,27 @@ public class NetManager$4Patch extends ClassTransformer {
             .setHooks(NAMES.ON_SENDING_PACKET, NAMES.ON_SENT_PACKET);
 
     public NetManager$4Patch() {
-        registerHook(RUN);
+        super("net/minecraft/network/NetworkManager$4");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(RUN.getRuntimeName()) &&
-                method.desc.equals(RUN.getDescriptor())) {
-            updatePatchedMethods(patchRun(method));
-            return true;
-        } else return false;
-    }
-
-    private final int[] patternPreDispatch = new int[] {
-            ALOAD, GETFIELD, ALOAD, GETFIELD, IF_ACMPEQ
-    };
-
-    private final int[] patternPostDispatch = new int[] {
-            RETURN
-    };
-
-    private boolean patchRun(MethodNode method) {
-        AbstractInsnNode preNode = null, postNode = null;
-        try {
-            preNode = AsmHelper.findPattern(method.instructions.getFirst(),
-                    patternPreDispatch, "xxxxx");
-        } catch (Exception e) {
-            log("dispatchPacket", "preNode error: %s\n", e.getMessage());
+    @RegisterPatch
+    private class Run extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return RUN;
         }
-        try {
-            postNode = AsmHelper.findPattern(method.instructions.getFirst(),
-                    patternPostDispatch, "x");
-        } catch (Exception e) {
-            log("dispatchPacket", "postNode error: %s\n", e.getMessage());
-        }
-        if(preNode != null && postNode != null) {
+
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    ALOAD, GETFIELD, ALOAD, GETFIELD, IF_ACMPEQ
+            }, "xxxxx");
+
+            AbstractInsnNode postNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {RETURN}, "x");
+
+            Objects.requireNonNull(preNode, "Find pattern failed for preNode");
+            Objects.requireNonNull(postNode, "Find pattern failed for postNode");
+
             LabelNode endJump = new LabelNode();
 
             InsnList insnPre = new InsnList();
@@ -81,9 +73,8 @@ public class NetManager$4Patch extends ClassTransformer {
             ));
             insnPost.add(endJump);
 
-            method.instructions.insertBefore(preNode, insnPre);
-            method.instructions.insertBefore(postNode, insnPost);
-            return true;
-        } else return false;
+            main.instructions.insertBefore(preNode, insnPre);
+            main.instructions.insertBefore(postNode, insnPost);
+        }
     }
 }

@@ -1,10 +1,9 @@
 package com.matt.forgehax.asm;
 
-import com.fr1kin.asmhelper.ASMHelper;
-import com.fr1kin.asmhelper.detours.Detour;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.matt.forgehax.asm.helper.ClassTransformer;
+import com.matt.forgehax.asm.helper.AsmStackLogger;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
 import com.matt.forgehax.asm.patches.*;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
@@ -18,74 +17,50 @@ import java.util.List;
 import java.util.Map;
 
 @IFMLLoadingPlugin.SortingIndex(value = 1001)
-public class ForgeHaxTransformer implements IClassTransformer {
+public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     private Map<String, ClassTransformer> transformingClasses = Maps.newHashMap();
 
     public ForgeHaxTransformer() {
-        // add patches to transformingClasses here
-        transformingClasses.put("net.minecraft.world.World", new WorldPatch());
-        transformingClasses.put("net.minecraft.entity.Entity", new EntityPatch());
-        transformingClasses.put("net.minecraft.client.renderer.RenderGlobal", new RenderGlobalPatch());
-        transformingClasses.put("net.minecraft.block.Block", new BlockPatch());
-        transformingClasses.put("net.minecraft.client.renderer.VertexBuffer", new VertexBufferPatch());
-        transformingClasses.put("net.minecraft.client.renderer.EntityRenderer", new EntityRendererPatch());
-        transformingClasses.put("net.minecraft.network.NetworkManager", new NetManagerPatch());
-        transformingClasses.put("net.minecraft.network.NetworkManager$4", new NetManager$4Patch());
-        transformingClasses.put("net.minecraft.client.renderer.chunk.VisGraph", new VisGraphPatch());
-        transformingClasses.put("net.minecraft.client.entity.EntityPlayerSP", new EntityPlayerSPPatch());
-        transformingClasses.put("net.minecraft.client.renderer.BlockRendererDispatcher", new BlockRendererDispatcherPatch());
-       // transformingClasses.put("net.minecraft.world.WorldProvider", new WorldProviderPatch());
+        registerTransformer(new BlockPatch());
+        registerTransformer(new BlockRendererDispatcherPatch());
+        registerTransformer(new EntityPatch());
+        registerTransformer(new EntityPlayerSPPatch());
+        registerTransformer(new EntityRendererPatch());
+        registerTransformer(new NetManagerPatch());
+        registerTransformer(new NetManager$4Patch());
+        registerTransformer(new RenderGlobalPatch());
+        registerTransformer(new VertexBufferPatch());
+        registerTransformer(new VisGraphPatch());
+        registerTransformer(new WorldPatch());
     }
 
-    private static boolean doOnce = false;
+    private void registerTransformer(ClassTransformer transformer) {
+        transformingClasses.put(transformer.getTransformingClassName(), transformer);
+    }
 
     @Override
     public byte[] transform(String name, String realName, byte[] bytes) {
         if (transformingClasses.containsKey(realName)) {
-            List<String> log = Lists.newArrayList();
             ClassTransformer transformer = transformingClasses.get(realName);
             try {
-                ForgeHaxCoreMod.print("Transforming class %s (%s)\n", realName, name);
+                LOGGER.info("Transforming class " + realName);
+
                 ClassNode classNode = new ClassNode();
                 ClassReader classReader = new ClassReader(bytes);
                 classReader.accept(classNode, 0);
 
-                transformer.setClassName(realName, name);
                 transformer.transform(classNode);
 
                 ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
                 classNode.accept(classWriter);
-
-                ForgeHaxHooks.setHooksLog(realName, transformer.getErrorLog(), transformer.methodCount);
 
                 // let gc clean this up
                 transformingClasses.remove(realName);
 
                 return classWriter.toByteArray();
             } catch (Exception e) {
-                transformer.markUnsuccessful();
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                e.printStackTrace(pw);
-                transformer.log("TransformException", "%s\n", sw.toString());
-            } finally {
-                if(!transformer.isSuccessful()) {
-                    // at the very top
-                    log.add("####################\n");
-                    log.add(String.format("ERROR TRANSFORMING CLASS '%s'\n", realName));
-                    log.add(String.format("hasFoundAllMethods=%s\n", transformer.hasFoundAllMethods() ? "true" : "false"));
-                    log.add(String.format("Found %d out of %d methods\n", transformer.foundMethods, transformer.methodCount));
-                    log.add("Error log:");
-                    // tab report
-                    for(String msg : transformer.getErrorLog()) {
-                        log.add("\t" + msg);
-                    }
-                    log.add("\n");
-                    log.add("####################\n");
-                    ForgeHaxCoreMod.print(log);
-                } else {
-                    ForgeHaxCoreMod.print("Successfully transformed class '%s'", realName);
-                }
+                LOGGER.error(e.getClass().getSimpleName() + " thrown from transforming class " + realName + ": " + e.getMessage());
+                AsmStackLogger.printStackTrace(e);
             }
         }
         return bytes;

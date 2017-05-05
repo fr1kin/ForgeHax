@@ -1,8 +1,14 @@
 package com.matt.forgehax.asm.patches;
 
+import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.Inject;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
 import org.objectweb.asm.tree.*;
+
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -18,29 +24,26 @@ public class EntityPlayerSPPatch extends ClassTransformer {
             .setHooks();
 
     public EntityPlayerSPPatch() {
-        registerHook(ON_LIVING_UPDATE);
+        super("net/minecraft/client/entity/EntityPlayerSP");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(ON_LIVING_UPDATE.getRuntimeName()) &&
-                method.desc.equals(ON_LIVING_UPDATE.getDescriptor())) {
-            updatePatchedMethods(applyLivingUpdatePatch(method));
-            return true;
-        } else return false;
-    }
+    @RegisterPatch
+    private class ApplyLivingUpdate extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return ON_LIVING_UPDATE;
+        }
 
-    private final int[] applySlowdownSpeedSig = {
-            IFNE,
-            0x00, 0x00,
-            ALOAD, GETFIELD, DUP, GETFIELD, LDC, FMUL, PUTFIELD
-    };
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode applySlowdownSpeedNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    IFNE,
+                    0x00, 0x00,
+                    ALOAD, GETFIELD, DUP, GETFIELD, LDC, FMUL, PUTFIELD
+            }, "x??xxxxxxx");
 
-    private boolean applyLivingUpdatePatch(MethodNode method) {
-        AbstractInsnNode applySlowdownSpeedNode = findPattern("onLivingUpdate", "applySlowdownSpeedNode",
-                method.instructions.getFirst(), applySlowdownSpeedSig, "x??xxxxxxx");
-        if(applySlowdownSpeedNode != null &&
-                applySlowdownSpeedNode instanceof JumpInsnNode) {
+            Objects.requireNonNull(applySlowdownSpeedNode, "Find pattern failed for applySlowdownSpeedNode");
+
             // get label it jumps to
             LabelNode jumpTo = ((JumpInsnNode) applySlowdownSpeedNode).label;
 
@@ -52,8 +55,7 @@ public class EntityPlayerSPPatch extends ClassTransformer {
             ));// get the value of IS_NOSLOWDOWN_ACTIVE
             insnList.add(new JumpInsnNode(IFNE, jumpTo));
 
-            method.instructions.insert(applySlowdownSpeedNode, insnList);
-            return true;
-        } else return false;
+            main.instructions.insert(applySlowdownSpeedNode, insnList);
+        }
     }
 }

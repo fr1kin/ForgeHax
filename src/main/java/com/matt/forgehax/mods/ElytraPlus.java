@@ -4,6 +4,7 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 /**
  * Created on 1/8/2017 by fr1kin
@@ -28,7 +29,7 @@ public class ElytraPlus extends ToggleMod {
 
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
-        if(WRAPPER.getLocalPlayer().isElytraFlying()) {
+        if(getLocalPlayer().isElytraFlying()) {
 
         }
     }

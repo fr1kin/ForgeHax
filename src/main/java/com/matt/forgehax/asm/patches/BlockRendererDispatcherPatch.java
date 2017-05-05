@@ -1,8 +1,14 @@
 package com.matt.forgehax.asm.patches;
 
+import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.Inject;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
 import org.objectweb.asm.tree.*;
+
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -18,22 +24,22 @@ public class BlockRendererDispatcherPatch extends ClassTransformer {
             .setHooks(NAMES.ON_RENDER_BLOCK);
 
     public BlockRendererDispatcherPatch() {
-        registerHook(ON_RENDER_BLOCK);
+        super("net/minecraft/client/renderer/BlockRendererDispatcher");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(ON_RENDER_BLOCK.getRuntimeName()) &&
-                method.desc.equals(ON_RENDER_BLOCK.getDescriptor())) {
-            updatePatchedMethods(applyBlockRenderPatch(method));
-            return true;
-        } else return false;
-    }
+    @RegisterPatch
+    private class ApplyBlockRender extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return ON_RENDER_BLOCK;
+        }
 
-    private boolean applyBlockRenderPatch(MethodNode method) {
-        AbstractInsnNode startNode = findPattern("blockRender", "startNode",
-                method.instructions.getFirst(), new int[] {ALOAD, INVOKEINTERFACE}, "xx");
-        if(startNode != null) {
+        @Inject(description = "Inserts hook call")
+        public void inject(MethodNode main) {
+            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {ALOAD, INVOKEINTERFACE}, "xx");
+
+            Objects.requireNonNull(node, "Find pattern failed for node");
+
             InsnList insnList = new InsnList();
             insnList.add(new VarInsnNode(ALOAD, 2));
             insnList.add(new VarInsnNode(ALOAD, 1));
@@ -46,8 +52,7 @@ public class BlockRendererDispatcherPatch extends ClassTransformer {
                     false
             ));
 
-            method.instructions.insertBefore(startNode, insnList);
-            return true;
-        } else return false;
+            main.instructions.insertBefore(node, insnList);
+        }
     }
 }

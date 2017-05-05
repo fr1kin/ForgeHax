@@ -5,6 +5,7 @@ import com.matt.forgehax.util.key.Bindings;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 public class AutoWalkMod extends ToggleMod {
     public Property stopAtUnloadedChunks;
@@ -45,7 +46,7 @@ public class AutoWalkMod extends ToggleMod {
             Bindings.forward.setPressed(true);
 
         if(stopAtUnloadedChunks.getBoolean()) {
-            if(!WRAPPER.getWorld().getChunkFromBlockCoords(WRAPPER.getLocalPlayer().getPosition()).isLoaded())
+            if(!getWorld().getChunkFromBlockCoords(getLocalPlayer().getPosition()).isLoaded())
                 Bindings.forward.setPressed(false);
         }
     }

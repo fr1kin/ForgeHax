@@ -11,6 +11,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Scanner;
+import static com.matt.forgehax.Wrapper.*;
 
 public class TeleportMod extends ToggleMod {
     public Property mode;
@@ -46,7 +47,7 @@ public class TeleportMod extends ToggleMod {
                         }
                     }
                     if (relative.getBoolean()) {
-                        Vec3d pos = WRAPPER.getLocalPlayer().getPositionVector();
+                        Vec3d pos = getLocalPlayer().getPositionVector();
                         x = pos.xCoord + x;
                         y = pos.yCoord + y;
                         z = pos.zCoord + z;
@@ -54,23 +55,23 @@ public class TeleportMod extends ToggleMod {
                     switch (mode.getInt()) {
                         default:
                         case 0:
-                            if (WRAPPER.getLocalPlayer().isRiding() && WRAPPER.getLocalPlayer().getRidingEntity() != null) {
-                                WRAPPER.getLocalPlayer().getRidingEntity().setPosition(x, y, z);
+                            if (getLocalPlayer().isRiding() && getLocalPlayer().getRidingEntity() != null) {
+                                getLocalPlayer().getRidingEntity().setPosition(x, y, z);
                             } else {
-                                WRAPPER.getLocalPlayer().setPosition(x, y, z);
+                                getLocalPlayer().setPosition(x, y, z);
                             }
                             break;
                         case 1:
-                            WRAPPER.getNetworkManager().sendPacket(new CPacketPlayer.Position(x, y, z, onGround));
+                            getNetworkManager().sendPacket(new CPacketPlayer.Position(x, y, z, onGround));
                             break;
                         case 2:
-                            WRAPPER.getNetworkManager().sendPacket(new CPacketConfirmTeleport());
+                            getNetworkManager().sendPacket(new CPacketConfirmTeleport());
                             break;
                         case 3:
-                            if (WRAPPER.getLocalPlayer().getRidingEntity() != null) {
-                                WRAPPER.getLocalPlayer().getRidingEntity().setEntityBoundingBox(WRAPPER.getLocalPlayer().getRidingEntity().getEntityBoundingBox().offset(x, y, z));
+                            if (getLocalPlayer().getRidingEntity() != null) {
+                                getLocalPlayer().getRidingEntity().setEntityBoundingBox(getLocalPlayer().getRidingEntity().getEntityBoundingBox().offset(x, y, z));
                             } else {
-                                WRAPPER.getLocalPlayer().setEntityBoundingBox(WRAPPER.getLocalPlayer().getEntityBoundingBox().offset(x, y, z));
+                                getLocalPlayer().setEntityBoundingBox(getLocalPlayer().getEntityBoundingBox().offset(x, y, z));
                             }
                             break;
                         case 4:

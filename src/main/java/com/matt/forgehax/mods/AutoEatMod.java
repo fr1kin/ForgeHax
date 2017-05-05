@@ -13,6 +13,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 
+import static com.matt.forgehax.Wrapper.*;
+
 public class AutoEatMod extends ToggleMod {
     private boolean isEating = false;
 
@@ -22,11 +24,11 @@ public class AutoEatMod extends ToggleMod {
 
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
-        FoodStats foodStats = WRAPPER.getLocalPlayer().getFoodStats();
+        FoodStats foodStats = getLocalPlayer().getFoodStats();
         int foodSlot = -1;
         ItemStack foodStack = null;
         for (int i = 0; i < 9; i++) {
-            ItemStack stack = WRAPPER.getLocalPlayer().inventory.getStackInSlot(i);
+            ItemStack stack = getLocalPlayer().inventory.getStackInSlot(i);
             if (stack != null &&
                     stack.getItem() instanceof ItemFood) {
                 foodSlot = i;

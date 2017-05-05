@@ -1,12 +1,16 @@
 package com.matt.forgehax.asm.patches;
 
+import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.Inject;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
 import org.objectweb.asm.tree.*;
 
+import java.util.Objects;
+
 import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.IRETURN;
 
 public class VisGraphPatch extends ClassTransformer {
     public final AsmMethod COMPUTE_VISIBILITY = new AsmMethod()
@@ -17,26 +21,24 @@ public class VisGraphPatch extends ClassTransformer {
             .setHooks(NAMES.ON_COMPUTE_VISIBILITY);
 
     public VisGraphPatch() {
-        registerHook(COMPUTE_VISIBILITY);
+        super("net/minecraft/client/renderer/chunk/VisGraph");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(COMPUTE_VISIBILITY.getRuntimeName()) &&
-                method.desc.equals(COMPUTE_VISIBILITY.getDescriptor())) {
-            updatePatchedMethods(computeVisibilityPatch(method));
-            return true;
-        } else return false;
-    }
+    @RegisterPatch
+    private class ComputeVisibility extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return COMPUTE_VISIBILITY;
+        }
 
-    private final int[] computeVisSignature = {
-            ALOAD, ARETURN
-    };
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    ALOAD, ARETURN
+            }, "xx");
 
-    private boolean computeVisibilityPatch(MethodNode method) {
-        AbstractInsnNode node = findPattern("computeVisibility", "node", method.instructions.getFirst(),
-                computeVisSignature, "xx");
-        if(node != null) {
+            Objects.requireNonNull(node, "Find pattern failed for node");
+
             InsnList insnPre = new InsnList();
             insnPre.add(new VarInsnNode(ALOAD, 0));
             insnPre.add(new VarInsnNode(ALOAD, 1));
@@ -47,8 +49,7 @@ public class VisGraphPatch extends ClassTransformer {
                     false
             ));
 
-            method.instructions.insertBefore(node, insnPre);
-            return true;
-        } else return false;
+            main.instructions.insertBefore(node, insnPre);
+        }
     }
 }

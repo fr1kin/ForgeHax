@@ -18,6 +18,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import static com.matt.forgehax.Wrapper.*;
 
 /**
  * Created on 12/3/2016 by fr1kin
@@ -104,16 +105,16 @@ public class CoordHaxMod extends ToggleMod {
         if((tickCount % rate.getInt()) == 0 &&
                 shouldBeSending &&
                 selectedShulkerBoxOpenPacket != null) {
-            WRAPPER.getNetworkManager().sendPacket(selectedShulkerBoxOpenPacket);
+            getNetworkManager().sendPacket(selectedShulkerBoxOpenPacket);
         }
     }
 
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Outgoing.Pre event) {
-        if(WRAPPER.getWorld() != null &&
+        if(getWorld() != null &&
                 selectedShulkerBoxOpenPacket == null &&
                 event.getPacket() instanceof CPacketPlayerTryUseItemOnBlock) {
-            IBlockState state = WRAPPER.getWorld().getBlockState(((CPacketPlayerTryUseItemOnBlock) event.getPacket()).getPos());
+            IBlockState state = getWorld().getBlockState(((CPacketPlayerTryUseItemOnBlock) event.getPacket()).getPos());
             if(state.getBlock() instanceof BlockShulkerBox) {
                 selectedShulkerBoxOpenPacket = event.getPacket();
             }

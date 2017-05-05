@@ -5,6 +5,7 @@ import com.matt.forgehax.util.key.Bindings;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 public class AutoSprintMod extends ToggleMod {
     private boolean isBound = false;
@@ -20,8 +21,8 @@ public class AutoSprintMod extends ToggleMod {
     private void startSprinting() {
         switch (mode.getString()) {
             case "ALWAYS":
-                if(!WRAPPER.getLocalPlayer().isCollidedHorizontally)
-                    WRAPPER.getLocalPlayer().setSprinting(true);
+                if(!getLocalPlayer().isCollidedHorizontally)
+                    getLocalPlayer().setSprinting(true);
                 break;
             default:
             case "LEGIT":

@@ -1,5 +1,6 @@
 package com.matt.forgehax.asm.helper;
 
+import com.matt.forgehax.asm.helper.exception.NoMatchingPatternException;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -97,6 +98,24 @@ public class AsmHelper {
         return buff;
     }
 
+    private static String getPatternAsString(int pattern[], char[] mask) {
+        if(pattern.length != mask.length) return "-1";
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < pattern.length; i++) {
+            int opcode = pattern[i];
+            char m = mask[i];
+            switch (m) {
+                case 'x':
+                    builder.append(m);
+                    builder.append(opcode);
+                default:
+                    builder.append('?');
+            }
+            builder.append('/');
+        }
+        return builder.toString();
+    }
+
     /**
      * Finds a pattern of opcodes and returns the first node of the matched pattern if found
      * @param start starting node
@@ -104,7 +123,7 @@ public class AsmHelper {
      * @param mask same length as the pattern. 'x' indicates the node will be checked, '?' indicates the node will be skipped over (has a bad opcode)
      * @return top node of matching pattern or null if nothing is found
      */
-    public static AbstractInsnNode findPattern(AbstractInsnNode start, int[] pattern, char[] mask) throws Exception {
+    public static AbstractInsnNode findPattern(AbstractInsnNode start, int[] pattern, char[] mask) {
         if(start != null &&
                 pattern.length == mask.length) {
             int found = 0;
@@ -144,14 +163,15 @@ public class AsmHelper {
             } while(next != null &&
                     found < mask.length);
         }
-        throw new Exception("Failed to match pattern");
+        return null;
+        //throw new NoMatchingPatternException("Failed to match pattern '" + getPatternAsString(pattern, mask) + "'");
     }
-    public static AbstractInsnNode findPattern(AbstractInsnNode start, String pattern, String mask) throws Exception {
+    public static AbstractInsnNode findPattern(AbstractInsnNode start, String pattern, String mask) {
         return findPattern(start,
                 convertPattern(pattern),
                 mask.toCharArray());
     }
-    public static AbstractInsnNode findPattern(AbstractInsnNode start, int[] pattern, String mask) throws Exception {
+    public static AbstractInsnNode findPattern(AbstractInsnNode start, int[] pattern, String mask) {
         return findPattern(start,
                 pattern,
                 mask.toCharArray());

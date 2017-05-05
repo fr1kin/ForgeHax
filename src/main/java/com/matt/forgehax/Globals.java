@@ -12,19 +12,4 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 public interface Globals {
     Minecraft MC            = FMLClientHandler.instance().getClient();
     ForgeHax MOD            = ForgeHax.getInstance();
-    Wrapper WRAPPER         = new Wrapper();
-
-    class Wrapper {
-        public EntityPlayerSP getLocalPlayer() {
-            return MC.player;
-        }
-
-        public World getWorld() {
-            return MC.world;
-        }
-
-        public NetworkManager getNetworkManager() {
-            return FMLClientHandler.instance().getClientToServerNetworkManager();
-        }
-    }
 }

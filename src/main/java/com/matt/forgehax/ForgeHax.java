@@ -165,6 +165,7 @@ public class ForgeHax {
 				registerMod(new AntiLevitationMod());
 				//registerMod(new CoordHaxMod()); // disabled
 				registerMod(new ElytraPlus());
+				registerMod(new ChunkMarker());
 
 				//---- initialize configuration part 2 ----//
 				// setup config

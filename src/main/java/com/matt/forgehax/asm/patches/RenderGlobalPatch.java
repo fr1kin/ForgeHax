@@ -1,8 +1,14 @@
 package com.matt.forgehax.asm.patches;
 
+import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.helper.transforming.Inject;
+import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
+import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
 import org.objectweb.asm.tree.*;
+
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -22,43 +28,34 @@ public class RenderGlobalPatch extends ClassTransformer {
             .setHooks(NAMES.ON_SETUP_TERRAIN);
 
     public RenderGlobalPatch() {
-        registerHook(RENDER_BLOCK_LAYER);
-        registerHook(SETUP_TERRAIN);
+        super("net/minecraft/client/renderer/RenderGlobal");
     }
 
-    @Override
-    public boolean onTransformMethod(MethodNode method) {
-        if(method.name.equals(RENDER_BLOCK_LAYER.getRuntimeName()) &&
-                method.desc.equals(RENDER_BLOCK_LAYER.getDescriptor())) {
-            updatePatchedMethods(renderBlockLayerPatch(method));
-            return true;
-        } else if(method.name.equals(SETUP_TERRAIN.getRuntimeName()) &&
-                method.desc.equals(SETUP_TERRAIN.getDescriptor())) {
-            updatePatchedMethods(setupTerrainPatch(method));
-            return true;
-        } return false;
-    }
+    @RegisterPatch
+    private class RenderBlockLayer extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return RENDER_BLOCK_LAYER;
+        }
 
-    private final int[] renderBlockLayerPreSig = {
-            INVOKESTATIC,
-            0x00, 0x00,
-            ALOAD, GETSTATIC, IF_ACMPNE,
-            0x00, 0x00,
-            ALOAD, GETFIELD, GETFIELD
-    };
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    INVOKESTATIC,
+                    0x00, 0x00,
+                    ALOAD, GETSTATIC, IF_ACMPNE,
+                    0x00, 0x00,
+                    ALOAD, GETFIELD, GETFIELD
+            }, "x??xxx??xxx");
+            AbstractInsnNode postNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    ALOAD, GETFIELD, GETFIELD, INVOKEVIRTUAL,
+                    0x00, 0x00,
+                    ILOAD, IRETURN
+            }, "xxxx??xx");
 
-    private final int[] renderBlockLayerPostSig = {
-            ALOAD, GETFIELD, GETFIELD, INVOKEVIRTUAL,
-            0x00, 0x00,
-            ILOAD, IRETURN
-    };
+            Objects.requireNonNull(preNode, "Find pattern failed for preNode");
+            Objects.requireNonNull(postNode, "Find pattern failed for postNode");
 
-    public boolean renderBlockLayerPatch(MethodNode node) {
-        AbstractInsnNode preNode = findPattern("renderBlockLayer", "preNode",
-                node.instructions.getFirst(), renderBlockLayerPreSig, "x??xxx??xxx");
-        AbstractInsnNode postNode = findPattern("renderBlockLayer", "postNode",
-                node.instructions.getFirst(), renderBlockLayerPostSig, "xxxx??xx");
-        if(preNode != null && postNode != null) {
             LabelNode endJump = new LabelNode();
 
             InsnList insnPre = new InsnList();
@@ -85,20 +82,26 @@ public class RenderGlobalPatch extends ClassTransformer {
             ));
             insnPost.add(endJump);
 
-            node.instructions.insertBefore(preNode, insnPre);
-            node.instructions.insertBefore(postNode, insnPost);
-            return true;
-        } else return false;
+            main.instructions.insertBefore(preNode, insnPre);
+            main.instructions.insertBefore(postNode, insnPost);
+        }
     }
 
-    private final int[] setupTerrainSig = {
-            ALOAD, GETFIELD, GETFIELD, GETFIELD, ALOAD
-    };
+    @RegisterPatch
+    private class SetupTerrain extends MethodTransformer {
+        @Override
+        public AsmMethod getMethod() {
+            return SETUP_TERRAIN;
+        }
 
-    public boolean setupTerrainPatch(MethodNode method) {
-        AbstractInsnNode node = findPattern("setupTerrain", "node",
-                method.instructions.getFirst(), setupTerrainSig, "xxxxx");
-        if(node != null) {
+        @Inject
+        public void inject(MethodNode main) {
+            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    ALOAD, GETFIELD, GETFIELD, GETFIELD, ALOAD
+            }, "xxxxx");
+
+            Objects.requireNonNull(node, "Find pattern failed for node");
+
             InsnList insnPre = new InsnList();
             insnPre.add(new VarInsnNode(ALOAD, 1));
             insnPre.add(new VarInsnNode(ILOAD, 6));
@@ -110,8 +113,7 @@ public class RenderGlobalPatch extends ClassTransformer {
             ));
             insnPre.add(new VarInsnNode(ISTORE, 6));
 
-            method.instructions.insertBefore(node, insnPre);
-            return true;
-        } else return false;
+            main.instructions.insertBefore(node, insnPre);
+        }
     }
 }

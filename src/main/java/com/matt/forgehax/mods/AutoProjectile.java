@@ -15,6 +15,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 public class AutoProjectile extends ToggleMod {
     public AutoProjectile() {
@@ -32,7 +33,7 @@ public class AutoProjectile extends ToggleMod {
                 ItemStack heldItem = localPlayer.getHeldItemMainhand();
                 RayTraceResult trace = localPlayer.rayTrace(9999.D, 0.f);
                 if (heldItem != null &&
-                        WRAPPER.getNetworkManager() != null &&
+                        getNetworkManager() != null &&
                         trace != null &&
                         ProjectileUtils.isBow(heldItem)) {
                     Angle oldViewAngles = LocalPlayerUtils.getViewAngles();
@@ -45,7 +46,7 @@ public class AutoProjectile extends ToggleMod {
                     Packet usePacket = new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN);
                     // add to ignore list
                     Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
-                    WRAPPER.getNetworkManager().sendPacket(usePacket);
+                    getNetworkManager().sendPacket(usePacket);
                     // revert back to old angles
                     LocalPlayerUtils.sendRotatePacket(oldViewAngles);
                     event.setCanceled(true);
@@ -68,7 +69,7 @@ public class AutoProjectile extends ToggleMod {
                     Packet usePacket = new CPacketPlayerTryUseItem(((CPacketPlayerTryUseItem) event.getPacket()).getHand());
                     // add to ignore list
                     Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
-                    WRAPPER.getNetworkManager().sendPacket(usePacket);
+                    getNetworkManager().sendPacket(usePacket);
                     // revert back to the old view angles
                     LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
                     // cancel this event (wont send the packet)

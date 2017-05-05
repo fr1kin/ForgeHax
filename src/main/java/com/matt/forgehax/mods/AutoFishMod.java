@@ -14,6 +14,8 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 
+import static com.matt.forgehax.Wrapper.*;
+
 /**
  * Created on 9/2/2016 by fr1kin
  */
@@ -32,7 +34,7 @@ public class AutoFishMod extends ToggleMod {
     }
 
     private boolean isCorrectSplashPacket(SPacketSoundEffect packet) {
-        EntityPlayerSP me = WRAPPER.getLocalPlayer();
+        EntityPlayerSP me = getLocalPlayer();
         return packet.getSound().equals(SoundEvents.ENTITY_BOBBER_SPLASH) &&
                 (
                         me != null &&
@@ -85,7 +87,7 @@ public class AutoFishMod extends ToggleMod {
 
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
-        EntityPlayer me = WRAPPER.getLocalPlayer();
+        EntityPlayer me = getLocalPlayer();
         ItemStack heldStack = me.getHeldItemMainhand();
 
         // update tick delay if hook is deployed

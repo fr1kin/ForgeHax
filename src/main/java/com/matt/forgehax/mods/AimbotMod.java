@@ -31,6 +31,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Collections;
 
+import static com.matt.forgehax.Wrapper.*;
+
 public class AimbotMod extends ToggleMod {
     public Property silent;
     public Property autoAttack;
@@ -58,7 +60,7 @@ public class AimbotMod extends ToggleMod {
 
     private double getLagComp() {
         if(lagCompensation.getBoolean()) {
-            return -(20.D - TickManager.getInstance().getData().getAverage());
+            return -(20.D - TickManager.getInstance().getData().getPoint().getAverage());
         } else return 0.D;
     }
 
@@ -78,8 +80,8 @@ public class AimbotMod extends ToggleMod {
 
     public boolean isVisible(Entity target) {
         if(isProjectileAimbotActivated() && projectileTraceCheck.getBoolean()) {
-            return ProjectileUtils.projectileTrajectoryHitsEntity(target, EntityUtils.getEyePos(WRAPPER.getLocalPlayer()), getAimPos(target), null);
-        } else return !visibilityCheck.getBoolean() || WRAPPER.getLocalPlayer().canEntityBeSeen(target);
+            return ProjectileUtils.projectileTrajectoryHitsEntity(target, EntityUtils.getEyePos(getLocalPlayer()), getAimPos(target), null);
+        } else return !visibilityCheck.getBoolean() || getLocalPlayer().canEntityBeSeen(target);
     }
 
     public Vec3d getAimPos(Entity entity) {
@@ -353,7 +355,7 @@ public class AimbotMod extends ToggleMod {
                     Packet usePacket = new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN);
                     // add to ignore list
                     Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
-                    WRAPPER.getNetworkManager().sendPacket(usePacket);
+                    getNetworkManager().sendPacket(usePacket);
                     // revert back to the old view angles
                     LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
                     // cancel this event (wont send the packet)
@@ -375,7 +377,7 @@ public class AimbotMod extends ToggleMod {
                 Packet usePacket = new CPacketPlayerTryUseItem(((CPacketPlayerTryUseItem) event.getPacket()).getHand());
                 // add to ignore list
                 Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
-                WRAPPER.getNetworkManager().sendPacket(usePacket);
+                getNetworkManager().sendPacket(usePacket);
                 // revert back to the old view angles
                 LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
                 // cancel this event (wont send the packet)

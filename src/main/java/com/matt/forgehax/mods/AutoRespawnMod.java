@@ -4,6 +4,7 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 public class AutoRespawnMod extends ToggleMod {
     public AutoRespawnMod() {
@@ -12,8 +13,8 @@ public class AutoRespawnMod extends ToggleMod {
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        if(WRAPPER.getLocalPlayer().getHealth() <= 0) {
-            WRAPPER.getLocalPlayer().respawnPlayer();
+        if(getLocalPlayer().getHealth() <= 0) {
+            getLocalPlayer().respawnPlayer();
         }
     }
 }

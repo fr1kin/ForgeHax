@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
+import static com.matt.forgehax.Wrapper.*;
 
 public class RenderUtils implements Globals {
     public static Vec3d getRenderPos() {
@@ -65,7 +66,7 @@ public class RenderUtils implements Globals {
         Tessellator tessellator = Tessellator.getInstance();
         VertexBuffer buffer = tessellator.getBuffer();
 
-        Vec3d renderPos = EntityUtils.getInterpolatedPos(WRAPPER.getLocalPlayer(), MC.getRenderPartialTicks());
+        Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), MC.getRenderPartialTicks());
 
         Vec3d min = startPos.subtract(renderPos);
         Vec3d max = endPos.subtract(renderPos);

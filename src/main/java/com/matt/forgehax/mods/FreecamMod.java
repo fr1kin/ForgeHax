@@ -9,6 +9,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import static com.matt.forgehax.Wrapper.*;
 
 /**
  * Created on 9/3/2016 by fr1kin
@@ -38,7 +39,7 @@ public class FreecamMod extends ToggleMod {
 
     @Override
     public void onEnabled() {
-        EntityPlayer localPlayer = WRAPPER.getLocalPlayer();
+        EntityPlayer localPlayer = getLocalPlayer();
         if(localPlayer != null) {
             posX = localPlayer.posX;
             posY = localPlayer.posY;
@@ -59,7 +60,7 @@ public class FreecamMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        EntityPlayer localPlayer = WRAPPER.getLocalPlayer();
+        EntityPlayer localPlayer = getLocalPlayer();
         if(localPlayer != null) {
             MC.player.setPositionAndRotation(posX, posY, posZ, yaw, pitch);
             MC.world.removeEntityFromWorld(-100);
