@@ -2,11 +2,13 @@ package com.matt.forgehax.mods;
 
 import com.github.lunatrius.core.client.renderer.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.GeometryTessellator;
+import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.RenderUtils;
 import com.matt.forgehax.util.entity.EntityUtils;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItemFrame;
@@ -56,44 +58,22 @@ public class StorageESPMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onRenderWorld(RenderWorldLastEvent event) {
-        final Tessellator tessellator = Tessellator.getInstance();
-
-        GlStateManager.pushMatrix();
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GlStateManager.disableDepth();
-
-        GlStateManager.glLineWidth(1.f);
-
-        Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
-        GlStateManager.translate(-renderPos.xCoord, -renderPos.yCoord, -renderPos.zCoord);
-
-        tessellator.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+    public void onRender(RenderEvent event) {
+        event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
         for(TileEntity tileEntity : getWorld().loadedTileEntityList) {
             BlockPos pos = tileEntity.getPos();
+
             int color = getTileEntityColor(tileEntity);
-            if(color != -1) GeometryTessellator.drawCuboid(tessellator.getBuffer(), pos, GeometryMasks.Line.ALL, color);
+            if(color != -1) GeometryTessellator.drawCuboid(event.getBuffer(), pos, GeometryMasks.Line.ALL, color);
         }
 
         for(Entity entity : getWorld().loadedEntityList) {
             BlockPos pos = entity.getPosition();
             int color = getEntityColor(entity);
-            if(color != -1) GeometryTessellator.drawCuboid(tessellator.getBuffer(), entity instanceof EntityItemFrame ? pos.add(0, -1, 0) : pos, GeometryMasks.Line.ALL, color);
+            if(color != -1) GeometryTessellator.drawCuboid(event.getBuffer(), entity instanceof EntityItemFrame ? pos.add(0, -1, 0) : pos, GeometryMasks.Line.ALL, color);
         }
 
-        tessellator.draw();
-
-        GlStateManager.shadeModel(GL11.GL_FLAT);
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
-        GlStateManager.enableDepth();
-        GlStateManager.enableCull();
-        GlStateManager.popMatrix();
+        event.getTessellator().draw();
     }
 }

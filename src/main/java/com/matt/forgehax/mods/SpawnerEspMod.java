@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.github.lunatrius.core.client.renderer.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.GeometryTessellator;
+import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.RenderUtils;
 import com.matt.forgehax.util.entity.EntityUtils;
@@ -26,39 +27,16 @@ public class SpawnerEspMod extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onRenderWorld(RenderWorldLastEvent event) {
-        final Tessellator tessellator = Tessellator.getInstance();
-
-        GlStateManager.pushMatrix();
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GlStateManager.disableDepth();
-
-        GlStateManager.glLineWidth(1.f);
-
-        Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
-        GlStateManager.translate(-renderPos.xCoord, -renderPos.yCoord, -renderPos.zCoord);
-
-        tessellator.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+    public void onRender(RenderEvent event) {
+        event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
         for(TileEntity tileEntity : getWorld().loadedTileEntityList) {
             if(tileEntity instanceof TileEntityMobSpawner) {
                 BlockPos pos = tileEntity.getPos();
-                GeometryTessellator.drawCuboid(tessellator.getBuffer(), pos, GeometryMasks.Line.ALL, Utils.Colors.RED);
+                GeometryTessellator.drawCuboid(event.getBuffer(), pos, GeometryMasks.Line.ALL, Utils.Colors.RED);
             }
         }
 
-        tessellator.draw();
-
-        GlStateManager.shadeModel(GL11.GL_FLAT);
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
-        GlStateManager.enableDepth();
-        GlStateManager.enableCull();
-        GlStateManager.popMatrix();
+        event.getTessellator().draw();
     }
 }
