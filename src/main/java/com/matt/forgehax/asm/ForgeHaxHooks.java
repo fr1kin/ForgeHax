@@ -267,11 +267,10 @@ public class ForgeHaxHooks implements ASMCommon {
             if (underground) {
                 stratum.setCaveColor(mapCaveLighting ? stratum.getNightColor() : stratum.getDayColor());
             }
-        } catch (Exception e) {
-            return false;
-        }
+            return true;
+        } catch (Exception e) {}
         // cancel older calculation
-        return true;
+        return false;
     }
 
     public static class DebugData {
