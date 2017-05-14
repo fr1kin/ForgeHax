@@ -168,6 +168,7 @@ public class ForgeHax {
 				registerMod(new ChunkMarker());
 				registerMod(new JourneyMapBrightnessFix());
 				registerMod(new BlockEspMod());
+				registerMod(new RefreshBlockListMod());
 
 				//---- initialize configuration part 2 ----//
 				// setup config

@@ -45,6 +45,8 @@ import java.util.stream.Collectors;
  * Created on 5/5/2017 by fr1kin
  */
 public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
+    public static final BlockOptions options = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "block_esp_list.json"));
+
     private static TesselatorCache cache = new TesselatorCache(100, 0x20000);
 
     public static void setCache(TesselatorCache cache) {
@@ -55,8 +57,6 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
 
     private Renderers renderers = new Renderers();
     private Vec3d renderingOffset = new Vec3d(0, 0, 0);
-
-    private final BlockOptions options = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "block_esp_list.json"));
 
     public BlockEspMod() {
         super("BlockESP", false, "Renders a box around a block");
