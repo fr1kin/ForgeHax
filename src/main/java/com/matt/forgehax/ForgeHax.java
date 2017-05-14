@@ -169,6 +169,11 @@ public class ForgeHax {
 				registerMod(new JourneyMapBrightnessFix());
 				registerMod(new BlockEspMod());
 				registerMod(new RefreshBlockListMod());
+				registerMod(new AutoPvPLog());
+				registerMod(new AutoReply());
+				registerMod(new FancyChat());
+				registerMod(new HorseJump());
+				registerMod(new IgnoreMod());
 
 				//---- initialize configuration part 2 ----//
 				// setup config
