@@ -4,14 +4,11 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.Names;
 import com.matt.forgehax.asm.helper.AsmClass;
-import com.matt.forgehax.asm.helper.AsmMethod;
 import com.matt.forgehax.asm.helper.AsmStackLogger;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +24,7 @@ public abstract class ClassTransformer implements ASMCommon {
         this.transformingClass = clazz;
         for(Class c : getClass().getDeclaredClasses()) {
             try {
-                if (c.isAnnotationPresent(RegisterPatch.class) && MethodTransformer.class.isAssignableFrom(c)) {
+                if (c.isAnnotationPresent(RegisterMethodTransformer.class) && MethodTransformer.class.isAssignableFrom(c)) {
                     Constructor constructor = c.getDeclaredConstructor(getClass());
                     constructor.setAccessible(true);
                     MethodTransformer t = (MethodTransformer)constructor.newInstance(this);

@@ -31,7 +31,7 @@ import java.util.Map;
 import static com.matt.forgehax.Wrapper.getLocalPlayer;
 
 public class ForgeHaxEventHandler implements Globals {
-    private static GeometryTessellator tessellator = new GeometryTessellator(2097152);
+    private static GeometryTessellator tessellator = new GeometryTessellator(0x200);
 
     private static final WorldListener WORLD_LISTENER = new WorldListener();
 

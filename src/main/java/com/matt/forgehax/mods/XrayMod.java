@@ -39,6 +39,7 @@ public class XrayMod extends ToggleMod {
         ForgeModContainer.forgeLightPipelineEnabled = false;
         ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
         reloadRenderers();
+        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable();
     }
 
     @Override
@@ -46,6 +47,7 @@ public class XrayMod extends ToggleMod {
         ForgeModContainer.forgeLightPipelineEnabled = previousForgeLightPipelineEnabled;
         ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
         reloadRenderers();
+        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable();
     }
 
     @Override
@@ -99,11 +101,5 @@ public class XrayMod extends ToggleMod {
         if(event.getCompareToLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
             event.setLayer(event.getCompareToLayer());
         }
-    }
-
-    @SubscribeEvent
-    public void onComputeVisibility(ComputeVisibilityEvent event) {
-        if(MOD.getMod("NoCaveCulling").getProperty("enabled").getBoolean())
-            event.getSetVisibility().setAllVisible(true);
     }
 }

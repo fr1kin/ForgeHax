@@ -5,7 +5,7 @@ import com.matt.forgehax.asm.helper.AsmMethod;
 import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
 import com.matt.forgehax.asm.helper.transforming.Inject;
 import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
+import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -27,7 +27,7 @@ public class EntityPlayerSPPatch extends ClassTransformer {
         super("net/minecraft/client/entity/EntityPlayerSP");
     }
 
-    @RegisterPatch
+    @RegisterMethodTransformer
     private class ApplyLivingUpdate extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {

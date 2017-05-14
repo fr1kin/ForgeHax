@@ -88,6 +88,38 @@ public class Names {
             .setName("net/minecraft/world/World")
             .setObfuscatedName("ajs");
 
+    public final AsmClass IBAKEDMODEL = new AsmClass()
+            .setName("net/minecraft/client/renderer/block/model/IBakedModel")
+            .setObfuscatedName("cbh");
+
+    public final AsmClass COMPILED_CHUNK = new AsmClass()
+            .setName("net/minecraft/client/renderer/chunk/CompiledChunk")
+            .setObfuscatedName("btb");
+
+    public final AsmClass RENDER_CHUNK = new AsmClass()
+            .setName("net/minecraft/client/renderer/chunk/RenderChunk")
+            .setObfuscatedName("bte");
+
+    public final AsmClass CHUNK_COMPILE_TASK_GENERATOR = new AsmClass()
+            .setName("net/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator")
+            .setObfuscatedName("bsy");
+
+    public final AsmClass CHUNK_CACHE = new AsmClass()
+            .setName("net/minecraft/world/ChunkCache")
+            .setObfuscatedName("akb");
+
+    public final AsmClass VIEW_FRUSTUM = new AsmClass()
+            .setName("net/minecraft/client/renderer/ViewFrustum")
+            .setObfuscatedName("bqv");
+
+    public final AsmClass CHUNK_RENDER_DISPATCHER = new AsmClass()
+            .setName("net/minecraft/client/renderer/chunk/ChunkRenderDispatcher")
+            .setObfuscatedName("bsz");
+
+    public final AsmClass RENDER_GLOBAL = new AsmClass()
+            .setName("net/minecraft/client/renderer/RenderGlobal")
+            .setObfuscatedName("bqm");
+
     // JOURNYMAP special
 
     public final AsmClass JOURNYMAP_STRATUM = new AsmClass()
@@ -211,15 +243,70 @@ public class Names {
             .setArgumentTypes(BLOCKPOS, IBLOCKSTATE, IBLOCKACCESS, VERTEXBUFFER)
             .setReturnType(void.class);
 
-    public final AsmMethod HAS_NO_SKY = FORGEHAX_HOOKS.childMethod()
-            .setName("hasNoSky")
-            .setArgumentTypes(boolean.class, WORLD_PROVIDER)
-            .setReturnType(boolean.class);
-
     public final AsmMethod ON_BLOCK_ADD_COLLISION = FORGEHAX_HOOKS.childMethod()
             .setName("onAddCollisionBoxToList")
             .setArgumentTypes(BLOCK, IBLOCKSTATE, WORLD, List.class, BLOCKPOS)
             .setReturnType(void.class);
+
+    public final AsmMethod ON_BLOCK_MODEL_RENDER = FORGEHAX_HOOKS.childMethod()
+            .setName("onBlockModelRender")
+            .setArgumentTypes(IBLOCKACCESS, IBAKEDMODEL, IBLOCKSTATE, BLOCKPOS, VERTEXBUFFER, boolean.class, long.class)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_PRE_BUILD_CHUNK = FORGEHAX_HOOKS.childMethod()
+            .setName("onPreBuildChunk")
+            .setArgumentTypes(RENDER_CHUNK)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_POST_BUILD_CHUNK = FORGEHAX_HOOKS.childMethod()
+            .setName("onPostBuildChunk")
+            .setArgumentTypes(RENDER_CHUNK)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_DELETE_GL_RESOURCES = FORGEHAX_HOOKS.childMethod()
+            .setName("onDeleteGlResources")
+            .setArgumentTypes(RENDER_CHUNK)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_PRE_BLOCK_MODEL_RENDER = FORGEHAX_HOOKS.childMethod()
+            .setName("onPreBlockModelRender")
+            .setArgumentTypes(RENDER_CHUNK, VERTEXBUFFER, BLOCKPOS)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_POST_BLOCK_MODEL_RENDER = FORGEHAX_HOOKS.childMethod()
+            .setName("onPostBlockModelRender")
+            .setArgumentTypes(RENDER_CHUNK, VERTEXBUFFER, float.class, float.class, float.class)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_CHUNK_UPLOADED = FORGEHAX_HOOKS.childMethod()
+            .setName("onChunkUploaded")
+            .setArgumentTypes(RENDER_CHUNK, VERTEXBUFFER)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_ADD_RENDERCHUNK = FORGEHAX_HOOKS.childMethod()
+            .setName("onAddRenderChunk")
+            .setArgumentTypes(RENDER_CHUNK, BLOCK_RENDER_LAYER)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_LOAD_RENDERERS = FORGEHAX_HOOKS.childMethod()
+            .setName("onLoadRenderers")
+            .setArgumentTypes(VIEW_FRUSTUM, CHUNK_RENDER_DISPATCHER)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_WORLDRENDERER_ALLOCATED = FORGEHAX_HOOKS.childMethod()
+            .setName("onWorldRendererAllocated")
+            .setArgumentTypes(CHUNK_COMPILE_TASK_GENERATOR)
+            .setReturnType(void.class);
+
+    public final AsmMethod ON_WORLDRENDERER_DEALLOCATED = FORGEHAX_HOOKS.childMethod()
+            .setName("onWorldRendererDeallocated")
+            .setArgumentTypes(CHUNK_COMPILE_TASK_GENERATOR)
+            .setReturnType(void.class);
+
+    public final AsmMethod SHOULD_DISABLE_CULLING = FORGEHAX_HOOKS.childMethod()
+            .setName("shouldDisableCaveCulling")
+            .setArgumentTypes()
+            .setReturnType(boolean.class);
 
     public final AsmMethod JOURNYMAP_ON_SET_STRATUM_COLOR = FORGEHAX_HOOKS.childMethod()
             .setName("onJournyMapSetStratumColor")

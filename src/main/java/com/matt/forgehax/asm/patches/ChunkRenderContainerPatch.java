@@ -12,42 +12,39 @@ import java.util.Objects;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
- * Created on 11/10/2016 by fr1kin
+ * Created on 5/9/2017 by fr1kin
  */
-public class BlockRendererDispatcherPatch extends ClassTransformer {
-    public final AsmMethod ON_RENDER_BLOCK = new AsmMethod()
-            .setName("renderBlock")
+public class ChunkRenderContainerPatch extends ClassTransformer {
+    public final AsmMethod ADD_RENDERCHUNK = new AsmMethod()
+            .setName("addRenderChunk")
             .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.IBLOCKSTATE, NAMES.BLOCKPOS, NAMES.IBLOCKACCESS, NAMES.VERTEXBUFFER)
-            .setReturnType(boolean.class)
-            .setHooks(NAMES.ON_RENDER_BLOCK);
+            .setArgumentTypes(NAMES.RENDER_CHUNK, NAMES.BLOCK_RENDER_LAYER)
+            .setReturnType(void.class);
 
-    public BlockRendererDispatcherPatch() {
-        super("net/minecraft/client/renderer/BlockRendererDispatcher");
+    public ChunkRenderContainerPatch() {
+        super("net/minecraft/client/renderer/ChunkRenderContainer");
     }
 
     @RegisterMethodTransformer
-    private class ApplyBlockRender extends MethodTransformer {
+    private class AddRenderChunk extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {
-            return ON_RENDER_BLOCK;
+            return ADD_RENDERCHUNK;
         }
 
-        @Inject(description = "Inserts hook call")
+        @Inject
         public void inject(MethodNode main) {
             AbstractInsnNode node = main.instructions.getFirst();
 
             Objects.requireNonNull(node, "Find pattern failed for node");
 
             InsnList insnList = new InsnList();
-            insnList.add(new VarInsnNode(ALOAD, 2));
             insnList.add(new VarInsnNode(ALOAD, 1));
-            insnList.add(new VarInsnNode(ALOAD, 3));
-            insnList.add(new VarInsnNode(ALOAD, 4));
+            insnList.add(new VarInsnNode(ALOAD, 2));
             insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_RENDER_BLOCK.getParentClass().getRuntimeName(),
-                    NAMES.ON_RENDER_BLOCK.getRuntimeName(),
-                    NAMES.ON_RENDER_BLOCK.getDescriptor(),
+                    NAMES.ON_ADD_RENDERCHUNK.getParentClass().getRuntimeName(),
+                    NAMES.ON_ADD_RENDERCHUNK.getRuntimeName(),
+                    NAMES.ON_ADD_RENDERCHUNK.getDescriptor(),
                     false
             ));
 

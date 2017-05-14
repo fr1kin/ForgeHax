@@ -22,13 +22,18 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     private Map<String, ClassTransformer> transformingClasses = Maps.newHashMap();
 
     public ForgeHaxTransformer() {
+        registerTransformer(new BlockModelRendererPatch());
         registerTransformer(new BlockPatch());
-        registerTransformer(new BlockRendererDispatcherPatch());
+        //registerTransformer(new BlockRendererDispatcherPatch());
+        registerTransformer(new ChunkRenderContainerPatch());
+        registerTransformer(new ChunkRenderDispatcherPatch());
+        registerTransformer(new ChunkRenderWorkerPatch());
         registerTransformer(new EntityPatch());
         registerTransformer(new EntityPlayerSPPatch());
         registerTransformer(new EntityRendererPatch());
         registerTransformer(new NetManagerPatch());
         registerTransformer(new NetManager$4Patch());
+        registerTransformer(new RenderChunkPatch());
         registerTransformer(new RenderGlobalPatch());
         registerTransformer(new VertexBufferPatch());
         registerTransformer(new VisGraphPatch());

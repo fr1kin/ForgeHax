@@ -1,13 +1,14 @@
 package com.matt.forgehax.asm.test;
 
+import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-import org.lwjgl.Sys;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -15,6 +16,7 @@ import java.util.Random;
  */
 public class TestCode {
     private static boolean isNoSlowOn = false;
+    private static int empty = 0;
 
     private boolean movementInput = false;
     private boolean onGround = false;
@@ -33,13 +35,23 @@ public class TestCode {
         return true;
     }
 
-    public void moveEntity() {
-        double d3 = 0, y = 0, d2 = 0, d4 = 0, x = 0, z = 0;
-
-        boolean flag = this.onGround || d3 != y && d3 < 0.0D;
-
-        if (this.stepHeight > 0.0F && flag && (d2 != x || d4 != z)) {
-            this.movementInput = false;
+    public void moveEntity(Float a1, Float a2, Float a3, Object o) {
+        boolean flag;
+        if(flag = !isSneaking()) {
+            double local1, l2, l3, l4;
+            isHandActive();
+            for(int i = 0; i < 4; i++);
+            local1 = 12310;
+            l2 = 457;
+            l3 = 6435;
+            l4 = 1243;
         }
+        if(flag) {
+            isRiding();
+        }
+
+        List<Object> list = Lists.newArrayList();
+        return;
     }
+
 }

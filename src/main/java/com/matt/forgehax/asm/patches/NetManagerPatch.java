@@ -5,7 +5,7 @@ import com.matt.forgehax.asm.helper.AsmMethod;
 import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
 import com.matt.forgehax.asm.helper.transforming.Inject;
 import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
+import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.objectweb.asm.tree.*;
@@ -33,7 +33,7 @@ public class NetManagerPatch extends ClassTransformer {
         super("net/minecraft/network/NetworkManager");
     }
 
-    @RegisterPatch
+    @RegisterMethodTransformer
     private class DispatchPacket extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {
@@ -85,7 +85,7 @@ public class NetManagerPatch extends ClassTransformer {
         }
     }
 
-    @RegisterPatch
+    @RegisterMethodTransformer
     private class ChannelRead0 extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {

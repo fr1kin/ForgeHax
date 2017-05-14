@@ -167,6 +167,7 @@ public class ForgeHax {
 				registerMod(new ElytraPlus());
 				registerMod(new ChunkMarker());
 				registerMod(new JourneyMapBrightnessFix());
+				registerMod(new BlockEspMod());
 
 				//---- initialize configuration part 2 ----//
 				// setup config

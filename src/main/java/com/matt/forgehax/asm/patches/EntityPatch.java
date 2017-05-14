@@ -5,7 +5,7 @@ import com.matt.forgehax.asm.helper.AsmMethod;
 import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
 import com.matt.forgehax.asm.helper.transforming.Inject;
 import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
+import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -38,14 +38,14 @@ public class EntityPatch extends ClassTransformer {
         super("net/minecraft/entity/Entity");
     }
 
-    @RegisterPatch
+    @RegisterMethodTransformer
     private class ApplyEntityCollision extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {
             return APPLY_ENTITY_COLLISION;
         }
 
-        @Inject
+        @Inject(description = "Add hook to disable push motion")
         private void inject(MethodNode main) {
             AbstractInsnNode thisEntityPreNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {ALOAD, DLOAD, DNEG, DCONST_0, DLOAD, DNEG, INVOKEVIRTUAL}, "xxxxxxx");
             // start at preNode, and scan for next INVOKEVIRTUAL sig
@@ -100,14 +100,14 @@ public class EntityPatch extends ClassTransformer {
         }
     }
 
-    @RegisterPatch
+    @RegisterMethodTransformer
     private class MoveEntity extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {
             return MOVE_ENTITY;
         }
 
-        @Inject
+        @Inject(description = "Insert flag into statement that performs sneak movement")
         public void inject(MethodNode main) {
             AbstractInsnNode sneakFlagNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
                     IFEQ, ALOAD, INSTANCEOF, IFEQ,
@@ -138,14 +138,14 @@ public class EntityPatch extends ClassTransformer {
         }
     }
 
-    @RegisterPatch
+    @RegisterMethodTransformer
     private class DoBlockCollisions extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {
             return DO_APPLY_COLLISIONS;
         }
 
-        @Inject
+        @Inject(description = "Add hook to disable block motion effects")
         public void inject(MethodNode main) {
             AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
                     ASTORE,

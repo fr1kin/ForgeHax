@@ -4,7 +4,7 @@ import com.matt.forgehax.asm.helper.AsmHelper;
 import com.matt.forgehax.asm.helper.AsmMethod;
 import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
 import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
+import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
 import com.matt.forgehax.asm.helper.transforming.Inject;
 import org.objectweb.asm.tree.*;
 
@@ -31,7 +31,7 @@ public class BlockPatch extends ClassTransformer {
         super("net/minecraft/block/Block");
     }
 
-    @RegisterPatch
+    @RegisterMethodTransformer
     private class CanRenderInLayer extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {
@@ -65,7 +65,7 @@ public class BlockPatch extends ClassTransformer {
         }
     }
 
-    @RegisterPatch
+    @RegisterMethodTransformer
     private class AddCollisionBoxToList extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {

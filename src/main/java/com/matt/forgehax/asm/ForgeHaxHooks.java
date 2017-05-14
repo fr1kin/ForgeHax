@@ -4,16 +4,20 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.events.*;
+import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
+import com.matt.forgehax.asm.events.listeners.Listeners;
+import com.matt.forgehax.asm.helper.MultiSwitch;
+import com.matt.forgehax.asm.reflection.FastReflectionSpecial;
 import journeymap.client.cartography.RGB;
 import journeymap.client.cartography.Stratum;
 import journeymap.client.cartography.render.BaseRenderer;
 import journeymap.client.model.ChunkMD;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.chunk.SetVisibility;
-import net.minecraft.client.renderer.chunk.VisGraph;
+import net.minecraft.client.renderer.ViewFrustum;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.chunk.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,14 +27,9 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldProvider;
-import net.minecraft.world.WorldProviderHell;
+import net.minecraft.world.*;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.List;
@@ -204,24 +203,67 @@ public class ForgeHaxHooks implements ASMCommon {
         //MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
     }
 
-    public static boolean spoofedNetherHasNoSky = true;
-
-    public static boolean hasNoSky(boolean original, WorldProvider in) {
-        return in instanceof WorldProviderHell ? spoofedNetherHasNoSky : original;
-    }
-
     public static void onAddCollisionBoxToList(Block block, IBlockState state, World world, List<AxisAlignedBB> collidingBoxes, BlockPos pos) {
         MinecraftForge.EVENT_BUS.post(new AddCollisionBoxToListEvent(block, state, world, collidingBoxes, pos));
     }
 
-    public static boolean ENABLE_JOURNEYMAP_LIGHTING_FIX = false;
+    public static void onBlockModelRender(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, VertexBuffer buffer, boolean checkSides, long rand) {
+        // faster hook
+        for(BlockModelRenderListener listener : Listeners.BLOCK_MODEL_RENDER_LISTENER.getAll())
+            listener.onBlockModelRender(worldIn, modelIn, stateIn, posIn, buffer);
+        //MinecraftForge.EVENT_BUS.post(new BlockModelRenderEvent(worldIn, modelIn, stateIn, posIn, buffer, checkSides, rand));
+    }
 
-    private static Field __tweakBrightenDaylightDiff = null;
-    private static Field __tweakMoonlightLevel = null;
-    private static Field __tweakBrightenLightsourceBlock = null;
-    private static Field __tweakDarkenWaterColorMultiplier = null;
-    private static Field __tweakWaterColorBlend = null;
-    private static Field __tweakMinimumDarkenNightWater = null;
+    public static void onPreBuildChunk(RenderChunk renderChunk) {
+        MinecraftForge.EVENT_BUS.post(new BuildChunkEvent.Pre(renderChunk));
+    }
+
+    public static void onPostBuildChunk(RenderChunk renderChunk) {
+        // i couldn't place a post block render hook within the if label so I have to do this
+        MinecraftForge.EVENT_BUS.post(new BuildChunkEvent.Post(renderChunk));
+    }
+
+    public static void onDeleteGlResources(RenderChunk renderChunk) {
+        MinecraftForge.EVENT_BUS.post(new DeleteGlResourcesEvent(renderChunk));
+    }
+
+    public static void onPreBlockModelRender(RenderChunk chunk, VertexBuffer buffer, BlockPos pos) {
+        //unused, uncomment if you want to use
+        //MinecraftForge.EVENT_BUS.post(new PrePostBlockModelRenderEvent(chunk, buffer, PrePostBlockModelRenderEvent.State.PRE, pos));
+    }
+
+    public static void onPostBlockModelRender(RenderChunk chunk, VertexBuffer buffer, float x, float y, float z) {
+        //unused, uncomment if you want to use
+        //MinecraftForge.EVENT_BUS.post(new PrePostBlockModelRenderEvent(chunk, buffer, PrePostBlockModelRenderEvent.State.POST, x, y, z));
+    }
+
+    public static void onAddRenderChunk(RenderChunk renderChunk, BlockRenderLayer layer) {
+        MinecraftForge.EVENT_BUS.post(new AddRenderChunkEvent(renderChunk, layer));
+    }
+
+    public static void onChunkUploaded(RenderChunk chunk, VertexBuffer buffer) {
+        MinecraftForge.EVENT_BUS.post(new ChunkUploadedEvent(chunk, buffer));
+    }
+
+    public static void onLoadRenderers(ViewFrustum viewFrustum, ChunkRenderDispatcher renderDispatcher) {
+        MinecraftForge.EVENT_BUS.post(new LoadRenderersEvent(viewFrustum, renderDispatcher));
+    }
+
+    public static void onWorldRendererAllocated(ChunkCompileTaskGenerator generator) {
+        MinecraftForge.EVENT_BUS.post(new WorldRendererAllocatedEvent(generator, generator.getRenderChunk()));
+    }
+
+    public static void onWorldRendererDeallocated(ChunkCompileTaskGenerator generator) {
+        MinecraftForge.EVENT_BUS.post(new WorldRendererDeallocatedEvent(generator, generator.getRenderChunk()));
+    }
+
+    public static final MultiSwitch SHOULD_DISABLE_CAVE_CULLING = new MultiSwitch();
+
+    public static boolean shouldDisableCaveCulling() {
+        return SHOULD_DISABLE_CAVE_CULLING.isEnabled();
+    }
+
+    public static boolean ENABLE_JOURNEYMAP_LIGHTING_FIX = false;
 
     public static boolean onJournyMapSetStratumColor(Object thisPtr, Object stratumPtr, int lightAttenuation, Integer waterColor, boolean waterAbove, boolean underground, boolean mapCaveLighting) {
         if(!ENABLE_JOURNEYMAP_LIGHTING_FIX) return false;
@@ -229,21 +271,13 @@ public class ForgeHaxHooks implements ASMCommon {
             BaseRenderer baseRenderer = (BaseRenderer)thisPtr;
             Stratum stratum = (Stratum) stratumPtr;
 
-            // this speeds up reflection calls
-            if(__tweakBrightenDaylightDiff == null) __tweakBrightenDaylightDiff =  ReflectionHelper.findField(BaseRenderer.class, "tweakBrightenDaylightDiff");
-            if(__tweakMoonlightLevel == null) __tweakMoonlightLevel =  ReflectionHelper.findField(BaseRenderer.class, "tweakMoonlightLevel");
-            if(__tweakBrightenLightsourceBlock == null) __tweakBrightenLightsourceBlock =  ReflectionHelper.findField(BaseRenderer.class, "tweakBrightenLightsourceBlock");
-            if(__tweakDarkenWaterColorMultiplier == null) __tweakDarkenWaterColorMultiplier =  ReflectionHelper.findField(BaseRenderer.class, "tweakDarkenWaterColorMultiplier");
-            if(__tweakWaterColorBlend == null) __tweakWaterColorBlend =  ReflectionHelper.findField(BaseRenderer.class, "tweakWaterColorBlend");
-            if(__tweakMinimumDarkenNightWater == null) __tweakMinimumDarkenNightWater =  ReflectionHelper.findField(BaseRenderer.class, "tweakMinimumDarkenNightWater");
-
             int basicColor;
             if (stratum.isUninitialized()) {
                 throw new IllegalStateException("Stratum wasn't initialized for setStratumColors");
             }
             float daylightDiff = (float)Math.max(1, Math.max(stratum.getLightLevel(), 15 - lightAttenuation)) / 15.0f;
-            daylightDiff +=  __tweakBrightenDaylightDiff.getFloat(baseRenderer);
-            float moonLightLevel = __tweakMoonlightLevel.getFloat(baseRenderer);
+            daylightDiff +=  FastReflectionSpecial.JMBaseRenderer.getTweakBrightenDaylightDiff(baseRenderer);
+            float moonLightLevel = FastReflectionSpecial.JMBaseRenderer.getTweakMoonlightLevel(baseRenderer);
             float nightLightDiff = Math.max(moonLightLevel, Math.max((float)stratum.getLightLevel(), moonLightLevel - (float)lightAttenuation)) / 15.0f;
             if (stratum.isWater()) {
                 basicColor = waterColor;
@@ -253,13 +287,13 @@ public class ForgeHaxHooks implements ASMCommon {
             }
             Block block = stratum.getBlockMD().getBlockState().getBlock();
             if (block == Blocks.GLOWSTONE || block == Blocks.LIT_REDSTONE_LAMP) {
-                basicColor = RGB.adjustBrightness(basicColor, __tweakBrightenLightsourceBlock.getFloat(baseRenderer));
+                basicColor = RGB.adjustBrightness(basicColor, FastReflectionSpecial.JMBaseRenderer.getTweakBrightenLightsourceBlock(baseRenderer));
             }
             if (waterAbove && waterColor != null) {
-                int adjustedWaterColor = RGB.multiply(waterColor, __tweakBrightenDaylightDiff.getInt(baseRenderer));
+                int adjustedWaterColor = RGB.multiply(waterColor, FastReflectionSpecial.JMBaseRenderer.getTweakDarkenWaterColorMultiplier(baseRenderer));
                 int adjustedBasicColor = RGB.adjustBrightness(basicColor, Math.max(daylightDiff, nightLightDiff));
-                stratum.setDayColor(RGB.blendWith(adjustedBasicColor, adjustedWaterColor, __tweakWaterColorBlend.getInt(baseRenderer)));
-                stratum.setNightColor(RGB.adjustBrightness(stratum.getDayColor(), Math.max(nightLightDiff, __tweakMinimumDarkenNightWater.getInt(baseRenderer))));
+                stratum.setDayColor(RGB.blendWith(adjustedBasicColor, adjustedWaterColor, FastReflectionSpecial.JMBaseRenderer.getTweakWaterColorBlend(baseRenderer)));
+                stratum.setNightColor(RGB.adjustBrightness(stratum.getDayColor(), Math.max(nightLightDiff, FastReflectionSpecial.JMBaseRenderer.getTweakMinimumDarkenNightWater(baseRenderer))));
             } else {
                 stratum.setDayColor(RGB.adjustBrightness(basicColor, daylightDiff));
                 stratum.setNightColor(RGB.darkenAmbient(basicColor, nightLightDiff, baseRenderer.getAmbientColor()));

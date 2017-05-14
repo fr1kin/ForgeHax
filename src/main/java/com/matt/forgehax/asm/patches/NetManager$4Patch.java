@@ -4,7 +4,7 @@ import com.matt.forgehax.asm.helper.*;
 import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
 import com.matt.forgehax.asm.helper.transforming.Inject;
 import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterPatch;
+import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -23,7 +23,7 @@ public class NetManager$4Patch extends ClassTransformer {
         super("net/minecraft/network/NetworkManager$4");
     }
 
-    @RegisterPatch
+    @RegisterMethodTransformer
     private class Run extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {

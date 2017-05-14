@@ -12,42 +12,44 @@ import java.util.Objects;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
- * Created on 11/10/2016 by fr1kin
+ * Created on 5/5/2017 by fr1kin
  */
-public class BlockRendererDispatcherPatch extends ClassTransformer {
-    public final AsmMethod ON_RENDER_BLOCK = new AsmMethod()
-            .setName("renderBlock")
+public class BlockModelRendererPatch extends ClassTransformer {
+    public final AsmMethod RENDER_MODEL = new AsmMethod()
+            .setName("renderModel")
             .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.IBLOCKSTATE, NAMES.BLOCKPOS, NAMES.IBLOCKACCESS, NAMES.VERTEXBUFFER)
-            .setReturnType(boolean.class)
-            .setHooks(NAMES.ON_RENDER_BLOCK);
+            .setArgumentTypes(NAMES.IBLOCKACCESS, NAMES.IBAKEDMODEL, NAMES.IBLOCKSTATE, NAMES.BLOCKPOS, NAMES.VERTEXBUFFER, boolean.class, long.class)
+            .setReturnType(boolean.class);
 
-    public BlockRendererDispatcherPatch() {
-        super("net/minecraft/client/renderer/BlockRendererDispatcher");
+    public BlockModelRendererPatch() {
+        super("net/minecraft/client/renderer/BlockModelRenderer");
     }
 
     @RegisterMethodTransformer
-    private class ApplyBlockRender extends MethodTransformer {
+    private class RenderModel extends MethodTransformer {
         @Override
         public AsmMethod getMethod() {
-            return ON_RENDER_BLOCK;
+            return RENDER_MODEL;
         }
 
-        @Inject(description = "Inserts hook call")
+        @Inject(description = "Block render callback")
         public void inject(MethodNode main) {
             AbstractInsnNode node = main.instructions.getFirst();
 
             Objects.requireNonNull(node, "Find pattern failed for node");
 
             InsnList insnList = new InsnList();
-            insnList.add(new VarInsnNode(ALOAD, 2));
             insnList.add(new VarInsnNode(ALOAD, 1));
+            insnList.add(new VarInsnNode(ALOAD, 2));
             insnList.add(new VarInsnNode(ALOAD, 3));
             insnList.add(new VarInsnNode(ALOAD, 4));
+            insnList.add(new VarInsnNode(ALOAD, 5));
+            insnList.add(new VarInsnNode(ILOAD, 6));
+            insnList.add(new VarInsnNode(LLOAD, 7));
             insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_RENDER_BLOCK.getParentClass().getRuntimeName(),
-                    NAMES.ON_RENDER_BLOCK.getRuntimeName(),
-                    NAMES.ON_RENDER_BLOCK.getDescriptor(),
+                    NAMES.ON_BLOCK_MODEL_RENDER.getParentClass().getRuntimeName(),
+                    NAMES.ON_BLOCK_MODEL_RENDER.getRuntimeName(),
+                    NAMES.ON_BLOCK_MODEL_RENDER.getDescriptor(),
                     false
             ));
 
