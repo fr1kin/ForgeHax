@@ -6,6 +6,7 @@ import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
 import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
 import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
 import com.matt.forgehax.asm.helper.transforming.Inject;
+import net.minecraft.util.math.AxisAlignedBB;
 import org.objectweb.asm.tree.*;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class BlockPatch extends ClassTransformer {
     public final AsmMethod ADD_COLLISION_BOX_TO_LIST = new AsmMethod()
             .setName("addCollisionBoxToList")
             .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.IBLOCKSTATE, NAMES.WORLD, NAMES.BLOCKPOS, NAMES.AXISALIGNEDBB, List.class, NAMES.ENTITY, boolean.class)
+            .setArgumentTypes(NAMES.BLOCKPOS, NAMES.AXISALIGNEDBB, List.class, NAMES.AXISALIGNEDBB)
             .setReturnType(void.class);
 
     public BlockPatch() {
@@ -74,24 +75,33 @@ public class BlockPatch extends ClassTransformer {
 
         @Inject(description = "Inserts hook call")
         public void inject(MethodNode main) {
-            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {ALOAD}, "x");
+            AbstractInsnNode node = main.instructions.getFirst();
+            AbstractInsnNode end = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    RETURN
+            }, "x");
 
             Objects.requireNonNull(node, "Find pattern failed for node");
+            Objects.requireNonNull(end, "Find pattern failed for end");
+
+            LabelNode jumpPast = new LabelNode();
 
             InsnList insnList = new InsnList();
-            insnList.add(new VarInsnNode(ALOAD, 0)); //this
+            //BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable AxisAlignedBB blockBox
+            insnList.add(new VarInsnNode(ALOAD, 0)); //pos
             insnList.add(new VarInsnNode(ALOAD, 1)); //state
-            insnList.add(new VarInsnNode(ALOAD, 2)); //world
-            insnList.add(new VarInsnNode(ALOAD, 5)); //list
-            insnList.add(new VarInsnNode(ALOAD, 3)); //pos
+            insnList.add(new VarInsnNode(ALOAD, 2)); //entityBox
+            insnList.add(new VarInsnNode(ALOAD, 3)); //collidingBoxes
+            insnList.add(new VarInsnNode(ALOAD, 4)); //blockBox
             insnList.add(new MethodInsnNode(INVOKESTATIC,
                     NAMES.ON_BLOCK_ADD_COLLISION.getParentClass().getRuntimeName(),
                     NAMES.ON_BLOCK_ADD_COLLISION.getRuntimeName(),
                     NAMES.ON_BLOCK_ADD_COLLISION.getDescriptor(),
                     false
             ));
+            insnList.add(new JumpInsnNode(IFEQ, jumpPast));
 
-            main.instructions.insert(node, insnList);
+            main.instructions.insertBefore(end, jumpPast);
+            main.instructions.insertBefore(node, insnList);
         }
     }
 }

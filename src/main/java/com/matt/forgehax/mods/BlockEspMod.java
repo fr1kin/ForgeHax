@@ -310,7 +310,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
     @SubscribeEvent
     public void onKeyPress(InputEvent.KeyInputEvent event) {
         if(Keyboard.getEventKey() == Keyboard.KEY_B) {
-            debugStuff();
+            //debugStuff();
         }
     }
 

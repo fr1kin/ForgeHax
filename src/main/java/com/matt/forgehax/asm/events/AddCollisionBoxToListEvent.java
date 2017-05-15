@@ -6,6 +6,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 import java.util.List;
@@ -13,38 +14,33 @@ import java.util.List;
 /**
  * Created on 4/9/2017 by fr1kin
  */
+@Cancelable
 public class AddCollisionBoxToListEvent extends Event {
-    private final Block block;
-    private final IBlockState state;
-    private final World world;
-    private final List<AxisAlignedBB> alignedBB;
     private final BlockPos pos;
+    private final AxisAlignedBB entityBox;
+    private final List<AxisAlignedBB> collidingBoxes;
+    private final AxisAlignedBB blockBox;
 
-    public AddCollisionBoxToListEvent(Block block, IBlockState state, World world, List<AxisAlignedBB> axis, BlockPos pos) {
-        this.block = block;
-        this.state = state;
-        this.world = world;
-        this.alignedBB = axis;
+    public AddCollisionBoxToListEvent(BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, AxisAlignedBB blockBox) {
         this.pos = pos;
-    }
-
-    public Block getBlock() {
-        return block;
-    }
-
-    public IBlockState getState() {
-        return state;
-    }
-
-    public World getWorld() {
-        return world;
-    }
-
-    public List<AxisAlignedBB> getAlignedBB() {
-        return alignedBB;
+        this.entityBox = entityBox;
+        this.collidingBoxes = collidingBoxes;
+        this.blockBox = blockBox;
     }
 
     public BlockPos getPos() {
         return pos;
+    }
+
+    public AxisAlignedBB getEntityBox() {
+        return entityBox;
+    }
+
+    public List<AxisAlignedBB> getCollidingBoxes() {
+        return collidingBoxes;
+    }
+
+    public AxisAlignedBB getBlockBox() {
+        return blockBox;
     }
 }

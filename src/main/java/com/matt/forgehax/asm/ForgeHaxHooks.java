@@ -203,8 +203,8 @@ public class ForgeHaxHooks implements ASMCommon {
         //MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
     }
 
-    public static void onAddCollisionBoxToList(Block block, IBlockState state, World world, List<AxisAlignedBB> collidingBoxes, BlockPos pos) {
-        MinecraftForge.EVENT_BUS.post(new AddCollisionBoxToListEvent(block, state, world, collidingBoxes, pos));
+    public static boolean onAddCollisionBoxToList(BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, AxisAlignedBB blockBox) {
+        return MinecraftForge.EVENT_BUS.post(new AddCollisionBoxToListEvent(pos, entityBox, collidingBoxes, blockBox));
     }
 
     public static void onBlockModelRender(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, VertexBuffer buffer, boolean checkSides, long rand) {

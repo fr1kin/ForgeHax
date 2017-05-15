@@ -1,8 +1,11 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.util.command.Command;
+import com.matt.forgehax.util.command.CommandBuilder;
+import com.matt.forgehax.util.command.CommandExecuteException;
 import com.matt.forgehax.util.mod.ModProperty;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
@@ -14,9 +17,10 @@ import net.minecraftforge.fml.client.config.DummyConfigElement;
 import net.minecraftforge.fml.client.config.IConfigElement;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public abstract class BaseMod implements Globals {
     // name of the mod
@@ -26,6 +30,8 @@ public abstract class BaseMod implements Globals {
     // category for this
     private ConfigCategory modCategory = null;
 
+    // mod commands
+    private final Set<Command> commands = Sets.newHashSet();
     // mod properties
     protected final List<ModProperty> properties = Lists.newArrayList();
     // mod binds
@@ -99,12 +105,55 @@ public abstract class BaseMod implements Globals {
         return registered;
     }
 
+    protected final void addCommand(Command command) {
+        commands.add(command);
+    }
+
+    protected final void removeCommand(Command command) {
+        commands.remove(command);
+    }
+
+    protected final void removeCommand(String commandName) {
+        for(Command command : commands) if(command.getName().toLowerCase().equals(commandName.toLowerCase())) {
+            removeCommand(command);
+            return;
+        }
+    }
+
+    public final Command getCommand(String commandName) {
+        for(Command command : commands) if(command.getName().toLowerCase().equals(commandName.toLowerCase()))
+            return command;
+        return null;
+    }
+
+    public final Collection<Command> getCommands() {
+        return Collections.unmodifiableSet(commands);
+    }
+
     /**
      * Add setting to list
      */
     protected final void addSettings(Property... props) {
-        for(Property prop : props) {
+        for(final Property prop : props) {
             properties.add(new ModProperty(prop));
+            addCommand(
+                    new CommandBuilder()
+                            .setProperty(prop)
+                            .setProcessor(options -> {
+                                List<?> args = options.nonOptionArguments();
+                                if(args.size() > 0) {
+                                    String arg = String.valueOf(args.get(0));
+                                    // set value
+                                    prop.set(arg);
+                                    return true; // success
+                                } else throw new CommandExecuteException("missing argument");
+                            })
+                            .addCallback(command -> {
+                                update();
+                                MOD.getConfig().save();
+                            })
+                            .build()
+            );
         }
     }
 
@@ -148,8 +197,8 @@ public abstract class BaseMod implements Globals {
     /**
      * Mods binds
      */
-    public final List<KeyBinding> getKeyBinds() {
-        return binds;
+    public final Collection<KeyBinding> getKeyBinds() {
+        return Collections.unmodifiableList(binds);
     }
 
     /**

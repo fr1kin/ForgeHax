@@ -245,8 +245,8 @@ public class Names {
 
     public final AsmMethod ON_BLOCK_ADD_COLLISION = FORGEHAX_HOOKS.childMethod()
             .setName("onAddCollisionBoxToList")
-            .setArgumentTypes(BLOCK, IBLOCKSTATE, WORLD, List.class, BLOCKPOS)
-            .setReturnType(void.class);
+            .setArgumentTypes(BLOCKPOS, AXISALIGNEDBB, List.class, AXISALIGNEDBB)
+            .setReturnType(boolean.class);
 
     public final AsmMethod ON_BLOCK_MODEL_RENDER = FORGEHAX_HOOKS.childMethod()
             .setName("onBlockModelRender")
