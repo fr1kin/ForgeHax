@@ -97,7 +97,7 @@ public class BlockPatch extends ClassTransformer {
                     NAMES.ON_BLOCK_ADD_COLLISION.getDescriptor(),
                     false
             ));
-            insnList.add(new JumpInsnNode(IFEQ, jumpPast));
+            insnList.add(new JumpInsnNode(IFNE, jumpPast));
 
             main.instructions.insertBefore(end, jumpPast);
             main.instructions.insertBefore(node, insnList);
