@@ -88,10 +88,9 @@ public class BlockPatch extends ClassTransformer {
             InsnList insnList = new InsnList();
             //BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable AxisAlignedBB blockBox
             insnList.add(new VarInsnNode(ALOAD, 0)); //pos
-            insnList.add(new VarInsnNode(ALOAD, 1)); //state
-            insnList.add(new VarInsnNode(ALOAD, 2)); //entityBox
-            insnList.add(new VarInsnNode(ALOAD, 3)); //collidingBoxes
-            insnList.add(new VarInsnNode(ALOAD, 4)); //blockBox
+            insnList.add(new VarInsnNode(ALOAD, 1)); //entityBox
+            insnList.add(new VarInsnNode(ALOAD, 2)); //collidingBoxes
+            insnList.add(new VarInsnNode(ALOAD, 3)); //blockBox
             insnList.add(new MethodInsnNode(INVOKESTATIC,
                     NAMES.ON_BLOCK_ADD_COLLISION.getParentClass().getRuntimeName(),
                     NAMES.ON_BLOCK_ADD_COLLISION.getRuntimeName(),
