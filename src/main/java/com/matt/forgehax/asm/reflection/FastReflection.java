@@ -3,6 +3,7 @@ package com.matt.forgehax.asm.reflection;
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.helper.AsmStackLogger;
 import journeymap.client.cartography.render.BaseRenderer;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
@@ -54,6 +55,19 @@ public class FastReflection implements ASMCommon {
                 AsmStackLogger.printStackTrace(e);
             }
             return null;
+        }
+    }
+
+    public static class ClassEntityPlayerSP {
+        private static Field FIELD_horseJumpPower;
+
+        public static void setHorseJumpPower(EntityPlayerSP entityPlayerSP, float power) {
+            try {
+                if(FIELD_horseJumpPower == null) FIELD_horseJumpPower = ReflectionHelper.findField(EntityPlayerSP.class, "horseJumpPower", "field_110321_bQ");
+                FIELD_horseJumpPower.set(entityPlayerSP, power);
+            } catch (Exception e) {
+                AsmStackLogger.printStackTrace(e);
+            }
         }
     }
 }

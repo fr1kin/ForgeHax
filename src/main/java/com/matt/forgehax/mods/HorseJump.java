@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.key.Bindings;
 import net.minecraft.util.datafix.fixes.HorseSaddle;
@@ -22,14 +23,6 @@ public class HorseJump extends ToggleMod {
 
     @SubscribeEvent
 	public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    	//MC.player.horseJumpPower = 1.0F;// right now the enviorment is non obfuscated
-
-
-        ReflectionHelper.setPrivateValue(EntityPlayerSP.class,
-                Wrapper.getLocalPlayer(),
-                1.0F,
-                "horseJumpPower", "field_110321_bQ");
-        // when u see something like fieldNames... that is var args which is pretty much an array
-        // which would be new String[] {"horseJumpPower", "field_110321_bQ"}
+        FastReflection.ClassEntityPlayerSP.setHorseJumpPower(Wrapper.getLocalPlayer(), 1.f);
     }
 }
