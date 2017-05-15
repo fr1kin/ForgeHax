@@ -25,7 +25,7 @@ public class BlockPatch extends ClassTransformer {
     public final AsmMethod ADD_COLLISION_BOX_TO_LIST = new AsmMethod()
             .setName("addCollisionBoxToList")
             .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.BLOCKPOS, NAMES.AXISALIGNEDBB, List.class, NAMES.AXISALIGNEDBB)
+            .setArgumentTypes(NAMES.IBLOCKSTATE, NAMES.WORLD, NAMES.BLOCKPOS, NAMES.AXISALIGNEDBB, List.class, NAMES.ENTITY, boolean.class)
             .setReturnType(void.class);
 
     public BlockPatch() {
@@ -86,11 +86,15 @@ public class BlockPatch extends ClassTransformer {
             LabelNode jumpPast = new LabelNode();
 
             InsnList insnList = new InsnList();
-            //BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable AxisAlignedBB blockBox
-            insnList.add(new VarInsnNode(ALOAD, 0)); //pos
-            insnList.add(new VarInsnNode(ALOAD, 1)); //entityBox
-            insnList.add(new VarInsnNode(ALOAD, 2)); //collidingBoxes
-            insnList.add(new VarInsnNode(ALOAD, 3)); //blockBox
+            //IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_
+            insnList.add(new VarInsnNode(ALOAD, 0)); //block
+            insnList.add(new VarInsnNode(ALOAD, 1)); //state
+            insnList.add(new VarInsnNode(ALOAD, 2)); //world
+            insnList.add(new VarInsnNode(ALOAD, 3)); //pos
+            insnList.add(new VarInsnNode(ALOAD, 4)); //entityBox
+            insnList.add(new VarInsnNode(ALOAD, 5)); //collidingBoxes
+            insnList.add(new VarInsnNode(ALOAD, 6)); //entityIn
+            insnList.add(new VarInsnNode(ILOAD, 7)); //bool
             insnList.add(new MethodInsnNode(INVOKESTATIC,
                     NAMES.ON_BLOCK_ADD_COLLISION.getParentClass().getRuntimeName(),
                     NAMES.ON_BLOCK_ADD_COLLISION.getRuntimeName(),

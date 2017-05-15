@@ -30,6 +30,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.*;
 import net.minecraftforge.common.MinecraftForge;
 
+import javax.annotation.Nullable;
 import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.List;
@@ -203,8 +204,8 @@ public class ForgeHaxHooks implements ASMCommon {
         //MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
     }
 
-    public static boolean onAddCollisionBoxToList(BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, AxisAlignedBB blockBox) {
-        return MinecraftForge.EVENT_BUS.post(new AddCollisionBoxToListEvent(pos, entityBox, collidingBoxes, blockBox));
+    public static boolean onAddCollisionBoxToList(Block block, IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean bool) {
+        return MinecraftForge.EVENT_BUS.post(new AddCollisionBoxToListEvent(block, state, worldIn, pos, entityBox, collidingBoxes, entityIn, bool));
     }
 
     public static void onBlockModelRender(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, VertexBuffer buffer, boolean checkSides, long rand) {
