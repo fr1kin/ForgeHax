@@ -86,7 +86,6 @@ public class BlockPatch extends ClassTransformer {
             LabelNode jumpPast = new LabelNode();
 
             InsnList insnList = new InsnList();
-            //IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_
             insnList.add(new VarInsnNode(ALOAD, 0)); //block
             insnList.add(new VarInsnNode(ALOAD, 1)); //state
             insnList.add(new VarInsnNode(ALOAD, 2)); //world

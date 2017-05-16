@@ -1,36 +1,37 @@
 package com.matt.forgehax.util.command;
 
-import com.google.common.collect.Maps;
-import com.matt.forgehax.Globals;
+import com.google.common.base.Objects;
 import com.matt.forgehax.mods.BaseMod;
+import joptsimple.internal.Strings;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 /**
- * Created on 5/14/2017 by fr1kin
+ * Created on 5/15/2017 by fr1kin
  */
-public class CommandManager implements Globals {
-    public static void run(String code) {
-        try {
-            String[] sections = translateCommandline(code);
-            // break apart ModName::CommandName
-            String[] splitId = sections[0].split("::");
-            boolean isGlobal = splitId.length <= 0;
+public class CommandLine {
+    public static final String MOD_PROPERTY_SEPARATOR = ":";
 
-            final Map<String, Command> map = getCommandsAsMap();
-            //todo: finish
-        } catch (Exception e) {
-            // TODO: handle
-        }
+    public static String join(String[] args, String seperator, int startIndex, int endIndex) {
+        return Strings.join(Arrays.copyOfRange(args, startIndex, endIndex), com.google.common.base.Strings.nullToEmpty(seperator));
     }
 
-    public static Map<String, Command> getCommandsAsMap() {
-        final Map<String, Command> map = Maps.newHashMap();
-        MOD.getMods().values().forEach(mod -> mod.getCommands().forEach(cmd -> {
-            map.put(mod.getModName() + "::" + cmd.getName(), cmd);
-        }));
-        return Collections.unmodifiableMap(map);
+    public static String join(String[] args, String seperator) {
+        return join(args, seperator, 0, args.length);
+    }
+
+    public static String toUniqueId(String parent, String child) {
+        return makeParserFriendly(!Strings.isNullOrEmpty(parent) ? (parent + MOD_PROPERTY_SEPARATOR + child) : child);
+    }
+
+    public static String toUniqueId(String child) {
+        return toUniqueId(null, child);
+    }
+
+    public static String makeParserFriendly(String string) {
+        return string.replaceAll(" ", "_");
     }
 
     /**
@@ -40,7 +41,7 @@ public class CommandManager implements Globals {
      * @return the command line broken into strings.
      * An empty or null toProcess parameter results in a zero sized array.
      */
-    public static String[] translateCommandline(String toProcess) {
+    public static String[] translate(String toProcess) {
         if (toProcess == null || toProcess.length() == 0) {
             //no command? no string
             return new String[0];

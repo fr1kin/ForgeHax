@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.mods.*;
 import com.matt.forgehax.mods.core.ContainersMod;
 import com.matt.forgehax.util.TickManager;
+import com.matt.forgehax.util.command.events.CommandEventHandler;
 import com.matt.forgehax.util.container.ContainerManager;
 import com.matt.forgehax.util.key.BindSerializer;
 import net.minecraft.client.Minecraft;
@@ -90,7 +91,7 @@ public class ForgeHax {
 		exception.printStackTrace(pw);
 		getLog().error(sw);
 		if (MC.player != null) {
-			MC.player.sendChatMessage("ERROR: " + exception.getMessage());
+			//MC.player.sendChatMessage("ERROR: " + exception.getMessage());
 		}
 	}
 
@@ -195,6 +196,7 @@ public class ForgeHax {
 				// registerAll event handler
 				MinecraftForge.EVENT_BUS.register(new ForgeHaxEventHandler());
 				// registerAll lag compenstator
+				CommandEventHandler.register();
 				TickManager.getInstance().registerEventHandler();
 				// registerAll mod events
 				for (Map.Entry<String, BaseMod> entry : mods.entrySet()) {
