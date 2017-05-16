@@ -148,9 +148,15 @@ public abstract class BaseMod implements Globals {
                                         Objects.firstNonNull(old, "<null>"),
                                         Objects.firstNonNull(prop.getString(), "<null>")
                                 ));
-                                return true; // success
-                            } else return false; // nothing changed
-                        } else throw new CommandExecuteException("missing argument");
+                                return true; // success, call callbacks
+                            }
+                        } else {
+                            printMessage(String.format("'%s' = '%s'",
+                                    CommandLine.toUniqueId(getModName(), prop.getName()),
+                                    Objects.firstNonNull(prop.getString(), "<null>")
+                            ));
+                        }
+                        return false; // nothing changed, dont call callbacks
                     })
                     .addCallback(command -> {
                         update();
@@ -289,6 +295,6 @@ public abstract class BaseMod implements Globals {
 
     @Override
     public String toString() {
-        return getModName();
+        return getModName() + ": " + getModDescription();
     }
 }

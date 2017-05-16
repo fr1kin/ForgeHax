@@ -112,6 +112,8 @@ public class ForgeHax {
 				bindSerializer = new BindSerializer(getConfigFolder());
 				// add shutdown hook to serialize all binds
 				Runtime.getRuntime().addShutdownHook(new Thread(bindSerializer::serialize));
+				// register global commands
+				GlobalCommands.initialize();
 
 				//---- initialize mods ----//
 				registerMod(new ContainersMod("Containers", "Mod containers for xray and entity lists"));

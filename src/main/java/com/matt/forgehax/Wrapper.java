@@ -9,6 +9,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Scanner;
+
 /**
  * Created on 4/25/2017 by fr1kin
  */
@@ -34,7 +36,13 @@ public class Wrapper implements Globals {
     }
 
     public static void printMessageNaked(String message) {
-        if(getLocalPlayer() != null && !Strings.isNullOrEmpty(message)) getLocalPlayer().sendMessage(new TextComponentString(message));
+        if(getLocalPlayer() != null && !Strings.isNullOrEmpty(message)) {
+            if(message.contains("\n")) {
+                Scanner scanner = new Scanner(message);
+                scanner.useDelimiter("\n");
+                while (scanner.hasNext()) printMessageNaked(scanner.next());
+            } else getLocalPlayer().sendMessage(new TextComponentString(message));
+        }
     }
 
     // Will append '[FH] ' in front

@@ -28,6 +28,12 @@ public class CommandRegistry implements Globals {
         return Collections.emptyMap();
     }
 
+    public static BaseMod getModByName(String modName) {
+        for (BaseMod mod : MOD_TO_COMMAND_REGISTRY.keySet()) if(Objects.equals(modName.toLowerCase(), mod.getModName().toLowerCase()))
+            return mod;
+        return null;
+    }
+
     public static boolean isModRegistered(BaseMod base) {
         return MOD_TO_COMMAND_REGISTRY.containsKey(base);
     }
