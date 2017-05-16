@@ -35,7 +35,7 @@ public class ChunkMarker extends ToggleMod {
     public Property offsetY;
 
     public ChunkMarker() {
-        super("ChunkrMarker", false, "Marks all previously loaded chunks in the current session");
+        super("ChunkMarker", false, "Marks all previously loaded chunks in the current session");
     }
 
     private final Map<ChunkCoords, Boolean> CHUNKS = Maps.newConcurrentMap();
