@@ -7,6 +7,7 @@ import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Set;
@@ -17,29 +18,20 @@ import java.util.Set;
 public class CommandEventHandler {
     private static final Character ACTIVATION_CHARACTER = '.';
 
-    private static final Set<String> dontSend = Sets.newHashSet();
-
     @SubscribeEvent
-    public void onChatMessage(ClientChatEvent event) {
-        String message = event.getOriginalMessage();
-        if(message.startsWith(ACTIVATION_CHARACTER.toString()) && message.length() > 1) {
-            // cut out the . from the message
-            String line = message.substring(1);
-            CommandExecutor.run(line);
-            // don't cancel because it wont add the message to the chat history
-            //event.setCanceled(true);
-            // instead add message to an ignore list
-            dontSend.add(message);
-        }
+    public void onWorldLoad(WorldEvent.Load event) {
+
     }
 
     @SubscribeEvent
     public void onSendPacket(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketChatMessage) {
             String message = ((CPacketChatMessage) event.getPacket()).getMessage();
-            if(dontSend.contains(message)) {
+            if(message.startsWith(ACTIVATION_CHARACTER.toString()) && message.length() > 1) {
+                // cut out the . from the message
+                String line = message.substring(1);
+                CommandExecutor.run(line);
                 event.setCanceled(true);
-                dontSend.remove(message);
             }
         }
     }
