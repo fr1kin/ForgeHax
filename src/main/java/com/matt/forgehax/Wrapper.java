@@ -4,7 +4,9 @@ import com.google.common.base.Strings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.util.text.TextComponentSelector;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
@@ -35,14 +37,23 @@ public class Wrapper implements Globals {
         return MC.world;
     }
 
-    public static void printMessageNaked(String message) {
+    public static void printMessageNaked(String message, boolean makeGrey) {
         if(getLocalPlayer() != null && !Strings.isNullOrEmpty(message)) {
             if(message.contains("\n")) {
                 Scanner scanner = new Scanner(message);
                 scanner.useDelimiter("\n");
-                while (scanner.hasNext()) printMessageNaked(scanner.next());
-            } else getLocalPlayer().sendMessage(new TextComponentString(message));
+                makeGrey = !makeGrey; // so it starts with white
+                while (scanner.hasNext()) printMessageNaked(scanner.next(), makeGrey = !makeGrey);
+            } else {
+                TextComponentString string = new TextComponentString(message.replaceAll("\r", ""));
+                if(makeGrey) string.getStyle().setColor(TextFormatting.GRAY);
+                getLocalPlayer().sendMessage(string);
+            }
         }
+    }
+
+    public static void printMessageNaked(String message) {
+        printMessageNaked(message, false);
     }
 
     // Will append '[FH] ' in front

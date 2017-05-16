@@ -85,9 +85,4 @@ public abstract class ToggleMod extends BaseMod {
         if(bind.equals(toggleBind))
             toggle();
     }
-
-    @Override
-    public String toString() {
-        return getModName() + "[" + Boolean.toString(isEnabled()) + "]: " + getModDescription();
-    }
 }

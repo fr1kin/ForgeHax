@@ -151,7 +151,7 @@ public abstract class BaseMod implements Globals {
                                 return true; // success, call callbacks
                             }
                         } else {
-                            printMessage(String.format("'%s' = '%s'",
+                            printMessage(String.format("%s = %s",
                                     CommandLine.toUniqueId(getModName(), prop.getName()),
                                     Objects.firstNonNull(prop.getString(), "<null>")
                             ));

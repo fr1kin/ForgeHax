@@ -27,6 +27,8 @@ public class CommandBuilder {
 
     private Property property;
 
+    private boolean autoHelpText = true;
+
     public CommandBuilder setName(String name) {
         this.name = name;
         return this;
@@ -52,13 +54,17 @@ public class CommandBuilder {
         return this;
     }
 
+    public void setAutoHelpText(boolean autoHelpText) {
+        this.autoHelpText = autoHelpText;
+    }
+
     public CommandBuilder addCallback(Consumer<Command> consumer) {
         callbacks.add(consumer);
         return this;
     }
 
     public Command build() {
-        if(property == null) return new Command(name, description, optionBuilder, processor, callbacks);
-        else return new CommandWithProperty(property, optionBuilder, processor, callbacks);
+        if(property == null) return new Command(name, description, optionBuilder, processor, callbacks, autoHelpText);
+        else return new CommandWithProperty(property, optionBuilder, processor, callbacks, autoHelpText);
     }
 }

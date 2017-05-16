@@ -95,6 +95,11 @@ public class ForgeHax {
 		}
 	}
 
+	private void shutdownHook() {
+		if(bindSerializer != null) bindSerializer.serialize();
+		if(BlockEspMod.options != null) BlockEspMod.options.write();
+	}
+
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		switch (event.getSide()) {
@@ -111,7 +116,7 @@ public class ForgeHax {
 				// initialize bind serializer
 				bindSerializer = new BindSerializer(getConfigFolder());
 				// add shutdown hook to serialize all binds
-				Runtime.getRuntime().addShutdownHook(new Thread(bindSerializer::serialize));
+				Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownHook));
 				// register global commands
 				GlobalCommands.initialize();
 
@@ -171,12 +176,12 @@ public class ForgeHax {
 				registerMod(new ChunkMarker());
 				registerMod(new JourneyMapBrightnessFix());
 				registerMod(new BlockEspMod());
-				registerMod(new RefreshBlockListMod());
 				registerMod(new AutoPvPLog());
 				registerMod(new AutoReply());
 				registerMod(new FancyChat());
 				registerMod(new HorseJump());
 				registerMod(new IgnoreMod());
+				registerMod(new NoWeather());
 
 				//---- initialize configuration part 2 ----//
 				// setup config

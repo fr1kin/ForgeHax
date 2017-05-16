@@ -26,6 +26,15 @@ public class Utils implements Globals {
         return toRGBA((int) (r * 255.f), (int) (g * 255.f), (int) (b * 255.f), (int) (a * 255.f));
     }
 
+    public static int[] toRGBAArray(int colorBuffer) {
+        return new int[] {
+                (colorBuffer >> 16 & 255),
+                (colorBuffer >> 8 & 255),
+                (colorBuffer & 255),
+                (colorBuffer >> 24 & 255)
+        };
+    }
+
     public static <E extends Enum<?>> String[] toArray(E[] o) {
         String[] output = new String[o.length];
         for(int i = 0; i < output.length; i++)

@@ -10,8 +10,11 @@ import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.blocks.BlockDoesNotExistException;
 import com.matt.forgehax.util.blocks.BlockEntry;
 import com.matt.forgehax.util.blocks.BlockOptions;
+import com.matt.forgehax.util.command.CommandBuilder;
+import com.matt.forgehax.util.command.CommandRegistry;
 import com.matt.forgehax.util.entity.EntityUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.*;
@@ -45,7 +48,7 @@ import java.util.stream.Collectors;
  * Created on 5/5/2017 by fr1kin
  */
 public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
-    public static final BlockOptions options = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "block_esp_list.json"));
+    public static final BlockOptions options = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "blocklist.json"));
 
     private static TesselatorCache cache = new TesselatorCache(100, 0x20000);
 
@@ -65,6 +68,155 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
     private void setRenderers(Renderers renderers) {
         if(this.renderers != null) this.renderers.unregisterAll();
         this.renderers = renderers;
+    }
+
+    @Override
+    public void onLoad() {
+        CommandRegistry.register(this, new CommandBuilder()
+                .setName("add")
+                .setDescription("Adds block to block esp")
+                .setOptionBuilder(parser -> {
+                    parser.acceptsAll(Arrays.asList("red", "r"), "red")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("green", "g"), "green")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("blue", "b"), "blue")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("alpha", "a"), "alpha")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("meta", "m"), "blocks metadata id")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
+                })
+                .setProcessor(opts -> {
+                    List<?> args = opts.nonOptionArguments();
+                    if(args.size() > 0) {
+                        boolean byId = opts.has("i");
+                        String name = String.valueOf(args.get(0));
+                        int r = opts.has("r") ? Integer.valueOf(String.valueOf(opts.valueOf("r"))) : 255;
+                        int g = opts.has("g") ? Integer.valueOf(String.valueOf(opts.valueOf("g"))) : 255;
+                        int b = opts.has("b") ? Integer.valueOf(String.valueOf(opts.valueOf("b"))) : 255;
+                        int a = opts.has("a") ? Integer.valueOf(String.valueOf(opts.valueOf("a"))) : 255;
+                        int meta = opts.has("m") ? Integer.valueOf(String.valueOf(opts.valueOf("m"))) : -1;
+                        try {
+                            BlockEntry entry = byId ? new BlockEntry(Integer.valueOf(name)) : new BlockEntry(name);
+                            entry.setColorBuffer(r, g, b, a);
+                            entry.setMetadataId(meta);
+                            if(options.addBlockEntry(entry)) {
+                                Wrapper.printMessage(String.format("Added block '%s' to the block list", name));
+                                return true;
+                            } else {
+                                Wrapper.printMessage(String.format("Block '%s' already in the block list, use set command instead", name));
+                            }
+                        } catch (BlockDoesNotExistException e) {
+                            Wrapper.printMessage(String.format("'%s' is not a valid block name/id", name));
+                        }
+                    }
+                    return false;
+                })
+                .addCallback(cmd -> options.write())
+                .build()
+        );
+        CommandRegistry.register(this, new CommandBuilder()
+                .setName("remove")
+                .setDescription("Removes block to block esp")
+                .setOptionBuilder(parser -> {
+                    parser.acceptsAll(Arrays.asList("meta", "m"), "blocks metadata id")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
+                })
+                .setProcessor(opts -> {
+                    List<?> args = opts.nonOptionArguments();
+                    if(args.size() > 0) {
+                        boolean byId = opts.has("i");
+                        String name = String.valueOf(args.get(0));
+                        int meta = opts.has("m") ? Integer.valueOf(String.valueOf(opts.valueOf("m"))) : -1;
+                        try {
+                            BlockEntry entry = byId ? new BlockEntry(Integer.valueOf(name)) : new BlockEntry(name);
+                            entry.setMetadataId(meta);
+                            if(options.removeBlockEntry(entry)) {
+                                Wrapper.printMessage(String.format("Removed block '%s' from the block list", name));
+                                return true;
+                            } else {
+                                Wrapper.printMessage(String.format("Could not find block '%s' in the block list", name));
+                            }
+                        } catch (BlockDoesNotExistException e) {
+                            Wrapper.printMessage(String.format("'%s' is not a valid block name/id", name));
+                        }
+                    }
+                    return false;
+                })
+                .addCallback(cmd -> options.write())
+                .build()
+        );
+        CommandRegistry.register(this, new CommandBuilder()
+                .setName("set")
+                .setDescription("Sets a value for a currently existing block entry")
+                .setOptionBuilder(parser -> {
+                    parser.acceptsAll(Arrays.asList("red", "r"), "red")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("green", "g"), "green")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("blue", "b"), "blue")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("alpha", "a"), "alpha")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("meta", "m"), "blocks metadata id")
+                            .withRequiredArg();
+                    parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
+                })
+                .setProcessor(opts -> {
+                    List<?> args = opts.nonOptionArguments();
+                    if(args.size() > 0) {
+                        boolean byId = opts.has("i");
+                        String name = String.valueOf(args.get(0));
+                        int r = opts.has("r") ? Integer.valueOf(String.valueOf(opts.valueOf("r"))) : -1;
+                        int g = opts.has("g") ? Integer.valueOf(String.valueOf(opts.valueOf("g"))) : -1;
+                        int b = opts.has("b") ? Integer.valueOf(String.valueOf(opts.valueOf("b"))) : -1;
+                        int a = opts.has("a") ? Integer.valueOf(String.valueOf(opts.valueOf("a"))) : -1;
+                        int meta = opts.has("m") ? Integer.valueOf(String.valueOf(opts.valueOf("m"))) : -1;
+                        try {
+                            BlockEntry entry = byId ? new BlockEntry(Integer.valueOf(name)) : new BlockEntry(name);
+                            entry.setMetadataId(meta);
+                            BlockEntry matching = options.getBlockEntry(entry);
+                            if(matching != null) {
+                                int[] oldColor = Utils.toRGBAArray(matching.getColorBuffer());
+                                matching.setColorBuffer(
+                                        r > -1 ? r : oldColor[0],
+                                        g > -1 ? g : oldColor[1],
+                                        b > -1 ? b : oldColor[2],
+                                        a > -1 ? a : oldColor[3]
+                                );
+                                Wrapper.printMessage(String.format("Set new flags for block '%s'", name));
+                                return true;
+                            } else {
+                                Wrapper.printMessage(String.format("Could not find block '%s' in the block list", name));
+                            }
+                        } catch (BlockDoesNotExistException e) {
+                            Wrapper.printMessage(String.format("'%s' is not a valid block name/id", name));
+                        }
+                    }
+                    return false;
+                })
+                .addCallback(cmd -> options.write())
+                .build()
+        );
+        CommandRegistry.register(this, new CommandBuilder()
+                .setName("list")
+                .setDescription("Lists all the blocks in the block list")
+                .setProcessor(opts -> {
+                    final StringBuilder builder = new StringBuilder("Found: ");
+                    options.forEach(entry -> {
+                        builder.append(entry.getName());
+                        builder.append(", ");
+                    });
+                    String finished = builder.toString();
+                    if(finished.endsWith(", ")) finished = finished.substring(0, finished.length() - 2);
+                    Wrapper.printMessageNaked(finished);
+                    return true;
+                })
+                .build()
+        );
     }
 
     @Override
@@ -178,14 +330,11 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                 // get the tessellator created in onPreBuildChunk specific to the current thread
                 tess = this.localTessellator.get();
                 if (tess != null) {
-                    Vec3d offset = state.getOffset(access, pos);
-                    BlockPos realPos = pos.add(offset.xCoord, offset.yCoord, offset.zCoord);
-                    AxisAlignedBB bb = state.getBoundingBox(access, realPos);
-                    double x = realPos.getX(), y = realPos.getY(), z = realPos.getZ();
+                    AxisAlignedBB bb = state.getSelectedBoundingBox(Wrapper.getWorld(), pos);
                     GeometryTessellator.drawLines(
                             tess.getBuffer(),
-                            x + bb.minX, y + bb.minY, z + bb.minZ,
-                            x + bb.maxX, y + bb.maxY, z + bb.maxZ,
+                            bb.minX, bb.minY, bb.minZ,
+                            bb.maxX, bb.maxY, bb.maxZ,
                             GeometryMasks.Line.ALL,
                             blockEntry.getColorBuffer()
                     );

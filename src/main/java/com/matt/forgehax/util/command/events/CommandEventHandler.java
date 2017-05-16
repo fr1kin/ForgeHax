@@ -1,6 +1,9 @@
 package com.matt.forgehax.util.command.events;
 
 import com.google.common.collect.Sets;
+import com.matt.forgehax.ForgeHax;
+import com.matt.forgehax.Globals;
+import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.command.CommandExecutor;
 import net.minecraft.network.play.client.CPacketChatMessage;
@@ -10,17 +13,44 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created on 5/15/2017 by fr1kin
  */
-public class CommandEventHandler {
+public class CommandEventHandler implements Globals {
     private static final Character ACTIVATION_CHARACTER = '.';
+
+    private static final AtomicBoolean printed = new AtomicBoolean(false);
+
+    private void firstStartupMessage(final File file) {
+        if(printed.compareAndSet(false, true)) {
+            Wrapper.printMessageNaked("Running ForgeHax version " + ForgeHax.VERSION);
+            Wrapper.printMessageNaked("Type .help in chat to learn how to use commands");
+            try {
+                Files.createFile(file.toPath());
+            } catch (IOException e) {
+                ;
+            }
+        }
+    }
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
-
+        final File file = new File(MOD.getConfigFolder(), "firstStartupCheck");
+        if(!file.exists()) Executors.newSingleThreadExecutor().execute(() -> {
+            while (Wrapper.getWorld() == null) try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                ;
+            }
+            if(Wrapper.getWorld() != null) MC.addScheduledTask(() -> firstStartupMessage(file));
+        });
     }
 
     @SubscribeEvent

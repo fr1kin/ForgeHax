@@ -6,8 +6,11 @@ import com.matt.forgehax.Wrapper;
 import net.minecraft.block.state.IBlockState;
 
 import java.io.*;
+import java.lang.reflect.Parameter;
 import java.nio.file.Files;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Created on 5/13/2017 by fr1kin
@@ -23,10 +26,26 @@ public class BlockOptions {
         this.file = file;
     }
 
+    public boolean addBlockEntry(BlockEntry entry) {
+        return entries.add(entry);
+    }
+
     public BlockEntry getBlockEntry(IBlockState state) {
         for(BlockEntry entry : entries) if(entry.matches(state))
             return entry;
         return null;
+    }
+
+    public BlockEntry getBlockEntry(BlockEntry replica) {
+        for(BlockEntry entry : entries) if(Objects.equals(replica, entry))
+            return entry;
+        return null;
+    }
+
+    public boolean removeBlockEntry(BlockEntry replica) {
+        BlockEntry remove = getBlockEntry(replica);
+        if(remove != null) return entries.remove(remove); // overloading equals might allow me to just use remove()
+        return false;
     }
 
     public void read() {
@@ -40,22 +59,14 @@ public class BlockOptions {
                         String name = entry.getKey();
                         JsonObject contents = entry.getValue().getAsJsonObject();
                         BlockEntry blockEntry = new BlockEntry(name);
-                        if (blockEntry.getBlock() != null) {
-                            blockEntry.read(contents);
-                            entries.add(blockEntry);
-                        }
+                        blockEntry.read(contents);
+                        entries.add(blockEntry);
                     } catch (Exception e) {
                         ;
                     }
                 });
             } else {
                 JsonObject root = new JsonObject();
-                JsonObject contents = new JsonObject();
-                contents.addProperty("r", 255);
-                contents.addProperty("g", 255);
-                contents.addProperty("b", 255);
-                contents.addProperty("a", 255);
-                root.add("minecraft:block_name::optional_metadata_id", contents);
                 Files.write(file.toPath(), gson.toJson(root).getBytes());
             }
         } catch (Exception e) {
@@ -64,6 +75,20 @@ public class BlockOptions {
     }
 
     public void write() {
-        // not needed atm
+        try {
+            final JsonObject root = new JsonObject();
+            entries.forEach(entry -> {
+                JsonObject content = new JsonObject();
+                entry.write(content);
+                root.add(entry.getName(), content);
+            });
+            Files.write(file.toPath(), gson.toJson(root).getBytes());
+        } catch (Exception e) {
+            Wrapper.getMod().printStackTrace(e);
+        }
+    }
+
+    public void forEach(Consumer<BlockEntry> consumer) {
+        entries.forEach(consumer);
     }
 }

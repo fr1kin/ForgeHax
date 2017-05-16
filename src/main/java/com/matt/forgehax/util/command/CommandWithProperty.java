@@ -14,8 +14,8 @@ import java.util.function.Function;
 public class CommandWithProperty extends Command {
     private final Property property;
 
-    public CommandWithProperty(Property property, Consumer<OptionParser> buildParser, Function<OptionSet, Boolean> process, Collection<Consumer<Command>> callbacks) {
-        super(property.getName(), property.getComment(), buildParser, process, callbacks);
+    public CommandWithProperty(Property property, Consumer<OptionParser> buildParser, Function<OptionSet, Boolean> process, Collection<Consumer<Command>> callbacks, boolean b) {
+        super(property.getName(), property.getComment(), buildParser, process, callbacks, b);
         this.property = property;
     }
 

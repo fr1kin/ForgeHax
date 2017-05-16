@@ -1,9 +1,13 @@
 package com.matt.forgehax.util.command;
 
 import com.google.common.collect.Sets;
+import com.matt.forgehax.Wrapper;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -22,11 +26,15 @@ public class Command {
 
     protected final Set<Consumer<Command>> callbacks = Sets.newHashSet();
 
-    public Command(String name, String description, Consumer<OptionParser> buildParser, Function<OptionSet, Boolean> processor, Collection<Consumer<Command>> callbacks) {
+    private final boolean autoHelpText;
+
+    public Command(String name, String description, Consumer<OptionParser> buildParser, Function<OptionSet, Boolean> processor, Collection<Consumer<Command>> callbacks, boolean autoHelpText) {
         this.name = name;
         this.description = description;
         this.processor = processor;
+        this.autoHelpText = autoHelpText;
         if(callbacks != null) this.callbacks.addAll(callbacks);
+        if(autoHelpText) parser.acceptsAll(Arrays.asList("help", "?"), "Help text for options");
         if(buildParser != null) buildParser.accept(parser);
     }
 
@@ -38,17 +46,24 @@ public class Command {
         return description;
     }
 
-    public void run(String[] args) {
+    public String getOptionHelpText() {
+        StringWriter writer = new StringWriter();
+        try {
+            parser.printHelpOn(writer);
+        } catch (IOException e) {
+            ;
+        }
+        return writer.toString();
+    }
+
+    public void run(String[] args) throws CommandExecuteException, NullPointerException {
         if(processor != null) {
             Objects.requireNonNull(args, "args[] is null");
             OptionSet options = parser.parse(args);
-            try {
-                if(processor.apply(options)) callbacks.forEach(cb -> cb.accept(this));
-            } catch (CommandExecuteException e) {
-                // todo: this
-            } catch (NullPointerException e) {
-                // todo: this
-            }
+            if(autoHelpText && options.has("help"))
+                Wrapper.printMessageNaked(getOptionHelpText());
+            else if(processor.apply(options))
+                callbacks.forEach(cb -> cb.accept(this));
         }
     }
 
