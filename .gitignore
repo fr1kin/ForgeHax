@@ -4,3 +4,4 @@ run/*
 .idea/*
 .gradle/*
 storage_test/*
+libs/journeymap*

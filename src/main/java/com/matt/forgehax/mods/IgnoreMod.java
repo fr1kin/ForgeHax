@@ -5,7 +5,6 @@ import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.*;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import com.sun.xml.internal.ws.message.Util;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
