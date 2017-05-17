@@ -80,6 +80,7 @@ public class IgnoreMod extends ToggleMod {
                 CPacketChatMessage packet = new CPacketChatMessage("/pm " + messagePlayer + " ur ignored get raped");
                 Utils.OUTGOING_PACKET_IGNORE_LIST.add(packet);
                 Wrapper.getNetworkManager().sendPacket(packet);
+                lastMessageTime = System.currentTimeMillis();
             }
         }
     }
