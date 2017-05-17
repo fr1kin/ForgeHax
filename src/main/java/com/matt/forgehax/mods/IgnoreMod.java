@@ -1,7 +1,11 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
+import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.command.*;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.sun.xml.internal.ws.message.Util;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -28,26 +32,24 @@ import java.io.BufferedWriter;
 @RegisterMod
 public class IgnoreMod extends ToggleMod {
 
-    private String message;
-    private String messagePlayer;
-    private String inputMessage;
-    private String addName;
+    private long lastMessageTime = 0L;
+    private Pattern pattern = Pattern.compile("^([\\w*<>]+)");
 
     private List<String> ignoreList = Lists.newCopyOnWriteArrayList();
 
     public IgnoreMod() {
-        super("IgnoreMode", false, "Clientside ignore");
+        super("IgnoreMod", false, "Clientside ignore");
     }
 
     private void parseNameFile(File file) {
-        if(!file.exists() || !file.isFile()) return;
+        if (!file.exists() || !file.isFile()) return;
         ignoreList.clear();
         try {
             Scanner scanner = new Scanner(new FileReader(file));
             scanner.useDelimiter("\r\n");
-            while(scanner.hasNext()) {
+            while (scanner.hasNext()) {
                 String name = scanner.next();
-                if(name.length() > 16)
+                if (name.length() > 16)
                     name = name.substring(0, 15);
                 ignoreList.add(name);
             }
@@ -55,6 +57,7 @@ public class IgnoreMod extends ToggleMod {
             e.printStackTrace();
         }
     }
+
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
@@ -64,51 +67,64 @@ public class IgnoreMod extends ToggleMod {
 
     @SubscribeEvent
     public void onClientChat(ClientChatReceivedEvent event) {
-        message = (event.getMessage().getUnformattedText());
+        String message = (event.getMessage().getUnformattedText());
 
-        Pattern pattern = Pattern.compile("^([\\w*<>]+)");
         Matcher matcher = pattern.matcher(message);
         if (matcher.find()) {
-            messagePlayer = message.substring(matcher.start(), matcher.end()).trim();
-            messagePlayer = messagePlayer.replaceAll("[<>]","").toLowerCase();
-            if (ignoreList.contains(messagePlayer))  {
+            String messagePlayer = message.substring(matcher.start(), matcher.end()).trim()
+                    .replaceAll("<>","").toLowerCase();
+            if (ignoreList.contains(messagePlayer) || message.contains(" ur ignored get raped"))
                 event.setCanceled(true); // chat message has been (((shut down)))
+
+            if (System.currentTimeMillis() >= lastMessageTime + 1500L)  {
+                CPacketChatMessage packet = new CPacketChatMessage("/pm " + messagePlayer + " ur ignored get raped");
+                Utils.OUTGOING_PACKET_IGNORE_LIST.add(packet);
+                Wrapper.getNetworkManager().sendPacket(packet);
+                lastMessageTime = System.currentTimeMillis();
             }
         }
     }
 
-    @SubscribeEvent // add or remove names to ignorelist
-    public void onPacketSent(PacketEvent.Outgoing.Pre event) {
-        if (event.getPacket() instanceof CPacketChatMessage) {
-            String message = ((CPacketChatMessage) event.getPacket()).getMessage();
-            Scanner scanner = new Scanner(message);
-            scanner.useDelimiter(" ");
-            if (scanner.next().equals(".ignore") && scanner.hasNext()) {
-                addName = scanner.next().toLowerCase();
-                if (!ignoreList.contains((addName)) ) {
-                    ignoreList.add(addName);
-                    MC.player.sendMessage(new TextComponentString("\u00A77" + addName +  " has been ignored"));
-                }
-                else if (ignoreList.contains((addName))) {
-                    ignoreList.remove(ignoreList.indexOf(addName));
-                    MC.player.sendMessage(new TextComponentString("\u00A7a" + addName +  " has been unignored"));
-                }
-                event.setCanceled(true);
+    @Override
+    public void onLoad() {
+        CommandRegistry.registerGlobal(new CommandBuilder()
+                .setName("ignore")
+                .setDescription("Ignore a player")
+                .setProcessor(options -> {
+                    List<?> args = options.nonOptionArguments();
+                    if (args.size() > 0) {
+                        String addName = String.valueOf(args.get(0));
+                        // do stuff
+                        if (ignoreList.contains((addName))) {
+                            ignoreList.remove(ignoreList.indexOf(addName));
+                            MC.player.sendMessage(new TextComponentString("\u00A7a" + addName + " has been unignored"));
+                        }
+                        else {
+                            ignoreList.add(addName);
+                            MC.player.sendMessage(new TextComponentString("\u00A77" + addName + " has been ignored"));
+                        }
 
-                try {
-                    File nameFile = new File(MOD.getBaseDirectory(), "ignorelist.txt");
-                    FileWriter fw = new FileWriter(nameFile);
-                    BufferedWriter bw = new BufferedWriter(fw);
-                    for (String s : ignoreList) {
-                        bw.write(s + "\r\n");
+                        try {
+                            File nameFile = new File(MOD.getBaseDirectory(), "ignorelist.txt");
+                            FileWriter fw = new FileWriter(nameFile);
+                            BufferedWriter bw = new BufferedWriter(fw);
+                            for (String s : ignoreList) {
+                                bw.write(s + "\r\n");
+                            }
+                            bw.close();
+                            fw.close();
+                        } catch (Exception e) {
+                        }
+                        // end of doing stuff
+                        return true;
+                    } else {
+                        // missing argument
                     }
-                    bw.close();
-                    fw.close();
-                }
-                catch(Exception e) {
-                }
-            }
-            scanner.close();
-        }
+                    return false;
+                })
+                .build()
+        );
     }
+
 }
+
