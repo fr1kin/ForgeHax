@@ -16,6 +16,7 @@ import com.matt.forgehax.util.command.CommandBuilder;
 import com.matt.forgehax.util.command.CommandRegistry;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.VertexBuffer;
@@ -69,6 +70,12 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
         this.renderers = renderers;
     }
 
+    private void reloadRenderers() {
+        if(MC.isCallingFromMinecraftThread()) {
+            if (Wrapper.getWorld() != null) MC.renderGlobal.loadRenderers();
+        } else MC.addScheduledTask(this::reloadRenderers);
+    }
+
     @Override
     public void onLoad() {
         addCommand(new CommandBuilder()
@@ -113,7 +120,10 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                     } else Wrapper.printMessage("Missing block name/id argument");
                     return false;
                 })
-                .addCallback(cmd -> blockOptions.write())
+                .addCallback(cmd -> {
+                    blockOptions.write();
+                    reloadRenderers();
+                })
                 .build()
         );
         addCommand(new CommandBuilder()
@@ -145,7 +155,10 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                     }
                     return false;
                 })
-                .addCallback(cmd -> blockOptions.write())
+                .addCallback(cmd -> {
+                    blockOptions.write();
+                    reloadRenderers();
+                })
                 .build()
         );
         addCommand(new CommandBuilder()
@@ -197,7 +210,10 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                     }
                     return false;
                 })
-                .addCallback(cmd -> blockOptions.write())
+                .addCallback(cmd -> {
+                    blockOptions.write();
+                    reloadRenderers();
+                })
                 .build()
         );
         addCommand(new CommandBuilder()
@@ -223,6 +239,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
         blockOptions.read();
         Listeners.BLOCK_MODEL_RENDER_LISTENER.register(this);
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable();
+        reloadRenderers();
     }
 
     @Override
@@ -246,7 +263,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
     */
 
     @SubscribeEvent
-    public void onWorldUnload(WorldEvent.Unload event) {
+    public void onWorldUnload(WorldEvent.Load event) {
         try {
             setRenderers(null);
             setCache(null);
@@ -550,7 +567,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
         }
 
         public GeometryTessellator takeTessellator() {
-            if(this.tessellator == null) {
+            if(this.tessellator == null && cache != null) {
                 this.tessellator = cache.take();
                 return this.tessellator;
             } else throw new RuntimeException("attempted to take a tessellator despite not needing one");
@@ -568,7 +585,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                     tess.setTranslation(0.D, 0.D, 0.D);
                 } finally {
                     //freedTessellators.add(tess);
-                    cache.free(tess);
+                    if(cache != null) cache.free(tess);
                     tessellator = null;
                 }
             }
