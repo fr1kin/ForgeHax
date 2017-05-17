@@ -30,8 +30,6 @@ public class ForgeHax {
 
 	public static final String CONFIG_FILE_NAME = "settings.json";
 
-	private static final boolean isInDevMode = ForgeHaxHooks.isInDebugMode;
-
 	public static ForgeHax INSTANCE = null;
 
 	public static ForgeHax getInstance() {
