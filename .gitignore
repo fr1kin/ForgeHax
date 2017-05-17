@@ -2,3 +2,5 @@ ForgeHax.iml
 build/*
 run/*
 .idea/*
+.gradle/*
+storage_test/*
