@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.common.config.Configuration;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.*;
@@ -12,6 +13,7 @@ import static com.matt.forgehax.Wrapper.*;
 
 // made by BABBAJ
 
+@RegisterMod
 public class FancyChat extends ToggleMod {
 
 	private String inputMessage = "";

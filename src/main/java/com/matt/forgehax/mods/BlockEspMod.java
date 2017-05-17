@@ -8,7 +8,6 @@ import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
-import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.blocks.BlockDoesNotExistException;
 import com.matt.forgehax.util.blocks.BlockEntry;
@@ -16,13 +15,13 @@ import com.matt.forgehax.util.blocks.BlockOptions;
 import com.matt.forgehax.util.command.CommandBuilder;
 import com.matt.forgehax.util.command.CommandRegistry;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.*;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -39,7 +38,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -47,8 +45,9 @@ import java.util.stream.Collectors;
 /**
  * Created on 5/5/2017 by fr1kin
  */
+@RegisterMod
 public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
-    public static final BlockOptions options = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "blocklist.json"));
+    public static final BlockOptions blockOptions = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "blocklist.json"));
 
     private static TesselatorCache cache = new TesselatorCache(100, 0x20000);
 
@@ -72,7 +71,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
 
     @Override
     public void onLoad() {
-        CommandRegistry.register(this, new CommandBuilder()
+        addCommand(new CommandBuilder()
                 .setName("add")
                 .setDescription("Adds block to block esp")
                 .setOptionBuilder(parser -> {
@@ -102,7 +101,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                             BlockEntry entry = byId ? new BlockEntry(Integer.valueOf(name)) : new BlockEntry(name);
                             entry.setColorBuffer(r, g, b, a);
                             entry.setMetadataId(meta);
-                            if(options.addBlockEntry(entry)) {
+                            if(blockOptions.addBlockEntry(entry)) {
                                 Wrapper.printMessage(String.format("Added block '%s' to the block list", name));
                                 return true;
                             } else {
@@ -111,13 +110,13 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                         } catch (BlockDoesNotExistException e) {
                             Wrapper.printMessage(String.format("'%s' is not a valid block name/id", name));
                         }
-                    }
+                    } else Wrapper.printMessage("Missing block name/id argument");
                     return false;
                 })
-                .addCallback(cmd -> options.write())
+                .addCallback(cmd -> blockOptions.write())
                 .build()
         );
-        CommandRegistry.register(this, new CommandBuilder()
+        addCommand(new CommandBuilder()
                 .setName("remove")
                 .setDescription("Removes block to block esp")
                 .setOptionBuilder(parser -> {
@@ -134,7 +133,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                         try {
                             BlockEntry entry = byId ? new BlockEntry(Integer.valueOf(name)) : new BlockEntry(name);
                             entry.setMetadataId(meta);
-                            if(options.removeBlockEntry(entry)) {
+                            if(blockOptions.removeBlockEntry(entry)) {
                                 Wrapper.printMessage(String.format("Removed block '%s' from the block list", name));
                                 return true;
                             } else {
@@ -146,10 +145,10 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                     }
                     return false;
                 })
-                .addCallback(cmd -> options.write())
+                .addCallback(cmd -> blockOptions.write())
                 .build()
         );
-        CommandRegistry.register(this, new CommandBuilder()
+        addCommand(new CommandBuilder()
                 .setName("set")
                 .setDescription("Sets a value for a currently existing block entry")
                 .setOptionBuilder(parser -> {
@@ -178,7 +177,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                         try {
                             BlockEntry entry = byId ? new BlockEntry(Integer.valueOf(name)) : new BlockEntry(name);
                             entry.setMetadataId(meta);
-                            BlockEntry matching = options.getBlockEntry(entry);
+                            BlockEntry matching = blockOptions.getBlockEntry(entry);
                             if(matching != null) {
                                 int[] oldColor = Utils.toRGBAArray(matching.getColorBuffer());
                                 matching.setColorBuffer(
@@ -198,15 +197,15 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                     }
                     return false;
                 })
-                .addCallback(cmd -> options.write())
+                .addCallback(cmd -> blockOptions.write())
                 .build()
         );
-        CommandRegistry.register(this, new CommandBuilder()
+        addCommand(new CommandBuilder()
                 .setName("list")
                 .setDescription("Lists all the blocks in the block list")
                 .setProcessor(opts -> {
                     final StringBuilder builder = new StringBuilder("Found: ");
-                    options.forEach(entry -> {
+                    blockOptions.forEach(entry -> {
                         builder.append(entry.getName());
                         builder.append(", ");
                     });
@@ -221,7 +220,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
 
     @Override
     public void onEnabled() {
-        options.read();
+        blockOptions.read();
         Listeners.BLOCK_MODEL_RENDER_LISTENER.register(this);
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable();
     }
@@ -325,7 +324,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
         if(renderers == null) return;
         GeometryTessellator tess = null;
         try {
-            BlockEntry blockEntry = options.getBlockEntry(state);
+            BlockEntry blockEntry = blockOptions.getBlockEntry(state);
             if (blockEntry != null) {
                 // get the tessellator created in onPreBuildChunk specific to the current thread
                 tess = this.localTessellator.get();
@@ -453,75 +452,6 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
             GlStateManager.popMatrix();
         } catch (Exception e) {
             handleException(null, e);
-        }
-    }
-
-    @SubscribeEvent
-    public void onKeyPress(InputEvent.KeyInputEvent event) {
-        if(Keyboard.getEventKey() == Keyboard.KEY_B) {
-            //debugStuff();
-        }
-    }
-
-    private String getTessList(Collection<GeometryTessellator> list) {
-        StringBuilder b = new StringBuilder();
-        Iterator<GeometryTessellator> it = list.iterator();
-        while(it.hasNext()) {
-            GeometryTessellator t = it.next();
-            b.append(t != null ? Integer.toHexString(t.hashCode()) : "null");
-            if(it.hasNext()) b.append(",");
-        }
-        return b.toString();
-    }
-
-    private void debugStuff() {
-        final StringBuilder builder = new StringBuilder();
-        final Renderers r = renderers;
-        final TesselatorCache tc = cache;
-        builder.append("##### Debug output for BlockEsp #####\n");
-        if(r != null) {
-            builder.append(String.format("Renderers [%d] {\n", r.size()));
-            r.forEach((chk, info) -> {
-                builder.append('\t');
-                builder.append(String.format("[%s] = {\n", Integer.toHexString(chk.hashCode())));
-                builder.append(String.format("\t\ttessellator=%s\n", info.getTessellator() != null ? Integer.toHexString(info.getTessellator().hashCode()) : "null"));
-                builder.append(String.format("\t\tvbo=%s\n", info.getVbo() != null ? Integer.toHexString(info.getVbo().hashCode()) : "null"));
-                builder.append(String.format("\t\tisRendering=%s\n", info.isRendering()));
-                builder.append(String.format("\t\tisBuilding=%s\n", info.isBuilding()));
-                builder.append(String.format("\t\tisUploaded=%s\n", info.isUploaded()));
-                builder.append(String.format("\t\tisLocked=%s\n", info.lock.isLocked()));
-                /*
-                builder.append(String.format("\t\tused[%d]=%s\n", info.usedTessellators.size(), getTessList(info.usedTessellators)));
-                builder.append(String.format("\t\tfreed[%d]=%s\n", info.freedTessellators.size(), getTessList(info.freedTessellators)));
-                String good = "n/a";
-                if(info.tessellator == null) good = Boolean.toString(info.usedTessellators.size() == info.freedTessellators.size());
-                builder.append(String.format("\t\tgood=%s\n", good));*/
-                builder.append("\t}\n");
-            });
-            builder.append("}\n");
-        }
-        if(tc != null) {
-            builder.append("Cache {\n");
-            builder.append(String.format("\tQueue [%d/%d] {\n", tc.size(), tc.getCapacity()));
-            tc.buffers.forEach(t -> {
-                builder.append(String.format("\t\t%s\n", Integer.toHexString(t.hashCode())));
-            });
-            builder.append("\t}\n");
-            List<GeometryTessellator> missing = tc.originals.stream()
-                    .filter(t -> !tc.buffers.contains(t))
-                    .collect(Collectors.toList());
-            builder.append(String.format("\tMissing [%d/%d] {\n", missing.size(), tc.getCapacity()));
-            missing.forEach(t -> {
-                builder.append(String.format("\t\t%s\n", Integer.toHexString(t.hashCode())));
-            });
-            builder.append("\t}\n");
-            builder.append("}\n");
-        }
-        try {
-            Files.write(new File(Wrapper.getMod().getBaseDirectory(), "tess_dump.txt").toPath(), builder.toString().getBytes());
-            Wrapper.getLog().info("Dumped log");
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

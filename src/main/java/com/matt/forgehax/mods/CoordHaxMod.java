@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.mods.data.PacketCache;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.Packet;
@@ -23,6 +24,7 @@ import static com.matt.forgehax.Wrapper.*;
 /**
  * Created on 12/3/2016 by fr1kin
  */
+
 public class CoordHaxMod extends ToggleMod {
     public static File outputFile = null;
 

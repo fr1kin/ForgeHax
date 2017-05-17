@@ -4,6 +4,7 @@ import com.matt.forgehax.asm.events.BlockRenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.RenderUtils;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.BlockPortal;
@@ -26,6 +27,8 @@ import static com.matt.forgehax.Wrapper.*;
 /**
  * Created on 11/10/2016 by fr1kin
  */
+
+@RegisterMod
 public class PortalFinderMod extends ToggleMod {
     public PortalFinderMod(String modName, boolean defaultValue, String description, int key) {
         super(modName, defaultValue, description, key);

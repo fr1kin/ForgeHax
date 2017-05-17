@@ -1,11 +1,13 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.GuiSleepMP;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import static com.matt.forgehax.Wrapper.*;
 
+@RegisterMod
 public class BedModeMod extends ToggleMod {
     public BedModeMod() {
         super("BedMode", false, "Sleep walking");

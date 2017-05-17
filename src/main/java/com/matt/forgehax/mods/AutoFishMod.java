@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -19,6 +20,8 @@ import static com.matt.forgehax.Wrapper.*;
 /**
  * Created on 9/2/2016 by fr1kin
  */
+
+@RegisterMod
 public class AutoFishMod extends ToggleMod {
     private int ticksCastDelay = 0;
     private int ticksHookDeployed = 0;

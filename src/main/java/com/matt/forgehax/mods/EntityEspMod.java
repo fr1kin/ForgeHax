@@ -7,6 +7,7 @@ import com.matt.forgehax.util.entity.EnchantmentUtils;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -20,6 +21,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 
+@RegisterMod
 public class EntityEspMod extends ToggleMod {
     private static final int HEALTHBAR_WIDTH = 15;
     private static final int HEALTHBAR_HEIGHT = 3;

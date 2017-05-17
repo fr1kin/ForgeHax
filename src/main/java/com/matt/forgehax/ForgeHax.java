@@ -19,6 +19,8 @@ import java.io.*;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.matt.forgehax.Wrapper.*;
+
 @Mod(modid = ForgeHax.MODID, version = ForgeHax.VERSION, guiFactory = "com.matt.forgehax.ForgeHaxGuiFactory", clientSideOnly = true)
 public class ForgeHax {
 	public static final String MODID = "forgehax";
@@ -44,10 +46,13 @@ public class ForgeHax {
 
 	public Logger log;
 
-	public Map<String, BaseMod> mods = Maps.newTreeMap();
-
 	public ForgeHax() {
 		INSTANCE = this;
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// NOTE: if you ever change the package name make sure this
+		// is updated or mods will not load anymore
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		getModManager().addPackage("com.matt.forgehax.mods");
 	}
 
 	public Logger getLog() {
@@ -66,23 +71,11 @@ public class ForgeHax {
 		return config;
 	}
 
-	public Map<String, BaseMod> getMods() {
-		return Collections.unmodifiableMap(mods);
-	}
-
-	public BaseMod getMod(String name) {
-		return mods.get(name);
-	}
-
 	public void setupConfigFolder() {
 		File userDir = new File(getBaseDirectory(), "users");
 		userDir.mkdirs();
 		configFolder = new File(userDir, "devmode");
 		configFolder.mkdirs();
-	}
-
-	public void registerMod(BaseMod mod) {
-		mods.put(mod.getModName(), mod);
 	}
 
 	public void printStackTrace(Exception exception) {
@@ -93,11 +86,6 @@ public class ForgeHax {
 		if (MC.player != null) {
 			//MC.player.sendChatMessage("ERROR: " + exception.getMessage());
 		}
-	}
-
-	private void shutdownHook() {
-		if(bindSerializer != null) bindSerializer.serialize();
-		if(BlockEspMod.options != null) BlockEspMod.options.write();
 	}
 
 	@Mod.EventHandler
@@ -116,12 +104,16 @@ public class ForgeHax {
 				// initialize bind serializer
 				bindSerializer = new BindSerializer(getConfigFolder());
 				// add shutdown hook to serialize all binds
-				Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownHook));
+				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+					if(bindSerializer != null) bindSerializer.serialize();
+					getModManager().getMods().forEach(BaseMod::onUnload);
+				}));
 				// register global commands
 				GlobalCommands.initialize();
 
 				//---- initialize mods ----//
-				registerMod(new ContainersMod("Containers", "Mod containers for xray and entity lists"));
+
+				//registerMod(new ContainersMod("Containers", "Mod containers for xray and entity lists"));
 				if (isInDevMode) {
 					/*
 	                registerMod(new DebugModeMod("debugmode", false, "Enables debug mode", Keyboard.KEY_END));
@@ -129,6 +121,7 @@ public class ForgeHax {
                     registerMod(new DebugOutputMod("debugoutput", false, "Output debug info on hooks", Keyboard.KEY_HOME));
                     //*/
 				}
+				/*
 				registerMod(new ActiveModListMod());
 				registerMod(new AimbotMod());
 				registerMod(new AntiAfkMod());
@@ -181,7 +174,9 @@ public class ForgeHax {
 				registerMod(new FancyChat());
 				registerMod(new HorseJump());
 				registerMod(new IgnoreMod());
-				registerMod(new NoWeather());
+				registerMod(new NoWeather());*/
+
+				getModManager().loadPackages();
 
 				//---- initialize configuration part 2 ----//
 				// setup config
@@ -206,12 +201,12 @@ public class ForgeHax {
 				CommandEventHandler.register();
 				TickManager.getInstance().registerEventHandler();
 				// registerAll mod events
-				for (Map.Entry<String, BaseMod> entry : mods.entrySet()) {
-					if (entry.getValue().isEnabled()) {
-						entry.getValue().onEnabled();
-						entry.getValue().register();
+				getModManager().getMods().forEach(mod -> {
+					if (mod.isEnabled()) {
+						mod.onEnabled();
+						mod.register();
 					}
-				}
+				});
 				// load all previous binds
 				bindSerializer.deserialize();
 				break;

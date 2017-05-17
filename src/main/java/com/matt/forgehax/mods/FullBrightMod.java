@@ -1,8 +1,10 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+@RegisterMod
 public class FullBrightMod extends ToggleMod {
     public FullBrightMod() {
         super("FullBright", false, "Makes everything render with maximum brightness");

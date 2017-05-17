@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.util.TickManager;
 import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -11,6 +12,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 
+import static com.matt.forgehax.Wrapper.*;
+
+@RegisterMod
 public class ActiveModListMod extends ToggleMod {
     public Property factor;
 
@@ -63,7 +67,7 @@ public class ActiveModListMod extends ToggleMod {
         int posY = 1;
         SurfaceUtils.drawTextShadow(generateTickRateText(), posX, posY, Utils.Colors.WHITE);
         posY += SurfaceUtils.getTextHeight() + 1;
-        for(BaseMod mod : MOD.mods.values()) {
+        for(BaseMod mod : getModManager().getMods()) {
             if(mod.isEnabled() && !mod.isHidden()) {
                 SurfaceUtils.drawTextShadow(">" + mod.getDisplayText(), posX, posY, Utils.Colors.WHITE);
                 posY += SurfaceUtils.getTextHeight() + 1;

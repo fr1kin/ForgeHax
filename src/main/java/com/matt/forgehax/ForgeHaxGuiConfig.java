@@ -23,10 +23,8 @@ public class ForgeHaxGuiConfig extends GuiConfig {
     }
 
     private static List<IConfigElement> getConfigElements() {
-        List<IConfigElement> elements = Lists.newArrayList();
-        for(Map.Entry<String,BaseMod> entry : ForgeHax.getInstance().mods.entrySet()) {
-            entry.getValue().onConfigBuildGui(elements);
-        }
+        final List<IConfigElement> elements = Lists.newArrayList();
+        Wrapper.getModManager().getMods().forEach(mod -> mod.onConfigBuildGui(elements));
         return elements;
     }
 

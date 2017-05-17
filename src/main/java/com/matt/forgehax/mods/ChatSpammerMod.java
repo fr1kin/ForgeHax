@@ -7,6 +7,7 @@ import com.google.common.collect.Queues;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
@@ -34,6 +35,7 @@ import static com.matt.forgehax.Wrapper.*;
     warning: im warning you now don't look below
  */
 
+@RegisterMod
 public class ChatSpammerMod extends ToggleMod {
     private static final Map<String, Object> EMPTY_MAP = Collections.unmodifiableMap(Maps.newHashMap());
     private static final String EMPTY_SENDER = String.valueOf("");

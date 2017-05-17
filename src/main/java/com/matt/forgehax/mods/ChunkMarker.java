@@ -8,6 +8,7 @@ import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.RenderUtils;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -31,6 +32,8 @@ import static com.matt.forgehax.Wrapper.*;
 /**
  * Created on 4/28/2017 by fr1kin
  */
+
+@RegisterMod
 public class ChunkMarker extends ToggleMod {
     public Property offsetY;
 

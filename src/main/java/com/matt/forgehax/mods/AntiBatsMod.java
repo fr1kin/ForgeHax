@@ -1,12 +1,14 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.passive.EntityBat;
 import net.minecraft.init.SoundEvents;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+@RegisterMod
 public class AntiBatsMod extends ToggleMod {
     public AntiBatsMod() {
         super("AntiBats", false, "666 KILL BATS 666");

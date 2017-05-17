@@ -11,6 +11,7 @@ import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.ProjectileUtils;
 import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,6 +34,7 @@ import java.util.Collections;
 
 import static com.matt.forgehax.Wrapper.*;
 
+@RegisterMod
 public class AimbotMod extends ToggleMod {
     public Property silent;
     public Property autoAttack;

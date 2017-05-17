@@ -5,6 +5,7 @@ import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.ProjectileUtils;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import static com.matt.forgehax.Wrapper.*;
 
+@RegisterMod
 public class AutoProjectile extends ToggleMod {
     public AutoProjectile() {
         super("AutoProjectile", false, "Automatically sets pitch to best trajectory");

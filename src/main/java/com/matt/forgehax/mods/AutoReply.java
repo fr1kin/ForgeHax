@@ -1,12 +1,13 @@
 package com.matt.forgehax.mods;
 
 
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-
+@RegisterMod
 public class AutoReply extends ToggleMod {
 	private String modeString = "/r ";
 	private Property reply;

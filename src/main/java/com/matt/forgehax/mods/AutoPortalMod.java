@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -7,6 +8,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 /**
  * Created on 1/2/2017 by fr1kin
  */
+
+@RegisterMod
 public class AutoPortalMod extends ToggleMod {
     public Property waitTime;
 

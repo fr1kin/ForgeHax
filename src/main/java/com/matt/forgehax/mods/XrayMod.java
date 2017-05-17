@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.events.ComputeVisibilityEvent;
 import com.matt.forgehax.asm.events.RenderBlockInLayerEvent;
 import com.matt.forgehax.asm.events.RenderBlockLayerEvent;
 import com.matt.forgehax.asm.events.SetupTerrainEvent;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
@@ -18,6 +19,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 
+@RegisterMod
 public class XrayMod extends ToggleMod {
     public Property opacity;
 

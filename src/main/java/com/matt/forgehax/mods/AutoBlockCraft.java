@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
@@ -17,6 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
 
+@RegisterMod
 public class AutoBlockCraft extends ToggleMod {
     public Property blockToCraft;
     public Property sleepTime;

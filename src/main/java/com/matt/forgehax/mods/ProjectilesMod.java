@@ -6,6 +6,7 @@ import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.ProjectileUtils;
 import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RayTraceResult;
@@ -15,6 +16,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import static com.matt.forgehax.Wrapper.*;
 
+@RegisterMod
 public class ProjectilesMod extends ToggleMod {
     private static final int TIME = 10;
     private static final double DETAIL = 0.2D;
@@ -37,7 +39,7 @@ public class ProjectilesMod extends ToggleMod {
         if(trace == null)
             return;
         double pitch, yaw;
-        Property autoProjectile = MOD.getMod("AutoProjectile").getProperty("enabled");
+        Property autoProjectile = getModManager().getMod("AutoProjectile").getProperty("enabled");
         if(LocalPlayerUtils.isProjectileTargetAcquired()) {
             pitch = LocalPlayerUtils.getFakeViewAngles().getPitch();
             yaw = LocalPlayerUtils.getFakeViewAngles().getYaw();

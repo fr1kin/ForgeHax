@@ -1,6 +1,7 @@
 package com.matt.forgehax;
 
 import com.google.common.base.Strings;
+import com.matt.forgehax.util.mod.ModManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.network.NetworkManager;
@@ -23,6 +24,10 @@ public class Wrapper implements Globals {
 
     public static ForgeHax getMod() {
         return MOD;
+    }
+
+    public static ModManager getModManager() {
+        return ModManager.getInstance();
     }
 
     public static Logger getLog() {
@@ -63,5 +68,9 @@ public class Wrapper implements Globals {
 
     public static NetworkManager getNetworkManager() {
         return FMLClientHandler.instance().getClientToServerNetworkManager();
+    }
+
+    public static void printStackTrace(Exception e) {
+        MOD.printStackTrace(e);
     }
 }

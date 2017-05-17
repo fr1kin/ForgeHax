@@ -46,7 +46,7 @@ public class GlobalCommands implements Globals {
                         });
                     } else {
                         if (list) {
-                            MOD.getMods().forEach((name, mod) -> {
+                            getModManager().getMods().forEach(mod -> {
                                 builder.append(mod.toString());
                                 builder.append('\n');
                             });
@@ -70,7 +70,7 @@ public class GlobalCommands implements Globals {
         );
 
         CommandRegistry.registerGlobal(new CommandBuilder()
-                .setName("listblocks")
+                .setName("blocks")
                 .setDescription("Lists all blocks with matching name/id")
                 .setProcessor(options -> {
                     List<?> args = options.nonOptionArguments();

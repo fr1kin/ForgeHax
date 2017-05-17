@@ -2,10 +2,12 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import static com.matt.forgehax.Wrapper.*;
 
+@RegisterMod
 public class NoFallMod extends ToggleMod {
     public NoFallMod() {
         super("NoFall", false, "Prevents fall damage from being taken");

@@ -10,6 +10,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.Set;
 
+import static com.matt.forgehax.Wrapper.getModManager;
+
 /**
  * Created on 4/21/2017 by fr1kin
  *
@@ -24,8 +26,8 @@ public class BindSerializer implements Globals {
 
     public void serialize() {
         final JsonObject root = new JsonObject();
-        MOD.getMods().forEach((name, mod) -> mod.getKeyBinds().forEach(bind -> {
-            root.addProperty(name + ":" + bind.getKeyDescription(), bind.getKeyCode());
+        getModManager().getMods().forEach(mod -> mod.getKeyBinds().forEach(bind -> {
+            root.addProperty(mod.getModName() + ":" + bind.getKeyDescription(), bind.getKeyCode());
         }));
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -52,8 +54,8 @@ public class BindSerializer implements Globals {
 
         final JsonObject root = (head != null && head.isJsonObject()) ? head.getAsJsonObject() : new JsonObject();
 
-        MOD.getMods().forEach((name, mod) -> mod.getKeyBinds().forEach(bind -> {
-            JsonElement element = root.get(name + ":" + bind.getKeyDescription());
+        getModManager().getMods().forEach(mod -> mod.getKeyBinds().forEach(bind -> {
+            JsonElement element = root.get(mod.getModName() + ":" + bind.getKeyDescription());
             if(element != null) bind.setKeyCode(element.getAsInt());
         }));
 

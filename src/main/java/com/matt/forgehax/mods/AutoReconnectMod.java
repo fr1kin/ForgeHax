@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiDisconnected;
@@ -18,6 +19,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import java.io.IOException;
 import java.util.List;
 
+@RegisterMod
 public class AutoReconnectMod extends ToggleMod {
     private static ServerData lastConnectedServer;
 

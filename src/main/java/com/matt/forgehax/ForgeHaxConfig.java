@@ -8,6 +8,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.io.File;
 import java.util.Map;
 
+import static com.matt.forgehax.Wrapper.*;
+
 public class ForgeHaxConfig implements Globals {
     public Configuration config;
 
@@ -16,9 +18,7 @@ public class ForgeHaxConfig implements Globals {
         config = new Configuration(file);
         config.load();
         // initialize mod configs
-        for(Map.Entry<String,BaseMod> entry : MOD.mods.entrySet()) {
-            entry.getValue().initialize(config);
-        }
+        getModManager().getMods().forEach(mod -> mod.initialize(config));
         save();
     }
 
@@ -32,9 +32,7 @@ public class ForgeHaxConfig implements Globals {
     {
         if(event.getModID().equals(ForgeHax.MODID)) {
             save();
-            for(Map.Entry<String,BaseMod> entry : MOD.mods.entrySet()) {
-                entry.getValue().update();
-            }
+            getModManager().getMods().forEach(BaseMod::update);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -14,6 +15,8 @@ import static com.matt.forgehax.Wrapper.*;
 /**
  * Created on 9/3/2016 by fr1kin
  */
+
+@RegisterMod
 public class FreecamMod extends ToggleMod {
     public Property speed;
 
@@ -67,7 +70,7 @@ public class FreecamMod extends ToggleMod {
             clonedPlayer = null;
             posX = posY = posZ = 0.D;
             pitch = yaw = 0.f;
-            MC.player.capabilities.isFlying = MOD.getMod("ElytraFlight").getProperty("enabled").getBoolean();
+            MC.player.capabilities.isFlying = getModManager().getMod("ElytraFlight").getProperty("enabled").getBoolean();
             MC.player.capabilities.setFlySpeed(0.05f);
             MC.player.noClip = false;
             MC.player.motionX = MC.player.motionY = MC.player.motionZ = 0.f;

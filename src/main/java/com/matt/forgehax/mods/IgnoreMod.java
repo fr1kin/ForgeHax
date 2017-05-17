@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -23,6 +24,8 @@ import java.io.BufferedWriter;
 /**
  * Created by Babbaj on 5/10/2017.
  */
+
+@RegisterMod
 public class IgnoreMod extends ToggleMod {
 
     private String message;

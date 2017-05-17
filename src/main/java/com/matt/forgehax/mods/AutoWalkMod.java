@@ -2,11 +2,13 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.key.Bindings;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import static com.matt.forgehax.Wrapper.*;
 
+@RegisterMod
 public class AutoWalkMod extends ToggleMod {
     public Property stopAtUnloadedChunks;
 

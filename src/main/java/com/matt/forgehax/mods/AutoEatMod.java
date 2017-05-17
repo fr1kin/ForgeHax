@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.key.Bindings;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
@@ -15,6 +16,7 @@ import java.util.List;
 
 import static com.matt.forgehax.Wrapper.*;
 
+@RegisterMod
 public class AutoEatMod extends ToggleMod {
     private boolean isEating = false;
 

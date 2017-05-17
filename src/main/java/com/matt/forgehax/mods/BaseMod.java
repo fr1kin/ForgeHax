@@ -270,6 +270,11 @@ public abstract class BaseMod implements Globals {
     public void onLoad() {}
 
     /**
+     * Called when unloaded
+     */
+    public void onUnload() {}
+
+    /**
      * Called when the mod is enabled
      */
     public void onEnabled() {}

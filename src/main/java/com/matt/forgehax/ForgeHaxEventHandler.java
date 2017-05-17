@@ -30,6 +30,8 @@ import java.util.Map;
 
 import static com.matt.forgehax.Wrapper.getLocalPlayer;
 
+import static com.matt.forgehax.Wrapper.*;
+
 public class ForgeHaxEventHandler implements Globals {
     private static GeometryTessellator tessellator = new GeometryTessellator(0x200);
 
@@ -165,14 +167,10 @@ public class ForgeHaxEventHandler implements Globals {
      */
     @SubscribeEvent
     public void onKeyboardEvent(InputEvent.KeyInputEvent event) {
-        for(Map.Entry<String,BaseMod> entry : MOD.mods.entrySet()) {
-            for(KeyBinding bind : entry.getValue().getKeyBinds()) {
-                if(bind.isPressed())
-                    entry.getValue().onBindPressed(bind);
-                if(bind.isKeyDown())
-                    entry.getValue().onBindKeyDown(bind);
-            }
-        }
+        getModManager().getMods().forEach(mod -> mod.getKeyBinds().forEach(bind -> {
+            if(bind.isPressed()) mod.onBindPressed(bind);
+            if(bind.isKeyDown()) mod.onBindKeyDown(bind);
+        }));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

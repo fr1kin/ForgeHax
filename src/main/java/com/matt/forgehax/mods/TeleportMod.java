@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.client.CPacketConfirmTeleport;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.Scanner;
 import static com.matt.forgehax.Wrapper.*;
 
+@RegisterMod
 public class TeleportMod extends ToggleMod {
     public Property mode;
     public Property relative;

@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -8,6 +9,7 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
+@RegisterMod
 public abstract class ToggleMod extends BaseMod {
     // setting every mod should have to enable/disable it
     private Property enabled = null;
