@@ -104,6 +104,6 @@ public class BlockEntry {
     public boolean equals(Object obj) {
         return obj instanceof BlockEntry &&
                 Objects.equals(getBlock(), ((BlockEntry) obj).getBlock()) &&
-                (!isMetadata || this.metadataId == ((BlockEntry) obj).metadataId);
+                ((!isMetadata && !((BlockEntry) obj).isMetadata) || this.metadataId == ((BlockEntry) obj).metadataId);
     }
 }

@@ -57,8 +57,9 @@ public class BlockOptions {
                 head.entrySet().forEach(entry -> {
                     try {
                         String name = entry.getKey();
+                        String resource = name.split("::")[0]; // used to give entry a unique name
                         JsonObject contents = entry.getValue().getAsJsonObject();
-                        BlockEntry blockEntry = new BlockEntry(name);
+                        BlockEntry blockEntry = new BlockEntry(resource);
                         blockEntry.read(contents);
                         entries.add(blockEntry);
                     } catch (Exception e) {
@@ -80,7 +81,7 @@ public class BlockOptions {
             entries.forEach(entry -> {
                 JsonObject content = new JsonObject();
                 entry.write(content);
-                root.add(entry.getName(), content);
+                root.add(entry.isMetadata() ? (entry.getName() + "::" + entry.getMetadataId()) : entry.getName(), content);
             });
             Files.write(file.toPath(), gson.toJson(root).getBytes());
         } catch (Exception e) {
