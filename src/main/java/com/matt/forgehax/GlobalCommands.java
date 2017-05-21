@@ -1,16 +1,14 @@
 package com.matt.forgehax;
 
 import com.matt.forgehax.mods.BaseMod;
+import com.matt.forgehax.util.blocks.BlockOptionHelper;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilder;
 import com.matt.forgehax.util.command.CommandRegistry;
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 
-import java.io.StringWriter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.matt.forgehax.Wrapper.*;
 
@@ -78,15 +76,25 @@ public class GlobalCommands implements Globals {
                         final String find = String.valueOf(args.get(0)).toLowerCase();
                         final StringBuilder builder = new StringBuilder("Search results:\n");
                         Block.REGISTRY.forEach(block -> {
-                            int id = Block.getIdFromBlock(block);
-                            if(block.getLocalizedName().toLowerCase().contains(find) ||
-                                    block.getUnlocalizedName().toLowerCase().contains(find) ||
-                                    Objects.equals(String.valueOf(id), find)) {
-                                builder.append(String.format("[%d] %s\n",
-                                        id,
-                                        block.getRegistryName() != null ? block.getRegistryName().toString() : block.getLocalizedName())
-                                );
-                            }
+                            final AtomicBoolean addedResource = new AtomicBoolean(false);
+                            final int id = Block.getIdFromBlock(block);
+                            BlockOptionHelper.getAllBlocks(block).forEach(stack -> {
+                                String unlocal = stack.getUnlocalizedName();
+                                String formal = stack.getDisplayName();
+                                if (unlocal.toLowerCase().contains(find) ||
+                                        formal.toLowerCase().contains(find)) {
+                                    if(addedResource.compareAndSet(false, true)) {
+                                        builder.append(String.format("[%03d:%02d] ", id, block.getMetaFromState(block.getDefaultState())));
+                                        builder.append(block.getRegistryName() != null ? block.getRegistryName().toString() : block.getLocalizedName());
+                                        builder.append('\n');
+                                    }
+                                    builder.append(String.format("[%03d:%02d]> ", id, stack.getMetadata()));
+                                    builder.append(formal);
+                                    builder.append(" | ");
+                                    builder.append(unlocal);
+                                    builder.append('\n');
+                                }
+                            });
                         });
                         printMessageNaked(builder.toString());
                         return true;

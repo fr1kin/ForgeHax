@@ -6,6 +6,7 @@ import com.matt.forgehax.asm.helper.AsmMethod;
 import org.objectweb.asm.Type;
 
 import java.util.List;
+import java.util.Set;
 
 public class Names {
     public static final Names INSTANCE = new Names();
@@ -247,6 +248,11 @@ public class Names {
             .setName("onAddCollisionBoxToList")
             .setArgumentTypes(BLOCK, IBLOCKSTATE, WORLD, BLOCKPOS, AXISALIGNEDBB, List.class, ENTITY, boolean.class)
             .setReturnType(boolean.class);
+
+    public final AsmMethod ON_BLOCK_RENDER_IN_LOOP = FORGEHAX_HOOKS.childMethod()
+            .setName("onBlockRenderInLoop")
+            .setArgumentTypes(RENDER_CHUNK, BLOCK, IBLOCKSTATE, BLOCKPOS)
+            .setReturnType(void.class);
 
     public final AsmMethod ON_BLOCK_MODEL_RENDER = FORGEHAX_HOOKS.childMethod()
             .setName("onBlockModelRender")

@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.helper.AsmStackLogger;
 import journeymap.client.cartography.render.BaseRenderer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.RenderChunk;
@@ -68,6 +69,20 @@ public class FastReflection implements ASMCommon {
             } catch (Exception e) {
                 AsmStackLogger.printStackTrace(e);
             }
+        }
+    }
+
+    public static class ClassVertexBuffer {
+        private static Field FIELD_isDrawing;
+
+        public static boolean isDrawing(VertexBuffer buffer) {
+            try {
+                if(FIELD_isDrawing == null) FIELD_isDrawing = ReflectionHelper.findField(VertexBuffer.class, "isDrawing", "field_179010_r");
+                return FIELD_isDrawing.getBoolean(buffer);
+            } catch (Exception e) {
+                AsmStackLogger.printStackTrace(e);
+            }
+            return false;
         }
     }
 }

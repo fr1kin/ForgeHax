@@ -71,6 +71,20 @@ public class RenderChunkPatch extends ClassTransformer {
 
             Objects.requireNonNull(top, "Find pattern failed for top");
 
+            // somewhere within the block loop
+            //Block block = iblockstate.getBlock();
+            // <--- inject somewhere here
+            //if (iblockstate.isOpaqueCube())
+            AbstractInsnNode loop = AsmHelper.findPattern(top, new int[]{
+                    ASTORE,
+                    0x00, 0x00,
+                    ALOAD, INVOKEINTERFACE, ASTORE,
+                    0x00, 0x00,
+                    ALOAD, INVOKEINTERFACE, IFEQ
+            }, "x??xxx??xxx");
+
+            Objects.requireNonNull(loop, "Find pattern failed for loop");
+
             // Find the if (!this.region.extendedLevelsInChunkCache()) jump opcode
             AbstractInsnNode last = top;
             while (last != null && !(last instanceof JumpInsnNode)) {
@@ -132,6 +146,10 @@ public class RenderChunkPatch extends ClassTransformer {
             // don't use this anymore
             extendedLevelCheckJumpNode = null;
 
+            // ###############
+            // PRE render hook
+            // ###############
+
             InsnList pre = new InsnList();
             pre.add(new VarInsnNode(ALOAD, 0));
             pre.add(new MethodInsnNode(INVOKESTATIC,
@@ -142,6 +160,53 @@ public class RenderChunkPatch extends ClassTransformer {
             ));
 
             main.instructions.insertBefore(top, pre);
+
+            // ###############
+            // block render hook
+            // ###############
+
+            // required 3 args: blockpos, blockstate, block
+
+            // 1st and easiest, store the index of the block state object
+            int BLOCK_STATE_INDEX = ((VarInsnNode)loop).var;
+
+            // now find blockpos
+
+            // since the pattern started after storing IBlockState we go back and search
+            // IBlockState iblockstate = this.region.getBlockState(blockpos$mutableblockpos);
+            // for the index of blockpos$mutableblockpos, which SHOULD be the last ALOAD
+            // i have to do this because optifine changes up the code at that line
+            AbstractInsnNode prev = loop;
+            while(prev.getOpcode() != ALOAD) prev = prev.getPrevious();
+
+            int BLOCK_POS_INDEX = ((VarInsnNode)prev).var;
+
+            // now find block
+            // should just be the next ASTORE starting at the loop node
+            AbstractInsnNode next2 = loop.getNext();
+            while (next2.getOpcode() != ASTORE) next2 = next2.getNext();
+
+            int BLOCK_INDEX = ((VarInsnNode)next2).var;
+
+            // keep next2 as we will inject the code after it
+
+            InsnList list = new InsnList();
+            list.add(new VarInsnNode(ALOAD, 0));
+            list.add(new VarInsnNode(ALOAD, BLOCK_INDEX));
+            list.add(new VarInsnNode(ALOAD, BLOCK_STATE_INDEX));
+            list.add(new VarInsnNode(ALOAD, BLOCK_POS_INDEX));
+            list.add(new MethodInsnNode(INVOKESTATIC,
+                    NAMES.ON_BLOCK_RENDER_IN_LOOP.getParentClass().getRuntimeName(),
+                    NAMES.ON_BLOCK_RENDER_IN_LOOP.getRuntimeName(),
+                    NAMES.ON_BLOCK_RENDER_IN_LOOP.getDescriptor(),
+                    false
+            ));
+
+            main.instructions.insert(next2, list);
+
+            // ###############
+            // POST render hook
+            // ###############
 
             LabelNode jumpOver = new LabelNode();
 

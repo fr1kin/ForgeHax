@@ -1,4 +1,4 @@
-package com.matt.forgehax.util.blocks;
+package com.matt.forgehax.util.blocks.exceptions;
 
 /**
  * Created on 5/15/2017 by fr1kin

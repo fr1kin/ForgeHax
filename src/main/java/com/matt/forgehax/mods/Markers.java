@@ -8,52 +8,50 @@ import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
-import com.matt.forgehax.util.Utils;
-import com.matt.forgehax.util.blocks.BlockDoesNotExistException;
-import com.matt.forgehax.util.blocks.BlockEntry;
-import com.matt.forgehax.util.blocks.BlockOptions;
+import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.events.RenderEvent;
+import com.matt.forgehax.util.blocks.*;
+import com.matt.forgehax.util.blocks.options.BlockBoundOption;
+import com.matt.forgehax.util.command.jopt.OptionHelper;
 import com.matt.forgehax.util.command.CommandBuilder;
-import com.matt.forgehax.util.command.CommandRegistry;
+import com.matt.forgehax.util.command.jopt.SafeConverter;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 /**
  * Created on 5/5/2017 by fr1kin
  */
 @RegisterMod
-public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
-    public static final BlockOptions blockOptions = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "blocklist.json"));
+public class Markers extends ToggleMod implements BlockModelRenderListener {
+    public static final BlockOptions blockOptions = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "markers.json"));
 
     private static TesselatorCache cache = new TesselatorCache(100, 0x20000);
 
     public static void setCache(TesselatorCache cache) {
-        BlockEspMod.cache = cache;
+        Markers.cache = cache;
     }
 
     private final ThreadLocal<GeometryTessellator> localTessellator = new ThreadLocal<>();
@@ -61,8 +59,11 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
     private Renderers renderers = new Renderers();
     private Vec3d renderingOffset = new Vec3d(0, 0, 0);
 
-    public BlockEspMod() {
-        super("BlockESP", false, "Renders a box around a block");
+    public Property clearBuffer;
+    public Property antialias;
+
+    public Markers() {
+        super("Markers", false, "Renders a box around a block");
     }
 
     private void setRenderers(Renderers renderers) {
@@ -74,6 +75,22 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
         if(MC.isCallingFromMinecraftThread()) {
             if (Wrapper.getWorld() != null) MC.renderGlobal.loadRenderers();
         } else MC.addScheduledTask(this::reloadRenderers);
+    }
+
+    @Override
+    public void loadConfig(Configuration configuration) {
+        addSettings(
+                clearBuffer = configuration.get(getModName(),
+                        "clearbuffer",
+                        true,
+                        "Will clear the depth buffer instead of disabling depth"
+                ),
+                antialias = configuration.get(getModName(),
+                        "antialias",
+                        false,
+                        "Will enable anti aliasing on lines making them look smoother, but will hurt performance"
+                )
+        );
     }
 
     @Override
@@ -93,35 +110,68 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                     parser.acceptsAll(Arrays.asList("meta", "m"), "blocks metadata id")
                             .withRequiredArg();
                     parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
+                    parser.acceptsAll(Arrays.asList("regex", "e"), "searches for blocks by using the argument as a regex expression");
+                    parser.accepts("bounds", "Will only draw blocks from within the min-max bounds given")
+                            .withRequiredArg();
                 })
                 .setProcessor(opts -> {
                     List<?> args = opts.nonOptionArguments();
                     if(args.size() > 0) {
-                        boolean byId = opts.has("i");
+                        boolean byId = opts.has("id");
                         String name = String.valueOf(args.get(0));
-                        int r = opts.has("r") ? Integer.valueOf(String.valueOf(opts.valueOf("r"))) : 255;
-                        int g = opts.has("g") ? Integer.valueOf(String.valueOf(opts.valueOf("g"))) : 255;
-                        int b = opts.has("b") ? Integer.valueOf(String.valueOf(opts.valueOf("b"))) : 255;
-                        int a = opts.has("a") ? Integer.valueOf(String.valueOf(opts.valueOf("a"))) : 255;
-                        int meta = opts.has("m") ? Integer.valueOf(String.valueOf(opts.valueOf("m"))) : -1;
+                        OptionHelper helper = new OptionHelper(opts);
+                        final boolean wasGivenRGBA = opts.has("r") || opts.has("g") || opts.has("b") || opts.has("a");
+                        int r = MathHelper.clamp(helper.getIntOrDefault("r", 255), 0, 255);
+                        int g = MathHelper.clamp(helper.getIntOrDefault("g", 255), 0, 255);
+                        int b = MathHelper.clamp(helper.getIntOrDefault("b", 255), 0, 255);
+                        int a = MathHelper.clamp(helper.getIntOrDefault("a", 255), 0, 255);
+                        int meta = helper.getIntOrDefault("m", 0);
                         try {
-                            BlockEntry entry = byId ? new BlockEntry(Integer.valueOf(name)) : new BlockEntry(name);
-                            entry.setColorBuffer(r, g, b, a);
-                            entry.setMetadataId(meta);
-                            if(blockOptions.addBlockEntry(entry)) {
-                                Wrapper.printMessage(String.format("Added block '%s' to the block list", name));
-                                return true;
-                            } else {
-                                Wrapper.printMessage(String.format("Block '%s' already in the block list, use set command instead", name));
+                            final Collection<AbstractBlockEntry> process = Sets.newHashSet();
+
+                            if(opts.has("regex"))
+                                process.addAll(BlockOptionHelper.getAllBlocksMatchingByLocalized(name));
+                            else process.add(byId ? BlockEntry.createById(SafeConverter.toInteger(name, 0), meta) :
+                                        BlockEntry.createByResource(name, meta));
+
+                            if(opts.has("bounds")) opts.valuesOf("bounds").forEach(v -> {
+                                String value = String.valueOf(v);
+                                String[] mm = value.split("-");
+                                if(mm.length > 1) {
+                                    int min = SafeConverter.toInteger(mm[0]);
+                                    int max = SafeConverter.toInteger(mm[1]);
+                                    process.forEach(entry -> entry.getBounds().addBound(min, max));
+                                } else {
+                                    throw new IllegalArgumentException(String.format("Invalid argument \"%s\" given for bounds option. Should be formatted as min:max", value));
+                                }
+                            });
+
+                            boolean invoke = false;
+                            for(AbstractBlockEntry entry : process) {
+                                entry.getColor().set(r, g, b, a);
+                                AbstractBlockEntry existing = blockOptions.get(entry.getBlock(), entry.getMetadata());
+                                if (existing != null) {
+                                    // add new bounds
+                                    entry.getBounds().getAll().forEach(bound -> existing.getBounds().addBound(bound.getMin(), bound.getMax()));
+                                    if(wasGivenRGBA) existing.getColor().set(entry.getColor().getAsBuffer());
+                                    invoke = true;
+                                } else if(blockOptions.add(entry)) {
+                                    Wrapper.printMessage(String.format("Added block \"%s\"", entry.getPrettyName()));
+                                    // execute the callbacks
+                                    invoke = true;
+                                } else {
+                                    Wrapper.printMessage(String.format("Could not add block \"%s\"", entry.getPrettyName()));
+                                }
                             }
-                        } catch (BlockDoesNotExistException e) {
-                            Wrapper.printMessage(String.format("'%s' is not a valid block name/id", name));
+                            return invoke;
+                        } catch (Exception e) {
+                            Wrapper.printMessage(e.getMessage());
                         }
                     } else Wrapper.printMessage("Missing block name/id argument");
                     return false;
                 })
                 .addCallback(cmd -> {
-                    blockOptions.write();
+                    blockOptions.serialize();
                     reloadRenderers();
                 })
                 .build()
@@ -133,46 +183,48 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                     parser.acceptsAll(Arrays.asList("meta", "m"), "blocks metadata id")
                             .withRequiredArg();
                     parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
+                    parser.acceptsAll(Arrays.asList("regex", "e"), "searches for blocks by using the argument as a regex expression");
                 })
                 .setProcessor(opts -> {
                     List<?> args = opts.nonOptionArguments();
                     if(args.size() > 0) {
                         boolean byId = opts.has("i");
                         String name = String.valueOf(args.get(0));
-                        int meta = opts.has("m") ? Integer.valueOf(String.valueOf(opts.valueOf("m"))) : -1;
+                        OptionHelper helper = new OptionHelper(opts);
+                        int meta = helper.getIntOrDefault("m", 0);
                         try {
-                            BlockEntry entry = byId ? new BlockEntry(Integer.valueOf(name)) : new BlockEntry(name);
-                            entry.setMetadataId(meta);
-                            if(blockOptions.removeBlockEntry(entry)) {
-                                Wrapper.printMessage(String.format("Removed block '%s' from the block list", name));
-                                return true;
-                            } else {
-                                Wrapper.printMessage(String.format("Could not find block '%s' in the block list", name));
+                            Collection<AbstractBlockEntry> process = Sets.newHashSet();
+                            if(opts.has("regex")) process.addAll(BlockOptionHelper.getAllBlocksMatchingByLocalized(name));
+                            else process.add(byId ? BlockEntry.createById(SafeConverter.toInteger(name, 0), meta) :
+                                        BlockEntry.createByResource(name, meta));
+
+                            boolean invoke = false;
+                            for(AbstractBlockEntry entry : process) {
+                                AbstractBlockEntry get = blockOptions.get(entry.getBlock(), entry.getMetadata());
+                                if (get != null && blockOptions.remove(get)) {
+                                    Wrapper.printMessage(String.format("Removed block \"%s\" from the block list", entry.getPrettyName()));
+                                    invoke = true;
+                                } else if(process.size() <= 1){ // don't print this message for all matching blocks
+                                    Wrapper.printMessage(String.format("Could not find block \"%s\"", entry.getPrettyName()));
+                                }
                             }
-                        } catch (BlockDoesNotExistException e) {
-                            Wrapper.printMessage(String.format("'%s' is not a valid block name/id", name));
+                            return invoke;
+                        } catch (Exception e) {
+                            Wrapper.printMessage(e.getMessage());
                         }
                     }
                     return false;
                 })
                 .addCallback(cmd -> {
-                    blockOptions.write();
+                    blockOptions.serialize();
                     reloadRenderers();
                 })
                 .build()
         );
         addCommand(new CommandBuilder()
-                .setName("set")
-                .setDescription("Sets a value for a currently existing block entry")
+                .setName("info")
+                .setDescription("Will show all the render info for the block (if it exists)")
                 .setOptionBuilder(parser -> {
-                    parser.acceptsAll(Arrays.asList("red", "r"), "red")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("green", "g"), "green")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("blue", "b"), "blue")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("alpha", "a"), "alpha")
-                            .withRequiredArg();
                     parser.acceptsAll(Arrays.asList("meta", "m"), "blocks metadata id")
                             .withRequiredArg();
                     parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
@@ -182,37 +234,23 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                     if(args.size() > 0) {
                         boolean byId = opts.has("i");
                         String name = String.valueOf(args.get(0));
-                        int r = opts.has("r") ? Integer.valueOf(String.valueOf(opts.valueOf("r"))) : -1;
-                        int g = opts.has("g") ? Integer.valueOf(String.valueOf(opts.valueOf("g"))) : -1;
-                        int b = opts.has("b") ? Integer.valueOf(String.valueOf(opts.valueOf("b"))) : -1;
-                        int a = opts.has("a") ? Integer.valueOf(String.valueOf(opts.valueOf("a"))) : -1;
-                        int meta = opts.has("m") ? Integer.valueOf(String.valueOf(opts.valueOf("m"))) : -1;
+                        OptionHelper helper = new OptionHelper(opts);
+                        int meta = helper.getIntOrDefault("m", 0);
                         try {
-                            BlockEntry entry = byId ? new BlockEntry(Integer.valueOf(name)) : new BlockEntry(name);
-                            entry.setMetadataId(meta);
-                            BlockEntry matching = blockOptions.getBlockEntry(entry);
-                            if(matching != null) {
-                                int[] oldColor = Utils.toRGBAArray(matching.getColorBuffer());
-                                matching.setColorBuffer(
-                                        r > -1 ? r : oldColor[0],
-                                        g > -1 ? g : oldColor[1],
-                                        b > -1 ? b : oldColor[2],
-                                        a > -1 ? a : oldColor[3]
-                                );
-                                Wrapper.printMessage(String.format("Set new flags for block '%s'", name));
-                                return true;
+                            AbstractBlockEntry match = byId ? BlockEntry.createById(SafeConverter.toInteger(name, 0), meta) :
+                                    BlockEntry.createByResource(name, meta);
+
+                            AbstractBlockEntry find = blockOptions.get(match.getBlock(), match.getMetadata());
+                            if(find != null) {
+                                Wrapper.printMessage(find.toString());
                             } else {
-                                Wrapper.printMessage(String.format("Could not find block '%s' in the block list", name));
+                                Wrapper.printMessage(String.format("Could not find block \"%s\"", match.getPrettyName()));
                             }
-                        } catch (BlockDoesNotExistException e) {
-                            Wrapper.printMessage(String.format("'%s' is not a valid block name/id", name));
+                        } catch (Exception e) {
+                            Wrapper.printMessage(e.getMessage());
                         }
-                    }
+                    } else Wrapper.printMessage("Missing block name/id argument");
                     return false;
-                })
-                .addCallback(cmd -> {
-                    blockOptions.write();
-                    reloadRenderers();
                 })
                 .build()
         );
@@ -222,7 +260,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
                 .setProcessor(opts -> {
                     final StringBuilder builder = new StringBuilder("Found: ");
                     blockOptions.forEach(entry -> {
-                        builder.append(entry.getName());
+                        builder.append(entry.getPrettyName());
                         builder.append(", ");
                     });
                     String finished = builder.toString();
@@ -235,8 +273,13 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Override
+    public void onUnload() {
+        blockOptions.serialize();
+    }
+
+    @Override
     public void onEnabled() {
-        blockOptions.read();
+        blockOptions.deserialize();
         Listeners.BLOCK_MODEL_RENDER_LISTENER.register(this);
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable();
         reloadRenderers();
@@ -288,8 +331,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
 
     @SubscribeEvent
     public void onWorldRendererDeallocated(WorldRendererDeallocatedEvent event) {
-        if(renderers == null) return;
-        try {
+        if(renderers != null) try {
             renderers.computeIfPresent(event.getRenderChunk(), (chk, info) -> info.compute(info::freeTessellator));
         } catch (Exception e) {
             handleException(event.getRenderChunk(), e);
@@ -298,8 +340,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
 
     @SubscribeEvent
     public void onPreBuildChunk(BuildChunkEvent.Pre event) {
-        if(renderers == null) return;
-        try {
+        if(renderers != null) try {
             renderers.computeIfPresent(event.getRenderChunk(), (chk, info) -> info.compute(() -> {
                 GeometryTessellator tess = info.takeTessellator();
                 if (tess != null) {
@@ -320,8 +361,8 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
 
     @SubscribeEvent
     public void onPostBuildChunk(BuildChunkEvent.Post event) {
-        try {
-            if(renderers != null) renderers.computeIfPresent(event.getRenderChunk(), (chk, info) -> info.compute(() -> {
+        if(renderers != null) try {
+            renderers.computeIfPresent(event.getRenderChunk(), (chk, info) -> info.compute(() -> {
                 GeometryTessellator tess = info.getTessellator();
                 if (tess != null && info.isBuilding()) {
                     tess.getBuffer().finishDrawing();
@@ -337,36 +378,32 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Override
-    public void onBlockModelRender(IBlockAccess access, IBakedModel model, IBlockState state, BlockPos pos, VertexBuffer buffer) {
-        if(renderers == null) return;
-        GeometryTessellator tess = null;
-        try {
-            BlockEntry blockEntry = blockOptions.getBlockEntry(state);
-            if (blockEntry != null) {
-                // get the tessellator created in onPreBuildChunk specific to the current thread
-                tess = this.localTessellator.get();
-                if (tess != null) {
-                    AxisAlignedBB bb = state.getSelectedBoundingBox(Wrapper.getWorld(), pos);
-                    GeometryTessellator.drawLines(
-                            tess.getBuffer(),
-                            bb.minX, bb.minY, bb.minZ,
-                            bb.maxX, bb.maxY, bb.maxZ,
-                            GeometryMasks.Line.ALL,
-                            blockEntry.getColorBuffer()
-                    );
+    public void onBlockRenderInLoop(final RenderChunk renderChunk, final Block block, final IBlockState state, final BlockPos pos) {
+        if(renderers != null) try {
+            renderers.computeIfPresent(renderChunk, (chk, info) -> info.compute(() -> {
+                GeometryTessellator tess = info.getTessellator();
+                if (tess != null && FastReflection.ClassVertexBuffer.isDrawing(tess.getBuffer())) {
+                    AbstractBlockEntry blockEntry = blockOptions.get(block, block.getMetaFromState(state));
+                    if(blockEntry != null && blockEntry.getBounds().isWithinBoundaries(pos.getY())) {
+                        AxisAlignedBB bb = state.getSelectedBoundingBox(Wrapper.getWorld(), pos);
+                        GeometryTessellator.drawLines(
+                                tess.getBuffer(),
+                                bb.minX, bb.minY, bb.minZ,
+                                bb.maxX, bb.maxY, bb.maxZ,
+                                GeometryMasks.Line.ALL,
+                                blockEntry.getColor().getAsBuffer()
+                        );
+                    }
                 }
-            }
+            }));
         } catch (Exception e) {
-            if(tess != null) {
-                localTessellator.remove(); // doesn't seem to cause any issues
-            } else handleException(null, e);
+            handleException(renderChunk, e);
         }
     }
 
     @SubscribeEvent
     public void onChunkUploaded(ChunkUploadedEvent event) {
-        if(renderers == null) return;
-        try {
+        if(renderers != null) try {
             renderers.computeIfPresent(event.getRenderChunk(), (chk, info) -> {
                 if (!info.isUploaded()) {
                     info.uploadVbo();
@@ -380,8 +417,7 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
 
     @SubscribeEvent
     public void onChunkDeleted(DeleteGlResourcesEvent event) {
-        if(renderers == null) return;
-        try {
+        if(renderers != null) try {
             renderers.unregister(event.getRenderChunk());
         } catch (Exception e) {
             handleException(event.getRenderChunk(), e);
@@ -396,25 +432,31 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
 
     @SubscribeEvent
     public void onRenderChunkAdded(AddRenderChunkEvent event) {
-        if(renderers == null) return;
-        try {
+        if(renderers != null) try {
             renderers.computeIfPresent(event.getRenderChunk(), (chk, info) -> info.setRendering(true));
         } catch (Exception e) {
             handleException(event.getRenderChunk(), e);
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRenderWorld(RenderWorldLastEvent event) {
-        if(renderers == null) return;
-        try {
+        if(renderers != null) try {
             GlStateManager.pushMatrix();
             GlStateManager.disableTexture2D();
             GlStateManager.enableBlend();
             GlStateManager.disableAlpha();
             GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
             GlStateManager.shadeModel(GL11.GL_SMOOTH);
-            GlStateManager.disableDepth();
+            if(!clearBuffer.getBoolean())
+                GlStateManager.disableDepth();
+            else {
+                GlStateManager.clearDepth(1.f);
+                GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+            }
+
+            if(antialias.getBoolean())
+                GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
             GlStateManager.glEnableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.glEnableClientState(GL11.GL_COLOR_ARRAY);
@@ -458,6 +500,8 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
             GlStateManager.glDisableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.glDisableClientState(GL11.GL_COLOR_ARRAY);
 
+            GL11.glDisable(GL11.GL_LINE_SMOOTH);
+
             OpenGlHelper.glBindBuffer(OpenGlHelper.GL_ARRAY_BUFFER, 0);
 
             GlStateManager.shadeModel(GL11.GL_FLAT);
@@ -467,6 +511,14 @@ public class BlockEspMod extends ToggleMod implements BlockModelRenderListener {
             GlStateManager.enableDepth();
             GlStateManager.enableCull();
             GlStateManager.popMatrix();
+        } catch (Exception e) {
+            handleException(null, e);
+        }
+    }
+
+    //@SubscribeEvent
+    public void onRender(RenderEvent event) {
+        try {
         } catch (Exception e) {
             handleException(null, e);
         }

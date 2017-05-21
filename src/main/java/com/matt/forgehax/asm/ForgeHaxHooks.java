@@ -23,6 +23,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.Packet;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -208,11 +209,13 @@ public class ForgeHaxHooks implements ASMCommon {
         return MinecraftForge.EVENT_BUS.post(new AddCollisionBoxToListEvent(block, state, worldIn, pos, entityBox, collidingBoxes, entityIn, bool));
     }
 
-    public static void onBlockModelRender(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, VertexBuffer buffer, boolean checkSides, long rand) {
+    public static void onBlockRenderInLoop(RenderChunk renderChunk, Block block, IBlockState state, BlockPos pos) {
         // faster hook
         for(BlockModelRenderListener listener : Listeners.BLOCK_MODEL_RENDER_LISTENER.getAll())
-            listener.onBlockModelRender(worldIn, modelIn, stateIn, posIn, buffer);
-        //MinecraftForge.EVENT_BUS.post(new BlockModelRenderEvent(worldIn, modelIn, stateIn, posIn, buffer, checkSides, rand));
+            listener.onBlockRenderInLoop(renderChunk, block, state, pos);
+    }
+
+    public static void onBlockModelRender(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, VertexBuffer buffer, boolean checkSides, long rand) {
     }
 
     public static void onPreBuildChunk(RenderChunk renderChunk) {
