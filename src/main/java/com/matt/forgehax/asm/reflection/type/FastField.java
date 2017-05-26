@@ -28,6 +28,14 @@ public class FastField<V> extends FastType<Field> {
         return get(instance, null);
     }
 
+    public V getStatic(V defaultValue) {
+        return get(null, defaultValue);
+    }
+
+    public V getStatic() {
+        return getStatic(null);
+    }
+
     public <E> boolean set(E instance, V to) {
         try {
             if(attemptLookup()) {
@@ -39,6 +47,10 @@ public class FastField<V> extends FastType<Field> {
                 AsmStackLogger.printStackTrace(e);
         }
         return false; // failed to set
+    }
+
+    public boolean setStatic(V to) {
+        return set(null, to);
     }
 
     @Override

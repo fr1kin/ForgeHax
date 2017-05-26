@@ -33,6 +33,10 @@ public class FastMethod<V> extends FastType<Method> {
         return invoke(instance, null, args);
     }
 
+    public V invokeStatic(Object... args) {
+        return invoke(null, null, args);
+    }
+
     @Override
     protected Method lookup() throws Exception {
         Objects.requireNonNull(parameters);
