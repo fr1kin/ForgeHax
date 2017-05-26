@@ -2,7 +2,9 @@ package com.matt.forgehax.asm.reflection;
 
 import com.matt.forgehax.asm.helper.AsmStackLogger;
 import com.matt.forgehax.asm.reflection.type.FastField;
+import com.matt.forgehax.asm.reflection.type.FastTypeBuilder;
 import journeymap.client.cartography.render.BaseRenderer;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.lang.reflect.Field;
@@ -12,28 +14,29 @@ import java.lang.reflect.Field;
  */
 public interface FastReflectionSpecial {
     interface Fields {
-        FastField<Float> BaseRenderer_tweakBrightenDaylightDiff = new FastField<Float>(BaseRenderer.class)
-                .mcpName("tweakBrightenDaylightDiff")
-                ;
-
-        FastField<Float> BaseRenderer_tweakMoonlightLevel = new FastField<Float>(BaseRenderer.class)
-                .mcpName("tweakMoonlightLevel")
-                ;
-
-        FastField<Float> BaseRenderer_tweakBrightenLightsourceBlock = new FastField<Float>(BaseRenderer.class)
-                .mcpName("tweakBrightenLightsourceBlock")
-                ;
-
-        FastField<Integer> BaseRenderer_tweakDarkenWaterColorMultiplier = new FastField<Integer>(BaseRenderer.class)
-                .mcpName("tweakDarkenWaterColorMultiplier")
-                ;
-
-        FastField<Float> BaseRenderer_tweakWaterColorBlend = new FastField<Float>(BaseRenderer.class)
-                .mcpName("tweakWaterColorBlend")
-                ;
-
-        FastField<Float> BaseRenderer_tweakMinimumDarkenNightWater = new FastField<Float>(BaseRenderer.class)
-                .mcpName("tweakMinimumDarkenNightWater")
-                ;
+        FastField<Float> BaseRenderer_tweakBrightenDaylightDiff = FastTypeBuilder.create()
+                .setInsideClass(BaseRenderer.class)
+                .setNames("tweakBrightenDaylightDiff")
+                .asField();
+        FastField<Float> BaseRenderer_tweakMoonlightLevel = FastTypeBuilder.create()
+                .setInsideClass(BaseRenderer.class)
+                .setNames("tweakMoonlightLevel")
+                .asField();
+        FastField<Float> BaseRenderer_tweakBrightenLightsourceBlock = FastTypeBuilder.create()
+                .setInsideClass(BaseRenderer.class)
+                .setNames("tweakBrightenLightsourceBlock")
+                .asField();
+        FastField<Integer> BaseRenderer_tweakDarkenWaterColorMultiplier = FastTypeBuilder.create()
+                .setInsideClass(BaseRenderer.class)
+                .setNames("tweakDarkenWaterColorMultiplier")
+                .asField();
+        FastField<Float> BaseRenderer_tweakWaterColorBlend = FastTypeBuilder.create()
+                .setInsideClass(BaseRenderer.class)
+                .setNames("tweakWaterColorBlend")
+                .asField();
+        FastField<Float> BaseRenderer_tweakMinimumDarkenNightWater = FastTypeBuilder.create()
+                .setInsideClass(BaseRenderer.class)
+                .setNames("tweakMinimumDarkenNightWater")
+                .asField();
     }
 }

@@ -22,6 +22,6 @@ public class HorseJump extends ToggleMod {
 
     @SubscribeEvent
 	public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        FastReflection.ClassEntityPlayerSP.setHorseJumpPower(Wrapper.getLocalPlayer(), 1.f);
+        FastReflection.Fields.EntityPlayerSP_horseJumpPower.set(Wrapper.getLocalPlayer(), 1.F);
     }
 }

@@ -21,16 +21,18 @@ public abstract class FastType<T> {
         return ns.toArray(new String[0]);
     }
 
-    protected Class<?> insideClass;
+    protected final Class<?> insideClass;
+    protected final String[] names;
 
     protected T type = null;
 
     protected boolean lookupFailed = false;
     protected AtomicBoolean printOnce = new AtomicBoolean(false);
 
-    public FastType(Class<?> insideClass) {
+    public FastType(Class<?> insideClass, String[] names) {
         Objects.requireNonNull(insideClass);
         this.insideClass = insideClass;
+        this.names = removeInvalids(names);
     }
 
     public boolean isError() {

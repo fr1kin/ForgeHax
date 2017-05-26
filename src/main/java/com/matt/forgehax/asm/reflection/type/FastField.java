@@ -10,26 +10,8 @@ import java.lang.reflect.Field;
  * Created on 5/25/2017 by fr1kin
  */
 public class FastField<V> extends FastType<Field> {
-    // {mcp, srg, obf}
-    private String[] names = new String[] {Strings.EMPTY, Strings.EMPTY, Strings.EMPTY};
-
-    public FastField(Class<?> insideClass) {
-        super(insideClass);
-    }
-
-    public FastField<V> mcpName(String name) {
-        names[0] = name;
-        return this;
-    }
-
-    public FastField<V> srgName(String name) {
-        names[1] = name;
-        return this;
-    }
-
-    public FastField<V> obfName(String name) {
-        names[2] = name;
-        return this;
+    public FastField(Class<?> insideClass, String[] names) {
+        super(insideClass, names);
     }
 
     public <E> V get(E instance, V defaultValue) {
@@ -61,6 +43,6 @@ public class FastField<V> extends FastType<Field> {
 
     @Override
     protected Field lookup() throws Exception {
-        return ReflectionHelper.findField(insideClass, removeInvalids(names));
+        return ReflectionHelper.findField(insideClass, names);
     }
 }
