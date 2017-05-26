@@ -8,8 +8,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.common.config.Configuration;
-import com.matt.forgehax.asm.events.PacketEvent;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -86,7 +84,7 @@ public class IgnoreMod extends ToggleMod {
 
     @Override
     public void onLoad() {
-        CommandRegistry.registerGlobal(new CommandBuilder()
+        CommandRegistry.register(new CommandBuilder()
                 .setName("ignore")
                 .setDescription("Ignore a player")
                 .setProcessor(options -> {

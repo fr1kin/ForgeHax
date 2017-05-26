@@ -17,7 +17,7 @@ import static com.matt.forgehax.Wrapper.*;
  */
 public class GlobalCommands implements Globals {
     public static void initialize() {
-        CommandRegistry.registerGlobal(new CommandBuilder()
+        CommandRegistry.register(new CommandBuilder()
                 .setName("help")
                 .setDescription("Lists all the global commands")
                 .setOptionBuilder(parser -> {
@@ -31,7 +31,7 @@ public class GlobalCommands implements Globals {
                     if (options.has("mod")) {
                         options.valuesOf("mod").forEach(o -> {
                             String name = String.valueOf(o);
-                            BaseMod mod = CommandRegistry.getModByName(name);
+                            BaseMod mod = getModManager().getMod(name);
                             if (mod != null) {
                                 builder.append(mod.toString());
                                 builder.append('\n');
@@ -50,7 +50,7 @@ public class GlobalCommands implements Globals {
                             });
                         } else {
                             builder.append("Available commands:\n");
-                            CommandRegistry.getGlobalCommands().forEach((id, cmd) -> {
+                            CommandRegistry.getCommands().forEach((id, cmd) -> {
                                 builder.append(cmd.toString());
                                 builder.append('\n');
                             });
@@ -66,8 +66,7 @@ public class GlobalCommands implements Globals {
                 })
                 .build()
         );
-
-        CommandRegistry.registerGlobal(new CommandBuilder()
+        CommandRegistry.register(new CommandBuilder()
                 .setName("blocks")
                 .setDescription("Lists all blocks with matching name/id")
                 .setProcessor(options -> {

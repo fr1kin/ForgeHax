@@ -2,7 +2,6 @@ package com.matt.forgehax.mods;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.command.*;
 import com.matt.forgehax.util.mod.ModProperty;
@@ -20,7 +19,6 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static com.matt.forgehax.Wrapper.*;
 
@@ -37,16 +35,18 @@ public abstract class BaseMod implements Globals {
     // mod binds
     protected final List<KeyBinding> binds = Lists.newArrayList();
 
+    protected final Command modCommand;
+
     // if the mod is hidden
     private boolean isHiddenMod = false;
     // is the mod registered on the forge bus?
     private boolean registered = false;
 
     public BaseMod(String name, String desc) {
-        // register command
-        CommandRegistry.getOrCreateModRegistry(this);
         modName = name;
         modDescription = desc;
+        modCommand = this.onBuildingModCommand(CommandBuilder.create()).build();
+        if(modCommand != null) CommandRegistry.register(modCommand);
     }
 
     /**
@@ -80,6 +80,13 @@ public abstract class BaseMod implements Globals {
     }
 
     /**
+     * The main mod command
+     */
+    public Command getModCommand() {
+        return modCommand;
+    }
+
+    /**
      * Register event to forge bus
      */
     public final boolean register() {
@@ -109,19 +116,19 @@ public abstract class BaseMod implements Globals {
     }
 
     protected final void addCommand(Command command) {
-        CommandRegistry.register(this, command);
+        modCommand.addChildCommand(command);
     }
 
     protected final void removeCommand(Command command) {
-        CommandRegistry.unregister(this, command);
+        modCommand.removeChildCommand(command);
     }
 
     public final Command getCommand(String commandName) {
-        return CommandRegistry.getModCommand(this, commandName);
+        return modCommand.getChildCommand(commandName);
     }
 
     public final Collection<Command> getCommands() {
-        return Collections.unmodifiableCollection(CommandRegistry.getModRegistry(this).values());
+        return modCommand.getChildCommands();
     }
 
     /**
@@ -130,7 +137,7 @@ public abstract class BaseMod implements Globals {
     protected final void addSettings(Property... props) {
         for(final Property prop : props) {
             properties.add(new ModProperty(prop));
-            addCommand(new CommandBuilder()
+            addCommand(CommandBuilder.create()
                     .setProperty(prop)
                     .setProcessor(options -> {
                         List<?> args = options.nonOptionArguments();
@@ -263,6 +270,18 @@ public abstract class BaseMod implements Globals {
      * Register config settings
      */
     public void loadConfig(Configuration configuration) {}
+
+    /**
+     * Called when the main mod command is being built.
+     * To append to the command override this method and return super.onBuildingModCommand(builder)
+     * @param builder The command builder
+     * @return the command builder
+     */
+    protected CommandBuilder onBuildingModCommand(final CommandBuilder builder) {
+        return builder
+                .setName(getModName())
+                .setDescription(getModDescription());
+    }
 
     /**
      * Called when the mod is loaded

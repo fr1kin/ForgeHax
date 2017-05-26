@@ -62,6 +62,12 @@ public class Command implements Comparable<Command> {
         return child != null && childCommands.remove(child);
     }
 
+    public Command getChildCommand(String name) {
+        for(Command command : childCommands) if(command.isCommandNameEqualTo(name))
+            return command;
+        return null;
+    }
+
     public Collection<Command> getChildCommands() {
         return Collections.unmodifiableCollection(childCommands);
     }
@@ -74,38 +80,35 @@ public class Command implements Comparable<Command> {
         return consumer != null && callbacks.remove(consumer);
     }
 
-    protected boolean processChildCommands(String[] args) {
-        if(args.length > 0) {
-            String cmd = args[0];
-            for (Command command : childCommands) if (command.isMatchingNameCaseInsensitive(cmd)) {
-                String[] clip = Arrays.copyOfRange(args, 1, args.length);
-                command.run(clip);
+    protected boolean processChildCommands(String[] args) throws CommandExecuteException, NullPointerException {
+        if (args.length > 0) {
+            Command child = getChildCommand(args[0]);
+            if(child != null) {
+                child.run(CommandLine.forward(args));
                 return true;
             }
         }
-        return false; // no child commands processed
+        return false;
     }
 
     public void run(String[] args) throws CommandExecuteException, NullPointerException {
-        if(processor != null) {
-            Objects.requireNonNull(args, "args[] is null");
-            if(!processChildCommands(args)) { // attempt to match child commands first
-                OptionSet options = parser.parse(args);
-                if (autoHelpText && options.has("help"))
-                    Wrapper.printMessageNaked(getOptionHelpText());
-                else if (processor.apply(options))
-                    callbacks.forEach(cb -> cb.accept(this));
-            }
+        Objects.requireNonNull(args, "args[] is null");
+        if(!processChildCommands(args)) { // attempt to match child commands first
+            OptionSet options = parser.parse(args);
+            if (autoHelpText && options.has("help"))
+                Wrapper.printMessageNaked(getOptionHelpText());
+            else if (processor != null && processor.apply(options))
+                callbacks.forEach(cb -> cb.accept(this));
         }
     }
 
-    public boolean isMatchingNameCaseInsensitive(String nameIn) {
+    public boolean isCommandNameEqualTo(String nameIn) {
         return String.CASE_INSENSITIVE_ORDER.compare(getName(), nameIn) == 0;
     }
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof Command && isMatchingNameCaseInsensitive(((Command) o).getName());
+        return o instanceof Command && isCommandNameEqualTo(((Command) o).getName());
     }
 
     @Override

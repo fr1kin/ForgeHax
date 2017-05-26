@@ -12,7 +12,16 @@ import java.util.StringTokenizer;
  * Created on 5/15/2017 by fr1kin
  */
 public class CommandLine {
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     public static final String MOD_PROPERTY_SEPARATOR = ":";
+
+    /**
+     * Moves the argument array forward by one or returns an empty array if not possible
+     */
+    public static String[] forward(String[] args) {
+        return args.length > 0 ? Arrays.copyOfRange(args, 1, args.length) : EMPTY_STRING_ARRAY;
+    }
 
     public static String join(String[] args, String seperator, int startIndex, int endIndex) {
         return Strings.join(Arrays.copyOfRange(args, startIndex, endIndex), com.google.common.base.Strings.nullToEmpty(seperator));

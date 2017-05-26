@@ -11,7 +11,6 @@ import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.blocks.*;
-import com.matt.forgehax.util.blocks.options.BlockBoundOption;
 import com.matt.forgehax.util.command.jopt.OptionHelper;
 import com.matt.forgehax.util.command.CommandBuilder;
 import com.matt.forgehax.util.command.jopt.SafeConverter;
@@ -38,6 +37,7 @@ import org.lwjgl.opengl.GL11;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 
@@ -130,7 +130,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                             final Collection<AbstractBlockEntry> process = Sets.newHashSet();
 
                             if(opts.has("regex"))
-                                process.addAll(BlockOptionHelper.getAllBlocksMatchingByLocalized(name));
+                                process.addAll(BlockOptionHelper.getAllBlocksMatchingByUnlocalized(name));
                             else process.add(byId ? BlockEntry.createById(SafeConverter.toInteger(name, 0), meta) :
                                         BlockEntry.createByResource(name, meta));
 
@@ -140,7 +140,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                                 if(mm.length > 1) {
                                     int min = SafeConverter.toInteger(mm[0]);
                                     int max = SafeConverter.toInteger(mm[1]);
-                                    process.forEach(entry -> entry.getBounds().addBound(min, max));
+                                    process.forEach(entry -> entry.getBounds().add(min, max));
                                 } else {
                                     throw new IllegalArgumentException(String.format("Invalid argument \"%s\" given for bounds option. Should be formatted as min:max", value));
                                 }
@@ -152,7 +152,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                                 AbstractBlockEntry existing = blockOptions.get(entry.getBlock(), entry.getMetadata());
                                 if (existing != null) {
                                     // add new bounds
-                                    entry.getBounds().getAll().forEach(bound -> existing.getBounds().addBound(bound.getMin(), bound.getMax()));
+                                    entry.getBounds().getAll().forEach(bound -> existing.getBounds().add(bound.getMin(), bound.getMax()));
                                     if(wasGivenRGBA) existing.getColor().set(entry.getColor().getAsBuffer());
                                     invoke = true;
                                 } else if(blockOptions.add(entry)) {
@@ -184,6 +184,8 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                             .withRequiredArg();
                     parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
                     parser.acceptsAll(Arrays.asList("regex", "e"), "searches for blocks by using the argument as a regex expression");
+                    parser.accepts("bounds", "Will only draw blocks from within the min-max bounds given")
+                            .withRequiredArg();
                 })
                 .setProcessor(opts -> {
                     List<?> args = opts.nonOptionArguments();
@@ -192,23 +194,40 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                         String name = String.valueOf(args.get(0));
                         OptionHelper helper = new OptionHelper(opts);
                         int meta = helper.getIntOrDefault("m", 0);
+                        boolean removingOptions = opts.has("bounds");
                         try {
                             Collection<AbstractBlockEntry> process = Sets.newHashSet();
-                            if(opts.has("regex")) process.addAll(BlockOptionHelper.getAllBlocksMatchingByLocalized(name));
+                            if(opts.has("regex")) process.addAll(BlockOptionHelper.getAllBlocksMatchingByUnlocalized(name));
                             else process.add(byId ? BlockEntry.createById(SafeConverter.toInteger(name, 0), meta) :
                                         BlockEntry.createByResource(name, meta));
 
-                            boolean invoke = false;
-                            for(AbstractBlockEntry entry : process) {
-                                AbstractBlockEntry get = blockOptions.get(entry.getBlock(), entry.getMetadata());
-                                if (get != null && blockOptions.remove(get)) {
-                                    Wrapper.printMessage(String.format("Removed block \"%s\" from the block list", entry.getPrettyName()));
-                                    invoke = true;
-                                } else if(process.size() <= 1){ // don't print this message for all matching blocks
-                                    Wrapper.printMessage(String.format("Could not find block \"%s\"", entry.getPrettyName()));
+                            // not the proper use of atomics but it will get the job done
+                            AtomicBoolean shouldCall = new AtomicBoolean(false);
+                            for(AbstractBlockEntry e : process) {
+                                final AbstractBlockEntry realEntry = blockOptions.get(e.getBlock(), e.getMetadata());
+                                if(realEntry != null) {
+                                    if(removingOptions) {
+                                        // remove just the options listed
+                                        if(opts.has("bounds")) opts.valuesOf("bounds").forEach(v -> {
+                                            String value = String.valueOf(v);
+                                            String[] mm = value.split("-");
+                                            if(mm.length > 1) {
+                                                int min = SafeConverter.toInteger(mm[0]);
+                                                int max = SafeConverter.toInteger(mm[1]);
+                                                realEntry.getBounds().remove(min, max);
+                                            } else {
+                                                throw new IllegalArgumentException(String.format("Invalid argument \"%s\" given for bounds option. Should be formatted as min:max", value));
+                                            }
+                                        });
+                                    } else if (blockOptions.remove(realEntry)) {
+                                        Wrapper.printMessage(String.format("Removed block \"%s\" from the block list", e.getPrettyName()));
+                                        shouldCall.set(true);
+                                    } else if (process.size() <= 1) { // don't print this message for all matching blocks
+                                        Wrapper.printMessage(String.format("Could not find block \"%s\"", e.getPrettyName()));
+                                    }
                                 }
                             }
-                            return invoke;
+                            return shouldCall.get();
                         } catch (Exception e) {
                             Wrapper.printMessage(e.getMessage());
                         }
@@ -382,7 +401,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         if(renderers != null) try {
             renderers.computeIfPresent(renderChunk, (chk, info) -> info.compute(() -> {
                 GeometryTessellator tess = info.getTessellator();
-                if (tess != null && FastReflection.ClassVertexBuffer.isDrawing(tess.getBuffer())) {
+                if (tess != null && FastReflection.Fields.VertexBuffer_isDrawing.get(tess.getBuffer(), false)) {
                     AbstractBlockEntry blockEntry = blockOptions.get(block, block.getMetaFromState(state));
                     if(blockEntry != null && blockEntry.getBounds().isWithinBoundaries(pos.getY())) {
                         AxisAlignedBB bb = state.getSelectedBoundingBox(Wrapper.getWorld(), pos);

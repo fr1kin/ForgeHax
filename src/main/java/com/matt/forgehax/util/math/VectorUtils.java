@@ -1,6 +1,7 @@
 package com.matt.forgehax.util.math;
 
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
@@ -45,8 +46,8 @@ public class VectorUtils implements Globals {
 
         Vector3f pos = new Vector3f(vecX, vecY, vecZ);
 
-        viewMatrix.load(ActiveRenderInfo.MODELVIEW.asReadOnlyBuffer());
-        projectionMatrix.load(ActiveRenderInfo.PROJECTION.asReadOnlyBuffer());
+        viewMatrix.load(FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
+        projectionMatrix.load(FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().asReadOnlyBuffer());
 
         pos = Vec3TransformCoordinate(pos, viewMatrix);
         pos = Vec3TransformCoordinate(pos, projectionMatrix);
