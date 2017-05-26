@@ -33,7 +33,7 @@ public class FastField<V> extends FastType<Field> {
     }
 
     public V getStatic() {
-        return getStatic(null);
+        return get(null);
     }
 
     public <E> boolean set(E instance, V to) {
