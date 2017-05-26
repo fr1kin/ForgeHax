@@ -2,6 +2,7 @@ package com.matt.forgehax;
 
 import com.github.lunatrius.core.client.renderer.GeometryTessellator;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.events.listeners.WorldListener;
@@ -21,6 +22,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.opengl.GL11;
 
 import javax.net.ssl.*;
@@ -50,7 +52,7 @@ public class ForgeHaxEventHandler implements Globals {
         } else if(event.getEntityLiving() instanceof EntityPigZombie) {
             // update pigmens anger level
             if(((EntityPigZombie) event.getEntityLiving()).isAngry())
-                --((EntityPigZombie) event.getEntity()).angerLevel;
+                FastReflection.Fields.EntityPigZombie_angerLevel.set(event.getEntity(), FastReflection.Fields.EntityPigZombie_angerLevel.get(event.getEntity()) - 1);
         }
     }
 

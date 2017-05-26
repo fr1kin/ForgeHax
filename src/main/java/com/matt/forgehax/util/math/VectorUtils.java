@@ -37,7 +37,7 @@ public class VectorUtils implements Globals {
 
         Vec3d viewNormal = view.getLook(MC.getRenderPartialTicks()).normalize();
 
-        Vec3d camPos = ActiveRenderInfo.position;
+        Vec3d camPos = FastReflection.Fields.ActiveRenderInfo_position.getStatic();
         Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
 
         float vecX = (float) ((camPos.xCoord + eyePos.xCoord) - x);

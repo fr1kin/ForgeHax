@@ -3,6 +3,7 @@ package com.matt.forgehax.asm.reflection;
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.helper.AsmStackLogger;
 import com.matt.forgehax.asm.reflection.type.FastField;
+import com.matt.forgehax.asm.reflection.type.FastMethod;
 import com.matt.forgehax.asm.reflection.type.FastTypeBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -12,6 +13,7 @@ import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -92,7 +94,7 @@ public interface FastReflection extends ASMCommon {
                 .setInsideClass(EntityPlayer.class)
                 .setNames("sleeping", "field_71083_bS")
                 .asField();
-        FastField<Boolean> EntityPlayer_sleepTimer = FastTypeBuilder.create()
+        FastField<Integer> EntityPlayer_sleepTimer = FastTypeBuilder.create()
                 .setInsideClass(EntityPlayer.class)
                 .setNames("sleepTimer", "field_71076_b")
                 .asField();
@@ -180,5 +182,39 @@ public interface FastReflection extends ASMCommon {
                 .setInsideClass(VertexBuffer.class)
                 .setNames("isDrawing", "field_179010_r")
                 .asField();
+    }
+
+    interface Methods {
+        /**
+         * Entity
+         */
+        FastMethod<Boolean> Entity_getFlag = FastTypeBuilder.create()
+                .setInsideClass(Entity.class)
+                .setNames("getFlag", "func_70083_f")
+                .setParameters(int.class)
+                .asMethod();
+        FastMethod<Void> Entity_setFlag = FastTypeBuilder.create()
+                .setInsideClass(Entity.class)
+                .setNames("setFlag", "func_70052_a")
+                .setParameters(int.class, boolean.class)
+                .asMethod();
+
+        /**
+         * EntityLivingBase
+         */
+        FastMethod<Void> EntityLivingBase_resetPotionEffectMetadata = FastTypeBuilder.create()
+                .setInsideClass(EntityLivingBase.class)
+                .setNames("resetPotionEffectMetadata", "func_175133_bi")
+                .setParameters()
+                .asMethod();
+
+        /**
+         * Minecraft
+         */
+        FastMethod<Void> Minecraft_rightClickMouse = FastTypeBuilder.create()
+                .setInsideClass(Minecraft.class)
+                .setNames("rightClickMouse", "func_147121_ag")
+                .setParameters()
+                .asMethod();
     }
 }

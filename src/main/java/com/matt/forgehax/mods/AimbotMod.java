@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.*;
 import com.matt.forgehax.util.entity.EntityUtils;
@@ -333,12 +334,12 @@ public class AimbotMod extends ToggleMod {
         if(event.getPacket() instanceof CPacketPlayer) {
             // send fake angles if any rotation updates are sent to the server
             CPacketPlayer packet = (CPacketPlayer)event.getPacket();
-            if(packet.rotating &&
+            if(FastReflection.Fields.CPacketPlayer_rotating.get(packet) &&
                     LocalPlayerUtils.isFakeAnglesActive() &&
                     LocalPlayerUtils.getFakeViewAngles() != null) {
                 Angle viewAngles = LocalPlayerUtils.getFakeViewAngles();
-                packet.pitch = (float) viewAngles.getPitch();
-                packet.yaw = (float) viewAngles.getYaw();
+                FastReflection.Fields.CPacketPlayer_pitch.set(packet, (float)viewAngles.getPitch());
+                FastReflection.Fields.CPacketPlayer_yaw.set(packet, (float)viewAngles.getYaw());
             }
         } else if(event.getPacket() instanceof CPacketPlayerDigging) {
             // called when the bow release packet is sent by the client

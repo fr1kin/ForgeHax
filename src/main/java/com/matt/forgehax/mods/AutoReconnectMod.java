@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -60,10 +61,10 @@ public class AutoReconnectMod extends ToggleMod {
             updateLastConnectedServer();
             GuiDisconnected disconnected = (GuiDisconnected)event.getGui();
             event.setGui(new GuiDisconnectedOverride(
-                    disconnected.parentScreen,
+                    FastReflection.Fields.GuiDisconnected_parentScreen.get(disconnected),
                     "connect.failed",
-                    disconnected.message,
-                    disconnected.reason,
+                    FastReflection.Fields.GuiDisconnected_message.get(disconnected),
+                    FastReflection.Fields.GuiDisconnected_reason.get(disconnected),
                     delayTime.getDouble()
             ));
         }

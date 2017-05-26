@@ -19,8 +19,6 @@ public class AutoReply extends ToggleMod {
         super("AutoReply", false, "Automatically talk in chat if finds a strings");
     }
 
-
-
     @SubscribeEvent
     public void onClientChat(ClientChatReceivedEvent event) {
     	

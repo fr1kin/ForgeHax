@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -51,7 +52,7 @@ public class AutoFishMod extends ToggleMod {
 
     private void rightClick() {
         if(ticksCastDelay <= 0) { // to prevent the fishing rod from being spammed when in hand
-            MC.rightClickMouse();
+            FastReflection.Methods.Minecraft_rightClickMouse.invoke(MC);
             ticksCastDelay = castingDelay.getInt();
         }
     }

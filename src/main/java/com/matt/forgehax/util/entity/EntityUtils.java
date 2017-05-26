@@ -1,6 +1,7 @@
 package com.matt.forgehax.util.entity;
 
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.Utils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -33,7 +34,7 @@ public class EntityUtils implements Globals {
             if(((EntityPigZombie) entity).isArmsRaised() || ((EntityPigZombie) entity).isAngry()) {
                 if(!((EntityPigZombie) entity).isAngry()) {
                     // set pigmens anger to 400 if it hasn't been angered already
-                    ((EntityPigZombie) entity).angerLevel = 400;
+                    FastReflection.Fields.EntityPigZombie_angerLevel.set((EntityPigZombie)entity, 400);
                 }
                 return true;
             }

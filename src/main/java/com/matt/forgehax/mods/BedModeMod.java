@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.GuiSleepMP;
@@ -15,8 +16,8 @@ public class BedModeMod extends ToggleMod {
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        getLocalPlayer().sleeping = false;
-        getLocalPlayer().sleepTimer = 0;
+        FastReflection.Fields.EntityPlayer_sleeping.set(getLocalPlayer(), false);
+        FastReflection.Fields.EntityPlayer_sleepTimer.set(getLocalPlayer(), 0);
     }
 
     @SubscribeEvent

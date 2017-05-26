@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -20,7 +21,7 @@ public class NoFallMod extends ToggleMod {
         if(event.getPacket() instanceof CPacketPlayer && !(event.getPacket() instanceof CPacketPlayer.Rotation) &&
                 !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
             CPacketPlayer packetPlayer = (CPacketPlayer)event.getPacket();
-            if(packetPlayer.onGround && lastFallDistance >= 4) {
+            if(FastReflection.Fields.CPacketPlayer_onGround.get(packetPlayer) && lastFallDistance >= 4) {
                 CPacketPlayer packet = new CPacketPlayer.PositionRotation(
                         ((CPacketPlayer) event.getPacket()).getX(0),
                         1337 + ((CPacketPlayer) event.getPacket()).getY(0),

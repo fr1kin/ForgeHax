@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -46,10 +47,10 @@ public class AntiEffectsMod extends ToggleMod {
             living.removePotionEffect(MobEffects.INVISIBILITY);
             living.removePotionEffect(MobEffects.BLINDNESS);
             // removes particle effect
-            living.resetPotionEffectMetadata();
+            FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(living);
         } else if(noParticles.getBoolean()) {
             living.setInvisible(false);
-            living.resetPotionEffectMetadata();
+            FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(living);
         }
     }
 }

@@ -4,6 +4,7 @@ import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.WebMotionEvent;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
@@ -50,9 +51,10 @@ public class AntiKnockbackMod extends ToggleMod {
     public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketExplosion) {
             // for tnt knockback
-            ((SPacketExplosion) event.getPacket()).motionX *= multiplierX.getDouble();
-            ((SPacketExplosion) event.getPacket()).motionY *= multiplierY.getDouble();
-            ((SPacketExplosion) event.getPacket()).motionZ *= multiplierZ.getDouble();
+            SPacketExplosion packet = (SPacketExplosion)event.getPacket();
+            FastReflection.Fields.SPacketExplosion_motionX.set(packet, FastReflection.Fields.SPacketExplosion_motionX.get(packet) * (float)multiplierX.getDouble());
+            FastReflection.Fields.SPacketExplosion_motionY.set(packet, FastReflection.Fields.SPacketExplosion_motionY.get(packet) * (float)multiplierY.getDouble());
+            FastReflection.Fields.SPacketExplosion_motionZ.set(packet, FastReflection.Fields.SPacketExplosion_motionZ.get(packet) * (float)multiplierZ.getDouble());
         }
         if(event.getPacket() instanceof SPacketEntityVelocity) {
             // for player knockback
@@ -63,9 +65,10 @@ public class AntiKnockbackMod extends ToggleMod {
                 if(multiX == 0 && multiY == 0 && multiZ == 0) {
                     event.setCanceled(true);
                 } else {
-                    ((SPacketEntityVelocity) event.getPacket()).motionX *= multiX;
-                    ((SPacketEntityVelocity) event.getPacket()).motionY *= multiY;
-                    ((SPacketEntityVelocity) event.getPacket()).motionZ *= multiZ;
+                    SPacketEntityVelocity packet = (SPacketEntityVelocity)event.getPacket();
+                    FastReflection.Fields.SPacketEntityVelocity_motionX.set(packet, (int)(FastReflection.Fields.SPacketEntityVelocity_motionX.get(packet) * multiX));
+                    FastReflection.Fields.SPacketEntityVelocity_motionY.set(packet, (int)(FastReflection.Fields.SPacketEntityVelocity_motionY.get(packet) * multiY));
+                    FastReflection.Fields.SPacketEntityVelocity_motionZ.set(packet, (int)(FastReflection.Fields.SPacketEntityVelocity_motionZ.get(packet) * multiZ));
                 }
             }
         }

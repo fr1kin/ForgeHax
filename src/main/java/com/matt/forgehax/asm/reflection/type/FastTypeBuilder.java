@@ -30,7 +30,7 @@ public class FastTypeBuilder {
         return this;
     }
 
-    public FastTypeBuilder setParameters(Class<?>[] parameters) {
+    public FastTypeBuilder setParameters(Class<?>... parameters) {
         this.parameters = Arrays.copyOf(parameters, parameters.length);
         return this;
     }

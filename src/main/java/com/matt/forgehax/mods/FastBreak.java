@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.Minecraft;
@@ -14,6 +15,6 @@ public class FastBreak extends ToggleMod {
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         if(MC.playerController != null)
-            MC.playerController.blockHitDelay = 0;
+            FastReflection.Fields.PlayerControllerMP_blockHitDelay.set(MC.playerController, 0);
     }
 }

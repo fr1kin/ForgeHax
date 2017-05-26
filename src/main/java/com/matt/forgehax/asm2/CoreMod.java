@@ -1,6 +1,5 @@
 package com.matt.forgehax.asm2;
 
-import com.matt.forgehax.asm.ForgeHaxAccessTransformer;
 import com.matt.forgehax.asm2.util.FileDumper;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
@@ -39,8 +38,6 @@ public class CoreMod implements IFMLLoadingPlugin {
 
     @Override
     public String getAccessTransformerClass() {
-        return ForgeHaxAccessTransformer.class.getName();
+        return null;
     }
-
-
 }
