@@ -1,4 +1,4 @@
-package com.matt.forgehax.util.blocks.options;
+package com.matt.forgehax.util.blocks.properties;
 
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
@@ -12,20 +12,24 @@ import java.util.Iterator;
 /**
  * Created on 5/21/2017 by fr1kin
  */
-public class BlockBoundOption implements IBlockOption {
+public class BlockBoundProperty implements IBlockProperty {
     private static final String HEADING = "bounds";
 
     private final Collection<Bound> bounds = Sets.newHashSet();
 
-    public void addBound(int minY, int maxY) {
-        bounds.add(new Bound(minY, maxY));
+    public boolean add(int minY, int maxY) {
+        return bounds.add(new Bound(minY, maxY));
     }
 
-    public void removeBound(int minY, int maxY) {
-        final Bound copy = new Bound(minY, maxY);
-        bounds.stream()
-                .filter(bound -> bound.equals(copy))
-                .forEach(bounds::remove);
+    public boolean remove(int minY, int maxY) {
+        Bound bound = get(minY, maxY);
+        return bound != null && bounds.remove(bound);
+    }
+
+    public Bound get(int minY, int maxY) {
+        for (Bound bound : bounds) if(bound.getMin() == minY && bound.getMax() == maxY)
+            return bound;
+        return null;
     }
 
     public Collection<Bound> getAll() {
@@ -63,7 +67,7 @@ public class BlockBoundOption implements IBlockOption {
                 JsonArray array = head.get(HEADING).getAsJsonArray();
                 array.forEach(e -> {
                     JsonArray mm = e.getAsJsonArray();
-                    addBound(mm.get(0).getAsInt(), mm.get(1).getAsInt());
+                    add(mm.get(0).getAsInt(), mm.get(1).getAsInt());
                 });
             } catch (Exception e) {
                 ;

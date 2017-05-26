@@ -2,35 +2,33 @@ package com.matt.forgehax.util.blocks;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
-import com.matt.forgehax.util.Utils;
-import com.matt.forgehax.util.blocks.options.BlockBoundOption;
-import com.matt.forgehax.util.blocks.options.BlockColorOption;
-import com.matt.forgehax.util.blocks.options.IBlockOption;
+import com.matt.forgehax.util.blocks.properties.*;
 import com.matt.forgehax.util.json.ISerializableJson;
 import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import scala.actors.threadpool.Arrays;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created on 5/19/2017 by fr1kin
  */
 public abstract class AbstractBlockEntry implements ISerializableJson {
-    private final List<IBlockOption> options = Lists.newArrayList();
+    private final BlockBoundProperty boundProperty = new BlockBoundProperty();
+    private final BlockColorProperty colorProperty = new BlockColorProperty();
+    private final BlockDimensionProperty dimensionProperty = new BlockDimensionProperty();
+    private final BlockTagProperty tagProperty = new BlockTagProperty();
+    private final BlockToggleProperty toggleProperty = new BlockToggleProperty();
 
-    private final BlockColorOption colorOption = new BlockColorOption();
-    private final BlockBoundOption boundOption = new BlockBoundOption();
-
-    protected AbstractBlockEntry() {
-        registerOption(colorOption);
-        registerOption(boundOption);
-    }
-
-    protected void registerOption(IBlockOption option) {
-        options.add(option);
+    public Collection<IBlockProperty> getProperties() {
+        List<IBlockProperty> properties = Lists.newArrayList();
+        properties.add(colorProperty);
+        properties.add(boundProperty);
+        properties.add(dimensionProperty);
+        properties.add(tagProperty);
+        properties.add(toggleProperty);
+        return Collections.unmodifiableList(properties);
     }
 
     public abstract String getUniqueName();
@@ -45,22 +43,30 @@ public abstract class AbstractBlockEntry implements ISerializableJson {
 
     public abstract boolean isMetadata();
 
-    public BlockColorOption getColor() {
-        return colorOption;
+    public BlockColorProperty getColor() {
+        return colorProperty;
     }
 
-    public BlockBoundOption getBounds() {
-        return boundOption;
+    public BlockBoundProperty getBounds() {
+        return boundProperty;
     }
 
     boolean isEqual(Block block, int meta) {
         return Objects.equals(getBlock(), block) && (!isMetadata() || (getMetadata() == meta));
     }
+    
+    boolean shouldProcess(IBlockState state, BlockPos pos, int dimension) {
+        return isEqual(state.getBlock(), state.getBlock().getMetaFromState(state)) &&
+                toggleProperty.isEnabled() &&
+                boundProperty.isWithinBoundaries(pos.getY()) &&
+                dimensionProperty.isValidDimension(dimension);
+                // TODO: check tag
+    }
 
     @Override
     public void serialize(final JsonObject head) {
         final JsonObject entry = new JsonObject();
-        options.forEach(option -> option.serialize(entry));
+        getProperties().forEach(option -> option.serialize(entry));
         head.add(getUniqueName(), entry);
     }
 
@@ -68,7 +74,7 @@ public abstract class AbstractBlockEntry implements ISerializableJson {
     public void deserialize(final JsonObject head) {
         if(head.has(getUniqueName())) try {
             final JsonObject entry = head.get(getUniqueName()).getAsJsonObject();
-            options.forEach(option -> option.deserialize(entry));
+            getProperties().forEach(option -> option.deserialize(entry));
         } catch (Exception e) {
             ;
         }
@@ -83,9 +89,9 @@ public abstract class AbstractBlockEntry implements ISerializableJson {
     public String toString() {
         StringBuilder builder = new StringBuilder(getPrettyName());
         builder.append(" {");
-        Iterator<IBlockOption> it = options.iterator();
+        Iterator<IBlockProperty> it = getProperties().iterator();
         while(it.hasNext()) {
-            IBlockOption option = it.next();
+            IBlockProperty option = it.next();
             builder.append(option.toString());
             if(it.hasNext()) builder.append(", ");
         }

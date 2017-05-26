@@ -42,9 +42,10 @@ public class BlockEntry extends AbstractBlockEntry {
     private final int meta;
 
     protected BlockEntry(Block block, int meta, boolean validCheck) throws BlockDoesNotExistException {
-        if(validCheck) requiresValidBlock(block, Math.max(meta, 0));
+        meta = Math.max(meta, 0);
+        if(validCheck) requiresValidBlock(block, meta);
         this.block = block;
-        this.meta = BlockOptionHelper.getAllBlocks(block).size() > 1 ? Math.max(meta, 0) : -1; // if no other variants then don't check metadata
+        this.meta = BlockOptionHelper.getAllBlocks(block).size() > 1 ? meta : -1; // if no other variants then don't check metadata
     }
 
     protected BlockEntry(Block block, int meta) throws BlockDoesNotExistException {

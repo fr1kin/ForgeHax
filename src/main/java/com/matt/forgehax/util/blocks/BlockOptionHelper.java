@@ -35,8 +35,7 @@ public class BlockOptionHelper {
         return Collections.unmodifiableCollection(list);
     }
 
-    public static Collection<AbstractBlockEntry> getAllBlocksMatchingByUnlocalized(String regex) {
-        final Collection<AbstractBlockEntry> found = Sets.newHashSet();
+    public static void getAllBlocksMatchingByUnlocalized(final Collection<AbstractBlockEntry> found, String regex) {
         final Pattern pattern = Pattern.compile(regex);
         Block.REGISTRY.forEach(block -> getAllBlocks(block).forEach(stack -> {
             Matcher matcher = pattern.matcher(stack.getUnlocalizedName().toLowerCase());
@@ -46,11 +45,15 @@ public class BlockOptionHelper {
                 ;
             }
         }));
-        return Collections.unmodifiableCollection(found);
     }
 
-    public static Collection<AbstractBlockEntry> getAllBlocksMatchingByLocalized(String regex) {
-        final Collection<AbstractBlockEntry> found = Sets.newHashSet();
+    public static Collection<AbstractBlockEntry> getAllBlocksMatchingByUnlocalized(String regex) {
+        Collection<AbstractBlockEntry> map = Sets.newHashSet();
+        getAllBlocksMatchingByUnlocalized(map, regex);
+        return map;
+    }
+
+    public static void getAllBlocksMatchingByLocalized(final Collection<AbstractBlockEntry> found, String regex) {
         final Pattern pattern = Pattern.compile(regex);
         Block.REGISTRY.forEach(block -> getAllBlocks(block).forEach(stack -> {
             Matcher matcher = pattern.matcher(stack.getDisplayName().replaceAll(" ", "_").toLowerCase());
@@ -60,13 +63,19 @@ public class BlockOptionHelper {
                 ;
             }
         }));
-        return Collections.unmodifiableCollection(found);
     }
 
-    public static AbstractBlockEntry getFirstMatchingByLocalized(String regex) throws BlockDoesNotExistException {
-        Collection<AbstractBlockEntry> found = getAllBlocksMatchingByLocalized(regex);
-        if(found.size() <= 0) throw new BlockDoesNotExistException(String.format("Could not find block that matches the expression \"%s\"", regex));
-        return found.iterator().next();
+    public static Collection<AbstractBlockEntry> getAllBlocksMatchingByLocalized(String regex) {
+        Collection<AbstractBlockEntry> map = Sets.newHashSet();
+        getAllBlocksMatchingByLocalized(map, regex);
+        return map;
+    }
+
+    public static Collection<AbstractBlockEntry> getAllBlockMatching(String regex) {
+        Collection<AbstractBlockEntry> map = Sets.newHashSet();
+        getAllBlocksMatchingByUnlocalized(map, regex);
+        getAllBlocksMatchingByLocalized(map, regex);
+        return map;
     }
 
     public static boolean isValidMetadataValue(Block block, int meta) {

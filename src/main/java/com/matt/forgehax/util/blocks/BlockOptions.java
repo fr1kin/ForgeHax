@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.blocks.exceptions.BlockDoesNotExistException;
+import com.matt.forgehax.util.json.GsonConstant;
 import net.minecraft.block.Block;
 
 import java.io.*;
@@ -14,9 +15,7 @@ import java.util.function.Consumer;
 /**
  * Created on 5/13/2017 by fr1kin
  */
-public class BlockOptions {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-
+public class BlockOptions implements GsonConstant {
     private final File file;
 
     private final Set<AbstractBlockEntry> entries = Sets.newConcurrentHashSet();
@@ -67,7 +66,7 @@ public class BlockOptions {
                     }
                 });
             } else {
-                Files.write(file.toPath(), GSON.toJson(new JsonObject()).getBytes());
+                Files.write(file.toPath(), GSON_PRETTY.toJson(new JsonObject()).getBytes());
             }
         } catch (Exception e) {
             Wrapper.getMod().printStackTrace(e);
@@ -78,7 +77,7 @@ public class BlockOptions {
         try {
             final JsonObject root = new JsonObject();
             entries.forEach(entry -> entry.serialize(root));
-            Files.write(file.toPath(), GSON.toJson(root).getBytes());
+            Files.write(file.toPath(), GSON_PRETTY.toJson(root).getBytes());
         } catch (Exception e) {
             Wrapper.getMod().printStackTrace(e);
         }

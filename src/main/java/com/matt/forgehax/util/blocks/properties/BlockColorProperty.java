@@ -1,6 +1,5 @@
-package com.matt.forgehax.util.blocks.options;
+package com.matt.forgehax.util.blocks.properties;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.matt.forgehax.util.Utils;
 import net.minecraft.util.math.MathHelper;
@@ -8,7 +7,7 @@ import net.minecraft.util.math.MathHelper;
 /**
  * Created on 5/20/2017 by fr1kin
  */
-public class BlockColorOption implements IBlockOption {
+public class BlockColorProperty implements IBlockProperty {
     private static final String HEADING = "color";
     private static final int DEFAULT_COLOR = Utils.Colors.WHITE;
 
@@ -19,7 +18,7 @@ public class BlockColorOption implements IBlockOption {
 
     private int buffer;
 
-    public BlockColorOption() {
+    public BlockColorProperty() {
         set(DEFAULT_COLOR);
     }
 
