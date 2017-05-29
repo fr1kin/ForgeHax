@@ -14,9 +14,7 @@ public class CommandRegistry implements Globals {
     private static final Map<String, Command> GLOBAL_ID_TO_COMMAND_REGISTRY = Maps.newTreeMap(String.CASE_INSENSITIVE_ORDER);
 
     public static void register(Command command) {
-        String name;
-        GLOBAL_ID_TO_COMMAND_REGISTRY.put(name = toUniqueId(null, command), command);
-        Wrapper.getLog().info(String.format("Registered global command '%s'", name));
+        GLOBAL_ID_TO_COMMAND_REGISTRY.put(CommandLine.makeParserFriendly(command.getName()), command);
     }
 
     public static void registerAll(Collection<Command> commands) {
@@ -28,9 +26,7 @@ public class CommandRegistry implements Globals {
     }
 
     public static void unregister(Command command) {
-        String name;
-        GLOBAL_ID_TO_COMMAND_REGISTRY.remove(name = toUniqueId(null, command));
-        Wrapper.getLog().info(String.format("Unregistered global command '%s'", name));
+        GLOBAL_ID_TO_COMMAND_REGISTRY.remove(CommandLine.makeParserFriendly(command.getName()));
     }
 
     public static void unregisterAll(Collection<Command> commands) {
@@ -47,9 +43,5 @@ public class CommandRegistry implements Globals {
 
     public static Map<String, Command> getCommands() {
         return Collections.unmodifiableMap(GLOBAL_ID_TO_COMMAND_REGISTRY);
-    }
-
-    private static String toUniqueId(BaseMod base, Command command) {
-        return CommandLine.toUniqueId(base != null ? base.getModName() : null, command.getName());
     }
 }

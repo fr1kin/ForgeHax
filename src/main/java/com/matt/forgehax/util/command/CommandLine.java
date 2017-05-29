@@ -24,20 +24,16 @@ public class CommandLine {
         return args.length > 0 ? Arrays.copyOfRange(args, 1, args.length) : EMPTY_STRING_ARRAY;
     }
 
-    public static String join(String[] args, String seperator, int startIndex, int endIndex) {
-        return Strings.join(Arrays.copyOfRange(args, startIndex, endIndex), com.google.common.base.Strings.nullToEmpty(seperator));
+    public static String join(String[] args, String separator, int startIndex, int endIndex) {
+        return Strings.join(Arrays.copyOfRange(args, startIndex, endIndex), com.google.common.base.Strings.nullToEmpty(separator));
     }
 
-    public static String join(String[] args, String seperator) {
-        return join(args, seperator, 0, args.length);
+    public static String join(String[] args, String separator) {
+        return join(args, separator, 0, args.length);
     }
 
     public static String toUniqueId(String parent, String child) {
         return makeParserFriendly(!Strings.isNullOrEmpty(parent) ? (parent + MOD_PROPERTY_SEPARATOR + child) : child);
-    }
-
-    public static String toUniqueId(String child) {
-        return toUniqueId(null, child);
     }
 
     public static String makeParserFriendly(String string) {
