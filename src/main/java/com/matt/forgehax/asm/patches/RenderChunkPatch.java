@@ -1,18 +1,14 @@
 package com.matt.forgehax.asm.patches;
 
-import com.google.common.collect.Lists;
-import com.matt.forgehax.asm.helper.AsmField;
-import com.matt.forgehax.asm.helper.AsmHelper;
-import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
-import com.matt.forgehax.asm.helper.transforming.Inject;
-import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.LocalVariablesSorter;
+import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
+import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
+import com.matt.forgehax.asm.utils.transforming.Inject;
+import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
+import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
-import java.util.List;
 import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -21,51 +17,21 @@ import static org.objectweb.asm.Opcodes.*;
  * Created on 5/5/2017 by fr1kin
  */
 public class RenderChunkPatch extends ClassTransformer {
-    public final AsmMethod REBUILD_CHUNK = new AsmMethod()
-            .setName("rebuildChunk")
-            .setObfuscatedName("b")
-            .setArgumentTypes(float.class, float.class, float.class, NAMES.CHUNK_COMPILE_TASK_GENERATOR)
-            .setReturnType(void.class);
-
-    public final AsmMethod DELETE_GL_RESOURCES = new AsmMethod()
-            .setName("deleteGlResources")
-            .setObfuscatedName("a")
-            .setArgumentTypes()
-            .setReturnType(void.class);
-
-    public final AsmMethod PRE_BLOCK_MODEL_RENDER = new AsmMethod()
-            .setName("preRenderBlocks")
-            .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.VERTEXBUFFER, NAMES.BLOCKPOS)
-            .setReturnType(void.class);
-
-    public final AsmMethod POST_BLOCK_MODEL_RENDER = new AsmMethod()
-            .setName("postRenderBlocks")
-            .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.BLOCK_RENDER_LAYER, float.class, float.class, float.class, NAMES.VERTEXBUFFER, NAMES.COMPILED_CHUNK)
-            .setReturnType(void.class);
-
     public RenderChunkPatch() {
-        super("net/minecraft/client/renderer/chunk/RenderChunk");
+        super(Classes.RenderChunk);
     }
 
     @RegisterMethodTransformer
     private class RebuildChunk extends MethodTransformer {
-        public final AsmField REGION = new AsmField()
-                .setParentClass(NAMES.RENDER_CHUNK)
-                .setName("region")
-                .setObfuscatedName("r")
-                .setType(NAMES.CHUNK_CACHE);
-
         @Override
-        public AsmMethod getMethod() {
-            return REBUILD_CHUNK;
+        public ASMMethod getMethod() {
+            return Methods.RenderChunk_rebuildChunk;
         }
 
         @Inject(description = "Add hooks before and after blocks are added to the buffer")
         public void inject(MethodNode main) {
             // searches for ++renderChunksUpdated;
-            AbstractInsnNode top = AsmHelper.findPattern(main.instructions.getFirst(), new int[]{
+            AbstractInsnNode top = ASMHelper.findPattern(main.instructions.getFirst(), new int[]{
                     GETSTATIC, ICONST_1, IADD, PUTSTATIC
             }, "xxxx");
 
@@ -75,7 +41,7 @@ public class RenderChunkPatch extends ClassTransformer {
             //Block block = iblockstate.getBlock();
             // <--- inject somewhere here
             //if (iblockstate.isOpaqueCube())
-            AbstractInsnNode loop = AsmHelper.findPattern(top, new int[]{
+            AbstractInsnNode loop = ASMHelper.findPattern(top, new int[]{
                     ASTORE,
                     0x00, 0x00,
                     ALOAD, INVOKEINTERFACE, ASTORE,
@@ -152,12 +118,7 @@ public class RenderChunkPatch extends ClassTransformer {
 
             InsnList pre = new InsnList();
             pre.add(new VarInsnNode(ALOAD, 0));
-            pre.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_PRE_BUILD_CHUNK.getParentClass().getRuntimeName(),
-                    NAMES.ON_PRE_BUILD_CHUNK.getRuntimeName(),
-                    NAMES.ON_PRE_BUILD_CHUNK.getDescriptor(),
-                    false
-            ));
+            pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPreBuildChunk));
 
             main.instructions.insertBefore(top, pre);
 
@@ -195,12 +156,7 @@ public class RenderChunkPatch extends ClassTransformer {
             list.add(new VarInsnNode(ALOAD, BLOCK_INDEX));
             list.add(new VarInsnNode(ALOAD, BLOCK_STATE_INDEX));
             list.add(new VarInsnNode(ALOAD, BLOCK_POS_INDEX));
-            list.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_BLOCK_RENDER_IN_LOOP.getParentClass().getRuntimeName(),
-                    NAMES.ON_BLOCK_RENDER_IN_LOOP.getRuntimeName(),
-                    NAMES.ON_BLOCK_RENDER_IN_LOOP.getDescriptor(),
-                    false
-            ));
+            list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onBlockRenderInLoop));
 
             main.instructions.insert(next2, list);
 
@@ -215,12 +171,7 @@ public class RenderChunkPatch extends ClassTransformer {
             post.add(new VarInsnNode(ILOAD, STORE_AT));
             post.add(new JumpInsnNode(IFEQ, jumpOver));
             post.add(new VarInsnNode(ALOAD, 0));
-            post.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_POST_BUILD_CHUNK.getParentClass().getRuntimeName(),
-                    NAMES.ON_POST_BUILD_CHUNK.getRuntimeName(),
-                    NAMES.ON_POST_BUILD_CHUNK.getDescriptor(),
-                    false
-            ));
+            post.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPostBuildChunk));
             post.add(jumpOver);
 
             main.instructions.insert(skipRenderingLabel, post);
@@ -230,11 +181,11 @@ public class RenderChunkPatch extends ClassTransformer {
     @RegisterMethodTransformer
     private class DeleteGlResources extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return DELETE_GL_RESOURCES;
+        public ASMMethod getMethod() {
+            return Methods.RenderChunk_deleteGlResources;
         }
 
-        @Inject
+        @Inject(description = "Add hook callback at top of method")
         public void inject(MethodNode main) {
             AbstractInsnNode node = main.instructions.getFirst();
 
@@ -242,70 +193,7 @@ public class RenderChunkPatch extends ClassTransformer {
 
             InsnList insnList = new InsnList();
             insnList.add(new VarInsnNode(ALOAD, 0));
-            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_DELETE_GL_RESOURCES.getParentClass().getRuntimeName(),
-                    NAMES.ON_DELETE_GL_RESOURCES.getRuntimeName(),
-                    NAMES.ON_DELETE_GL_RESOURCES.getDescriptor(),
-                    false
-            ));
-
-            main.instructions.insertBefore(node, insnList);
-        }
-    }
-
-    @RegisterMethodTransformer
-    private class PreBlockModelRender extends MethodTransformer {
-        @Override
-        public AsmMethod getMethod() {
-            return PRE_BLOCK_MODEL_RENDER;
-        }
-
-        @Inject
-        public void inject(MethodNode main) {
-            AbstractInsnNode node = main.instructions.getFirst();
-
-            Objects.requireNonNull(node, "Find pattern failed for node");
-
-            InsnList insnList = new InsnList();
-            insnList.add(new VarInsnNode(ALOAD, 0));
-            insnList.add(new VarInsnNode(ALOAD, 1));
-            insnList.add(new VarInsnNode(ALOAD, 2));
-            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_PRE_BLOCK_MODEL_RENDER.getParentClass().getRuntimeName(),
-                    NAMES.ON_PRE_BLOCK_MODEL_RENDER.getRuntimeName(),
-                    NAMES.ON_PRE_BLOCK_MODEL_RENDER.getDescriptor(),
-                    false
-            ));
-
-            main.instructions.insertBefore(node, insnList);
-        }
-    }
-
-    @RegisterMethodTransformer
-    private class PostBlockModelRender extends MethodTransformer {
-        @Override
-        public AsmMethod getMethod() {
-            return POST_BLOCK_MODEL_RENDER;
-        }
-
-        @Inject
-        public void inject(MethodNode main) {
-            AbstractInsnNode node = main.instructions.getFirst();
-
-            Objects.requireNonNull(node, "Find pattern failed for node");
-
-            InsnList insnList = new InsnList();
-            insnList.add(new VarInsnNode(ALOAD, 0));
-            insnList.add(new VarInsnNode(ALOAD, 5));
-            insnList.add(new VarInsnNode(FLOAD, 2));
-            insnList.add(new VarInsnNode(FLOAD, 3));
-            insnList.add(new VarInsnNode(FLOAD, 4));
-            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_POST_BLOCK_MODEL_RENDER.getParentClass().getRuntimeName(),
-                    NAMES.ON_POST_BLOCK_MODEL_RENDER.getRuntimeName(),
-                    NAMES.ON_POST_BLOCK_MODEL_RENDER.getDescriptor(),
-                    false
-            ));
+            insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onDeleteGlResources));
 
             main.instructions.insertBefore(node, insnList);
         }

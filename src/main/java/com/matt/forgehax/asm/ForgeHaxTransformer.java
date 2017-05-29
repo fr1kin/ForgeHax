@@ -1,9 +1,8 @@
 package com.matt.forgehax.asm;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.matt.forgehax.asm.helper.AsmStackLogger;
-import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
+import com.matt.forgehax.asm.utils.ASMStackLogger;
+import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
 import com.matt.forgehax.asm.patches.*;
 import com.matt.forgehax.asm.patches.special.BaseRendererPatch;
 import net.minecraft.launchwrapper.IClassTransformer;
@@ -12,9 +11,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
 import java.util.Map;
 
 @IFMLLoadingPlugin.SortingIndex(value = 1001)
@@ -22,9 +18,7 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     private Map<String, ClassTransformer> transformingClasses = Maps.newHashMap();
 
     public ForgeHaxTransformer() {
-        registerTransformer(new BlockModelRendererPatch());
         registerTransformer(new BlockPatch());
-        //registerTransformer(new BlockRendererDispatcherPatch());
         registerTransformer(new ChunkRenderContainerPatch());
         registerTransformer(new ChunkRenderDispatcherPatch());
         registerTransformer(new ChunkRenderWorkerPatch());
@@ -69,7 +63,7 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
                 return classWriter.toByteArray();
             } catch (Exception e) {
                 LOGGER.error(e.getClass().getSimpleName() + " thrown from transforming class " + realName + ": " + e.getMessage());
-                AsmStackLogger.printStackTrace(e);
+                ASMStackLogger.printStackTrace(e);
             }
         }
         return bytes;

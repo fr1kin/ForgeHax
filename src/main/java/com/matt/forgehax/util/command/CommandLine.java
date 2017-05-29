@@ -6,6 +6,7 @@ import joptsimple.internal.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -41,6 +42,10 @@ public class CommandLine {
 
     public static String makeParserFriendly(String string) {
         return string.replaceAll(" ", "_");
+    }
+
+    public static void requireArguments(List<?> args, int requiredArguments) throws CommandExecuteException {
+        if(args.size() < requiredArguments) throw new CommandExecuteException("Missing argument(s)");
     }
 
     /**

@@ -1,11 +1,12 @@
 package com.matt.forgehax.asm.patches;
 
-import com.matt.forgehax.asm.helper.AsmHelper;
-import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
-import com.matt.forgehax.asm.helper.transforming.Inject;
-import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
+import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
+import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
+import com.matt.forgehax.asm.utils.transforming.Inject;
+import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
+import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -13,34 +14,27 @@ import java.util.Objects;
 import static org.objectweb.asm.Opcodes.*;
 
 public class WorldPatch extends ClassTransformer {
-    public final AsmMethod HANDLE_MATERIAL_ACCELERATION = new AsmMethod()
-            .setName("handleMaterialAcceleration")
-            .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.AXISALIGNEDBB, NAMES.MATERIAL, NAMES.ENTITY)
-            .setReturnType(boolean.class)
-            .setHooks(NAMES.ON_WATER_MOVEMENT);
-
     public WorldPatch() {
-        super("net/minecraft/world/World");
+        super(Classes.World);
     }
 
     @RegisterMethodTransformer
     private class HandleMaterialAcceleration extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return HANDLE_MATERIAL_ACCELERATION;
+        public ASMMethod getMethod() {
+            return Methods.World_handleMaterialAcceleration;
         }
 
-        @Inject
+        @Inject(description = "Add hook that allows water movement math to be skipped")
         public void inject(MethodNode method) {
-            AbstractInsnNode preNode = AsmHelper.findPattern(method.instructions.getFirst(), new int[] {
+            AbstractInsnNode preNode = ASMHelper.findPattern(method.instructions.getFirst(), new int[] {
                     ALOAD, INVOKEVIRTUAL, ASTORE,
                     0x00, 0x00,
                     LDC, DSTORE,
                     0x00, 0x00,
                     ALOAD, DUP, GETFIELD, ALOAD, GETFIELD, LDC, DMUL, DADD, PUTFIELD
             }, "xxx??xx??xxxxxxxxx");
-            AbstractInsnNode postNode = AsmHelper.findPattern(method.instructions.getFirst(), new int[] {
+            AbstractInsnNode postNode = ASMHelper.findPattern(method.instructions.getFirst(), new int[] {
                     ILOAD, IRETURN
             }, "xx");
 
@@ -52,12 +46,7 @@ public class WorldPatch extends ClassTransformer {
             InsnList insnPre = new InsnList();
             insnPre.add(new VarInsnNode(ALOAD, 3));
             insnPre.add(new VarInsnNode(ALOAD, 11));
-            insnPre.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_WATER_MOVEMENT.getParentClass().getRuntimeName(),
-                    NAMES.ON_WATER_MOVEMENT.getRuntimeName(),
-                    NAMES.ON_WATER_MOVEMENT.getDescriptor(),
-                    false
-            ));
+            insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onWaterMovement));
             insnPre.add(new JumpInsnNode(IFNE, endJump));
 
             method.instructions.insertBefore(preNode, insnPre);

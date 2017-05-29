@@ -1,11 +1,13 @@
 package com.matt.forgehax.asm.patches.special;
 
-import com.matt.forgehax.asm.helper.AsmHelper;
-import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
-import com.matt.forgehax.asm.helper.transforming.Inject;
-import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
+import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.TypesSpecial;
+import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
+import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
+import com.matt.forgehax.asm.utils.transforming.Inject;
+import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
+import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -16,26 +18,21 @@ import static org.objectweb.asm.Opcodes.*;
  * Created on 5/2/2017 by fr1kin
  */
 public class BaseRendererPatch extends ClassTransformer {
-    public final AsmMethod SET_STRATUM_COLORS = new AsmMethod()
-            .setName("setStratumColors")
-            .setArgumentTypes(NAMES.JOURNYMAP_STRATUM, int.class, Integer.class, boolean.class, boolean.class, boolean.class)
-            .setReturnType(void.class);
-
     public BaseRendererPatch() {
-        super("journeymap/client/cartography/render/BaseRenderer");
+        super(TypesSpecial.Classes.BaseRenderer);
     }
 
     @RegisterMethodTransformer
     private class SetStratumColors extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return SET_STRATUM_COLORS;
+        public ASMMethod getMethod() {
+            return TypesSpecial.Methods.BaseRenderer_setStratumColors;
         }
 
         @Inject
         public void inject(MethodNode main) {
             AbstractInsnNode start = main.instructions.getFirst();
-            AbstractInsnNode end = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode end = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     RETURN
             }, "x");
 
@@ -51,12 +48,7 @@ public class BaseRendererPatch extends ClassTransformer {
             insnList.add(new VarInsnNode(ILOAD, 4));
             insnList.add(new VarInsnNode(ILOAD, 5));
             insnList.add(new VarInsnNode(ILOAD, 6));
-            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.JOURNYMAP_ON_SET_STRATUM_COLOR.getParentClass().getRuntimeName(),
-                    NAMES.JOURNYMAP_ON_SET_STRATUM_COLOR.getRuntimeName(),
-                    NAMES.JOURNYMAP_ON_SET_STRATUM_COLOR.getDescriptor(),
-                    false
-            ));
+            insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onJournyMapSetStratumColor));
             insnList.add(new JumpInsnNode(IFNE, endJump));
 
             main.instructions.insertBefore(end, endJump);

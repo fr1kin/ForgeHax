@@ -26,25 +26,29 @@ public class ActiveModListMod extends ToggleMod {
     private String generateTickRateText() {
         StringBuilder builder = new StringBuilder("Tick-rate: ");
         TickManager.TickRateData data = TickManager.getInstance().getData();
-        int factor = this.factor.getInt();
-        int sections = data.getSampleSize() / factor;
-        if((sections * factor) < data.getSampleSize()) {
-            TickManager.TickRateData.CalculationData point = data.getPoint();
-            builder.append(String.format("%.2f", point.getAverage()));
-            builder.append(" (");
-            builder.append(data.getSampleSize());
-            builder.append(")");
-            if(sections > 0) builder.append(", ");
-        }
-        if(sections > 0) {
-            for(int i = sections; i > 0; i--) {
-                int at = i * factor;
-                TickManager.TickRateData.CalculationData point = data.getPoint(at);
+        if(data.getSampleSize() <= 0) {
+            builder.append("No tick data");
+        } else {
+            int factor = this.factor.getInt();
+            int sections = data.getSampleSize() / factor;
+            if ((sections * factor) < data.getSampleSize()) {
+                TickManager.TickRateData.CalculationData point = data.getPoint();
                 builder.append(String.format("%.2f", point.getAverage()));
                 builder.append(" (");
-                builder.append(at);
+                builder.append(data.getSampleSize());
                 builder.append(")");
-                if((i - 1) != 0) builder.append(", ");
+                if (sections > 0) builder.append(", ");
+            }
+            if (sections > 0) {
+                for (int i = sections; i > 0; i--) {
+                    int at = i * factor;
+                    TickManager.TickRateData.CalculationData point = data.getPoint(at);
+                    builder.append(String.format("%.2f", point.getAverage()));
+                    builder.append(" (");
+                    builder.append(at);
+                    builder.append(")");
+                    if ((i - 1) != 0) builder.append(", ");
+                }
             }
         }
         return builder.toString();

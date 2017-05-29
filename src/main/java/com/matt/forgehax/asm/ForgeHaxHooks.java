@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
-import com.matt.forgehax.asm.helper.MultiSwitch;
+import com.matt.forgehax.asm.utils.MultiSwitch;
 import com.matt.forgehax.asm.reflection.FastReflectionSpecial;
 import journeymap.client.cartography.RGB;
 import journeymap.client.cartography.Stratum;
@@ -23,7 +23,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.Packet;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -31,7 +30,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.*;
 import net.minecraftforge.common.MinecraftForge;
 
-import javax.annotation.Nullable;
 import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.List;
@@ -128,13 +126,6 @@ public class ForgeHaxHooks implements ASMCommon {
         return MinecraftForge.EVENT_BUS.post(new ApplyCollisionMotionEvent(entity, collidedWithEntity, x, 0.D, z));
     }
 
-    public static WebMotionEvent onWebMotion(Entity entity, double x, double y, double z) {
-        reportHook("onWebMotion");
-        WebMotionEvent event = new WebMotionEvent(entity, x, y, z);
-        MinecraftForge.EVENT_BUS.post(event);
-        return event;
-    }
-
     public static boolean SHOULD_UPDATE_ALPHA = false;
     public static float COLOR_MULTIPLIER_ALPHA = 150.f / 255.f;
 
@@ -169,13 +160,6 @@ public class ForgeHaxHooks implements ASMCommon {
         MinecraftForge.EVENT_BUS.post(new RenderBlockLayerEvent.Post(layer, partialTicks));
     }
 
-    public static BlockRenderLayer onRenderBlockInLayer(Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
-        reportHook("onRenderBlockInLayer");
-        RenderBlockInLayerEvent event = new RenderBlockInLayerEvent(block, state, layer, compareToLayer);
-        MinecraftForge.EVENT_BUS.post(event);
-        return event.getLayer();
-    }
-
     public static boolean onSetupTerrain(Entity renderEntity, boolean playerSpectator) {
         reportHook("onSetupTerrain");
         SetupTerrainEvent event = new SetupTerrainEvent(renderEntity, playerSpectator);
@@ -201,6 +185,13 @@ public class ForgeHaxHooks implements ASMCommon {
         return MinecraftForge.EVENT_BUS.post(new ApplyClimbableBlockMovement(livingBase));
     }
 
+    public static BlockRenderLayer onRenderBlockInLayer(Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
+        reportHook("onRenderBlockInLayer");
+        RenderBlockInLayerEvent event = new RenderBlockInLayerEvent(block, state, layer, compareToLayer);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.getLayer();
+    }
+
     public static void onBlockRender(BlockPos pos, IBlockState state, IBlockAccess access, VertexBuffer buffer) {
         //MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
     }
@@ -213,9 +204,6 @@ public class ForgeHaxHooks implements ASMCommon {
         // faster hook
         for(BlockModelRenderListener listener : Listeners.BLOCK_MODEL_RENDER_LISTENER.getAll())
             listener.onBlockRenderInLoop(renderChunk, block, state, pos);
-    }
-
-    public static void onBlockModelRender(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, VertexBuffer buffer, boolean checkSides, long rand) {
     }
 
     public static void onPreBuildChunk(RenderChunk renderChunk) {
@@ -231,16 +219,6 @@ public class ForgeHaxHooks implements ASMCommon {
         MinecraftForge.EVENT_BUS.post(new DeleteGlResourcesEvent(renderChunk));
     }
 
-    public static void onPreBlockModelRender(RenderChunk chunk, VertexBuffer buffer, BlockPos pos) {
-        //unused, uncomment if you want to use
-        //MinecraftForge.EVENT_BUS.post(new PrePostBlockModelRenderEvent(chunk, buffer, PrePostBlockModelRenderEvent.State.PRE, pos));
-    }
-
-    public static void onPostBlockModelRender(RenderChunk chunk, VertexBuffer buffer, float x, float y, float z) {
-        //unused, uncomment if you want to use
-        //MinecraftForge.EVENT_BUS.post(new PrePostBlockModelRenderEvent(chunk, buffer, PrePostBlockModelRenderEvent.State.POST, x, y, z));
-    }
-
     public static void onAddRenderChunk(RenderChunk renderChunk, BlockRenderLayer layer) {
         MinecraftForge.EVENT_BUS.post(new AddRenderChunkEvent(renderChunk, layer));
     }
@@ -251,10 +229,6 @@ public class ForgeHaxHooks implements ASMCommon {
 
     public static void onLoadRenderers(ViewFrustum viewFrustum, ChunkRenderDispatcher renderDispatcher) {
         MinecraftForge.EVENT_BUS.post(new LoadRenderersEvent(viewFrustum, renderDispatcher));
-    }
-
-    public static void onWorldRendererAllocated(ChunkCompileTaskGenerator generator) {
-        MinecraftForge.EVENT_BUS.post(new WorldRendererAllocatedEvent(generator, generator.getRenderChunk()));
     }
 
     public static void onWorldRendererDeallocated(ChunkCompileTaskGenerator generator) {

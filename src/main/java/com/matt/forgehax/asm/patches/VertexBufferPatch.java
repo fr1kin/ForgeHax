@@ -1,11 +1,12 @@
 package com.matt.forgehax.asm.patches;
 
-import com.matt.forgehax.asm.helper.AsmHelper;
-import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
-import com.matt.forgehax.asm.helper.transforming.Inject;
-import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
+import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
+import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
+import com.matt.forgehax.asm.utils.transforming.Inject;
+import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
+import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -13,32 +14,25 @@ import java.util.Objects;
 import static org.objectweb.asm.Opcodes.*;
 
 public class VertexBufferPatch extends ClassTransformer {
-    public final AsmMethod PUT_COLOR_MULTIPLIER = new AsmMethod()
-            .setName("putColorMultiplier")
-            .setObfuscatedName("a")
-            .setArgumentTypes(float.class, float.class, float.class, int.class)
-            .setReturnType(void.class)
-            .setHooks(NAMES.ON_COLOR_MULTIPLIER);
-
     public VertexBufferPatch() {
-        super("net/minecraft/client/renderer/VertexBuffer");
+        super(Classes.VertexBuffer);
     }
 
     @RegisterMethodTransformer
     private class PutColorMultiplier extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return PUT_COLOR_MULTIPLIER;
+        public ASMMethod getMethod() {
+            return Methods.VertexBuffer_putColorMultiplier;
         }
 
-        @Inject
+        @Inject(description = "Add hook that allows method to be overwritten")
         public void inject(MethodNode main) {
-            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode preNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     INVOKESTATIC, GETSTATIC, IF_ACMPNE,
                     0x00, 0x00,
                     ILOAD, SIPUSH, IAND, I2F, FLOAD, FMUL, F2I, ISTORE
             }, "xxx??xxxxxxxx");
-            AbstractInsnNode postNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode postNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     ALOAD, GETFIELD, ILOAD, ILOAD, INVOKEVIRTUAL, POP
             }, "xxxxxx");
 
@@ -60,12 +54,7 @@ public class VertexBufferPatch extends ClassTransformer {
             insnPre.add(new VarInsnNode(FLOAD, 3));
             insnPre.add(new VarInsnNode(ILOAD, 6));
             insnPre.add(new VarInsnNode(ALOAD, 10));
-            insnPre.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_COLOR_MULTIPLIER.getParentClass().getRuntimeName(),
-                    NAMES.ON_COLOR_MULTIPLIER.getRuntimeName(),
-                    NAMES.ON_COLOR_MULTIPLIER.getDescriptor(),
-                    false
-            ));
+            insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPutColorMultiplier));
             insnPre.add(new VarInsnNode(ISTORE, 6));
             insnPre.add(new VarInsnNode(ALOAD, 10));
             insnPre.add(new InsnNode(ICONST_0));

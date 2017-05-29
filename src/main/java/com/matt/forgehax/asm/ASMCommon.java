@@ -1,5 +1,7 @@
 package com.matt.forgehax.asm;
 
+import com.matt.forgehax.asm.utils.environment.RuntimeState;
+import com.matt.forgehax.asm.utils.environment.IStateMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -8,4 +10,5 @@ import org.apache.logging.log4j.Logger;
  */
 public interface ASMCommon {
     Logger LOGGER = LogManager.getLogger("ForgeHaxASM");
+    IStateMapper MAPPER = RuntimeState.getMapper();
 }

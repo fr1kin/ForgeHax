@@ -3,7 +3,6 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.asm.events.WebMotionEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
@@ -99,17 +98,6 @@ public class AntiKnockbackMod extends ToggleMod {
                     event.getMotionY() * multiplierY.getDouble(),
                     event.getMotionZ() * multiplierZ.getDouble()
             );
-            event.setCanceled(true);
-        }
-    }
-
-    @SubscribeEvent
-    public void onWebMotion(WebMotionEvent event) {
-        if(event.getEntity().equals(MC.player)) {
-            double modifier = 1;
-            event.setX(event.getX() * (0.25D * modifier));
-            event.setY(event.getY() * (0.05000000074505806D * modifier));
-            event.setZ(event.getZ() * (0.25D * modifier));
             event.setCanceled(true);
         }
     }

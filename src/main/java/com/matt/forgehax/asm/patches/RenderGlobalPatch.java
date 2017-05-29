@@ -1,12 +1,12 @@
 package com.matt.forgehax.asm.patches;
 
-import com.matt.forgehax.asm.helper.AsmField;
-import com.matt.forgehax.asm.helper.AsmHelper;
-import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
-import com.matt.forgehax.asm.helper.transforming.Inject;
-import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
+import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
+import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
+import com.matt.forgehax.asm.utils.transforming.Inject;
+import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
+import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -14,51 +14,20 @@ import java.util.Objects;
 import static org.objectweb.asm.Opcodes.*;
 
 public class RenderGlobalPatch extends ClassTransformer {
-    public final AsmMethod LOAD_RENDERERS = new AsmMethod()
-            .setName("loadRenderers")
-            .setObfuscatedName("a")
-            .setArgumentTypes()
-            .setReturnType(void.class);
-
-    public final AsmMethod RENDER_BLOCK_LAYER = new AsmMethod()
-            .setName("renderBlockLayer")
-            .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.BLOCK_RENDER_LAYER, double.class, int.class, NAMES.ENTITY)
-            .setReturnType(int.class);
-
-    public final AsmMethod SETUP_TERRAIN = new AsmMethod()
-            .setName("setupTerrain")
-            .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.ENTITY, double.class, NAMES.ICAMERA, int.class, boolean.class)
-            .setReturnType(void.class)
-            .setHooks(NAMES.ON_SETUP_TERRAIN);
-
     public RenderGlobalPatch() {
-        super("net/minecraft/client/renderer/RenderGlobal");
+        super(Classes.RenderGlobal);
     }
 
     @RegisterMethodTransformer
     private class LoadRenderers extends MethodTransformer {
-        public final AsmField VIEW_FRUSTUM = new AsmField()
-                .setName("viewFrustum")
-                .setObfuscatedName("o")
-                .setParentClass(NAMES.RENDER_GLOBAL)
-                .setType(NAMES.VIEW_FRUSTUM);
-
-        public final AsmField RENDER_DISPATCHER = new AsmField()
-                .setName("renderDispatcher")
-                .setObfuscatedName("N")
-                .setParentClass(NAMES.RENDER_GLOBAL)
-                .setType(NAMES.CHUNK_RENDER_DISPATCHER);
-
         @Override
-        public AsmMethod getMethod() {
-            return LOAD_RENDERERS;
+        public ASMMethod getMethod() {
+            return Methods.RenderGlobal_loadRenderers;
         }
 
-        @Inject
+        @Inject(description = "At hook callback at end of method")
         public void inject(MethodNode main) {
-            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode node = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     PUTFIELD,
                     0x00, 0x00, 0x00,
                     RETURN
@@ -68,23 +37,10 @@ public class RenderGlobalPatch extends ClassTransformer {
 
             InsnList insnList = new InsnList();
             insnList.add(new VarInsnNode(ALOAD, 0));// push this
-            insnList.add(new FieldInsnNode(GETFIELD,
-                    VIEW_FRUSTUM.getParentClass().getRuntimeName(),
-                    VIEW_FRUSTUM.getRuntimeName(),
-                    VIEW_FRUSTUM.getTypeDescriptor()
-            )); // load viewFrustum onto stack
+            insnList.add(ASMHelper.call(GETFIELD, Fields.RenderGlobal_viewFrustum));
             insnList.add(new VarInsnNode(ALOAD, 0)); // push this
-            insnList.add(new FieldInsnNode(GETFIELD,
-                    RENDER_DISPATCHER.getParentClass().getRuntimeName(),
-                    RENDER_DISPATCHER.getRuntimeName(),
-                    RENDER_DISPATCHER.getTypeDescriptor()
-            )); // load renderDispatcher onto stack
-            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_LOAD_RENDERERS.getParentClass().getRuntimeName(),
-                    NAMES.ON_LOAD_RENDERERS.getRuntimeName(),
-                    NAMES.ON_LOAD_RENDERERS.getDescriptor(),
-                    false
-            ));
+            insnList.add(ASMHelper.call(GETFIELD, Fields.RenderGlobal_renderDispatcher));
+            insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLoadRenderers));
 
             main.instructions.insert(node, insnList);
         }
@@ -93,20 +49,20 @@ public class RenderGlobalPatch extends ClassTransformer {
     @RegisterMethodTransformer
     private class RenderBlockLayer extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return RENDER_BLOCK_LAYER;
+        public ASMMethod getMethod() {
+            return Methods.RenderGlobal_renderBlockLayer;
         }
 
-        @Inject
+        @Inject(description = "Add hooks at the top and bottom of the method")
         public void inject(MethodNode main) {
-            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode preNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     INVOKESTATIC,
                     0x00, 0x00,
                     ALOAD, GETSTATIC, IF_ACMPNE,
                     0x00, 0x00,
                     ALOAD, GETFIELD, GETFIELD
             }, "x??xxx??xxx");
-            AbstractInsnNode postNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode postNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     ALOAD, GETFIELD, GETFIELD, INVOKEVIRTUAL,
                     0x00, 0x00,
                     ILOAD, IRETURN
@@ -122,23 +78,13 @@ public class RenderGlobalPatch extends ClassTransformer {
             insnPre.add(new VarInsnNode(ISTORE, 6));
             insnPre.add(new VarInsnNode(ALOAD, 1));
             insnPre.add(new VarInsnNode(DLOAD, 2));
-            insnPre.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_PRERENDER_BLOCKLAYER.getParentClass().getRuntimeName(),
-                    NAMES.ON_PRERENDER_BLOCKLAYER.getRuntimeName(),
-                    NAMES.ON_PRERENDER_BLOCKLAYER.getDescriptor(),
-                    false
-            ));
+            insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPreRenderBlockLayer));
             insnPre.add(new JumpInsnNode(IFNE, endJump));
 
             InsnList insnPost = new InsnList();
             insnPost.add(new VarInsnNode(ALOAD, 1));
             insnPost.add(new VarInsnNode(DLOAD, 2));
-            insnPost.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_POSTRENDER_BLOCKLAYER.getParentClass().getRuntimeName(),
-                    NAMES.ON_POSTRENDER_BLOCKLAYER.getRuntimeName(),
-                    NAMES.ON_POSTRENDER_BLOCKLAYER.getDescriptor(),
-                    false
-            ));
+            insnPost.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPostRenderBlockLayer));
             insnPost.add(endJump);
 
             main.instructions.insertBefore(preNode, insnPre);
@@ -149,13 +95,13 @@ public class RenderGlobalPatch extends ClassTransformer {
     @RegisterMethodTransformer
     private class SetupTerrain extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return SETUP_TERRAIN;
+        public ASMMethod getMethod() {
+            return Methods.RenderGlobal_setupTerrain;
         }
 
-        @Inject
+        @Inject(description = "Add hook at the top of the method")
         public void inject(MethodNode main) {
-            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode node = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     ALOAD, GETFIELD, GETFIELD, GETFIELD, ALOAD
             }, "xxxxx");
 
@@ -164,21 +110,16 @@ public class RenderGlobalPatch extends ClassTransformer {
             InsnList insnPre = new InsnList();
             insnPre.add(new VarInsnNode(ALOAD, 1));
             insnPre.add(new VarInsnNode(ILOAD, 6));
-            insnPre.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_SETUP_TERRAIN.getParentClass().getRuntimeName(),
-                    NAMES.ON_SETUP_TERRAIN.getRuntimeName(),
-                    NAMES.ON_SETUP_TERRAIN.getDescriptor(),
-                    false
-            ));
+            insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSetupTerrain));
             insnPre.add(new VarInsnNode(ISTORE, 6));
 
             main.instructions.insertBefore(node, insnPre);
         }
 
-        @Inject
+        @Inject(description = "Add or logic to this.mc.renderChunksMany flag")
         public void injectAtFlag(MethodNode main) {
             // inject at this.mc.renderChunksMany
-            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode node = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     ISTORE,
                     0x00, 0x00,
                     ALOAD, IFNULL,
@@ -195,12 +136,7 @@ public class RenderGlobalPatch extends ClassTransformer {
 
             InsnList insnList = new InsnList();
             insnList.add(new JumpInsnNode(IFEQ, falseLabel));
-            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.SHOULD_DISABLE_CULLING.getParentClass().getRuntimeName(),
-                    NAMES.SHOULD_DISABLE_CULLING.getRuntimeName(),
-                    NAMES.SHOULD_DISABLE_CULLING.getDescriptor(),
-                    false
-            ));
+            insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldDisableCaveCulling));
             insnList.add(new JumpInsnNode(IFNE, falseLabel));
             insnList.add(new InsnNode(ICONST_1));
             insnList.add(new JumpInsnNode(GOTO, storeLabel));

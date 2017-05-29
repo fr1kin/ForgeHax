@@ -1,10 +1,9 @@
 package com.matt.forgehax.asm.reflection;
 
 import com.matt.forgehax.asm.ASMCommon;
-import com.matt.forgehax.asm.helper.AsmStackLogger;
-import com.matt.forgehax.asm.reflection.type.FastField;
-import com.matt.forgehax.asm.reflection.type.FastMethod;
-import com.matt.forgehax.asm.reflection.type.FastTypeBuilder;
+import com.matt.forgehax.asm.utils.fasttype.FastField;
+import com.matt.forgehax.asm.utils.fasttype.FastMethod;
+import com.matt.forgehax.asm.utils.fasttype.FastTypeBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiDisconnected;
@@ -22,9 +21,7 @@ import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-import java.lang.reflect.Field;
 import java.nio.FloatBuffer;
 
 /**
@@ -40,15 +37,18 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<FloatBuffer> ActiveRenderInfo_MODELVIEW = FastTypeBuilder.create()
                 .setInsideClass(ActiveRenderInfo.class)
-                .setNames("MODELVIEW", "field_178812_b")
+                .setName("MODELVIEW")
+                .autoAssign()
                 .asField();
         FastField<FloatBuffer> ActiveRenderInfo_PROJECTION = FastTypeBuilder.create()
                 .setInsideClass(ActiveRenderInfo.class)
-                .setNames("PROJECTION", "field_178813_c")
+                .setName("PROJECTION")
+                .autoAssign()
                 .asField();
         FastField<Vec3d> ActiveRenderInfo_position = FastTypeBuilder.create()
                 .setInsideClass(ActiveRenderInfo.class)
-                .setNames("position", "field_178811_e")
+                .setName("position")
+                .autoAssign()
                 .asField();
 
         /**
@@ -56,19 +56,23 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<Float> CPacketPlayer_pitch = FastTypeBuilder.create()
                 .setInsideClass(CPacketPlayer.class)
-                .setNames("pitch", "field_149473_f")
+                .setName("pitch")
+                .autoAssign()
                 .asField();
         FastField<Float> CPacketPlayer_yaw = FastTypeBuilder.create()
                 .setInsideClass(CPacketPlayer.class)
-                .setNames("yaw", "field_149476_e")
+                .setName("yaw")
+                .autoAssign()
                 .asField();
         FastField<Boolean> CPacketPlayer_rotating = FastTypeBuilder.create()
                 .setInsideClass(CPacketPlayer.class)
-                .setNames("rotating", "field_149481_i")
+                .setName("rotating")
+                .autoAssign()
                 .asField();
         FastField<Boolean> CPacketPlayer_onGround = FastTypeBuilder.create()
                 .setInsideClass(CPacketPlayer.class)
-                .setNames("onGround", "field_149474_g")
+                .setName("onGround")
+                .autoAssign()
                 .asField();
 
         /**
@@ -76,7 +80,8 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<EntityDataManager> Entity_dataManager = FastTypeBuilder.create()
                 .setInsideClass(Entity.class)
-                .setNames("dataManager", "field_70180_af")
+                .setName("dataManager")
+                .autoAssign()
                 .asField();
 
         /**
@@ -84,7 +89,8 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<Integer> EntityPigZombie_angerLevel = FastTypeBuilder.create()
                 .setInsideClass(EntityPigZombie.class)
-                .setNames("angerLevel", "field_70837_d")
+                .setName("angerLevel")
+                .autoAssign()
                 .asField();
 
         /**
@@ -92,11 +98,13 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<Boolean> EntityPlayer_sleeping = FastTypeBuilder.create()
                 .setInsideClass(EntityPlayer.class)
-                .setNames("sleeping", "field_71083_bS")
+                .setName("sleeping")
+                .autoAssign()
                 .asField();
         FastField<Integer> EntityPlayer_sleepTimer = FastTypeBuilder.create()
                 .setInsideClass(EntityPlayer.class)
-                .setNames("sleepTimer", "field_71076_b")
+                .setName("sleepTimer")
+                .autoAssign()
                 .asField();
 
         /**
@@ -104,7 +112,8 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<Float> EntityPlayerSP_horseJumpPower = FastTypeBuilder.create()
                 .setInsideClass(EntityPlayerSP.class)
-                .setNames("horseJumpPower", "field_110321_bQ")
+                .setName("horseJumpPower")
+                .autoAssign()
                 .asField();
 
         /**
@@ -112,15 +121,18 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<GuiScreen> GuiDisconnected_parentScreen = FastTypeBuilder.create()
                 .setInsideClass(GuiDisconnected.class)
-                .setNames("parentScreen", "field_146307_h")
+                .setName("parentScreen")
+                .autoAssign()
                 .asField();
         FastField<ITextComponent> GuiDisconnected_message = FastTypeBuilder.create()
                 .setInsideClass(GuiDisconnected.class)
-                .setNames("message", "field_146304_f")
+                .setName("message")
+                .autoAssign()
                 .asField();
         FastField<String> GuiDisconnected_reason = FastTypeBuilder.create()
                 .setInsideClass(GuiDisconnected.class)
-                .setNames("reason", "field_146306_a")
+                .setName("reason")
+                .autoAssign()
                 .asField();
 
         /**
@@ -128,11 +140,13 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<Integer> Minecraft_leftClickCounter = FastTypeBuilder.create()
                 .setInsideClass(Minecraft.class)
-                .setNames("leftClickCounter", "field_71429_W")
+                .setName("leftClickCounter")
+                .autoAssign()
                 .asField();
         FastField<Integer> Minecraft_rightClickDelayTimer = FastTypeBuilder.create()
                 .setInsideClass(Minecraft.class)
-                .setNames("rightClickDelayTimer", "field_71467_ac")
+                .setName("rightClickDelayTimer")
+                .autoAssign()
                 .asField();
 
         /**
@@ -140,7 +154,8 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<Integer> PlayerControllerMP_blockHitDelay = FastTypeBuilder.create()
                 .setInsideClass(PlayerControllerMP.class)
-                .setNames("blockHitDelay", "field_78781_i")
+                .setName("blockHitDelay")
+                .autoAssign()
                 .asField();
 
         /**
@@ -148,15 +163,18 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<Integer> SPacketEntityVelocity_motionX = FastTypeBuilder.create()
                 .setInsideClass(SPacketEntityVelocity.class)
-                .setNames("motionX", "field_149415_b")
+                .setName("motionX")
+                .autoAssign()
                 .asField();
         FastField<Integer> SPacketEntityVelocity_motionY = FastTypeBuilder.create()
                 .setInsideClass(SPacketEntityVelocity.class)
-                .setNames("motionY", "field_149416_c")
+                .setName("motionY")
+                .autoAssign()
                 .asField();
         FastField<Integer> SPacketEntityVelocity_motionZ = FastTypeBuilder.create()
                 .setInsideClass(SPacketEntityVelocity.class)
-                .setNames("motionZ", "field_149414_d")
+                .setName("motionZ")
+                .autoAssign()
                 .asField();
 
         /**
@@ -164,15 +182,18 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<Float> SPacketExplosion_motionX = FastTypeBuilder.create()
                 .setInsideClass(SPacketExplosion.class)
-                .setNames("motionX", "field_149152_f")
+                .setName("motionX")
+                .autoAssign()
                 .asField();
         FastField<Float> SPacketExplosion_motionY = FastTypeBuilder.create()
                 .setInsideClass(SPacketExplosion.class)
-                .setNames("motionY", "field_149153_g")
+                .setName("motionY")
+                .autoAssign()
                 .asField();
         FastField<Float> SPacketExplosion_motionZ = FastTypeBuilder.create()
                 .setInsideClass(SPacketExplosion.class)
-                .setNames("motionZ", "field_149159_h")
+                .setName("motionZ")
+                .autoAssign()
                 .asField();
 
         /**
@@ -180,9 +201,14 @@ public interface FastReflection extends ASMCommon {
          */
         FastField<Boolean> VertexBuffer_isDrawing = FastTypeBuilder.create()
                 .setInsideClass(VertexBuffer.class)
-                .setNames("isDrawing", "field_179010_r")
+                .setName("isDrawing")
+                .autoAssign()
                 .asField();
     }
+
+    // ****************************************
+    // METHODS
+    // ****************************************
 
     interface Methods {
         /**
@@ -190,13 +216,17 @@ public interface FastReflection extends ASMCommon {
          */
         FastMethod<Boolean> Entity_getFlag = FastTypeBuilder.create()
                 .setInsideClass(Entity.class)
-                .setNames("getFlag", "func_70083_f")
+                .setName("getFlag")
                 .setParameters(int.class)
+                .setReturnType(boolean.class)
+                .autoAssign()
                 .asMethod();
         FastMethod<Void> Entity_setFlag = FastTypeBuilder.create()
                 .setInsideClass(Entity.class)
-                .setNames("setFlag", "func_70052_a")
+                .setName("setFlag")
                 .setParameters(int.class, boolean.class)
+                .setReturnType(void.class)
+                .autoAssign()
                 .asMethod();
 
         /**
@@ -204,8 +234,10 @@ public interface FastReflection extends ASMCommon {
          */
         FastMethod<Void> EntityLivingBase_resetPotionEffectMetadata = FastTypeBuilder.create()
                 .setInsideClass(EntityLivingBase.class)
-                .setNames("resetPotionEffectMetadata", "func_175133_bi")
+                .setName("resetPotionEffectMetadata")
                 .setParameters()
+                .setReturnType(void.class)
+                .autoAssign()
                 .asMethod();
 
         /**
@@ -213,8 +245,10 @@ public interface FastReflection extends ASMCommon {
          */
         FastMethod<Void> Minecraft_rightClickMouse = FastTypeBuilder.create()
                 .setInsideClass(Minecraft.class)
-                .setNames("rightClickMouse", "func_147121_ag")
+                .setName("rightClickMouse")
                 .setParameters()
+                .setReturnType(void.class)
+                .autoAssign()
                 .asMethod();
     }
 }

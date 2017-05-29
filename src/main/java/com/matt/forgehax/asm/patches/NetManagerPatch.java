@@ -1,13 +1,12 @@
 package com.matt.forgehax.asm.patches;
 
-import com.matt.forgehax.asm.helper.AsmHelper;
-import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
-import com.matt.forgehax.asm.helper.transforming.Inject;
-import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.concurrent.GenericFutureListener;
+import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
+import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
+import com.matt.forgehax.asm.utils.transforming.Inject;
+import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
+import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -15,39 +14,25 @@ import java.util.Objects;
 import static org.objectweb.asm.Opcodes.*;
 
 public class NetManagerPatch extends ClassTransformer {
-    public final AsmMethod DISPATCH_PACKET = new AsmMethod()
-            .setName("dispatchPacket")
-            .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.PACKET, GenericFutureListener[].class)
-            .setReturnType(void.class)
-            .setHooks(NAMES.ON_SENT_PACKET, NAMES.ON_SENDING_PACKET);
-
-    public final AsmMethod CHANNEL_READ0 = new AsmMethod()
-            .setName("channelRead0")
-            .setObfuscatedName("a")
-            .setArgumentTypes(ChannelHandlerContext.class, NAMES.PACKET)
-            .setReturnType(void.class)
-            .setHooks(NAMES.ON_POST_RECEIVED, NAMES.ON_PRE_RECEIVED);
-
     public NetManagerPatch() {
-        super("net/minecraft/network/NetworkManager");
+        super(Classes.NetworkManager);
     }
 
     @RegisterMethodTransformer
     private class DispatchPacket extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return DISPATCH_PACKET;
+        public ASMMethod getMethod() {
+            return Methods.NetworkManager_dispatchPacket;
         }
 
-        @Inject
+        @Inject(description = "Add pre and post hooks that allow method to be disabled")
         public void inject(MethodNode main) {
-            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode preNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     ALOAD, ALOAD, IF_ACMPEQ, ALOAD, INSTANCEOF, IFNE,
                     0x00, 0x00,
                     ALOAD, ALOAD, INVOKEVIRTUAL
             }, "xxxxxx??xxx");
-            AbstractInsnNode postNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode postNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     POP,
                     0x00, 0x00,
                     GOTO,
@@ -62,22 +47,12 @@ public class NetManagerPatch extends ClassTransformer {
 
             InsnList insnPre = new InsnList();
             insnPre.add(new VarInsnNode(ALOAD, 1));
-            insnPre.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_SENDING_PACKET.getParentClass().getRuntimeName(),
-                    NAMES.ON_SENDING_PACKET.getRuntimeName(),
-                    NAMES.ON_SENDING_PACKET.getDescriptor(),
-                    false
-            ));
+            insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendingPacket));
             insnPre.add(new JumpInsnNode(IFNE, endJump));
 
             InsnList insnPost = new InsnList();
             insnPost.add(new VarInsnNode(ALOAD, 1));
-            insnPost.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_SENT_PACKET.getParentClass().getRuntimeName(),
-                    NAMES.ON_SENT_PACKET.getRuntimeName(),
-                    NAMES.ON_SENT_PACKET.getDescriptor(),
-                    false
-            ));
+            insnPost.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSentPacket));
             insnPost.add(endJump);
 
             main.instructions.insertBefore(preNode, insnPre);
@@ -88,16 +63,16 @@ public class NetManagerPatch extends ClassTransformer {
     @RegisterMethodTransformer
     private class ChannelRead0 extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return CHANNEL_READ0;
+        public ASMMethod getMethod() {
+            return Methods.NetworkManager_channelRead0;
         }
 
-        @Inject
+        @Inject(description = "Add pre and post hook that allows the method to be disabled")
         public void inject(MethodNode main) {
-            AbstractInsnNode preNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode preNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     ALOAD, ALOAD, GETFIELD, INVOKEINTERFACE
             }, "xxxx");
-            AbstractInsnNode postNode = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode postNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     INVOKEINTERFACE,
                     0x00, 0x00,
                     GOTO,
@@ -110,22 +85,12 @@ public class NetManagerPatch extends ClassTransformer {
 
             InsnList insnPre = new InsnList();
             insnPre.add(new VarInsnNode(ALOAD, 2));
-            insnPre.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_PRE_RECEIVED.getParentClass().getRuntimeName(),
-                    NAMES.ON_PRE_RECEIVED.getRuntimeName(),
-                    NAMES.ON_PRE_RECEIVED.getDescriptor(),
-                    false
-            ));
+            insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPreReceived));
             insnPre.add(new JumpInsnNode(IFNE, endJump));
 
             InsnList insnPost = new InsnList();
             insnPost.add(new VarInsnNode(ALOAD, 2));
-            insnPost.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.ON_POST_RECEIVED.getParentClass().getRuntimeName(),
-                    NAMES.ON_POST_RECEIVED.getRuntimeName(),
-                    NAMES.ON_POST_RECEIVED.getDescriptor(),
-                    false
-            ));
+            insnPost.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPostReceived));
             insnPost.add(endJump);
 
             main.instructions.insertBefore(preNode, insnPre);

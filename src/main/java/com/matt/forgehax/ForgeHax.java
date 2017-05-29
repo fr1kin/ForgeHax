@@ -6,6 +6,7 @@ import com.matt.forgehax.mods.*;
 import com.matt.forgehax.mods.core.ContainersMod;
 import com.matt.forgehax.util.TickManager;
 import com.matt.forgehax.util.command.events.CommandEventHandler;
+import com.matt.forgehax.util.command.globals.GlobalCommands;
 import com.matt.forgehax.util.container.ContainerManager;
 import com.matt.forgehax.util.key.BindSerializer;
 import net.minecraft.client.Minecraft;
@@ -25,8 +26,6 @@ import static com.matt.forgehax.Wrapper.*;
 public class ForgeHax {
 	public static final String MODID = "forgehax";
 	public static final String VERSION = "1.2";
-
-	public static final Minecraft MC = Minecraft.getMinecraft();
 
 	public static final String CONFIG_FILE_NAME = "settings.json";
 
@@ -81,7 +80,7 @@ public class ForgeHax {
 		PrintWriter pw = new PrintWriter(sw);
 		exception.printStackTrace(pw);
 		getLog().error(sw);
-		if (MC.player != null) {
+		if (MC != null) {
 			//MC.player.sendChatMessage("ERROR: " + exception.getMessage());
 		}
 	}
@@ -107,7 +106,7 @@ public class ForgeHax {
 					getModManager().getMods().forEach(BaseMod::onUnload);
 				}));
 				// register global commands
-				GlobalCommands.initialize();
+				GlobalCommands.registerAll();
 
 				//---- initialize mods ----//
 				getModManager().loadPackages();

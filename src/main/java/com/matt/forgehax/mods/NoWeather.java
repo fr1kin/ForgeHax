@@ -1,6 +1,8 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.network.play.server.SPacketEffect;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -15,7 +17,7 @@ public class NoWeather extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onWorldTick(TickEvent.WorldTickEvent event) {
-        event.world.setRainStrength(0);
+    public void onWorldTick(TickEvent.ClientTickEvent event) {
+        if(Wrapper.getWorld() != null) Wrapper.getWorld().setRainStrength(0);
     }
 }

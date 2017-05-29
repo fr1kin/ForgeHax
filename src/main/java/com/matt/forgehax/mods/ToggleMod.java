@@ -58,6 +58,10 @@ public abstract class ToggleMod extends BaseMod {
         return enabled.getBoolean();
     }
 
+    public KeyBinding getToggleBind() {
+        return toggleBind;
+    }
+
     /**
      * Called when the config is changed
      */

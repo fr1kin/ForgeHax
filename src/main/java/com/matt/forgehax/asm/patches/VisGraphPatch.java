@@ -1,11 +1,12 @@
 package com.matt.forgehax.asm.patches;
 
-import com.matt.forgehax.asm.helper.AsmHelper;
-import com.matt.forgehax.asm.helper.AsmMethod;
-import com.matt.forgehax.asm.helper.transforming.ClassTransformer;
-import com.matt.forgehax.asm.helper.transforming.Inject;
-import com.matt.forgehax.asm.helper.transforming.MethodTransformer;
-import com.matt.forgehax.asm.helper.transforming.RegisterMethodTransformer;
+import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
+import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
+import com.matt.forgehax.asm.utils.transforming.Inject;
+import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
+import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -13,33 +14,21 @@ import java.util.Objects;
 import static org.objectweb.asm.Opcodes.*;
 
 public class VisGraphPatch extends ClassTransformer {
-    public final AsmMethod SET_OPAQUE_CUBE = new AsmMethod()
-            .setName("setOpaqueCube")
-            .setObfuscatedName("a")
-            .setArgumentTypes(NAMES.BLOCKPOS)
-            .setReturnType(void.class);
-
-    public final AsmMethod COMPUTE_VISIBILITY = new AsmMethod()
-            .setName("computeVisibility")
-            .setObfuscatedName("a")
-            .setArgumentTypes()
-            .setReturnType(NAMES.SETVISIBILITY);
-
     public VisGraphPatch() {
-        super("net/minecraft/client/renderer/chunk/VisGraph");
+        super(Classes.VisGraph);
     }
 
     @RegisterMethodTransformer
     private class SetOpaqueCube extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return SET_OPAQUE_CUBE;
+        public ASMMethod getMethod() {
+            return Methods.VisGraph_setOpaqueCube;
         }
 
-        @Inject
+        @Inject(description = "Add hook at the end that can override the return value")
         public void inject(MethodNode main) {
             AbstractInsnNode top = main.instructions.getFirst();
-            AbstractInsnNode bottom = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode bottom = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     RETURN
             }, "x");
 
@@ -49,12 +38,7 @@ public class VisGraphPatch extends ClassTransformer {
             LabelNode cancelNode = new LabelNode();
 
             InsnList insnList = new InsnList();
-            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.SHOULD_DISABLE_CULLING.getParentClass().getRuntimeName(),
-                    NAMES.SHOULD_DISABLE_CULLING.getRuntimeName(),
-                    NAMES.SHOULD_DISABLE_CULLING.getDescriptor(),
-                    false
-            ));
+            insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldDisableCaveCulling));
             insnList.add(new JumpInsnNode(IFNE, cancelNode));
 
             main.instructions.insertBefore(top, insnList);
@@ -65,13 +49,13 @@ public class VisGraphPatch extends ClassTransformer {
     @RegisterMethodTransformer
     private class ComputeVisibility extends MethodTransformer {
         @Override
-        public AsmMethod getMethod() {
-            return COMPUTE_VISIBILITY;
+        public ASMMethod getMethod() {
+            return Methods.VisGraph_computeVisibility;
         }
 
-        @Inject
+        @Inject(description = "Add hook that adds or logic to the jump that checks if setAllVisible(true) should be called")
         public void inject(MethodNode main) {
-            AbstractInsnNode node = AsmHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode node = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     SIPUSH, IF_ICMPGE
             }, "xx");
 
@@ -87,12 +71,7 @@ public class VisGraphPatch extends ClassTransformer {
 
             InsnList insnList = new InsnList();
             insnList.add(new JumpInsnNode(IF_ICMPLT, orLabel));
-            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                    NAMES.SHOULD_DISABLE_CULLING.getParentClass().getRuntimeName(),
-                    NAMES.SHOULD_DISABLE_CULLING.getRuntimeName(),
-                    NAMES.SHOULD_DISABLE_CULLING.getDescriptor(),
-                    false
-            ));
+            insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldDisableCaveCulling));
             insnList.add(new JumpInsnNode(IFEQ, nextIfStatement));
             insnList.add(orLabel);
 
