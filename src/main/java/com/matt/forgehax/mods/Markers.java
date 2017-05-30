@@ -9,7 +9,6 @@ import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.reflection.FastReflection;
-import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.blocks.*;
 import com.matt.forgehax.util.command.jopt.OptionHelper;
 import com.matt.forgehax.util.command.CommandBuilder;
@@ -46,21 +45,28 @@ import java.util.function.BiConsumer;
  */
 @RegisterMod
 public class Markers extends ToggleMod implements BlockModelRenderListener {
-    public static final BlockOptions blockOptions = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "markers.json"));
+    // TODO: Bug when a render chunk is empty according to isEmptyLayer but actually contains tile entities with an invisible render layer type. This will cause them not to be rendered provided they are the only blocks within that region.
 
-    private static TesselatorCache cache = new TesselatorCache(100, 0x20000);
+    private static final BlockOptions MARKER_OPTIONS = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "markers.json"));
 
+    private static final int VERTEX_BUFFER_COUNT = 100;
+    private static final int VERTEX_BUFFER_SIZE = 0x200;
+
+    public static BlockOptions getMarkerOptions() {
+        return MARKER_OPTIONS;
+    }
+
+    private static TesselatorCache cache = new TesselatorCache(VERTEX_BUFFER_COUNT, VERTEX_BUFFER_SIZE);
     public static void setCache(TesselatorCache cache) {
         Markers.cache = cache;
     }
-
-    private final ThreadLocal<GeometryTessellator> localTessellator = new ThreadLocal<>();
 
     private Renderers renderers = new Renderers();
     private Vec3d renderingOffset = new Vec3d(0, 0, 0);
 
     public Property clearBuffer;
-    public Property antialias;
+    public Property antialiasing;
+    public Property antialiasing_max;
 
     public Markers() {
         super("Markers", false, "Renders a box around a block");
@@ -85,10 +91,15 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                         true,
                         "Will clear the depth buffer instead of disabling depth"
                 ),
-                antialias = configuration.get(getModName(),
-                        "antialias",
+                antialiasing = configuration.get(getModName(),
+                        "antialiasing",
                         false,
                         "Will enable anti aliasing on lines making them look smoother, but will hurt performance"
+                ),
+                antialiasing_max = configuration.get(getModName(),
+                        "antialiasing_max",
+                        0,
+                        "Max number of elements allowed in a region before AA is disabled for that region (0 for no limit)"
                 )
         );
     }
@@ -149,13 +160,13 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                             boolean invoke = false;
                             for(AbstractBlockEntry entry : process) {
                                 entry.getColor().set(r, g, b, a);
-                                AbstractBlockEntry existing = blockOptions.get(entry.getBlock(), entry.getMetadata());
+                                AbstractBlockEntry existing = MARKER_OPTIONS.get(entry.getBlock(), entry.getMetadata());
                                 if (existing != null) {
                                     // add new bounds
                                     entry.getBounds().getAll().forEach(bound -> existing.getBounds().add(bound.getMin(), bound.getMax()));
                                     if(wasGivenRGBA) existing.getColor().set(entry.getColor().getAsBuffer());
                                     invoke = true;
-                                } else if(blockOptions.add(entry)) {
+                                } else if(MARKER_OPTIONS.add(entry)) {
                                     Wrapper.printMessage(String.format("Added block \"%s\"", entry.getPrettyName()));
                                     // execute the callbacks
                                     invoke = true;
@@ -171,7 +182,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                     return false;
                 })
                 .addCallback(cmd -> {
-                    blockOptions.serialize();
+                    MARKER_OPTIONS.serialize();
                     reloadRenderers();
                 })
                 .build()
@@ -204,7 +215,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                             // not the proper use of atomics but it will get the job done
                             AtomicBoolean shouldCall = new AtomicBoolean(false);
                             for(AbstractBlockEntry e : process) {
-                                final AbstractBlockEntry realEntry = blockOptions.get(e.getBlock(), e.getMetadata());
+                                final AbstractBlockEntry realEntry = MARKER_OPTIONS.get(e.getBlock(), e.getMetadata());
                                 if(realEntry != null) {
                                     if(removingOptions) {
                                         // remove just the options listed
@@ -219,7 +230,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                                                 throw new IllegalArgumentException(String.format("Invalid argument \"%s\" given for bounds option. Should be formatted as min:max", value));
                                             }
                                         });
-                                    } else if (blockOptions.remove(realEntry)) {
+                                    } else if (MARKER_OPTIONS.remove(realEntry)) {
                                         Wrapper.printMessage(String.format("Removed block \"%s\" from the block list", e.getPrettyName()));
                                         shouldCall.set(true);
                                     } else if (process.size() <= 1) { // don't print this message for all matching blocks
@@ -235,7 +246,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                     return false;
                 })
                 .addCallback(cmd -> {
-                    blockOptions.serialize();
+                    MARKER_OPTIONS.serialize();
                     reloadRenderers();
                 })
                 .build()
@@ -259,7 +270,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                             AbstractBlockEntry match = byId ? BlockEntry.createById(SafeConverter.toInteger(name, 0), meta) :
                                     BlockEntry.createByResource(name, meta);
 
-                            AbstractBlockEntry find = blockOptions.get(match.getBlock(), match.getMetadata());
+                            AbstractBlockEntry find = MARKER_OPTIONS.get(match.getBlock(), match.getMetadata());
                             if(find != null) {
                                 Wrapper.printMessage(find.toString());
                             } else {
@@ -278,7 +289,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 .setDescription("Lists all the blocks in the block list")
                 .setProcessor(opts -> {
                     final StringBuilder builder = new StringBuilder("Found: ");
-                    blockOptions.forEach(entry -> {
+                    MARKER_OPTIONS.forEach(entry -> {
                         builder.append(entry.getPrettyName());
                         builder.append(", ");
                     });
@@ -293,12 +304,12 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
     @Override
     public void onUnload() {
-        blockOptions.serialize();
+        MARKER_OPTIONS.serialize();
     }
 
     @Override
     public void onEnabled() {
-        blockOptions.deserialize();
+        MARKER_OPTIONS.deserialize();
         Listeners.BLOCK_MODEL_RENDER_LISTENER.register(this);
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable();
         reloadRenderers();
@@ -338,7 +349,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     public void onLoadRenderers(LoadRenderersEvent event) {
         try {
             setRenderers(new Renderers());
-            setCache(new TesselatorCache(100, 0x20000));
+            setCache(new TesselatorCache(VERTEX_BUFFER_COUNT, VERTEX_BUFFER_SIZE));
             // allocate all space needed
             for (RenderChunk renderChunk : event.getViewFrustum().renderChunks) {
                 renderers.register(renderChunk);
@@ -364,13 +375,9 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 GeometryTessellator tess = info.takeTessellator();
                 if (tess != null) {
                     tess.beginLines();
-                    info.setBuilding(true);
-
+                    info.resetRenderCount();
                     BlockPos renderPos = event.getRenderChunk().getPosition();
                     tess.setTranslation(-renderPos.getX(), -renderPos.getY(), -renderPos.getZ());
-
-                    // block render function wont have a RenderChunk instance passed through it
-                    localTessellator.set(tess);
                 }
             }));
         } catch (Exception e) {
@@ -385,14 +392,11 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 GeometryTessellator tess = info.getTessellator();
                 if (tess != null && info.isBuilding()) {
                     tess.getBuffer().finishDrawing();
-                    info.setBuilding(false);
                     info.setUploaded(false);
                 }
             }));
         } catch (Exception e) {
             handleException(event.getRenderChunk(), e);
-        } finally {
-            localTessellator.remove();
         }
     }
 
@@ -402,7 +406,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             renderers.computeIfPresent(renderChunk, (chk, info) -> info.compute(() -> {
                 GeometryTessellator tess = info.getTessellator();
                 if (tess != null && FastReflection.Fields.VertexBuffer_isDrawing.get(tess.getBuffer(), false)) {
-                    AbstractBlockEntry blockEntry = blockOptions.get(block, block.getMetaFromState(state));
+                    AbstractBlockEntry blockEntry = MARKER_OPTIONS.get(block, block.getMetaFromState(state));
                     if(blockEntry != null && blockEntry.getBounds().isWithinBoundaries(pos.getY())) {
                         AxisAlignedBB bb = state.getSelectedBoundingBox(Wrapper.getWorld(), pos);
                         GeometryTessellator.drawLines(
@@ -412,6 +416,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                                 GeometryMasks.Line.ALL,
                                 blockEntry.getColor().getAsBuffer()
                         );
+                        info.incrementRenderCount();
                     }
                 }
             }));
@@ -474,14 +479,17 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
             }
 
-            if(antialias.getBoolean())
-                GL11.glEnable(GL11.GL_LINE_SMOOTH);
+            final boolean aa_enabled = antialiasing.getBoolean();
+            final int aa_max = antialiasing_max.getInt();
 
             GlStateManager.glEnableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.glEnableClientState(GL11.GL_COLOR_ARRAY);
 
             renderers.forEach((chk, info) -> {
                 if (info.isVboPresent() && info.isRendering()) {
+                    if(aa_enabled && (aa_max == 0 || info.getRenderCount() <= aa_max))
+                        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+
                     GlStateManager.pushMatrix();
 
                     BlockPos pos = chk.getPosition();
@@ -512,14 +520,16 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
                     GlStateManager.popMatrix();
 
+                    GL11.glDisable(GL11.GL_LINE_SMOOTH);
+
                     info.setRendering(false);
                 }
             });
 
+            GL11.glDisable(GL11.GL_LINE_SMOOTH);
+
             GlStateManager.glDisableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.glDisableClientState(GL11.GL_COLOR_ARRAY);
-
-            GL11.glDisable(GL11.GL_LINE_SMOOTH);
 
             OpenGlHelper.glBindBuffer(OpenGlHelper.GL_ARRAY_BUFFER, 0);
 
@@ -530,14 +540,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             GlStateManager.enableDepth();
             GlStateManager.enableCull();
             GlStateManager.popMatrix();
-        } catch (Exception e) {
-            handleException(null, e);
-        }
-    }
-
-    //@SubscribeEvent
-    public void onRender(RenderEvent event) {
-        try {
         } catch (Exception e) {
             handleException(null, e);
         }
@@ -598,11 +600,10 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         private net.minecraft.client.renderer.vertex.VertexBuffer vbo = new net.minecraft.client.renderer.vertex.VertexBuffer(DefaultVertexFormats.POSITION_COLOR);
 
         private boolean rendering = false;
-        private boolean building = false;
         private boolean uploaded = false;
 
-        //private List<GeometryTessellator> usedTessellators = Lists.newArrayList();
-        //private List<GeometryTessellator> freedTessellators = Lists.newArrayList();
+        private int renderCount = 0;
+        private int currentRenderCount = 0;
 
         public boolean isRendering() {
             return rendering;
@@ -613,11 +614,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
 
         public boolean isBuilding() {
-            return building;
-        }
-
-        public void setBuilding(boolean building) {
-            this.building = building;
+            return tessellator != null && FastReflection.Fields.VertexBuffer_isDrawing.get(tessellator.getBuffer());
         }
 
         public boolean isUploaded() {
@@ -628,12 +625,23 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             this.uploaded = uploaded;
         }
 
+        public void incrementRenderCount() {
+            renderCount++;
+        }
+
+        public void resetRenderCount() {
+            renderCount = 0;
+        }
+
+        public int getRenderCount() {
+            return renderCount;
+        }
+
         public GeometryTessellator getTessellator() {
             return tessellator;
         }
 
         public void setTessellator(GeometryTessellator tessellator) {
-            //if(tessellator != null) usedTessellators.add(tessellator);
             this.tessellator = tessellator;
         }
 
@@ -649,13 +657,9 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             if(tess != null) {
                 try {
                     // this would shouldn't happen but it could
-                    if (isBuilding()) {
-                        tess.getBuffer().finishDrawing();
-                        building = false;
-                    }
+                    if (isBuilding()) tess.getBuffer().finishDrawing();
                     tess.setTranslation(0.D, 0.D, 0.D);
                 } finally {
-                    //freedTessellators.add(tess);
                     if(cache != null) cache.free(tess);
                     tessellator = null;
                 }
