@@ -15,44 +15,35 @@
  */
 package bspkrs.mmv;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.Comparator;
 
-public class StaticMethodsFile
+import bspkrs.mmv.version.NaturalOrderComparator;
+
+public class SplittedNaturalComparator implements Comparator<Object>
 {
-    private final File  file;
-    public List<String> staticMethods;
+    private final String splitter;
 
-    public StaticMethodsFile(File file) throws IOException
+    public SplittedNaturalComparator(String splitter)
     {
-        this.file = file;
-        staticMethods = new ArrayList<String>();
-        readFromFile();
+        this.splitter = splitter;
     }
 
-    public void readFromFile() throws IOException
+    @Override
+    public int compare(Object o1, Object o2)
     {
-        Scanner in = new Scanner(new BufferedReader(new FileReader(file)));
-        try
-        {
-            while (in.hasNextLine())
-            {
-                staticMethods.add(in.nextLine());
-            }
-        }
-        finally
-        {
-            in.close();
-        }
-    }
+        String[] a = o1.toString().split(splitter);
+        String[] b = o2.toString().split(splitter);
 
-    public boolean contains(String srgName)
-    {
-        return staticMethods.contains(srgName);
+        if (a.length != b.length)
+            return b.length - a.length;
+
+        NaturalOrderComparator comp = new NaturalOrderComparator();
+        for (int i = 0; i < a.length; i++)
+        {
+            int comparison = comp.compare(a[i], b[i]);
+            if (comparison != 0)
+                return comparison;
+        }
+        return 0;
     }
 }

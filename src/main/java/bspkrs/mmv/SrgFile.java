@@ -17,8 +17,15 @@
  */
 package bspkrs.mmv;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class SrgFile
 {
@@ -38,9 +45,9 @@ public class SrgFile
         return parts[parts.length - 1];
     }
 
-    public SrgFile(InputStream stream, ExcFile excFile, StaticMethodsFile staticMethods) throws IOException
+    public SrgFile(File f, ExcFile excFile, StaticMethodsFile staticMethods) throws IOException
     {
-        Scanner in = new Scanner(stream);
+        Scanner in = new Scanner(new BufferedReader(new FileReader(f)));
         try
         {
             while (in.hasNextLine())

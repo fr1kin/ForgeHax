@@ -19,7 +19,6 @@ package bspkrs.mmv;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -29,7 +28,7 @@ public class ExcFile
     public final Map<String, ExcData> srgMethodName2ExcData;
     public final Map<String, ExcData> srgParamName2ExcData;
 
-    public ExcFile(InputStream f) throws IOException
+    public ExcFile(File f) throws IOException
     {
         srgMethodName2ExcData = new HashMap<String, ExcData>();
         srgParamName2ExcData = new HashMap<String, ExcData>();
@@ -40,7 +39,7 @@ public class ExcFile
         // net/minecraft/world/chunk/storage/AnvilChunkLoader.func_75818_b()V=|
         // net/minecraft/server/MinecraftServer.func_145747_a(Lnet/minecraft/util/IChatComponent;)V=|p_145747_1_
 
-        Scanner in = new Scanner(f);
+        Scanner in = new Scanner(new FileReader(f));
         try
         {
             while (in.hasNextLine())

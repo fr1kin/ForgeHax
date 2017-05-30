@@ -16,7 +16,12 @@
  */
 package bspkrs.mmv;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -25,14 +30,22 @@ import java.util.TreeMap;
 
 public class CsvFile
 {
+    private final File                 file;
     private final Map<String, CsvData> srgMemberName2CsvData;
     private boolean                    isDirty;
     private String                     headerLine;
 
-    public CsvFile(InputStream stream) throws IOException
+    public CsvFile(File file) throws IOException
     {
+        this.file = file;
         srgMemberName2CsvData = new TreeMap<String, CsvData>();
-        Scanner in = new Scanner(stream);
+        readFromFile();
+        isDirty = false;
+    }
+
+    public void readFromFile() throws IOException
+    {
+        Scanner in = new Scanner(new BufferedReader(new FileReader(file)));
         try
         {
             in.useDelimiter(",");
@@ -50,7 +63,30 @@ public class CsvFile
         {
             in.close();
         }
-        isDirty = false;
+    }
+
+    public void writeToFile() throws IOException
+    {
+        if (isDirty)
+        {
+            if (file.exists())
+            {
+                File fileBak = new File(file.getAbsolutePath() + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".bak");
+                file.renameTo(fileBak);
+            }
+
+            file.createNewFile();
+
+            PrintWriter out = new PrintWriter(new FileWriter(file));
+            out.println(headerLine);
+
+            for (CsvData data : srgMemberName2CsvData.values())
+                out.println(data.toCsv());
+
+            out.close();
+
+            isDirty = false;
+        }
     }
 
     public boolean hasCsvDataForKey(String srgName)

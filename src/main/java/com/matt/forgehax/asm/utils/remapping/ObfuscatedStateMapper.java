@@ -8,6 +8,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.reflection.FastReflectionForge;
+import com.matt.forgehax.asm.utils.ASMStackLogger;
+import com.matt.forgehax.asm.utils.CurrentBuildMapping;
 import com.matt.forgehax.asm.utils.environment.IStateMapper;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
@@ -33,12 +35,17 @@ public class ObfuscatedStateMapper implements ASMCommon, IStateMapper {
     private final Map<String, Map<String, McpTypeData>> mcpFieldData;
 
     protected ObfuscatedStateMapper() {
+        LOGGER.info("Using build mapping \"" + CurrentBuildMapping.getMapping() + "\"");
+
         MCPMappingLoader mcpMappingLoader = null;
         try {
-            mcpMappingLoader = new MCPMappingLoader();
+            mcpMappingLoader = new MCPMappingLoader(CurrentBuildMapping.getMapping());
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
+            ASMStackLogger.printStackTrace(e);
         }
+
+        LOGGER.info("Mapping data successfully initialize");
 
         Objects.requireNonNull(mcpMappingLoader, "MCPMappingLoader failed to lookup obfuscation data");
 
