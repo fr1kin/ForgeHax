@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.matt.forgehax.util.mod.ModManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.text.TextComponentSelector;
 import net.minecraft.util.text.TextComponentString;
@@ -38,7 +39,7 @@ public class Wrapper implements Globals {
         return MC.player;
     }
 
-    public static World getWorld() {
+    public static WorldClient getWorld() {
         return MC.world;
     }
 

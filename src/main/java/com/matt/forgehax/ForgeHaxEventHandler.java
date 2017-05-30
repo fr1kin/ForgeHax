@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.RenderEvent;
+import com.matt.forgehax.events.WorldChangeEvent;
 import com.matt.forgehax.events.listeners.WorldListener;
 import com.matt.forgehax.mods.BaseMod;
 import com.matt.forgehax.util.Utils;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -62,6 +64,12 @@ public class ForgeHaxEventHandler implements Globals {
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         event.getWorld().addEventListener(WORLD_LISTENER);
+        MinecraftForge.EVENT_BUS.post(new WorldChangeEvent(event.getWorld()));
+    }
+
+    @SubscribeEvent
+    public void onWorldUnload(WorldEvent.Unload event) {
+        MinecraftForge.EVENT_BUS.post(new WorldChangeEvent(event.getWorld()));
     }
 
     /**
