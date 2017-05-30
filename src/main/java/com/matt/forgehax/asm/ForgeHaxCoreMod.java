@@ -1,5 +1,6 @@
 package com.matt.forgehax.asm;
 
+import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import com.matt.forgehax.asm.utils.remapping.FileDumper;
 import com.matt.forgehax.asm.utils.remapping.ObfuscatedStateMapper;
@@ -40,7 +41,8 @@ public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
                 }
                 //FileDumper.dumpAllFiles();
             } catch (Exception e) {
-                ;
+                LOGGER.error("Failed to obtain runtimeDeobfuscationEnabled: " + e.getMessage());
+                ASMStackLogger.printStackTrace(e);
             }
         }
     }
