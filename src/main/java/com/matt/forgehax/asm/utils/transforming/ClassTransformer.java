@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.TypesMc;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.asmtype.ASMClass;
+import com.matt.forgehax.mcversion.MCVersionChecker;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -23,7 +24,9 @@ public abstract class ClassTransformer implements ASMCommon, TypesMc {
         this.transformingClass = clazz;
         for(Class c : getClass().getDeclaredClasses()) {
             try {
-                if (c.isAnnotationPresent(RegisterMethodTransformer.class) && MethodTransformer.class.isAssignableFrom(c)) {
+                if (c.isAnnotationPresent(RegisterMethodTransformer.class)
+                        && MethodTransformer.class.isAssignableFrom(c)
+                        && MCVersionChecker.checkVersion(c)) {
                     Constructor constructor;
                     try {
                         constructor = c.getDeclaredConstructor(getClass());

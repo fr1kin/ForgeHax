@@ -4,6 +4,7 @@ import com.google.common.collect.Queues;
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
+import com.matt.forgehax.mcversion.MCVersionChecker;
 import joptsimple.internal.Strings;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -21,9 +22,10 @@ public abstract class MethodTransformer implements ASMCommon {
         for (Method m : getClass().getDeclaredMethods()) {
             try {
                 m.setAccessible(true);
-                if (m.isAnnotationPresent(Inject.class) &&
-                        m.getParameterCount() > 0 &&
-                        MethodNode.class.equals(m.getParameterTypes()[0])) {
+                if (m.isAnnotationPresent(Inject.class)
+                        && m.getParameterCount() > 0
+                        && MethodNode.class.equals(m.getParameterTypes()[0])
+                        && MCVersionChecker.checkVersion(m)) {
                     tasks.add(new TaskElement(m, m.getAnnotation(Inject.class).description(), m.getAnnotation(Inject.class).priority()));
                 }
             } catch (Exception e) {
