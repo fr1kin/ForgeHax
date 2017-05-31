@@ -1,8 +1,8 @@
-package com.matt.forgehax.mods;
+package com.matt.forgehax.util.mod;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Wrapper;
-import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;

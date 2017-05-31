@@ -1,14 +1,12 @@
 package com.matt.forgehax;
 
 import com.google.common.collect.Lists;
-import com.matt.forgehax.mods.BaseMod;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraftforge.fml.client.config.IConfigElement;
 
 import java.util.List;
-import java.util.Map;
 
 public class ForgeHaxGuiConfig extends GuiConfig {
     public ForgeHaxGuiConfig(GuiScreen parent)

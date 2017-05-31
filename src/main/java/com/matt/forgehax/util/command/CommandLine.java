@@ -1,7 +1,5 @@
 package com.matt.forgehax.util.command;
 
-import com.google.common.base.Objects;
-import com.matt.forgehax.mods.BaseMod;
 import joptsimple.internal.Strings;
 
 import java.util.ArrayList;

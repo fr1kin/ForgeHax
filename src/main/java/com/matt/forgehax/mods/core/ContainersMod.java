@@ -1,9 +1,8 @@
 package com.matt.forgehax.mods.core;
 
 import com.google.common.collect.Lists;
-import com.matt.forgehax.gui.categories.ItemListCategory;
 import com.matt.forgehax.gui.categories.PlayerListCategory;
-import com.matt.forgehax.mods.BaseMod;
+import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.config.DummyConfigElement;

@@ -7,6 +7,7 @@ import com.matt.forgehax.util.entity.EnchantmentUtils;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;

@@ -1,4 +1,4 @@
-package com.matt.forgehax.mods;
+package com.matt.forgehax.util.mod;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;

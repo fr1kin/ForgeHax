@@ -4,6 +4,7 @@ import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;

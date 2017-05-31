@@ -1,4 +1,5 @@
 package com.matt.forgehax.mods;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.common.config.Configuration;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;

@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.entity.player.InventoryPlayer;

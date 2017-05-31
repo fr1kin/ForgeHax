@@ -3,20 +3,14 @@ package com.matt.forgehax.mods;
 import com.github.lunatrius.core.client.renderer.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.GeometryTessellator;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
-import com.matt.forgehax.util.draw.RenderUtils;
-import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.world.ChunkEvent;
@@ -25,9 +19,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Map;
-import java.util.Set;
-
-import static com.matt.forgehax.Wrapper.*;
 
 /**
  * Created on 4/28/2017 by fr1kin

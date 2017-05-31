@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;

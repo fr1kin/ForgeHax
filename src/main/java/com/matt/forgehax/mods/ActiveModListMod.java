@@ -1,16 +1,15 @@
 package com.matt.forgehax.mods;
 
-import com.google.common.collect.Lists;
 import com.matt.forgehax.util.TickManager;
 import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.mod.BaseMod;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import java.util.List;
 
 import static com.matt.forgehax.Wrapper.*;
 

@@ -2,8 +2,8 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;

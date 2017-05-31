@@ -1,17 +1,14 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.ForgeHaxHooks;
-import com.matt.forgehax.asm.events.ComputeVisibilityEvent;
 import com.matt.forgehax.asm.events.RenderBlockInLayerEvent;
 import com.matt.forgehax.asm.events.RenderBlockLayerEvent;
-import com.matt.forgehax.asm.events.SetupTerrainEvent;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;

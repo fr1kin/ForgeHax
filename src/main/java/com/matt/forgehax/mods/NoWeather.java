@@ -1,11 +1,10 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.WorldChangeEvent;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketChangeGameState;
-import net.minecraft.network.play.server.SPacketEffect;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;

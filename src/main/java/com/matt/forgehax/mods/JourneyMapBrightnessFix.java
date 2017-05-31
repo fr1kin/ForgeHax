@@ -1,11 +1,8 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.ForgeHaxHooks;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-
-import java.util.List;
 
 /**
  * Created on 5/4/2017 by fr1kin

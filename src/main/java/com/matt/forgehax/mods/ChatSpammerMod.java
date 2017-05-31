@@ -7,6 +7,7 @@ import com.google.common.collect.Queues;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.play.client.CPacketChatMessage;

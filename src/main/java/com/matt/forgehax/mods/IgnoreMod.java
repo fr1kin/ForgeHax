@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.*;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;

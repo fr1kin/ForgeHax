@@ -1,17 +1,16 @@
 package com.matt.forgehax;
 
-import com.matt.forgehax.mods.*;
 import com.matt.forgehax.util.TickManager;
 import com.matt.forgehax.util.command.events.CommandEventHandler;
 import com.matt.forgehax.util.command.globals.GlobalCommands;
 import com.matt.forgehax.util.container.ContainerManager;
 import com.matt.forgehax.util.key.BindSerializer;
+import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 

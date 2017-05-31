@@ -5,7 +5,7 @@ import com.google.common.reflect.ClassPath;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.mcversion.MCVersionChecker;
-import com.matt.forgehax.mods.BaseMod;
+import com.matt.forgehax.util.mod.BaseMod;
 
 import java.io.IOException;
 import java.util.Collection;

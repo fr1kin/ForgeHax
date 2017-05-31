@@ -14,6 +14,7 @@ import com.matt.forgehax.util.jopt.OptionHelper;
 import com.matt.forgehax.util.command.CommandBuilder;
 import com.matt.forgehax.util.jopt.SafeConverter;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

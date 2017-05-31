@@ -1,8 +1,8 @@
 package com.matt.forgehax.util.command.globals;
 
 import com.matt.forgehax.Wrapper;
-import com.matt.forgehax.mods.BaseMod;
-import com.matt.forgehax.mods.ToggleMod;
+import com.matt.forgehax.util.mod.BaseMod;
+import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilder;
 import com.matt.forgehax.util.command.CommandExecuteException;

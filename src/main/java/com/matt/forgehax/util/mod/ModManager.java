@@ -2,7 +2,6 @@ package com.matt.forgehax.util.mod;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.matt.forgehax.mods.BaseMod;
 import com.matt.forgehax.util.mod.loader.ForgeHaxModLoader;
 
 import java.util.Collection;
