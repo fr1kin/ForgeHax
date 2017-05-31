@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.inventory.GuiCrafting;
@@ -82,7 +83,7 @@ public class AutoBlockCraft extends ToggleMod {
                 GuiCraftingOverride override = new GuiCraftingOverride(MC.player.inventory, MC.world, getSelectedOption().getRecipeBlock(), sleepTime.getInt());
                 event.setGui(override);
             } catch (Exception e) {
-                MOD.printStackTrace(e);
+                Wrapper.printStackTrace(e);
             }
         }
     }
@@ -273,12 +274,12 @@ public class AutoBlockCraft extends ToggleMod {
                                 sleep();
                             }
                         } catch (Exception e) {
-                            MOD.printStackTrace(e);
+                            Wrapper.printStackTrace(e);
                         }
                     }
                 }).start();
             } catch (Exception e) {
-                MOD.printStackTrace(e);
+                Wrapper.printStackTrace(e);
             }
         }
 

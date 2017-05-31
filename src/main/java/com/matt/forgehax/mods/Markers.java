@@ -10,9 +10,9 @@ import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.blocks.*;
-import com.matt.forgehax.util.command.jopt.OptionHelper;
+import com.matt.forgehax.util.jopt.OptionHelper;
 import com.matt.forgehax.util.command.CommandBuilder;
-import com.matt.forgehax.util.command.jopt.SafeConverter;
+import com.matt.forgehax.util.jopt.SafeConverter;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
@@ -33,7 +33,6 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,7 +46,7 @@ import java.util.function.BiConsumer;
 public class Markers extends ToggleMod implements BlockModelRenderListener {
     // TODO: Bug when a render chunk is empty according to isEmptyLayer but actually contains tile entities with an invisible render layer type. This will cause them not to be rendered provided they are the only blocks within that region.
 
-    private static final BlockOptions MARKER_OPTIONS = new BlockOptions(new File(Wrapper.getMod().getConfigFolder(), "markers.json"));
+    private static final BlockOptions MARKER_OPTIONS = new BlockOptions(Wrapper.getFileManager().getFileInConfigDirectory("markers.json"));
 
     private static final int VERTEX_BUFFER_COUNT = 100;
     private static final int VERTEX_BUFFER_SIZE = 0x200;
@@ -746,7 +745,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             try {
                 return buffers.take();
             } catch (InterruptedException e) {
-                MOD.printStackTrace(e);
+                Wrapper.printStackTrace(e);
                 return null; // this shouldn't happen
             }
         }

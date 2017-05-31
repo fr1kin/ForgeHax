@@ -2,6 +2,7 @@ package com.matt.forgehax.gui.categories;
 
 import com.google.gson.JsonElement;
 import com.matt.forgehax.ForgeHax;
+import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.gui.GuiAddPlayer;
 import com.matt.forgehax.gui.GuiEditPlayer;
 import com.matt.forgehax.gui.GuiPlayerList;
@@ -308,7 +309,7 @@ public class PlayerListCategory extends GuiConfigEntries.CategoryEntry {
                                 selectedList.addPlayerByName(name);
                             } catch (Exception e) {
                                 errorMessage = e.getMessage();
-                                ForgeHax.getInstance().printStackTrace(e);
+                                Wrapper.printStackTrace(e);
                             } finally {
                                 doRefresh = true;
                                 isCurrentlyAddingPlayer = false;

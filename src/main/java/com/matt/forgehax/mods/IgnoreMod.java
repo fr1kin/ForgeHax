@@ -58,7 +58,8 @@ public class IgnoreMod extends ToggleMod {
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
-        File nameFile = new File(MOD.getBaseDirectory(), "ignorelist.txt");
+
+        File nameFile = Wrapper.getFileManager().getFileInConfigDirectory("ignorelist.txt");
         parseNameFile(nameFile);
     }
 
@@ -102,7 +103,7 @@ public class IgnoreMod extends ToggleMod {
                         }
 
                         try {
-                            File nameFile = new File(MOD.getBaseDirectory(), "ignorelist.txt");
+                            File nameFile = Wrapper.getFileManager().getFileInConfigDirectory("ignorelist.txt");
                             FileWriter fw = new FileWriter(nameFile);
                             BufferedWriter bw = new BufferedWriter(fw);
                             for (String s : ignoreList) {

@@ -1,14 +1,12 @@
 package com.matt.forgehax.util.command.events;
 
-import com.google.common.collect.Sets;
+import com.matt.forgehax.FileManager;
 import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.command.CommandExecutor;
 import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraft.network.play.server.SPacketChat;
-import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -16,7 +14,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -42,7 +39,7 @@ public class CommandEventHandler implements Globals {
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
-        final File file = new File(MOD.getConfigFolder(), "firstStartupCheck");
+        final File file = FileManager.getInstance().getFileInConfigDirectory(".once");
         if(!file.exists()) Executors.newSingleThreadExecutor().execute(() -> {
             while (Wrapper.getWorld() == null) try {
                 Thread.sleep(10);

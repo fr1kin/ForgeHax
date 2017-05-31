@@ -2,7 +2,7 @@ package com.matt.forgehax.util.blocks;
 
 import com.matt.forgehax.util.blocks.exceptions.BadBlockEntryFormatException;
 import com.matt.forgehax.util.blocks.exceptions.BlockDoesNotExistException;
-import com.matt.forgehax.util.command.jopt.SafeConverter;
+import com.matt.forgehax.util.jopt.SafeConverter;
 import joptsimple.internal.Strings;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;

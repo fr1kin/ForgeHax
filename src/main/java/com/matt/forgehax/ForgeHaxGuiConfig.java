@@ -19,7 +19,7 @@ public class ForgeHaxGuiConfig extends GuiConfig {
                 false,
                 false,
                 "ForgeHax configuration");
-        titleLine2 = "settings.txt";
+        titleLine2 = Wrapper.getConfigurationHandler().getConfigurationFileName();
     }
 
     private static List<IConfigElement> getConfigElements() {

@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 
+import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -57,7 +58,7 @@ public class FlyMod extends ToggleMod {
 
             MC.player.noClip = true;
         } catch (Exception e) {
-            MOD.printStackTrace(e);
+            Wrapper.printStackTrace(e);
         }
     }
 

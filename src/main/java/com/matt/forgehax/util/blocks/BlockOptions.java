@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.matt.forgehax.Wrapper.printStackTrace;
+
 /**
  * Created on 5/13/2017 by fr1kin
  */
@@ -69,7 +71,7 @@ public class BlockOptions implements GsonConstant {
                 Files.write(file.toPath(), GSON_PRETTY.toJson(new JsonObject()).getBytes());
             }
         } catch (Exception e) {
-            Wrapper.getMod().printStackTrace(e);
+            Wrapper.printStackTrace(e);
         }
     }
 
@@ -79,7 +81,7 @@ public class BlockOptions implements GsonConstant {
             entries.forEach(entry -> entry.serialize(root));
             Files.write(file.toPath(), GSON_PRETTY.toJson(root).getBytes());
         } catch (Exception e) {
-            Wrapper.getMod().printStackTrace(e);
+            Wrapper.printStackTrace(e);
         }
     }
 

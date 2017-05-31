@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
+import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.config.Configuration;
@@ -9,7 +10,6 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
-@RegisterMod
 public abstract class ToggleMod extends BaseMod {
     // setting every mod should have to enable/disable it
     private Property enabled = null;
@@ -48,7 +48,7 @@ public abstract class ToggleMod extends BaseMod {
         // call config changed method
         update();
         // saves config
-        MOD.getConfig().save();
+        Wrapper.getConfigurationHandler().save();
     }
 
     /**
@@ -71,12 +71,12 @@ public abstract class ToggleMod extends BaseMod {
             if (enabled.getBoolean()) {
                 if (register()) {
                     onEnabled();
-                    MOD.getLog().info(String.format("%s enabled", getModName()));
+                    LOGGER.info(String.format("%s enabled", getModName()));
                 }
             } else {
                 if (unregister()) {
                     onDisabled();
-                    MOD.getLog().info(String.format("%s disabled", getModName()));
+                    LOGGER.info(String.format("%s disabled", getModName()));
                 }
             }
             onConfigUpdated(changed);

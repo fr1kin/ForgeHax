@@ -1,16 +1,17 @@
 package com.matt.forgehax.util.key;
 
-import com.google.common.collect.Sets;
 import com.google.gson.*;
+import com.matt.forgehax.FileManager;
 import com.matt.forgehax.Globals;
-import com.matt.forgehax.mods.BaseMod;
-import net.minecraft.client.settings.KeyBinding;
+import com.matt.forgehax.Wrapper;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Set;
+import java.util.Objects;
 
+import static com.matt.forgehax.Wrapper.getFileManager;
 import static com.matt.forgehax.Wrapper.getModManager;
+import static com.matt.forgehax.Wrapper.printStackTrace;
 
 /**
  * Created on 4/21/2017 by fr1kin
@@ -18,13 +19,22 @@ import static com.matt.forgehax.Wrapper.getModManager;
  * fucking mojang
  */
 public class BindSerializer implements Globals {
-    private final File bindingsJson;
+    private static final BindSerializer INSTANCE = new BindSerializer();
 
-    public BindSerializer(File base) {
-        this.bindingsJson = new File(base, "bindings.json");
+    public static BindSerializer getInstance() {
+        return INSTANCE;
+    }
+
+    private File bindingsJson;
+
+    private BindSerializer() {}
+
+    public void initialize() {
+        this.bindingsJson = getFileManager().getFileInConfigDirectory("bindings.json");
     }
 
     public void serialize() {
+        Objects.requireNonNull(bindingsJson, "bindings.json file object is null");
         final JsonObject root = new JsonObject();
         getModManager().getMods().forEach(mod -> mod.getKeyBinds().forEach(bind -> {
             root.addProperty(mod.getModName() + ":" + bind.getKeyDescription(), bind.getKeyCode());
@@ -35,13 +45,14 @@ public class BindSerializer implements Globals {
         try {
             Files.write(bindingsJson.toPath(), gson.toJson(root).getBytes());
         } catch (IOException e) {
-            MOD.printStackTrace(e);
+            Wrapper.printStackTrace(e);
         } finally {
-            MOD.getLog().info("ForgeHax binds serialized");
+            Wrapper.getLog().info("ForgeHax binds serialized");
         }
     }
 
     public void deserialize() {
+        Objects.requireNonNull(bindingsJson, "bindings.json file object is null");
         if(!bindingsJson.exists()) return;
 
         JsonElement head = null;
@@ -49,7 +60,7 @@ public class BindSerializer implements Globals {
             JsonParser parser = new JsonParser();
             head = parser.parse(new String(Files.readAllBytes(bindingsJson.toPath())));
         } catch (IOException e) {
-            MOD.printStackTrace(e);
+            printStackTrace(e);
         }
 
         final JsonObject root = (head != null && head.isJsonObject()) ? head.getAsJsonObject() : new JsonObject();
@@ -59,6 +70,6 @@ public class BindSerializer implements Globals {
             if(element != null) bind.setKeyCode(element.getAsInt());
         }));
 
-        MOD.getLog().info("ForgeHax binds deserialized");
+        LOGGER.info("ForgeHax binds deserialized");
     }
 }

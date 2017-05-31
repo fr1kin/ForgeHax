@@ -3,6 +3,7 @@ package com.matt.forgehax.util.container.lists;
 import com.google.common.collect.Lists;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
+import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.container.ContainerList;
 import net.minecraft.client.Minecraft;
@@ -68,7 +69,7 @@ public class PlayerList extends ContainerList {
         try {
             requestPlayerProfileData(data);
         } catch (Exception e) {
-            MOD.getLog().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         data.save();
         return true;
@@ -111,10 +112,10 @@ public class PlayerList extends ContainerList {
                 }
             }
         } catch (MalformedURLException e) {
-            MOD.printStackTrace(e);
+            Wrapper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } catch (IOException e) {
-            MOD.printStackTrace(e);
+            Wrapper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } finally {
             if(connection != null)
@@ -171,10 +172,10 @@ public class PlayerList extends ContainerList {
                 }
             }
         } catch (MalformedURLException e) {
-            MOD.printStackTrace(e);
+            Wrapper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } catch (IOException e) {
-            MOD.printStackTrace(e);
+            Wrapper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } finally {
             if(connection != null)
@@ -275,10 +276,10 @@ public class PlayerList extends ContainerList {
                 }
             }
         } catch (MalformedURLException e) {
-            MOD.printStackTrace(e);
+            Wrapper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } catch (IOException e) {
-            MOD.printStackTrace(e);
+            Wrapper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } finally {
             if(connection != null)

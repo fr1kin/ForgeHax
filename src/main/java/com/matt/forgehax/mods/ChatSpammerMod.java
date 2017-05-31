@@ -156,7 +156,7 @@ public class ChatSpammerMod extends ToggleMod {
     }
 
     private void readJson() {
-        File json = new File(MOD.getBaseDirectory(), SPAM_FILE_JSON_NAME);
+        File json = getFileManager().getFileInConfigDirectory(SPAM_FILE_JSON_NAME);
         if(json.exists()) {
             try {
                 JsonParser parser = new JsonParser();

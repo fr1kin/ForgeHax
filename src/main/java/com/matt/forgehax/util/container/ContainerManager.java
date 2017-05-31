@@ -2,12 +2,13 @@ package com.matt.forgehax.util.container;
 
 import com.google.common.collect.Maps;
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.Wrapper;
 
 import java.io.File;
 import java.util.*;
 
 public class ContainerManager implements Globals {
-    public final static File FILTER_DIR = new File(MOD.getBaseDirectory(), "fitlers");
+    public final static File FILTER_DIR = Wrapper.getFileManager().getFileInBaseDirectory("filters");
 
     public enum Category {
         ITEMS,

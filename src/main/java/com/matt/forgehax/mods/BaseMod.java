@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.command.*;
 import com.matt.forgehax.util.mod.ModProperty;
 import com.matt.forgehax.util.mod.PropertyTypeConverter;
@@ -167,7 +168,7 @@ public abstract class BaseMod implements Globals {
                     })
                     .addCallback(command -> {
                         update();
-                        MOD.getConfig().save();
+                        Wrapper.getConfigurationHandler().save();
                     })
                     .build()
             );

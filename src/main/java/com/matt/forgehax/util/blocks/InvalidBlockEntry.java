@@ -1,7 +1,7 @@
 package com.matt.forgehax.util.blocks;
 
 import com.matt.forgehax.util.blocks.exceptions.BadBlockEntryFormatException;
-import com.matt.forgehax.util.command.jopt.SafeConverter;
+import com.matt.forgehax.util.jopt.SafeConverter;
 import net.minecraft.block.Block;
 
 /**

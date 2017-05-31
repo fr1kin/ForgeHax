@@ -1,4 +1,4 @@
-package com.matt.forgehax.util.command.jopt;
+package com.matt.forgehax.util.jopt;
 
 import com.matt.forgehax.util.command.CommandLine;
 
