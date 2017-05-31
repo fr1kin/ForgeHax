@@ -36,7 +36,7 @@ public class SafeConverter {
                 try {
                     return Integer.valueOf(str) != 0;
                 } catch (Exception e) {
-                    return str.matches(ACCEPTABLE_TRUE_BOOLEAN_STRINGS);
+                    return str.toLowerCase().matches(ACCEPTABLE_TRUE_BOOLEAN_STRINGS);
                 }
             }
         } catch (Exception e) {
