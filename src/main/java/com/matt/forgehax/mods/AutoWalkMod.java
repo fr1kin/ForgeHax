@@ -31,7 +31,6 @@ public class AutoWalkMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        super.onDisabled();
         if(isBound) {
             Bindings.forward.setPressed(false);
             Bindings.forward.unbind();

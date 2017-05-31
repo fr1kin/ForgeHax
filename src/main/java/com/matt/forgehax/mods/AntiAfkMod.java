@@ -58,7 +58,6 @@ public class AntiAfkMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        super.onDisabled();
         if(isMoving()) {
             getMoveBinding().setPressed(false);
             getMoveBinding().unbind();
