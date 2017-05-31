@@ -27,11 +27,6 @@ public class ForgeHax {
 		switch (event.getSide()) {
 			case CLIENT: {
 				//---- initialize configuration ----//
-				// create folder containing all account settings
-				Wrapper.getFileManager().setBaseDirectory(new File(event.getModConfigurationDirectory(), "forgehax"));
-
-				// setup folder that contains settings
-				getFileManager().setConfigDirectory(getFileManager().getFileInBaseDirectory("users", "devmode"));
 				// initialize bind serializer
 				BindSerializer.getInstance().initialize();
 				// add shutdown hook to serialize all binds
@@ -52,7 +47,6 @@ public class ForgeHax {
 
 				//---- initialize configuration part 2 ----//
 				// setup config
-				getFileManager().setForgeConfiguration(new Configuration(getFileManager().getFileInConfigDirectory("settings.json")));
 				getConfigurationHandler().initialize();
 				// init containers
 				ContainerManager.initialize();
