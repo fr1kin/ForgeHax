@@ -10,9 +10,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.Map;
 
 public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
-    public static boolean isObfuscated = true;
-    public static Logger logger;
-
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {ForgeHaxTransformer.class.getName()};
@@ -20,7 +17,7 @@ public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
 
     @Override
     public String getModContainerClass() {
-        return "com.matt.forgehax.asm.ForgeHaxCoreContainer";
+        return null;
     }
 
     @Override
@@ -33,7 +30,6 @@ public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
         if(data.containsKey("runtimeDeobfuscationEnabled")) {
             try {
                 Boolean isObfuscated = (Boolean)data.get("runtimeDeobfuscationEnabled");
-                ForgeHaxCoreMod.isObfuscated = isObfuscated;
                 if(isObfuscated) {
                     RuntimeState.markAsObfuscated();
                 } else {
