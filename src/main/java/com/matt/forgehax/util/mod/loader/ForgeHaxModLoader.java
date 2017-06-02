@@ -30,8 +30,6 @@ public class ForgeHaxModLoader implements Globals {
                         MCVersionChecker.requireValidVersion(clazz);
                         classes.add((Class<? extends BaseMod>)clazz);
                     }
-                } catch (IncompatibleMCVersionException e) {
-                    Wrapper.getLog().warn(String.format("Class '%s' has been labeled for Minecraft versions ", info.getSimpleName()));
                 } catch (Exception e) {
                     Wrapper.getLog().warn(String.format("[%s] '%s' is not a valid mod class: %s", e.getClass().getSimpleName(), info.getSimpleName(), e.getMessage()));
                 }
