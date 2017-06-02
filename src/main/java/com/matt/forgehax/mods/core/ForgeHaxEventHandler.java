@@ -1,6 +1,8 @@
-package com.matt.forgehax;
+package com.matt.forgehax.mods.core;
 
 import com.github.lunatrius.core.client.renderer.GeometryTessellator;
+import com.matt.forgehax.ForgeHax;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -9,6 +11,9 @@ import com.matt.forgehax.events.WorldChangeEvent;
 import com.matt.forgehax.events.listeners.WorldListener;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.BaseMod;
+import com.matt.forgehax.util.mod.SilentListenerMod;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.util.math.Vec3d;
@@ -16,6 +21,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -26,10 +32,22 @@ import static com.matt.forgehax.Wrapper.getLocalPlayer;
 
 import static com.matt.forgehax.Wrapper.*;
 
-public class ForgeHaxEventHandler implements Globals {
-    private static GeometryTessellator tessellator = new GeometryTessellator(0x200);
-
+@RegisterMod
+public class ForgeHaxEventHandler extends SilentListenerMod {
+    private static final GeometryTessellator TESSELLATOR = new GeometryTessellator(0x200);
     private static final WorldListener WORLD_LISTENER = new WorldListener();
+
+    public ForgeHaxEventHandler() {
+        super("CoreListener", "ForgeHax core listener for custom events");
+    }
+
+    @SubscribeEvent
+    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+        if(event.getModID().equals(ForgeHax.MODID)) {
+            getConfigurationHandler().save();
+            getModManager().getMods().forEach(BaseMod::update);
+        }
+    }
 
     /**
      * Called when the local player updates
@@ -94,9 +112,11 @@ public class ForgeHaxEventHandler implements Globals {
         GlStateManager.glLineWidth(1.f);
 
         Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
-        tessellator.getBuffer().setTranslation(-renderPos.xCoord, -renderPos.yCoord, -renderPos.zCoord);
+        TESSELLATOR.getBuffer().setTranslation(-renderPos.xCoord, -renderPos.yCoord, -renderPos.zCoord);
 
-        MinecraftForge.EVENT_BUS.post(new RenderEvent(tessellator, renderPos));
+        MinecraftForge.EVENT_BUS.post(new RenderEvent(TESSELLATOR, renderPos));
+
+        GlStateManager.glLineWidth(1.f);
 
         GlStateManager.shadeModel(GL11.GL_FLAT);
         GlStateManager.disableBlend();

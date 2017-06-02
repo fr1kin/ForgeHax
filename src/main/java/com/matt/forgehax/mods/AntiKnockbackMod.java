@@ -24,7 +24,7 @@ public class AntiKnockbackMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 multiplierX = configuration.get(getModName(),
                         "multiplierX",

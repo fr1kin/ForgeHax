@@ -2,15 +2,13 @@ package com.matt.forgehax;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import com.matt.forgehax.util.mod.ModManager;
+import com.matt.forgehax.util.mod.loader.ModManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.util.text.TextComponentSelector;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
 

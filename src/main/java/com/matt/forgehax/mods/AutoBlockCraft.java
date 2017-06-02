@@ -61,7 +61,7 @@ public class AutoBlockCraft extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 blockToCraft = configuration.get(getModName(),
                         "crafting_block",

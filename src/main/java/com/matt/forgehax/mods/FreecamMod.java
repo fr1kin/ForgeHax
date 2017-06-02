@@ -31,7 +31,7 @@ public class FreecamMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 speed = configuration.get(getModName(),
                         "speed",

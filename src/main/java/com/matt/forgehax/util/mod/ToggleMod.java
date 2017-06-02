@@ -2,7 +2,6 @@ package com.matt.forgehax.util.mod;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Wrapper;
-import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -10,7 +9,7 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
-public abstract class ToggleMod extends BaseMod {
+public class ToggleMod extends BaseMod {
     // setting every mod should have to enable/disable it
     private Property enabled = null;
     // toggle key bind
@@ -22,26 +21,31 @@ public abstract class ToggleMod extends BaseMod {
     public ToggleMod(String modName, boolean defaultValue, String description, int key) {
         super(modName, description);
         this.defaultValue = defaultValue;
-        if(key != -1)
-            toggleBind = addBind(modName, key);
+        if(key != -1) toggleBind = addBind(modName, key);
     }
 
     public ToggleMod(String modName, boolean defaultValue, String description) {
         this(modName, defaultValue, description, Keyboard.KEY_NONE);
     }
 
+    @Override
+    public void startup() {
+        if(isEnabled()) enable();
+    }
+
     /**
      * Initializes the configurations for this mod
      */
-    public final void initialize(Configuration configuration) {
-        super.initialize(configuration);
+    @Override
+    public void loadConfig(Configuration configuration) {
         addSettings(enabled = configuration.get(getModName(), "enabled", defaultValue, getModDescription()));
-        loadConfig(configuration);
+        super.loadConfig(configuration);
     }
 
     /**
      * Toggle mod to be on/off
      */
+    @Override
     public final void toggle() {
         // toggles mod
         enabled.set(!enabled.getBoolean());
@@ -51,9 +55,15 @@ public abstract class ToggleMod extends BaseMod {
         Wrapper.getConfigurationHandler().save();
     }
 
+    @Override
+    public boolean isHidden() {
+        return false;
+    }
+
     /**
      * Check if the mod is currently enabled
      */
+    @Override
     public final boolean isEnabled() {
         return enabled.getBoolean();
     }
@@ -68,17 +78,10 @@ public abstract class ToggleMod extends BaseMod {
     public final void update() {
         List<Property> changed = Lists.newArrayList();
         if(hasSettingsChanged(changed)) {
-            if (enabled.getBoolean()) {
-                if (register()) {
-                    onEnabled();
-                    LOGGER.info(String.format("%s enabled", getModName()));
-                }
-            } else {
-                if (unregister()) {
-                    onDisabled();
-                    LOGGER.info(String.format("%s disabled", getModName()));
-                }
-            }
+            if (enabled.getBoolean())
+                enable();
+            else
+                disable();
             onConfigUpdated(changed);
         }
     }

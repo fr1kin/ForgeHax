@@ -20,7 +20,7 @@ public class AntiEffectsMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 noParticles = configuration.get(getModName(),
                         "anti_particles",

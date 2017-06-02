@@ -39,8 +39,8 @@ public class AutoReconnectMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
-        super.loadConfig(configuration);
+    public void onLoadConfiguration(Configuration configuration) {
+        super.onLoadConfiguration(configuration);
         addSettings(
                 delayTime = configuration.get(getModCategory().getName(),
                         "delay",

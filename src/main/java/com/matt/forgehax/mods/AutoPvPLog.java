@@ -15,7 +15,7 @@ public class AutoPvPLog extends ToggleMod {
     public Property threshold;
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings( threshold = configuration.get(getModName(), "threshold", 0, "meme font") );
     }
 

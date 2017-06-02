@@ -253,7 +253,7 @@ public class ChatSpammerMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
 
         addSettings(
                 delay = configuration.get(getModName(),

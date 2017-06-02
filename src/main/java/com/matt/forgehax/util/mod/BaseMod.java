@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.command.*;
+import com.matt.forgehax.util.mod.property.ModProperty;
 import com.matt.forgehax.util.mod.property.PropertyTypeConverter;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.client.config.DummyConfigElement;
 import net.minecraftforge.fml.client.config.IConfigElement;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -35,27 +37,63 @@ public abstract class BaseMod implements Globals {
     // mod binds
     protected final List<KeyBinding> binds = Lists.newArrayList();
 
-    protected final Command modCommand;
+    protected Command modCommand = null;
 
-    // if the mod is hidden
-    private boolean isHiddenMod = false;
     // is the mod registered on the forge bus?
     private boolean registered = false;
 
     public BaseMod(String name, String desc) {
         modName = name;
         modDescription = desc;
-        modCommand = this.onBuildingModCommand(CommandBuilder.create()).build();
-        if(modCommand != null) CommandRegistry.register(modCommand);
     }
 
     /**
-     * Initialize the mod
+     * Load the mod
      */
-    public void initialize(Configuration configuration) {
+    public final void load(Configuration configuration) {
+        // register command first
+        CommandBuilder builder = onBuildingModCommand(CommandBuilder.create());
+        if(builder != null) {
+            modCommand = builder.build();
+            CommandRegistry.register(modCommand);
+        }
         properties.clear();
         modCategory = configuration.getCategory(modName);
+        loadConfig(configuration);
         onLoad();
+    }
+
+    public abstract void startup();
+
+    /**
+     * Unload the mod
+     */
+    public final void unload() {
+        disable();
+        onUnload();
+        // unregister command last
+        if(modCommand != null) CommandRegistry.unregister(modCommand);
+    }
+
+    /**
+     * Enables the mod
+     */
+    public final void enable() {
+        if(register()) {
+            onEnabled();
+            LOGGER.info(String.format("%s enabled", getModName()));
+        }
+    }
+
+    public final void disable() {
+        if(unregister()) {
+            onDisabled();
+            LOGGER.info(String.format("%s disabled", getModName()));
+        }
+    }
+
+    public void loadConfig(Configuration configuration) {
+        onLoadConfiguration(configuration);
     }
 
     /**
@@ -116,19 +154,25 @@ public abstract class BaseMod implements Globals {
     }
 
     protected final void addCommand(Command command) {
+        java.util.Objects.requireNonNull(modCommand, "Mod base command is null");
         modCommand.addChildCommand(command);
     }
 
     protected final void removeCommand(Command command) {
+        java.util.Objects.requireNonNull(modCommand, "Mod base command is null");
         modCommand.removeChildCommand(command);
     }
 
     public final Command getCommand(String commandName) {
+        java.util.Objects.requireNonNull(modCommand, "Mod base command is null");
         return modCommand.getChildCommand(commandName);
     }
 
     public final Collection<Command> getCommands() {
-        return modCommand.getChildCommands();
+        if(modCommand != null)
+            return modCommand.getChildCommands();
+        else
+            return Collections.emptyList();
     }
 
     /**
@@ -219,35 +263,25 @@ public abstract class BaseMod implements Globals {
     }
 
     /**
-     * Sets the mod to be hidden
+     * Check if the mod is hidden
+     * DEFAULT: true
      */
-    protected final void setHidden(boolean b) {
-        isHiddenMod = b;
-    }
-
-    /**
-     * Check if the mod is hidden from the active mod list
-     */
-    public final boolean isHidden() {
-        return isHiddenMod;
-    }
+    public abstract boolean isHidden();
 
     /**
      * Check if the mod is enabled
      */
-    public boolean isEnabled() {
-        return true;
-    }
+    public abstract boolean isEnabled();
 
     /**
      * Toggle mod to be on/off
      */
-    public void toggle() {}
+    public abstract void toggle();
 
     /**
      * Updates the mod
      */
-    public void update() {}
+    public abstract void update();
 
     /**
      * Called when the config gui is building
@@ -269,7 +303,7 @@ public abstract class BaseMod implements Globals {
     /**
      * Register config settings
      */
-    public void loadConfig(Configuration configuration) {}
+    public void onLoadConfiguration(Configuration configuration) {}
 
     /**
      * Called when the main mod command is being built.
@@ -277,6 +311,7 @@ public abstract class BaseMod implements Globals {
      * @param builder The command builder
      * @return the command builder
      */
+    @Nullable
     protected CommandBuilder onBuildingModCommand(final CommandBuilder builder) {
         return builder
                 .setName(getModName())
@@ -286,22 +321,22 @@ public abstract class BaseMod implements Globals {
     /**
      * Called when the mod is loaded
      */
-    public void onLoad() {}
+    protected void onLoad() {}
 
     /**
      * Called when unloaded
      */
-    public void onUnload() {}
+    protected void onUnload() {}
 
     /**
      * Called when the mod is enabled
      */
-    public void onEnabled() {}
+    protected void onEnabled() {}
 
     /**
      * Called when the mod is disabled
      */
-    public void onDisabled() {}
+    protected void onDisabled() {}
 
     /**
      * Called when the bind is initially pressed
@@ -315,6 +350,10 @@ public abstract class BaseMod implements Globals {
 
     public String getDisplayText() {
         return getModName();
+    }
+
+    public String getDebugDisplayText() {
+        return getDisplayText();
     }
 
     @Override

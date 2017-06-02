@@ -35,7 +35,7 @@ public class ChunkMarker extends ToggleMod {
     private final Map<ChunkCoords, Boolean> CHUNKS = Maps.newConcurrentMap();
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 offsetY = configuration.get(getModName(),
                         "offset_y",

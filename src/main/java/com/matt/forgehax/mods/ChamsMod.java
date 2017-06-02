@@ -31,7 +31,7 @@ public class ChamsMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 players = configuration.get(getModName(),
                         "players",

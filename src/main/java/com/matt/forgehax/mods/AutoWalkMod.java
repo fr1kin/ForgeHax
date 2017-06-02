@@ -20,7 +20,7 @@ public class AutoWalkMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 stopAtUnloadedChunks = configuration.get(getModName(),
                         "stop_at_unloaded_chunks",

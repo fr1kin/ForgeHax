@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.util.TickManager;
+import com.matt.forgehax.mods.core.TickManager;
 import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.BaseMod;
@@ -19,12 +19,16 @@ public class ActiveModListMod extends ToggleMod {
 
     public ActiveModListMod() {
         super("ActiveMods", false, "Shows list of all active mods");
-        setHidden(true);
+    }
+
+    @Override
+    public boolean isHidden() {
+        return true;
     }
 
     private String generateTickRateText() {
         StringBuilder builder = new StringBuilder("Tick-rate: ");
-        TickManager.TickRateData data = TickManager.getInstance().getData();
+        TickManager.TickRateData data = TickManager.getTickData();
         if(data.getSampleSize() <= 0) {
             builder.append("No tick data");
         } else {
@@ -54,7 +58,7 @@ public class ActiveModListMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 factor = configuration.get(getModName(),
                         "factor",

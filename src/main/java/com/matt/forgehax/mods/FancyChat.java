@@ -40,7 +40,7 @@ public class FancyChat extends ToggleMod {
 	}
 
 	@Override
-	public void loadConfig(Configuration configuration) {
+	public void onLoadConfiguration(Configuration configuration) {
 		addSettings( font = configuration.get(getModName(), "font", MODE[0], "meme font", MODE) );
 	}
 

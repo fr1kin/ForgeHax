@@ -1,12 +1,18 @@
-package com.matt.forgehax.util.key;
+package com.matt.forgehax.mods.core;
 
 import com.google.gson.*;
-import com.matt.forgehax.FileManager;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.util.command.CommandBuilder;
+import com.matt.forgehax.util.json.GsonConstant;
+import com.matt.forgehax.util.mod.BaseMod;
+import com.matt.forgehax.util.mod.SilentMod;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraftforge.fml.client.config.IConfigElement;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Objects;
 
 import static com.matt.forgehax.Wrapper.getFileManager;
@@ -15,22 +21,19 @@ import static com.matt.forgehax.Wrapper.printStackTrace;
 
 /**
  * Created on 4/21/2017 by fr1kin
- *
- * fucking mojang
  */
-public class BindSerializer implements Globals {
+@RegisterMod
+public class BindSerializer extends SilentMod implements GsonConstant {
     private static final BindSerializer INSTANCE = new BindSerializer();
 
     public static BindSerializer getInstance() {
         return INSTANCE;
     }
 
-    private File bindingsJson;
+    private final File bindingsJson = getFileManager().getFileInConfigDirectory("bindings.json");
 
-    private BindSerializer() {}
-
-    public void initialize() {
-        this.bindingsJson = getFileManager().getFileInConfigDirectory("bindings.json");
+    public BindSerializer() {
+        super("BindSerializer", "Saves and loads key binds for mods");
     }
 
     public void serialize() {
@@ -40,10 +43,8 @@ public class BindSerializer implements Globals {
             root.addProperty(mod.getModName() + ":" + bind.getKeyDescription(), bind.getKeyCode());
         }));
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
         try {
-            Files.write(bindingsJson.toPath(), gson.toJson(root).getBytes());
+            Files.write(bindingsJson.toPath(), GSON_PRETTY.toJson(root).getBytes());
         } catch (IOException e) {
             Wrapper.printStackTrace(e);
         } finally {
@@ -71,5 +72,15 @@ public class BindSerializer implements Globals {
         }));
 
         LOGGER.info("ForgeHax binds deserialized");
+    }
+
+    @Override
+    protected void onLoad() {
+        deserialize();
+    }
+
+    @Override
+    protected void onUnload() {
+        serialize();
     }
 }

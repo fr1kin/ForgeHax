@@ -65,7 +65,7 @@ public class AutoFishMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 castingDelay = configuration.get(getModName(),
                         "casting_delay",

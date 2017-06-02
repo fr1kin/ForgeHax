@@ -1,10 +1,11 @@
-package com.matt.forgehax.util;
+package com.matt.forgehax.mods.core;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.util.mod.SilentListenerMod;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketTimeUpdate;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.MinecraftForge;
@@ -13,19 +14,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
 /**
  * Created on 11/14/2016 by fr1kin
  */
-public class TickManager implements Globals {
-    private static final TickManager INSTANCE = new TickManager();
-
-    public static TickManager getInstance() {
-        return INSTANCE;
-    }
-
+@RegisterMod
+public class TickManager extends SilentListenerMod {
     /**
      * Ticks per second maximum and minimum
      */
@@ -37,28 +32,40 @@ public class TickManager implements Globals {
      */
     public static final int MAXIMUM_SAMPLE_SIZE = 100;
 
-    private LagCompensatorEventHandler events;
+    private static final TickManager INSTANCE = new TickManager();
+    private static final TickRateData TICK_DATA = new TickRateData(MAXIMUM_SAMPLE_SIZE);
 
-    private final TickRateData data = new TickRateData(MAXIMUM_SAMPLE_SIZE);
-
-    public TickManager() {}
-
-    public void registerEventHandler() {
-        if(events == null) MinecraftForge.EVENT_BUS.register(events = new LagCompensatorEventHandler());
+    public static TickManager getInstance() {
+        return INSTANCE;
     }
 
-    public void unregisterEventHandler() {
-        if(events != null) {
-            MinecraftForge.EVENT_BUS.unregister(events);
-            events = null;
+    public static TickRateData getTickData() {
+        return TICK_DATA;
+    }
+
+    private long timeLastTimeUpdate = -1;
+
+    public TickManager() {
+        super("TickManager", "Records the average tick rate");
+    }
+
+    @SubscribeEvent
+    public void onWorldLoad(WorldEvent.Load event) {
+        timeLastTimeUpdate = -1;
+        TICK_DATA.onWorldLoaded();
+    }
+
+    @SubscribeEvent
+    public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
+        if(event.getPacket() instanceof SPacketTimeUpdate) {
+            if(timeLastTimeUpdate != -1) {
+                TICK_DATA.onTimePacketIncoming(System.currentTimeMillis() - timeLastTimeUpdate);
+            }
+            timeLastTimeUpdate = System.currentTimeMillis();
         }
     }
 
-    public TickRateData getData() {
-        return data;
-    }
-
-    public class TickRateData {
+    public static class TickRateData {
         private final CalculationData EMPTY_DATA = new CalculationData();
 
         private final Queue<Double> rates;
@@ -124,26 +131,6 @@ public class TickManager implements Globals {
 
             public void reset() {
                 average = 0.D;
-            }
-        }
-    }
-
-    private class LagCompensatorEventHandler {
-        private long timeLastTimeUpdate = -1;
-
-        @SubscribeEvent
-        public void onWorldLoad(WorldEvent.Load event) {
-            timeLastTimeUpdate = -1;
-            data.onWorldLoaded();
-        }
-
-        @SubscribeEvent
-        public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
-            if(event.getPacket() instanceof SPacketTimeUpdate) {
-                if(timeLastTimeUpdate != -1) {
-                    data.onTimePacketIncoming(System.currentTimeMillis() - timeLastTimeUpdate);
-                }
-                timeLastTimeUpdate = System.currentTimeMillis();
             }
         }
     }

@@ -84,7 +84,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 clearBuffer = configuration.get(getModName(),
                         "clearbuffer",

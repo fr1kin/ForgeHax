@@ -95,8 +95,8 @@ public class EntityEspMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
-        super.loadConfig(configuration);
+    public void onLoadConfiguration(Configuration configuration) {
+        super.onLoadConfiguration(configuration);
 
         String[] DRAW_OPTIONS = Utils.toArray(DrawOptions.values());
         String[] ARMOR_OPTIONS = Utils.toArray(ArmorOptions.values());

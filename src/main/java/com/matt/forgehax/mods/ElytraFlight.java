@@ -22,7 +22,7 @@ public class ElytraFlight extends ToggleMod {
 	}
 
 	@Override
-	public void loadConfig(Configuration configuration) {
+	public void onLoadConfiguration(Configuration configuration) {
 		addSettings(
 				speed = configuration.get(getModName(), "speed", 0.05, "Flight speed")
 		);

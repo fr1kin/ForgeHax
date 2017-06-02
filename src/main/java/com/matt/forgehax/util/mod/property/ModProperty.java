@@ -1,4 +1,4 @@
-package com.matt.forgehax.util.mod;
+package com.matt.forgehax.util.mod.property;
 
 import net.minecraftforge.common.config.Property;
 

@@ -48,7 +48,7 @@ public class AutoSprintMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 mode = configuration.get(getModCategory().getName(),
                         "mode",

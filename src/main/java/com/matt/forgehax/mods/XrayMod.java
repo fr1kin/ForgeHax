@@ -50,7 +50,7 @@ public class XrayMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 opacity = configuration.get(getModName(),
                         "opacity",

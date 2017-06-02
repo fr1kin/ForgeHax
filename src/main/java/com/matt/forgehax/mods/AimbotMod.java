@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.mods.core.TickManager;
 import com.matt.forgehax.util.*;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -64,7 +65,7 @@ public class AimbotMod extends ToggleMod {
 
     private double getLagComp() {
         if(lagCompensation.getBoolean()) {
-            return -(20.D - TickManager.getInstance().getData().getPoint().getAverage());
+            return -(20.D - TickManager.getTickData().getPoint().getAverage());
         } else return 0.D;
     }
 
@@ -167,7 +168,7 @@ public class AimbotMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings(
                 silent = configuration.get(getModName(),
                         "aim_silent",

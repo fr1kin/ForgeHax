@@ -12,7 +12,11 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 public class JourneyMapBrightnessFix extends ToggleMod {
     public JourneyMapBrightnessFix() {
         super("JourneyMapLightingFix", false, "Fixes journey map lighting bug");
-        setHidden(true);
+    }
+
+    @Override
+    public boolean isHidden() {
+        return true;
     }
 
     @Override

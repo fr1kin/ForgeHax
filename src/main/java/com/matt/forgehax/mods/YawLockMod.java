@@ -30,8 +30,8 @@ public class YawLockMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
-        super.loadConfig(configuration);
+    public void onLoadConfiguration(Configuration configuration) {
+        super.onLoadConfiguration(configuration);
         addSettings(
                 doOnce = configuration.get(getModName(), "once", false, "Will only fire update once"),
                 autoAngle = configuration.get(getModName(), "auto", true, "Automatically finds angle to snap to based on the direction you're facing"),

@@ -48,8 +48,8 @@ public class AntiAfkMod extends ToggleMod {
     }
 
     @Override
-    public void loadConfig(Configuration configuration) {
-        super.loadConfig(configuration);
+    public void onLoadConfiguration(Configuration configuration) {
+        super.onLoadConfiguration(configuration);
         addSettings(
                 tickInterval = configuration.get(getModName(), "interval", 200, "Amount of ticks to wait before moving again"),
                 moveDistance = configuration.get(getModName(), "distance", 0.25, "Distance to move before stopping")

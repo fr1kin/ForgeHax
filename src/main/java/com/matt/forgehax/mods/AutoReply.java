@@ -37,7 +37,7 @@ public class AutoReply extends ToggleMod {
     }
     
     @Override
-    public void loadConfig(Configuration configuration) {
+    public void onLoadConfiguration(Configuration configuration) {
         addSettings( search = configuration.get(getModName(), "search", "whispers: ", "text to search for") );
         addSettings( reply = configuration.get(getModName(), "text", "fuck off newfag", "text to reply with") );
         addSettings( mode = configuration.get(getModName(), "mode", MODE[0], "reply or chat", MODE) );
