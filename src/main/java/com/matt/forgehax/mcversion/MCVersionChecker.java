@@ -26,6 +26,6 @@ public class MCVersionChecker {
     }
 
     public static void requireValidVersion(AnnotatedElement element) throws IncompatibleMCVersionException {
-        if(!checkVersion(element)) throw new IncompatibleMCVersionException("Incompatible with current Minecraft version");
+        if(!checkVersion(element)) throw new IncompatibleMCVersionException(String.format("Incompatible with current Minecraft version %s", getMcVersion()));
     }
 }
