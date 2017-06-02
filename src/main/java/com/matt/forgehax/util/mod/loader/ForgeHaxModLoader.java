@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.reflect.ClassPath;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.mcversion.IncompatibleMCVersionException;
 import com.matt.forgehax.mcversion.MCVersionChecker;
 import com.matt.forgehax.util.mod.BaseMod;
 
@@ -25,12 +26,14 @@ public class ForgeHaxModLoader implements Globals {
                     Class<?> clazz = info.load();
                     if(clazz.isAnnotationPresent(RegisterMod.class)
                             && BaseMod.class.isAssignableFrom(clazz)
-                            && MCVersionChecker.checkVersion(clazz)
                             && clazz.getDeclaredConstructor() != null) { // will throw exception if it doesn't exist
+                        MCVersionChecker.requireValidVersion(clazz);
                         classes.add((Class<? extends BaseMod>)clazz);
                     }
+                } catch (IncompatibleMCVersionException e) {
+                    Wrapper.getLog().warn(String.format("Class '%s' has been labeled for Minecraft versions ", info.getSimpleName()));
                 } catch (Exception e) {
-                    Wrapper.getLog().warn(String.format("'%s' is not a valid mod class", info.getSimpleName()));
+                    Wrapper.getLog().warn(String.format("[%s] '%s' is not a valid mod class: %s", e.getClass().getSimpleName(), info.getSimpleName(), e.getMessage()));
                 }
             });
         } catch (IOException e) {
