@@ -1,7 +1,7 @@
 # ForgeHax
 A Minecraft cheat that runs as a Forge mod
 
-If you want to build the project on your own, you need to either remove all references to JourneyMap or add the latest JourneyMap release into the libs/ folder
+If you want to build the project on your own, you need to either remove all references to JourneyMap or add the latest [JourneyMap](http://journeymap.info/Download) release into the libs/ folder
 
 You should allocate more ram when running `setupDecompWorkspace` (around 4GB should be ok)
 
