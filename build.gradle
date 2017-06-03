@@ -61,9 +61,11 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
+        attributes (
+                'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
                 'FMLCorePluginContainsFMLMod': 'true',
                 'FMLAT': 'forgehax_at.cfg'
+        )
         /*
         attributes 'FMLCorePlugin': 'com.matt.forgehax.asm2.CoreMod',
                 'FMLCorePluginContainsFMLMod': 'true'*/
