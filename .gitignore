@@ -1,7 +1,11 @@
 ForgeHax.iml
-build/*
-run/*
-.idea/*
-.gradle/*
-storage_test/*
+build/
+run/
+classes/
+.idea/
+.gradle/
+storage_test/
 libs/journeymap*
+gradle/
+gradlew
+gradlew.bat
