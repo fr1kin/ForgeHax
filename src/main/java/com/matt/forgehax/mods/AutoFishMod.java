@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -12,12 +13,10 @@ import net.minecraft.item.ItemFishingRod;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Wrapper.getLocalPlayer;
 
 /**
  * Created on 9/2/2016 by fr1kin
@@ -30,9 +29,23 @@ public class AutoFishMod extends ToggleMod {
 
     private boolean previouslyHadRodEquipped = false;
 
-    public Property castingDelay;
-    public Property maxSoundDistance;
-    public Property failSafeTime;
+    public final Setting<Integer> casting_delay = getCommandStub().builders().<Integer>newSettingBuilder()
+            .name("casting_delay")
+            .description("Number of ticks to wait after casting the rod to attempt a recast")
+            .defaultTo(20)
+            .build();
+
+    public final Setting<Double> max_sound_distance = getCommandStub().builders().<Double>newSettingBuilder()
+            .name("max_sound_distance")
+            .description("Maximum distance between the splash sound and hook entity allowed (set to 0 to disable this feature)")
+            .defaultTo(2.D)
+            .build();
+
+    public final Setting<Integer> fail_safe_time = getCommandStub().builders().<Integer>newSettingBuilder()
+            .name("fail_safe_time")
+            .description("Maximum amount of time (in ticks) allowed until the hook is pulled in (set to 0 to disable this feature)")
+            .defaultTo(0)
+            .build();
 
     public AutoFishMod() {
         super("AutoFish", false, "Auto fish");
@@ -45,8 +58,8 @@ public class AutoFishMod extends ToggleMod {
                         me != null &&
                         me.fishEntity != null &&
                                 (
-                                        maxSoundDistance.getDouble() == 0 || // disables this check
-                                        (me.fishEntity.getPositionVector().distanceTo(new Vec3d(packet.getX(), packet.getY(), packet.getZ())) <= maxSoundDistance.getDouble())
+                                        max_sound_distance.get() == 0 || // disables this check
+                                        (me.fishEntity.getPositionVector().distanceTo(new Vec3d(packet.getX(), packet.getY(), packet.getZ())) <= max_sound_distance.get())
                                 )
                 );
     }
@@ -54,7 +67,7 @@ public class AutoFishMod extends ToggleMod {
     private void rightClick() {
         if(ticksCastDelay <= 0) { // to prevent the fishing rod from being spammed when in hand
             FastReflection.Methods.Minecraft_rightClickMouse.invoke(MC);
-            ticksCastDelay = castingDelay.getInt();
+            ticksCastDelay = casting_delay.get();
         }
     }
 
@@ -62,27 +75,6 @@ public class AutoFishMod extends ToggleMod {
         ticksCastDelay = 0;
         ticksHookDeployed = 0;
         previouslyHadRodEquipped = false;
-    }
-
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings(
-                castingDelay = configuration.get(getModName(),
-                        "casting_delay",
-                        20,
-                        "Number of ticks to wait after casting the rod to attempt a recast"
-                ),
-                maxSoundDistance = configuration.get(getModName(),
-                        "max_sound_distance",
-                        2.D,
-                        "Maximum distance between the splash sound and hook entity allowed (set to 0 to disable this feature)"
-                ),
-                failSafeTime = configuration.get(getModName(),
-                        "fail_safe_time",
-                        0,
-                        "Maximum amount of time (in ticks) allowed until the hook is pulled in (set to 0 to disable this feature)"
-                )
-        );
     }
 
     @Override
@@ -96,8 +88,8 @@ public class AutoFishMod extends ToggleMod {
         ItemStack heldStack = me.getHeldItemMainhand();
 
         // update tick delay if hook is deployed
-        if(ticksCastDelay > castingDelay.getInt())
-            ticksCastDelay = castingDelay.getInt(); // greater than current delay, set to the current delay
+        if(ticksCastDelay > casting_delay.get())
+            ticksCastDelay = casting_delay.get(); // greater than current delay, set to the current delay
         else if(ticksCastDelay > 0)
             --ticksCastDelay;
 
@@ -107,7 +99,7 @@ public class AutoFishMod extends ToggleMod {
                 heldStack.getItem() instanceof ItemFishingRod      // item being held is a fishing rod
                 ) {
             if(!previouslyHadRodEquipped) {
-                ticksCastDelay = castingDelay.getInt();
+                ticksCastDelay = casting_delay.get();
                 previouslyHadRodEquipped = true;
             } else if(me.fishEntity == null) { // no hook is deployed
                 // cast hook
@@ -116,7 +108,7 @@ public class AutoFishMod extends ToggleMod {
                 // increment the number of ticks that the hook entity has existed
                 ++ticksHookDeployed;
 
-                if(failSafeTime.getInt() != 0 && (ticksHookDeployed > failSafeTime.getInt())) {
+                if(fail_safe_time.get() != 0 && (ticksHookDeployed > fail_safe_time.get())) {
                     rightClick(); // reel in hook if the fail safe time has passed
                     resetLocals();
                 }
@@ -127,7 +119,7 @@ public class AutoFishMod extends ToggleMod {
     @SubscribeEvent
     public void onMouseEvent(InputEvent.MouseInputEvent event) {
         if(MC.gameSettings.keyBindUseItem.isKeyDown() && ticksHookDeployed > 0) {
-            ticksCastDelay = castingDelay.getInt();
+            ticksCastDelay = casting_delay.get();
         }
     }
 

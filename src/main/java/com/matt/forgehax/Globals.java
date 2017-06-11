@@ -1,5 +1,7 @@
 package com.matt.forgehax;
 
+import com.matt.forgehax.util.command.Command;
+import com.matt.forgehax.util.command.CommandGlobal;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.network.NetworkManager;
@@ -14,4 +16,5 @@ import org.apache.logging.log4j.Logger;
 public interface Globals {
     Logger      LOGGER              = LogManager.getLogger("ForgeHax");
     Minecraft   MC                  = FMLClientHandler.instance().getClient();
+    Command     GLOBAL_COMMAND      = CommandGlobal.getInstance();
 }

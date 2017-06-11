@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.reflect.ClassPath;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Wrapper;
-import com.matt.forgehax.mcversion.IncompatibleMCVersionException;
 import com.matt.forgehax.mcversion.MCVersionChecker;
 import com.matt.forgehax.util.mod.BaseMod;
 
@@ -46,7 +45,8 @@ public class ForgeHaxModLoader implements Globals {
             try {
                 mods.add(clazz.getDeclaredConstructor().newInstance());
             } catch (Exception e) {
-                Wrapper.getLog().warn(String.format("Failed to create a new instance of '%s'", clazz.getSimpleName()));
+                Wrapper.printStackTrace(e);
+                Wrapper.getLog().warn(String.format("Failed to create a new instance of '%s': %s", clazz.getSimpleName(), e.getMessage()));
             }
         });
         return Collections.unmodifiableCollection(mods);

@@ -1,52 +1,50 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class YawLockMod extends ToggleMod {
-    public static YawLockMod INSTANCE;
+    public final Setting<Boolean> do_once = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("do_once")
+            .description("Will only fire update once")
+            .defaultTo(false)
+            .build();
 
-    public static YawLockMod instance() {
-        return INSTANCE;
-    }
+    public final Setting<Boolean> auto_angle = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("auto_angle")
+            .description("Automatically finds angle to snap to based on the direction you're facing")
+            .defaultTo(true)
+            .build();
 
-    public Property doOnce;
-    public Property autoAngle;
-    public Property customAngle;
+    public final Setting<Double> custom_angle = getCommandStub().builders().<Double>newSettingBuilder()
+            .name("custom_angle")
+            .description("Custom angle to snap to")
+            .defaultTo(0.0D)
+            .min(-180D)
+            .max(180D)
+            .build();
 
     public YawLockMod() {
         super("YawLock", false, "Locks yaw to prevent moving into walls");
-        INSTANCE = this;
     }
 
     public double getYawDirection() {
         return Math.round((LocalPlayerUtils.getViewAngles().getYaw() + 1.f) / 45.f) * 45.f;
     }
 
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        super.onLoadConfiguration(configuration);
-        addSettings(
-                doOnce = configuration.get(getModName(), "once", false, "Will only fire update once"),
-                autoAngle = configuration.get(getModName(), "auto", true, "Automatically finds angle to snap to based on the direction you're facing"),
-                customAngle = configuration.get(getModName(), "angle", 0.0, "Custom angle to snap to", -180.D, 180.D)
-        );
-    }
-
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         double yaw = getYawDirection();
-        if(!autoAngle.getBoolean())
-            yaw = customAngle.getDouble();
+        if(!auto_angle.get())
+            yaw = custom_angle.get();
         LocalPlayerUtils.setViewAngles(event.getEntityLiving().rotationPitch, yaw);
         // disable after first set if set to do once
-        if(isEnabled() && doOnce.getBoolean())
+        if(isEnabled() && do_once.get())
             toggle();
     }
 }

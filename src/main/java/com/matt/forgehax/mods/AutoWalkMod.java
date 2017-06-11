@@ -1,32 +1,27 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import static com.matt.forgehax.Wrapper.*;
+
+import static com.matt.forgehax.Wrapper.getLocalPlayer;
+import static com.matt.forgehax.Wrapper.getWorld;
 
 @RegisterMod
 public class AutoWalkMod extends ToggleMod {
-    public Property stopAtUnloadedChunks;
+    public final Setting<Boolean> stop_at_unloaded_chunks = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("stop_at_unloaded_chunks")
+            .description("Stops moving at unloaded chunks")
+            .defaultTo(true)
+            .build();
 
     private boolean isBound = false;
 
     public AutoWalkMod() {
         super("AutoWalk", false, "Automatically walks forward");
-    }
-
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings(
-                stopAtUnloadedChunks = configuration.get(getModName(),
-                        "stop_at_unloaded_chunks",
-                        true,
-                        "Stop moving at unloaded chunks")
-        );
     }
 
     @Override
@@ -47,7 +42,7 @@ public class AutoWalkMod extends ToggleMod {
         if(!Bindings.forward.getBinding().isKeyDown())
             Bindings.forward.setPressed(true);
 
-        if(stopAtUnloadedChunks.getBoolean()) {
+        if(stop_at_unloaded_chunks.get()) {
             if(!getWorld().getChunkFromBlockCoords(getLocalPlayer().getPosition()).isLoaded())
                 Bindings.forward.setPressed(false);
         }

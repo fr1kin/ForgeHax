@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.Wrapper;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.inventory.GuiCrafting;
@@ -14,16 +14,23 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
 
 @RegisterMod
 public class AutoBlockCraft extends ToggleMod {
-    public Property blockToCraft;
-    public Property sleepTime;
+    public final Setting<String> block = getCommandStub().builders().<String>newSettingBuilder()
+            .name("block")
+            .description("Block to craft")
+            .defaultTo("minecraft:gold_ingot")
+            .build();
+
+    public final Setting<Long> sleep_time = getCommandStub().builders().<Long>newSettingBuilder()
+            .name("sleep_time")
+            .description("Time between clicks in ms")
+            .defaultTo(100L)
+            .build();
 
     public enum CraftableBlocks {
         GOLD_BLOCK("minecraft:gold_ingot"),
@@ -53,35 +60,11 @@ public class AutoBlockCraft extends ToggleMod {
         super("AutoBlockCraft", false, "Automatically crafts blocks for you");
     }
 
-    public CraftableBlocks getSelectedOption() {
-        for(CraftableBlocks block : CraftableBlocks.values())
-            if(blockToCraft.getString().equals(block.name()))
-                return block;
-        return null;
-    }
-
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings(
-                blockToCraft = configuration.get(getModName(),
-                        "crafting_block",
-                        CraftableBlocks.GOLD_BLOCK.name(),
-                        "Block to craft",
-                        Utils.toArray(CraftableBlocks.values())
-                ),
-                sleepTime = configuration.get(getModName(),
-                        "sleep_delay",
-                        100,
-                        "Time between clicks in ms"
-                )
-        );
-    }
-
     @SubscribeEvent
     public void onGuiOpen(GuiOpenEvent event) {
         if(event.getGui() instanceof GuiCrafting) {
             try {
-                GuiCraftingOverride override = new GuiCraftingOverride(MC.player.inventory, MC.world, getSelectedOption().getRecipeBlock(), sleepTime.getInt());
+                GuiCraftingOverride override = new GuiCraftingOverride(MC.player.inventory, MC.world, new ResourceLocation(block.get()), sleep_time.get());
                 event.setGui(override);
             } catch (Exception e) {
                 Wrapper.printStackTrace(e);
@@ -93,7 +76,7 @@ public class AutoBlockCraft extends ToggleMod {
         private long sleepTime;
         private ResourceLocation toCraft;
 
-        public GuiCraftingOverride(InventoryPlayer playerInv, World worldIn, ResourceLocation blockToCraft, int sleepTime) {
+        public GuiCraftingOverride(InventoryPlayer playerInv, World worldIn, ResourceLocation blockToCraft, long sleepTime) {
             super(playerInv, worldIn);
             toCraft = blockToCraft;
             this.sleepTime = sleepTime;

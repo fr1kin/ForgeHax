@@ -1,8 +1,6 @@
 package com.matt.forgehax.mods.core;
 
 import com.github.lunatrius.core.client.renderer.GeometryTessellator;
-import com.matt.forgehax.ForgeHax;
-import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -10,8 +8,8 @@ import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.events.WorldChangeEvent;
 import com.matt.forgehax.events.listeners.WorldListener;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.SilentListenerMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
@@ -21,16 +19,16 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.lwjgl.opengl.GL11;
 
-import static com.matt.forgehax.Wrapper.getLocalPlayer;
+import java.util.Collection;
 
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Wrapper.getLocalPlayer;
+import static com.matt.forgehax.Wrapper.getModManager;
 
 @RegisterMod
 public class ForgeHaxEventHandler extends SilentListenerMod {
@@ -39,14 +37,6 @@ public class ForgeHaxEventHandler extends SilentListenerMod {
 
     public ForgeHaxEventHandler() {
         super("CoreListener", "ForgeHax core listener for custom events");
-    }
-
-    @SubscribeEvent
-    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-        if(event.getModID().equals(ForgeHax.MODID)) {
-            getConfigurationHandler().save();
-            getModManager().getMods().forEach(BaseMod::update);
-        }
     }
 
     /**
@@ -85,10 +75,16 @@ public class ForgeHaxEventHandler extends SilentListenerMod {
      */
     @SubscribeEvent
     public void onKeyboardEvent(InputEvent.KeyInputEvent event) {
-        getModManager().getMods().forEach(mod -> mod.getKeyBinds().forEach(bind -> {
-            if(bind.isPressed()) mod.onBindPressed(bind);
-            if(bind.isKeyDown()) mod.onBindKeyDown(bind);
-        }));
+        getModManager().getMods().forEach(mod -> {
+            Collection<Command> cmds = mod.getCommandStub().getChildrenDeep();
+            cmds.add(mod.getCommandStub());
+            cmds.forEach(c -> {
+                if(c.getBind() != null) {
+                    if(c.getBind().isPressed()) c.onKeyPressed();
+                    if(c.getBind().isKeyDown()) c.onKeyDown();
+                }
+            });
+        });
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

@@ -1,21 +1,34 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 @RegisterMod
 public class ChamsMod extends ToggleMod {
-    public Property players;
-    public Property hostileMobs;
-    public Property friendlyMobs;
+    public final Setting<Boolean> players = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("players")
+            .description("Enables players")
+            .defaultTo(true)
+            .build();
+
+    public final Setting<Boolean> mobs_hostile = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("mobs_hostile")
+            .description("Enables hostile mobs")
+            .defaultTo(true)
+            .build();
+
+    public final Setting<Boolean> mobs_friendly = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("mobs_friendly")
+            .description("Enables friendly mobs")
+            .defaultTo(true)
+            .build();
 
     public ChamsMod() {
         super("Chams", false, "Render living models behind walls");
@@ -24,27 +37,9 @@ public class ChamsMod extends ToggleMod {
     public boolean shouldDraw(EntityLivingBase entity) {
         return !entity.equals(MC.player) &&
                 !entity.isDead && (
-                        (hostileMobs.getBoolean() && EntityUtils.isHostileMob(entity)) || // check this first
-                        (players.getBoolean() && EntityUtils.isPlayer(entity)) ||
-                        (friendlyMobs.getBoolean() && EntityUtils.isFriendlyMob(entity))
-        );
-    }
-
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings(
-                players = configuration.get(getModName(),
-                        "players",
-                        true,
-                        "Enables player chams"),
-                hostileMobs = configuration.get(getModName(),
-                        "hostile mobs",
-                        true,
-                        "Enables hostile mob chams"),
-                friendlyMobs = configuration.get(getModName(),
-                        "friendly mobs",
-                        true,
-                        "Enables friendly mob chams")
+                        (mobs_hostile.get() && EntityUtils.isHostileMob(entity)) || // check this first
+                        (players.get() && EntityUtils.isPlayer(entity)) ||
+                        (mobs_friendly.get() && EntityUtils.isFriendlyMob(entity))
         );
     }
 

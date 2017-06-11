@@ -1,27 +1,32 @@
 package com.matt.forgehax.mods;
+import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.common.config.Configuration;
-import com.matt.forgehax.events.LocalPlayerUpdateEvent;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import static com.matt.forgehax.Wrapper.getLocalPlayer;
+
+/**
+ * Created by BabbaJ
+ */
 
 @RegisterMod
 public class AutoPvPLog extends ToggleMod {
+    public final Setting<Integer> threshold = getCommandStub().builders().<Integer>newSettingBuilder()
+            .name("threshold")
+            .description("Health to disconnect at")
+            .defaultTo(0)
+            .build();
 
     public AutoPvPLog () {
         super("AutoPvPLog",false,"automatically disconnect");
     }
-    public Property threshold;
-
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings( threshold = configuration.get(getModName(), "threshold", 0, "meme font") );
-    }
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        if (MC.player.getHealth() <= threshold.getInt())
+        if (getLocalPlayer().getHealth() <= threshold.get()) {
             MC.player.sendChatMessage("");
+        }
     }
 }

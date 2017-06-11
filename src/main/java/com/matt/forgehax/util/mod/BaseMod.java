@@ -1,43 +1,24 @@
 package com.matt.forgehax.util.mod;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 import com.matt.forgehax.Globals;
-import com.matt.forgehax.Wrapper;
-import com.matt.forgehax.util.command.*;
-import com.matt.forgehax.util.mod.property.ModProperty;
-import com.matt.forgehax.util.mod.property.PropertyTypeConverter;
-import net.minecraft.client.settings.KeyBinding;
+import com.matt.forgehax.util.command.Command;
+import com.matt.forgehax.util.command.CommandBuilder;
+import com.matt.forgehax.util.command.ExecuteData;
+import com.matt.forgehax.util.command.callbacks.CallbackData;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.ConfigCategory;
-import net.minecraftforge.common.config.ConfigElement;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.client.config.DummyConfigElement;
-import net.minecraftforge.fml.client.config.IConfigElement;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Wrapper.getGlobalCommand;
 
 public abstract class BaseMod implements Globals {
     // name of the mod
     private String modName;
     // description of mod
     private String modDescription;
-    // category for this
-    private ConfigCategory modCategory = null;
 
-    // mod properties
-    protected final List<ModProperty> properties = Lists.newArrayList();
-    // mod binds
-    protected final List<KeyBinding> binds = Lists.newArrayList();
-
-    protected Command modCommand = null;
+    protected final Command stubCommand;
 
     // is the mod registered on the forge bus?
     private boolean registered = false;
@@ -45,55 +26,59 @@ public abstract class BaseMod implements Globals {
     public BaseMod(String name, String desc) {
         modName = name;
         modDescription = desc;
+        stubCommand = buildStubCommand(
+                getGlobalCommand().builders().newCommandBuilder()
+                        .name(name)
+                        .description(desc)
+                        .processor(this::onProcessCommand)
+        ).build();
     }
 
     /**
      * Load the mod
      */
-    public final void load(Configuration configuration) {
-        // register command first
-        CommandBuilder builder = onBuildingModCommand(CommandBuilder.create());
-        if(builder != null) {
-            modCommand = builder.build();
-            CommandRegistry.register(modCommand);
-        }
-        properties.clear();
-        modCategory = configuration.getCategory(modName);
-        loadConfig(configuration);
+    public final void load() {
+        if(stubCommand != null) stubCommand.deserializeAll();
+        if(isEnabled()) start();
         onLoad();
     }
-
-    public abstract void startup();
 
     /**
      * Unload the mod
      */
     public final void unload() {
-        disable();
+        stop();
         onUnload();
         // unregister command last
-        if(modCommand != null) CommandRegistry.unregister(modCommand);
+        if(stubCommand != null) {
+            stubCommand.serializeAll();
+            stubCommand.leaveParent();
+        }
     }
 
     /**
      * Enables the mod
      */
-    public final void enable() {
+    protected final void start() {
         if(register()) {
             onEnabled();
             LOGGER.info(String.format("%s enabled", getModName()));
         }
     }
 
-    public final void disable() {
+    protected final void stop() {
         if(unregister()) {
             onDisabled();
             LOGGER.info(String.format("%s disabled", getModName()));
         }
     }
 
-    public void loadConfig(Configuration configuration) {
-        onLoadConfiguration(configuration);
+    public void enable() {
+        start();
+    }
+
+    public void disable() {
+        stop();
     }
 
     /**
@@ -111,17 +96,10 @@ public abstract class BaseMod implements Globals {
     }
 
     /**
-     * Get mod category
-     */
-    public final ConfigCategory getModCategory() {
-        return modCategory;
-    }
-
-    /**
      * The main mod command
      */
-    public Command getModCommand() {
-        return modCommand;
+    public Command getCommandStub() {
+        return stubCommand;
     }
 
     /**
@@ -153,113 +131,31 @@ public abstract class BaseMod implements Globals {
         return registered;
     }
 
+    protected CommandBuilder buildStubCommand(CommandBuilder builder) {
+        return builder;
+    }
+
     protected final void addCommand(Command command) {
-        java.util.Objects.requireNonNull(modCommand, "Mod base command is null");
-        modCommand.addChildCommand(command);
+        stubCommand.addChild(command);
     }
 
     protected final void removeCommand(Command command) {
-        java.util.Objects.requireNonNull(modCommand, "Mod base command is null");
-        modCommand.removeChildCommand(command);
+        stubCommand.removeChild(command);
     }
 
-    public final Command getCommand(String commandName) {
-        java.util.Objects.requireNonNull(modCommand, "Mod base command is null");
-        return modCommand.getChildCommand(commandName);
+    public final <T extends Command> T getCommand(String commandName) {
+        try {
+            return (T) stubCommand.getChild(commandName);
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     public final Collection<Command> getCommands() {
-        if(modCommand != null)
-            return modCommand.getChildCommands();
+        if(stubCommand != null)
+            return stubCommand.getChildren();
         else
             return Collections.emptyList();
-    }
-
-    /**
-     * Add setting to list
-     */
-    protected final void addSettings(Property... props) {
-        for(final Property prop : props) {
-            properties.add(new ModProperty(prop));
-            addCommand(CommandBuilder.create()
-                    .setProperty(prop)
-                    .setProcessor(options -> {
-                        List<?> args = options.nonOptionArguments();
-                        if(args.size() > 0) {
-                            // easier to deal with if its always a string
-                            String arg = PropertyTypeConverter.getConvertedString(prop, String.valueOf(args.get(0)));
-                            // save old value
-                            String old = prop.getString();
-                            if(!Objects.equal(arg, old)) {
-                                // set
-                                prop.set(arg);
-                                // inform client there has been changes
-                                printMessage(String.format("Set '%s' from '%s' to '%s'",
-                                        CommandLine.toUniqueId(getModName(), prop.getName()),
-                                        Objects.firstNonNull(old, "<null>"),
-                                        Objects.firstNonNull(prop.getString(), "<null>")
-                                ));
-                                return true; // success, call callbacks
-                            }
-                        } else {
-                            printMessage(String.format("%s = %s",
-                                    CommandLine.toUniqueId(getModName(), prop.getName()),
-                                    Objects.firstNonNull(prop.getString(), "<null>")
-                            ));
-                        }
-                        return false; // nothing changed, dont call callbacks
-                    })
-                    .addCallback(command -> {
-                        update();
-                        Wrapper.getConfigurationHandler().save();
-                    })
-                    .build()
-            );
-        }
-    }
-
-    /**
-     * Check if any of the settings have changed
-     * if any have, return those
-     */
-    protected final boolean hasSettingsChanged(List<Property> changed) {
-        for(ModProperty prop : properties) {
-            if (prop.hasChanged()) {
-                changed.add(prop.property);
-                prop.update();
-            }
-        }
-        return changed.size() > 0;
-    }
-
-    /**
-     * Mods properties
-     */
-    public final List<ModProperty> getProperties() {
-        return Collections.unmodifiableList(properties);
-    }
-
-    public final Property getProperty(String name) {
-        for(ModProperty prop : properties) if(prop.property.getName().equals(name))
-            return prop.property;
-        return new Property("null", Boolean.toString(false), Property.Type.BOOLEAN);
-    }
-
-    /**
-     * Add key bind
-     */
-    protected final KeyBinding addBind(String name, int keyCode) {
-        KeyBinding bind = new KeyBinding(name, keyCode, "ForgeHax");
-        ClientRegistry.registerKeyBinding(bind);
-        binds.add(bind);
-        return bind;
-    }
-
-    /**
-     * Mods binds
-     */
-    public final Collection<KeyBinding> getKeyBinds() {
-        return Collections.unmodifiableList(binds);
     }
 
     /**
@@ -278,44 +174,13 @@ public abstract class BaseMod implements Globals {
      */
     public abstract void toggle();
 
-    /**
-     * Updates the mod
-     */
-    public abstract void update();
-
-    /**
-     * Called when the config gui is building
-     */
-    public void onConfigBuildGui(List<IConfigElement> elements) {
-        elements.add(new DummyConfigElement.DummyCategoryElement(
-                        getModName(),
-                        "",
-                        new ConfigElement(getModCategory()).getChildElements())
-        );
-    }
-
-    /**
-     * Called when the mods settings update
-     * @param changed
-     */
-    public void onConfigUpdated(List<Property> changed) {}
-
-    /**
-     * Register config settings
-     */
-    public void onLoadConfiguration(Configuration configuration) {}
-
-    /**
-     * Called when the main mod command is being built.
-     * To append to the command override this method and return super.onBuildingModCommand(builder)
-     * @param builder The command builder
-     * @return the command builder
-     */
-    @Nullable
-    protected CommandBuilder onBuildingModCommand(final CommandBuilder builder) {
-        return builder
-                .setName(getModName())
-                .setDescription(getModDescription());
+    public void onProcessCommand(ExecuteData data) {
+        final StringBuilder builder = new StringBuilder();
+        getCommandStub().getChildren().forEach(command -> {
+            builder.append(command.getPrintText());
+            builder.append('\n');
+        });
+        data.write(builder.toString());
     }
 
     /**
@@ -341,12 +206,12 @@ public abstract class BaseMod implements Globals {
     /**
      * Called when the bind is initially pressed
      */
-    public void onBindPressed(KeyBinding bind) {}
+    public void onBindPressed(CallbackData cb) {}
 
     /**
      * Called while the bind key is pressed down
      */
-    public void onBindKeyDown(KeyBinding bind) {}
+    public void onBindKeyDown(CallbackData cb) {}
 
     public String getDisplayText() {
         return getModName();

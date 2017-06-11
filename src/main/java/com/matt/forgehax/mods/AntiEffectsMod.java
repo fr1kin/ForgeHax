@@ -1,32 +1,25 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.MobEffects;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class AntiEffectsMod extends ToggleMod {
-    public Property noParticles;
+    public final Setting<Boolean> no_particles = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("no_particles")
+            .description("Stops the particle effect from rendering on other entities")
+            .defaultTo(true)
+            .build();
 
     public AntiEffectsMod() {
         super("AntiPotionEffects", false, "Removes potion effects");
-    }
-
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings(
-                noParticles = configuration.get(getModName(),
-                        "anti_particles",
-                        true,
-                        "Stops the particle effect from rendering on other entities")
-        );
     }
 
     @Override
@@ -49,7 +42,7 @@ public class AntiEffectsMod extends ToggleMod {
             living.removePotionEffect(MobEffects.BLINDNESS);
             // removes particle effect
             FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(living);
-        } else if(noParticles.getBoolean()) {
+        } else if(no_particles.get()) {
             living.setInvisible(false);
             FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(living);
         }

@@ -1,11 +1,17 @@
 package com.matt.forgehax.util.json;
 
-import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
+import java.io.IOException;
 
 /**
  * Created on 5/20/2017 by fr1kin
  */
 public interface ISerializableJson {
-    void serialize(final JsonObject head);
-    void deserialize(final JsonObject head);
+    // TODO: Change it so head = JsonObject to add to
+    void serialize(final JsonWriter writer) throws IOException;
+    void deserialize(final JsonReader reader) throws IOException;
+
+    String toString();
 }

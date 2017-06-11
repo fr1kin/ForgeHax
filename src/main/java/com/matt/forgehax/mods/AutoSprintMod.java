@@ -1,13 +1,13 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import static com.matt.forgehax.Wrapper.*;
+
+import static com.matt.forgehax.Wrapper.getLocalPlayer;
 
 @RegisterMod
 public class AutoSprintMod extends ToggleMod {
@@ -15,14 +15,18 @@ public class AutoSprintMod extends ToggleMod {
 
     public static final String[] modes = new String[] {"ALWAYS", "LEGIT"};
 
-    public Property mode;
+    public final Setting<String> mode = getCommandStub().builders().<String>newSettingBuilder()
+            .name("mode")
+            .description("Sprint mode")
+            .defaultTo(modes[0])
+            .build();
 
     public AutoSprintMod() {
         super("AutoSprint", false, "Automatically sprints");
     }
 
     private void startSprinting() {
-        switch (mode.getString()) {
+        switch (mode.get().toUpperCase()) {
             case "ALWAYS":
                 if(!getLocalPlayer().isCollidedHorizontally)
                     getLocalPlayer().setSprinting(true);
@@ -45,18 +49,6 @@ public class AutoSprintMod extends ToggleMod {
             Bindings.sprint.unbind();
             isBound = false;
         }
-    }
-
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings(
-                mode = configuration.get(getModCategory().getName(),
-                        "mode",
-                        modes[0],
-                        "Sprint mode (ALWAYS=setSprinting,LEGIT=simulate key press)",
-                        modes
-                )
-        );
     }
 
     /**

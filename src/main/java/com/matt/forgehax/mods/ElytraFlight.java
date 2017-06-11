@@ -1,44 +1,41 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import static com.matt.forgehax.Wrapper.*;
+
+import static com.matt.forgehax.Wrapper.getLocalPlayer;
+import static com.matt.forgehax.Wrapper.getNetworkManager;
 
 @RegisterMod
 public class ElytraFlight extends ToggleMod {
-
-	private Property speed;
+	public final Setting<Double> speed = getCommandStub().builders().<Double>newSettingBuilder()
+			.name("speed")
+			.description("Movement speed")
+			.defaultTo(0.05D)
+			.build();
 
 	public ElytraFlight() {
 		super("ElytraFlight", false, "Elytra Flight");
 	}
 
 	@Override
-	public void onLoadConfiguration(Configuration configuration) {
-		addSettings(
-				speed = configuration.get(getModName(), "speed", 0.05, "Flight speed")
-		);
-	}
-
-	@Override
 	public void onDisabled() {
 
 		// Are we still here?
-		if (MC.player != null) {
+		if (getLocalPlayer() != null) {
 
 			// Disable creativeflight.
-			MC.player.capabilities.isFlying = false;
+			getLocalPlayer().capabilities.isFlying = false;
 
 			// Ensure the player starts flying again.
-			getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
+			getNetworkManager().sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
 		}
 
 	}
@@ -46,13 +43,10 @@ public class ElytraFlight extends ToggleMod {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-
 		// Enable our flight as soon as the player starts flying his elytra.
-		if (MC.player.isElytraFlying()) {
-			MC.player.capabilities.isFlying = true;
+		if (getLocalPlayer().isElytraFlying()) {
+			getLocalPlayer().capabilities.isFlying = true;
 		}
-
-		MC.player.capabilities.setFlySpeed((float) speed.getDouble());
-
+		getLocalPlayer().capabilities.setFlySpeed(speed.getAsFloat());
 	}
 }

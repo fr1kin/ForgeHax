@@ -1,43 +1,12 @@
 package com.matt.forgehax.mods;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.util.mod.ToggleMod;
-import com.matt.forgehax.util.mod.loader.RegisterMod;
-import com.mojang.authlib.GameProfile;
-import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraft.network.play.server.SPacketPlayerListItem;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import static com.matt.forgehax.Wrapper.*;
-
 /*
     warning: im warning you now don't look below
  */
 
-@RegisterMod
-public class ChatSpammerMod extends ToggleMod {
+public class ChatSpammerMod {
+    //TODO: redo
+    /*
     private static final Map<String, Object> EMPTY_MAP = Collections.unmodifiableMap(Maps.newHashMap());
     private static final String EMPTY_SENDER = String.valueOf("");
 
@@ -128,6 +97,12 @@ public class ChatSpammerMod extends ToggleMod {
     public Property uniquenessThreshold;
     public Property charactersPerMinute;
     public Property maxInputLength;
+
+    public final Setting<Integer> delay = getCommandStub().<Integer>childSetting()
+            .name("delay")
+            .description("Enables friendly mobs")
+            .defaultTo(true)
+            .build();
 
     private long timeLastMessageSent = -1;
     private long timeWhenToReportJoinEvents = -1;
@@ -525,4 +500,5 @@ public class ChatSpammerMod extends ToggleMod {
 
         System.out.println("formatted: " + test.replaceAll("\0", ""));
     }
+    */
 }

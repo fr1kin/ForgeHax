@@ -1,20 +1,34 @@
 package com.matt.forgehax.mods;
 
 
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import joptsimple.internal.Strings;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import static com.matt.forgehax.Wrapper.getLocalPlayer;
 
 @RegisterMod
 public class AutoReply extends ToggleMod {
-	private String modeString = "/r ";
-	private Property reply;
-	private Property mode;
-	private Property search;
-	private static final String[] MODE = {"REPLY", "CHAT"};
+    public final Setting<String> reply = getCommandStub().builders().<String>newSettingBuilder()
+            .name("reply")
+            .description("Text to reply with")
+            .defaultTo("fuck off newfag")
+            .build();
+
+    public final Setting<String> mode = getCommandStub().builders().<String>newSettingBuilder()
+            .name("mode")
+            .description("Reply or chat")
+            .defaultTo("REPLY")
+            .build();
+
+    public final Setting<String> search = getCommandStub().builders().<String>newSettingBuilder()
+            .name("search")
+            .description("Text to search for in message")
+            .defaultTo("whispers: ")
+            .build();
 		    
     public AutoReply() {
         super("AutoReply", false, "Automatically talk in chat if finds a strings");
@@ -22,24 +36,19 @@ public class AutoReply extends ToggleMod {
 
     @SubscribeEvent
     public void onClientChat(ClientChatReceivedEvent event) {
-    	
-             String message = ( event.getMessage().getUnformattedText() );
-             
-             if ( message.contains(search.getString()) && !message.startsWith(MC.getSession().getUsername() )) {
-            	 if (mode.getString().equals(MODE[0])) {
-            		 modeString = "/r ";
-            	 }
-            	 else if (mode.getString().equals(MODE[1])) {
-            		 modeString = "";
-            	 }
-                 MC.player.sendChatMessage(modeString + reply.getString());
+        String message = ( event.getMessage().getUnformattedText() );
+         if (message.contains(search.get()) && !message.startsWith(MC.getSession().getUsername() )) {
+             String append;
+             switch (mode.get().toUpperCase()) {
+                 case "REPLY":
+                     append = "/w ";
+                     break;
+                 case "CHAT":
+                 default:
+                     append = Strings.EMPTY;
+                     break;
              }
-    }
-    
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings( search = configuration.get(getModName(), "search", "whispers: ", "text to search for") );
-        addSettings( reply = configuration.get(getModName(), "text", "fuck off newfag", "text to reply with") );
-        addSettings( mode = configuration.get(getModName(), "mode", MODE[0], "reply or chat", MODE) );
+             getLocalPlayer().sendChatMessage(append + reply.get());
+         }
     }
 }

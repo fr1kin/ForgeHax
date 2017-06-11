@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.util.*;
+import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.RenderUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.Angle;
@@ -13,9 +14,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import static com.matt.forgehax.Wrapper.*;
+
+import static com.matt.forgehax.Wrapper.getModManager;
+import static com.matt.forgehax.Wrapper.getWorld;
 
 @RegisterMod
 public class ProjectilesMod extends ToggleMod {
@@ -40,11 +42,16 @@ public class ProjectilesMod extends ToggleMod {
         if(trace == null)
             return;
         double pitch, yaw;
-        Property autoProjectile = getModManager().getMod("AutoProjectile").getProperty("enabled");
+        boolean autoProjectileEnabled;
+        try {
+            autoProjectileEnabled = getModManager().getMod("AutoProjectile").<Setting>getCommand("enabled").getAsBoolean();
+        } catch (Throwable t) {
+            autoProjectileEnabled = false;
+        }
         if(LocalPlayerUtils.isProjectileTargetAcquired()) {
             pitch = LocalPlayerUtils.getFakeViewAngles().getPitch();
             yaw = LocalPlayerUtils.getFakeViewAngles().getYaw();
-        } else if(autoProjectile != null && autoProjectile.getBoolean()) {
+        } else if(autoProjectileEnabled) {
             pitch = ProjectileUtils.getBestPitch(heldItem, trace.hitVec);
             yaw = viewAngles.getYaw();
         } else {

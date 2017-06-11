@@ -13,11 +13,6 @@ public class SilentListenerMod extends SilentMod {
     }
 
     @Override
-    public void startup() {
-        register();
-    }
-
-    @Override
     public boolean isEnabled() {
         return true;
     }

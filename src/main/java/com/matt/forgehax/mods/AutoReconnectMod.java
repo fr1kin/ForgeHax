@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.GuiButton;
@@ -11,8 +12,6 @@ import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -27,32 +26,17 @@ public class AutoReconnectMod extends ToggleMod {
 
     public void updateLastConnectedServer() {
         ServerData data = MC.getCurrentServerData();
-        if(data != null)
-            lastConnectedServer = data;
+        if(data != null) lastConnectedServer = data;
     }
 
-    public Property delayTime;
-    public Property delayConnectTime;
+    public final Setting<Double> delay = getCommandStub().builders().<Double>newSettingBuilder()
+            .name("delay")
+            .description("Delay between each reconnect attempt")
+            .defaultTo(0.D)
+            .build();
 
     public AutoReconnectMod() {
         super("AutoReconnect", false, "Automatically reconnects to server");
-    }
-
-    @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        super.onLoadConfiguration(configuration);
-        addSettings(
-                delayTime = configuration.get(getModCategory().getName(),
-                        "delay",
-                        5,
-                        "Delay between each connect"
-                ),
-                delayConnectTime = configuration.get(getModCategory().getName(),
-                        "delay_connect",
-                        5,
-                        "Login delay"
-                )
-        );
     }
 
     @SubscribeEvent
@@ -66,7 +50,7 @@ public class AutoReconnectMod extends ToggleMod {
                     "connect.failed",
                     FastReflection.Fields.GuiDisconnected_message.get(disconnected),
                     FastReflection.Fields.GuiDisconnected_reason.get(disconnected),
-                    delayTime.getDouble()
+                    delay.get()
             ));
         }
     }

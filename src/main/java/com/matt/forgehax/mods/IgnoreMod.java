@@ -3,7 +3,6 @@ package com.matt.forgehax.mods;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.util.Utils;
-import com.matt.forgehax.util.command.*;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.util.text.TextComponentString;
@@ -86,43 +85,38 @@ public class IgnoreMod extends ToggleMod {
 
     @Override
     public void onLoad() {
-        CommandRegistry.register(new CommandBuilder()
-                .setName("ignore")
-                .setDescription("Ignore a player")
-                .setProcessor(options -> {
-                    List<?> args = options.nonOptionArguments();
-                    if (args.size() > 0) {
-                        String addName = String.valueOf(args.get(0));
-                        // do stuff
-                        if (ignoreList.contains((addName))) {
-                            ignoreList.remove(ignoreList.indexOf(addName));
-                            MC.player.sendMessage(new TextComponentString("\u00A7a" + addName + " has been unignored"));
-                        }
-                        else {
-                            ignoreList.add(addName);
-                            MC.player.sendMessage(new TextComponentString("\u00A77" + addName + " has been ignored"));
-                        }
-
-                        try {
-                            File nameFile = Wrapper.getFileManager().getFileInConfigDirectory("ignorelist.txt");
-                            FileWriter fw = new FileWriter(nameFile);
-                            BufferedWriter bw = new BufferedWriter(fw);
-                            for (String s : ignoreList) {
-                                bw.write(s + "\r\n");
-                            }
-                            bw.close();
-                            fw.close();
-                        } catch (Exception e) {
-                        }
-                        // end of doing stuff
-                        return true;
-                    } else {
-                        // missing argument
+        GLOBAL_COMMAND.builders().newCommandBuilder()
+                .name("ignore")
+                .description("Ignore a player")
+                .processor(data -> {
+                    data.requiredArguments(1);
+                    String addName = data.getArgumentAsString(0);
+                    // do stuff
+                    if (ignoreList.contains((addName))) {
+                        ignoreList.remove(ignoreList.indexOf(addName));
+                        MC.player.sendMessage(new TextComponentString("\u00A7a" + addName + " has been unignored"));
                     }
-                    return false;
+                    else {
+                        ignoreList.add(addName);
+                        MC.player.sendMessage(new TextComponentString("\u00A77" + addName + " has been ignored"));
+                    }
+
+                    try {
+                        File nameFile = Wrapper.getFileManager().getFileInConfigDirectory("ignorelist.txt");
+                        FileWriter fw = new FileWriter(nameFile);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        for (String s : ignoreList) {
+                            bw.write(s + "\r\n");
+                        }
+                        bw.close();
+                        fw.close();
+                    } catch (Exception e) {
+                        ;
+                    } finally {
+                        data.markSuccess();
+                    }
                 })
-                .build()
-        );
+                .build();
     }
 
 }

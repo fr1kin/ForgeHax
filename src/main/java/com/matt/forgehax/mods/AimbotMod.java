@@ -5,7 +5,8 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.mods.core.TickManager;
-import com.matt.forgehax.util.*;
+import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.entity.PlayerUtils;
@@ -28,50 +29,121 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Collections;
 
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Wrapper.getLocalPlayer;
+import static com.matt.forgehax.Wrapper.getNetworkManager;
 
 @RegisterMod
 public class AimbotMod extends ToggleMod {
-    public Property silent;
-    public Property autoAttack;
-    public Property projectileAutoAttack;
-    public Property holdTarget;
-    public Property visibilityCheck;
+    public final Setting<Boolean> silent = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("silent")
+            .description("Won't look at target when aiming")
+            .defaultTo(true)
+            .build();
 
-    public Property projectileAimbot;
-    public Property projectileTraceCheck;
+    public final Setting<Boolean> auto_attack = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("autoattack")
+            .description("Automatically attack when target found")
+            .defaultTo(true)
+            .build();
 
-    public Property fov;
-    public Property range;
-    public Property projectileRange;
-    public Property cooldownPercent;
+    public final Setting<Boolean> projectile_auto_attack = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("projectile_auto_attack")
+            .description("Automatically attack when target found for projectile weapons")
+            .defaultTo(true)
+            .build();
 
-    public Property players;
-    public Property hostileMobs;
-    public Property friendlyMobs;
+    public final Setting<Boolean> hold_target = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("hold_target")
+            .description("Keep first caught target until it becomes no longer valid")
+            .defaultTo(false)
+            .build();
 
-    public Property lagCompensation;
+    public final Setting<Boolean> vis_check = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("vis_check")
+            .description("Check if the target is visible before acquiring")
+            .defaultTo(false)
+            .build();
+
+    public final Setting<Boolean> projectile_aimbot = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("projectile_aimbot")
+            .description("Projectile aimbot")
+            .defaultTo(true)
+            .build();
+
+    public final Setting<Boolean> projectile_trace_check = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("projectile_trace_check")
+            .description("Check the trace of each target if holding a weapon that fires a projectile")
+            .defaultTo(true)
+            .build();
+
+    public final Setting<Boolean> target_players = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("target_players")
+            .description("Target players")
+            .defaultTo(true)
+            .build();
+
+    public final Setting<Boolean> target_mobs_hostile = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("target_mobs_hostile")
+            .description("Target hostile mobs")
+            .defaultTo(true)
+            .build();
+
+    public final Setting<Boolean> target_mobs_friendly = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("target_mobs_friendly")
+            .description("Target friendly mobs")
+            .defaultTo(false)
+            .build();
+
+    public final Setting<Boolean> lag_compensation = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("lag_compensation")
+            .description("Compensate for server lag")
+            .defaultTo(true)
+            .build();
+
+    public final Setting<Integer> fov = getCommandStub().builders().<Integer>newSettingBuilder()
+            .name("fov")
+            .description("Aimbot field of view")
+            .defaultTo(180)
+            .min(0)
+            .max(180)
+            .build();
+
+    public final Setting<Double> range = getCommandStub().builders().<Double>newSettingBuilder()
+            .name("range")
+            .description("Aimbot range")
+            .defaultTo(4.5D)
+            .build();
+
+    public final Setting<Double> projectile_range = getCommandStub().builders().<Double>newSettingBuilder()
+            .name("projectile_range")
+            .description("Projectile aimbot range")
+            .defaultTo(100D)
+            .build();
+
+    public final Setting<Double> cooldown_percent = getCommandStub().builders().<Double>newSettingBuilder()
+            .name("cooldown_percent")
+            .description("Minimum cooldown percent for next strike")
+            .defaultTo(100D)
+            .build();
 
     public AimbotMod() {
         super("Aimbot", false, "Automatically attack entities and players");
     }
 
     private double getLagComp() {
-        if(lagCompensation.getBoolean()) {
+        if(lag_compensation.get()) {
             return -(20.D - TickManager.getTickData().getPoint().getAverage());
         } else return 0.D;
     }
 
     public boolean canAttack(EntityPlayer localPlayer, Entity target) {
-        return localPlayer.getCooledAttackStrength((float)getLagComp()) >= (cooldownPercent.getDouble() / 100.f) &&
-                (autoAttack.getBoolean() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
+        return localPlayer.getCooledAttackStrength((float)getLagComp()) >= (cooldown_percent.get() / 100.D) &&
+                (auto_attack.get() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
     }
 
     public boolean isHoldingProjectileItem() {
@@ -79,14 +151,14 @@ public class AimbotMod extends ToggleMod {
     }
 
     public boolean isProjectileAimbotActivated() {
-        return projectileAimbot.getBoolean() &&
+        return projectile_aimbot.get() &&
                 isHoldingProjectileItem();
     }
 
     public boolean isVisible(Entity target) {
-        if(isProjectileAimbotActivated() && projectileTraceCheck.getBoolean()) {
+        if(isProjectileAimbotActivated() && projectile_trace_check.get()) {
             return ProjectileUtils.projectileTrajectoryHitsEntity(target, EntityUtils.getEyePos(getLocalPlayer()), getAimPos(target), null);
-        } else return !visibilityCheck.getBoolean() || getLocalPlayer().canEntityBeSeen(target);
+        } else return !vis_check.get() || getLocalPlayer().canEntityBeSeen(target);
     }
 
     public Vec3d getAimPos(Entity entity) {
@@ -106,9 +178,9 @@ public class AimbotMod extends ToggleMod {
                 EntityUtils.isAlive(entity) &&
                 !entity.equals(MC.player) &&
                 EntityUtils.isValidEntity(entity) && (
-                (EntityUtils.isPlayer(entity) && players.getBoolean() && !PlayerUtils.isFriend((EntityPlayer)entity)) ||
-                        (EntityUtils.isHostileMob(entity) && hostileMobs.getBoolean()) ||
-                        (EntityUtils.isFriendlyMob(entity) && friendlyMobs.getBoolean())
+                (EntityUtils.isPlayer(entity) && target_players.get() && !PlayerUtils.isFriend((EntityPlayer)entity)) ||
+                        (EntityUtils.isHostileMob(entity) && target_mobs_hostile.get()) ||
+                        (EntityUtils.isFriendlyMob(entity) && target_mobs_hostile.get())
                 ) &&
                 isInRange(entPos, selfPos) &&
                 isInFOVRange(viewAngles, entPos.subtract(selfPos)) &&
@@ -119,12 +191,12 @@ public class AimbotMod extends ToggleMod {
      * Check if entity is in attack range
      */
     public boolean isInRange(Vec3d fromPos, Vec3d toPos) {
-        double dist = isProjectileAimbotActivated() ? projectileRange.getDouble() : range.getDouble();
+        double dist = isProjectileAimbotActivated() ? projectile_range.get() : range.get();
         return dist <= 0 || fromPos.distanceTo(toPos) <= dist;
     }
 
     public boolean isInFOVRange(Angle selfAngle, Vec3d diffPos) {
-        double value = fov.getDouble();
+        double value = fov.get();
         if (value >= 180) {
             return true;
         } else {
@@ -168,91 +240,6 @@ public class AimbotMod extends ToggleMod {
     }
 
     @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings(
-                silent = configuration.get(getModName(),
-                        "aim_silent",
-                        true,
-                        "Won't lock onto target"
-                ),
-                autoAttack = configuration.get(getModName(),
-                        "aim_autoattack",
-                        true,
-                        "Automatically attack"
-                ),
-                visibilityCheck = configuration.get(getModName(),
-                        "aim_vischeck",
-                        true,
-                        "If the aimbot will do visibility checks"
-                ),
-                projectileAutoAttack = configuration.get(getModName(),
-                        "projectile_autoattack",
-                        true,
-                        "Automatically attack"
-                ),
-                holdTarget = configuration.get(getModName(),
-                        "aim_hold_target",
-                        false,
-                        "Keeps target until it is no longer a valid attack target"
-                ),
-                projectileAimbot = configuration.get(getModName(),
-                        "projectile_aimbot",
-                        false,
-                        "Aimbot for bows, snowballs, and eggs"
-                ),
-                projectileTraceCheck = configuration.get(getModName(),
-                        "projectile_trace_check",
-                        true,
-                        "Requires beefy computer, will check if targets can be hit by the bows trajectory"
-                ),
-                fov = configuration.get(getModName(),
-                        "aim_fov",
-                        40.D,
-                        "Aimbot field of view",
-                        0.D,
-                        180.D
-                ),
-                range = configuration.get(getModName(),
-                        "aim_range",
-                        4.5D,
-                        "Attack range"
-                ),
-                projectileRange = configuration.get(getModName(),
-                        "projectile_range",
-                        100D,
-                        "Attack range for projectiles"
-                ),
-                cooldownPercent = configuration.get(getModName(),
-                        "aim_cooldown_percent",
-                        100.D,
-                        "What cooldown % to attack again at",
-                        0.D,
-                        100.D
-                ),
-                players = configuration.get(getModName(),
-                        "tar_players",
-                        true,
-                        "Attack players"
-                ),
-                hostileMobs = configuration.get(getModName(),
-                        "tar_hostile_mobs",
-                        true,
-                        "Attack hostile mobs"
-                ),
-                friendlyMobs = configuration.get(getModName(),
-                        "tar_friendly_mobs",
-                        true,
-                        "Attack friendly mobs"
-                ),
-                lagCompensation = configuration.get(getModName(),
-                        "aim_lagcomp",
-                        true,
-                        "Compensate for tps lag"
-                )
-        );
-    }
-
-    @Override
     public void onDisabled() {
         LocalPlayerUtils.setTargetEntity(null);
         LocalPlayerUtils.setActiveFakeAngles(false);
@@ -270,7 +257,7 @@ public class AimbotMod extends ToggleMod {
         Vec3d selfLookVec = localPlayer.getLookVec();
         // local player view angles
         Angle viewAngles = VectorUtils.vectorAngle(selfLookVec);
-        if(holdTarget.getBoolean()) {
+        if(hold_target.get()) {
             if(target == null ||
                     !isValidTarget(target, EntityUtils.getOBBCenter(target), selfPos, selfLookVec, viewAngles)) {
                 target = findTargetEntity(selfPos, selfLookVec, viewAngles);
@@ -281,7 +268,7 @@ public class AimbotMod extends ToggleMod {
         if(target != null) {
             if(!isHoldingProjectileItem()) {
                 Angle aim = Utils.getLookAtAngles(target);
-                if (!silent.getBoolean())
+                if (!silent.get())
                     LocalPlayerUtils.setViewAngles(aim);
                 if (canAttack(localPlayer, target)) {
                     // attack entity
@@ -289,7 +276,7 @@ public class AimbotMod extends ToggleMod {
                     // swing hand
                     localPlayer.swingArm(EnumHand.MAIN_HAND);
                     // for rotation packets
-                    if (silent.getBoolean()) {
+                    if (silent.get()) {
                         LocalPlayerUtils.setActiveFakeAngles(true);
                         LocalPlayerUtils.setFakeViewAngles(aim);
                         LocalPlayerUtils.sendRotatePacket(aim);
@@ -310,14 +297,14 @@ public class AimbotMod extends ToggleMod {
                     LocalPlayerUtils.setProjectileTargetAcquired(true);
                     // set view angles
                     LocalPlayerUtils.setFakeViewAngles(result.shootAngle);
-                    if (!silent.getBoolean() && Bindings.use.getBinding().isKeyDown()) {
+                    if (!silent.get() && Bindings.use.getBinding().isKeyDown()) {
                         LocalPlayerUtils.setViewAngles(result.shootAngle);
                     }
                     // fake angles no active (wont change rotation packets)
                     LocalPlayerUtils.setActiveFakeAngles(false);
                     // bow auto attack will release the use key when
                     // the force is greater than or equal to the max force
-                    if(projectileAutoAttack.getBoolean() &&
+                    if(projectile_auto_attack.get() &&
                             Bindings.use.getBinding().isKeyDown() &&
                             ProjectileUtils.getForce(heldItem) >= result.maxForce) {
                         Bindings.use.setPressed(false);

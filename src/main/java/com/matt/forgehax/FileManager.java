@@ -1,6 +1,6 @@
 package com.matt.forgehax;
 
-import com.matt.forgehax.util.command.CommandLine;
+import com.matt.forgehax.util.command.CommandHelper;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
@@ -45,10 +45,10 @@ public class FileManager {
     }
 
     public File getFileInBaseDirectory(String... paths) {
-        return new File(baseDirectory, CommandLine.join(paths, File.separator));
+        return new File(baseDirectory, CommandHelper.join(paths, File.separator));
     }
 
     public File getFileInConfigDirectory(String... paths) {
-        return new File(configDirectory, CommandLine.join(paths, File.separator));
+        return new File(configDirectory, CommandHelper.join(paths, File.separator));
     }
 }

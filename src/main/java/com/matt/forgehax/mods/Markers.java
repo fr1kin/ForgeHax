@@ -2,41 +2,49 @@ package com.matt.forgehax.mods;
 
 import com.github.lunatrius.core.client.renderer.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.GeometryTessellator;
-import com.google.common.collect.*;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import com.matt.forgehax.Wrapper;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.reflection.FastReflection;
-import com.matt.forgehax.util.blocks.*;
-import com.matt.forgehax.util.jopt.OptionHelper;
-import com.matt.forgehax.util.command.CommandBuilder;
-import com.matt.forgehax.util.jopt.SafeConverter;
+import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.blocks.BlockEntry;
+import com.matt.forgehax.util.blocks.properties.BoundProperty;
+import com.matt.forgehax.util.blocks.properties.ColorProperty;
+import com.matt.forgehax.util.command.ExecuteData;
+import com.matt.forgehax.util.command.Options;
+import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.command.options.BlockEntryProcessor;
+import com.matt.forgehax.util.command.options.OptionBuilders;
+import com.matt.forgehax.util.command.options.OptionProcessors;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.vertex.*;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 
@@ -46,15 +54,8 @@ import java.util.function.BiConsumer;
 @RegisterMod
 public class Markers extends ToggleMod implements BlockModelRenderListener {
     // TODO: Bug when a render chunk is empty according to isEmptyLayer but actually contains tile entities with an invisible render layer type. This will cause them not to be rendered provided they are the only blocks within that region.
-
-    private static final BlockOptions MARKER_OPTIONS = new BlockOptions(Wrapper.getFileManager().getFileInConfigDirectory("markers.json"));
-
     private static final int VERTEX_BUFFER_COUNT = 100;
     private static final int VERTEX_BUFFER_SIZE = 0x200;
-
-    public static BlockOptions getMarkerOptions() {
-        return MARKER_OPTIONS;
-    }
 
     private static TesselatorCache cache = new TesselatorCache(VERTEX_BUFFER_COUNT, VERTEX_BUFFER_SIZE);
     public static void setCache(TesselatorCache cache) {
@@ -64,9 +65,30 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     private Renderers renderers = new Renderers();
     private Vec3d renderingOffset = new Vec3d(0, 0, 0);
 
-    public Property clearBuffer;
-    public Property antialiasing;
-    public Property antialiasing_max;
+    public final Options<BlockEntry> options = getCommandStub().builders().<BlockEntry>newOptionsBuilder()
+            .name("options")
+            .description("Marker block options")
+            .supplier(Sets::newConcurrentHashSet)
+            .factory(BlockEntry::new)
+            .build();
+
+    public final Setting<Boolean> clear_buffer = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("clear_buffer")
+            .description("Clear the buffer instead of disabling depth")
+            .defaultTo(false)
+            .build();
+
+    public final Setting<Boolean> anti_aliasing = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("antialiasing")
+            .description("Enables antialiasing on lines")
+            .defaultTo(false)
+            .build();
+
+    public final Setting<Integer> anti_aliasing_max = getCommandStub().builders().<Integer>newSettingBuilder()
+            .name("antialiasing_max")
+            .description("Maximum number of render elements allowed in a render chunk until antialiasing is disabled")
+            .defaultTo(0)
+            .build();
 
     public Markers() {
         super("Markers", false, "Renders a box around a block");
@@ -84,232 +106,103 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Override
-    public void onLoadConfiguration(Configuration configuration) {
-        addSettings(
-                clearBuffer = configuration.get(getModName(),
-                        "clearbuffer",
-                        true,
-                        "Will clear the depth buffer instead of disabling depth"
-                ),
-                antialiasing = configuration.get(getModName(),
-                        "antialiasing",
-                        false,
-                        "Will enable anti aliasing on lines making them look smoother, but will hurt performance"
-                ),
-                antialiasing_max = configuration.get(getModName(),
-                        "antialiasing_max",
-                        0,
-                        "Max number of elements allowed in a region before AA is disabled for that region (0 for no limit)"
-                )
-        );
-    }
-
-    @Override
     public void onLoad() {
-        addCommand(new CommandBuilder()
-                .setName("add")
-                .setDescription("Adds block to block esp")
-                .setOptionBuilder(parser -> {
-                    parser.acceptsAll(Arrays.asList("red", "r"), "red")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("green", "g"), "green")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("blue", "b"), "blue")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("alpha", "a"), "alpha")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("meta", "m"), "blocks metadata id")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
-                    parser.acceptsAll(Arrays.asList("regex", "e"), "searches for blocks by using the argument as a regex expression");
-                    parser.accepts("bounds", "Will only draw blocks from within the min-max bounds given")
-                            .withRequiredArg();
-                })
-                .setProcessor(opts -> {
-                    List<?> args = opts.nonOptionArguments();
-                    if(args.size() > 0) {
-                        boolean byId = opts.has("id");
-                        String name = String.valueOf(args.get(0));
-                        OptionHelper helper = new OptionHelper(opts);
-                        final boolean wasGivenRGBA = opts.has("r") || opts.has("g") || opts.has("b") || opts.has("a");
-                        int r = MathHelper.clamp(helper.getIntOrDefault("r", 255), 0, 255);
-                        int g = MathHelper.clamp(helper.getIntOrDefault("g", 255), 0, 255);
-                        int b = MathHelper.clamp(helper.getIntOrDefault("b", 255), 0, 255);
-                        int a = MathHelper.clamp(helper.getIntOrDefault("a", 255), 0, 255);
-                        int meta = helper.getIntOrDefault("m", 0);
-                        try {
-                            final Collection<AbstractBlockEntry> process = Sets.newHashSet();
+        getCommandStub().builders().newCommandBuilder()
+                .name("add")
+                .description("Adds block to block esp")
+                .options(OptionBuilders::rgba)
+                .processor(OptionProcessors::rgba)
+                .options(OptionBuilders::meta)
+                .processor(OptionProcessors::meta)
+                .options(OptionBuilders::id)
+                .options(OptionBuilders::regex)
+                .options(OptionBuilders::bounds)
+                .processor(BlockEntryProcessor::buildCollection)
+                .processor(BlockEntryProcessor::processBounds)
+                .processor(BlockEntryProcessor::processColor)
+                .processor(data -> {
+                    data.requiredArguments(1);
+                    data.requiresEntry("entries");
 
-                            if(opts.has("regex"))
-                                process.addAll(BlockOptionHelper.getAllBlocksMatchingByUnlocalized(name));
-                            else process.add(byId ? BlockEntry.createById(SafeConverter.toInteger(name, 0), meta) :
-                                        BlockEntry.createByResource(name, meta));
+                    Collection<BlockEntry> entries = data.get("entries");
 
-                            if(opts.has("bounds")) opts.valuesOf("bounds").forEach(v -> {
-                                String value = String.valueOf(v);
-                                String[] mm = value.split("-");
-                                if(mm.length > 1) {
-                                    int min = SafeConverter.toInteger(mm[0]);
-                                    int max = SafeConverter.toInteger(mm[1]);
-                                    process.forEach(entry -> entry.getBounds().add(min, max));
-                                } else {
-                                    throw new IllegalArgumentException(String.format("Invalid argument \"%s\" given for bounds option. Should be formatted as min:max", value));
-                                }
-                            });
+                    final boolean isColorPresent = data.get("isColorPresent", false);
 
-                            boolean invoke = false;
-                            for(AbstractBlockEntry entry : process) {
-                                entry.getColor().set(r, g, b, a);
-                                AbstractBlockEntry existing = MARKER_OPTIONS.get(entry.getBlock(), entry.getMetadata());
-                                if (existing != null) {
-                                    // add new bounds
-                                    entry.getBounds().getAll().forEach(bound -> existing.getBounds().add(bound.getMin(), bound.getMax()));
-                                    if(wasGivenRGBA) existing.getColor().set(entry.getColor().getAsBuffer());
-                                    invoke = true;
-                                } else if(MARKER_OPTIONS.add(entry)) {
-                                    Wrapper.printMessage(String.format("Added block \"%s\"", entry.getPrettyName()));
-                                    // execute the callbacks
-                                    invoke = true;
-                                } else {
-                                    Wrapper.printMessage(String.format("Could not add block \"%s\"", entry.getPrettyName()));
-                                }
-                            }
-                            return invoke;
-                        } catch (Exception e) {
-                            Wrapper.printMessage(e.getMessage());
+                    final int colorBuffer = data.get("colorBuffer", Utils.Colors.WHITE);
+
+                    entries.forEach(entry -> {
+                        // check if there is an existing entry already in the list
+                        // if so then append options to it
+                        final BlockEntry existing = options.get(entry);
+                        if(existing != null) {
+                            // set color if a color was specified by the client
+                            if(isColorPresent) existing.getWritableProperty(ColorProperty.class).set(colorBuffer);
+                            // copy bounds from entry into the existing one
+                            entry.getReadableProperty(BoundProperty.class)
+                                    .getAll()
+                                    .forEach(bound -> existing.getWritableProperty(BoundProperty.class).add(bound.getMin(), bound.getMax()));
+                            data.markSuccess();
+                        } else if(options.add(entry)) {
+                            Wrapper.printMessage(String.format("Added block \"%s\"", entry.getPrettyName()));
+                            data.markSuccess();
+                        } else {
+                            Wrapper.printMessage(String.format("Failed to add block \"%s\"", entry.getPrettyName()));
+                            data.markFailed(ExecuteData.State.SUCCESS);
                         }
-                    } else Wrapper.printMessage("Missing block name/id argument");
-                    return false;
-                })
-                .addCallback(cmd -> {
-                    MARKER_OPTIONS.serialize();
-                    reloadRenderers();
-                })
-                .build()
-        );
-        addCommand(new CommandBuilder()
-                .setName("remove")
-                .setDescription("Removes block to block esp")
-                .setOptionBuilder(parser -> {
-                    parser.acceptsAll(Arrays.asList("meta", "m"), "blocks metadata id")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
-                    parser.acceptsAll(Arrays.asList("regex", "e"), "searches for blocks by using the argument as a regex expression");
-                    parser.accepts("bounds", "Will only draw blocks from within the min-max bounds given")
-                            .withRequiredArg();
-                })
-                .setProcessor(opts -> {
-                    List<?> args = opts.nonOptionArguments();
-                    if(args.size() > 0) {
-                        boolean byId = opts.has("i");
-                        String name = String.valueOf(args.get(0));
-                        OptionHelper helper = new OptionHelper(opts);
-                        int meta = helper.getIntOrDefault("m", 0);
-                        boolean removingOptions = opts.has("bounds");
-                        try {
-                            Collection<AbstractBlockEntry> process = Sets.newHashSet();
-                            if(opts.has("regex")) process.addAll(BlockOptionHelper.getAllBlocksMatchingByUnlocalized(name));
-                            else process.add(byId ? BlockEntry.createById(SafeConverter.toInteger(name, 0), meta) :
-                                        BlockEntry.createByResource(name, meta));
-
-                            // not the proper use of atomics but it will get the job done
-                            AtomicBoolean shouldCall = new AtomicBoolean(false);
-                            for(AbstractBlockEntry e : process) {
-                                final AbstractBlockEntry realEntry = MARKER_OPTIONS.get(e.getBlock(), e.getMetadata());
-                                if(realEntry != null) {
-                                    if(removingOptions) {
-                                        // remove just the options listed
-                                        if(opts.has("bounds")) opts.valuesOf("bounds").forEach(v -> {
-                                            String value = String.valueOf(v);
-                                            String[] mm = value.split("-");
-                                            if(mm.length > 1) {
-                                                int min = SafeConverter.toInteger(mm[0]);
-                                                int max = SafeConverter.toInteger(mm[1]);
-                                                realEntry.getBounds().remove(min, max);
-                                            } else {
-                                                throw new IllegalArgumentException(String.format("Invalid argument \"%s\" given for bounds option. Should be formatted as min:max", value));
-                                            }
-                                        });
-                                    } else if (MARKER_OPTIONS.remove(realEntry)) {
-                                        Wrapper.printMessage(String.format("Removed block \"%s\" from the block list", e.getPrettyName()));
-                                        shouldCall.set(true);
-                                    } else if (process.size() <= 1) { // don't print this message for all matching blocks
-                                        Wrapper.printMessage(String.format("Could not find block \"%s\"", e.getPrettyName()));
-                                    }
-                                }
-                            }
-                            return shouldCall.get();
-                        } catch (Exception e) {
-                            Wrapper.printMessage(e.getMessage());
-                        }
-                    }
-                    return false;
-                })
-                .addCallback(cmd -> {
-                    MARKER_OPTIONS.serialize();
-                    reloadRenderers();
-                })
-                .build()
-        );
-        addCommand(new CommandBuilder()
-                .setName("info")
-                .setDescription("Will show all the render info for the block (if it exists)")
-                .setOptionBuilder(parser -> {
-                    parser.acceptsAll(Arrays.asList("meta", "m"), "blocks metadata id")
-                            .withRequiredArg();
-                    parser.acceptsAll(Arrays.asList("id", "i"), "searches for block by id instead of name");
-                })
-                .setProcessor(opts -> {
-                    List<?> args = opts.nonOptionArguments();
-                    if(args.size() > 0) {
-                        boolean byId = opts.has("i");
-                        String name = String.valueOf(args.get(0));
-                        OptionHelper helper = new OptionHelper(opts);
-                        int meta = helper.getIntOrDefault("m", 0);
-                        try {
-                            AbstractBlockEntry match = byId ? BlockEntry.createById(SafeConverter.toInteger(name, 0), meta) :
-                                    BlockEntry.createByResource(name, meta);
-
-                            AbstractBlockEntry find = MARKER_OPTIONS.get(match.getBlock(), match.getMetadata());
-                            if(find != null) {
-                                Wrapper.printMessage(find.toString());
-                            } else {
-                                Wrapper.printMessage(String.format("Could not find block \"%s\"", match.getPrettyName()));
-                            }
-                        } catch (Exception e) {
-                            Wrapper.printMessage(e.getMessage());
-                        }
-                    } else Wrapper.printMessage("Missing block name/id argument");
-                    return false;
-                })
-                .build()
-        );
-        addCommand(new CommandBuilder()
-                .setName("list")
-                .setDescription("Lists all the blocks in the block list")
-                .setProcessor(opts -> {
-                    final StringBuilder builder = new StringBuilder("Found: ");
-                    MARKER_OPTIONS.forEach(entry -> {
-                        builder.append(entry.getPrettyName());
-                        builder.append(", ");
                     });
-                    String finished = builder.toString();
-                    if(finished.endsWith(", ")) finished = finished.substring(0, finished.length() - 2);
-                    Wrapper.printMessageNaked(finished);
-                    return true;
                 })
-                .build()
-        );
+                .success(cmd -> this.reloadRenderers())
+                .build();
+        getCommandStub().builders().newCommandBuilder()
+                .name("remove")
+                .description("Removes block to block esp")
+                .options(OptionBuilders::meta)
+                .processor(OptionProcessors::meta)
+                .options(OptionBuilders::id)
+                .options(OptionBuilders::regex)
+                .options(OptionBuilders::bounds)
+                .processor(BlockEntryProcessor::buildCollection)
+                .processor(BlockEntryProcessor::processBounds)
+                .processor(data -> {
+                    data.requiredArguments(1);
+                    data.requiresEntry("entries");
+
+                    Collection<BlockEntry> entries = data.get("entries");
+
+                    final boolean isBoundPresent = data.has("bounds");
+
+                    entries.forEach(entry -> {
+                        final BlockEntry existing = options.get(entry);
+                        if(existing != null) {
+                            if(isBoundPresent) {
+                                // copy bounds from entry into the existing one
+                                entry.getReadableProperty(BoundProperty.class)
+                                        .getAll()
+                                        .forEach(bound -> existing.getWritableProperty(BoundProperty.class).remove(bound.getMin(), bound.getMax()));
+                                data.markSuccess();
+                            } else if(options.remove(existing)) {
+                                Wrapper.printMessage(String.format("Removed block \"%s\"", entry.getPrettyName()));
+                                data.markSuccess();
+                            }
+                        } else if(entries.size() <= 1) {
+                            Wrapper.printMessage(String.format("Failed to remove block \"%s\"", entry.getPrettyName()));
+                            data.markFailed(ExecuteData.State.SUCCESS);
+                        }
+                    });
+                })
+                .success(cmd -> this.reloadRenderers())
+                .build();
     }
 
     @Override
     public void onUnload() {
-        MARKER_OPTIONS.serialize();
+        options.forEach(BlockEntry::cleanupProperties);
+        options.serialize();
     }
 
     @Override
     public void onEnabled() {
-        MARKER_OPTIONS.deserialize();
+        options.deserialize();
         Listeners.BLOCK_MODEL_RENDER_LISTENER.register(this);
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable();
         reloadRenderers();
@@ -325,15 +218,14 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
     /*
     @Override
-    public String getDisplayText() {
+    public String getDebugDisplayText() {
         int cacheSize = cache != null ? cache.size() : 0;
         int cacheCapacity = cache != null ? cache.getCapacity() : 0;
         int renderersSize = renderers != null ? renderers.size() : 0;
-        ViewFrustum frustum = FastReflection.ClassRenderGlobal.getViewFrustum(MC.renderGlobal);
+        ViewFrustum frustum = FastReflection.Fields.cuck
         int mcRenderChunksSize = (frustum != null && frustum.renderChunks != null) ? frustum.renderChunks.length : 0;
         return String.format("%s [C:%d/%d,R:%d,mcR:%d]", getModName(), cacheSize, cacheCapacity, renderersSize, mcRenderChunksSize);
-    }
-    */
+    }*/
 
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Load event) {
@@ -406,15 +298,15 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             renderers.computeIfPresent(renderChunk, (chk, info) -> info.compute(() -> {
                 GeometryTessellator tess = info.getTessellator();
                 if (tess != null && FastReflection.Fields.VertexBuffer_isDrawing.get(tess.getBuffer(), false)) {
-                    AbstractBlockEntry blockEntry = MARKER_OPTIONS.get(block, block.getMetaFromState(state));
-                    if(blockEntry != null && blockEntry.getBounds().isWithinBoundaries(pos.getY())) {
+                    BlockEntry blockEntry = options.get(state);
+                    if(blockEntry != null && blockEntry.getReadableProperty(BoundProperty.class).isWithinBoundaries(pos.getY())) {
                         AxisAlignedBB bb = state.getSelectedBoundingBox(Wrapper.getWorld(), pos);
                         GeometryTessellator.drawLines(
                                 tess.getBuffer(),
                                 bb.minX, bb.minY, bb.minZ,
                                 bb.maxX, bb.maxY, bb.maxZ,
                                 GeometryMasks.Line.ALL,
-                                blockEntry.getColor().getAsBuffer()
+                                blockEntry.getReadableProperty(ColorProperty.class).getAsBuffer()
                         );
                         info.incrementRenderCount();
                     }
@@ -472,15 +364,15 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             GlStateManager.disableAlpha();
             GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
             GlStateManager.shadeModel(GL11.GL_SMOOTH);
-            if(!clearBuffer.getBoolean())
+            if(!clear_buffer.get())
                 GlStateManager.disableDepth();
             else {
                 GlStateManager.clearDepth(1.f);
                 GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
             }
 
-            final boolean aa_enabled = antialiasing.getBoolean();
-            final int aa_max = antialiasing_max.getInt();
+            final boolean aa_enabled = anti_aliasing.get();
+            final int aa_max = anti_aliasing_max.get();
 
             GlStateManager.glEnableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.glEnableClientState(GL11.GL_COLOR_ARRAY);

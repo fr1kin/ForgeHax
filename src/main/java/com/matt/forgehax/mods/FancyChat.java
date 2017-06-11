@@ -1,30 +1,22 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.common.config.Configuration;
-import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.util.*;
 import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static com.matt.forgehax.Wrapper.*;
+
+import static com.matt.forgehax.Wrapper.getNetworkManager;
 
 // made by BABBAJ
 
 @RegisterMod
 public class FancyChat extends ToggleMod {
-
-	private String inputMessage = "";
-	private String message = "";
-	private String recipient = "";
-	private Boolean isWhisper = false;
-	private Boolean isPM = false;
-	private Boolean isIgnore = false;
-	private Property font;
-	private int fontMode;
 	private static final String[] MODE = {"FULL WIDTH", "CIRCLE", "(((PARENTHESES)))", "SMALL",};
 	private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	private static final int[][] FONT = {
@@ -33,15 +25,25 @@ public class FancyChat extends ToggleMod {
 			{0x249C,0x249D,0x249E,0x249F,0x24A0,0x24A1,0x24A2,0x24A3,0x24A4,0x24A5,0x24A6,0x24A7,0x24A8,0x24A9,0x24AA,0x24AB,0x24AC,0x24AD,0x24AE,0x24AF,0x24B0,0x24B1,0x24B2,0x24B3,0x24B4,0x24B5,       0x249C,0x249D,0x249E,0x249F,0x24A0,0x24A1,0x24A2,0x24A3,0x24A4,0x24A5,0x24A6,0x24A7,0x24A8,0x24A9,0x24AA,0x24AB,0x24AC,0x24AD,0x24AE,0x24AF,0x24B0,0x24B1,0x24B2,0x24B3,0x24B4,0x24B5,          0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39},
 			{0x1D43,0x1D47,0x1D9C,0x1D48,0x1D49,0x1DA0,0x1D4D,0x2B0,0x1DA4,0x2B2,0x1D4F,0x2E1,0x1D50,0x1DAF,0x1D52,0x1D56,0x1DA3,0x2B3,0x2E2,0x1D57,0x1D58,0x1D5B,0x2B7,0x2E3,0x2B8,0x1DBB,               0x1D43,0x1D47,0x1D9C,0x1D48,0x1D49,0x1DA0,0x1D4D,0x2B0,0x1DA4,0x2B2,0x1D4F,0x2E1,0x1D50,0x1DAF,0x1D52,0x1D56,0x1DA3,0x2B3,0x2E2,0x1D57,0x1D58,0x1D5B,0x2B7,0x2E3,0x2B8,0x1DBB,                  0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39}
 	};
+
+	public final Setting<String> font = getCommandStub().builders().<String>newSettingBuilder()
+			.name("font")
+			.description("Font to use")
+			.defaultTo(MODE[0])
+			.build();
+
+
+	private String inputMessage = "";
+	private String message = "";
+	private String recipient = "";
+	private Boolean isWhisper = false;
+	private Boolean isPM = false;
+	private Boolean isIgnore = false;
+	private int fontMode;
 	// [0] = full width  [1] = circles  [2] = parentheses [3] = small
 
 	public FancyChat() {
 		super("FancyChat", false, "meme text");
-	}
-
-	@Override
-	public void onLoadConfiguration(Configuration configuration) {
-		addSettings( font = configuration.get(getModName(), "font", MODE[0], "meme font", MODE) );
 	}
 
 	@SubscribeEvent
@@ -54,7 +56,7 @@ public class FancyChat extends ToggleMod {
 			inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
 
 			for (int i = 0; i < MODE.length; i++) {
-				if (font.getString().equals(MODE[i]) ) {
+				if (font.get().toUpperCase().equals(MODE[i]) ) {
 					fontMode = i;
 				}
 			}

@@ -2,6 +2,7 @@ package com.matt.forgehax;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.matt.forgehax.util.command.CommandGlobal;
 import com.matt.forgehax.util.mod.loader.ModManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -18,6 +19,10 @@ import java.util.Scanner;
  * Created on 4/25/2017 by fr1kin
  */
 public class Wrapper implements Globals {
+    public static CommandGlobal getGlobalCommand() {
+        return CommandGlobal.getInstance();
+    }
+
     public static Minecraft getMinecraft() {
         return MC;
     }
@@ -28,10 +33,6 @@ public class Wrapper implements Globals {
 
     public static FileManager getFileManager() {
         return FileManager.getInstance();
-    }
-
-    public static ConfigurationHandler getConfigurationHandler() {
-        return ConfigurationHandler.getInstance();
     }
 
     public static Logger getLog() {
@@ -46,23 +47,27 @@ public class Wrapper implements Globals {
         return MC.world;
     }
 
-    public static void printMessageNaked(String message, boolean makeGrey) {
+    public static void printMessageNaked(String startWith, String message, TextFormatting color) {
         if(getLocalPlayer() != null && !Strings.isNullOrEmpty(message)) {
             if(message.contains("\n")) {
+                color = TextFormatting.GRAY; // start with white
                 Scanner scanner = new Scanner(message);
                 scanner.useDelimiter("\n");
-                makeGrey = !makeGrey; // so it starts with white
-                while (scanner.hasNext()) printMessageNaked(scanner.next(), makeGrey = !makeGrey);
+                while (scanner.hasNext()) printMessageNaked(startWith, scanner.next(), color = (color != TextFormatting.WHITE ? TextFormatting.WHITE : TextFormatting.GRAY));
             } else {
-                TextComponentString string = new TextComponentString(message.replaceAll("\r", ""));
-                if(makeGrey) string.getStyle().setColor(TextFormatting.GRAY);
+                TextComponentString string = new TextComponentString(startWith + message.replaceAll("\r", ""));
+                string.getStyle().setColor(color);
                 getLocalPlayer().sendMessage(string);
             }
         }
     }
 
+    public static void printMessageNaked(String append, String message) {
+        printMessageNaked(append, message, TextFormatting.WHITE);
+    }
+
     public static void printMessageNaked(String message) {
-        printMessageNaked(message, false);
+        printMessageNaked("", message);
     }
 
     // Will append '[FH] ' in front

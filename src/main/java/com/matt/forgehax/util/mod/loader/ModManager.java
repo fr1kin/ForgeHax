@@ -43,6 +43,13 @@ public class ModManager implements Globals {
         forEach(this::unregisterMod);
     }
 
+    public void refreshMods() {
+        forEach(mod -> {
+            mod.unload();
+            mod.load();
+        });
+    }
+
     public void addClass(Class<? extends BaseMod> clazz) {
         foundClasses.add(clazz);
     }
@@ -60,6 +67,7 @@ public class ModManager implements Globals {
         LOGGER.info("Reloading mods");
         unregisterAll();
         loadClasses();
+        forEach(BaseMod::load);
     }
 
     public void forEach(final Consumer<BaseMod> consumer) {
