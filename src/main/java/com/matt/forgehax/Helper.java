@@ -18,7 +18,7 @@ import java.util.Scanner;
 /**
  * Created on 4/25/2017 by fr1kin
  */
-public class Wrapper implements Globals {
+public class Helper implements Globals {
     public static CommandGlobal getGlobalCommand() {
         return CommandGlobal.getInstance();
     }
