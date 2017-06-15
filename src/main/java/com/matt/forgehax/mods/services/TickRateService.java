@@ -1,14 +1,12 @@
-package com.matt.forgehax.mods.core;
+package com.matt.forgehax.mods.services;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Lists;
-import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.util.mod.SilentListenerMod;
+import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketTimeUpdate;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -20,7 +18,7 @@ import java.util.Queue;
  * Created on 11/14/2016 by fr1kin
  */
 @RegisterMod
-public class TickManager extends SilentListenerMod {
+public class TickRateService extends ServiceMod {
     /**
      * Ticks per second maximum and minimum
      */
@@ -32,10 +30,10 @@ public class TickManager extends SilentListenerMod {
      */
     public static final int MAXIMUM_SAMPLE_SIZE = 100;
 
-    private static final TickManager INSTANCE = new TickManager();
+    private static final TickRateService INSTANCE = new TickRateService();
     private static final TickRateData TICK_DATA = new TickRateData(MAXIMUM_SAMPLE_SIZE);
 
-    public static TickManager getInstance() {
+    public static TickRateService getInstance() {
         return INSTANCE;
     }
 
@@ -45,7 +43,7 @@ public class TickManager extends SilentListenerMod {
 
     private long timeLastTimeUpdate = -1;
 
-    public TickManager() {
+    public TickRateService() {
         super("TickManager", "Records the average tick rate");
     }
 
