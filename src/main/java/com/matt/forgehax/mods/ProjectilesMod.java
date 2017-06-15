@@ -16,8 +16,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Wrapper.getModManager;
-import static com.matt.forgehax.Wrapper.getWorld;
+import static com.matt.forgehax.Helper.getModManager;
+import static com.matt.forgehax.Helper.getWorld;
 
 @RegisterMod
 public class ProjectilesMod extends ToggleMod {

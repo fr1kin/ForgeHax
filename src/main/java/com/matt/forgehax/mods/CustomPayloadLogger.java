@@ -10,10 +10,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Helper.*;
 
 /**
  * Created on 6/1/2017 by fr1kin

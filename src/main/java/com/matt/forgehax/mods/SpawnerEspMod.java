@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Helper.*;
 
 /**
  * Created on 9/29/2016 by fr1kin

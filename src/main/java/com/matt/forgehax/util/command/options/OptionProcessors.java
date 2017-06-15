@@ -2,7 +2,7 @@ package com.matt.forgehax.util.command.options;
 
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.ExecuteData;
-import com.matt.forgehax.util.jopt.SafeConverter;
+import com.matt.forgehax.util.SafeConverter;
 import net.minecraft.util.math.MathHelper;
 
 /**

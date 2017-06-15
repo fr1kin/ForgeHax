@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
-import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -59,7 +59,7 @@ public class IgnoreMod extends ToggleMod {
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
 
-        File nameFile = Wrapper.getFileManager().getFileInConfigDirectory("ignorelist.txt");
+        File nameFile = Helper.getFileManager().getFileInConfigDirectory("ignorelist.txt");
         parseNameFile(nameFile);
     }
 
@@ -77,7 +77,7 @@ public class IgnoreMod extends ToggleMod {
             if (System.currentTimeMillis() >= lastMessageTime + 1500L)  {
                 CPacketChatMessage packet = new CPacketChatMessage("/pm " + messagePlayer + " ur ignored get raped");
                 Utils.OUTGOING_PACKET_IGNORE_LIST.add(packet);
-                Wrapper.getNetworkManager().sendPacket(packet);
+                Helper.getNetworkManager().sendPacket(packet);
                 lastMessageTime = System.currentTimeMillis();
             }
         }
@@ -102,7 +102,7 @@ public class IgnoreMod extends ToggleMod {
                     }
 
                     try {
-                        File nameFile = Wrapper.getFileManager().getFileInConfigDirectory("ignorelist.txt");
+                        File nameFile = Helper.getFileManager().getFileInConfigDirectory("ignorelist.txt");
                         FileWriter fw = new FileWriter(nameFile);
                         BufferedWriter bw = new BufferedWriter(fw);
                         for (String s : ignoreList) {

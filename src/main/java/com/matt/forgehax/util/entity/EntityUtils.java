@@ -16,7 +16,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.List;
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Helper.*;
 
 public class EntityUtils implements Globals {
     public static boolean isBatsDisabled = false;

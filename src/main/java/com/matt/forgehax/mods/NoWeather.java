@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Helper.*;
 
 /**
  * Created on 5/16/2017 by fr1kin

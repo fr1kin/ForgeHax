@@ -5,12 +5,17 @@ import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import static com.matt.forgehax.Wrapper.*;
 
-@Mod(modid = ForgeHax.MOD_ID, version = ForgeHax.MOD_VERSION, clientSideOnly = true)
+import java.io.InputStream;
+import java.util.Properties;
+
+import static com.matt.forgehax.Helper.getModManager;
+
+@Mod(modid = ForgeHax.MOD_ID, name = ForgeHax.MOD_NAME, clientSideOnly = true)
 public class ForgeHax {
 	public static final String MOD_ID 			= "forgehax";
-	public static final String MOD_VERSION 		= "1.2";
+	public static final String MOD_NAME 		= "ForgeHax";
+	public static final String MOD_VERSION 		= ConfigProperties.getConfigProperties().getProperty("forgehax.version");
 
 	static {
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -18,7 +23,7 @@ public class ForgeHax {
 		// is updated or mods will not load anymore
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		getModManager().addClassesInPackage("com.matt.forgehax.mods");
-		getModManager().addClassesInPackage("com.matt.forgehax.mods.core");
+		getModManager().addClassesInPackage("com.matt.forgehax.mods.services");
 		getModManager().addClassesInPackage("com.matt.forgehax.mods.commands");
 	}
 
@@ -59,6 +64,30 @@ public class ForgeHax {
 			}
 			default:
 				break;
+		}
+	}
+
+	private static class ConfigProperties {
+		private static final Properties CONFIG_PROPERTIES = new Properties();
+
+		static {
+			InputStream input = null;
+			try {
+				input = ConfigProperties.class.getResourceAsStream("config.properties");
+				CONFIG_PROPERTIES.load(input);
+			} catch (Throwable t) {
+				Helper.getLog().error("Failed to load resource config.properties");
+			} finally {
+				if(input != null) try {
+					input.close();
+				} catch (Throwable t) {
+					;
+				}
+			}
+		}
+
+		public static Properties getConfigProperties() {
+			return CONFIG_PROPERTIES;
 		}
 	}
 }

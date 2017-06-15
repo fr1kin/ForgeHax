@@ -12,7 +12,7 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Helper.*;
 
 @RegisterMod
 public class StepMod extends ToggleMod {

@@ -16,7 +16,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 
-import static com.matt.forgehax.Wrapper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getLocalPlayer;
 
 /**
  * Created on 9/2/2016 by fr1kin

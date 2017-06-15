@@ -5,7 +5,7 @@ import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
 import com.matt.forgehax.util.command.exception.MissingEntryException;
 import com.matt.forgehax.util.console.ConsoleWriter;
-import com.matt.forgehax.util.jopt.SafeConverter;
+import com.matt.forgehax.util.SafeConverter;
 import joptsimple.OptionSet;
 
 import javax.annotation.Nullable;

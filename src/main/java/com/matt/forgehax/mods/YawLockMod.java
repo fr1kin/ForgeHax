@@ -45,6 +45,6 @@ public class YawLockMod extends ToggleMod {
         LocalPlayerUtils.setViewAngles(event.getEntityLiving().rotationPitch, yaw);
         // disable after first set if set to do once
         if(isEnabled() && do_once.get())
-            toggle();
+            disable();
     }
 }

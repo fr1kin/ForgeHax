@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.matt.forgehax.Wrapper.getNetworkManager;
+import static com.matt.forgehax.Helper.getNetworkManager;
 
 // made by BABBAJ
 

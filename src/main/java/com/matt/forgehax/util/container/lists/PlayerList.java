@@ -1,29 +1,16 @@
 package com.matt.forgehax.util.container.lists;
 
-import com.google.common.collect.Lists;
 import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.container.ContainerList;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ImageBufferDownload;
-import net.minecraft.client.renderer.ThreadDownloadImageData;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Base64;
-import java.util.List;
 import java.util.UUID;
 
 public class PlayerList extends ContainerList {
@@ -112,10 +99,10 @@ public class PlayerList extends ContainerList {
                 }
             }
         } catch (MalformedURLException e) {
-            Wrapper.printStackTrace(e);
+            Helper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } catch (IOException e) {
-            Wrapper.printStackTrace(e);
+            Helper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } finally {
             if(connection != null)
@@ -172,10 +159,10 @@ public class PlayerList extends ContainerList {
                 }
             }
         } catch (MalformedURLException e) {
-            Wrapper.printStackTrace(e);
+            Helper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } catch (IOException e) {
-            Wrapper.printStackTrace(e);
+            Helper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } finally {
             if(connection != null)
@@ -276,10 +263,10 @@ public class PlayerList extends ContainerList {
                 }
             }
         } catch (MalformedURLException e) {
-            Wrapper.printStackTrace(e);
+            Helper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } catch (IOException e) {
-            Wrapper.printStackTrace(e);
+            Helper.printStackTrace(e);
             throw new Exception(e.getMessage());
         } finally {
             if(connection != null)

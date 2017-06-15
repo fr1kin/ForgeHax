@@ -3,7 +3,7 @@ package com.matt.forgehax.util.blocks;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.util.blocks.exceptions.BadBlockEntryFormatException;
 import com.matt.forgehax.util.blocks.exceptions.BlockDoesNotExistException;
-import com.matt.forgehax.util.jopt.SafeConverter;
+import com.matt.forgehax.util.SafeConverter;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
-import com.matt.forgehax.mods.core.TickManager;
+import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
@@ -34,8 +34,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Collections;
 
-import static com.matt.forgehax.Wrapper.getLocalPlayer;
-import static com.matt.forgehax.Wrapper.getNetworkManager;
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
 public class AimbotMod extends ToggleMod {
@@ -137,7 +137,7 @@ public class AimbotMod extends ToggleMod {
 
     private double getLagComp() {
         if(lag_compensation.get()) {
-            return -(20.D - TickManager.getTickData().getPoint().getAverage());
+            return -(20.D - TickRateService.getTickData().getPoint().getAverage());
         } else return 0.D;
     }
 

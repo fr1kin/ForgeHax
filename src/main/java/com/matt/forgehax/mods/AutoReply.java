@@ -8,7 +8,7 @@ import joptsimple.internal.Strings;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Wrapper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getLocalPlayer;
 
 @RegisterMod
 public class AutoReply extends ToggleMod {

@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -83,7 +83,7 @@ public class AutoReconnectMod extends ToggleMod {
             try {
                 ReflectionHelper.setPrivateValue(GuiDisconnected.class, this, reason, "reason", "field_146306_a", "a"); // TODO: Find obbed mapping name
             } catch (Exception e) {
-                Wrapper.printStackTrace(e);
+                Helper.printStackTrace(e);
             }
             // parse server return text and find queue pos
         }

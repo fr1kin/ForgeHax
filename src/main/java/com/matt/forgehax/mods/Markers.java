@@ -5,7 +5,7 @@ import com.github.lunatrius.core.client.renderer.GeometryTessellator;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
-import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
@@ -101,7 +101,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
     private void reloadRenderers() {
         if(MC.isCallingFromMinecraftThread()) {
-            if (Wrapper.getWorld() != null) MC.renderGlobal.loadRenderers();
+            if (Helper.getWorld() != null) MC.renderGlobal.loadRenderers();
         } else MC.addScheduledTask(this::reloadRenderers);
     }
 
@@ -143,10 +143,10 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                                     .forEach(bound -> existing.getWritableProperty(BoundProperty.class).add(bound.getMin(), bound.getMax()));
                             data.markSuccess();
                         } else if(options.add(entry)) {
-                            Wrapper.printMessage(String.format("Added block \"%s\"", entry.getPrettyName()));
+                            Helper.printMessage(String.format("Added block \"%s\"", entry.getPrettyName()));
                             data.markSuccess();
                         } else {
-                            Wrapper.printMessage(String.format("Failed to add block \"%s\"", entry.getPrettyName()));
+                            Helper.printMessage(String.format("Failed to add block \"%s\"", entry.getPrettyName()));
                             data.markFailed(ExecuteData.State.SUCCESS);
                         }
                     });
@@ -181,11 +181,11 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                                         .forEach(bound -> existing.getWritableProperty(BoundProperty.class).remove(bound.getMin(), bound.getMax()));
                                 data.markSuccess();
                             } else if(options.remove(existing)) {
-                                Wrapper.printMessage(String.format("Removed block \"%s\"", entry.getPrettyName()));
+                                Helper.printMessage(String.format("Removed block \"%s\"", entry.getPrettyName()));
                                 data.markSuccess();
                             }
                         } else if(entries.size() <= 1) {
-                            Wrapper.printMessage(String.format("Failed to remove block \"%s\"", entry.getPrettyName()));
+                            Helper.printMessage(String.format("Failed to remove block \"%s\"", entry.getPrettyName()));
                             data.markFailed(ExecuteData.State.SUCCESS);
                         }
                     });
@@ -300,7 +300,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 if (tess != null && FastReflection.Fields.VertexBuffer_isDrawing.get(tess.getBuffer(), false)) {
                     BlockEntry blockEntry = options.get(state);
                     if(blockEntry != null && blockEntry.getReadableProperty(BoundProperty.class).isWithinBoundaries(pos.getY())) {
-                        AxisAlignedBB bb = state.getSelectedBoundingBox(Wrapper.getWorld(), pos);
+                        AxisAlignedBB bb = state.getSelectedBoundingBox(Helper.getWorld(), pos);
                         GeometryTessellator.drawLines(
                                 tess.getBuffer(),
                                 bb.minX, bb.minY, bb.minZ,
@@ -638,7 +638,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             try {
                 return buffers.take();
             } catch (InterruptedException e) {
-                Wrapper.printStackTrace(e);
+                Helper.printStackTrace(e);
                 return null; // this shouldn't happen
             }
         }
@@ -647,12 +647,12 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             try {
                 if (originals.contains(tessellator)) buffers.add(tessellator);
             } catch(Exception e) {
-                Wrapper.getLog().warn("Something went terrible wrong and now there is one less tessellator in the cache");
+                Helper.getLog().warn("Something went terrible wrong and now there is one less tessellator in the cache");
             }
         }
     }
 
     private static void handleException(RenderChunk renderChunk, Throwable throwable) {
-        Wrapper.getLog().error(throwable.toString());
+        Helper.getLog().error(throwable.toString());
     }
 }

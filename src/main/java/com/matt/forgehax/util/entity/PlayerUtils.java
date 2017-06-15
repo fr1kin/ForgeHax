@@ -4,7 +4,7 @@ import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.container.ContainerManager;
 import com.matt.forgehax.util.container.lists.PlayerList;
 import net.minecraft.entity.player.EntityPlayer;
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Helper.*;
 
 public class PlayerUtils implements Globals {
     public static boolean isLocalPlayer(EntityPlayer player) {

@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.mods.core.TickManager;
+import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceUtils;
@@ -10,7 +10,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Wrapper.getModManager;
+import static com.matt.forgehax.Helper.getModManager;
 
 @RegisterMod
 public class ActiveModList extends ToggleMod {
@@ -31,14 +31,14 @@ public class ActiveModList extends ToggleMod {
 
     private String generateTickRateText() {
         StringBuilder builder = new StringBuilder("Tick-rate: ");
-        TickManager.TickRateData data = TickManager.getTickData();
+        TickRateService.TickRateData data = TickRateService.getTickData();
         if(data.getSampleSize() <= 0) {
             builder.append("No tick data");
         } else {
             int factor = this.factor.get();
             int sections = data.getSampleSize() / factor;
             if ((sections * factor) < data.getSampleSize()) {
-                TickManager.TickRateData.CalculationData point = data.getPoint();
+                TickRateService.TickRateData.CalculationData point = data.getPoint();
                 builder.append(String.format("%.2f", point.getAverage()));
                 builder.append(" (");
                 builder.append(data.getSampleSize());
@@ -48,7 +48,7 @@ public class ActiveModList extends ToggleMod {
             if (sections > 0) {
                 for (int i = sections; i > 0; i--) {
                     int at = i * factor;
-                    TickManager.TickRateData.CalculationData point = data.getPoint(at);
+                    TickRateService.TickRateData.CalculationData point = data.getPoint(at);
                     builder.append(String.format("%.2f", point.getAverage()));
                     builder.append(" (");
                     builder.append(at);

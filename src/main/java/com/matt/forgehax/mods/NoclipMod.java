@@ -6,7 +6,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Helper.*;
 
 @RegisterMod
 public class NoclipMod extends ToggleMod {

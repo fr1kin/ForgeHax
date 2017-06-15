@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -16,6 +16,6 @@ public class HorseJump extends ToggleMod {
 
     @SubscribeEvent
 	public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        FastReflection.Fields.EntityPlayerSP_horseJumpPower.set(Wrapper.getLocalPlayer(), 1.F);
+        FastReflection.Fields.EntityPlayerSP_horseJumpPower.set(Helper.getLocalPlayer(), 1.F);
     }
 }

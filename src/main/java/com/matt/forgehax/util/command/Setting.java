@@ -4,7 +4,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.util.command.callbacks.OnChangeCallback;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
-import com.matt.forgehax.util.jopt.SafeConverter;
+import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
 
 import javax.annotation.Nonnull;

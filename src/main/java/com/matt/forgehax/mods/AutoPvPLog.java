@@ -5,7 +5,7 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Wrapper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getLocalPlayer;
 
 /**
  * Created by BabbaJ

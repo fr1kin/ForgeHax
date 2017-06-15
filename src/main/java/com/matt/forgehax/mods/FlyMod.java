@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
 
-import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Objects;
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Helper.*;
 
 @RegisterMod
 @SuppressWarnings("MethodCallSideOnly")
@@ -59,7 +59,7 @@ public class FlyMod extends ToggleMod {
 
             MC.player.noClip = true;
         } catch (Exception e) {
-            Wrapper.printStackTrace(e);
+            Helper.printStackTrace(e);
         }
     }
 

@@ -2,7 +2,7 @@ package com.matt.forgehax.util.container;
 
 import com.google.gson.*;
 import com.matt.forgehax.Globals;
-import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.Helper;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -115,13 +115,13 @@ public class ContainerList implements Globals {
                     LOGGER.error(String.format("Failed to read file %s: %s", file.getName(), e.getMessage()));
                 }
             } catch(IOException e) {
-                Wrapper.printStackTrace(e);
+                Helper.printStackTrace(e);
             } finally {
                 try {
                     if (buffer != null)
                         buffer.close();
                 } catch (IOException e) {
-                    Wrapper.printStackTrace(e);
+                    Helper.printStackTrace(e);
                 }
             }
         }
@@ -138,7 +138,7 @@ public class ContainerList implements Globals {
             buffer.write(gson.toJson(root));
             buffer.close();
         } catch (IOException e) {
-            Wrapper.printStackTrace(e);
+            Helper.printStackTrace(e);
         }
     }
 
@@ -150,7 +150,7 @@ public class ContainerList implements Globals {
         try {
             deletedFile = Files.deleteIfExists(file.toPath());
         } catch (IOException e) {
-            Wrapper.printStackTrace(e);
+            Helper.printStackTrace(e);
         }
         return deletedFile;
     }

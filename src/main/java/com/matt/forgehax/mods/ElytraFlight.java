@@ -10,8 +10,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import static com.matt.forgehax.Wrapper.getLocalPlayer;
-import static com.matt.forgehax.Wrapper.getNetworkManager;
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
 public class ElytraFlight extends ToggleMod {

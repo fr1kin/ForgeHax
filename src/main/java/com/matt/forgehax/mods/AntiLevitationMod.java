@@ -6,7 +6,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Wrapper.*;
+import static com.matt.forgehax.Helper.*;
 
 /**
  * Created on 11/28/2016 by fr1kin

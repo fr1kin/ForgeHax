@@ -1,6 +1,6 @@
 package com.matt.forgehax.util.typeconverter.types;
 
-import com.matt.forgehax.util.jopt.SafeConverter;
+import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
 
 import javax.annotation.Nullable;

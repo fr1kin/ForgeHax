@@ -8,7 +8,7 @@ import com.matt.forgehax.util.blocks.properties.BoundProperty;
 import com.matt.forgehax.util.blocks.properties.ColorProperty;
 import com.matt.forgehax.util.command.ExecuteData;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
-import com.matt.forgehax.util.jopt.SafeConverter;
+import com.matt.forgehax.util.SafeConverter;
 
 import java.util.Collection;
 

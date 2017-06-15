@@ -4,7 +4,7 @@ import com.google.common.collect.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.Globals;
-import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
@@ -35,7 +35,7 @@ import java.util.function.Consumer;
  * Created on 5/14/2017 by fr1kin
  */
 public class Command implements Comparable<Command>, ISerializer, GsonConstant, ISerializableJson, IKeyBind {
-    private static final File SETTINGS_DIR = Wrapper.getFileManager().getFileInConfigDirectory("settings");
+    private static final File SETTINGS_DIR = Helper.getFileManager().getFileInConfigDirectory("settings");
 
     public static final String NAME             = "Command.name";
     public static final String DESCRIPTION      = "Command.description";
@@ -257,7 +257,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant, 
             help.accept(data);
             return true;
         } else if(data.options().has("help")) {
-            Wrapper.printMessageNaked(getOptionHelpText());
+            Helper.printMessageNaked(getOptionHelpText());
             return true;
         } else return false;
     }
@@ -344,7 +344,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant, 
 
             Files.write(path, sw.toString().getBytes());
         } catch (Throwable t) {
-            Wrapper.printStackTrace(t);
+            Helper.printStackTrace(t);
             Globals.LOGGER.warn(String.format("Could not serialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
         } finally {
             try {
@@ -379,7 +379,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant, 
             deserialize(reader);
             reader.endArray();
         } catch (Throwable t) {
-            Wrapper.printStackTrace(t);
+            Helper.printStackTrace(t);
             Globals.LOGGER.warn(String.format("Could not deserialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
             // incompatible file, will just keep causing errors
             try {

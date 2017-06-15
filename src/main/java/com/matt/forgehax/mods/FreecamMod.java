@@ -11,8 +11,8 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Wrapper.getLocalPlayer;
-import static com.matt.forgehax.Wrapper.getModManager;
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getModManager;
 
 /**
  * Created on 9/3/2016 by fr1kin
