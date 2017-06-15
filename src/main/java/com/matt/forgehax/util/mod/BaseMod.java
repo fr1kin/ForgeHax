@@ -4,13 +4,15 @@ import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilder;
 import com.matt.forgehax.util.command.ExecuteData;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
+import joptsimple.internal.Strings;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.matt.forgehax.Wrapper.getGlobalCommand;
+import static com.matt.forgehax.Helper.getGlobalCommand;
 
 public abstract class BaseMod implements Globals {
     // name of the mod
@@ -32,6 +34,10 @@ public abstract class BaseMod implements Globals {
                         .description(desc)
                         .processor(this::onProcessCommand)
         ).build();
+    }
+
+    public BaseMod(String name) {
+        this(name, Strings.EMPTY);
     }
 
     /**
@@ -103,6 +109,13 @@ public abstract class BaseMod implements Globals {
     }
 
     /**
+     * Check if mod is currently registered
+     */
+    public final boolean isRegisterd() {
+        return registered;
+    }
+
+    /**
      * Register event to forge bus
      */
     public final boolean register() {
@@ -124,31 +137,21 @@ public abstract class BaseMod implements Globals {
         } else return false;
     }
 
-    /**
-     * Check if mod is currently registered
-     */
-    public final boolean isRegisterd() {
-        return registered;
-    }
-
     protected CommandBuilder buildStubCommand(CommandBuilder builder) {
         return builder;
     }
 
-    protected final void addCommand(Command command) {
-        stubCommand.addChild(command);
-    }
-
-    protected final void removeCommand(Command command) {
-        stubCommand.removeChild(command);
-    }
-
+    @SuppressWarnings("unchecked")
     public final <T extends Command> T getCommand(String commandName) {
         try {
             return (T) stubCommand.getChild(commandName);
         } catch (Throwable t) {
             return null;
         }
+    }
+
+    public final Setting<?> getSetting(String settingName) {
+        return getCommand(settingName);
     }
 
     public final Collection<Command> getCommands() {
@@ -169,12 +172,7 @@ public abstract class BaseMod implements Globals {
      */
     public abstract boolean isEnabled();
 
-    /**
-     * Toggle mod to be on/off
-     */
-    public abstract void toggle();
-
-    public void onProcessCommand(ExecuteData data) {
+    protected void onProcessCommand(ExecuteData data) {
         final StringBuilder builder = new StringBuilder();
         getCommandStub().getChildren().forEach(command -> {
             builder.append(command.getPrintText());
@@ -186,32 +184,32 @@ public abstract class BaseMod implements Globals {
     /**
      * Called when the mod is loaded
      */
-    protected void onLoad() {}
+    protected abstract void onLoad();
 
     /**
      * Called when unloaded
      */
-    protected void onUnload() {}
+    protected abstract void onUnload();
 
     /**
      * Called when the mod is enabled
      */
-    protected void onEnabled() {}
+    protected abstract void onEnabled();
 
     /**
      * Called when the mod is disabled
      */
-    protected void onDisabled() {}
+    protected abstract void onDisabled();
 
     /**
      * Called when the bind is initially pressed
      */
-    public void onBindPressed(CallbackData cb) {}
+    protected abstract void onBindPressed(CallbackData cb);
 
     /**
      * Called while the bind key is pressed down
      */
-    public void onBindKeyDown(CallbackData cb) {}
+    protected abstract void onBindKeyDown(CallbackData cb);
 
     public String getDisplayText() {
         return getModName();

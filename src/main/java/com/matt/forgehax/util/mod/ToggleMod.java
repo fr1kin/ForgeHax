@@ -29,6 +29,16 @@ public class ToggleMod extends BaseMod {
                 .build();
     }
 
+    /**
+     * Toggle mod to be on/off
+     */
+    public final void toggle() {
+        if(isEnabled())
+            enable();
+        else
+            disable();
+    }
+
     @Override
     public void enable() {
         enabled.set(true);
@@ -48,14 +58,6 @@ public class ToggleMod extends BaseMod {
                 ;
     }
 
-    /**
-     * Toggle mod to be on/off
-     */
-    @Override
-    public final void toggle() {
-        enabled.set(!enabled.get());
-    }
-
     @Override
     public boolean isHidden() {
         return false;
@@ -69,6 +71,18 @@ public class ToggleMod extends BaseMod {
         return enabled.get();
     }
 
+    @Override
+    protected void onLoad() {}
+
+    @Override
+    protected void onUnload() {}
+
+    @Override
+    protected void onEnabled() {}
+
+    @Override
+    protected void onDisabled() {}
+
     /**
      * Toggles the mod
      */
@@ -76,4 +90,7 @@ public class ToggleMod extends BaseMod {
     public void onBindPressed(CallbackData cb) {
         toggle();
     }
+
+    @Override
+    protected void onBindKeyDown(CallbackData cb) {}
 }

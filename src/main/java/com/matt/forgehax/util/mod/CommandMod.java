@@ -1,23 +1,61 @@
 package com.matt.forgehax.util.mod;
 
+import com.google.common.collect.Lists;
+import com.matt.forgehax.Helper;
+import com.matt.forgehax.mcversion.MCVersionChecker;
 import com.matt.forgehax.util.command.Command;
-import com.matt.forgehax.util.command.CommandBuilder;
+import com.matt.forgehax.util.command.CommandBuilders;
+import joptsimple.internal.Strings;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Created on 6/1/2017 by fr1kin
  */
-@Deprecated
-public abstract class CommandMod extends SilentMod {
-    private Command command = null;
+public class CommandMod extends ServiceMod {
+    private final Collection<Command> commands = Lists.newArrayList();
 
     public CommandMod(String name, String desc) {
         super(name, desc);
     }
 
-    @Override
-    protected void onUnload() {
-        if(command != null) command.leaveParent();
+    public CommandMod(String name) {
+        super(name, Strings.EMPTY);
     }
 
-    public abstract Command generate(CommandBuilder commandBuilder);
+    @Override
+    protected void onLoad() {
+        try {
+            for(Method m : getClass().getDeclaredMethods()) {
+                try {
+                    m.setAccessible(true);
+                    if (m.isAnnotationPresent(RegisterCommand.class)
+                            && Arrays.equals(m.getParameterTypes(), new Class<?>[] {CommandBuilders.class})
+                            && Command.class.isAssignableFrom(m.getReturnType())) {
+                        MCVersionChecker.requireValidVersion(m);
+                        commands.add((Command) m.invoke(this, Helper.getGlobalCommand().builders()));
+                    }
+                } catch (Throwable t) {
+                    Helper.handleThrowable(t);
+                }
+            }
+        } catch (Throwable t) {
+            Helper.handleThrowable(t);
+        }
+    }
+
+    @Override
+    protected void onUnload() {
+        commands.forEach(Command::leaveParent);
+    }
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface RegisterCommand {}
 }
