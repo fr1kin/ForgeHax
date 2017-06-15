@@ -1,16 +1,16 @@
 [
-{
-  "modid": "forgehax",
-  "name": "Forge Hax",
-  "description": "Hax 4 forge",
-  "version": "1.2",
-  "mcversion": "1.11.2",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["fr1kin", "Chunkr"],
-  "credits": "get rekt",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}
+    {
+      "modid": "forgehax",
+      "name": "ForgeHax",
+      "description": "Hax 4 forge",
+      "version": "${version}",
+      "mcversion": "",
+      "url": "",
+      "updateUrl": "",
+      "authorList": ["fr1kin", "Chunkr"],
+      "credits": "get rekt",
+      "logoFile": "",
+      "screenshots": [],
+      "dependencies": []
+    }
 ]
