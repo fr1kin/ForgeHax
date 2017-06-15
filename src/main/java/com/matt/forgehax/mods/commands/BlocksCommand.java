@@ -4,7 +4,6 @@ import com.matt.forgehax.util.blocks.BlockOptionHelper;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.mod.CommandMod;
-import com.matt.forgehax.util.mod.RegisterCommand;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
 
