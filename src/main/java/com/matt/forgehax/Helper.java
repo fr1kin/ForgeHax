@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -47,23 +48,38 @@ public class Helper implements Globals {
         return MC.world;
     }
 
-    public static void printMessageNaked(String startWith, String message, TextFormatting color) {
+    public static NetworkManager getNetworkManager() {
+        return FMLClientHandler.instance().getClientToServerNetworkManager();
+    }
+
+    public static void printMessageNaked(String startWith, String message, Style firstStyle, Style secondStyle) {
         if(getLocalPlayer() != null && !Strings.isNullOrEmpty(message)) {
             if(message.contains("\n")) {
-                color = TextFormatting.GRAY; // start with white
                 Scanner scanner = new Scanner(message);
                 scanner.useDelimiter("\n");
-                while (scanner.hasNext()) printMessageNaked(startWith, scanner.next(), color = (color != TextFormatting.WHITE ? TextFormatting.WHITE : TextFormatting.GRAY));
+                Style s1 = firstStyle;
+                Style s2 = secondStyle;
+                while (scanner.hasNext()) {
+                    printMessageNaked(startWith, scanner.next(), s1, s2);
+                    // alternate between colors each newline
+                    Style cpy = s1;
+                    s1 = s2;
+                    s2 = cpy;
+                }
             } else {
                 TextComponentString string = new TextComponentString(startWith + message.replaceAll("\r", ""));
-                string.getStyle().setColor(color);
+                string.setStyle(firstStyle);
                 getLocalPlayer().sendMessage(string);
             }
         }
     }
 
+    public static void printMessageNaked(String append, String message, Style style) {
+        printMessageNaked(append, message, style, style);
+    }
+
     public static void printMessageNaked(String append, String message) {
-        printMessageNaked(append, message, TextFormatting.WHITE);
+        printMessageNaked(append, message, new Style().setColor(TextFormatting.WHITE), new Style().setColor(TextFormatting.GRAY));
     }
 
     public static void printMessageNaked(String message) {
@@ -75,11 +91,13 @@ public class Helper implements Globals {
         if(!Strings.isNullOrEmpty(message)) printMessageNaked("[FH] " + message);
     }
 
-    public static NetworkManager getNetworkManager() {
-        return FMLClientHandler.instance().getClientToServerNetworkManager();
+    public static void printStackTrace(Throwable t) {
+        getLog().error(Throwables.getStackTraceAsString(t));
     }
 
-    public static void printStackTrace(Throwable e) {
-        getLog().error(Throwables.getStackTraceAsString(e));
+    public static void handleThrowable(Throwable t) {
+        getLog().error(String.format("[%s] %s", t.getClass().getSimpleName(), Strings.nullToEmpty(t.getMessage())));
+        if (t.getCause() != null) handleThrowable(t.getCause());
+        printStackTrace(t);
     }
 }
