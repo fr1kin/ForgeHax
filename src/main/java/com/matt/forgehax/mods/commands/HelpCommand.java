@@ -1,16 +1,17 @@
 package com.matt.forgehax.mods.commands;
 
 import com.matt.forgehax.util.command.Command;
-import com.matt.forgehax.util.command.CommandBuilder;
+import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.CommandMod;
+import com.matt.forgehax.util.mod.RegisterCommand;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import static com.matt.forgehax.Wrapper.getModManager;
-import static com.matt.forgehax.Wrapper.printMessageNaked;
+import static com.matt.forgehax.Helper.getModManager;
+import static com.matt.forgehax.Helper.printMessageNaked;
 
 /**
  * Created on 6/1/2017 by fr1kin
@@ -18,12 +19,14 @@ import static com.matt.forgehax.Wrapper.printMessageNaked;
 @RegisterMod
 public class HelpCommand extends CommandMod {
     public HelpCommand() {
-        super("help", "Help text for mod syntax and command list");
+        super("HelpCommand");
     }
 
-    @Override
-    public Command generate(CommandBuilder builder) {
-        return builder
+    @RegisterCommand
+    public Command help(CommandBuilders builder) {
+        return builder.newCommandBuilder()
+                .name("help")
+                .description("Help text for mod syntax and command list")
                 .options(parser -> {
                     parser.acceptsAll(Arrays.asList("mod", "m"), "Gets info for mod")
                             .withRequiredArg();
