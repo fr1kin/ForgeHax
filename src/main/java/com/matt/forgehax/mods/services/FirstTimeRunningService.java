@@ -34,22 +34,16 @@ public class FirstTimeRunningService extends ServiceMod {
         super("FirstTimeRunningService");
     }
 
-    @Override
-    protected void onLoad() {
-        if(Objects.equals(ForgeHax.MOD_VERSION, getOnceFileVersion())) {
-            getModManager().unregisterMod(this);
-        }
-    }
-
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        printMessageNaked(ForgeHax.getWelcomeMessage());
-        try {
-            Files.write(STARTUP_ONCE.toPath(), ForgeHax.MOD_VERSION.getBytes());
-        } catch (IOException e) {
-            ;
-        } finally {
-            getModManager().unregisterMod(this);
+        if(!Objects.equals(ForgeHax.MOD_VERSION, getOnceFileVersion())) {
+            printMessageNaked(ForgeHax.getWelcomeMessage());
+            try {
+                Files.write(STARTUP_ONCE.toPath(), ForgeHax.MOD_VERSION.getBytes());
+            } catch (IOException e) {
+                ;
+            }
         }
+        getModManager().unregisterMod(this);
     }
 }

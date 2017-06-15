@@ -1,5 +1,6 @@
 package com.matt.forgehax;
 
+import com.google.common.base.Strings;
 import com.matt.forgehax.util.container.ContainerManager;
 import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraftforge.fml.common.Mod;
@@ -15,7 +16,7 @@ import static com.matt.forgehax.Helper.getModManager;
 public class ForgeHax {
 	public static final String MOD_ID 			= "forgehax";
 	public static final String MOD_NAME 		= "ForgeHax";
-	public static final String MOD_VERSION 		= ConfigProperties.getConfigProperties().getProperty("forgehax.version");
+	public static final String MOD_VERSION 		= ConfigProperties.getVersion();
 
 	static {
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -73,10 +74,11 @@ public class ForgeHax {
 		static {
 			InputStream input = null;
 			try {
-				input = ConfigProperties.class.getResourceAsStream("config.properties");
+				input = ConfigProperties.class.getResourceAsStream("/config.properties");
 				CONFIG_PROPERTIES.load(input);
 			} catch (Throwable t) {
 				Helper.getLog().error("Failed to load resource config.properties");
+				Helper.handleThrowable(t);
 			} finally {
 				if(input != null) try {
 					input.close();
@@ -88,6 +90,10 @@ public class ForgeHax {
 
 		public static Properties getConfigProperties() {
 			return CONFIG_PROPERTIES;
+		}
+
+		public static String getVersion() {
+			return Strings.nullToEmpty(getConfigProperties().getProperty("forgehax.version"));
 		}
 	}
 }
