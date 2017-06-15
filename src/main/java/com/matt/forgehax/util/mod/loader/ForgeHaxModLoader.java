@@ -3,7 +3,7 @@ package com.matt.forgehax.util.mod.loader;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.ClassPath;
 import com.matt.forgehax.Globals;
-import com.matt.forgehax.Wrapper;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.mcversion.MCVersionChecker;
 import com.matt.forgehax.util.mod.BaseMod;
 
@@ -16,6 +16,7 @@ import java.util.List;
  * Created on 5/16/2017 by fr1kin
  */
 public class ForgeHaxModLoader implements Globals {
+    @SuppressWarnings("unchecked")
     public static Collection<Class<? extends BaseMod>> getClassesInPackage(String pack) {
         final List<Class<? extends BaseMod>> classes = Lists.newArrayList();
         try {
@@ -30,7 +31,7 @@ public class ForgeHaxModLoader implements Globals {
                         classes.add((Class<? extends BaseMod>)clazz);
                     }
                 } catch (Exception e) {
-                    Wrapper.getLog().warn(String.format("[%s] '%s' is not a valid mod class: %s", e.getClass().getSimpleName(), info.getSimpleName(), e.getMessage()));
+                    Helper.getLog().warn(String.format("[%s] '%s' is not a valid mod class: %s", e.getClass().getSimpleName(), info.getSimpleName(), e.getMessage()));
                 }
             });
         } catch (IOException e) {
@@ -45,8 +46,8 @@ public class ForgeHaxModLoader implements Globals {
             try {
                 mods.add(clazz.getDeclaredConstructor().newInstance());
             } catch (Exception e) {
-                Wrapper.printStackTrace(e);
-                Wrapper.getLog().warn(String.format("Failed to create a new instance of '%s': %s", clazz.getSimpleName(), e.getMessage()));
+                Helper.printStackTrace(e);
+                Helper.getLog().warn(String.format("Failed to create a new instance of '%s': %s", clazz.getSimpleName(), e.getMessage()));
             }
         });
         return Collections.unmodifiableCollection(mods);
