@@ -12,10 +12,9 @@ import java.util.Properties;
 
 import static com.matt.forgehax.Helper.getModManager;
 
-@Mod(modid = ForgeHax.MOD_ID, name = ForgeHax.MOD_NAME, clientSideOnly = true)
+@Mod(modid = ForgeHax.MOD_ID, clientSideOnly = true)
 public class ForgeHax {
 	public static final String MOD_ID 			= "forgehax";
-	public static final String MOD_NAME 		= "ForgeHax";
 	public static final String MOD_VERSION 		= ConfigProperties.getVersion();
 
 	static {
@@ -24,8 +23,9 @@ public class ForgeHax {
 		// is updated or mods will not load anymore
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		getModManager().addClassesInPackage("com.matt.forgehax.mods");
-		getModManager().addClassesInPackage("com.matt.forgehax.mods.services");
 		getModManager().addClassesInPackage("com.matt.forgehax.mods.commands");
+		getModManager().addClassesInPackage("com.matt.forgehax.mods.services");
+		getModManager().addClassesInPackage("com.matt.forgehax.mods.services.tasks");
 	}
 
 	public static String getWelcomeMessage() {
@@ -77,7 +77,6 @@ public class ForgeHax {
 				input = ConfigProperties.class.getResourceAsStream("/config.properties");
 				CONFIG_PROPERTIES.load(input);
 			} catch (Throwable t) {
-				Helper.getLog().error("Failed to load resource config.properties");
 				Helper.handleThrowable(t);
 			} finally {
 				if(input != null) try {
