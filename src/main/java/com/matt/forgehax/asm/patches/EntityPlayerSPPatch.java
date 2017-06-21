@@ -48,4 +48,32 @@ public class EntityPlayerSPPatch extends ClassTransformer {
             main.instructions.insert(applySlowdownSpeedNode, insnList);
         }
     }
+
+    @RegisterMethodTransformer
+    private class OnUpdateWalkingPlayer extends MethodTransformer {
+        @Override
+        public ASMMethod getMethod() {
+            return Methods.EntityPlayerSP_onUpdateWalkingPlayer;
+        }
+
+        @Inject(description = "Add hooks at top and bottom of method")
+        public void inject(MethodNode main) {
+            AbstractInsnNode top = main.instructions.getFirst();
+            AbstractInsnNode bottom = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    RETURN
+            }, "x");
+
+            Objects.requireNonNull(top, "Find pattern failed for top node");
+            Objects.requireNonNull(bottom, "Find pattern failed for bottom node");
+
+            InsnList pre = new InsnList();
+            pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPre));
+
+            InsnList post = new InsnList();
+            post.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
+
+            main.instructions.insertBefore(top, pre);
+            main.instructions.insertBefore(bottom, post);
+        }
+    }
 }

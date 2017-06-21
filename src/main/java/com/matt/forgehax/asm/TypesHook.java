@@ -253,5 +253,17 @@ public interface TypesHook {
                 .add(boolean.class)
                 .finish()
                 .build();
+
+        ASMMethod ForgeHaxHooks_onUpdateWalkingPlayerPre = Classes.ForgeHaxHooks.childMethod()
+                .setName("onUpdateWalkingPlayerPre")
+                .setReturnType(void.class)
+                .emptyParameters()
+                .build();
+
+        ASMMethod ForgeHaxHooks_onUpdateWalkingPlayerPost = Classes.ForgeHaxHooks.childMethod()
+                .setName("onUpdateWalkingPlayerPost")
+                .setReturnType(void.class)
+                .emptyParameters()
+                .build();
     }
 }

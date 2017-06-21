@@ -6,8 +6,8 @@ import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
-import com.matt.forgehax.asm.utils.MultiSwitch;
 import com.matt.forgehax.asm.reflection.FastReflectionSpecial;
+import com.matt.forgehax.asm.utils.MultiSwitch;
 import journeymap.client.cartography.RGB;
 import journeymap.client.cartography.Stratum;
 import journeymap.client.cartography.render.BaseRenderer;
@@ -16,7 +16,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.ViewFrustum;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.chunk.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -27,7 +26,8 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.*;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.nio.ByteOrder;
@@ -283,6 +283,14 @@ public class ForgeHaxHooks implements ASMCommon {
         } catch (Exception e) {}
         // cancel older calculation
         return false;
+    }
+
+    public static void onUpdateWalkingPlayerPre() {
+        MinecraftForge.EVENT_BUS.register(new LocalPlayerUpdateMovementEvent.Pre());
+    }
+
+    public static void onUpdateWalkingPlayerPost() {
+        MinecraftForge.EVENT_BUS.register(new LocalPlayerUpdateMovementEvent.Post());
     }
 
     public static class DebugData {

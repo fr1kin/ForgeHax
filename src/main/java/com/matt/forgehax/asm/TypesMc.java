@@ -283,6 +283,12 @@ public interface TypesMc {
                 .emptyParameters()
                 .autoAssign()
                 .build();
+        ASMMethod EntityPlayerSP_onUpdateWalkingPlayer = Classes.EntityPlayerSP.childMethod()
+                .setName("onUpdateWalkingPlayer")
+                .setReturnType(void.class)
+                .emptyParameters()
+                .autoAssign()
+                .build();
 
         ASMMethod EntityRenderer_hurtCameraEffect = Classes.EntityRenderer.childMethod()
                 .setName("hurtCameraEffect")
