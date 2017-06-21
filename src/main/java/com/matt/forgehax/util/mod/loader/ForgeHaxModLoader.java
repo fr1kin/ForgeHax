@@ -11,32 +11,39 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created on 5/16/2017 by fr1kin
  */
 public class ForgeHaxModLoader implements Globals {
-    @SuppressWarnings("unchecked")
+
     public static Collection<Class<? extends BaseMod>> getClassesInPackage(String pack) {
-        final List<Class<? extends BaseMod>> classes = Lists.newArrayList();
         try {
             ClassPath classPath = ClassPath.from(getClassLoader());
-            classPath.getTopLevelClasses(pack).forEach(info -> {
-                try {
-                    Class<?> clazz = info.load();
-                    if(clazz.isAnnotationPresent(RegisterMod.class)
-                            && BaseMod.class.isAssignableFrom(clazz)
-                            && clazz.getDeclaredConstructor() != null) { // will throw exception if it doesn't exist
-                        MCVersionChecker.requireValidVersion(clazz);
-                        classes.add((Class<? extends BaseMod>)clazz);
-                    }
-                } catch (Exception e) {
-                    Helper.getLog().warn(String.format("[%s] '%s' is not a valid mod class: %s", e.getClass().getSimpleName(), info.getSimpleName(), e.getMessage()));
-                }
-            });
+            return filterClasses(classPath.getTopLevelClasses(pack));
         } catch (IOException e) {
-            e.printStackTrace();
+            Helper.handleThrowable(e);
         }
+        return Collections.emptyList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Collection<Class<? extends BaseMod>> filterClasses(Set<ClassPath.ClassInfo> input) {
+        final List<Class<? extends BaseMod>> classes = Lists.newArrayList();
+        input.forEach(info -> {
+            try {
+                Class<?> clazz = info.load();
+                if(clazz.isAnnotationPresent(RegisterMod.class)
+                        && BaseMod.class.isAssignableFrom(clazz)
+                        && clazz.getDeclaredConstructor() != null) { // will throw exception if it doesn't exist
+                    MCVersionChecker.requireValidVersion(clazz);
+                    classes.add((Class<? extends BaseMod>)clazz);
+                }
+            } catch (Exception e) {
+                Helper.getLog().warn(String.format("[%s] '%s' is not a valid mod class: %s", e.getClass().getSimpleName(), info.getSimpleName(), e.getMessage()));
+            }
+        });
         return Collections.unmodifiableCollection(classes);
     }
 
