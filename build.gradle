@@ -30,7 +30,7 @@ minecraft {
 archivesBaseName = "forgehax-" + project.minecraft.version
 
 dependencies {
-    compile files('libs/journeymap-1.11.2-5.4.6.jar')
+    compile files('libs/journeymap-1.11.2-5.4.7.jar')
 }
 
 jar {
