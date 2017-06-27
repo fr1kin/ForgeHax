@@ -180,7 +180,7 @@ public class AimbotMod extends ToggleMod {
                 EntityUtils.isValidEntity(entity) && (
                 (EntityUtils.isPlayer(entity) && target_players.get() && !PlayerUtils.isFriend((EntityPlayer)entity)) ||
                         (EntityUtils.isHostileMob(entity) && target_mobs_hostile.get()) ||
-                        (EntityUtils.isFriendlyMob(entity) && target_mobs_hostile.get())
+                        (EntityUtils.isFriendlyMob(entity) && target_mobs_friendly.get())
                 ) &&
                 isInRange(entPos, selfPos) &&
                 isInFOVRange(viewAngles, entPos.subtract(selfPos)) &&
