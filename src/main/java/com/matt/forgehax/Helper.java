@@ -7,10 +7,13 @@ import com.matt.forgehax.util.mod.loader.ModManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
 
@@ -46,6 +49,12 @@ public class Helper implements Globals {
 
     public static WorldClient getWorld() {
         return MC.world;
+    }
+    public static World getWorld(Entity entity) {
+        return entity.getEntityWorld();
+    }
+    public static World getWorld(TileEntity tileEntity) {
+        return tileEntity.getWorld();
     }
 
     public static NetworkManager getNetworkManager() {
