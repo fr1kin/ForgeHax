@@ -38,9 +38,10 @@ public class RenderEventService extends ServiceMod {
         GlStateManager.glLineWidth(1.f);
 
         Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
-        TESSELLATOR.getBuffer().setTranslation(-renderPos.xCoord, -renderPos.yCoord, -renderPos.zCoord);
 
-        MinecraftForge.EVENT_BUS.post(new RenderEvent(TESSELLATOR, renderPos));
+        RenderEvent e = new RenderEvent(TESSELLATOR, renderPos);
+        e.resetTranslation();
+        MinecraftForge.EVENT_BUS.post(e);
 
         GlStateManager.glLineWidth(1.f);
 

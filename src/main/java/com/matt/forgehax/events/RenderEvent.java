@@ -28,4 +28,12 @@ public class RenderEvent extends Event {
     public Vec3d getRenderPos() {
         return renderPos;
     }
+
+    public void setTranslation(Vec3d translation) {
+        getBuffer().setTranslation(-translation.xCoord, -translation.yCoord, -translation.zCoord);
+    }
+
+    public void resetTranslation() {
+        setTranslation(renderPos);
+    }
 }
