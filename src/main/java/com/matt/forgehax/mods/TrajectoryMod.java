@@ -40,17 +40,17 @@ public class TrajectoryMod extends ToggleMod {
                 GlStateManager.glLineWidth(2.0f);
 
                 GL11.glEnable(GL11.GL_LINE_SMOOTH);
-                event.getTessellator().getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+                event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
                 Iterator<Vec3d> it = result.getPathTraveled().iterator();
                 Vec3d previous = it.next();
                 while (it.hasNext()) {
                     Vec3d next = it.next();
-                    event.getTessellator().getBuffer()
+                    event.getBuffer()
                             .pos(previous.xCoord, previous.yCoord, previous.zCoord)
                             .color(255, 255, 255, 255)
                             .endVertex();
-                    event.getTessellator().getBuffer()
+                    event.getBuffer()
                             .pos(next.xCoord, next.yCoord, next.zCoord)
                             .color(255, 255, 255, 255)
                             .endVertex();
