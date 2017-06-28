@@ -1,6 +1,7 @@
 package com.matt.forgehax.asm.utils.remapping;
 
 import bspkrs.mmv.*;
+import com.matt.forgehax.asm.utils.ASMStackLogger;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,8 +81,12 @@ public class MCPMappingLoader {
         if (!subDir.exists() && !subDir.mkdirs())
             throw new CantLoadMCPMappingException("Data folder does not exist and cannot be created.");
 
-        RemoteZipHandler rzh = new RemoteZipHandler(replaceTokens(baseZipUrl, tokens), subDir, "SHA1");
-        rzh.checkRemoteZip();
+        try {
+            RemoteZipHandler rzh = new RemoteZipHandler(replaceTokens(baseZipUrl, tokens), subDir, "SHA1");
+            rzh.checkRemoteZip();
+        } catch (Throwable t) {
+            ASMStackLogger.printStackTrace(t);
+        }
 
         return subDir;
     }
