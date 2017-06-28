@@ -35,6 +35,8 @@ public class VectorUtils implements Globals {
     public static ScreenPos toScreen(double x, double y, double z) {
         Entity view = MC.getRenderViewEntity();
 
+        if(view == null) return new ScreenPos(0, 0, false);
+
         Vec3d viewNormal = view.getLook(MC.getRenderPartialTicks()).normalize();
 
         Vec3d camPos = FastReflection.Fields.ActiveRenderInfo_position.getStatic();
