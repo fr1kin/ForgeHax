@@ -20,8 +20,12 @@ public class PigmenAngerCooldownService extends ServiceMod {
     public void onUpdate(LivingEvent.LivingUpdateEvent event) {
         if(event.getEntityLiving() instanceof EntityPigZombie) {
             // update pigmens anger level
-            if(((EntityPigZombie) event.getEntityLiving()).isAngry())
-                FastReflection.Fields.EntityPigZombie_angerLevel.set(event.getEntity(), FastReflection.Fields.EntityPigZombie_angerLevel.get(event.getEntity()) - 1);
+            EntityPigZombie pigZombie = (EntityPigZombie)event.getEntityLiving();
+            if(pigZombie.isArmsRaised()) {
+                FastReflection.Fields.EntityPigZombie_angerLevel.set(pigZombie, 400);
+            } else if(pigZombie.isAngry()) {
+                FastReflection.Fields.EntityPigZombie_angerLevel.set(pigZombie, FastReflection.Fields.EntityPigZombie_angerLevel.get(pigZombie) - 1);
+            }
         }
     }
 }
