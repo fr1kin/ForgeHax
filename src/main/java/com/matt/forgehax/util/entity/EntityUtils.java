@@ -3,10 +3,15 @@ package com.matt.forgehax.util.entity;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.entity.mobtypes.MobType;
+import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
+import com.matt.forgehax.util.entity.mobtypes.MobTypeRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.monster.*;
+import net.minecraft.entity.monster.EntityEnderman;
+import net.minecraft.entity.monster.EntityIronGolem;
+import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,9 +21,16 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.List;
-import static com.matt.forgehax.Helper.*;
+
+import static com.matt.forgehax.Helper.getLocalPlayer;
 
 public class EntityUtils implements Globals {
+    public static MobTypeEnum getRelationship(Entity entity) {
+        for(MobType type : MobTypeRegistry.getSortedMobTypes()) if(type.isMobType(entity))
+            return type.getMobType(entity);
+        return MobTypeEnum.HOSTILE; // assume any mob is hostile
+    }
+
     public static boolean isBatsDisabled = false;
 
     /**
