@@ -1,15 +1,18 @@
 package com.matt.forgehax.asm.utils.remapping;
 
-import bspkrs.mmv.*;
+import bspkrs.mmv.ClassSrgData;
+import bspkrs.mmv.CsvData;
+import bspkrs.mmv.CsvFile;
+import bspkrs.mmv.MemberSrgData;
 import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.matt.forgehax.ForgeHaxProperties;
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.reflection.FastReflectionForge;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
-import com.matt.forgehax.asm.utils.CurrentBuildMapping;
 import com.matt.forgehax.asm.utils.environment.IStateMapper;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
@@ -35,11 +38,11 @@ public class ObfuscatedStateMapper implements ASMCommon, IStateMapper {
     private final Map<String, Map<String, McpTypeData>> mcpFieldData;
 
     protected ObfuscatedStateMapper() {
-        LOGGER.info("Using build mapping \"" + CurrentBuildMapping.getMapping() + "\"");
+        LOGGER.info("Using build mapping \"" + ForgeHaxProperties.getMcpMappingUrl() + "\"");
 
         MCPMappingLoader mcpMappingLoader = null;
         try {
-            mcpMappingLoader = new MCPMappingLoader(CurrentBuildMapping.getMapping());
+            mcpMappingLoader = new MCPMappingLoader(ForgeHaxProperties.getMcpMappingUrl());
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             ASMStackLogger.printStackTrace(e);

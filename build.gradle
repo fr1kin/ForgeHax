@@ -21,13 +21,14 @@ compileJava {
 }
 
 minecraft {
-    version = "1.11.2-13.20.0.2296"
+    version = project.property('forgehax.forge.version')
     runDir = "run"
 
-    mappings = "snapshot_20161220"
+    // channel_mapping
+    mappings = project.property('forgehax.mcp.channel') + '_' + project.property('forgehax.mcp.mapping')
 }
 
-archivesBaseName = "forgehax-" + project.minecraft.version
+archivesBaseName = "forgehax-" + project.property('forgehax.mc.version')
 
 dependencies {
     compile files('libs/journeymap-1.11.2-5.4.6.jar')
@@ -65,7 +66,12 @@ processResources
     }
 
     filter ReplaceTokens, tokens: [
-            "forgehax.version": project.property("forgehax.version")
+            "forgehax.version": project.property("forgehax.version"),
+            "forgehax.mc.version": project.property("forgehax.mc.version"),
+            "forgehax.forge.version": project.property("forgehax.forge.version"),
+            "forgehax.mcp.version": project.property("forgehax.mcp.version"),
+            "forgehax.mcp.channel": project.property("forgehax.mcp.channel"),
+            "forgehax.mcp.mapping": project.property("forgehax.mcp.mapping")
     ]
 }
 

@@ -1,21 +1,17 @@
 package com.matt.forgehax;
 
-import com.google.common.base.Strings;
 import com.matt.forgehax.util.container.ContainerManager;
 import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-import java.io.InputStream;
-import java.util.Properties;
-
 import static com.matt.forgehax.Helper.getModManager;
 
 @Mod(modid = ForgeHax.MOD_ID, clientSideOnly = true)
 public class ForgeHax {
 	public static final String MOD_ID 			= "forgehax";
-	public static final String MOD_VERSION 		= ConfigProperties.getVersion();
+	public static final String MOD_VERSION 		= ForgeHaxProperties.getVersion();
 
 	static {
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -65,34 +61,6 @@ public class ForgeHax {
 			}
 			default:
 				break;
-		}
-	}
-
-	private static class ConfigProperties {
-		private static final Properties CONFIG_PROPERTIES = new Properties();
-
-		static {
-			InputStream input = null;
-			try {
-				input = ConfigProperties.class.getResourceAsStream("/config.properties");
-				CONFIG_PROPERTIES.load(input);
-			} catch (Throwable t) {
-				Helper.handleThrowable(t);
-			} finally {
-				if(input != null) try {
-					input.close();
-				} catch (Throwable t) {
-					;
-				}
-			}
-		}
-
-		public static Properties getConfigProperties() {
-			return CONFIG_PROPERTIES;
-		}
-
-		public static String getVersion() {
-			return Strings.nullToEmpty(getConfigProperties().getProperty("forgehax.version"));
 		}
 	}
 }
