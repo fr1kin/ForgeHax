@@ -13,7 +13,7 @@ public class CommandGlobal extends CommandStub {
     }
 
     private CommandGlobal() {
-        super(CommandBuilders.getInstance().newStubBuilder().name(Strings.EMPTY).getData());
+        super(CommandBuilders.getInstance().newStubBuilder().name(Strings.EMPTY).helpOption(false).getData());
     }
 
     @Override
