@@ -1,6 +1,6 @@
 package com.matt.forgehax.util.command;
 
-import com.matt.forgehax.util.serializers.ISerializableJson;
+import com.matt.forgehax.util.serialization.ISerializableJson;
 
 import java.util.Collection;
 import java.util.function.Function;

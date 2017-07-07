@@ -3,7 +3,7 @@ package com.matt.forgehax.util.command;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
-import com.matt.forgehax.util.serializers.ISerializableJson;
+import com.matt.forgehax.util.serialization.ISerializableJson;
 
 import java.io.IOException;
 import java.util.Collection;

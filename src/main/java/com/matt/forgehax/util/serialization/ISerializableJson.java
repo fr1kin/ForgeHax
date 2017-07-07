@@ -1,4 +1,4 @@
-package com.matt.forgehax.util.serializers;
+package com.matt.forgehax.util.serialization;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;

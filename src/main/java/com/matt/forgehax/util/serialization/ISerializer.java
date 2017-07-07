@@ -1,4 +1,4 @@
-package com.matt.forgehax.util.serializers;
+package com.matt.forgehax.util.serialization;
 
 /**
  * Created on 6/4/2017 by fr1kin
