@@ -1,8 +1,6 @@
 package com.matt.forgehax.util.blocks.properties;
 
-import com.matt.forgehax.util.json.ISerializableJson;
-
-import java.util.Objects;
+import com.matt.forgehax.util.serializers.ISerializableJson;
 
 /**
  * Created on 5/20/2017 by fr1kin

@@ -7,7 +7,7 @@ import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.blocks.exceptions.BlockDoesNotExistException;
 import com.matt.forgehax.util.blocks.properties.IBlockProperty;
 import com.matt.forgehax.util.blocks.properties.PropertyFactory;
-import com.matt.forgehax.util.json.ISerializableJson;
+import com.matt.forgehax.util.serializers.ISerializableJson;
 import joptsimple.internal.Strings;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

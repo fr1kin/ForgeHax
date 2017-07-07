@@ -1,4 +1,4 @@
-package com.matt.forgehax.util.json;
+package com.matt.forgehax.util.serializers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
