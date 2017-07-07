@@ -1,6 +1,6 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
@@ -9,18 +9,18 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  */
 public class ChunkUploadedEvent extends Event {
     private final RenderChunk renderChunk;
-    private final VertexBuffer buffer;
+    private final BufferBuilder buffer;
 
-    public ChunkUploadedEvent(RenderChunk renderChunk, VertexBuffer vertexBuffer) {
+    public ChunkUploadedEvent(RenderChunk renderChunk, BufferBuilder BufferBuilder) {
         this.renderChunk = renderChunk;
-        this.buffer = vertexBuffer;
+        this.buffer = BufferBuilder;
     }
 
     public RenderChunk getRenderChunk() {
         return renderChunk;
     }
 
-    public VertexBuffer getBuffer() {
+    public BufferBuilder getBuffer() {
         return buffer;
     }
 }

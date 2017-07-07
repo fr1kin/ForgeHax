@@ -1,12 +1,9 @@
 package com.matt.forgehax.gui;
 
-import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.gui.categories.IGuiCategory;
-import com.matt.forgehax.util.container.lists.PlayerList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.config.GuiConfig;
 import org.lwjgl.input.Keyboard;
@@ -58,7 +55,7 @@ public class GuiAddPlayer extends GuiScreen {
         int buttonHeight = 20;
         int buttonWidth = 200;
 
-        textFieldPlayerName = new GuiTextField(4000, mc.fontRendererObj, x - (textBoxWidth / 2), y - textBoxHeight, textBoxWidth, textBoxHeight);
+        textFieldPlayerName = new GuiTextField(4000, mc.fontRenderer, x - (textBoxWidth / 2), y - textBoxHeight, textBoxWidth, textBoxHeight);
         textFieldPlayerName.setMaxStringLength(256); // MAX_FILE_SIZE
         textFieldPlayerName.setEnabled(true);
         textFieldPlayerName.setFocused(true);

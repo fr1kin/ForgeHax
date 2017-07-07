@@ -28,7 +28,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -297,7 +297,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         if(renderers != null) try {
             renderers.computeIfPresent(renderChunk, (chk, info) -> info.compute(() -> {
                 GeometryTessellator tess = info.getTessellator();
-                if (tess != null && FastReflection.Fields.VertexBuffer_isDrawing.get(tess.getBuffer(), false)) {
+                if (tess != null && FastReflection.Fields.BufferBuilder_isDrawing.get(tess.getBuffer(), false)) {
                     BlockEntry blockEntry = options.get(state);
                     if(blockEntry != null && blockEntry.getReadableProperty(BoundProperty.class).isWithinBoundaries(pos.getY())) {
                         AxisAlignedBB bb = state.getSelectedBoundingBox(Helper.getWorld(), pos);
@@ -386,9 +386,9 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
                     BlockPos pos = chk.getPosition();
                     GlStateManager.translate(
-                            (double) pos.getX() - renderingOffset.xCoord,
-                            (double) pos.getY() - renderingOffset.yCoord,
-                            (double) pos.getZ() - renderingOffset.zCoord
+                            (double) pos.getX() - renderingOffset.x,
+                            (double) pos.getY() - renderingOffset.y,
+                            (double) pos.getZ() - renderingOffset.z
                     );
 
                     chk.multModelviewMatrix();
@@ -506,7 +506,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
 
         public boolean isBuilding() {
-            return tessellator != null && FastReflection.Fields.VertexBuffer_isDrawing.get(tessellator.getBuffer());
+            return tessellator != null && FastReflection.Fields.BufferBuilder_isDrawing.get(tessellator.getBuffer());
         }
 
         public boolean isUploaded() {
@@ -558,7 +558,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             }
         }
 
-        public VertexBuffer getBuffer() {
+        public BufferBuilder getBuffer() {
             return getTessellator().getBuffer();
         }
 

@@ -29,7 +29,7 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         registerTransformer(new NetManager$4Patch());
         registerTransformer(new RenderChunkPatch());
         registerTransformer(new RenderGlobalPatch());
-        registerTransformer(new VertexBufferPatch());
+        registerTransformer(new BufferBuilderPatch());
         registerTransformer(new VisGraphPatch());
         registerTransformer(new WorldPatch());
 

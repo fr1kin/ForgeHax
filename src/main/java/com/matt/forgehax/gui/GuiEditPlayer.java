@@ -64,7 +64,7 @@ public class GuiEditPlayer extends GuiScreen {
         int posX = x - (textBoxWidth / 2);
         int posY = y - textBoxHeight;
 
-        textFieldPlayerNickName = new GuiTextField(4000, mc.fontRendererObj, posX, posY, textBoxWidth, textBoxHeight);
+        textFieldPlayerNickName = new GuiTextField(4000, mc.fontRenderer, posX, posY, textBoxWidth, textBoxHeight);
         textFieldPlayerNickName.setMaxStringLength(256); // MAX_FILE_SIZE
         textFieldPlayerNickName.setEnabled(true);
         textFieldPlayerNickName.setFocused(true);

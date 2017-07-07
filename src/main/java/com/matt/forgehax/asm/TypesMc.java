@@ -90,8 +90,8 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
-        ASMClass VertexBuffer = ASMBuilders.newClassBuilder()
-                .setClassName("net/minecraft/client/renderer/VertexBuffer")
+        ASMClass BufferBuilder = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/renderer/BufferBuilder")
                 .autoAssign()
                 .build();
 
@@ -234,7 +234,7 @@ public interface TypesMc {
                 .setReturnType(ListenableFuture.class)
                 .beginParameters()
                 .add(Classes.BlockRenderLayer)
-                .add(Classes.VertexBuffer)
+                .add(Classes.BufferBuilder)
                 .add(Classes.RenderChunk)
                 .add(Classes.CompiledChunk)
                 .add(double.class)
@@ -373,7 +373,7 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
-        ASMMethod VertexBuffer_putColorMultiplier = Classes.VertexBuffer.childMethod()
+        ASMMethod BufferBuilder_putColorMultiplier = Classes.BufferBuilder.childMethod()
                 .setName("putColorMultiplier")
                 .setReturnType(void.class)
                 .beginParameters()

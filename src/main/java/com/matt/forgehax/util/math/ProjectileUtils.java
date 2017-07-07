@@ -191,8 +191,8 @@ public class ProjectileUtils implements Globals {
             // add gravity (acceleration)
             velocity = velocity.add(acceleration);
 
-            double x = startPos.xCoord - hitPos.xCoord;
-            double z = startPos.zCoord - hitPos.zCoord;
+            double x = startPos.x - hitPos.x;
+            double z = startPos.z - hitPos.z;
 
             double distance = x*x + z*z;
             if(distance == -1 || distance < bestDistance)
@@ -232,13 +232,13 @@ public class ProjectileUtils implements Globals {
         //https://en.wikipedia.org/wiki/Trajectory_of_a_projectile#Angle_.7F.27.22.60UNIQ--postMath-00000010-QINU.60.22.27.7F_required_to_hit_coordinate_.28x.2Cy.29
 
         // calculate air resistance in the acceleration
-        force *= airResistance.yCoord;
+        force *= airResistance.y;
 
         // magnitude of a 2d vector
-        double x = Math.sqrt(initPos.xCoord*initPos.xCoord + initPos.zCoord*initPos.zCoord);
-        double g = acceleration.yCoord;
+        double x = Math.sqrt(initPos.x*initPos.x + initPos.z*initPos.z);
+        double g = acceleration.y;
 
-        double root = Math.pow(force, 4) - g * (g * Math.pow(x, 2) + 2 * initPos.yCoord * Math.pow(force, 2));
+        double root = Math.pow(force, 4) - g * (g * Math.pow(x, 2) + 2 * initPos.y * Math.pow(force, 2));
 
         // if the root is negative then we will get a non-real result
         if(root < 0)
@@ -282,7 +282,7 @@ public class ProjectileUtils implements Globals {
                 bestDistance = distance;
                 bestOffset = offset;
             }
-            if((pos.yCoord - hitPos.yCoord) < 0)
+            if((pos.y - hitPos.y) < 0)
                 minAngle = offset;
             else
                 maxAngle = offset;

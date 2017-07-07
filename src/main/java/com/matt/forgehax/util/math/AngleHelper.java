@@ -41,13 +41,13 @@ public class AngleHelper {
 
     public static AngleN getAngleFacingInRadians(Vec3d vector) {
         double pitch, yaw;
-        if(vector.xCoord == 0 && vector.zCoord == 0) {
+        if(vector.x == 0 && vector.z == 0) {
             yaw = 0.D;
             pitch = HALF_PI;
         } else {
-            yaw = Math.atan2(vector.zCoord, vector.xCoord) - HALF_PI;
-            double mag = Math.sqrt(vector.xCoord * vector.xCoord + vector.zCoord * vector.zCoord);
-            pitch = -Math.atan2(vector.yCoord, mag);
+            yaw = Math.atan2(vector.z, vector.x) - HALF_PI;
+            double mag = Math.sqrt(vector.x * vector.x + vector.z * vector.z);
+            pitch = -Math.atan2(vector.y, mag);
         }
         return AngleN.radians(pitch, yaw);
     }

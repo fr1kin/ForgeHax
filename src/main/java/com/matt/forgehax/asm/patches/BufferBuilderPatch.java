@@ -13,16 +13,16 @@ import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class VertexBufferPatch extends ClassTransformer {
-    public VertexBufferPatch() {
-        super(Classes.VertexBuffer);
+public class BufferBuilderPatch extends ClassTransformer {
+    public BufferBuilderPatch() {
+        super(Classes.BufferBuilder);
     }
 
     @RegisterMethodTransformer
     private class PutColorMultiplier extends MethodTransformer {
         @Override
         public ASMMethod getMethod() {
-            return Methods.VertexBuffer_putColorMultiplier;
+            return Methods.BufferBuilder_putColorMultiplier;
         }
 
         @Inject(description = "Add hook that allows method to be overwritten")

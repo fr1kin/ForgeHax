@@ -1,12 +1,11 @@
 package com.matt.forgehax.util.blocks;
 
 import com.google.common.collect.Sets;
+import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.blocks.exceptions.BadBlockEntryFormatException;
 import com.matt.forgehax.util.blocks.exceptions.BlockDoesNotExistException;
-import com.matt.forgehax.util.SafeConverter;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -32,7 +31,7 @@ public class BlockOptionHelper {
     public static Collection<ItemStack> getAllBlocks(Block block) {
         NonNullList<ItemStack> list = NonNullList.create();
         if(block != null) {
-            block.getSubBlocks(Item.getItemFromBlock(block), null, list);
+            block.getSubBlocks(null, list);
         }
         return Collections.unmodifiableCollection(list);
     }

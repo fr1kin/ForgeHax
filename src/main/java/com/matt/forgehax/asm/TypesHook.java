@@ -204,7 +204,7 @@ public interface TypesHook {
                 .setReturnType(void.class)
                 .beginParameters()
                 .add(TypesMc.Classes.RenderChunk)
-                .add(TypesMc.Classes.VertexBuffer)
+                .add(TypesMc.Classes.BufferBuilder)
                 .finish()
                 .build();
 

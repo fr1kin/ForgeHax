@@ -1,7 +1,7 @@
 package com.matt.forgehax.events;
 
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
@@ -21,7 +21,7 @@ public class RenderEvent extends Event {
         return tessellator;
     }
 
-    public VertexBuffer getBuffer() {
+    public BufferBuilder getBuffer() {
         return tessellator.getBuffer();
     }
 
@@ -30,7 +30,7 @@ public class RenderEvent extends Event {
     }
 
     public void setTranslation(Vec3d translation) {
-        getBuffer().setTranslation(-translation.xCoord, -translation.yCoord, -translation.zCoord);
+        getBuffer().setTranslation(-translation.x, -translation.y, -translation.z);
     }
 
     public void resetTranslation() {

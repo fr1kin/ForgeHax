@@ -146,7 +146,7 @@ public class PlayerListCategory extends GuiConfigEntries.CategoryEntry {
             buttonList.add(buttonAdd = new GuiButton(ID++, x, y + h + 30, buttonWidth, 20, "Add"));
 
             // file name text field
-            textField = new GuiTextField(ID++, mc.fontRendererObj, x + buttonWidth + 5, y + h + 30, w - (x + buttonWidth + 5), 20);
+            textField = new GuiTextField(ID++, mc.fontRenderer, x + buttonWidth + 5, y + h + 30, w - (x + buttonWidth + 5), 20);
             textField.setMaxStringLength(256); // MAX_FILE_SIZE
             textField.setEnabled(true);
             textField.setFocused(true);

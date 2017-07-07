@@ -10,7 +10,7 @@ import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityPigZombie;
@@ -197,10 +197,10 @@ public interface FastReflection extends ASMCommon {
                 .asField();
 
         /**
-         * VertexBuffer
+         * BufferBuilder
          */
-        FastField<Boolean> VertexBuffer_isDrawing = FastTypeBuilder.create()
-                .setInsideClass(VertexBuffer.class)
+        FastField<Boolean> BufferBuilder_isDrawing = FastTypeBuilder.create()
+                .setInsideClass(BufferBuilder.class)
                 .setName("isDrawing")
                 .autoAssign()
                 .asField();

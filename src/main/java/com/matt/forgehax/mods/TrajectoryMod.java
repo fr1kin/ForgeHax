@@ -47,11 +47,11 @@ public class TrajectoryMod extends ToggleMod {
                 while (it.hasNext()) {
                     Vec3d next = it.next();
                     event.getBuffer()
-                            .pos(previous.xCoord, previous.yCoord, previous.zCoord)
+                            .pos(previous.x, previous.y, previous.z)
                             .color(255, 255, 255, 255)
                             .endVertex();
                     event.getBuffer()
-                            .pos(next.xCoord, next.yCoord, next.zCoord)
+                            .pos(next.x, next.y, next.z)
                             .color(255, 255, 255, 255)
                             .endVertex();
                     previous = next;

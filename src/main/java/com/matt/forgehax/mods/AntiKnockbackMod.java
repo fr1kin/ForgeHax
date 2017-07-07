@@ -73,9 +73,9 @@ public class AntiKnockbackMod extends ToggleMod {
     public void onWaterMovementEvent(WaterMovementEvent event) {
         if(event.getEntity().equals(MC.player)) {
             Vec3d moveDir = event.getMoveDir().normalize();
-            event.getEntity().motionX += (moveDir.xCoord * 0.014D) * multiplier_x.get();
-            event.getEntity().motionY += (moveDir.yCoord * 0.014D) * multiplier_y.get();
-            event.getEntity().motionZ += (moveDir.zCoord * 0.014D) * multiplier_z.get();
+            event.getEntity().motionX += (moveDir.x * 0.014D) * multiplier_x.get();
+            event.getEntity().motionY += (moveDir.y * 0.014D) * multiplier_y.get();
+            event.getEntity().motionZ += (moveDir.z * 0.014D) * multiplier_z.get();
             event.setCanceled(true);
         }
     }

@@ -45,8 +45,9 @@ public class FreecamMod extends ToggleMod {
             pitch = localPlayer.rotationPitch;
             yaw = localPlayer.rotationYaw;
 
+            // TODO: fix
             clonedPlayer = new EntityOtherPlayerMP(MC.world, MC.getSession().getProfile());
-            clonedPlayer.clonePlayer(localPlayer, false);
+            //clonedPlayer.clonePlayer(localPlayer, false);
             clonedPlayer.copyLocationAndAnglesFrom(localPlayer);
             clonedPlayer.rotationYawHead = localPlayer.rotationYawHead;
             MC.world.addEntityToWorld(-100, clonedPlayer);

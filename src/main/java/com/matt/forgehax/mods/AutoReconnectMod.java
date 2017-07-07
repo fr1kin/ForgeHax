@@ -114,13 +114,13 @@ public class AutoReconnectMod extends ToggleMod {
         @Override
         public void initGui() {
             super.initGui();
-            List<String> multilineMessage = fontRendererObj.listFormattedStringToWidth(message.getFormattedText(), width - 50);
-            int textHeight = multilineMessage.size() * fontRendererObj.FONT_HEIGHT;
+            List<String> multilineMessage = fontRenderer.listFormattedStringToWidth(message.getFormattedText(), width - 50);
+            int textHeight = multilineMessage.size() * fontRenderer.FONT_HEIGHT;
 
             if(getLastConnectedServerData() != null) {
                 buttonList.add(reconnectButton = new GuiButton(buttonList.size(),
                         width / 2 - 100,
-                        (height / 2 + textHeight / 2 + fontRendererObj.FONT_HEIGHT) + 23,
+                        (height / 2 + textHeight / 2 + fontRenderer.FONT_HEIGHT) + 23,
                         getFormattedReconnectText()
                 ));
             }

@@ -159,9 +159,9 @@ public enum Projectile implements IProjectile {
         double[] forward = angle.forward();
         Vec3d v = new Vec3d(forward[0], forward[1], forward[2]).normalize().scale(force);
 
-        double velocityX = v.xCoord;
-        double velocityY = v.yCoord;
-        double velocityZ = v.zCoord;
+        double velocityX = v.x;
+        double velocityY = v.y;
+        double velocityZ = v.z;
 
         double distanceTraveledSq = 0.D;
 
@@ -170,7 +170,7 @@ public enum Projectile implements IProjectile {
         List<Vec3d> points = factor < 0 ? Collections.emptyList() : Lists.newArrayList();
         points.add(shootPos); // add the initial position
 
-        Vec3d next = new Vec3d(shootPos.xCoord, shootPos.yCoord, shootPos.zCoord);
+        Vec3d next = new Vec3d(shootPos.x, shootPos.y, shootPos.z);
         Vec3d previous = next;
 
         for(int index = points.size(), n = 0; index < MAX_ITERATIONS; index++) {
@@ -195,7 +195,7 @@ public enum Projectile implements IProjectile {
             distanceTraveledSq += previous.squareDistanceTo(next);
 
             // in the void, stop
-            if(next.yCoord <= 0) break;
+            if(next.y <= 0) break;
 
             double d = getWorld().isMaterialInBB(bb, Material.WATER) ? getWaterDrag() : getDrag();
 
@@ -229,10 +229,10 @@ public enum Projectile implements IProjectile {
         force *= getDrag();
 
         // magnitude of a 2d vector
-        double x = Math.sqrt(start.xCoord*start.xCoord + start.zCoord*start.zCoord);
+        double x = Math.sqrt(start.x*start.x + start.z*start.z);
         double g = getGravity();
 
-        double root = Math.pow(force, 4) - g * (g * Math.pow(x, 2) + 2 * start.yCoord * Math.pow(force, 2));
+        double root = Math.pow(force, 4) - g * (g * Math.pow(x, 2) + 2 * start.y * Math.pow(force, 2));
 
         // if the root is negative then we will get a non-real result
         if(root < 0) return null;
@@ -282,12 +282,12 @@ public enum Projectile implements IProjectile {
     private AxisAlignedBB getBoundBox(Vec3d pos) {
         double mp = getProjectileSize() / 2.D;
         return new AxisAlignedBB(
-                pos.xCoord - mp,
-                pos.yCoord - mp,
-                pos.zCoord - mp,
-                pos.xCoord + mp,
-                pos.yCoord + mp,
-                pos.zCoord + mp
+                pos.x - mp,
+                pos.y - mp,
+                pos.z - mp,
+                pos.x + mp,
+                pos.y + mp,
+                pos.z + mp
         );
     }
 
@@ -299,7 +299,7 @@ public enum Projectile implements IProjectile {
         if(trace != null) end = trace.hitVec;
 
         // now check entity collisions
-        List<Entity> entities = getWorld().getEntitiesWithinAABBExcludingEntity(getLocalPlayer(), bb.addCoord(motionX, motionY, motionZ).expandXyz(1.D));
+        List<Entity> entities = getWorld().getEntitiesWithinAABBExcludingEntity(getLocalPlayer(), bb.expand(motionX, motionY, motionZ).grow(1.D));
 
         double best = 0.D;
         Vec3d hitPos = Vec3d.ZERO;
@@ -308,7 +308,7 @@ public enum Projectile implements IProjectile {
         for(Entity entity : entities) {
             if(entity.canBeCollidedWith()) {
                 float size = entity.getCollisionBorderSize();
-                AxisAlignedBB bbe = entity.getEntityBoundingBox().expandXyz(size);
+                AxisAlignedBB bbe = entity.getEntityBoundingBox().grow(size);
                 RayTraceResult tr = bbe.calculateIntercept(start, end);
                 if(tr != null) {
                     double distance = start.squareDistanceTo(tr.hitVec);

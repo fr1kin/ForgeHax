@@ -121,7 +121,7 @@ public class EntityUtils implements Globals {
         );
     }
     public static Vec3d getInterpolatedAmount(Entity entity, Vec3d vec) {
-        return getInterpolatedAmount(entity, vec.xCoord, vec.yCoord, vec.zCoord);
+        return getInterpolatedAmount(entity, vec.x, vec.y, vec.z);
     }
     public static Vec3d getInterpolatedAmount(Entity entity, double ticks) {
         return getInterpolatedAmount(entity, ticks, ticks, ticks);

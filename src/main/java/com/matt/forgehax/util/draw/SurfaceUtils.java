@@ -6,7 +6,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
@@ -23,16 +23,16 @@ public class SurfaceUtils implements Globals {
         float b = (float)(color & 255) / 255.0F;
         float a = (float)(color >> 24 & 255) / 255.0F;
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexbuffer = tessellator.getBuffer();
+        BufferBuilder BufferBuilder = tessellator.getBuffer();
 
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.color(r, g, b, a);
 
-        vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
-        vertexbuffer.pos((double)startX, (double)startY, 0.0D).endVertex();
-        vertexbuffer.pos((double)endX, (double)endY, 0.0D).endVertex();
+        BufferBuilder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
+        BufferBuilder.pos((double)startX, (double)startY, 0.0D).endVertex();
+        BufferBuilder.pos((double)endX, (double)endY, 0.0D).endVertex();
         tessellator.draw();
 
         GlStateManager.enableTexture2D();
@@ -50,7 +50,7 @@ public class SurfaceUtils implements Globals {
         float b = (float)(color & 255) / 255.0F;
         float a = (float)(color >> 24 & 255) / 255.0F;
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexbuffer = tessellator.getBuffer();
+        BufferBuilder BufferBuilder = tessellator.getBuffer();
 
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
@@ -59,11 +59,11 @@ public class SurfaceUtils implements Globals {
 
         GL11.glLineWidth(width);
 
-        vertexbuffer.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION);
-        vertexbuffer.pos((double)x, (double)y, 0.0D).endVertex();
-        vertexbuffer.pos((double)x, (double)y + h, 0.0D).endVertex();
-        vertexbuffer.pos((double)x + w, (double)y + h, 0.0D).endVertex();
-        vertexbuffer.pos((double)x + w, (double)y, 0.0D).endVertex();
+        BufferBuilder.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION);
+        BufferBuilder.pos((double)x, (double)y, 0.0D).endVertex();
+        BufferBuilder.pos((double)x, (double)y + h, 0.0D).endVertex();
+        BufferBuilder.pos((double)x + w, (double)y + h, 0.0D).endVertex();
+        BufferBuilder.pos((double)x + w, (double)y, 0.0D).endVertex();
         tessellator.draw();
 
         GlStateManager.enableTexture2D();
@@ -78,28 +78,28 @@ public class SurfaceUtils implements Globals {
         float f = 0.00390625F;
         float f1 = 0.00390625F;
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexbuffer = tessellator.getBuffer();
-        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-        vertexbuffer.pos((double)(x + 0), (double)(y + height), (double)zLevel).tex((double) ((float) (textureX + 0) * 0.00390625F), (double) ((float) (textureY + height) * 0.00390625F)).endVertex();
-        vertexbuffer.pos((double)(x + width), (double)(y + height), (double)zLevel).tex((double) ((float) (textureX + width) * 0.00390625F), (double) ((float) (textureY + height) * 0.00390625F)).endVertex();
-        vertexbuffer.pos((double)(x + width), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + width) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
-        vertexbuffer.pos((double)(x + 0), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + 0) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
+        BufferBuilder BufferBuilder = tessellator.getBuffer();
+        BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        BufferBuilder.pos((double)(x + 0), (double)(y + height), (double)zLevel).tex((double) ((float) (textureX + 0) * 0.00390625F), (double) ((float) (textureY + height) * 0.00390625F)).endVertex();
+        BufferBuilder.pos((double)(x + width), (double)(y + height), (double)zLevel).tex((double) ((float) (textureX + width) * 0.00390625F), (double) ((float) (textureY + height) * 0.00390625F)).endVertex();
+        BufferBuilder.pos((double)(x + width), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + width) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
+        BufferBuilder.pos((double)(x + 0), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + 0) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
         tessellator.draw();
     }
 
     public static void drawText(String msg, int x, int y, int color) {
-        MC.fontRendererObj.drawString(msg, x, y, color);
+        MC.fontRenderer.drawString(msg, x, y, color);
     }
 
     public static void drawTextShadow(String msg, int x, int y, int color) {
-        MC.fontRendererObj.drawStringWithShadow(msg, x, y, color);
+        MC.fontRenderer.drawStringWithShadow(msg, x, y, color);
     }
 
     public static void drawText(String msg, int x, int y, int color, double scale, boolean shadow) {
         GlStateManager.pushMatrix();
         GlStateManager.disableDepth();
         GlStateManager.scale(scale, scale, scale);
-        MC.fontRendererObj.drawString(msg, (int)(x * (1/scale)), (int)(y * (1/scale)), color, shadow);
+        MC.fontRenderer.drawString(msg, (int)(x * (1/scale)), (int)(y * (1/scale)), color, shadow);
         GlStateManager.enableDepth();
         GlStateManager.popMatrix();
     }
@@ -113,7 +113,7 @@ public class SurfaceUtils implements Globals {
     }
 
     public static int getTextWidth(String text, double scale) {
-        return (int)(MC.fontRendererObj.getStringWidth(text) * scale);
+        return (int)(MC.fontRenderer.getStringWidth(text) * scale);
     }
 
     public static int getTextWidth(String text) {
@@ -121,11 +121,11 @@ public class SurfaceUtils implements Globals {
     }
 
     public static int getTextHeight() {
-        return MC.fontRendererObj.FONT_HEIGHT;
+        return MC.fontRenderer.FONT_HEIGHT;
     }
 
     public static int getTextHeight(double scale) {
-        return (int)(MC.fontRendererObj.FONT_HEIGHT * scale);
+        return (int)(MC.fontRenderer.FONT_HEIGHT * scale);
     }
 
     public static void drawItem(ItemStack item, int x, int y) {
@@ -153,7 +153,7 @@ public class SurfaceUtils implements Globals {
         GlStateManager.enableLighting();
         MC.getRenderItem().zLevel = 100.f;
         MC.getRenderItem().renderItemAndEffectIntoGUI(item, x, y);
-        MC.getRenderItem().renderItemOverlays(MC.fontRendererObj, item, x, y);
+        MC.getRenderItem().renderItemOverlays(MC.fontRenderer, item, x, y);
         MC.getRenderItem().zLevel = 0.f;
         GlStateManager.popMatrix();
         GlStateManager.disableLighting();

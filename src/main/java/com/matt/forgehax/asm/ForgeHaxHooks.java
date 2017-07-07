@@ -14,7 +14,7 @@ import journeymap.client.cartography.render.BaseRenderer;
 import journeymap.client.model.ChunkMD;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.*;
 import net.minecraft.entity.Entity;
@@ -51,7 +51,7 @@ public class ForgeHaxHooks implements ASMCommon {
         responding.put("onApplyCollisionMotion",            new DebugData("net.minecraft.entity.Entity"));
         responding.put("onWebMotion",                       new DebugData("net.minecraft.entity.Entity"));
         responding.put("onDoBlockCollisions",               new DebugData("net.minecraft.entity.Entity"));
-        responding.put("onPutColorMultiplier",              new DebugData("net.minecraft.client.renderer.VertexBuffer"));
+        responding.put("onPutColorMultiplier",              new DebugData("net.minecraft.client.renderer.BufferBuilder"));
         responding.put("onPreRenderBlockLayer",             new DebugData("net.minecraft.client.renderer.RenderGlobal"));
         responding.put("onPostRenderBlockLayer",            new DebugData("net.minecraft.client.renderer.RenderGlobal"));
         responding.put("onRenderBlockInLayer",              new DebugData("net.minecraft.block.Block"));
@@ -192,7 +192,7 @@ public class ForgeHaxHooks implements ASMCommon {
         return event.getLayer();
     }
 
-    public static void onBlockRender(BlockPos pos, IBlockState state, IBlockAccess access, VertexBuffer buffer) {
+    public static void onBlockRender(BlockPos pos, IBlockState state, IBlockAccess access, BufferBuilder buffer) {
         //MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
     }
 
@@ -223,7 +223,7 @@ public class ForgeHaxHooks implements ASMCommon {
         MinecraftForge.EVENT_BUS.post(new AddRenderChunkEvent(renderChunk, layer));
     }
 
-    public static void onChunkUploaded(RenderChunk chunk, VertexBuffer buffer) {
+    public static void onChunkUploaded(RenderChunk chunk, BufferBuilder buffer) {
         MinecraftForge.EVENT_BUS.post(new ChunkUploadedEvent(chunk, buffer));
     }
 

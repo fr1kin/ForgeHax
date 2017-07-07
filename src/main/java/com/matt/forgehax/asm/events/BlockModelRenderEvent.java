@@ -1,7 +1,7 @@
 package com.matt.forgehax.asm.events;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -15,11 +15,11 @@ public class BlockModelRenderEvent extends Event {
     private final IBakedModel bakedModel;
     private final IBlockState blockState;
     private final BlockPos blockPos;
-    private final VertexBuffer buffer;
+    private final BufferBuilder buffer;
     private final boolean checkSides;
     private final long rand;
 
-    public BlockModelRenderEvent(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, VertexBuffer buffer, boolean checkSides, long rand) {
+    public BlockModelRenderEvent(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, BufferBuilder buffer, boolean checkSides, long rand) {
         this.blockAccess = worldIn;
         this.bakedModel = modelIn;
         this.blockState = stateIn;
@@ -45,7 +45,7 @@ public class BlockModelRenderEvent extends Event {
         return blockPos;
     }
 
-    public VertexBuffer getBuffer() {
+    public BufferBuilder getBuffer() {
         return buffer;
     }
 

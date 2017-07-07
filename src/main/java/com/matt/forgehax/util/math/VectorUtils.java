@@ -42,9 +42,9 @@ public class VectorUtils implements Globals {
         Vec3d camPos = FastReflection.Fields.ActiveRenderInfo_position.getStatic();
         Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
 
-        float vecX = (float) ((camPos.xCoord + eyePos.xCoord) - x);
-        float vecY = (float) ((camPos.yCoord + eyePos.yCoord) - y);
-        float vecZ = (float) ((camPos.zCoord + eyePos.zCoord) - z);
+        float vecX = (float) ((camPos.x + eyePos.x) - x);
+        float vecY = (float) ((camPos.y + eyePos.y) - y);
+        float vecZ = (float) ((camPos.z + eyePos.z) - z);
 
         Vector3f pos = new Vector3f(vecX, vecY, vecZ);
 
@@ -60,7 +60,7 @@ public class VectorUtils implements Globals {
 
         boolean bVisible = false;
 
-        double dot = viewNormal.xCoord * vecX + viewNormal.yCoord * vecY + viewNormal.zCoord * vecZ;
+        double dot = viewNormal.x * vecX + viewNormal.y * vecY + viewNormal.z * vecZ;
 
         if (dot < 0) // We only want vectors that are in front of the player
             bVisible = true;
@@ -71,7 +71,7 @@ public class VectorUtils implements Globals {
         return new ScreenPos(pos.x, pos.y, bVisible);
     }
     public static ScreenPos toScreen(Vec3d vec3d) {
-        return toScreen(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord);
+        return toScreen(vec3d.x, vec3d.y, vec3d.z);
     }
 
     /**
@@ -79,23 +79,23 @@ public class VectorUtils implements Globals {
      */
     public static Angle vectorAngle(Vec3d vec3d) {
         double pitch, yaw;
-        if(vec3d.xCoord == 0 && vec3d.zCoord == 0) {
+        if(vec3d.x == 0 && vec3d.z == 0) {
             yaw = 0.D;
             pitch = 90.D;
         } else {
-            yaw = Math.toDegrees(Math.atan2(vec3d.zCoord, vec3d.xCoord)) - 90.f;
-            double mag = Math.sqrt(vec3d.xCoord * vec3d.xCoord + vec3d.zCoord * vec3d.zCoord);
-            pitch = Math.toDegrees(-1 * Math.atan2(vec3d.yCoord, mag));
+            yaw = Math.toDegrees(Math.atan2(vec3d.z, vec3d.x)) - 90.f;
+            double mag = Math.sqrt(vec3d.x * vec3d.x + vec3d.z * vec3d.z);
+            pitch = Math.toDegrees(-1 * Math.atan2(vec3d.y, mag));
         }
         return new Angle(pitch, yaw);
     }
 
     public static Vec3d multiplyBy(Vec3d vec1, Vec3d vec2) {
-        return new Vec3d(vec1.xCoord * vec2.xCoord, vec1.yCoord * vec2.yCoord, vec1.zCoord * vec2.zCoord);
+        return new Vec3d(vec1.x * vec2.x, vec1.y * vec2.y, vec1.z * vec2.z);
     }
 
     public static Vec3d copy(Vec3d toCopy) {
-        return new Vec3d(toCopy.xCoord, toCopy.yCoord, toCopy.zCoord);
+        return new Vec3d(toCopy.x, toCopy.y, toCopy.z);
     }
 
     public static class ScreenPos {
