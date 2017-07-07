@@ -2,7 +2,6 @@ package com.matt.forgehax.asm.utils.fasttype;
 
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.utils.name.NameBuilder;
-import com.matt.forgehax.asm.utils.remapping.ObfuscatedStateMapper;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
@@ -28,6 +27,10 @@ public class FastTypeBuilder implements ASMCommon {
     public FastTypeBuilder setInsideClass(Class<?> insideClass) {
         this.insideClass = insideClass;
         return this;
+    }
+
+    public FastTypeBuilder setInsideClass(FastClass clazz) {
+        return setInsideClass(clazz.getClassHandle());
     }
 
     public FastTypeBuilder setName(String name) {
@@ -62,6 +65,14 @@ public class FastTypeBuilder implements ASMCommon {
     public FastTypeBuilder autoAssign() {
         auto = true;
         return this;
+    }
+
+    public FastClass asClass() {
+        Objects.requireNonNull(name);
+        if(auto) {
+            obfuscatedName = MAPPER.getObfClassName(name);
+        }
+        return new FastClass(NameBuilder.create(name, srgName, obfuscatedName));
     }
 
     public <V> FastField<V> asField() {

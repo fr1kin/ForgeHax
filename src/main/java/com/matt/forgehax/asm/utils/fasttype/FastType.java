@@ -1,11 +1,7 @@
 package com.matt.forgehax.asm.utils.fasttype;
 
-import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.utils.name.IName;
-import joptsimple.internal.Strings;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -22,7 +18,6 @@ public abstract class FastType<T> {
     protected AtomicBoolean printOnce = new AtomicBoolean(false);
 
     public FastType(Class<?> insideClass, IName<String> name) {
-        Objects.requireNonNull(insideClass);
         this.insideClass = insideClass;
         this.name = name;
     }

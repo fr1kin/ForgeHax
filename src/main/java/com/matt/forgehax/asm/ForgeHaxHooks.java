@@ -11,7 +11,6 @@ import com.matt.forgehax.asm.utils.MultiSwitch;
 import journeymap.client.cartography.RGB;
 import journeymap.client.cartography.Stratum;
 import journeymap.client.cartography.render.BaseRenderer;
-import journeymap.client.model.ChunkMD;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -254,24 +253,23 @@ public class ForgeHaxHooks implements ASMCommon {
                 throw new IllegalStateException("Stratum wasn't initialized for setStratumColors");
             }
             float daylightDiff = (float)Math.max(1, Math.max(stratum.getLightLevel(), 15 - lightAttenuation)) / 15.0f;
-            daylightDiff +=  FastReflectionSpecial.Fields.BaseRenderer_tweakBrightenDaylightDiff.get(baseRenderer, 0.f);
-            float moonLightLevel = FastReflectionSpecial.Fields.BaseRenderer_tweakMoonlightLevel.get(baseRenderer, 0.f);
+            daylightDiff +=  FastReflectionSpecial.Fields.BaseRenderer_tweakBrightenDaylightDiff.get(thisPtr, 0.f);
+            float moonLightLevel = FastReflectionSpecial.Fields.BaseRenderer_tweakMoonlightLevel.get(thisPtr, 0.f);
             float nightLightDiff = Math.max(moonLightLevel, Math.max((float)stratum.getLightLevel(), moonLightLevel - (float)lightAttenuation)) / 15.0f;
             if (stratum.isWater()) {
                 basicColor = waterColor;
             } else {
-                ChunkMD chunkMD = stratum.getChunkMd();
-                basicColor = stratum.getBlockMD().getColor(chunkMD, stratum.getBlockPos());
+                basicColor = stratum.getBlockMD().getColor(stratum.getChunkMd(), stratum.getBlockPos());
             }
             Block block = stratum.getBlockMD().getBlockState().getBlock();
             if (block == Blocks.GLOWSTONE || block == Blocks.LIT_REDSTONE_LAMP) {
-                basicColor = RGB.adjustBrightness(basicColor, FastReflectionSpecial.Fields.BaseRenderer_tweakBrightenLightsourceBlock.get(baseRenderer, 0.f));
+                basicColor = RGB.adjustBrightness(basicColor, FastReflectionSpecial.Fields.BaseRenderer_tweakBrightenLightsourceBlock.get(thisPtr, 0.f));
             }
             if (waterAbove && waterColor != null) {
-                int adjustedWaterColor = RGB.multiply(waterColor, FastReflectionSpecial.Fields.BaseRenderer_tweakDarkenWaterColorMultiplier.get(baseRenderer, 0));
+                int adjustedWaterColor = RGB.multiply(waterColor, FastReflectionSpecial.Fields.BaseRenderer_tweakDarkenWaterColorMultiplier.get(thisPtr, 0));
                 int adjustedBasicColor = RGB.adjustBrightness(basicColor, Math.max(daylightDiff, nightLightDiff));
-                stratum.setDayColor(RGB.blendWith(adjustedBasicColor, adjustedWaterColor, FastReflectionSpecial.Fields.BaseRenderer_tweakWaterColorBlend.get(baseRenderer, 0.f)));
-                stratum.setNightColor(RGB.adjustBrightness(stratum.getDayColor(), Math.max(nightLightDiff, FastReflectionSpecial.Fields.BaseRenderer_tweakMinimumDarkenNightWater.get(baseRenderer, 0.f))));
+                stratum.setDayColor(RGB.blendWith(adjustedBasicColor, adjustedWaterColor, FastReflectionSpecial.Fields.BaseRenderer_tweakWaterColorBlend.get(thisPtr, 0.f)));
+                stratum.setNightColor(RGB.adjustBrightness(stratum.getDayColor(), Math.max(nightLightDiff, FastReflectionSpecial.Fields.BaseRenderer_tweakMinimumDarkenNightWater.get(thisPtr, 0.f))));
             } else {
                 stratum.setDayColor(RGB.adjustBrightness(basicColor, daylightDiff));
                 stratum.setNightColor(RGB.darkenAmbient(basicColor, nightLightDiff, baseRenderer.getAmbientColor()));
