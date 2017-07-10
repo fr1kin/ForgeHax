@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods.services;
 
 import com.matt.forgehax.util.command.Command;
+import com.matt.forgehax.util.command.CommandStub;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -25,9 +26,12 @@ public class BindEventService extends ServiceMod {
             Collection<Command> cmds = mod.getCommandStub().getChildrenDeep();
             cmds.add(mod.getCommandStub());
             cmds.forEach(c -> {
-                if(c.getBind() != null) {
-                    if(c.getBind().isPressed()) c.onKeyPressed();
-                    if(c.getBind().isKeyDown()) c.onKeyDown();
+                if(c instanceof CommandStub) {
+                    CommandStub stub = (CommandStub) c;
+                    if (stub.getBind() != null) {
+                        if (stub.getBind().isPressed()) stub.onKeyPressed();
+                        if (stub.getBind().isKeyDown()) stub.onKeyDown();
+                    }
                 }
             });
         });

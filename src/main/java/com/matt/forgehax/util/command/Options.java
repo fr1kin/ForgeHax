@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 /**
  * Created on 6/4/2017 by fr1kin
  */
-public class Options<E extends ISerializableJson> extends Command implements Collection<E> {
+public class Options<E extends ISerializableJson> extends Command implements Collection<E>, ISerializableJson {
     public static final String SUPPLIER     = "Options.supplier";
     public static final String FACTORY      = "Options.factory";
 
@@ -121,8 +121,6 @@ public class Options<E extends ISerializableJson> extends Command implements Col
         writer.endObject();
 
         writer.endObject();
-
-        super.serialize(writer);
     }
 
     @Override
@@ -142,8 +140,6 @@ public class Options<E extends ISerializableJson> extends Command implements Col
         reader.endObject();
 
         reader.endObject();
-
-        super.deserialize(reader);
     }
 
     @Override

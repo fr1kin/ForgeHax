@@ -4,7 +4,6 @@ import com.google.common.collect.*;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.lwjgl.input.Keyboard;
 
 import java.util.Collection;
 import java.util.Map;
@@ -93,34 +92,8 @@ public abstract class BaseCommandBuilder<T extends BaseCommandBuilder, R extends
         return (T)this;
     }
 
-    public T kpressed(Consumer<CallbackData> consumer) {
-        getCallbacks(CallbackType.KEY_PRESSED).add(consumer);
-        return (T)this;
-    }
-
-    public T kdown(Consumer<CallbackData> consumer) {
-        getCallbacks(CallbackType.KEY_DOWN).add(consumer);
-        return (T)this;
-    }
-
-    public T bind(int keyCode) {
-        return insert(Command.KEYBIND, keyCode);
-    }
-
-    public T bind() {
-        return bind(Keyboard.KEY_NONE);
-    }
-
-    public T nobind() {
-        return bind(-1);
-    }
-
     public T helpOption(boolean b) {
         return insert(Command.HELPAUTOGEN, b);
-    }
-
-    public T bindOptions(boolean b) {
-        return insert(Command.KEYBIND_OPTIONS, b);
     }
 
     public Map<String, Object> getData() {

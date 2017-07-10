@@ -12,13 +12,9 @@ import com.matt.forgehax.util.command.exception.CommandParentNonNullException;
 import com.matt.forgehax.util.serialization.GsonConstant;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import com.matt.forgehax.util.serialization.ISerializer;
-import com.matt.forgehax.util.key.IKeyBind;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.internal.Strings;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,7 +30,7 @@ import java.util.function.Consumer;
 /**
  * Created on 5/14/2017 by fr1kin
  */
-public class Command implements Comparable<Command>, ISerializer, GsonConstant, ISerializableJson, IKeyBind {
+public class Command implements Comparable<Command>, ISerializer, GsonConstant {
     private static final File SETTINGS_DIR = Helper.getFileManager().getFileInConfigDirectory("settings");
 
     public static final String NAME             = "Command.name";
@@ -45,8 +41,6 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant, 
     public static final String PARENT           = "Command.parent";
     public static final String HELPAUTOGEN      = "Command.helpAutoGen";
     public static final String CALLBACKS        = "Command.callbacks";
-    public static final String KEYBIND          = "Command.keybind";
-    public static final String KEYBIND_OPTIONS  = "Command.keybind_options";
 
     static {
         SETTINGS_DIR.mkdirs();
@@ -68,7 +62,6 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant, 
     //private final Collection<ICommandFlag> flags = Sets.newHashSet();
 
     private Command parent;
-    private final KeyBinding bind;
 
     @SuppressWarnings("unchecked")
     protected Command(Map<String, Object> data) throws CommandBuildException {
@@ -78,42 +71,6 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant, 
 
             this.description =                              (String)                                data.getOrDefault(DESCRIPTION, Strings.EMPTY);
             this.help =                                     (Consumer<ExecuteData>)                 data.get(HELP);
-
-            // key binding
-            Integer keyCode =                               (Integer)                               data.getOrDefault(KEYBIND, -1);
-            if(keyCode != -1) {
-                bind = new KeyBinding(getAbsoluteName(), keyCode, "ForgeHax");
-                ClientRegistry.registerKeyBinding(bind);
-
-                Boolean genOptions =                        (Boolean)                               data.getOrDefault(KEYBIND_OPTIONS, true);
-                if(genOptions) {
-                    parser.accepts("bind", "Bind to the given key").withRequiredArg();
-                    parser.accepts("unbind", "Sets bind to KEY_NONE");
-
-                    this.processors.add(dt -> {
-                        if(dt.hasOption("bind")) {
-                            String key = dt.getOptionAsString("bind").toUpperCase();
-
-                            if(key.length() < 1 || key.length() > 1) throw new CommandExecuteException("Argument for bind option should be 1 character");
-
-                            int kc = Keyboard.getKeyIndex(key);
-                            if(Keyboard.getKeyIndex(key) == Keyboard.KEY_NONE) throw new CommandExecuteException(String.format("\"%s\" is not a valid key name", key));
-
-                            bind(kc);
-
-                            dt.write(String.format("Bound %s to key %s [code=%d]", getAbsoluteName(), key, kc));
-                            dt.stopProcessing();
-                        } else if(dt.hasOption("unbind")) {
-                            unbind();
-
-                            dt.write(String.format("Unbound %s", getAbsoluteName()));
-                            dt.stopProcessing();
-                        }
-                    });
-                }
-            } else {
-                bind = null;
-            }
 
             Collection<Consumer<ExecuteData>> processors =  (Collection<Consumer<ExecuteData>>)     data.get(PROCESSORS);
             if(processors != null) this.processors.addAll(processors);
@@ -310,52 +267,32 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant, 
     }
 
     @Override
-    public void serialize(JsonWriter writer) throws IOException {
-        writer.beginObject();
-
-        writer.name("bind");
-        if(getBind() == null)
-            writer.value(-1);
-        else
-            writer.value(getBind().getKeyCode());
-
-        writer.endObject();
-    }
-
-    @Override
-    public void deserialize(JsonReader reader) throws IOException {
-        reader.beginObject();
-
-        reader.nextName(); // bind
-        bind(reader.nextInt());
-
-        reader.endObject();
-    }
-
-    @Override
     public void serialize() {
-        Path path = getSettingsPath();
-        StringWriter sw = new StringWriter();
-        JsonWriter writer = new JsonWriter(sw);
-        try {
-            writer.beginArray();
-            serialize(writer);
-            writer.endArray();
-
-            Files.write(path, sw.toString().getBytes());
-        } catch (Throwable t) {
-            Helper.printStackTrace(t);
-            Globals.LOGGER.warn(String.format("Could not serialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
-        } finally {
+        if(this instanceof ISerializableJson) {
+            ISerializableJson serializable = (ISerializableJson) this;
+            Path path = getSettingsPath();
+            StringWriter sw = new StringWriter();
+            JsonWriter writer = new JsonWriter(sw);
             try {
-                sw.close();
-            } catch (IOException e) {
-                ;
+                writer.beginArray();
+                serializable.serialize(writer);
+                writer.endArray();
+
+                Files.write(path, sw.toString().getBytes());
+            } catch (Throwable t) {
+                Helper.printStackTrace(t);
+                Globals.LOGGER.warn(String.format("Could not serialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
             } finally {
                 try {
-                    writer.close();
+                    sw.close();
                 } catch (IOException e) {
                     ;
+                } finally {
+                    try {
+                        writer.close();
+                    } catch (IOException e) {
+                        ;
+                    }
                 }
             }
         }
@@ -368,29 +305,32 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant, 
 
     @Override
     public void deserialize() {
-        Path path = getSettingsPath();
-        StringReader sr = null;
-        JsonReader reader = null;
-        if(Files.exists(path)) try {
-            sr = new StringReader(new String(Files.readAllBytes(path)));
-            reader = new JsonReader(sr);
+        if(this instanceof ISerializableJson) {
+            ISerializableJson serializable = (ISerializableJson) this;
+            Path path = getSettingsPath();
+            StringReader sr = null;
+            JsonReader reader = null;
+            if (Files.exists(path)) try {
+                sr = new StringReader(new String(Files.readAllBytes(path)));
+                reader = new JsonReader(sr);
 
-            reader.beginArray();
-            deserialize(reader);
-            reader.endArray();
-        } catch (Throwable t) {
-            Helper.printStackTrace(t);
-            Globals.LOGGER.warn(String.format("Could not deserialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
-            // incompatible file, will just keep causing errors
-            try {
-                Files.delete(path);
-            } catch (IOException e) {}
-        } finally {
-            if(sr != null) sr.close();
-            try {
-                if(reader != null) reader.close();
-            } catch (IOException e) {
-                ;
+                reader.beginArray();
+                serializable.deserialize(reader);
+                reader.endArray();
+            } catch (Throwable t) {
+                Helper.printStackTrace(t);
+                Globals.LOGGER.warn(String.format("Could not deserialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
+                // incompatible file, will just keep causing errors
+                try {
+                    Files.delete(path);
+                } catch (IOException e) {}
+            } finally {
+                if (sr != null) sr.close();
+                try {
+                    if (reader != null) reader.close();
+                } catch (IOException e) {
+                    ;
+                }
             }
         }
     }
@@ -398,29 +338,6 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant, 
     public void deserializeAll() {
         deserialize();
         getChildren().forEach(Command::deserializeAll);
-    }
-
-    @Override
-    public void bind(int keyCode) {
-        if(bind != null) {
-            bind.setKeyCode(keyCode);
-            KeyBinding.resetKeyBindingArrayAndHash();
-        }
-    }
-
-    @Nullable
-    public KeyBinding getBind() {
-        return bind;
-    }
-
-    @Override
-    public void onKeyPressed() {
-        invokeCallbacks(CallbackType.KEY_PRESSED, new CallbackData(this));
-    }
-
-    @Override
-    public void onKeyDown() {
-        invokeCallbacks(CallbackType.KEY_DOWN, new CallbackData(this));
     }
 
     @Override

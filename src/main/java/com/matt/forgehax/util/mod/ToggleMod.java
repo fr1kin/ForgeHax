@@ -1,7 +1,7 @@
 package com.matt.forgehax.util.mod;
 
-import com.matt.forgehax.util.command.CommandBuilder;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.command.StubBuilder;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 
 public class ToggleMod extends BaseMod {
@@ -34,9 +34,9 @@ public class ToggleMod extends BaseMod {
      */
     public final void toggle() {
         if(isEnabled())
-            enable();
-        else
             disable();
+        else
+            enable();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ToggleMod extends BaseMod {
     }
 
     @Override
-    protected CommandBuilder buildStubCommand(CommandBuilder builder) {
+    protected StubBuilder buildStubCommand(StubBuilder builder) {
         return builder
                 .kpressed(this::onBindPressed)
                 .kdown(this::onBindKeyDown)

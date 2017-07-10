@@ -1,10 +1,7 @@
 package com.matt.forgehax.util.mod;
 
 import com.matt.forgehax.Globals;
-import com.matt.forgehax.util.command.Command;
-import com.matt.forgehax.util.command.CommandBuilder;
-import com.matt.forgehax.util.command.ExecuteData;
-import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.command.*;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import joptsimple.internal.Strings;
 import net.minecraftforge.common.MinecraftForge;
@@ -29,7 +26,7 @@ public abstract class BaseMod implements Globals {
         modName = name;
         modDescription = desc;
         stubCommand = buildStubCommand(
-                getGlobalCommand().builders().newCommandBuilder()
+                getGlobalCommand().builders().newStubBuilder()
                         .name(name)
                         .description(desc)
                         .processor(this::onProcessCommand)
@@ -137,7 +134,7 @@ public abstract class BaseMod implements Globals {
         } else return false;
     }
 
-    protected CommandBuilder buildStubCommand(CommandBuilder builder) {
+    protected StubBuilder buildStubCommand(StubBuilder builder) {
         return builder;
     }
 

@@ -2,9 +2,10 @@ package com.matt.forgehax.util.command;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.callbacks.OnChangeCallback;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
-import com.matt.forgehax.util.SafeConverter;
+import com.matt.forgehax.util.serialization.ISerializableJson;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
 
 import javax.annotation.Nonnull;
@@ -15,7 +16,7 @@ import java.util.*;
 /**
  * Created on 6/2/2017 by fr1kin
  */
-public class Setting<E> extends Command {
+public class Setting<E> extends Command implements ISerializableJson {
     public static final String DEFAULTVALUE     = "Setting.defaultValue";
     public static final String CONVERTER        = "Setting.converter";
     public static final String COMPARATOR       = "Setting.comparator";
@@ -212,8 +213,6 @@ public class Setting<E> extends Command {
         writer.value(getAsString());
 
         writer.endObject();
-
-        super.serialize(writer);
     }
 
     @Override
@@ -224,7 +223,5 @@ public class Setting<E> extends Command {
         rawSet(reader.nextString(), true);
 
         reader.endObject();
-
-        super.deserialize(reader);
     }
 }
