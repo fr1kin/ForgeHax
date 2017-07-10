@@ -21,7 +21,7 @@ public class ActiveModList extends ToggleMod {
             .build();
 
     public ActiveModList() {
-        super("ActiveMods", false, "Shows list of all active mods");
+        super("ActiveMods", true, "Shows list of all active mods");
     }
 
     @Override
