@@ -119,7 +119,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
     }
 
     public String getPrintText() {
-        return getAbsoluteName();
+        return getAbsoluteName() + " - " + getDescription();
     }
 
     public String getOptionHelpText() {

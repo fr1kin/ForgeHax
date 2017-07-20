@@ -173,7 +173,7 @@ public class Setting<E> extends Command implements ISerializableJson {
 
     @Override
     public String getPrintText() {
-        return super.getPrintText() + " = " + getAsString();
+        return getAbsoluteName() + " = " + getAsString() + " - " + getDescription();
     }
 
     @Override
