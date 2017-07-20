@@ -92,7 +92,7 @@ public class ChatSpammerMod extends ToggleMod {
     public void onTick(LocalPlayerUpdateEvent event) {
         if(!sendQueue.isEmpty()) {
             getLocalPlayer().sendChatMessage(sendQueue.poll().getMessage());
-        } else if(nextSend > System.currentTimeMillis()) {
+        } else if(System.currentTimeMillis() > nextSend) {
             for(SpamEntry e : spams) {
                 if(e.isEnabled() && e.getTrigger().equals(SpamTrigger.SPAM)) {
                     send(new SpamMessage(e.next(), PriorityEnum.DEFAULT));
