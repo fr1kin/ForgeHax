@@ -88,6 +88,10 @@ public class ExecuteData implements Globals, ConsoleWriter {
         return SafeConverter.toString(getArgument(index));
     }
 
+    public int getArgumentCount() {
+        return arguments.size();
+    }
+
     public Object getOption(String name, Object defaultValue) {
         try {
             return getOptions(name).get(0);
