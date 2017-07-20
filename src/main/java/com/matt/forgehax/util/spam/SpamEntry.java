@@ -61,7 +61,7 @@ public class SpamEntry implements ISerializableJson {
                 case RANDOM:
                     return messages.get(ThreadLocalRandom.current().nextInt(messages.size()));
                 case SEQUENTIAL:
-                    return messages.get((nextIndex++ % messages.size()) - 1);
+                    return messages.get((nextIndex++ % messages.size()));
             }
         }
         return Strings.EMPTY;
