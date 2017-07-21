@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.matt.forgehax.events.ChatMessageEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
@@ -15,6 +16,7 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.common.PriorityEnum;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.matt.forgehax.util.serialization.GsonConstant;
 import com.matt.forgehax.util.spam.SpamEntry;
 import com.matt.forgehax.util.spam.SpamTokens;
 import com.matt.forgehax.util.spam.SpamTrigger;
@@ -23,6 +25,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.Scanner;
 
@@ -172,8 +175,11 @@ public class ChatBot extends ToggleMod {
                                 Scanner scanner = new Scanner(file);
                                 int count = 0;
                                 while(scanner.hasNextLine()) {
-                                    entry.add(scanner.nextLine());
-                                    ++count;
+                                    String next = scanner.nextLine();
+                                    if(!Strings.isNullOrEmpty(next)) {
+                                        entry.add(next);
+                                        ++count;
+                                    }
                                 }
                                 data.write("Successfully imported " + count + " messages");
                             } catch (Throwable t) {
@@ -191,9 +197,41 @@ public class ChatBot extends ToggleMod {
 
         getCommandStub().builders().newCommandBuilder()
                 .name("export")
-                .description("")
+                .description("Export all the contents of an entry")
                 .processor(data -> {
+                    data.requiredArguments(2);
+                    String name = data.getArgumentAsString(0);
+                    String fileN = data.getArgumentAsString(1);
 
+                    SpamEntry entry = spams.get(name);
+                    if (entry == null) {
+                        data.write("No such entry: " + name);
+                        return;
+                    }
+
+                    if(!fileN.endsWith(".json") || !fileN.endsWith(".txt")) fileN += ".txt";
+
+                    File file = getFileManager().getFileInBaseDirectory(fileN);
+
+                    try {
+                        if(file.getParentFile() != null) file.getParentFile().mkdirs();
+
+                        if(name.endsWith(".json")) {
+                            final JsonArray head = new JsonArray();
+                            entry.getMessages().forEach(str -> head.add(new JsonPrimitive(str)));
+                            Files.write(file.toPath(), GsonConstant.GSON_PRETTY.toJson(head).getBytes());
+                        } else {
+                            final StringBuilder builder = new StringBuilder();
+                            entry.getMessages().forEach(str -> {
+                                builder.append(str);
+                                builder.append('\n');
+                            });
+                            Files.write(file.toPath(), builder.toString().getBytes());
+                        }
+                        data.markSuccess();
+                    } catch (Throwable t) {
+                        data.write("Failed exporting file: " + t.getMessage());
+                    }
                 })
                 .build();
 
@@ -215,6 +253,22 @@ public class ChatBot extends ToggleMod {
                     }
                 })
                 .success(e -> spams.serialize())
+                .build();
+
+        getCommandStub().builders().newCommandBuilder()
+                .name("list")
+                .description("List all current entries")
+                .processor(data -> {
+                    final StringBuilder builder = new StringBuilder();
+                    Iterator<SpamEntry> it = spams.iterator();
+                    while (it.hasNext()) {
+                        SpamEntry next = it.next();
+                        builder.append(next.getName());
+                        if(it.hasNext()) builder.append(", ");
+                    }
+                    data.write(builder.toString());
+                    data.markSuccess();
+                })
                 .build();
     }
 
