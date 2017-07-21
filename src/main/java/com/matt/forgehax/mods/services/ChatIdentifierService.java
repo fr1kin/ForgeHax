@@ -21,11 +21,12 @@ import java.util.regex.Pattern;
 public class ChatIdentifierService extends ServiceMod {
     // should split into two groups: group 1: senders name. group 2: message
     private static final Pattern[] MESSAGE_PATTERNS = {
-            Pattern.compile("<(.*?)> (.*)"),
+            Pattern.compile("<(.*?)> (.*)"), // vanilla
     };
 
     private static final Pattern[] PRIVATE_MESSAGE_PATTERNS = {
-            Pattern.compile("(.*?) whispers: (.*)"),
+            Pattern.compile("(.*?) whispers to you: (.*)"), // vanilla
+            Pattern.compile("(.*?) whispers: (.*)"), // 2b2t
     };
 
     public ChatIdentifierService() {
