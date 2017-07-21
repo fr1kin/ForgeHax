@@ -7,6 +7,7 @@ import com.matt.forgehax.util.serialization.ISerializableJson;
 import joptsimple.internal.Strings;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -46,7 +47,7 @@ public class SpamEntry implements ISerializableJson {
     }
 
     public void add(String msg) {
-        if(!messages.contains(msg)) messages.add(msg);
+        if(!Strings.isNullOrEmpty(msg) && !messages.contains(msg)) messages.add(msg);
     }
 
     public void remove(String msg) {
@@ -75,6 +76,10 @@ public class SpamEntry implements ISerializableJson {
         return enabled;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getKeyword() {
         return keyword;
     }
@@ -85,6 +90,10 @@ public class SpamEntry implements ISerializableJson {
 
     public SpamTrigger getTrigger() {
         return trigger;
+    }
+
+    public List<String> getMessages() {
+        return Collections.unmodifiableList(messages);
     }
 
     public void setEnabled(boolean enabled) {
