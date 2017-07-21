@@ -190,6 +190,14 @@ public class ChatBot extends ToggleMod {
                 .build();
 
         getCommandStub().builders().newCommandBuilder()
+                .name("export")
+                .description("")
+                .processor(data -> {
+
+                })
+                .build();
+
+        getCommandStub().builders().newCommandBuilder()
                 .name("remove")
                 .description("Remove spam entry")
                 .processor(data -> {
@@ -259,7 +267,7 @@ public class ChatBot extends ToggleMod {
 
     @SubscribeEvent
     public void onPlayerConnect(PlayerConnectEvent.Join event) {
-        final String player = event.getProfile() != null ? event.getProfile().getId().toString() : "null";
+        final String player = event.getProfile() != null ? event.getProfile().getName() : "null";
         spams.stream()
                 .filter(SpamEntry::isEnabled)
                 .forEach(e -> {
@@ -276,7 +284,7 @@ public class ChatBot extends ToggleMod {
 
     @SubscribeEvent
     public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
-        final String player = event.getProfile() != null ? event.getProfile().getId().toString() : "null";
+        final String player = event.getProfile() != null ? event.getProfile().getName() : "null";
         spams.stream()
                 .filter(SpamEntry::isEnabled)
                 .forEach(e -> {
