@@ -10,49 +10,49 @@ You should allocate more ram when running `setupDecompWorkspace` (around 4GB sho
 I recommend allocating more ram in both environments as the BlockEsp mod requires a lot of space for the vertex buffers. I might get around to fixing this if it becomes too big of an issue.
 
 # FAQ
-####_How do I install ForgeHax?_
+_How do I install ForgeHax?_
 
 Download [Minecraft Forge](https://files.minecraftforge.net/) and put the ForgeHax jar into .minecraft/mods
 
-####_How do I use commands?_
+_How do I use commands?_
 
 You use commands by typing `.` chat.
 
 Example: `.help` in chat will print a list of all mods in ForgeHax.
 
-####_How do I enter an argument that contains spaces?_
+_How do I enter an argument that contains spaces?_
 
 Use quotes.
 
 Example: `.spambot add spam "This will be treated as one argument"`
 
-####_Is there a GUI?_
+_Is there a GUI?_
 
 No, but I do plan on making one.
 
-####_How do I see a list of mods?_
+_How do I see a list of mods?_
 
 Type `.help` in chat.
 
-####_How do I toggle a mod?_
+_How do I toggle a mod?_
 
 Type `.\<mod name\> enabled 1` to enable, and `.\<mod name\> enabled 0` to disable.
 
 Example: `.step enabled 1` will enable step hack.
 
-####_How do I see a list of commands for a mod?_
+_How do I see a list of commands for a mod?_
 
 Type `.\<mod name\>` and it should show a list of settings (if any), their current value, and their description.
 
 Example: .`.step`
 
-####_How do I see a list of options for a command?_
+_How do I see a list of options for a command?_
 
 After the command add `-?` or `--help`. Almost every command should have help text for its options by default.
 
 Example: `.step -?` or `.step --help` or `.step enabled -?` etc
 
-####_How do I use the Markers mod?_
+_How do I use the Markers mod?_
 
 `.markers add stone` Will add stone and all its variants to the block list
 
@@ -66,7 +66,7 @@ Example: `.step -?` or `.step --help` or `.step enabled -?` etc
 
 `.markers remove stone` Will remove stone from Markers
 
-####_How do I use the SpamBot mod?_
+_How do I use the SpamBot mod?_
 
 `.spambot add test` Will add a new entry called "test"
 
