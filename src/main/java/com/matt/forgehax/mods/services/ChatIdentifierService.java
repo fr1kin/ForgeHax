@@ -3,6 +3,8 @@ package com.matt.forgehax.mods.services;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.ChatMessageEvent;
+import com.matt.forgehax.util.entity.PlayerInfo;
+import com.matt.forgehax.util.entity.PlayerInfoHelper;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import joptsimple.internal.Strings;
@@ -37,12 +39,20 @@ public class ChatIdentifierService extends ServiceMod {
         for(Pattern pattern : patterns) {
             Matcher matcher = pattern.matcher(message);
             if(matcher.find()) {
-                String messageSender = matcher.group(1);
-                String messageOnly = matcher.group(2);
+                final String messageSender = matcher.group(1);
+                final String messageOnly = matcher.group(2);
                 if(!Strings.isNullOrEmpty(messageSender)) {
-                    for(NetworkPlayerInfo info : Helper.getLocalPlayer().connection.getPlayerInfoMap()) {
-                        if(String.CASE_INSENSITIVE_ORDER.compare(messageSender, info.getGameProfile().getName()) == 0) {
-                            MinecraftForge.EVENT_BUS.post(new ChatMessageEvent(info.getGameProfile(), messageOnly, pm));
+                    for(NetworkPlayerInfo data : Helper.getLocalPlayer().connection.getPlayerInfoMap()) {
+                        if(String.CASE_INSENSITIVE_ORDER.compare(messageSender, data.getGameProfile().getName()) == 0) {
+                            final String name = data.getGameProfile().getName();
+                            PlayerInfo info = PlayerInfoHelper.get(name);
+                            if(info == null) {
+                                new Thread(() -> {
+                                    PlayerInfo i = PlayerInfoHelper.lookup(name);
+                                    if(i != null) MinecraftForge.EVENT_BUS.post(new ChatMessageEvent(i, data.getGameProfile(), messageOnly, pm));
+                                }).start();
+                            } else
+                                MinecraftForge.EVENT_BUS.post(new ChatMessageEvent(info, data.getGameProfile(), messageOnly, pm));
                             return true; // found match, stop here
                         }
                     }

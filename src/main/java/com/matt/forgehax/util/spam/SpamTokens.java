@@ -8,8 +8,7 @@ import com.google.common.escape.Escaper;
  */
 public enum SpamTokens {
     PLAYER_NAME("PLAYER_NAME"),
-    MESSAGE("MESSAGE")
-
+    MESSAGE("MESSAGE"),
     ;
     public static Escaper BAD_GOY_PREVENTER = new CharEscaperBuilder()
             .addEscape('\\', "\\\\") //TODO: find out more bad goy methods for attempting escaping

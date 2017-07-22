@@ -1,26 +1,26 @@
 package com.matt.forgehax.events;
 
+import com.matt.forgehax.util.entity.PlayerInfo;
 import com.mojang.authlib.GameProfile;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Created on 7/18/2017 by fr1kin
  */
 public class PlayerConnectEvent extends Event {
-    private final UUID uuid;
+    private final PlayerInfo playerInfo;
     private final GameProfile profile;
 
-    public PlayerConnectEvent(GameProfile profile) {
+    public PlayerConnectEvent(PlayerInfo playerInfo, GameProfile profile) {
         Objects.requireNonNull(profile);
+        this.playerInfo = playerInfo;
         this.profile = profile;
-        this.uuid = profile.getId();
     }
 
-    public UUID getUuid() {
-        return uuid;
+    public PlayerInfo getPlayerInfo() {
+        return playerInfo;
     }
 
     public GameProfile getProfile() {
@@ -28,14 +28,14 @@ public class PlayerConnectEvent extends Event {
     }
 
     public static class Join extends PlayerConnectEvent {
-        public Join(GameProfile profile) {
-            super(profile);
+        public Join(PlayerInfo playerInfo, GameProfile profile) {
+            super(playerInfo, profile);
         }
     }
 
     public static class Leave extends PlayerConnectEvent {
-        public Leave(GameProfile profile) {
-            super(profile);
+        public Leave(PlayerInfo playerInfo, GameProfile profile) {
+            super(playerInfo, profile);
         }
     }
 }
