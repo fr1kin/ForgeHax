@@ -1,6 +1,5 @@
 package com.matt.forgehax.mods;
 
-import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -9,6 +8,7 @@ import com.google.gson.JsonPrimitive;
 import com.matt.forgehax.events.ChatMessageEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
+import com.matt.forgehax.mods.services.SpamService;
 import com.matt.forgehax.util.ArrayHelper;
 import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.Options;
@@ -18,6 +18,7 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.serialization.GsonConstant;
 import com.matt.forgehax.util.spam.SpamEntry;
+import com.matt.forgehax.util.spam.SpamMessage;
 import com.matt.forgehax.util.spam.SpamTokens;
 import com.matt.forgehax.util.spam.SpamTrigger;
 import joptsimple.internal.Strings;
@@ -26,7 +27,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Iterator;
-import java.util.Queue;
 import java.util.Scanner;
 
 import static com.matt.forgehax.Helper.getFileManager;
@@ -57,28 +57,8 @@ public class ChatBot extends ToggleMod {
             .max(256)
             .build();
 
-    public final Setting<Long> spam_delay = getCommandStub().builders().<Long>newSettingBuilder()
-            .name("spam_delay")
-            .description("Delay between each message in ms")
-            .defaultTo(15000L)
-            .changed(cb -> {
-                nextSend = 0;
-            })
-            .build();
-
-    private final Queue<SpamMessage> sendQueue = Queues.newPriorityQueue();
-
     public ChatBot() {
         super("ChatBot", false, "Spam chat");
-    }
-
-    private boolean send(SpamMessage sm) {
-        if(!sm.getMessage().isEmpty()
-                && sm.getMessage().length() <= max_message_length.get()
-                && !sendQueue.contains(sm))
-            return sendQueue.add(sm);
-        else
-            return false;
     }
 
     @Override
@@ -91,6 +71,7 @@ public class ChatBot extends ToggleMod {
                     parser.accepts("type", "Spam type (random, sequential)").withRequiredArg();
                     parser.accepts("trigger", "How the spam will be triggered (spam, reply, reply_with_input, player_connect, player_disconnect)").withRequiredArg();
                     parser.accepts("enabled", "Enabled").withRequiredArg();
+                    parser.accepts("delay", "Custom delay between messages of the same type").withRequiredArg();
                 })
                 .processor(data -> {
                     data.requiredArguments(1);
@@ -99,7 +80,8 @@ public class ChatBot extends ToggleMod {
                     boolean givenInput = data.hasOption("keyword")
                             || data.hasOption("type")
                             || data.hasOption("trigger")
-                            || data.hasOption("enabled");
+                            || data.hasOption("enabled")
+                            || data.hasOption("delay");
 
                     SpamEntry entry = spams.get(name);
                     if (entry == null) {
@@ -113,6 +95,8 @@ public class ChatBot extends ToggleMod {
                     if (data.hasOption("trigger")) entry.setTrigger(data.getOptionAsString("trigger"));
                     if (data.hasOption("enabled"))
                         entry.setEnabled(SafeConverter.toBoolean(data.getOptionAsString("enabled")));
+                    if (data.hasOption("delay"))
+                        entry.setDelay(SafeConverter.toLong(data.getOptionAsString("delay")));
 
                     if (data.getArgumentCount() == 2) {
                         String msg = data.getArgumentAsString(1);
@@ -125,6 +109,7 @@ public class ChatBot extends ToggleMod {
                         data.write("type=" + entry.getType().name());
                         data.write("trigger=" + entry.getTrigger().name());
                         data.write("enabled=" + Boolean.toString(entry.isEnabled()));
+                        data.write("delay=" + Long.toString(entry.getDelay()));
                     }
 
                     data.markSuccess();
@@ -209,7 +194,7 @@ public class ChatBot extends ToggleMod {
                         return;
                     }
 
-                    if(!fileN.endsWith(".json") || !fileN.endsWith(".txt")) fileN += ".txt";
+                    if(!fileN.endsWith(".json") && !fileN.endsWith(".txt")) fileN += ".txt";
 
                     File file = getFileManager().getFileInBaseDirectory(fileN);
 
@@ -272,21 +257,20 @@ public class ChatBot extends ToggleMod {
                 .build();
     }
 
-    private long nextSend = 0;
-
     @SubscribeEvent
     public void onTick(LocalPlayerUpdateEvent event) {
-        if(System.currentTimeMillis() > nextSend) {
-            if(!sendQueue.isEmpty()) {
-                getLocalPlayer().sendChatMessage(sendQueue.poll().getMessage());
-                nextSend = System.currentTimeMillis() + spam_delay.get();
-            } else if(!spams.isEmpty()) {
-                for(SpamEntry e : spams) {
-                    if(e.isEnabled() && e.getTrigger().equals(SpamTrigger.SPAM)) {
-                        send(new SpamMessage(e.next(), PriorityEnum.DEFAULT, "self"));
-                        return;
-                    }
-                }
+        if(SpamService.isEmpty() && !spams.isEmpty()) for(SpamEntry e : spams) {
+            if (e.isEnabled()
+                    && !e.isEmpty()
+                    && e.getTrigger().equals(SpamTrigger.SPAM)) {
+                SpamService.send(new SpamMessage(
+                        e.next(),
+                        "SPAM" + e.getName(),
+                        e.getDelay(),
+                        "self" + e.getName().toLowerCase(),
+                        PriorityEnum.DEFAULT
+                ));
+                return;
             }
         }
     }
@@ -305,13 +289,25 @@ public class ChatBot extends ToggleMod {
                 .forEach(e -> {
                     switch (e.getTrigger()) {
                         case REPLY: {
-                            send(new SpamMessage(e.next(), PriorityEnum.HIGH, sender));
+                            SpamService.send(new SpamMessage(
+                                    e.next(),
+                                    "REPLY" + e.getName(),
+                                    e.getDelay(),
+                                    sender,
+                                    PriorityEnum.HIGH
+                            ));
                             break;
                         }
                         case REPLY_WITH_INPUT: {
                             if(!Strings.isNullOrEmpty(arg)
                                     && arg.length() <= max_input_length.get())
-                                send(new SpamMessage(SpamTokens.PLAYER_NAME.fill(e.next(), arg), PriorityEnum.HIGH, sender));
+                                SpamService.send(new SpamMessage(
+                                        SpamTokens.PLAYER_NAME.fill(e.next(), arg),
+                                        "REPLY_WITH_INPUT" + e.getName(),
+                                        e.getDelay(),
+                                        sender,
+                                        PriorityEnum.HIGH
+                                ));
                             break;
                         }
                         default: break;
@@ -328,7 +324,13 @@ public class ChatBot extends ToggleMod {
                     switch (e.getTrigger()) {
                         case PLAYER_CONNECT:
                         {
-                            send(new SpamMessage(SpamTokens.PLAYER_NAME.fill(e.next(), player), PriorityEnum.HIGH));
+                            SpamService.send(new SpamMessage(
+                                    SpamTokens.PLAYER_NAME.fill(e.next(), player),
+                                    "PLAYER_CONNECT" + e.getName(),
+                                    e.getDelay(),
+                                    null,
+                                    PriorityEnum.HIGH
+                            ));
                             break;
                         }
                         default: break;
@@ -345,47 +347,18 @@ public class ChatBot extends ToggleMod {
                     switch (e.getTrigger()) {
                         case PLAYER_DISCONNECT:
                         {
-                            send(new SpamMessage(SpamTokens.PLAYER_NAME.fill(e.next(), player), PriorityEnum.HIGH));
+                            SpamService.send(new SpamMessage(
+                                    SpamTokens.PLAYER_NAME.fill(e.next(), player),
+                                    "PLAYER_DISCONNECT" + e.getName(),
+                                    e.getDelay(),
+                                    null,
+                                    PriorityEnum.HIGH
+                            ));
                             break;
                         }
                         default:
                             break;
                     }
                 });
-    }
-
-    private static class SpamMessage implements Comparable<SpamMessage> {
-        private final String message;
-        private final PriorityEnum priority;
-        private final String activator;
-
-        public SpamMessage(String message, PriorityEnum priority, String activator) {
-            this.message = message;
-            this.priority = priority;
-            this.activator = activator;
-        }
-
-        public SpamMessage(String message, PriorityEnum priority) {
-            this(message, priority, null);
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        @Override
-        public int compareTo(SpamMessage o) {
-            return priority.compareTo(o.priority);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj == this || (obj instanceof SpamMessage && activator != null && activator.equals(((SpamMessage) obj).activator));
-        }
-
-        @Override
-        public int hashCode() {
-            return activator.hashCode();
-        }
     }
 }

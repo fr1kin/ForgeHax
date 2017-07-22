@@ -42,6 +42,11 @@ public class SpamEntry implements ISerializableJson {
      */
     private SpamTrigger trigger = SpamTrigger.SPAM;
 
+    /**
+     * Custom delay
+     */
+    private long delay = 0;
+
     public SpamEntry(String name) {
         this.name = name;
     }
@@ -96,6 +101,10 @@ public class SpamEntry implements ISerializableJson {
         return Collections.unmodifiableList(messages);
     }
 
+    public long getDelay() {
+        return delay;
+    }
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
@@ -120,6 +129,14 @@ public class SpamEntry implements ISerializableJson {
         setTrigger(SpamTrigger.valueOf(trigger.toUpperCase()));
     }
 
+    public void setDelay(long delay) {
+        this.delay = delay;
+    }
+
+    public boolean isEmpty() {
+        return messages.isEmpty();
+    }
+
     @Override
     public void serialize(JsonWriter writer) throws IOException {
         writer.beginObject();
@@ -136,6 +153,9 @@ public class SpamEntry implements ISerializableJson {
         writer.name("trigger");
         writer.value(trigger.name());
 
+        writer.name("delay");
+        writer.value(getDelay());
+
         writer.name("messages");
         writer.beginArray();
         for(String msg : messages) {
@@ -150,24 +170,33 @@ public class SpamEntry implements ISerializableJson {
     public void deserialize(JsonReader reader) throws IOException {
         reader.beginObject();
 
-        reader.nextName();
-        setEnabled(reader.nextBoolean());
-
-        reader.nextName();
-        setKeyword(reader.nextString());
-
-        reader.nextName();
-        setType(reader.nextString());
-
-        reader.nextName();
-        setTrigger(reader.nextString());
-
-        reader.nextName();
-        reader.beginArray();
         while(reader.hasNext()) {
-            add(reader.nextString());
+            switch (reader.nextName()) {
+                case "enabled":
+                    setEnabled(reader.nextBoolean());
+                    break;
+                case "keyword":
+                    setKeyword(reader.nextString());
+                    break;
+                case "type":
+                    setType(reader.nextString());
+                    break;
+                case "trigger":
+                    setTrigger(reader.nextString());
+                    break;
+                case "delay":
+                    setDelay(reader.nextLong());
+                    break;
+                case "messages":
+                    reader.beginArray();
+                    while(reader.hasNext()) {
+                        add(reader.nextString());
+                    }
+                    reader.endArray();
+                    break;
+                default: break;
+            }
         }
-        reader.endArray();
 
         reader.endObject();
     }
