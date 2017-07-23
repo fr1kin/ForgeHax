@@ -38,7 +38,7 @@ public class ChatBot extends ToggleMod {
             .name("spam")
             .description("Contents to spam")
             .factory(SpamEntry::new)
-            .supplier(Sets::newHashSet)
+            .supplier(Sets::newConcurrentHashSet)
             .build();
 
     public final Setting<Integer> max_message_length = getCommandStub().builders().<Integer>newSettingBuilder()
