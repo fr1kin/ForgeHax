@@ -42,10 +42,11 @@ public class PlayerInfo implements Globals, GsonConstant {
             for (JsonElement e : array) {
                 JsonObject node = e.getAsJsonObject();
                 String name = node.get("name").getAsString();
-                long changedAt = node.has("changedToAt") ? node.get("changedToAt").getAsLong() : -1;
+                long changedAt = node.has("changedToAt") ? node.get("changedToAt").getAsLong() : 0;
                 temp.add(new Name(name, changedAt));
             }
             Collections.sort(temp);
+            Collections.reverse(temp);
         } catch (Throwable t) {
             temp = Collections.emptyList();
         }
@@ -197,7 +198,7 @@ public class PlayerInfo implements Globals, GsonConstant {
             this.changedAt = changedAt;
         }
         public Name(String name) {
-            this(name, -1);
+            this(name, 0);
         }
 
         public String getName() {
@@ -208,20 +209,9 @@ public class PlayerInfo implements Globals, GsonConstant {
             return changedAt;
         }
 
-        public boolean isCurrentName() {
-            return changedAt == -1;
-        }
-
         @Override
         public int compareTo(Name o) {
-            if(changedAt == -1 && o.changedAt == -1)
-                return 0; // equal
-            else if(changedAt == -1)
-                return 1; // greater than
-            else if(o.changedAt == -1)
-                return -1; // less than
-            else
-                return Long.compare(changedAt, o.changedAt);
+            return Long.compare(changedAt, o.changedAt);
         }
 
         @Override
