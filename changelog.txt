@@ -1,3 +1,6 @@
+2.2.1-beta
+    + Fixed name history order
+    + Added wait for player connect and disconnect event triggers
 2.2.0-beta
     + Add JoinMessage mod
     + Refined ChatBot
