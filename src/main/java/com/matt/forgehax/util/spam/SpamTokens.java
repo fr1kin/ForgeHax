@@ -8,6 +8,7 @@ import com.google.common.escape.Escaper;
  */
 public enum SpamTokens {
     PLAYER_NAME("PLAYER_NAME"),
+    NAME_HISTORY("NAME_HISTORY"),
     MESSAGE("MESSAGE"),
     ;
     public static Escaper BAD_GOY_PREVENTER = new CharEscaperBuilder()

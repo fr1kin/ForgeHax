@@ -34,6 +34,8 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 
 @RegisterMod
 public class ChatBot extends ToggleMod {
+    private static final SpamTokens[] SPAM_TOKENS = new SpamTokens[] {SpamTokens.PLAYER_NAME, SpamTokens.NAME_HISTORY};
+
     public final Options<SpamEntry> spams = getCommandStub().builders().<SpamEntry>newOptionsBuilder()
             .name("spam")
             .description("Contents to spam")
@@ -325,7 +327,11 @@ public class ChatBot extends ToggleMod {
                         case PLAYER_CONNECT:
                         {
                             SpamService.send(new SpamMessage(
-                                    SpamTokens.PLAYER_NAME.fill(e.next(), player),
+                                    SpamTokens.fillAll(
+                                            e.next(),
+                                            SPAM_TOKENS,
+                                            player, event.getPlayerInfo().getNameHistoryAsString()
+                                    ),
                                     "PLAYER_CONNECT" + e.getName(),
                                     e.getDelay(),
                                     null,
@@ -348,7 +354,11 @@ public class ChatBot extends ToggleMod {
                         case PLAYER_DISCONNECT:
                         {
                             SpamService.send(new SpamMessage(
-                                    SpamTokens.PLAYER_NAME.fill(e.next(), player),
+                                    SpamTokens.fillAll(
+                                            e.next(),
+                                            SPAM_TOKENS,
+                                            player, event.getPlayerInfo().getNameHistoryAsString()
+                                    ),
                                     "PLAYER_DISCONNECT" + e.getName(),
                                     e.getDelay(),
                                     null,

@@ -125,6 +125,20 @@ public class PlayerInfo implements Globals, GsonConstant {
         return names;
     }
 
+    public String getNameHistoryAsString() {
+        StringBuilder builder = new StringBuilder();
+        if(!names.isEmpty()) {
+            Iterator<Name> it = names.iterator();
+            it.next(); // skip first name
+            while (it.hasNext()) {
+                Name next = it.next();
+                builder.append(next.getName());
+                if (it.hasNext()) builder.append(", ");
+            }
+        }
+        return builder.toString();
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof PlayerInfo && id.equals(((PlayerInfo) obj).id);
