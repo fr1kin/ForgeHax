@@ -66,6 +66,10 @@ public class CustomMessageEntry implements ISerializableJson {
         return getRandom().getMessage();
     }
 
+    public int getSize() {
+        return messages.size();
+    }
+
     public void setSize(int size) {
         while(messages.size() > size) messages.remove(getRandom());
     }

@@ -167,6 +167,8 @@ public class JoinMessage extends ToggleMod {
     public void onPlayerConnect(PlayerConnectEvent.Join event) {
         CustomMessageEntry entry = messages.get(event.getPlayerInfo().getId());
         if(entry != null) {
+            // resize if needed
+            if(entry.getSize() > max_player_messages.get()) entry.setSize(max_player_messages.get());
             SpamService.send(new SpamMessage(
                     SpamTokens.fillAll(format.get(), SPAM_TOKENS, event.getPlayerInfo().getName(), entry.getRandomMessage()),
                     "JOIN_MESSAGE",
