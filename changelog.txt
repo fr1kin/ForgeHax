@@ -1,3 +1,7 @@
+2.2.0-beta
+    + Add JoinMessage mod
+    + Refined ChatBot
+    + Fixed UUIDs being offline ids and not online ids
 2.1.0-beta
 	+ Added ChatBot mod that allows you to greet, spam, and reply to certain words.
 	+ Made command details more helpful by adding their description
