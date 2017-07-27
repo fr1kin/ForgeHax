@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.events.ChatMessageEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
 import com.matt.forgehax.mods.services.SpamService;
@@ -20,13 +21,16 @@ import com.matt.forgehax.util.spam.SpamTokens;
 import com.mojang.authlib.GameProfile;
 import joptsimple.internal.Strings;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.matt.forgehax.util.spam.SpamTokens.*;
+import static com.matt.forgehax.util.spam.SpamTokens.MESSAGE;
+import static com.matt.forgehax.util.spam.SpamTokens.PLAYER_NAME;
 
 /**
  * Created on 7/21/2017 by fr1kin
@@ -90,10 +94,21 @@ public class JoinMessage extends ToggleMod {
             })
             .build();
 
+    private final Setting<Boolean> debug_messages = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("debug_messages")
+            .description("Displays messages in chat if a player fails to use the command properly")
+            .defaultTo(false)
+            .build();
+
+
     private final Map<UUID, AtomicLong> cooldowns = Maps.newConcurrentMap();
 
     public JoinMessage() {
         super("JoinMessage", false, "Allows players to add custom join messages");
+    }
+
+    private void debugMessage(String str) {
+        if(debug_messages.get()) Helper.printMessageNaked(Strings.EMPTY, str, new Style().setItalic(true).setColor(TextFormatting.GRAY));
     }
 
     private void setJoinMessage(UUID target, UUID setter, String message) {
@@ -135,15 +150,30 @@ public class JoinMessage extends ToggleMod {
         if(!this.keyword.get().equalsIgnoreCase(keyword)) return;
 
         final String target = ArrayHelper.getOrDefault(args, 1, Strings.EMPTY);
-        if(target.length() > PlayerInfoHelper.MAX_NAME_LENGTH) return; // length over valid player name
-        if(target.equalsIgnoreCase(event.getProfile().getName())) return;
+        if(target.length() > PlayerInfoHelper.MAX_NAME_LENGTH) {
+            debugMessage("Input name over valid length");
+            return;
+        }
+        if(target.equalsIgnoreCase(event.getProfile().getName())) {
+            debugMessage("Cannot set own join message");
+            return;
+        }
 
         final String message = CommandHelper.join(args, " ", 2, args.length);
-        if(Strings.isNullOrEmpty(message)) return; // invalid message
-        if(message.length() > message_length.get()) return; // message too long
+        if(Strings.isNullOrEmpty(message)) {
+            debugMessage("Invalid message (null or empty)");
+            return;
+        }
+        if(message.length() > message_length.get()) {
+            debugMessage("Message over maximum specified by JoinMessage.message_length");
+            return;
+        }
 
         // setter is not in cooldown
-        if(System.currentTimeMillis() < cooldowns.getOrDefault(event.getPlayerInfo().getId(), new AtomicLong(0L)).get()) return;
+        if(System.currentTimeMillis() < cooldowns.getOrDefault(event.getPlayerInfo().getId(), new AtomicLong(0L)).get()) {
+            debugMessage("Player is currently in a cooldown");
+            return;
+        }
 
         final GameProfile profile = event.getProfile();
         if(profile == null) return;
