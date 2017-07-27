@@ -37,16 +37,7 @@ public class PlayerInfo implements Globals, GsonConstant {
         this.id = id;
         List<Name> temp;
         try {
-            JsonArray array = getResources(new URL("https://api.mojang.com/user/profiles/" + PlayerInfoHelper.getIdNoHyphens(id) + "/names"), "GET").getAsJsonArray();
-            temp = Lists.newArrayList();
-            for (JsonElement e : array) {
-                JsonObject node = e.getAsJsonObject();
-                String name = node.get("name").getAsString();
-                long changedAt = node.has("changedToAt") ? node.get("changedToAt").getAsLong() : 0;
-                temp.add(new Name(name, changedAt));
-            }
-            Collections.sort(temp);
-            Collections.reverse(temp);
+            temp = getHistoryOfNames(id);
         } catch (Throwable t) {
             temp = Collections.emptyList();
         }
@@ -68,17 +59,8 @@ public class PlayerInfo implements Globals, GsonConstant {
             UUID uuid = PlayerInfoHelper.getIdFromString(node.get("id").getAsString());
             Objects.requireNonNull(uuid);
 
-            array = getResources(new URL("https://api.mojang.com/user/profiles/" + PlayerInfoHelper.getIdNoHyphens(uuid) + "/names"), "GET").getAsJsonArray();
-            List<Name> temp = Lists.newArrayList();
-            for(JsonElement e : array) {
-                JsonObject n = e.getAsJsonObject();
-                String nm = n.get("name").getAsString();
-                long changedAt = n.has("changedToAt") ? n.get("changedToAt").getAsLong() : -1;
-                temp.add(new Name(nm, changedAt));
-            }
-            Collections.sort(temp);
             _id = uuid;
-            _temp = ImmutableList.copyOf(temp);
+            _temp = ImmutableList.copyOf(getHistoryOfNames(_id));
             _offline = false;
         } catch (Throwable t) {
             _id = EntityPlayerSP.getOfflineUUID(name);
@@ -89,6 +71,19 @@ public class PlayerInfo implements Globals, GsonConstant {
             this.names = _temp;
             this.isOfflinePlayer = _offline;
         }
+    }
+
+    private static List<Name> getHistoryOfNames(UUID id) throws Throwable {
+        JsonArray array = getResources(new URL("https://api.mojang.com/user/profiles/" + PlayerInfoHelper.getIdNoHyphens(id) + "/names"), "GET").getAsJsonArray();
+        List<Name> temp = Lists.newArrayList();
+        for (JsonElement e : array) {
+            JsonObject node = e.getAsJsonObject();
+            String name = node.get("name").getAsString();
+            long changedAt = node.has("changedToAt") ? node.get("changedToAt").getAsLong() : 0;
+            temp.add(new Name(name, changedAt));
+        }
+        Collections.sort(temp);
+        return temp;
     }
 
     /**
@@ -112,7 +107,7 @@ public class PlayerInfo implements Globals, GsonConstant {
      * @return
      */
     public String getName() {
-        if(names.size() > 0)
+        if(!names.isEmpty())
             return names.get(0).getName();
         else
             return null;
@@ -205,13 +200,13 @@ public class PlayerInfo implements Globals, GsonConstant {
             return name;
         }
 
-        public long getChangedAt() {
+        public long getTimeChanged() {
             return changedAt;
         }
 
         @Override
         public int compareTo(Name o) {
-            return Long.compare(changedAt, o.changedAt);
+            return Long.compare(o.changedAt, changedAt); // longest to shortest
         }
 
         @Override

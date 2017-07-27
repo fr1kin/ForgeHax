@@ -292,7 +292,7 @@ public class ChatBot extends ToggleMod {
                     switch (e.getTrigger()) {
                         case REPLY: {
                             SpamService.send(new SpamMessage(
-                                    e.next(),
+                                    SpamTokens.SENDER_NAME.fill(e.next(), event.getPlayerInfo().getName()),
                                     "REPLY" + e.getName(),
                                     e.getDelay(),
                                     sender,
@@ -304,7 +304,11 @@ public class ChatBot extends ToggleMod {
                             if(!Strings.isNullOrEmpty(arg)
                                     && arg.length() <= max_input_length.get())
                                 SpamService.send(new SpamMessage(
-                                        SpamTokens.PLAYER_NAME.fill(e.next(), arg),
+                                        SpamTokens.fillAll(
+                                                e.next(),
+                                                SpamTokens.PLAYERNAME_SENDERNAME,
+                                                arg, event.getPlayerInfo().getName()
+                                        ),
                                         "REPLY_WITH_INPUT" + e.getName(),
                                         e.getDelay(),
                                         sender,
@@ -329,7 +333,7 @@ public class ChatBot extends ToggleMod {
                             SpamService.send(new SpamMessage(
                                     SpamTokens.fillAll(
                                             e.next(),
-                                            SPAM_TOKENS,
+                                            SpamTokens.PLAYERNAME_NAMEHISTORY,
                                             player, event.getPlayerInfo().getNameHistoryAsString()
                                     ),
                                     "PLAYER_CONNECT" + e.getName(),
@@ -356,7 +360,7 @@ public class ChatBot extends ToggleMod {
                             SpamService.send(new SpamMessage(
                                     SpamTokens.fillAll(
                                             e.next(),
-                                            SPAM_TOKENS,
+                                            SpamTokens.PLAYERNAME_NAMEHISTORY,
                                             player, event.getPlayerInfo().getNameHistoryAsString()
                                     ),
                                     "PLAYER_DISCONNECT" + e.getName(),

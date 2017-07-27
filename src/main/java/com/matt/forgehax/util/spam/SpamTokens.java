@@ -7,22 +7,38 @@ import com.google.common.escape.Escaper;
  * Created on 7/18/2017 by fr1kin
  */
 public enum SpamTokens {
+    /**
+     * The main subjects name
+     */
     PLAYER_NAME("PLAYER_NAME"),
+
+    /**
+     * History of the main subjects name
+     */
     NAME_HISTORY("NAME_HISTORY"),
+
+    /**
+     * Person sending the message
+     */
+    SENDER_NAME("SENDER_NAME"),
+
+    /**
+     * Message
+     */
     MESSAGE("MESSAGE"),
     ;
     public static Escaper BAD_GOY_PREVENTER = new CharEscaperBuilder()
             .addEscape('\\', "\\\\") //TODO: find out more bad goy methods for attempting escaping
             .toEscaper();
 
+    public static SpamTokens[] ALL = new SpamTokens[] {PLAYER_NAME, NAME_HISTORY, SENDER_NAME, MESSAGE};
+    public static SpamTokens[] PLAYERNAME_NAMEHISTORY = new SpamTokens[] {PLAYER_NAME, NAME_HISTORY};
+    public static SpamTokens[] PLAYERNAME_SENDERNAME = new SpamTokens[] {PLAYER_NAME, SENDER_NAME};
+
     final String token;
 
     SpamTokens(String token) {
         this.token = "\\{" + token + "\\}";
-    }
-
-    public String getToken() {
-        return token;
     }
 
     public String fill(String str, String with) {
