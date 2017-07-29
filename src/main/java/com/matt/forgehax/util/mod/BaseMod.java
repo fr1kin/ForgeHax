@@ -170,12 +170,14 @@ public abstract class BaseMod implements Globals {
     public abstract boolean isEnabled();
 
     protected void onProcessCommand(ExecuteData data) {
-        final StringBuilder builder = new StringBuilder();
-        getCommandStub().getChildren().forEach(command -> {
-            builder.append(command.getPrintText());
-            builder.append('\n');
-        });
-        data.write(builder.toString());
+        if(data.getArgumentCount() == 0 && !data.options().hasOptions()) {
+            final StringBuilder builder = new StringBuilder();
+            getCommandStub().getChildren().forEach(command -> {
+                builder.append(command.getPrintText());
+                builder.append('\n');
+            });
+            data.write(builder.toString());
+        }
     }
 
     /**

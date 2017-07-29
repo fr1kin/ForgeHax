@@ -9,8 +9,6 @@ import net.minecraft.block.Block;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.matt.forgehax.Helper.printMessageNaked;
-
 /**
  * Created on 5/27/2017 by fr1kin
  */
@@ -53,7 +51,7 @@ public class BlocksCommand extends CommandMod {
                             }
                         });
                     });
-                    printMessageNaked(builder.toString());
+                    data.write(builder.toString());
                     data.markSuccess();
                 })
                 .build();

@@ -19,12 +19,6 @@ public class ToggleMod extends BaseMod {
                         start();
                     else
                         stop();
-
-                    Setting<Boolean> setting = cb.command();
-                    cb.write(String.format("%s changed to \"%s\"",
-                            setting.getAbsoluteName(),
-                            setting.getConverter().toString(cb.getTo())
-                    ));
                 })
                 .build();
     }

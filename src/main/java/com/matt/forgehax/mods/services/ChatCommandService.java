@@ -34,13 +34,16 @@ public class ChatCommandService extends ServiceMod {
             if(message.startsWith(activationCharacter.getAsString()) && message.length() > 1) {
                 // cut out the . from the message
                 String line = message.substring(1);
-                ConsoleIO.writeHead(line);
+                ConsoleIO.start();
+                ConsoleIO.write(line, ConsoleIO.HEADING);
+                ConsoleIO.incrementIndent();
                 try {
                     String[] arguments = CommandHelper.translate(line);
                     GLOBAL_COMMAND.run(arguments);
                 } catch (Throwable t) {
                     Helper.printMessage(t.getMessage());
                 }
+                ConsoleIO.finished();
                 event.setCanceled(true);
             }
         }

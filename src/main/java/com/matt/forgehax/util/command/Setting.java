@@ -5,6 +5,7 @@ import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.callbacks.OnChangeCallback;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
+import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
 
@@ -141,6 +142,7 @@ public class Setting<E> extends Command implements ISerializableJson {
         }
         if(!Objects.equals(get(), value)) {
             if(!silent) {
+                ConsoleIO.write(String.format("%s = %s", getAbsoluteName(), converter.toStringSafe(value)));
                 OnChangeCallback<E> cb = new OnChangeCallback<>(this, get(), value);
                 invokeCallbacks(CallbackType.CHANGE, cb);
                 if(cb.isCanceled()) return false;
@@ -173,7 +175,7 @@ public class Setting<E> extends Command implements ISerializableJson {
 
     @Override
     public String getPrintText() {
-        return getAbsoluteName() + " = " + getAsString() + " - " + getDescription();
+        return getName() + " = " + getAsString() + " - " + getDescription();
     }
 
     @Override
