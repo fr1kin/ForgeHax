@@ -107,7 +107,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
     @Override
     public void onLoad() {
-        getCommandStub().builders().newCommandBuilder()
+        options.builders().newCommandBuilder()
                 .name("add")
                 .description("Adds block to block esp")
                 .options(OptionBuilders::rgba)
@@ -153,7 +153,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 })
                 .success(cmd -> this.reloadRenderers())
                 .build();
-        getCommandStub().builders().newCommandBuilder()
+        options.builders().newCommandBuilder()
                 .name("remove")
                 .description("Removes block to block esp")
                 .options(OptionBuilders::meta)

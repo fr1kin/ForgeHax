@@ -34,21 +34,11 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 
 @RegisterMod
 public class ChatBot extends ToggleMod {
-    private static final SpamTokens[] SPAM_TOKENS = new SpamTokens[] {SpamTokens.PLAYER_NAME, SpamTokens.NAME_HISTORY};
-
     public final Options<SpamEntry> spams = getCommandStub().builders().<SpamEntry>newOptionsBuilder()
             .name("spam")
             .description("Contents to spam")
             .factory(SpamEntry::new)
             .supplier(Sets::newConcurrentHashSet)
-            .build();
-
-    public final Setting<Integer> max_message_length = getCommandStub().builders().<Integer>newSettingBuilder()
-            .name("max_message_length")
-            .description("Maximum length allowed for a message")
-            .defaultTo(256)
-            .min(0)
-            .max(256)
             .build();
 
     public final Setting<Integer> max_input_length = getCommandStub().builders().<Integer>newSettingBuilder()
@@ -65,7 +55,7 @@ public class ChatBot extends ToggleMod {
 
     @Override
     protected void onLoad() {
-        getCommandStub().builders().newCommandBuilder()
+        spams.builders().newCommandBuilder()
                 .name("add")
                 .description("Add new spam list")
                 .options(parser -> {
@@ -119,7 +109,7 @@ public class ChatBot extends ToggleMod {
                 .success(e -> spams.serialize())
                 .build();
 
-        getCommandStub().builders().newCommandBuilder()
+        spams.builders().newCommandBuilder()
                 .name("import")
                 .description("Import a txt or json file")
                 .processor(data -> {
@@ -182,7 +172,7 @@ public class ChatBot extends ToggleMod {
                 .success(e -> spams.serialize())
                 .build();
 
-        getCommandStub().builders().newCommandBuilder()
+        spams.builders().newCommandBuilder()
                 .name("export")
                 .description("Export all the contents of an entry")
                 .processor(data -> {
@@ -222,7 +212,7 @@ public class ChatBot extends ToggleMod {
                 })
                 .build();
 
-        getCommandStub().builders().newCommandBuilder()
+        spams.builders().newCommandBuilder()
                 .name("remove")
                 .description("Remove spam entry")
                 .processor(data -> {
@@ -242,7 +232,7 @@ public class ChatBot extends ToggleMod {
                 .success(e -> spams.serialize())
                 .build();
 
-        getCommandStub().builders().newCommandBuilder()
+        spams.builders().newCommandBuilder()
                 .name("list")
                 .description("List all current entries")
                 .processor(data -> {

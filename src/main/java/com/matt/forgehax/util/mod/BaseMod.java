@@ -1,7 +1,10 @@
 package com.matt.forgehax.util.mod;
 
 import com.matt.forgehax.Globals;
-import com.matt.forgehax.util.command.*;
+import com.matt.forgehax.util.command.Command;
+import com.matt.forgehax.util.command.ExecuteData;
+import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.command.StubBuilder;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import joptsimple.internal.Strings;
 import net.minecraftforge.common.MinecraftForge;
@@ -169,13 +172,26 @@ public abstract class BaseMod implements Globals {
      */
     public abstract boolean isEnabled();
 
+    private void writeChildren(StringBuilder builder, Command command, final boolean deep, final String append) {
+        command.getChildren().forEach(child -> {
+            boolean invalid = Strings.isNullOrEmpty(append);
+            if(!invalid) {
+                builder.append(append);
+                builder.append(' ');
+            }
+            builder.append(child.getPrintText());
+            builder.append('\n');
+            if(deep) {
+                String app = invalid ? Strings.EMPTY : append;
+                writeChildren(builder, child, deep, app + ">");
+            }
+        });
+    }
+
     protected void onProcessCommand(ExecuteData data) {
         if(data.getArgumentCount() == 0 && !data.options().hasOptions()) {
             final StringBuilder builder = new StringBuilder();
-            getCommandStub().getChildren().forEach(command -> {
-                builder.append(command.getPrintText());
-                builder.append('\n');
-            });
+            writeChildren(builder, getCommandStub(), true, "");
             data.write(builder.toString());
         }
     }
