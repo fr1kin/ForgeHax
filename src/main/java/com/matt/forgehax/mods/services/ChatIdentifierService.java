@@ -37,7 +37,7 @@ public class ChatIdentifierService extends ServiceMod {
     };
 
     private static final Pattern[] OUTGOING_PRIVATE_MESSAGES = {
-            Pattern.compile("[Tt]o (.*?): (.*)"), // 2b2t outgoing pms TODO:
+            Pattern.compile("[Tt]o (.*?): (.*)"), // 2b2t and vanilla i think
     };
 
     public ChatIdentifierService() {
