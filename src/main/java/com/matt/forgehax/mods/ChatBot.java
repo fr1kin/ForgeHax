@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.Scanner;
 
 import static com.matt.forgehax.Helper.getFileManager;
-import static com.matt.forgehax.Helper.getLocalPlayer;
 
 @RegisterMod
 public class ChatBot extends ToggleMod {
@@ -269,10 +268,10 @@ public class ChatBot extends ToggleMod {
 
     @SubscribeEvent
     public void onChat(ChatMessageEvent event) {
-        if(event.getProfile() == null || event.getProfile().getId().equals(getLocalPlayer().getGameProfile().getId())) return;
+        if(event.getSender().isLocalPlayer()) return;
 
         String[] args = event.getMessage().split(" ");
-        final String sender = event.getProfile().getId().toString();
+        final String sender = event.getSender().getId().toString();
         final String keyword = ArrayHelper.getOrDefault(args, 0, Strings.EMPTY);
         final String arg = ArrayHelper.getOrDefault(args, 1, Strings.EMPTY);
         spams.stream()
@@ -282,7 +281,7 @@ public class ChatBot extends ToggleMod {
                     switch (e.getTrigger()) {
                         case REPLY: {
                             SpamService.send(new SpamMessage(
-                                    SpamTokens.SENDER_NAME.fill(e.next(), event.getPlayerInfo().getName()),
+                                    SpamTokens.SENDER_NAME.fill(e.next(), event.getSender().getName()),
                                     "REPLY" + e.getName(),
                                     e.getDelay(),
                                     sender,
@@ -297,7 +296,7 @@ public class ChatBot extends ToggleMod {
                                         SpamTokens.fillAll(
                                                 e.next(),
                                                 SpamTokens.PLAYERNAME_SENDERNAME,
-                                                arg, event.getPlayerInfo().getName()
+                                                arg, event.getSender().getName()
                                         ),
                                         "REPLY_WITH_INPUT" + e.getName(),
                                         e.getDelay(),

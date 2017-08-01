@@ -19,7 +19,6 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.spam.SpamMessage;
 import com.matt.forgehax.util.spam.SpamTokens;
-import com.mojang.authlib.GameProfile;
 import joptsimple.internal.Strings;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.text.Style;
@@ -156,7 +155,7 @@ public class JoinMessage extends ToggleMod {
             debugMessage("Input name over valid length");
             return;
         }
-        if(target.equalsIgnoreCase(event.getProfile().getName())) {
+        if(target.equalsIgnoreCase(event.getSender().getName())) {
             debugMessage("Cannot set own join message");
             return;
         }
@@ -172,24 +171,21 @@ public class JoinMessage extends ToggleMod {
         }
 
         // setter is not in cooldown
-        if(System.currentTimeMillis() < cooldowns.getOrDefault(event.getPlayerInfo().getId(), new AtomicLong(0L)).get()) {
+        if(System.currentTimeMillis() < cooldowns.getOrDefault(event.getSender().getId(), new AtomicLong(0L)).get()) {
             debugMessage("Player is currently in a cooldown");
             return;
         }
 
-        final GameProfile profile = event.getProfile();
-        if(profile == null) return;
-
         if(use_offline.get()) {
             // use offline ID
-            setJoinMessage(EntityPlayerSP.getOfflineUUID(target), event.getPlayerInfo().getId(), message);
+            setJoinMessage(EntityPlayerSP.getOfflineUUID(target), event.getSender().getId(), message);
             return; // join message set, stop here
         }
 
         PlayerInfoHelper.invokeEfficiently(target, new FutureCallback<PlayerInfo>() {
             @Override
             public void onSuccess(@Nullable PlayerInfo result) {
-                if(result != null && !result.isOfflinePlayer()) setJoinMessage(result.getId(), event.getPlayerInfo().getId(), message);
+                if(result != null && !result.isOfflinePlayer()) setJoinMessage(result.getId(), event.getSender().getId(), message);
             }
 
             @Override

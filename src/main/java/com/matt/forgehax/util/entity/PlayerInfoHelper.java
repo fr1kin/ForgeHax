@@ -82,20 +82,6 @@ public class PlayerInfoHelper implements Globals {
             callback.onSuccess(info);
             return true; // using cache
         }
-
-    }
-
-    public static boolean invokeEfficiently(final UUID uuid, final FutureCallback<PlayerInfo> callback) {
-        PlayerInfo info = get(uuid);
-        if(info == null) {
-            ListenableFuture<PlayerInfo> future = EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(uuid));
-            Futures.addCallback(future, callback);
-            return false; // using thread
-        } else {
-            callback.onSuccess(info);
-            return true; // using cache
-        }
-
     }
 
     public static UUID getIdFromString(String uuid) {

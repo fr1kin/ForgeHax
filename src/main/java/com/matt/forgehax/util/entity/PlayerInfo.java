@@ -14,6 +14,8 @@ import java.io.DataOutputStream;
 import java.net.URL;
 import java.util.*;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
+
 /**
  * Created on 7/22/2017 by fr1kin
  */
@@ -22,6 +24,7 @@ public class PlayerInfo implements Globals, GsonConstant {
      * The online UUID for this player
      */
     private final UUID id;
+    private final UUID offlineId;
 
     /**
      * If this player data is only for offline mode
@@ -42,6 +45,7 @@ public class PlayerInfo implements Globals, GsonConstant {
             temp = Collections.emptyList();
         }
         this.names = ImmutableList.copyOf(temp);
+        this.offlineId = EntityPlayerSP.getOfflineUUID(getName());
         this.isOfflinePlayer = false;
     }
     public PlayerInfo(String name) {
@@ -69,6 +73,7 @@ public class PlayerInfo implements Globals, GsonConstant {
         } finally {
             this.id = _id;
             this.names = _temp;
+            this.offlineId = EntityPlayerSP.getOfflineUUID(getName());
             this.isOfflinePlayer = _offline;
         }
     }
@@ -92,6 +97,10 @@ public class PlayerInfo implements Globals, GsonConstant {
      */
     public UUID getId() {
         return id;
+    }
+
+    public UUID getOfflineId() {
+        return offlineId;
     }
 
     /**
@@ -133,6 +142,10 @@ public class PlayerInfo implements Globals, GsonConstant {
             }
         }
         return builder.toString();
+    }
+
+    public boolean isLocalPlayer() {
+        return String.CASE_INSENSITIVE_ORDER.compare(getName(), getLocalPlayer().getName()) == 0;
     }
 
     @Override
