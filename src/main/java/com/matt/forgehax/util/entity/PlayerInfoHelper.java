@@ -13,10 +13,10 @@ import java.util.concurrent.TimeUnit;
  * Created on 7/22/2017 by fr1kin
  */
 public class PlayerInfoHelper implements Globals {
-    private static final int THREAD_COUNT = 4;
+    private static final int THREAD_COUNT = 2;
     public static final int MAX_NAME_LENGTH = 16;
 
-    private static final ListeningExecutorService EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(THREAD_COUNT));
+    private static final ListeningExecutorService EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(Math.max(THREAD_COUNT, 1)));
 
     private static final Map<String, PlayerInfo> NAME_TO_INFO = Maps.newConcurrentMap();
     private static final Map<UUID, PlayerInfo> UUID_TO_INFO = Maps.newConcurrentMap();
