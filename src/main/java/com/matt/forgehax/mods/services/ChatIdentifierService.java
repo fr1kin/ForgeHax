@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.ChatMessageEvent;
@@ -13,6 +14,7 @@ import net.minecraft.network.play.server.SPacketChat;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import javax.annotation.Nullable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +33,10 @@ public class ChatIdentifierService extends ServiceMod {
             Pattern.compile("(.*?) whispers: (.*)"), // 2b2t
     };
 
+    private static final Pattern[] SELF_TO_PLAYER_PATTERNS = {
+            Pattern.compile("to (.*?): (.*)"), // 2b2t outgoing pms TODO:
+    };
+
     public ChatIdentifierService() {
         super("ChatIdentifierService", "Listens to incoming chat messages and identifies the sender");
     }
@@ -45,14 +51,17 @@ public class ChatIdentifierService extends ServiceMod {
                     for(NetworkPlayerInfo data : Helper.getLocalPlayer().connection.getPlayerInfoMap()) {
                         if(String.CASE_INSENSITIVE_ORDER.compare(messageSender, data.getGameProfile().getName()) == 0) {
                             final String name = data.getGameProfile().getName();
-                            PlayerInfo info = PlayerInfoHelper.get(name);
-                            if(info == null) {
-                                new Thread(() -> {
-                                    PlayerInfo i = PlayerInfoHelper.lookup(name);
-                                    if(i != null) MinecraftForge.EVENT_BUS.post(new ChatMessageEvent(i, data.getGameProfile(), messageOnly, pm));
-                                }).start();
-                            } else
-                                MinecraftForge.EVENT_BUS.post(new ChatMessageEvent(info, data.getGameProfile(), messageOnly, pm));
+                            PlayerInfoHelper.invokeEfficiently(name, new FutureCallback<PlayerInfo>() {
+                                @Override
+                                public void onSuccess(@Nullable PlayerInfo result) {
+                                    if(result != null) MinecraftForge.EVENT_BUS.post(new ChatMessageEvent(result, data.getGameProfile(), messageOnly, pm));
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+
+                                }
+                            });
                             return true; // found match, stop here
                         }
                     }

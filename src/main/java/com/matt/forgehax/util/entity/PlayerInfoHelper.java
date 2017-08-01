@@ -1,19 +1,35 @@
 package com.matt.forgehax.util.entity;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.*;
 import com.matt.forgehax.Globals;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created on 7/22/2017 by fr1kin
  */
 public class PlayerInfoHelper implements Globals {
+    private static final int THREAD_COUNT = 4;
     public static final int MAX_NAME_LENGTH = 16;
+
+    private static final ListeningExecutorService EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(THREAD_COUNT));
 
     private static final Map<String, PlayerInfo> NAME_TO_INFO = Maps.newConcurrentMap();
     private static final Map<UUID, PlayerInfo> UUID_TO_INFO = Maps.newConcurrentMap();
+
+    static {
+        // shut threads down
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            EXECUTOR_SERVICE.shutdown();
+            while(!EXECUTOR_SERVICE.isShutdown()) try {
+                EXECUTOR_SERVICE.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {}
+        }));
+    }
 
     private static PlayerInfo register(String name) {
         if(name.length() > MAX_NAME_LENGTH) return null;
@@ -49,6 +65,37 @@ public class PlayerInfoHelper implements Globals {
             return register(uuid);
         else
             return info;
+    }
+
+    /**
+     * Will either use already cached player info or start a new service to lookup the player info
+     * @param name
+     * @param callback
+     */
+    public static boolean invokeEfficiently(final String name, final FutureCallback<PlayerInfo> callback) {
+        PlayerInfo info = get(name);
+        if(info == null) {
+            ListenableFuture<PlayerInfo> future = EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(name));
+            Futures.addCallback(future, callback);
+            return false; // using thread
+        } else {
+            callback.onSuccess(info);
+            return true; // using cache
+        }
+
+    }
+
+    public static boolean invokeEfficiently(final UUID uuid, final FutureCallback<PlayerInfo> callback) {
+        PlayerInfo info = get(uuid);
+        if(info == null) {
+            ListenableFuture<PlayerInfo> future = EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(uuid));
+            Futures.addCallback(future, callback);
+            return false; // using thread
+        } else {
+            callback.onSuccess(info);
+            return true; // using cache
+        }
+
     }
 
     public static UUID getIdFromString(String uuid) {

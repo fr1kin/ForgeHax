@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.events.ChatMessageEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
@@ -25,6 +26,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -184,13 +186,15 @@ public class JoinMessage extends ToggleMod {
             return; // join message set, stop here
         }
 
-        PlayerInfo info = PlayerInfoHelper.get(target);
-        if(info == null) {
-            new Thread(() -> {
-                PlayerInfo tar = PlayerInfoHelper.lookup(target);
-                if(tar != null && !tar.isOfflinePlayer()) setJoinMessage(tar.getId(), event.getPlayerInfo().getId(), message);
-            }).start();
-        } else if(!info.isOfflinePlayer()) setJoinMessage(info.getId(), event.getPlayerInfo().getId(), message);
+        PlayerInfoHelper.invokeEfficiently(target, new FutureCallback<PlayerInfo>() {
+            @Override
+            public void onSuccess(@Nullable PlayerInfo result) {
+                if(result != null && !result.isOfflinePlayer()) setJoinMessage(result.getId(), event.getPlayerInfo().getId(), message);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {}
+        });
     }
 
     @SubscribeEvent

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
 import com.matt.forgehax.util.command.Setting;
@@ -14,6 +15,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 import static com.matt.forgehax.Helper.getWorld;
@@ -65,13 +67,17 @@ public class ScoreboardListenerService extends ServiceMod {
                     .filter(data -> !Strings.isNullOrEmpty(data.getProfile().getName()))
                     .forEach(data -> {
                         final String name = data.getProfile().getName();
-                        PlayerInfo info = PlayerInfoHelper.get(name);
-                        if(info == null) {
-                            new Thread(() -> {
-                                PlayerInfo i = PlayerInfoHelper.lookup(name);
-                                if(i != null) fireEvents(packet.getAction(), i, data.getProfile());
-                            }).start();
-                        } else fireEvents(packet.getAction(), info, data.getProfile());
+                        PlayerInfoHelper.invokeEfficiently(name, new FutureCallback<PlayerInfo>() {
+                            @Override
+                            public void onSuccess(@Nullable PlayerInfo result) {
+                                if(result != null) fireEvents(packet.getAction(), result, data.getProfile());
+                            }
+
+                            @Override
+                            public void onFailure(Throwable t) {
+
+                            }
+                        });
                     });
         }
     }
