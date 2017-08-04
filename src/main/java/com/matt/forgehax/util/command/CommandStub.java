@@ -42,17 +42,17 @@ public class CommandStub extends Command implements IKeyBind, ISerializableJson 
                     if(dt.hasOption("bind")) {
                         String key = dt.getOptionAsString("bind").toUpperCase();
 
-                        if(key.length() < 1 || key.length() > 1) throw new CommandExecuteException("Argument for bind option should be 1 character");
-
                         int kc = Keyboard.getKeyIndex(key);
                         if(Keyboard.getKeyIndex(key) == Keyboard.KEY_NONE) throw new CommandExecuteException(String.format("\"%s\" is not a valid key name", key));
 
                         bind(kc);
+                        serialize();
 
                         dt.write(String.format("Bound %s to key %s [code=%d]", getAbsoluteName(), key, kc));
                         dt.stopProcessing();
                     } else if(dt.hasOption("unbind")) {
                         unbind();
+                        serialize();
 
                         dt.write(String.format("Unbound %s", getAbsoluteName()));
                         dt.stopProcessing();
