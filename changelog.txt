@@ -1,3 +1,12 @@
+2.3.0-beta
+    + Updated to Minecraft Forge 1.12.1
+    + Added better console messages
+    + Reworked .help command, now links to the GitHub FAQ
+    + Added .mods command that has optional argument that will check for any mods containing the given string (case insensitive)
+    + Reworked player data fetcher. Now uses a threadpool.
+    + Debug messages for JoinMessage mod for when players input is ignored.
+    + Binding/unbinding will trigger serialization
+    + Bind option accepts input over 1 character now
 2.2.1-beta
     + Fixed name history order
     + Added wait for player connect and disconnect event triggers
