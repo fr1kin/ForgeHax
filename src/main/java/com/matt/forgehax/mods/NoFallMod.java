@@ -2,12 +2,14 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import static com.matt.forgehax.Helper.*;
+
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
 public class NoFallMod extends ToggleMod {
@@ -20,7 +22,7 @@ public class NoFallMod extends ToggleMod {
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer && !(event.getPacket() instanceof CPacketPlayer.Rotation) &&
-                !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
+                !PacketHelper.isIgnored(event.getPacket())) {
             CPacketPlayer packetPlayer = (CPacketPlayer)event.getPacket();
             if(FastReflection.Fields.CPacketPlayer_onGround.get(packetPlayer) && lastFallDistance >= 4) {
                 CPacketPlayer packet = new CPacketPlayer.PositionRotation(
@@ -39,8 +41,8 @@ public class NoFallMod extends ToggleMod {
                         ((CPacketPlayer) event.getPacket()).getPitch(0),
                         true
                 );
-                Utils.OUTGOING_PACKET_IGNORE_LIST.add(packet);
-                Utils.OUTGOING_PACKET_IGNORE_LIST.add(reposition);
+                PacketHelper.ignore(packet);
+                PacketHelper.ignore(reposition);
                 getNetworkManager().sendPacket(packet);
                 getNetworkManager().sendPacket(reposition);
                 lastFallDistance = 0;

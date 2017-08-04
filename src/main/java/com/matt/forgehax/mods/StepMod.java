@@ -3,7 +3,7 @@ package com.matt.forgehax.mods;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,7 +12,9 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
-import static com.matt.forgehax.Helper.*;
+
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
 public class StepMod extends ToggleMod {
@@ -47,7 +49,7 @@ public class StepMod extends ToggleMod {
                 event.getPacket() instanceof CPacketPlayer.PositionRotation) {
             CPacketPlayer packetPlayer = (CPacketPlayer)event.getPacket();
             if(previousPositionPacket != null &&
-                    !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
+                    !PacketHelper.isIgnored(event.getPacket())) {
                 double diffY = packetPlayer.getY(0.f) - previousPositionPacket.getY(0.f);
                 // y difference must be positive
                 // greater than 1, but less than 1.5
@@ -78,7 +80,7 @@ public class StepMod extends ToggleMod {
                             packetPlayer.isOnGround()
                     ));
                     for(Packet toSend : sendList) {
-                        Utils.OUTGOING_PACKET_IGNORE_LIST.add(toSend);
+                        PacketHelper.ignore(toSend);
                         getNetworkManager().sendPacket(toSend);
                     }
                     event.setCanceled(true);

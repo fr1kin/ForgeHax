@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods.services;
 
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -18,9 +18,11 @@ public class PacketIgnoreListService extends ServiceMod {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSentPacket(PacketEvent.Outgoing.Post event) {
-        if(Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
-            // remove packet from list (we wont be seeing it ever again)
-            Utils.OUTGOING_PACKET_IGNORE_LIST.remove(event.getPacket());
-        }
+        if(PacketHelper.isIgnored(event.getPacket())) PacketHelper.remove(event.getPacket());
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onIncomingPacket(PacketEvent.Incoming.Post event) {
+        if(PacketHelper.isIgnored(event.getPacket())) PacketHelper.remove(event.getPacket());
     }
 }

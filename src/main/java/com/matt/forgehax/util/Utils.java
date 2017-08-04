@@ -1,6 +1,5 @@
 package com.matt.forgehax.util;
 
-import com.google.common.collect.Lists;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.math.Angle;
@@ -16,7 +15,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils implements Globals {
-    public static final List<Packet> OUTGOING_PACKET_IGNORE_LIST = Collections.synchronizedList(Lists.<Packet>newArrayList());
+
+    /**
+     * Use PacketHelper class now
+     */
+    @Deprecated
+    public static final List<Packet> OUTGOING_PACKET_IGNORE_LIST = Collections.emptyList();
 
     public static int toRGBA(int r, int g, int b, int a) {
         return (r << 16) + (g << 8) + (b << 0) + (a << 24);

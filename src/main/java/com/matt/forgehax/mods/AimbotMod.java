@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.mods.services.TickRateService;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
@@ -335,7 +336,7 @@ public class AimbotMod extends ToggleMod {
             // make sure the packet isn't being called inside this method
             if(((CPacketPlayerDigging) event.getPacket()).getAction().equals(CPacketPlayerDigging.Action.RELEASE_USE_ITEM) &&
                     LocalPlayerUtils.isProjectileTargetAcquired() &&
-                    !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
+                    !PacketHelper.isIgnored(event.getPacket())) {
                 // make sure the player is still holding a valid weapon
                 EntityPlayer localPlayer = MC.player;
                 ItemStack heldItem = localPlayer.getHeldItemMainhand();
@@ -346,7 +347,7 @@ public class AimbotMod extends ToggleMod {
                     // tell server we let go of bow
                     Packet usePacket = new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN);
                     // add to ignore list
-                    Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
+                    PacketHelper.ignore(usePacket);
                     getNetworkManager().sendPacket(usePacket);
                     // revert back to the old view angles
                     LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
@@ -356,7 +357,7 @@ public class AimbotMod extends ToggleMod {
             }
         } else if(event.getPacket() instanceof CPacketPlayerTryUseItem &&
                 LocalPlayerUtils.isProjectileTargetAcquired() &&
-                !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket()) &&
+                !PacketHelper.isIgnored(event.getPacket()) &&
                 ((CPacketPlayerTryUseItem) event.getPacket()).getHand().equals(EnumHand.MAIN_HAND)) {
             EntityPlayer localPlayer = MC.player;
             ItemStack heldItem = localPlayer.getHeldItemMainhand();
@@ -368,7 +369,7 @@ public class AimbotMod extends ToggleMod {
                 // tell server we let go of bow
                 Packet usePacket = new CPacketPlayerTryUseItem(((CPacketPlayerTryUseItem) event.getPacket()).getHand());
                 // add to ignore list
-                Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
+                PacketHelper.ignore(usePacket);
                 getNetworkManager().sendPacket(usePacket);
                 // revert back to the old view angles
                 LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());

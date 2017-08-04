@@ -1,10 +1,10 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
+import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.ProjectileUtils;
-import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +17,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import static com.matt.forgehax.Helper.*;
+
+import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
 public class AutoProjectile extends ToggleMod {
@@ -32,7 +33,7 @@ public class AutoProjectile extends ToggleMod {
                 !LocalPlayerUtils.isFakeAnglesActive()) {
             if (event.getPacket() instanceof CPacketPlayerDigging &&
                     ((CPacketPlayerDigging) event.getPacket()).getAction().equals(CPacketPlayerDigging.Action.RELEASE_USE_ITEM) &&
-                    !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
+                    !PacketHelper.isIgnored(event.getPacket())) {
                 ItemStack heldItem = localPlayer.getHeldItemMainhand();
                 RayTraceResult trace = localPlayer.rayTrace(9999.D, 0.f);
                 if (heldItem != null &&
@@ -48,7 +49,7 @@ public class AutoProjectile extends ToggleMod {
                     // tell server we let go of bow
                     Packet usePacket = new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN);
                     // add to ignore list
-                    Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
+                    PacketHelper.isIgnored(usePacket);
                     getNetworkManager().sendPacket(usePacket);
                     // revert back to old angles
                     LocalPlayerUtils.sendRotatePacket(oldViewAngles);
@@ -56,7 +57,7 @@ public class AutoProjectile extends ToggleMod {
                 }
             } else if (event.getPacket() instanceof CPacketPlayerTryUseItem &&
                     ((CPacketPlayerTryUseItem) event.getPacket()).getHand().equals(EnumHand.MAIN_HAND) &&
-                    !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
+                    !PacketHelper.isIgnored(event.getPacket())) {
                 ItemStack heldItem = localPlayer.getHeldItemMainhand();
                 RayTraceResult trace = localPlayer.rayTrace(9999.D, 0.f);
                 if(heldItem != null &&
@@ -71,7 +72,7 @@ public class AutoProjectile extends ToggleMod {
                     // tell server we let go of bow
                     Packet usePacket = new CPacketPlayerTryUseItem(((CPacketPlayerTryUseItem) event.getPacket()).getHand());
                     // add to ignore list
-                    Utils.OUTGOING_PACKET_IGNORE_LIST.add(usePacket);
+                    PacketHelper.ignore(usePacket);
                     getNetworkManager().sendPacket(usePacket);
                     // revert back to the old view angles
                     LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());

@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -50,7 +50,7 @@ public class FancyChat extends ToggleMod {
 	public void onPacketSent(PacketEvent.Outgoing.Pre event)
 	{
 		if (event.getPacket() instanceof CPacketChatMessage
-				&& !Utils.OUTGOING_PACKET_IGNORE_LIST.contains(event.getPacket())) {
+				&& !PacketHelper.isIgnored(event.getPacket())) {
 
 
 			inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
@@ -104,7 +104,7 @@ public class FancyChat extends ToggleMod {
 				messageOut = inputMessage;
 
 			CPacketChatMessage packet = new CPacketChatMessage(messageOut);
-			Utils.OUTGOING_PACKET_IGNORE_LIST.add(packet);
+			PacketHelper.ignore(packet);
 			getNetworkManager().sendPacket(packet);
 			event.setCanceled(true);
 		}

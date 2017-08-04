@@ -2,25 +2,20 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-
-import java.util.Scanner;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.List;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
 
 /**
  * Created by Babbaj on 5/10/2017.
@@ -76,7 +71,7 @@ public class IgnoreMod extends ToggleMod {
 
             if (System.currentTimeMillis() >= lastMessageTime + 1500L)  {
                 CPacketChatMessage packet = new CPacketChatMessage("/pm " + messagePlayer + " ur ignored get raped");
-                Utils.OUTGOING_PACKET_IGNORE_LIST.add(packet);
+                PacketHelper.ignore(packet);
                 Helper.getNetworkManager().sendPacket(packet);
                 lastMessageTime = System.currentTimeMillis();
             }
