@@ -8,6 +8,7 @@
     + Binding/unbinding will trigger serialization
     + Bind option accepts input over 1 character now
     + Added name check command (.namecheck <player name>)
+    + Fixed xray opacity not changing and throwing opengl context error
 2.2.1-beta
     + Fixed name history order
     + Added wait for player connect and disconnect event triggers
