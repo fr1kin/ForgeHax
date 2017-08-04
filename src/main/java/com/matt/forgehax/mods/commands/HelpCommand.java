@@ -1,11 +1,16 @@
 package com.matt.forgehax.mods.commands;
 
+import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
+import com.matt.forgehax.util.console.ConsoleIO;
+import com.matt.forgehax.util.entity.PlayerInfo;
+import com.matt.forgehax.util.entity.PlayerInfoHelper;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import joptsimple.internal.Strings;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 import static com.matt.forgehax.Helper.getModManager;
@@ -60,6 +65,35 @@ public class HelpCommand extends CommandMod {
                             }
                             build.append('\n');
                         }
+                    });
+                    data.write(build.toString());
+                    data.markSuccess();
+                })
+                .build();
+    }
+
+    @RegisterCommand
+    public Command namecheck(CommandBuilders builder) {
+        return builder.newCommandBuilder()
+                .name("namecheck")
+                .description("Lists name history of given player")
+                .processor(data -> {
+                    data.requiredArguments(1);
+                    final StringBuilder build = new StringBuilder();
+                    final String arg = data.getArgumentAsString(0);
+                    PlayerInfoHelper.invokeEfficiently(arg, new FutureCallback<PlayerInfo>() {
+                        @Override
+                        public void onSuccess(@Nullable PlayerInfo result) {
+                            if(result == null) return;
+                            if(result.isOfflinePlayer()) {
+                                ConsoleIO.write(String.format("\"%s\" is not a registered username", result.getName()));
+                            } else {
+                                ConsoleIO.write(String.format("%s's name history: %s", result.getName(), result.getNameHistoryAsString()));
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {}
                     });
                     data.write(build.toString());
                     data.markSuccess();
