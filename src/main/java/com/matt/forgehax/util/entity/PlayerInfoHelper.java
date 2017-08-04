@@ -71,17 +71,21 @@ public class PlayerInfoHelper implements Globals {
      * Will either use already cached player info or start a new service to lookup the player info
      * @param name
      * @param callback
+     * @return true if the player info is being looked up on a separate thread
      */
     public static boolean invokeEfficiently(final String name, final FutureCallback<PlayerInfo> callback) {
         PlayerInfo info = get(name);
+        ListenableFuture<PlayerInfo> future;
+        boolean threaded;
         if(info == null) {
-            ListenableFuture<PlayerInfo> future = EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(name));
-            Futures.addCallback(future, callback);
-            return false; // using thread
+            future = EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(name));
+            threaded = true;
         } else {
-            callback.onSuccess(info);
-            return true; // using cache
+            future = Futures.immediateFuture(info);
+            threaded = false;
         }
+        Futures.addCallback(future, callback);
+        return threaded;
     }
 
     public static UUID getIdFromString(String uuid) {
