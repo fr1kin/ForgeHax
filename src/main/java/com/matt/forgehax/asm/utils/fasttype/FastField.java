@@ -4,16 +4,19 @@ import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.environment.State;
 import com.matt.forgehax.asm.utils.name.IName;
 import joptsimple.internal.Strings;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * Created on 5/25/2017 by fr1kin
  */
 public class FastField<V> extends FastType<Field> {
-    public FastField(Class<?> insideClass, IName<String> name) {
+    private final boolean stripFinal;
+
+    public FastField(Class<?> insideClass, IName<String> name, boolean stripFinal) {
         super(insideClass, name);
+        this.stripFinal = stripFinal;
     }
 
     public <E> V get(E instance, V defaultValue) {
@@ -62,6 +65,11 @@ public class FastField<V> extends FastType<Field> {
             if(!Strings.isNullOrEmpty(n)) try {
                     Field f = insideClass.getDeclaredField(n);
                     f.setAccessible(true);
+                    if(stripFinal) {
+                        Field modifiersField = Field.class.getDeclaredField("modifiers");
+                        modifiersField.setAccessible(true);
+                        modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+                    }
                     return f;
             } catch (Exception e) {
                 ;

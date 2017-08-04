@@ -23,6 +23,7 @@ public class FastTypeBuilder implements ASMCommon {
     private Class<?> returnType = null;
 
     private boolean auto = false;
+    private boolean stripFinal = false;
 
     public FastTypeBuilder setInsideClass(Class<?> insideClass) {
         this.insideClass = insideClass;
@@ -67,6 +68,11 @@ public class FastTypeBuilder implements ASMCommon {
         return this;
     }
 
+    public FastTypeBuilder definalize() {
+        this.stripFinal = true;
+        return this;
+    }
+
     public FastClass asClass() {
         Objects.requireNonNull(name);
         if(auto) {
@@ -83,7 +89,7 @@ public class FastTypeBuilder implements ASMCommon {
             srgName = MAPPER.getSrgFieldName(parentClassInternalName, name);
             obfuscatedName = MAPPER.getObfFieldName(parentClassInternalName, name);
         }
-        return new FastField<V>(insideClass, NameBuilder.create(name, srgName, obfuscatedName));
+        return new FastField<V>(insideClass, NameBuilder.create(name, srgName, obfuscatedName), stripFinal);
     }
 
     public <V> FastMethod<V> asMethod() {
