@@ -54,6 +54,15 @@ import java.util.function.BiConsumer;
 @RegisterMod
 public class Markers extends ToggleMod implements BlockModelRenderListener {
     // TODO: Bug when a render chunk is empty according to isEmptyLayer but actually contains tile entities with an invisible render layer type. This will cause them not to be rendered provided they are the only blocks within that region.
+
+    // TODO:
+    // there are two bugs currently
+    // 1) isChunkEmpty stops chunk from being processed (easy fix - just add or in the statement, but this may slow down chunk loading)
+    // 2) sometimes while one chunk is still being processed another thread will start processing it (this is why the exception
+    //      RuntimeException("attempted to take a tessellator despite not needing one") is thrown). i still havent figured out a way to
+    //      safely terminate the other process, but this will cause chunks to be skipped and old buffer data to be rendered.
+    //      One solution is how schematica does it (essentially copies the render code), this would be faster but would be alot of work.
+
     private static final int VERTEX_BUFFER_COUNT = 100;
     private static final int VERTEX_BUFFER_SIZE = 0x200;
 
@@ -299,7 +308,8 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 GeometryTessellator tess = info.getTessellator();
                 if (tess != null && FastReflection.Fields.BufferBuilder_isDrawing.get(tess.getBuffer(), false)) {
                     BlockEntry blockEntry = options.get(state);
-                    if(blockEntry != null && blockEntry.getReadableProperty(BoundProperty.class).isWithinBoundaries(pos.getY())) {
+                    if(blockEntry != null
+                            && blockEntry.getReadableProperty(BoundProperty.class).isWithinBoundaries(pos.getY())) {
                         AxisAlignedBB bb = state.getSelectedBoundingBox(Helper.getWorld(), pos);
                         GeometryTessellator.drawLines(
                                 tess.getBuffer(),
