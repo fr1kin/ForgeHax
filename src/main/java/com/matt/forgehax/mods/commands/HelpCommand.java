@@ -81,15 +81,22 @@ public class HelpCommand extends CommandMod {
                     data.requiredArguments(1);
                     final StringBuilder build = new StringBuilder();
                     final String arg = data.getArgumentAsString(0);
+                    final int indents = ConsoleIO.getIndents();
                     PlayerInfoHelper.invokeEfficiently(arg, new FutureCallback<PlayerInfo>() {
                         @Override
                         public void onSuccess(@Nullable PlayerInfo result) {
                             if(result == null) return;
+                            int previousIndents = ConsoleIO.getIndents();
+                            ConsoleIO.setIndents(indents);
                             if(result.isOfflinePlayer()) {
                                 ConsoleIO.write(String.format("\"%s\" is not a registered username", result.getName()));
                             } else {
-                                ConsoleIO.write(String.format("%s's name history: %s", result.getName(), result.getNameHistoryAsString()));
+                                if(result.getNameHistory().size() > 1)
+                                    ConsoleIO.write(String.format("%s's name history (newest-oldest): %s", result.getName(), result.getNameHistoryAsString()));
+                                else
+                                    ConsoleIO.write(String.format("%s has never changed their name", result.getName()));
                             }
+                            ConsoleIO.setIndents(previousIndents);
                         }
 
                         @Override

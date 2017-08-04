@@ -11,6 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created on 6/10/2017 by fr1kin
  */
+
+// TODO: fix memory leak
 public class ConsoleIO implements Globals {
     public static final Style HEADING = new Style().setColor(TextFormatting.GRAY).setItalic(true);
 
@@ -48,6 +50,14 @@ public class ConsoleIO implements Globals {
 
     public static void decrementIndent() {
         getOrCreate().decrementAndGet();
+    }
+
+    public static int getIndents() {
+        return getOrCreate().get();
+    }
+
+    public static void setIndents(int indents) {
+        getOrCreate().set(indents);
     }
 
     public static void finished() {
