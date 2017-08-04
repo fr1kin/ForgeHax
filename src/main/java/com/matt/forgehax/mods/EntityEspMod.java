@@ -176,7 +176,7 @@ public class EntityEspMod extends ToggleMod {
                         if (enabled.get() == (DrawOptions.ADVANCED.ordinal()) && armor.get() > 0) {
                             List<ItemStack> armor = Lists.newArrayList();
                             for (ItemStack stack : living.getEquipmentAndArmor())
-                                if (stack != null || Objects.equals(stack, ItemStack.EMPTY)) // only add non-null items
+                                if (stack != null && Objects.equals(stack, ItemStack.EMPTY)) // only add non-null items
                                     armor.add(0, stack);
                             if (armor.size() > 0) {
                                 int endY = botY + 16;
