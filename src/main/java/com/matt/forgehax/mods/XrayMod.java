@@ -22,7 +22,7 @@ public class XrayMod extends ToggleMod {
             .min(0)
             .max(255)
             .changed(cb -> {
-                ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (this.opacity.getAsFloat() / 255.f);
+                ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (cb.getTo().floatValue() / 255.f);
                 reloadRenderers();
             })
             .build();
