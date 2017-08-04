@@ -35,7 +35,7 @@ public class XrayMod extends ToggleMod {
 
     public void reloadRenderers() {
         if(MC.renderGlobal != null) {
-            if (MC.isCallingFromMinecraftThread())
+            if (!MC.isCallingFromMinecraftThread())
                 MC.addScheduledTask(() -> {
                     MC.renderGlobal.loadRenderers();
                 });
