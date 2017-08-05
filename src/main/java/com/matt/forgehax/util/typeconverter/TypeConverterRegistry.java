@@ -33,10 +33,10 @@ public class TypeConverterRegistry {
     @Nullable
     public static <T> TypeConverter<T> get(Class<?> type) {
         try {
-            return (TypeConverter<T>) REGISTRY.get(type);
-        } catch (Throwable t) {
-            return null;
-        }
+            for(TypeConverter<?> converter : REGISTRY.values()) if(converter.isType(type))
+                return (TypeConverter<T>)converter;
+        } catch (Throwable t) {}
+        return null;
     }
 
     static {
