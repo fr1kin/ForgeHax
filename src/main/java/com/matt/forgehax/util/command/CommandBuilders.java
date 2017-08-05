@@ -37,6 +37,10 @@ public class CommandBuilders {
         return new SettingBuilder<T>().parent(parent);
     }
 
+    public <T extends Enum<T>> SettingEnumBuilder<T> newSettingEnumBuilder() {
+        return new SettingEnumBuilder<T>().parent(parent);
+    }
+
     public <T extends ISerializableJson> OptionsBuilder<T> newOptionsBuilder() {
         return new OptionsBuilder<T>().parent(parent);
     }
