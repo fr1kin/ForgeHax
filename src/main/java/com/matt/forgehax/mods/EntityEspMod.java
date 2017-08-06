@@ -40,36 +40,28 @@ public class EntityEspMod extends ToggleMod {
         ENCHANTMENTS
     }
 
-    public final Setting<Integer> players = getCommandStub().builders().<Integer>newSettingBuilder()
+    public final Setting<DrawOptions> players = getCommandStub().builders().<DrawOptions>newSettingEnumBuilder()
             .name("players")
             .description("Enables players")
-            .defaultTo(DrawOptions.NAME.ordinal())
-            .min(0)
-            .max(DrawOptions.values().length - 1)
+            .defaultTo(DrawOptions.NAME)
             .build();
 
-    public final Setting<Integer> mobs_hostile = getCommandStub().builders().<Integer>newSettingBuilder()
+    public final Setting<DrawOptions> mobs_hostile = getCommandStub().builders().<DrawOptions>newSettingEnumBuilder()
             .name("mobs_hostile")
             .description("Enables hostile mobs")
-            .defaultTo(DrawOptions.NAME.ordinal())
-            .min(0)
-            .max(DrawOptions.values().length - 1)
+            .defaultTo(DrawOptions.NAME)
             .build();
 
-    public final Setting<Integer> mobs_friendly = getCommandStub().builders().<Integer>newSettingBuilder()
+    public final Setting<DrawOptions> mobs_friendly = getCommandStub().builders().<DrawOptions>newSettingEnumBuilder()
             .name("mobs_friendly")
             .description("Enables friendly mobs")
-            .defaultTo(DrawOptions.NAME.ordinal())
-            .min(0)
-            .max(DrawOptions.values().length - 1)
+            .defaultTo(DrawOptions.NAME)
             .build();
 
-    public final Setting<Integer> armor = getCommandStub().builders().<Integer>newSettingBuilder()
+    public final Setting<ArmorOptions> armor = getCommandStub().builders().<ArmorOptions>newSettingEnumBuilder()
             .name("armor")
-            .description("Draws armor")
-            .defaultTo(ArmorOptions.ENCHANTMENTS.ordinal())
-            .min(0)
-            .max(ArmorOptions.values().length)
+            .description("Draw armor")
+            .defaultTo(ArmorOptions.DISABLED)
             .build();
 
     public final Setting<Boolean> distance = getCommandStub().builders().<Boolean>newSettingBuilder()
@@ -82,7 +74,7 @@ public class EntityEspMod extends ToggleMod {
         super("EntityESP", false, "Shows entity locations and info");
     }
 
-    private Setting<Integer> getCorrespondingSetting(Entity entity) {
+    private Setting<DrawOptions> getCorrespondingSetting(Entity entity) {
         return EntityUtils.isHostileMob(entity) ? mobs_hostile : (EntityUtils.isPlayer(entity) ? players : mobs_friendly);
     }
 
@@ -94,9 +86,9 @@ public class EntityEspMod extends ToggleMod {
                 !entity.equals(MC.player) &&
                         EntityUtils.isAlive(entity) &&
                         EntityUtils.isValidEntity(entity) && (
-                        (mobs_hostile.get() > 0 && EntityUtils.isHostileMob(entity)) || // check this first
-                                (players.get() > 0 && EntityUtils.isPlayer(entity)) ||
-                                (mobs_friendly.get() > 0 && EntityUtils.isFriendlyMob(entity))
+                        (!DrawOptions.DISABLED.equals(mobs_hostile.get()) && EntityUtils.isHostileMob(entity)) || // check this first
+                                (!DrawOptions.DISABLED.equals(players.get()) && EntityUtils.isPlayer(entity)) ||
+                                (!DrawOptions.DISABLED.equals(mobs_friendly.get()) && EntityUtils.isFriendlyMob(entity))
                 ));
     }
 
@@ -117,7 +109,7 @@ public class EntityEspMod extends ToggleMod {
                     VectorUtils.ScreenPos top = VectorUtils.toScreen(topVec.x, topVec.y, topVec.z);
                     VectorUtils.ScreenPos bot = VectorUtils.toScreen(bottomVec.x, bottomVec.y, bottomVec.z);
                     if (top.isVisible || bot.isVisible) {
-                        Setting<Integer> enabled = getCorrespondingSetting(living);
+                        Setting<DrawOptions> enabled = getCorrespondingSetting(living);
 
                         int topX = top.x;
                         int topY = top.y + 1;
@@ -129,7 +121,7 @@ public class EntityEspMod extends ToggleMod {
                         // optical esp
                         // drawMode == null means they are the target but the esp is disabled for them
                         if (LocalPlayerUtils.isTargetEntity(entity)
-                                || enabled.get() > 0) {
+                                || DrawOptions.ADVANCED.equals(enabled.get())) {
                             int x = (top.x - (width / 2));
                             int y = top.y;
                             int w = width;
@@ -145,7 +137,7 @@ public class EntityEspMod extends ToggleMod {
                         //----TOP ESP----
 
                         // health esp
-                        if (enabled.get() == (DrawOptions.ADVANCED.ordinal()) || enabled.get() == (DrawOptions.SIMPLE.ordinal())) {
+                        if (DrawOptions.ADVANCED.equals(enabled.get()) || DrawOptions.SIMPLE.equals(enabled.get())) {
                             double hp = (living.getHealth() / living.getMaxHealth());
                             int posX = topX - (HEALTHBAR_WIDTH / 2);
                             int posY = topY - HEALTHBAR_HEIGHT - 2;
@@ -161,9 +153,12 @@ public class EntityEspMod extends ToggleMod {
                         }
 
                         // name esp
-                        if (enabled.get() == DrawOptions.ADVANCED.ordinal() || enabled.get() == (DrawOptions.SIMPLE.ordinal()) || enabled.get() == (DrawOptions.NAME.ordinal())) {
+                        if (DrawOptions.ADVANCED.equals(enabled.get())
+                                || DrawOptions.SIMPLE.equals(enabled.get())
+                                || DrawOptions.NAME.equals(enabled.get())) {
                             String text = living.getDisplayName().getFormattedText();
-                            if(distance.get() && (enabled.get() == DrawOptions.SIMPLE.ordinal() || enabled.get() == (DrawOptions.ADVANCED.ordinal()))) {
+                            if(distance.get()
+                                    && (DrawOptions.SIMPLE.equals(enabled.get()) || DrawOptions.ADVANCED.equals(enabled.get()))) {
                                 text += String.format(" (%.1f)", living.getPositionVector().distanceTo(MC.player.getPositionVector()));
                             }
                             SurfaceUtils.drawTextShadow(text, topX - (SurfaceUtils.getTextWidth(text) / 2), topY - SurfaceUtils.getTextHeight() - 1, Utils.toRGBA(255, 255, 255, 255));
@@ -173,7 +168,7 @@ public class EntityEspMod extends ToggleMod {
                         //----BOTTOM ESP----
 
                         // armor esp
-                        if (enabled.get() == (DrawOptions.ADVANCED.ordinal()) && armor.get() > 0) {
+                        if (DrawOptions.ADVANCED.equals(enabled.get()) && !ArmorOptions.DISABLED.equals(armor.get())) {
                             List<ItemStack> armor = Lists.newArrayList();
                             for (ItemStack stack : living.getEquipmentAndArmor())
                                 if (stack != null && Objects.equals(stack, ItemStack.EMPTY)) // only add non-null items
@@ -187,7 +182,7 @@ public class EntityEspMod extends ToggleMod {
                                     int startY = botY;
                                     SurfaceUtils.drawItemWithOverlay(stack, startX, startY);
                                     // enchantment esp
-                                    if (this.armor.get() == (ArmorOptions.ENCHANTMENTS.ordinal())) {
+                                    if (ArmorOptions.ENCHANTMENTS.equals(this.armor.get())) {
                                         List<EnchantmentUtils.EntityEnchantment> enchantments = EnchantmentUtils.getEnchantmentsSorted(stack.getEnchantmentTagList());
                                         if (enchantments != null) {
                                             for (EnchantmentUtils.EntityEnchantment enchant : enchantments) {
