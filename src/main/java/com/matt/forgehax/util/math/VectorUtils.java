@@ -7,26 +7,22 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 public class VectorUtils implements Globals {
-    // thanks Gregor
-    static Matrix4f viewMatrix = new Matrix4f();
+    // Credits to Gregor and P47R1CK for the 3D vector transformation code
+
+    static Matrix4f modelMatrix = new Matrix4f();
     static Matrix4f projectionMatrix = new Matrix4f();
 
-    private static Vector3f Vec3TransformCoordinate(Vector3f vec, Matrix4f matrix) {
-        Vector3f vOutput = new Vector3f(0, 0, 0);
-
-        vOutput.x = (vec.x * matrix.m00) + (vec.y * matrix.m10) + (vec.z * matrix.m20) + matrix.m30;
-        vOutput.y = (vec.x * matrix.m01) + (vec.y * matrix.m11) + (vec.z * matrix.m21) + matrix.m31;
-        vOutput.z = (vec.x * matrix.m02) + (vec.y * matrix.m12) + (vec.z * matrix.m22) + matrix.m32;
-        float w = 1 / ((vec.x * matrix.m03) + (vec.y * matrix.m13) + (vec.z * matrix.m23) + matrix.m33);
-
-        vOutput.x *= w;
-        vOutput.y *= w;
-        vOutput.z *= w;
-
-        return vOutput;
+    private static void VecTransformCoordinate(Vector4f vec, Matrix4f matrix) {
+        float x = vec.x;
+        float y = vec.y;
+        float z = vec.z;
+        vec.x = (x * matrix.m00) + (y * matrix.m10) + (z * matrix.m20) + matrix.m30;
+        vec.y = (x * matrix.m01) + (y * matrix.m11) + (z * matrix.m21) + matrix.m31;
+        vec.z = (x * matrix.m02) + (y * matrix.m12) + (z * matrix.m22) + matrix.m32;
+        vec.w = (x * matrix.m03) + (y * matrix.m13) + (z * matrix.m23) + matrix.m33;
     }
 
     /**
@@ -37,35 +33,40 @@ public class VectorUtils implements Globals {
 
         if(view == null) return new ScreenPos(0, 0, false);
 
-        Vec3d viewNormal = view.getLook(MC.getRenderPartialTicks()).normalize();
-
         Vec3d camPos = FastReflection.Fields.ActiveRenderInfo_position.getStatic();
         Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
 
-        float vecX = (float) ((camPos.x + eyePos.x) - x);
-        float vecY = (float) ((camPos.y + eyePos.y) - y);
-        float vecZ = (float) ((camPos.z + eyePos.z) - z);
+        float vecX = (float) ((camPos.x + eyePos.x) - (float)x);
+        float vecY = (float) ((camPos.y + eyePos.y) - (float)y);
+        float vecZ = (float) ((camPos.z + eyePos.z) - (float)z);
 
-        Vector3f pos = new Vector3f(vecX, vecY, vecZ);
+        Vector4f pos = new Vector4f(vecX, vecY, vecZ, 1.f);
 
-        viewMatrix.load(FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
+        modelMatrix.load(FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
         projectionMatrix.load(FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().asReadOnlyBuffer());
 
-        pos = Vec3TransformCoordinate(pos, viewMatrix);
-        pos = Vec3TransformCoordinate(pos, projectionMatrix);
+        VecTransformCoordinate(pos, modelMatrix);
+        VecTransformCoordinate(pos, projectionMatrix);
 
-        ScaledResolution scaledRes = new ScaledResolution(MC);
-        pos.x = (float) ((scaledRes.getScaledWidth() * (pos.x + 1.0)) / 2.0);
-        pos.y = (float) (scaledRes.getScaledHeight() * (1.0 - ((pos.y + 1.0) / 2.0)));
+        if (pos.w > 0.f) {
+            pos.x *= -100000;
+            pos.y *= -100000;
+        } else {
+            float invert = 1.f / pos.w;
+            pos.x *= invert;
+            pos.y *= invert;
+        }
 
-        boolean bVisible = false;
+        ScaledResolution res = new ScaledResolution(MC);
+        float halfWidth = (float)res.getScaledWidth() / 2.f;
+        float halfHeight = (float)res.getScaledHeight() / 2.f;
 
-        double dot = viewNormal.x * vecX + viewNormal.y * vecY + viewNormal.z * vecZ;
+        pos.x = halfWidth + (0.5f * pos.x * res.getScaledWidth() + 0.5f);
+        pos.y = halfHeight - (0.5f * pos.y * res.getScaledHeight() + 0.5f);
 
-        if (dot < 0) // We only want vectors that are in front of the player
-            bVisible = true;
+        boolean bVisible = true;
 
-        if(pos.x < 0 || pos.y < 0 || pos.x > scaledRes.getScaledWidth() || pos.y > scaledRes.getScaledHeight())
+        if(pos.x < 0 || pos.y < 0 || pos.x > res.getScaledWidth() || pos.y > res.getScaledHeight())
             bVisible = false;
 
         return new ScreenPos(pos.x, pos.y, bVisible);
