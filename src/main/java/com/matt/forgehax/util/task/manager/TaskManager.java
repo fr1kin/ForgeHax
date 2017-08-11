@@ -1,28 +1,26 @@
 package com.matt.forgehax.util.task.manager;
 
-import com.google.common.collect.Queues;
-import com.matt.forgehax.util.task.Task;
+import com.google.common.collect.Lists;
+import com.matt.forgehax.util.task.TaskParent;
+import com.matt.forgehax.util.task.TaskType;
 
-import java.util.Queue;
+import java.util.List;
 
 /**
  * Created on 6/15/2017 by fr1kin
  */
-public class TaskManager<T extends Task> {
-    private final Queue<T> tasks = Queues.newPriorityQueue();
+public class TaskManager {
+    private static final List<TaskParent> tasks = Lists.newCopyOnWriteArrayList();
 
-    public void registerTask(T task) {
+    public static void register(TaskParent task) {
         tasks.add(task);
     }
 
-    public void unregisterTask(T task) {
+    public static void unregister(TaskParent task) {
         tasks.remove(task);
     }
 
-    public T getTopTask() {
-        return tasks.stream()
-                .filter(Task::isEnabled)
-                .findFirst()
-                .orElse(null);
+    public static TaskParent getTop(final TaskType type) {
+        return null;
     }
 }
