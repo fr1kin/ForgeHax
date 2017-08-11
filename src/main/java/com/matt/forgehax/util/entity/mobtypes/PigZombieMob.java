@@ -21,6 +21,6 @@ public class PigZombieMob extends MobType {
     @Override
     protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
         EntityPigZombie zombie = (EntityPigZombie)entity;
-        return (zombie.isArmsRaised() || zombie.isAngry()) ? MobTypeEnum.HOSTILE : MobTypeEnum.FRIENDLY;
+        return (zombie.isArmsRaised() || zombie.isAngry()) ? MobTypeEnum.HOSTILE : MobTypeEnum.NEUTRAL;
     }
 }

@@ -21,6 +21,6 @@ public class EndermanMob extends MobType {
     @Override
     protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
         EntityEnderman enderman = (EntityEnderman)entity;
-        return enderman.isScreaming() ? MobTypeEnum.HOSTILE : MobTypeEnum.FRIENDLY;
+        return enderman.isScreaming() ? MobTypeEnum.HOSTILE : MobTypeEnum.NEUTRAL;
     }
 }

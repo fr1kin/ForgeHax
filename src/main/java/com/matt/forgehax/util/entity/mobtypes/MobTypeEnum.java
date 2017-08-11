@@ -15,12 +15,17 @@ public enum MobTypeEnum {
     HOSTILE,
 
     /**
+     * Mob does not attack by default, but will under certain circumstances
+     */
+    NEUTRAL,
+
+    /**
      * Mob is friendly and will not harm the player
      */
     FRIENDLY,
 
     /**
-     * Mob does not attack by default, but will under certain circumstances
+     * Unknown
      */
     INVALID,
     ;

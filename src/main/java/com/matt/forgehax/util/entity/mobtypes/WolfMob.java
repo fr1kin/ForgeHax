@@ -16,7 +16,7 @@ public class WolfMob extends MobType {
     @Override
     protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
         EntityWolf wolf = (EntityWolf)entity;
-        return wolf.isAngry() ? MobTypeEnum.HOSTILE : MobTypeEnum.FRIENDLY;
+        return wolf.isAngry() ? MobTypeEnum.HOSTILE : MobTypeEnum.NEUTRAL;
     }
 
     @Override
