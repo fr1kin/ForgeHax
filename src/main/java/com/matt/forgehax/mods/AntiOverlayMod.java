@@ -3,8 +3,10 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.material.Material;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.advancements.GuiAdvancement;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
@@ -29,7 +31,14 @@ public class AntiOverlayMod extends ToggleMod {
      * Disables screen overlays
      */
     @SubscribeEvent
-    public void onRenderOverlay(RenderBlockOverlayEvent event) {
-        event.setCanceled(true);
+    public void onRenderBlockOverlay(RenderBlockOverlayEvent event) { event.setCanceled(true); }
+
+    @SubscribeEvent
+    public void onRenderGameOverlay(RenderGameOverlayEvent event) {
+        if (event.getType().equals(RenderGameOverlayEvent.ElementType.HELMET) ||
+                event.getType().equals(RenderGameOverlayEvent.ElementType.PORTAL))
+            event.setCanceled(true);
     }
+
+
 }

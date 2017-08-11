@@ -13,14 +13,17 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
+import net.minecraft.util.Session;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 import java.nio.FloatBuffer;
 
@@ -72,6 +75,19 @@ public interface FastReflection extends ASMCommon {
         FastField<Boolean> CPacketPlayer_onGround = FastTypeBuilder.create()
                 .setInsideClass(CPacketPlayer.class)
                 .setName("onGround")
+                .autoAssign()
+                .asField();
+        /**
+         * SPacketPlayerPosLook
+         */
+        FastField<Float> SPacketPlayer_pitch = FastTypeBuilder.create()
+                .setInsideClass(SPacketPlayerPosLook.class)
+                .setName("pitch")
+                .autoAssign()
+                .asField();
+        FastField<Float> SPacketPlayer_yaw = FastTypeBuilder.create()
+                .setInsideClass(SPacketPlayerPosLook.class)
+                .setName("yaw")
                 .autoAssign()
                 .asField();
 
@@ -202,6 +218,15 @@ public interface FastReflection extends ASMCommon {
         FastField<Boolean> BufferBuilder_isDrawing = FastTypeBuilder.create()
                 .setInsideClass(BufferBuilder.class)
                 .setName("isDrawing")
+                .autoAssign()
+                .asField();
+
+        /**
+         * Session
+         */
+        FastField<String> Session_username = FastTypeBuilder.create()
+                .setInsideClass(Session.class)
+                .setName("username")
                 .autoAssign()
                 .asField();
     }

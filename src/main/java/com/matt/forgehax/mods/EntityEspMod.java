@@ -147,7 +147,7 @@ public class EntityEspMod extends ToggleMod {
                                     posY + 1,
                                     (int) ((float) (HEALTHBAR_WIDTH - 2) * hp),
                                     HEALTHBAR_HEIGHT - 2,
-                                    Utils.toRGBA((int) ((255 - hp) * 255), (int) (255 * hp), 0, 255)
+                                    (living.getHealth() + living.getAbsorptionAmount() > 20F) ? Utils.toRGBA(255, 255, 0,  255) : Utils.toRGBA((int) ((255 - hp) * 255), (int) (255 * hp), 0, 255) // if above 20 hp healthbar is yellow
                             );
                             topY -= HEALTHBAR_HEIGHT + 1;
                         }

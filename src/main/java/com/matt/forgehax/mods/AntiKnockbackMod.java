@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
+import com.matt.forgehax.asm.events.PushOutOfBlocksEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
@@ -10,6 +11,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
@@ -93,5 +95,10 @@ public class AntiKnockbackMod extends ToggleMod {
             );
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public void onPushOutOfBlocks (PushOutOfBlocksEvent event) {
+        event.setCanceled(true);
     }
 }

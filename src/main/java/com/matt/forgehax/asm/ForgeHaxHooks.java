@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.matt.forgehax.Globals.MC;
+
 public class ForgeHaxHooks implements ASMCommon {
     public static boolean isInDebugMode = true;
 
@@ -56,6 +58,9 @@ public class ForgeHaxHooks implements ASMCommon {
         responding.put("onRenderBlockInLayer",              new DebugData("net.minecraft.block.Block"));
         responding.put("onSetupTerrain",                    new DebugData("net.minecraft.client.renderer.RenderGlobal"));
         responding.put("onComputeVisibility",               new DebugData("net.minecraft.client.renderer.chunk.VisGraph"));
+        responding.put("onPushOutOfBlocks",                 new DebugData("net.minecraft.client.entity.EntityPlayerSP"));
+        responding.put("onRenderBoat",                      new DebugData("net.minecraft.client.renderer.entity.RenderBoat"));
+
     }
 
     private static void reportHook(String name) {
@@ -83,6 +88,10 @@ public class ForgeHaxHooks implements ASMCommon {
 
     public static boolean isSafeWalkActivated = false;
     public static boolean isNoSlowDownActivated = false;
+
+    public static boolean isNoBoatGravityActivated = false;
+    public static boolean isNoBoatRotationActivated = false;
+    public static boolean isNoClampingActivated = false;
 
     public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = Sets.newHashSet();
 
@@ -147,6 +156,16 @@ public class ForgeHaxHooks implements ASMCommon {
             }
         }
         return buffer;
+    }
+
+    public static boolean onPushOutOfBlocks() {
+        reportHook("onPushOutOfBlocks");
+        return MinecraftForge.EVENT_BUS.post(new PushOutOfBlocksEvent());
+    }
+
+    public static float onRenderBoat() {
+        reportHook("onRenderBoat");
+        return MC.player != null ? MC.player.rotationYaw : 0f;
     }
 
     public static boolean onPreRenderBlockLayer(BlockRenderLayer layer, double partialTicks) {
