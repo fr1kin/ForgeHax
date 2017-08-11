@@ -43,11 +43,6 @@ public interface TypesHook {
                 .setType(boolean.class)
                 .build();
 
-        ASMField ForgeHaxHooks_isCutAwayWorldActivated = Classes.ForgeHaxHooks.childField()
-                .setName("isCutAwayWorldActivated")
-                .setType(boolean.class)
-                .build();
-
     }
 
     interface Methods {
