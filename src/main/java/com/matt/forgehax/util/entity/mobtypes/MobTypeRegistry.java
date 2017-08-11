@@ -9,28 +9,26 @@ import java.util.List;
  * Created on 6/27/2017 by fr1kin
  */
 public class MobTypeRegistry {
-    private static final List<MobType> MOB_TYPES = Lists.newCopyOnWriteArrayList();
+    public static final MobType HOSTILE = new HostileMob();
+    public static final MobType FRIENDLY = new FriendlyMob();
+
+    private static final List<MobType> MOB_TYPES_SPECIAL = Lists.newCopyOnWriteArrayList();
 
     public static void register(MobType type) {
-        MOB_TYPES.add(type);
-        Collections.sort(MOB_TYPES);
+        MOB_TYPES_SPECIAL.add(type);
+        Collections.sort(MOB_TYPES_SPECIAL);
     }
 
     public static void unregister(MobType type) {
-        MOB_TYPES.remove(type);
-        Collections.sort(MOB_TYPES);
+        MOB_TYPES_SPECIAL.remove(type);
+        Collections.sort(MOB_TYPES_SPECIAL);
     }
 
-    public static List<MobType> getSortedMobTypes() {
-        return MOB_TYPES;
+    public static List<MobType> getSortedSpecialMobTypes() {
+        return MOB_TYPES_SPECIAL;
     }
 
     static {
-        // default mobs
-        register(new HostileMob());
-        register(new FriendlyMob());
-
-        // special mobs
         register(new EndermanMob());
         register(new PigZombieMob());
         register(new WolfMob());
