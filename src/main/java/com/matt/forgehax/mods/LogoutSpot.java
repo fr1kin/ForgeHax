@@ -1,8 +1,9 @@
 package com.matt.forgehax.mods;
 
+import com.github.lunatrius.core.client.renderer.GeometryMasks;
+import com.github.lunatrius.core.client.renderer.GeometryTessellator;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.RenderEvent;
@@ -10,38 +11,24 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.math.VectorUtils;
-import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.mod.ToggleMod;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.entity.player.*;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.network.play.server.SPacketDestroyEntities;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
-import net.minecraft.network.play.server.SPacketSpawnPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.Vec3d;
-import com.matt.forgehax.util.draw.RenderUtils;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import com.github.lunatrius.core.client.renderer.GeometryMasks;
-import com.github.lunatrius.core.client.renderer.GeometryTessellator;
-
-import java.util.*;
-
-
 import org.lwjgl.opengl.GL11;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.entity.Entity;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 
 @RegisterMod
@@ -201,8 +188,8 @@ public class LogoutSpot extends ToggleMod {
 
     @Override
     public void onLoad() {
-        GLOBAL_COMMAND.builders().newCommandBuilder()
-                .name("clearlogout")
+        getCommandStub().builders().newCommandBuilder()
+                .name("clear")
                 .description("Clear cloned players")
                 .processor(data -> {
                     data.requiredArguments(0);
