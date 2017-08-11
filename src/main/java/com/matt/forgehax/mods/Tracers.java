@@ -65,6 +65,9 @@ public class Tracers extends ToggleMod {
                         // theta = dot(u,w)/(|u|*|w|)
                         float ang = (float) Math.toDegrees(Math.acos((u.x*w.x + u.y*w.y)/(mu*mw)));
 
+                        // don't allow NaN angles
+                        if(ang == Float.NaN) ang = 0;
+
                         // invert if above
                         if(y < center.y) ang *= -1;
 
