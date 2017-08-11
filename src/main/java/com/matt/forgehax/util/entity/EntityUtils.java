@@ -6,6 +6,7 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.entity.mobtypes.MobType;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeRegistry;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
@@ -26,9 +27,14 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 
 public class EntityUtils implements Globals {
     public static MobTypeEnum getRelationship(Entity entity) {
-        for(MobType type : MobTypeRegistry.getSortedMobTypes()) if(type.isMobType(entity))
-            return type.getMobType(entity);
-        return MobTypeEnum.HOSTILE; // assume any mob is hostile
+        if(entity instanceof AbstractClientPlayer)
+            return MobTypeEnum.PLAYER;
+        else {
+            for (MobType type : MobTypeRegistry.getSortedMobTypes())
+                if (type.isMobType(entity))
+                    return type.getMobType(entity);
+            return MobTypeEnum.HOSTILE; // assume any mob is hostile
+        }
     }
 
     public static boolean isBatsDisabled = false;

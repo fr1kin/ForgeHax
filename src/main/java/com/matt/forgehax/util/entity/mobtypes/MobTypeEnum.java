@@ -5,9 +5,14 @@ package com.matt.forgehax.util.entity.mobtypes;
  */
 public enum MobTypeEnum {
     /**
-     * Mob does not attack by default, but will under certain circumstances
+     * Is a player
      */
-    INVALID,
+    PLAYER,
+
+    /**
+     * Mob will attack the player
+     */
+    HOSTILE,
 
     /**
      * Mob is friendly and will not harm the player
@@ -15,9 +20,9 @@ public enum MobTypeEnum {
     FRIENDLY,
 
     /**
-     * Mob will attack the player
+     * Mob does not attack by default, but will under certain circumstances
      */
-    HOSTILE
+    INVALID,
     ;
 
     public boolean isValid() {
