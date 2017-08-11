@@ -320,16 +320,6 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
-        ASMMethod EntityRenderer_renderWorld = Classes.EntityRenderer.childMethod()
-                .setName("renderWorld")
-                .setReturnType(void.class)
-                .beginParameters()
-                .add(float.class)
-                .add(long.class)
-                .finish()
-                .autoAssign()
-                .build();
-
         ASMMethod NetworkManager$4_run = Classes.NetworkManager$4.childMethod()
                 .setName("run")
                 .setReturnType(void.class)
