@@ -1,6 +1,7 @@
 package com.matt.forgehax.util.draw;
 
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.util.Utils;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -75,8 +76,6 @@ public class SurfaceUtils implements Globals {
     }
 
     public static void drawTexturedRect(int x, int y, int textureX, int textureY, int width, int height, int zLevel) {
-        float f = 0.00390625F;
-        float f1 = 0.00390625F;
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder BufferBuilder = tessellator.getBuffer();
         BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
@@ -85,6 +84,36 @@ public class SurfaceUtils implements Globals {
         BufferBuilder.pos((double)(x + width), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + width) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
         BufferBuilder.pos((double)(x + 0), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + 0) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
         tessellator.draw();
+    }
+
+    public static void drawTriangle(int x, int y, int size, float rotate, int color) {
+        GlStateManager.pushMatrix();
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder builder = tessellator.getBuffer();
+
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+
+        GlStateManager.translate(x, y, 0.f);
+        GlStateManager.rotate(rotate, 0.f, 0.f, size / 2.f);
+
+        int[] colors = Utils.toRGBAArray(color);
+        GlStateManager.color(colors[0], colors[1], colors[2], colors[3]);
+
+        builder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION);
+
+        builder.pos(0, 0, 0).endVertex();
+        builder.pos(-size, -size, 0).endVertex();
+        builder.pos(-size, size, 0).endVertex();
+
+        tessellator.draw();
+
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+
+        GlStateManager.popMatrix();
     }
 
     public static void drawText(String msg, int x, int y, int color) {
