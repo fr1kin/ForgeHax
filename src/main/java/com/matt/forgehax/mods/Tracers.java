@@ -33,6 +33,7 @@ public class Tracers extends ToggleMod {
         final double cy = MC.displayHeight / 4.f;
         getWorld().loadedEntityList.stream()
                 .filter(entity -> !Objects.equals(entity, getLocalPlayer()))
+                .filter(entity -> !EntityUtils.getRelationship(entity).equals(MobTypeEnum.INVALID))
                 .sorted((o1, o2) ->
                 {
                     MobTypeEnum r1 = EntityUtils.getRelationship(o1);
