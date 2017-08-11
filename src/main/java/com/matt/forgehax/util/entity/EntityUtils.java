@@ -29,15 +29,18 @@ public class EntityUtils implements Globals {
     public static MobTypeEnum getRelationship(Entity entity) {
         if(entity instanceof AbstractClientPlayer)
             return MobTypeEnum.PLAYER;
-        else if(MobTypeRegistry.HOSTILE.isMobType(entity))
-            return MobTypeEnum.HOSTILE;
-        else if(MobTypeRegistry.FRIENDLY.isMobType(entity))
-            return MobTypeEnum.FRIENDLY;
         else {
+            // check special cases first
             for (MobType type : MobTypeRegistry.getSortedSpecialMobTypes())
                 if (type.isMobType(entity))
                     return type.getMobType(entity);
-            return MobTypeEnum.HOSTILE; // assume any mob is hostile
+            // this code will continue if no special was found
+            if(MobTypeRegistry.HOSTILE.isMobType(entity))
+                return MobTypeEnum.HOSTILE;
+            else if(MobTypeRegistry.FRIENDLY.isMobType(entity))
+                return MobTypeEnum.FRIENDLY;
+            else
+                return MobTypeEnum.HOSTILE; // default to hostile
         }
     }
 
