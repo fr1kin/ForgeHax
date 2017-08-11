@@ -8,6 +8,7 @@ import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -33,6 +34,7 @@ public class Tracers extends ToggleMod {
         final double cy = MC.displayHeight / 4.f;
         getWorld().loadedEntityList.stream()
                 .filter(entity -> !Objects.equals(entity, getLocalPlayer()))
+                .filter(entity -> entity instanceof EntityLivingBase)
                 .filter(entity -> !EntityUtils.getRelationship(entity).equals(MobTypeEnum.INVALID))
                 .sorted((o1, o2) ->
                 {
@@ -108,6 +110,10 @@ public class Tracers extends ToggleMod {
                                 break;
                             case HOSTILE:
                                 color = Utils.Colors.RED;
+                                size = 5;
+                                break;
+                            case NEUTRAL:
+                                color = Utils.Colors.BLUE;
                                 size = 5;
                                 break;
                             default:
