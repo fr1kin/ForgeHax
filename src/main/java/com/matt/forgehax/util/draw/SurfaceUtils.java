@@ -95,6 +95,7 @@ public class SurfaceUtils implements Globals {
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
 
         GlStateManager.translate(x, y, 0.f);
         GlStateManager.rotate(rotate, 0.f, 0.f, size / 2.f);
@@ -110,6 +111,7 @@ public class SurfaceUtils implements Globals {
 
         tessellator.draw();
 
+        GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
 
