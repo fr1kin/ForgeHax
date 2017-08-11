@@ -165,8 +165,18 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
+        ASMClass EntityBoat = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/entity/item/EntityBoat")
+                .autoAssign()
+                .build();
+
         ASMClass EntityRenderer = ASMBuilders.newClassBuilder()
                 .setClassName("net/minecraft/client/renderer/EntityRenderer")
+                .autoAssign()
+                .build();
+
+        ASMClass RenderBoat = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/renderer/entity/RenderBoat")
                 .autoAssign()
                 .build();
 
@@ -174,6 +184,7 @@ public interface TypesMc {
                 .setClassName("net/minecraft/network/NetworkManager")
                 .autoAssign()
                 .build();
+
     }
 
     interface Fields {
@@ -289,12 +300,32 @@ public interface TypesMc {
                 .emptyParameters()
                 .autoAssign()
                 .build();
+        ASMMethod EntityPlayerSP_pushOutOfBlocks = Classes.EntityPlayerSP.childMethod()
+                .setName("pushOutOfBlocks")
+                .setReturnType(boolean.class)
+                .beginParameters()
+                .add(double.class)
+                .add(double.class)
+                .add(double.class)
+                .finish()
+                .autoAssign()
+                .build();
 
         ASMMethod EntityRenderer_hurtCameraEffect = Classes.EntityRenderer.childMethod()
                 .setName("hurtCameraEffect")
                 .setReturnType(void.class)
                 .beginParameters()
                 .add(float.class)
+                .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod EntityRenderer_renderWorld = Classes.EntityRenderer.childMethod()
+                .setName("renderWorld")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(float.class)
+                .add(long.class)
                 .finish()
                 .autoAssign()
                 .build();
@@ -410,5 +441,44 @@ public interface TypesMc {
                 .finish()
                 .autoAssign()
                 .build();
+
+        ASMMethod EntityBoat_updateMotion = Classes.EntityBoat.childMethod()
+                .setName("updateMotion")
+                .setReturnType(void.class)
+                .emptyParameters()
+                .autoAssign()
+                .build();
+
+        ASMMethod EntityBoat_controlBoat = Classes.EntityBoat.childMethod()
+                .setName("controlBoat")
+                .setReturnType(void.class)
+                .emptyParameters()
+                .autoAssign()
+                .build();
+
+        ASMMethod EntityBoat_applyYawToEntity = Classes.EntityBoat.childMethod()
+                .setName("applyYawToEntity")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(Classes.Entity)
+                .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod RenderBoat_doRender = Classes.RenderBoat.childMethod()
+                .setName("doRender")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(Classes.EntityBoat)
+                .add(double.class)
+                .add(double.class)
+                .add(double.class)
+                .add(float.class)
+                .add(float.class)
+                .finish()
+                .autoAssign()
+                .build();
+
+
     }
 }

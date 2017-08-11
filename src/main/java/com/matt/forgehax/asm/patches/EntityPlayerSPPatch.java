@@ -76,4 +76,33 @@ public class EntityPlayerSPPatch extends ClassTransformer {
             main.instructions.insertBefore(bottom, post);
         }
     }
+
+    @RegisterMethodTransformer
+    private class pushOutOfBlocks extends MethodTransformer {
+        @Override
+        public ASMMethod getMethod() {
+            return Methods.EntityPlayerSP_pushOutOfBlocks;
+        }
+
+        @Inject(description = "Add hook to disable pushing out of blocks")
+        public void inject(MethodNode main) {
+            AbstractInsnNode preNode = main.instructions.getFirst();
+            AbstractInsnNode postNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
+                    ICONST_0, IRETURN},
+                    "xx");
+
+            Objects.requireNonNull(preNode, "Find pattern failed for pre node");
+            Objects.requireNonNull(postNode, "Find pattern failed for post node");
+
+            LabelNode endJump = new LabelNode();
+
+            InsnList insnPre = new InsnList();
+            insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPushOutOfBlocks));
+            insnPre.add(new JumpInsnNode(IFNE, endJump));
+
+            main.instructions.insertBefore(preNode, insnPre);
+            main.instructions.insertBefore(postNode, endJump);
+
+        }
+    }
 }

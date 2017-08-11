@@ -27,6 +27,27 @@ public interface TypesHook {
                 .setName("isNoSlowDownActivated")
                 .setType(boolean.class)
                 .build();
+
+        ASMField ForgeHaxHooks_isNoBoatGravityActivated = Classes.ForgeHaxHooks.childField()
+                .setName("isNoBoatGravityActivated")
+                .setType(boolean.class)
+                .build();
+
+        ASMField ForgeHaxHooks_isNoBoatRotationActivated = Classes.ForgeHaxHooks.childField()
+                .setName("isNoBoatRotationActivated")
+                .setType(boolean.class)
+                .build();
+
+        ASMField ForgeHaxHooks_isNoClampingActivated = Classes.ForgeHaxHooks.childField()
+                .setName("isNoClampingActivated")
+                .setType(boolean.class)
+                .build();
+
+        ASMField ForgeHaxHooks_isCutAwayWorldActivated = Classes.ForgeHaxHooks.childField()
+                .setName("isCutAwayWorldActivated")
+                .setType(boolean.class)
+                .build();
+
     }
 
     interface Methods {
@@ -265,5 +286,18 @@ public interface TypesHook {
                 .setReturnType(void.class)
                 .emptyParameters()
                 .build();
+
+        ASMMethod ForgeHaxHooks_onPushOutOfBlocks = Classes.ForgeHaxHooks.childMethod()
+                .setName("onPushOutOfBlocks")
+                .setReturnType(boolean.class)
+                .emptyParameters()
+                .build();
+
+        ASMMethod ForgeHaxHooks_onRenderBoat = Classes.ForgeHaxHooks.childMethod()
+                .setName("onRenderBoat")
+                .setReturnType(float.class)
+                .emptyParameters()
+                .build();
+
     }
 }

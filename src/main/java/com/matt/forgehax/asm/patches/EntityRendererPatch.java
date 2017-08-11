@@ -28,7 +28,7 @@ public class EntityRendererPatch extends ClassTransformer {
         @Inject(description = "Add hook that allows the method to be canceled")
         public void inject(MethodNode main) {
             AbstractInsnNode preNode = main.instructions.getFirst();
-            AbstractInsnNode postNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {RETURN}, "x");
+            AbstractInsnNode postNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[]{RETURN}, "x");
 
             Objects.requireNonNull(preNode, "Find pattern failed for preNode");
             Objects.requireNonNull(postNode, "Find pattern failed for postNode");
@@ -42,6 +42,30 @@ public class EntityRendererPatch extends ClassTransformer {
 
             main.instructions.insertBefore(preNode, insnPre);
             main.instructions.insertBefore(postNode, endJump);
+        }
+    }
+
+    @RegisterMethodTransformer
+    private class RenderWorld extends MethodTransformer {
+        @Override
+        public ASMMethod getMethod() {
+                return Methods.EntityRenderer_renderWorld;
+            }
+
+        @Inject(description = "Add hook to disable enableDepth in EntityRenderer for CutAwayWorld")
+        public void inject(MethodNode main) {
+            AbstractInsnNode depthNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[]{INVOKESTATIC}, "x");
+
+            Objects.requireNonNull(depthNode, "Find pattern failed for depthNode");
+
+            LabelNode endJump = new LabelNode();
+
+            InsnList insnPre = new InsnList();
+            insnPre.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isCutAwayWorldActivated));
+            insnPre.add(new JumpInsnNode(IFNE, endJump));
+
+            main.instructions.insertBefore(depthNode, insnPre);
+            main.instructions.insert(depthNode, endJump);
         }
     }
 }
