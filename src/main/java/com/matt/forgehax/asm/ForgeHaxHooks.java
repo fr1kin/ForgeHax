@@ -91,7 +91,6 @@ public class ForgeHaxHooks implements ASMCommon {
 
     public static boolean isNoBoatGravityActivated = false;
     public static boolean isNoBoatRotationActivated = false;
-    public static boolean isCutAwayWorldActivated = false;
     public static boolean isNoClampingActivated = false;
 
     public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = Sets.newHashSet();
