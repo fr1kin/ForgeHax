@@ -3,11 +3,11 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceUtils;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -33,7 +33,12 @@ public class Tracers extends ToggleMod {
         final double cy = MC.displayHeight / 4.f;
         getWorld().loadedEntityList.stream()
                 .filter(entity -> !Objects.equals(entity, getLocalPlayer()))
-                .filter(entity -> entity instanceof EntityLiving)
+                .sorted((o1, o2) ->
+                {
+                    MobTypeEnum r1 = EntityUtils.getRelationship(o1);
+                    MobTypeEnum r2 = EntityUtils.getRelationship(o2);
+                    return r2.compareTo(r1);
+                })
                 .forEach(entity -> {
                     Vec3d pos3d = EntityUtils.getInterpolatedEyePos(entity, MC.getRenderPartialTicks());
                     VectorUtils.ScreenPos pos = VectorUtils.toScreen(pos3d);
@@ -41,7 +46,7 @@ public class Tracers extends ToggleMod {
                         // get position on ellipse
 
                         // dimensions of the ellipse
-                        double dx = cx;
+                        double dx = cx - 2;
                         double dy = cy - 20;
 
                         // ellipse = x^2/a^2 + y^2/b^2 = 1
@@ -93,7 +98,24 @@ public class Tracers extends ToggleMod {
 
                         // --------------------
 
-                        SurfaceUtils.drawTriangle((int) x, (int) y, 5, (float) ang, Utils.Colors.GREEN);
+                        int color;
+                        int size;
+                        switch (EntityUtils.getRelationship(entity)) {
+                            case PLAYER:
+                                color = Utils.Colors.YELLOW;
+                                size = 8;
+                                break;
+                            case HOSTILE:
+                                color = Utils.Colors.RED;
+                                size = 5;
+                                break;
+                            default:
+                                color = Utils.Colors.GREEN;
+                                size = 5;
+                                break;
+                        }
+
+                        SurfaceUtils.drawTriangle((int) x, (int) y, size, (float) ang, color);
                     }
                 });
     }
