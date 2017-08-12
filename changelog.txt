@@ -1,3 +1,18 @@
+2.4.0
+    + Out of beta as I don't see any major issues
+    + Removed some junk mods
+    + Added Tracers
+    + Fixed incorrect math with VectorUtils::toScreen method
+    + Other bug fixes
+    - Babbaj
+        + Boat Hooks (removing boat clamping can not be disabled)
+        + PushOutOfBlocks added to AntiKnockBackMod
+        + NoRotate mod
+        + helmet and portal overlays added to AntiOverlayMod
+        + EntityEsp health bar is colored yellow for players with health above 20
+        + Freecam fixes
+        + Logoutspot mod
+        + WAIFU ESP
 2.3.0-beta
     + Updated to Minecraft Forge 1.12.1
     + Added better console messages
