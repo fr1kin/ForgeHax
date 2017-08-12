@@ -55,24 +55,26 @@ processResources
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
+
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-        
+
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
 
-    filter ReplaceTokens, tokens: [
-            "forgehax.version": project.property("forgehax.version"),
-            "forgehax.mc.version": project.property("forgehax.mc.version"),
-            "forgehax.forge.version": project.property("forgehax.forge.version"),
-            "forgehax.mcp.version": project.property("forgehax.mcp.version"),
-            "forgehax.mcp.channel": project.property("forgehax.mcp.channel"),
-            "forgehax.mcp.mapping": project.property("forgehax.mcp.mapping")
-    ]
+    filesNotMatching("**/*.png") {
+        it.filter ReplaceTokens, tokens: [
+                "forgehax.version"      : project.property("forgehax.version"),
+                "forgehax.mc.version"   : project.property("forgehax.mc.version"),
+                "forgehax.forge.version": project.property("forgehax.forge.version"),
+                "forgehax.mcp.version"  : project.property("forgehax.mcp.version"),
+                "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
+                "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
+        ]
+    }
 }
 
 task setGameDir() {
