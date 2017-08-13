@@ -4,14 +4,12 @@ import com.google.common.collect.Lists;
 import com.google.common.reflect.ClassPath;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.mcversion.MCVersionChecker;
 import com.matt.forgehax.util.mod.BaseMod;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created on 5/16/2017 by fr1kin
@@ -21,7 +19,7 @@ public class ForgeHaxModLoader implements Globals {
     public static Collection<Class<? extends BaseMod>> getClassesInPackage(String pack) {
         try {
             ClassPath classPath = ClassPath.from(getClassLoader());
-            return filterClasses(classPath.getTopLevelClasses(pack));
+            return filterClassInfo(classPath.getTopLevelClasses(pack));
         } catch (IOException e) {
             Helper.handleThrowable(e);
         }
@@ -29,15 +27,12 @@ public class ForgeHaxModLoader implements Globals {
     }
 
     @SuppressWarnings("unchecked")
-    private static Collection<Class<? extends BaseMod>> filterClasses(Set<ClassPath.ClassInfo> input) {
+    protected static Collection<Class<? extends BaseMod>> filterClassInfo(Collection<ClassPath.ClassInfo> input) {
         final List<Class<? extends BaseMod>> classes = Lists.newArrayList();
         input.forEach(info -> {
             try {
                 Class<?> clazz = info.load();
-                if(clazz.isAnnotationPresent(RegisterMod.class)
-                        && BaseMod.class.isAssignableFrom(clazz)
-                        && clazz.getDeclaredConstructor() != null) { // will throw exception if it doesn't exist
-                    MCVersionChecker.requireValidVersion(clazz);
+                if(isClassValid(clazz)) {
                     classes.add((Class<? extends BaseMod>)clazz);
                 }
             } catch (Exception e) {
@@ -45,6 +40,16 @@ public class ForgeHaxModLoader implements Globals {
             }
         });
         return Collections.unmodifiableCollection(classes);
+    }
+
+    protected static boolean isClassValid(Class<?> clazz) {
+        try {
+            return (clazz.isAnnotationPresent(RegisterMod.class)
+                    && BaseMod.class.isAssignableFrom(clazz)
+                    && clazz.getDeclaredConstructor() != null);
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     public static Collection<BaseMod> loadClasses(Collection<Class<? extends BaseMod>> classes) {

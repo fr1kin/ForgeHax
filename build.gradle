@@ -1,5 +1,47 @@
 import org.apache.tools.ant.filters.*
 
+task setGameDir() {
+    // Check if custom gamedir has been passed, if not use default ones per platform
+    if(!project.hasProperty("gameDir")) {
+        if(org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+            project.ext.gameDir = System.getenv("APPDATA") + "/.minecraft"
+        } else if(org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+            project.ext.gameDir = System.properties["user.home"] + "/Library/Application Support/minecraft"
+        } else {
+            project.ext.gameDir = System.properties["user.home"] + "/.minecraft"
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'net.minecraftforge.gradle.forge'
+
+    version rootProject.project.property('forgehax.version')
+
+    sourceCompatibility = targetCompatibility = '1.8'
+
+    minecraft {
+        version = rootProject.project.property('forgehax.forge.version')
+        runDir = "run"
+
+        // channel_mapping
+        mappings = rootProject.project.property('forgehax.mcp.channel') + '_' + rootProject.project.property('forgehax.mcp.mapping')
+    }
+
+    dependencies {
+        compile rootProject
+    }
+
+    task copyPlugin(type: Copy, dependsOn: [setGameDir]) {
+        // copy forgehax jar from libs to forge mod folder
+        from jar
+        into ("$gameDir/forgehax/plugins/")
+        into rootProject.getRootDir().toString() + "/run/forgehax/plugins/"
+    }
+
+    build.finalizedBy copyPlugin
+}
+
 buildscript {
     repositories {
         jcenter()
@@ -65,29 +107,14 @@ processResources
         exclude 'mcmod.info'
     }
 
-    filesNotMatching("**/*.png") {
-        it.filter ReplaceTokens, tokens: [
-                "forgehax.version"      : project.property("forgehax.version"),
-                "forgehax.mc.version"   : project.property("forgehax.mc.version"),
-                "forgehax.forge.version": project.property("forgehax.forge.version"),
-                "forgehax.mcp.version"  : project.property("forgehax.mcp.version"),
-                "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
-                "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
-        ]
-    }
-}
-
-task setGameDir() {
-    // Check if custom gamedir has been passed, if not use default ones per platform
-    if(!project.hasProperty("gameDir")) {
-        if(org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-            project.ext.gameDir = System.getenv("APPDATA") + "/.minecraft"
-        } else if(org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
-            project.ext.gameDir = System.properties["user.home"] + "/Library/Application Support/minecraft"
-        } else {
-            project.ext.gameDir = System.properties["user.home"] + "/.minecraft"
-        }
-    }
+    filter ReplaceTokens, tokens: [
+            "forgehax.version"      : project.property("forgehax.version"),
+            "forgehax.mc.version"   : project.property("forgehax.mc.version"),
+            "forgehax.forge.version": project.property("forgehax.forge.version"),
+            "forgehax.mcp.version"  : project.property("forgehax.mcp.version"),
+            "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
+            "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
+    ]
 }
 
 task copyJar(type: Copy, dependsOn: [setGameDir]) {

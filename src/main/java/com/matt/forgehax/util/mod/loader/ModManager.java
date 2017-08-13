@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.mod.BaseMod;
+import joptsimple.internal.Strings;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,6 +13,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+
+import static com.matt.forgehax.Helper.getLog;
 
 /**
  * Created on 5/16/2017 by fr1kin
@@ -50,13 +53,29 @@ public class ModManager implements Globals {
         });
     }
 
-    public void addClass(Class<? extends BaseMod> clazz) {
-        foundClasses.add(clazz);
+    public void addClass(Class<?> clazz) {
+        try {
+            foundClasses.add((Class<? extends BaseMod>) clazz);
+        } catch (Throwable t) {
+            LOGGER.info("Attempted to register invalid class \"" + clazz.getName() + "\": " + t.getMessage());
+        }
     }
 
     public void addClassesInPackage(String pkg) {
         LOGGER.info("Search for mods inside \"" + pkg + "\"");
         foundClasses.addAll(ForgeHaxModLoader.getClassesInPackage(pkg));
+    }
+
+    public void getPluginClasses() {
+        PluginLoader.getJars().forEach(jar -> {
+            getLog().info(String.format("Found jar \"%s\"", jar.getName()));
+            PluginLoader.getAllClasses(jar, Strings.EMPTY).stream()
+                    .filter(ForgeHaxModLoader::isClassValid)
+                    .forEach(clazz -> {
+                        getLog().info(String.format("Found class \"%s\"", clazz.getName()));
+                        addClass(clazz);
+                    });
+        });
     }
 
     public void loadClasses() {

@@ -38,6 +38,7 @@ public class ForgeHax {
 		switch (event.getSide()) {
 			case CLIENT: {
 				//---- initialize mods ----//
+				getModManager().getPluginClasses();
 				getModManager().loadClasses();
 
 				//---- initialize configuration ----//
