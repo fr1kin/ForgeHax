@@ -1,0 +1,75 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+group 'com.matt.forgehax'
+archivesBaseName = "forgehax-" + rootProject.property('forgehax.mc.version')
+
+jar {
+    manifest {
+        attributes (
+                'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
+                'FMLCorePluginContainsFMLMod': 'true'
+        )
+    }
+}
+
+processResources
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+
+    filter ReplaceTokens, tokens: [
+            "forgehax.version"      : rootProject.property("forgehax.version"),
+            "forgehax.mc.version"   : rootProject.property("forgehax.mc.version"),
+            "forgehax.forge.version": rootProject.property("forgehax.forge.version"),
+            "forgehax.mcp.version"  : rootProject.property("forgehax.mcp.version"),
+            "forgehax.mcp.channel"  : rootProject.property("forgehax.mcp.channel"),
+            "forgehax.mcp.mapping"  : rootProject.property("forgehax.mcp.mapping")
+    ]
+}
+
+task copyJar(type: Copy, dependsOn: [rootProject.setGameDir]) {
+    def gameDirectory = "$gameDir/mods/" + minecraft.version
+
+    // find previous jar (if it exists)
+    def previousJars = fileTree(dir: gameDirectory).matching {
+        include archivesBaseName + '*'
+    }.files
+
+    // change file name
+    if(previousJars) {
+        // create .backups folder
+        def backupDir = gameDirectory + '/.backups/'
+        file(backupDir).mkdirs()
+
+        for(File previousJar : previousJars) {
+            def n = gameDirectory + '/.backups/' + previousJar.getName() + '.bk'
+            def f = file(n)
+            def i = 1
+            while(f.exists()) {
+                f = file(n + '_' + i)
+                i++
+            }
+            previousJar.renameTo(f)
+        }
+    }
+
+    // copy forgehax jar from libs to forge mod folder
+    from jar
+    into "$gameDir/mods/" + minecraft.version
+}
+
+build.finalizedBy copyJar

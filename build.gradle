@@ -1,4 +1,12 @@
-import org.apache.tools.ant.filters.*
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "http://files.minecraftforge.net/maven" }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
 
 task setGameDir() {
     // Check if custom gamedir has been passed, if not use default ones per platform
@@ -22,130 +30,16 @@ subprojects {
 
     minecraft {
         version = rootProject.project.property('forgehax.forge.version')
-        runDir = "run"
+        runDir = "../run"
 
         // channel_mapping
         mappings = rootProject.project.property('forgehax.mcp.channel') + '_' + rootProject.project.property('forgehax.mcp.mapping')
     }
 
     dependencies {
-        compile rootProject
-    }
+        compile files("$rootDir/libs/journeymap-1.12-5.4.9.jar")
 
-    task copyPlugin(type: Copy, dependsOn: [setGameDir]) {
-        // copy forgehax jar from libs to forge mod folder
-        from jar
-        into ("$gameDir/forgehax/plugins/")
-        into rootProject.getRootDir().toString() + "/run/forgehax/plugins/"
-    }
-
-    build.finalizedBy copyPlugin
-}
-
-buildscript {
-    repositories {
-        jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+        testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
-
-version = project.property('forgehax.version')
-group = 'com.matt.forgehax'
-
-sourceCompatibility = targetCompatibility = '1.8'
-
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-}
-
-minecraft {
-    version = project.property('forgehax.forge.version')
-    runDir = "run"
-
-    // channel_mapping
-    mappings = project.property('forgehax.mcp.channel') + '_' + project.property('forgehax.mcp.mapping')
-}
-
-archivesBaseName = "forgehax-" + project.property('forgehax.mc.version')
-
-dependencies {
-    compile files('libs/journeymap-1.12-5.4.9.jar')
-
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
-}
-
-jar {
-    manifest {
-        attributes (
-                'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
-                'FMLCorePluginContainsFMLMod': 'true'
-        )
-    }
-}
-
-processResources
-{
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-
-    filter ReplaceTokens, tokens: [
-            "forgehax.version"      : project.property("forgehax.version"),
-            "forgehax.mc.version"   : project.property("forgehax.mc.version"),
-            "forgehax.forge.version": project.property("forgehax.forge.version"),
-            "forgehax.mcp.version"  : project.property("forgehax.mcp.version"),
-            "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
-            "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
-    ]
-}
-
-task copyJar(type: Copy, dependsOn: [setGameDir]) {
-    def gameDirectory = "$gameDir/mods/" + minecraft.version
-
-    // find previous jar (if it exists)
-    def previousJars = fileTree(dir: gameDirectory).matching {
-        include archivesBaseName + '*'
-    }.files
-
-    // change file name
-    if(previousJars) {
-        // create .backups folder
-        def backupDir = gameDirectory + '/.backups/'
-        file(backupDir).mkdirs()
-
-        for(File previousJar : previousJars) {
-            def n = gameDirectory + '/.backups/' + previousJar.getName() + '.bk'
-            def f = file(n)
-            def i = 1
-            while(f.exists()) {
-                f = file(n + '_' + i)
-                i++
-            }
-            previousJar.renameTo(f)
-        }
-    }
-
-    // copy forgehax jar from libs to forge mod folder
-    from jar
-    into ("$gameDir/mods/" + minecraft.version)
-}
-
-build.finalizedBy copyJar
