@@ -107,4 +107,20 @@ public class HelpCommand extends CommandMod {
                 })
                 .build();
     }
+
+    @RegisterCommand
+    public Command loaded(CommandBuilders builder) {
+        return builder.newCommandBuilder()
+                .name("loaded")
+                .description("Loaded plugin list")
+                .processor(data -> {
+                    final StringBuilder build = new StringBuilder();
+                    getModManager().getLoadedClasses().forEach(clazz -> {
+                        build.append(clazz.getSimpleName());
+                        build.append('\n');
+                    });
+                    data.write(build.toString());
+                })
+                .build();
+    }
 }

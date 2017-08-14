@@ -3,13 +3,20 @@ package com.matt.forgehax.util.mod.loader;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.google.common.reflect.ClassPath;
-import com.matt.forgehax.util.mod.BaseMod;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -60,7 +67,11 @@ public class PluginLoader {
             // jarPath = jarPath.replace(" ", "\\ ");
             JarFile jarFile;
 
-            URLClassLoader cl = URLClassLoader.newInstance(new URL[]{url}, Thread.currentThread().getContextClassLoader());
+            final FileSystem fs = FileSystems.newFileSystem(resource.toPath(), null);
+            final Path path = fs.getPath("/");
+            LaunchClassLoader launchClassLoader = Launch.classLoader;
+            ClassLoader loader = new PluginClassLoader(launchClassLoader, path);
+            launchClassLoader.addURL(url);
 
             try {
                 jarFile = new JarFile(jarPath);
@@ -86,9 +97,11 @@ public class PluginLoader {
                 //If content is a class add class to List
                 if (className != null) {
                     try {
-                        classes.add(cl.loadClass(className));
+                        classes.add(Class.forName(className, false, loader));
+
                     } catch (Throwable t) {
                         getLog().error("Failed to load class: " + t.getMessage());
+                        t.printStackTrace();
                     }
                 }
             }
@@ -100,16 +113,30 @@ public class PluginLoader {
         return classes;
     }
 
-    @SuppressWarnings("unchecked")
-    public static Collection<Class<? extends BaseMod>> getPluginClasses() {
-        final Collection<Class<? extends BaseMod>> classes = Lists.newArrayList();
-        getJars().forEach(file -> {
-            getLog().info(String.format("Found jar \"%s\"", file.getName()));
-            getPluginClassInfo(file).forEach(info -> {
-                Class<? extends BaseMod> clazz = (Class<? extends BaseMod>) info.load();
-                if(clazz.isAnnotationPresent(RegisterMod.class)) classes.add(clazz);
-            });
-        });
-        return Collections.unmodifiableCollection(classes);
+    private static class PluginClassLoader extends URLClassLoader {
+        private final Path path;
+
+        public PluginClassLoader(ClassLoader parent, Path path) throws Throwable {
+            super(new URL[] {path.toUri().toURL()}, parent);
+            this.path = path;
+        }
+
+        @Override
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
+            getLog().info("Loading class \"" + name + "\"");
+            String fixed = name.replace('.', '/').concat(".class");
+            try {
+                Path location = path.resolve(fixed);
+                if (java.nio.file.Files.exists(location)) {
+                    byte[] classData = java.nio.file.Files.readAllBytes(location);
+                    Class<?> clazz = defineClass(name, classData, 0, classData.length);
+                    if (clazz != null)
+                        return clazz;
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+            return null;
+        }
     }
 }

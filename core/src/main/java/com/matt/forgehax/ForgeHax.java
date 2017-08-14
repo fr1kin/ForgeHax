@@ -22,6 +22,7 @@ public class ForgeHax {
 		getModManager().addClassesInPackage("com.matt.forgehax.mods.commands");
 		getModManager().addClassesInPackage("com.matt.forgehax.mods.services");
 		getModManager().addClassesInPackage("com.matt.forgehax.mods.services.tasks");
+		getModManager().getPluginClasses();
 	}
 
 	public static String getWelcomeMessage() {
@@ -38,7 +39,6 @@ public class ForgeHax {
 		switch (event.getSide()) {
 			case CLIENT: {
 				//---- initialize mods ----//
-				getModManager().getPluginClasses();
 				getModManager().loadClasses();
 
 				//---- initialize configuration ----//

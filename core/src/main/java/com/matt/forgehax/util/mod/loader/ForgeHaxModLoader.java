@@ -5,11 +5,14 @@ import com.google.common.reflect.ClassPath;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.mod.BaseMod;
+import net.minecraft.launchwrapper.Launch;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static com.matt.forgehax.Helper.getLog;
 
 /**
  * Created on 5/16/2017 by fr1kin
@@ -34,9 +37,10 @@ public class ForgeHaxModLoader implements Globals {
                 Class<?> clazz = info.load();
                 if(isClassValid(clazz)) {
                     classes.add((Class<? extends BaseMod>)clazz);
-                }
+                } else
+                    getLog().info(String.format("\"%s\" is not a valid class!", clazz.getSimpleName()));
             } catch (Exception e) {
-                Helper.getLog().warn(String.format("[%s] '%s' is not a valid mod class: %s", e.getClass().getSimpleName(), info.getSimpleName(), e.getMessage()));
+                getLog().warn(String.format("[%s] '%s' is not a valid mod class: %s", e.getClass().getSimpleName(), info.getSimpleName(), e.getMessage()));
             }
         });
         return Collections.unmodifiableCollection(classes);
@@ -59,13 +63,13 @@ public class ForgeHaxModLoader implements Globals {
                 mods.add(clazz.getDeclaredConstructor().newInstance());
             } catch (Exception e) {
                 Helper.printStackTrace(e);
-                Helper.getLog().warn(String.format("Failed to create a new instance of '%s': %s", clazz.getSimpleName(), e.getMessage()));
+                getLog().warn(String.format("Failed to create a new instance of '%s': %s", clazz.getSimpleName(), e.getMessage()));
             }
         });
         return Collections.unmodifiableCollection(mods);
     }
 
     private static ClassLoader getClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
+        return Launch.classLoader;
     }
 }

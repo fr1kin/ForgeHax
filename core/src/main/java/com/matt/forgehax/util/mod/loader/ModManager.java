@@ -98,6 +98,10 @@ public class ModManager implements Globals {
         return mods.get(mod);
     }
 
+    public Collection<Class<? extends BaseMod>> getLoadedClasses() {
+        return Collections.unmodifiableCollection(foundClasses);
+    }
+
     public Collection<BaseMod> getMods() {
         return Collections.unmodifiableCollection(mods.values());
     }

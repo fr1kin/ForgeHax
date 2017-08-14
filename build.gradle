@@ -22,6 +22,7 @@ task setGameDir() {
 }
 
 subprojects {
+    apply plugin: 'java'
     apply plugin: 'net.minecraftforge.gradle.forge'
 
     version rootProject.project.property('forgehax.version')
