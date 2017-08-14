@@ -3,6 +3,7 @@ ForgeHax.iml
 build/
 run/
 classes/
+private/
 
 .idea/
 
