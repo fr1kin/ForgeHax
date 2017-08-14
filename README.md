@@ -24,7 +24,7 @@ _How do I enter an argument that contains spaces?_
 
 Use quotes.
 
-Example: `.spambot spam add spam "This will be treated as one argument"`
+Example: `.chatbot spam add spam "This will be treated as one argument"`
 
 _Is there a GUI?_
 
@@ -68,20 +68,20 @@ _How do I use the Markers mod?_
 
 _How do I use the SpamBot mod?_
 
-`.spambot spam add test` Will add a new entry called "test"
+`.chatbot spam add test` Will add a new entry called "test"
 
-`.spambot spam add test "Test text"` Will append "Test text" to the test entry message list.
+`.chatbot spam add test "Test text"` Will append "Test text" to the test entry message list.
 
-`.spambot spam add test --type SEQUENTIAL` Will set the spam type to sequential. (Use `.spambot add -?` to see acceptable arguments)
+`.chatbot spam add test --type SEQUENTIAL` Will set the spam type to sequential. (Use `.spambot add -?` to see acceptable arguments)
 
-`.spambot spam add test --keyword !test` Will set the trigger keyword to "!test"
+`.chatbot spam add test --keyword !test` Will set the trigger keyword to "!test"
  
-`.spambot spam add test --trigger REPLY` Will set the trigger mode to "REPLY" (Use `.spambot add -?` to see acceptable arguments)
+`.chatbot spam add test --trigger REPLY` Will set the trigger mode to "REPLY" (Use `.spambot add -?` to see acceptable arguments)
  
-`.spambot spam add test --enabled true` Will enable the spam entry 
+`.chatbot spam add test --enabled true` Will enable the spam entry 
  
-`.spambot spam import test import_test.txt` Will import messages from the file "import_test.txt" inside .minecraft/forgehax
+`.chatbot spam import test import_test.txt` Will import messages from the file "import_test.txt" inside .minecraft/forgehax
 
-`.spambot spam export test export_test.txt` Will export messages from the entry into a text file under /forgehax.
+`.chatbot spam export test export_test.txt` Will export messages from the entry into a text file under /forgehax.
  
-`.spambot spam remove test` Will remove the test entry and all its contents
+`.chatbot spam remove test` Will remove the test entry and all its contents
