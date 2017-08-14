@@ -15,10 +15,15 @@ public class AutoSprintMod extends ToggleMod {
 
     public static final String[] modes = new String[] {"ALWAYS", "LEGIT"};
 
-    public final Setting<String> mode = getCommandStub().builders().<String>newSettingBuilder()
+    enum Modes {
+        ALWAYS,
+        LEGIT
+    }
+
+    public final Setting<Modes> mode = getCommandStub().builders().<Modes>newSettingEnumBuilder()
             .name("mode")
             .description("Sprint mode")
-            .defaultTo(modes[0])
+            .defaultTo(Modes.ALWAYS)
             .build();
 
     public AutoSprintMod() {
@@ -26,13 +31,13 @@ public class AutoSprintMod extends ToggleMod {
     }
 
     private void startSprinting() {
-        switch (mode.get().toUpperCase()) {
-            case "ALWAYS":
-                if(!getLocalPlayer().isCollidedHorizontally)
+        switch (mode.get()) {
+            case ALWAYS:
+                if(!getLocalPlayer().isCollidedHorizontally && !getLocalPlayer().isSprinting())
                     getLocalPlayer().setSprinting(true);
                 break;
             default:
-            case "LEGIT":
+            case LEGIT:
                 if (!isBound) {
                     Bindings.sprint.bind();
                     isBound = true;
