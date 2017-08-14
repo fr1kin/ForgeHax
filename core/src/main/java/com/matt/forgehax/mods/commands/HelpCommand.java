@@ -33,7 +33,7 @@ public class HelpCommand extends CommandMod {
                 .description("Help text for mod syntax and command list")
                 .processor(data -> {
                     final StringBuilder build = new StringBuilder();
-                    build.append("Type \".mods <optional: containing string>\" for list of mods\n");
+                    build.append("Type \".search <optional: containing string>\" for list of mods\n");
                     build.append("Use -? or --help after command to see command options\n");
                     build.append("See the FAQ for details\n");
                     build.append("https://github.com/fr1kin/ForgeHax#faq");
