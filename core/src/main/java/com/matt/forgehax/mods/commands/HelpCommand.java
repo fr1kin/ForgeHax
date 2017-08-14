@@ -42,9 +42,9 @@ public class HelpCommand extends CommandMod {
     }
 
     @RegisterCommand
-    public Command mods(CommandBuilders builder) {
+    public Command search(CommandBuilders builder) {
         return builder.newCommandBuilder()
-                .name("mods")
+                .name("search")
                 .description("Lists all the mods or all the mods containing the given argument")
                 .options(parser -> {
                     parser.acceptsAll(Arrays.asList("details", "d"), "Gives description");
