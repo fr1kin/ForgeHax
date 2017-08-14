@@ -13,8 +13,6 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 public class AutoSprintMod extends ToggleMod {
     private boolean isBound = false;
 
-    public static final String[] modes = new String[] {"ALWAYS", "LEGIT"};
-
     enum Modes {
         ALWAYS,
         LEGIT
