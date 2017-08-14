@@ -73,9 +73,9 @@ public class HelpCommand extends CommandMod {
     }
 
     @RegisterCommand
-    public Command namecheck(CommandBuilders builder) {
+    public Command history(CommandBuilders builder) {
         return builder.newCommandBuilder()
-                .name("namecheck")
+                .name("history")
                 .description("Lists name history of given player")
                 .processor(data -> {
                     data.requiredArguments(1);
