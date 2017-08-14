@@ -3,7 +3,8 @@ ForgeHax.iml
 build/
 run/
 classes/
-private/
+private/.gradle
+private/src
 
 .idea/
 
