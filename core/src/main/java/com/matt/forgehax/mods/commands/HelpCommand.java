@@ -6,6 +6,7 @@ import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.entity.PlayerInfo;
 import com.matt.forgehax.util.entity.PlayerInfoHelper;
+import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import joptsimple.internal.Strings;
@@ -13,6 +14,7 @@ import joptsimple.internal.Strings;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 
+import static com.matt.forgehax.Helper.getGlobalCommand;
 import static com.matt.forgehax.Helper.getModManager;
 
 /**
@@ -55,17 +57,20 @@ public class HelpCommand extends CommandMod {
                     final String arg = data.getArgumentCount() > 0 ? data.getArgumentAsString(0) : null;
                     boolean showDetails = data.hasOption("details");
                     boolean showHidden = data.hasOption("hidden");
-                    getModManager().getMods().forEach(mod -> {
-                        if((Strings.isNullOrEmpty(arg) || mod.getModName().toLowerCase().contains(arg))
-                                && (showHidden || !mod.isHidden())) {
-                            build.append(mod.getModName());
-                            if (showDetails) {
-                                build.append(" - ");
-                                build.append(mod.getModDescription());
-                            }
-                            build.append('\n');
-                        }
-                    });
+                    getGlobalCommand().getChildren().stream()
+                            .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
+                            .forEach(command -> {
+                                @Nullable BaseMod mod = getModManager().getMod(command.getName());
+                                if((Strings.isNullOrEmpty(arg) || command.getName().equalsIgnoreCase(arg))
+                                        && (mod == null || showHidden || !mod.isHidden())) {
+                                    build.append(command.getName());
+                                    if (showDetails) {
+                                        build.append(" - ");
+                                        build.append(command.getDescription());
+                                    }
+                                    build.append('\n');
+                                }
+                            });
                     data.write(build.toString());
                     data.markSuccess();
                 })
