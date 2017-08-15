@@ -120,10 +120,12 @@ public class HelpCommand extends CommandMod {
                 .description("Loaded plugin list")
                 .processor(data -> {
                     final StringBuilder build = new StringBuilder();
-                    getModManager().getLoadedClasses().forEach(clazz -> {
-                        build.append(clazz.getSimpleName());
-                        build.append('\n');
-                    });
+                    getModManager().getLoadedClasses().stream()
+                            .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getSimpleName(), o2.getSimpleName()))
+                            .forEach(clazz -> {
+                                build.append(clazz.getSimpleName());
+                                build.append('\n');
+                            });
                     data.write(build.toString());
                 })
                 .build();
