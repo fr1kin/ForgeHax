@@ -1,16 +1,27 @@
 package com.matt.forgehax.util.markers;
 
 import com.matt.forgehax.Globals;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 /**
  * Created on 7/26/2017 by fr1kin
@@ -31,11 +42,6 @@ public class MarkersRenderGlobal extends RenderGlobal implements Globals {
     @Override
     public void onResourceManagerReload(IResourceManager resourceManager) {
         super.onResourceManagerReload(resourceManager);
-    }
-
-    @Override
-    public void markBlockRangeForRenderUpdate(int x1, int y1, int z1, int x2, int y2, int z2) {
-        super.markBlockRangeForRenderUpdate(x1, y1, z1, x2, y2, z2);
     }
 
     @Override
@@ -116,5 +122,99 @@ public class MarkersRenderGlobal extends RenderGlobal implements Globals {
     @Override
     public boolean hasCloudFog(double x, double y, double z, float partialTicks) {
         return super.hasCloudFog(x, y, z, partialTicks);
+    }
+
+    @Override
+    public void updateChunks(long finishTimeNano) {
+        super.updateChunks(finishTimeNano);
+    }
+
+    @Override
+    public void renderWorldBorder(Entity entityIn, float partialTicks) {
+        super.renderWorldBorder(entityIn, partialTicks);
+    }
+
+    @Override
+    public void drawBlockDamageTexture(Tessellator tessellatorIn, BufferBuilder worldRendererIn, Entity entityIn, float partialTicks) {
+        super.drawBlockDamageTexture(tessellatorIn, worldRendererIn, entityIn, partialTicks);
+    }
+
+    @Override
+    public void drawSelectionBox(EntityPlayer player, RayTraceResult movingObjectPositionIn, int execute, float partialTicks) {
+        super.drawSelectionBox(player, movingObjectPositionIn, execute, partialTicks);
+    }
+
+    @Override
+    public void notifyBlockUpdate(World worldIn, BlockPos pos, IBlockState oldState, IBlockState newState, int flags) {
+        super.notifyBlockUpdate(worldIn, pos, oldState, newState, flags);
+    }
+
+    @Override
+    public void notifyLightSet(BlockPos pos) {
+        super.notifyLightSet(pos);
+    }
+
+    public void markBlockRangeForRenderUpdate(int x1, int y1, int z1, int x2, int y2, int z2) {
+
+    }
+
+    @Override
+    public void playRecord(@Nullable SoundEvent soundIn, BlockPos pos) {
+        super.playRecord(soundIn, pos);
+    }
+
+    @Override
+    public void playSoundToAllNearExcept(@Nullable EntityPlayer player, SoundEvent soundIn, SoundCategory category, double x, double y, double z, float volume, float pitch) {
+        super.playSoundToAllNearExcept(player, soundIn, category, x, y, z, volume, pitch);
+    }
+
+    @Override
+    public void spawnParticle(int id, boolean ignoreRange, boolean p_190570_3_, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, int... parameters) {
+        super.spawnParticle(id, ignoreRange, p_190570_3_, x, y, z, xSpeed, ySpeed, zSpeed, parameters);
+    }
+
+    @Override
+    public void onEntityAdded(Entity entityIn) {
+        super.onEntityAdded(entityIn);
+    }
+
+    @Override
+    public void onEntityRemoved(Entity entityIn) {
+        super.onEntityRemoved(entityIn);
+    }
+
+    @Override
+    public void deleteAllDisplayLists() {
+        super.deleteAllDisplayLists();
+    }
+
+    @Override
+    public void broadcastSound(int soundID, BlockPos pos, int data) {
+        super.broadcastSound(soundID, pos, data);
+    }
+
+    @Override
+    public void playEvent(EntityPlayer player, int type, BlockPos blockPosIn, int data) {
+        super.playEvent(player, type, blockPosIn, data);
+    }
+
+    @Override
+    public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
+        super.sendBlockBreakProgress(breakerId, pos, progress);
+    }
+
+    @Override
+    public boolean hasNoChunkUpdates() {
+        return super.hasNoChunkUpdates();
+    }
+
+    @Override
+    public void setDisplayListEntitiesDirty() {
+        super.setDisplayListEntitiesDirty();
+    }
+
+    @Override
+    public void updateTileEntities(Collection<TileEntity> tileEntitiesToRemove, Collection<TileEntity> tileEntitiesToAdd) {
+        super.updateTileEntities(tileEntitiesToRemove, tileEntitiesToAdd);
     }
 }
