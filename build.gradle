@@ -1,5 +1,9 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven'
+
 buildscript {
     repositories {
         jcenter()
@@ -10,7 +14,10 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
+repositories {
+    mavenLocal()
+}
+
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 sourceCompatibility = targetCompatibility = '1.8'
@@ -22,7 +29,7 @@ archivesBaseName = "forgehax-" + rootProject.property('forgehax.mc.version')
 
 minecraft {
     version = rootProject.project.property('forgehax.forge.version')
-    runDir = "../run"
+    runDir = "run"
 
     // channel_mapping
     mappings = rootProject.project.property('forgehax.mcp.channel') + '_' + rootProject.project.property('forgehax.mcp.mapping')
@@ -46,33 +53,33 @@ jar {
 }
 
 processResources
-        {
-            // this will ensure that this task is redone when the versions change.
-            inputs.property "version", project.version
-            inputs.property "mcversion", project.minecraft.version
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
 
-            // replace stuff in mcmod.info, nothing else
-            from(sourceSets.main.resources.srcDirs) {
-                include 'mcmod.info'
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
 
-                // replace version and mcversion
-                expand 'version':project.version, 'mcversion':project.minecraft.version
-            }
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
 
-            // copy everything else, thats not the mcmod.info
-            from(sourceSets.main.resources.srcDirs) {
-                exclude 'mcmod.info'
-            }
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 
-            filter ReplaceTokens, tokens: [
-                    "forgehax.version"      : rootProject.property("forgehax.version"),
-                    "forgehax.mc.version"   : rootProject.property("forgehax.mc.version"),
-                    "forgehax.forge.version": rootProject.property("forgehax.forge.version"),
-                    "forgehax.mcp.version"  : rootProject.property("forgehax.mcp.version"),
-                    "forgehax.mcp.channel"  : rootProject.property("forgehax.mcp.channel"),
-                    "forgehax.mcp.mapping"  : rootProject.property("forgehax.mcp.mapping")
-            ]
-        }
+    filter ReplaceTokens, tokens: [
+            "forgehax.version"      : rootProject.property("forgehax.version"),
+            "forgehax.mc.version"   : rootProject.property("forgehax.mc.version"),
+            "forgehax.forge.version": rootProject.property("forgehax.forge.version"),
+            "forgehax.mcp.version"  : rootProject.property("forgehax.mcp.version"),
+            "forgehax.mcp.channel"  : rootProject.property("forgehax.mcp.channel"),
+            "forgehax.mcp.mapping"  : rootProject.property("forgehax.mcp.mapping")
+    ]
+}
 
 task setGameDir() {
     // Check if custom gamedir has been passed, if not use default ones per platform
