@@ -3,7 +3,8 @@ package com.matt.forgehax.mods.services.tasks;
 import com.matt.forgehax.asm.events.LocalPlayerUpdateMovementEvent;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import com.matt.forgehax.util.task.ViewTask;
+import com.matt.forgehax.util.task.Task;
+import com.matt.forgehax.util.task.TaskManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
@@ -15,15 +16,16 @@ public class MoveViewManagerService extends ServiceMod {
         super("MoveViewManagerService");
     }
 
-    private ViewTask currentViewTask = null;
+    private Task.TaskProcessing processing = null;
 
     @SubscribeEvent
     public void onMovementUpdatePre(LocalPlayerUpdateMovementEvent.Pre event) {
-
+        processing = TaskManager.getTop(Task.Type.LOOK);
+        if(processing != null) processing.preProcessing();
     }
 
     @SubscribeEvent
     public void onMovementUpdatePost(LocalPlayerUpdateMovementEvent.Post event) {
-
+        if(processing != null) processing.postProcessing();
     }
 }
