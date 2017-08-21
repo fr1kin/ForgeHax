@@ -228,6 +228,15 @@ public interface FastReflection extends ASMCommon {
                 .setName("username")
                 .autoAssign()
                 .asField();
+        
+        /**
+         * TextureManager
+         */
+        FastField<Map<ResourceLocation, ITextureObject>> TextureManager_mapTextureObjects = FastTypeBuilder.create()
+                .setInsideClass(TextureManager.class)
+                .setName("mapTextureObjects")
+                .autoAssign()
+                .asField();
     }
 
     // ****************************************
