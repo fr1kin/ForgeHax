@@ -6,11 +6,13 @@ import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraft.launchwrapper.Launch;
+import org.reflections.Reflections;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.matt.forgehax.Helper.getLog;
 
@@ -21,7 +23,9 @@ public class ForgeHaxModLoader implements Globals {
 
     public static Collection<Class<? extends BaseMod>> getClassesInPackage(String pack) {
         try {
-            ClassPath classPath = ClassPath.from(getClassLoader());
+            ClassPath classPath = ClassPath.from(getFMLClassLoader());
+            Reflections reflections = new Reflections(pack);
+            reflections.getSubTypesOf(Object.class);
             return filterClassInfo(classPath.getTopLevelClasses(pack));
         } catch (IOException e) {
             Helper.handleThrowable(e);
@@ -35,10 +39,7 @@ public class ForgeHaxModLoader implements Globals {
         input.forEach(info -> {
             try {
                 Class<?> clazz = info.load();
-                if(isClassValid(clazz)) {
-                    classes.add((Class<? extends BaseMod>)clazz);
-                } else
-                    getLog().info(String.format("\"%s\" is not a valid class!", clazz.getSimpleName()));
+                if(isClassValid(clazz)) classes.add((Class<? extends BaseMod>)clazz);
             } catch (Exception e) {
                 getLog().warn(String.format("[%s] '%s' is not a valid mod class: %s", e.getClass().getSimpleName(), info.getSimpleName(), e.getMessage()));
             }
@@ -48,10 +49,16 @@ public class ForgeHaxModLoader implements Globals {
 
     protected static boolean isClassValid(Class<?> clazz) {
         try {
-            return (clazz.isAnnotationPresent(RegisterMod.class)
-                    && BaseMod.class.isAssignableFrom(clazz)
-                    && clazz.getDeclaredConstructor() != null);
+            Objects.requireNonNull(clazz);
+            if(!clazz.isAnnotationPresent(RegisterMod.class))
+                throw new Exception("missing @RegisterMod annotation");
+            if(!BaseMod.class.isAssignableFrom(clazz))
+                throw new Exception("does not extend BaseMod class");
+            if(clazz.getDeclaredConstructor() == null)
+                throw new Exception("missing default constructor");
+            return true;
         } catch (Throwable t) {
+            getLog().warn(String.format("Invalid class \"%s\": %s", clazz.getName(), t.getMessage()));
             return false;
         }
     }
@@ -69,7 +76,7 @@ public class ForgeHaxModLoader implements Globals {
         return Collections.unmodifiableCollection(mods);
     }
 
-    private static ClassLoader getClassLoader() {
+    private static ClassLoader getFMLClassLoader() {
         return Launch.classLoader;
     }
 }
