@@ -11,6 +11,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityPigZombie;
@@ -19,12 +21,14 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Session;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 import java.nio.FloatBuffer;
+import java.util.Map;
 
 /**
  * Created on 5/8/2017 by fr1kin
@@ -226,6 +230,15 @@ public interface FastReflection extends ASMCommon {
         FastField<String> Session_username = FastTypeBuilder.create()
                 .setInsideClass(Session.class)
                 .setName("username")
+                .autoAssign()
+                .asField();
+        
+        /**
+         * TextureManager
+         */
+        FastField<Map<ResourceLocation, ITextureObject>> TextureManager_mapTextureObjects = FastTypeBuilder.create()
+                .setInsideClass(TextureManager.class)
+                .setName("mapTextureObjects")
                 .autoAssign()
                 .asField();
     }
