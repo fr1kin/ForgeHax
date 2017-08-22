@@ -22,8 +22,9 @@ public class ForgeHaxModLoader implements Globals {
     @SuppressWarnings("unchecked")
     public static Collection<Class<? extends BaseMod>> getClassesInPackage(String pack) {
         try {
-            return (Collection<Class<? extends BaseMod>>) ClassLoaderHelper.getClassesForPackage(getFMLClassLoader(), pack).stream()
+            return ClassLoaderHelper.getClassesForPackage(getFMLClassLoader(), pack).stream()
                     .filter(ForgeHaxModLoader::isClassValid)
+                    .map(c -> (Class<? extends BaseMod>)c)
                     .collect(Collectors.toList());
         } catch (Throwable t) {
             Helper.handleThrowable(t);
