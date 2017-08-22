@@ -1,10 +1,20 @@
+2.5.0
+    [fr1kin]
+        + Fixed issue with ModLoader not finding mods because of bug in guava
+        + AutoEat will now work when chat is open
+        + Renamed .namecheck to .history
+        + Renamed .mods to .search
+        + AutoSprint now uses EnumSetting type
+    [Babbaj]
+        + Added MapMod
 2.4.0
-    + Out of beta as I don't see any major issues
-    + Removed some junk mods
-    + Added Tracers
-    + Fixed incorrect math with VectorUtils::toScreen method
-    + Other bug fixes
-    - Babbaj
+    [fr1kin]
+        + Out of beta as I don't see any major issues
+        + Removed some junk mods
+        + Added Tracers
+        + Fixed incorrect math with VectorUtils::toScreen method
+        + Other bug fixes
+    [Babbaj]
         + Boat Hooks (removing boat clamping can not be disabled)
         + PushOutOfBlocks added to AntiKnockBackMod
         + NoRotate mod
@@ -14,27 +24,33 @@
         + Logoutspot mod
         + WAIFU ESP
 2.3.0-beta
-    + Updated to Minecraft Forge 1.12.1
-    + Added better console messages
-    + Reworked .help command, now links to the GitHub FAQ
-    + Added .mods command that has optional argument that will check for any mods containing the given string (case insensitive)
-    + Reworked player data fetcher. Now uses a threadpool.
-    + Debug messages for JoinMessage mod for when players input is ignored.
-    + Binding/unbinding will trigger serialization
-    + Bind option accepts input over 1 character now
-    + Added name check command (.namecheck <player name>)
-    + Fixed xray opacity not changing and throwing opengl context error
+    [fr1kin]
+        + Updated to Minecraft Forge 1.12.1
+        + Added better console messages
+        + Reworked .help command, now links to the GitHub FAQ
+        + Added .mods command that has optional argument that will check for any mods containing the given string (case insensitive)
+        + Reworked player data fetcher. Now uses a threadpool.
+        + Debug messages for JoinMessage mod for when players input is ignored.
+        + Binding/unbinding will trigger serialization
+        + Bind option accepts input over 1 character now
+        + Added name check command (.namecheck <player name>)
+        + Fixed xray opacity not changing and throwing opengl context error
 2.2.1-beta
-    + Fixed name history order
-    + Added wait for player connect and disconnect event triggers
+    [fr1kin]
+        + Fixed name history order
+        + Added wait for player connect and disconnect event triggers
 2.2.0-beta
-    + Add JoinMessage mod
-    + Refined ChatBot
-    + Fixed UUIDs being offline ids and not online ids
+    [fr1kin]
+        + Add JoinMessage mod
+        + Refined ChatBot
+        + Fixed UUIDs being offline ids and not online ids
 2.1.0-beta
-	+ Added ChatBot mod that allows you to greet, spam, and reply to certain words.
-	+ Made command details more helpful by adding their description
+    [fr1kin]
+        + Added ChatBot mod that allows you to greet, spam, and reply to certain words.
+        + Made command details more helpful by adding their description
 2.0.1-beta
-	+ Fixed binds not working
+    [fr1kin]
+        + Fixed binds not working
 2.0.0-beta
-	+ Updated to Minecraft 1.12
+    [fr1kin]
+        + Updated to Minecraft 1.12
