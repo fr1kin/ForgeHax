@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
-import com.github.lunatrius.core.client.renderer.GeometryMasks;
-import com.github.lunatrius.core.client.renderer.GeometryTessellator;
+import com.github.lunatrius.core.client.renderer.GeometryMasksFH;
+import com.github.lunatrius.core.client.renderer.GeometryTessellatorFH;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -31,7 +31,7 @@ public class SpawnerEspMod extends ToggleMod {
         for(TileEntity tileEntity : getWorld().loadedTileEntityList) {
             if(tileEntity instanceof TileEntityMobSpawner) {
                 BlockPos pos = tileEntity.getPos();
-                GeometryTessellator.drawCuboid(event.getBuffer(), pos, GeometryMasks.Line.ALL, Utils.Colors.RED);
+                GeometryTessellatorFH.drawCuboid(event.getBuffer(), pos, GeometryMasksFH.Line.ALL, Utils.Colors.RED);
             }
         }
 

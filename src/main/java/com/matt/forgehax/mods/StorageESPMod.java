@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
-import com.github.lunatrius.core.client.renderer.GeometryMasks;
-import com.github.lunatrius.core.client.renderer.GeometryTessellator;
+import com.github.lunatrius.core.client.renderer.GeometryMasksFH;
+import com.github.lunatrius.core.client.renderer.GeometryTessellatorFH;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -60,13 +60,13 @@ public class StorageESPMod extends ToggleMod {
             BlockPos pos = tileEntity.getPos();
 
             int color = getTileEntityColor(tileEntity);
-            if(color != -1) GeometryTessellator.drawCuboid(event.getBuffer(), pos, GeometryMasks.Line.ALL, color);
+            if(color != -1) GeometryTessellatorFH.drawCuboid(event.getBuffer(), pos, GeometryMasksFH.Line.ALL, color);
         }
 
         for(Entity entity : getWorld().loadedEntityList) {
             BlockPos pos = entity.getPosition();
             int color = getEntityColor(entity);
-            if(color != -1) GeometryTessellator.drawCuboid(event.getBuffer(), entity instanceof EntityItemFrame ? pos.add(0, -1, 0) : pos, GeometryMasks.Line.ALL, color);
+            if(color != -1) GeometryTessellatorFH.drawCuboid(event.getBuffer(), entity instanceof EntityItemFrame ? pos.add(0, -1, 0) : pos, GeometryMasksFH.Line.ALL, color);
         }
 
         event.getTessellator().draw();
