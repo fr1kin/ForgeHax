@@ -1,4 +1,4 @@
-package com.github.lunatrius.core.client.renderer;
+package com.github.lunatrius.core.client.renderer.unique;
 
 /*
     The MIT License (MIT)
@@ -24,7 +24,7 @@ package com.github.lunatrius.core.client.renderer;
     SOFTWARE.
  */
 
-public final class GeometryMasksFH {
+public final class GeometryMasks {
     public static final class Quad {
         public static final int DOWN = 0x01;
         public static final int UP = 0x02;

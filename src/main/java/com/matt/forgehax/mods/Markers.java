@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
-import com.github.lunatrius.core.client.renderer.GeometryMasksFH;
-import com.github.lunatrius.core.client.renderer.GeometryTessellatorFH;
+import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
+import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
@@ -273,7 +273,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     public void onPreBuildChunk(BuildChunkEvent.Pre event) {
         if(renderers != null) try {
             renderers.computeIfPresent(event.getRenderChunk(), (chk, info) -> info.compute(() -> {
-                GeometryTessellatorFH tess = info.takeTessellator();
+                GeometryTessellator tess = info.takeTessellator();
                 if (tess != null) {
                     tess.beginLines();
                     info.resetRenderCount();
@@ -290,7 +290,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     public void onPostBuildChunk(BuildChunkEvent.Post event) {
         if(renderers != null) try {
             renderers.computeIfPresent(event.getRenderChunk(), (chk, info) -> info.compute(() -> {
-                GeometryTessellatorFH tess = info.getTessellator();
+                GeometryTessellator tess = info.getTessellator();
                 if (tess != null && info.isBuilding()) {
                     tess.getBuffer().finishDrawing();
                     info.setUploaded(false);
@@ -305,17 +305,17 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     public void onBlockRenderInLoop(final RenderChunk renderChunk, final Block block, final IBlockState state, final BlockPos pos) {
         if(renderers != null) try {
             renderers.computeIfPresent(renderChunk, (chk, info) -> info.compute(() -> {
-                GeometryTessellatorFH tess = info.getTessellator();
+                GeometryTessellator tess = info.getTessellator();
                 if (tess != null && FastReflection.Fields.BufferBuilder_isDrawing.get(tess.getBuffer(), false)) {
                     BlockEntry blockEntry = options.get(state);
                     if(blockEntry != null
                             && blockEntry.getReadableProperty(BoundProperty.class).isWithinBoundaries(pos.getY())) {
                         AxisAlignedBB bb = state.getSelectedBoundingBox(Helper.getWorld(), pos);
-                        GeometryTessellatorFH.drawLines(
+                        GeometryTessellator.drawLines(
                                 tess.getBuffer(),
                                 bb.minX, bb.minY, bb.minZ,
                                 bb.maxX, bb.maxY, bb.maxZ,
-                                GeometryMasksFH.Line.ALL,
+                                GeometryMasks.Line.ALL,
                                 blockEntry.getReadableProperty(ColorProperty.class).getAsBuffer()
                         );
                         info.incrementRenderCount();
@@ -498,7 +498,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     private static class RenderInfo {
         private final ReentrantLock lock = new ReentrantLock();
 
-        private GeometryTessellatorFH tessellator = null;
+        private GeometryTessellator tessellator = null;
         private net.minecraft.client.renderer.vertex.VertexBuffer vbo = new net.minecraft.client.renderer.vertex.VertexBuffer(DefaultVertexFormats.POSITION_COLOR);
 
         private boolean rendering = false;
@@ -539,15 +539,15 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             return renderCount;
         }
 
-        public GeometryTessellatorFH getTessellator() {
+        public GeometryTessellator getTessellator() {
             return tessellator;
         }
 
-        public void setTessellator(GeometryTessellatorFH tessellator) {
+        public void setTessellator(GeometryTessellator tessellator) {
             this.tessellator = tessellator;
         }
 
-        public GeometryTessellatorFH takeTessellator() {
+        public GeometryTessellator takeTessellator() {
             if(this.tessellator == null && cache != null) {
                 this.tessellator = cache.take();
                 return this.tessellator;
@@ -555,7 +555,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
 
         public void freeTessellator() {
-            final GeometryTessellatorFH tess = tessellator;
+            final GeometryTessellator tess = tessellator;
             if(tess != null) {
                 try {
                     // this would shouldn't happen but it could
@@ -589,7 +589,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
 
         public void uploadVbo() {
-            GeometryTessellatorFH tess = tessellator;
+            GeometryTessellator tess = tessellator;
             if(vbo != null && tess != null) {
                 // allocate the vertex buffer
                 tess.getBuffer().reset();
@@ -621,14 +621,14 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     private static class TesselatorCache {
         private static final int DEFAULT_BUFFER_SIZE = 0x20000;
 
-        private final BlockingQueue<GeometryTessellatorFH> buffers;
-        private final Set<GeometryTessellatorFH> originals;
+        private final BlockingQueue<GeometryTessellator> buffers;
+        private final Set<GeometryTessellator> originals;
         private final int capacity;
 
         public TesselatorCache(int capacity, int bufferSize) {
             this.capacity = capacity;
             buffers = Queues.newArrayBlockingQueue(capacity);
-            for(int i = 0; i < capacity; i++) buffers.offer(new GeometryTessellatorFH(bufferSize));
+            for(int i = 0; i < capacity; i++) buffers.offer(new GeometryTessellator(bufferSize));
             originals = Collections.unmodifiableSet(Sets.newHashSet(buffers));
         }
 
@@ -644,7 +644,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             return buffers.size();
         }
 
-        public GeometryTessellatorFH take() {
+        public GeometryTessellator take() {
             try {
                 return buffers.take();
             } catch (InterruptedException e) {
@@ -653,7 +653,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             }
         }
 
-        public void free(final GeometryTessellatorFH tessellator) {
+        public void free(final GeometryTessellator tessellator) {
             try {
                 if (originals.contains(tessellator)) buffers.add(tessellator);
             } catch(Exception e) {

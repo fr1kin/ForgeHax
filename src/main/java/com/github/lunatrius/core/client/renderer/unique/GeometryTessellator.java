@@ -1,4 +1,4 @@
-package com.github.lunatrius.core.client.renderer;
+package com.github.lunatrius.core.client.renderer.unique;
 
 /*
     The MIT License (MIT)
@@ -30,23 +30,23 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
-public class GeometryTessellatorFH extends Tessellator {
-    private static GeometryTessellatorFH instance = null;
+public class GeometryTessellator extends Tessellator {
+    private static GeometryTessellator instance = null;
 
     private static double deltaS = 0;
     private double delta = 0;
 
-    public GeometryTessellatorFH() {
+    public GeometryTessellator() {
         this(0x200000);
     }
 
-    public GeometryTessellatorFH(final int size) {
+    public GeometryTessellator(final int size) {
         super(size);
     }
 
-    public static GeometryTessellatorFH getInstance() {
+    public static GeometryTessellator getInstance() {
         if (instance == null) {
-            instance = new GeometryTessellatorFH();
+            instance = new GeometryTessellator();
         }
 
         return instance;
@@ -94,7 +94,7 @@ public class GeometryTessellatorFH extends Tessellator {
     }
 
     public static void drawCuboid(final BufferBuilder buffer, final BlockPos begin, final BlockPos end, final int sides, final int argb) {
-        drawCuboid(buffer, begin, end, sides, argb, GeometryTessellatorFH.deltaS);
+        drawCuboid(buffer, begin, end, sides, argb, GeometryTessellator.deltaS);
     }
 
     private static void drawCuboid(final BufferBuilder buffer, final BlockPos begin, final BlockPos end, final int sides, final int argb, final double delta) {
@@ -133,42 +133,42 @@ public class GeometryTessellatorFH extends Tessellator {
     }
 
     public static void drawQuads(final BufferBuilder buffer, final double x0, final double y0, final double z0, final double x1, final double y1, final double z1, final int sides, final int a, final int r, final int g, final int b) {
-        if ((sides & GeometryMasksFH.Quad.DOWN) != 0) {
+        if ((sides & GeometryMasks.Quad.DOWN) != 0) {
             buffer.pos(x1, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x1, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x0, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x0, y0, z0).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Quad.UP) != 0) {
+        if ((sides & GeometryMasks.Quad.UP) != 0) {
             buffer.pos(x1, y1, z0).color(r, g, b, a).endVertex();
             buffer.pos(x0, y1, z0).color(r, g, b, a).endVertex();
             buffer.pos(x0, y1, z1).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z1).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Quad.NORTH) != 0) {
+        if ((sides & GeometryMasks.Quad.NORTH) != 0) {
             buffer.pos(x1, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x0, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x0, y1, z0).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z0).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Quad.SOUTH) != 0) {
+        if ((sides & GeometryMasks.Quad.SOUTH) != 0) {
             buffer.pos(x0, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x1, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z1).color(r, g, b, a).endVertex();
             buffer.pos(x0, y1, z1).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Quad.WEST) != 0) {
+        if ((sides & GeometryMasks.Quad.WEST) != 0) {
             buffer.pos(x0, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x0, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x0, y1, z1).color(r, g, b, a).endVertex();
             buffer.pos(x0, y1, z0).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Quad.EAST) != 0) {
+        if ((sides & GeometryMasks.Quad.EAST) != 0) {
             buffer.pos(x1, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x1, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z0).color(r, g, b, a).endVertex();
@@ -186,62 +186,62 @@ public class GeometryTessellatorFH extends Tessellator {
     }
 
     public static void drawLines(final BufferBuilder buffer, final double x0, final double y0, final double z0, final double x1, final double y1, final double z1, final int sides, final int a, final int r, final int g, final int b) {
-        if ((sides & GeometryMasksFH.Line.DOWN_WEST) != 0) {
+        if ((sides & GeometryMasks.Line.DOWN_WEST) != 0) {
             buffer.pos(x0, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x0, y0, z1).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.UP_WEST) != 0) {
+        if ((sides & GeometryMasks.Line.UP_WEST) != 0) {
             buffer.pos(x0, y1, z0).color(r, g, b, a).endVertex();
             buffer.pos(x0, y1, z1).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.DOWN_EAST) != 0) {
+        if ((sides & GeometryMasks.Line.DOWN_EAST) != 0) {
             buffer.pos(x1, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x1, y0, z1).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.UP_EAST) != 0) {
+        if ((sides & GeometryMasks.Line.UP_EAST) != 0) {
             buffer.pos(x1, y1, z0).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z1).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.DOWN_NORTH) != 0) {
+        if ((sides & GeometryMasks.Line.DOWN_NORTH) != 0) {
             buffer.pos(x0, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x1, y0, z0).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.UP_NORTH) != 0) {
+        if ((sides & GeometryMasks.Line.UP_NORTH) != 0) {
             buffer.pos(x0, y1, z0).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z0).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.DOWN_SOUTH) != 0) {
+        if ((sides & GeometryMasks.Line.DOWN_SOUTH) != 0) {
             buffer.pos(x0, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x1, y0, z1).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.UP_SOUTH) != 0) {
+        if ((sides & GeometryMasks.Line.UP_SOUTH) != 0) {
             buffer.pos(x0, y1, z1).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z1).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.NORTH_WEST) != 0) {
+        if ((sides & GeometryMasks.Line.NORTH_WEST) != 0) {
             buffer.pos(x0, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x0, y1, z0).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.NORTH_EAST) != 0) {
+        if ((sides & GeometryMasks.Line.NORTH_EAST) != 0) {
             buffer.pos(x1, y0, z0).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z0).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.SOUTH_WEST) != 0) {
+        if ((sides & GeometryMasks.Line.SOUTH_WEST) != 0) {
             buffer.pos(x0, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x0, y1, z1).color(r, g, b, a).endVertex();
         }
 
-        if ((sides & GeometryMasksFH.Line.SOUTH_EAST) != 0) {
+        if ((sides & GeometryMasks.Line.SOUTH_EAST) != 0) {
             buffer.pos(x1, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z1).color(r, g, b, a).endVertex();
         }

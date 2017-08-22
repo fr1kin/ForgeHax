@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
-import com.github.lunatrius.core.client.renderer.GeometryMasksFH;
-import com.github.lunatrius.core.client.renderer.GeometryTessellatorFH;
+import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
+import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
@@ -114,23 +114,23 @@ public class LogoutSpot extends ToggleMod {
             event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
             for (logoutPos position : logoutPositions) {
-                GeometryTessellatorFH.drawQuads(event.getBuffer(), // horizontal lines
+                GeometryTessellator.drawQuads(event.getBuffer(), // horizontal lines
                         position.pos[0].x,
                         position.pos[0].y,
                         position.pos[0].z,
                         position.pos[1].x,
                         position.pos[1].y,
                         position.pos[1].z,
-                        GeometryMasksFH.Quad.ALL, Utils.Colors.RED);
+                        GeometryMasks.Quad.ALL, Utils.Colors.RED);
 
-                GeometryTessellatorFH.drawLines(event.getBuffer(), // vertical lines
+                GeometryTessellator.drawLines(event.getBuffer(), // vertical lines
                         position.pos[0].x,
                         position.pos[0].y,
                         position.pos[0].z,
                         position.pos[1].x,
                         position.pos[1].y,
                         position.pos[1].z,
-                        GeometryMasksFH.Quad.ALL, Utils.Colors.RED);
+                        GeometryMasks.Quad.ALL, Utils.Colors.RED);
             }
 
             event.getTessellator().draw();

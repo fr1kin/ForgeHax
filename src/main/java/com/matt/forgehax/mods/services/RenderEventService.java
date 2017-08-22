@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods.services;
 
-import com.github.lunatrius.core.client.renderer.GeometryTessellatorFH;
+import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.ServiceMod;
@@ -19,7 +19,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
  */
 @RegisterMod
 public class RenderEventService extends ServiceMod {
-    private static final GeometryTessellatorFH TESSELLATOR = new GeometryTessellatorFH();
+    private static final GeometryTessellator TESSELLATOR = new GeometryTessellator();
 
     public RenderEventService() {
         super("RenderEventService");
