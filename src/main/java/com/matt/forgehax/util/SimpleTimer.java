@@ -6,6 +6,14 @@ package com.matt.forgehax.util;
 public class SimpleTimer {
     private long timeStarted = -1;
 
+    public SimpleTimer(boolean startOnInit) {
+        if(startOnInit) start();
+    }
+
+    public SimpleTimer() {
+        this(false);
+    }
+
     public void start() {
         timeStarted = System.currentTimeMillis();
     }
