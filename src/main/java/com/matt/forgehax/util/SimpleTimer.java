@@ -27,6 +27,6 @@ public class SimpleTimer {
     }
 
     public boolean hasTimeElapsed(long time) {
-        return isStarted() && ((System.currentTimeMillis() + time) > timeStarted);
+        return isStarted() && (time < (System.currentTimeMillis() - timeStarted));
     }
 }
