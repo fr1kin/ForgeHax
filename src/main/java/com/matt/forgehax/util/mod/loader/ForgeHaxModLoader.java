@@ -6,13 +6,12 @@ import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraft.launchwrapper.Launch;
-import org.reflections.Reflections;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.matt.forgehax.Helper.getLog;
 
@@ -21,14 +20,14 @@ import static com.matt.forgehax.Helper.getLog;
  */
 public class ForgeHaxModLoader implements Globals {
 
+    @SuppressWarnings("unchecked")
     public static Collection<Class<? extends BaseMod>> getClassesInPackage(String pack) {
         try {
-            ClassPath classPath = ClassPath.from(getFMLClassLoader());
-            Reflections reflections = new Reflections(pack);
-            reflections.getSubTypesOf(Object.class);
-            return filterClassInfo(classPath.getTopLevelClasses(pack));
-        } catch (IOException e) {
-            Helper.handleThrowable(e);
+            return (Collection<Class<? extends BaseMod>>) ClassLoaderHelper.getClassesForPackage(getFMLClassLoader(), pack).stream()
+                    .filter(ForgeHaxModLoader::isClassValid)
+                    .collect(Collectors.toList());
+        } catch (Throwable t) {
+            Helper.handleThrowable(t);
         }
         return Collections.emptyList();
     }
