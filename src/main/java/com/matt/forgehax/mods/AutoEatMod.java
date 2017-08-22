@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -9,7 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.FoodStats;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getLocalPlayer;
 
 @RegisterMod
 public class AutoEatMod extends ToggleMod {
@@ -35,16 +36,20 @@ public class AutoEatMod extends ToggleMod {
         }
         if (foodStack != null) {
             ItemFood itemFood = (ItemFood) foodStack.getItem();
-            if (20 - foodStats.getFoodLevel() >= itemFood.getHealAmount(foodStack)) {
+            if (20 - foodStats.getFoodLevel() >= itemFood.getHealAmount(foodStack)
+                    && !getLocalPlayer().isHandActive()
+                    && FastReflection.Fields.Minecraft_rightClickDelayTimer.get(MC) == 0) {
                 isEating = true;
                 MC.player.inventory.currentItem = foodSlot;
+                // need to fake use key to stop code that stops the eating
                 Bindings.use.setPressed(true);
+                FastReflection.Methods.Minecraft_rightClickMouse.invoke(MC);
                 return;
             }
         }
-        if(isEating) {
-            Bindings.use.setPressed(false);
+        if(isEating && !getLocalPlayer().isHandActive()) {
             isEating = false;
+            Bindings.use.setPressed(false);
         }
     }
 }
