@@ -320,10 +320,6 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
             } catch (Throwable t) {
                 Helper.printStackTrace(t);
                 Globals.LOGGER.warn(String.format("Could not deserialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
-                // incompatible file, will just keep causing errors
-                try {
-                    Files.delete(path);
-                } catch (IOException e) {}
             } finally {
                 if (sr != null) sr.close();
                 try {
