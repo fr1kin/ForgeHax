@@ -5,6 +5,8 @@
         + Renamed .namecheck to .history
         + Renamed .mods to .search
         + AutoSprint now uses EnumSetting type
+        + AntiAFK is now a swing AntiAFK
+        + Settings file will no longer be deleted if it cannot be deserialized properly
     [Babbaj]
         + Added MapMod
 2.4.0
