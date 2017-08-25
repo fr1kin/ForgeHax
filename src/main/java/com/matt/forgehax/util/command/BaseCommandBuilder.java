@@ -96,6 +96,10 @@ public abstract class BaseCommandBuilder<T extends BaseCommandBuilder, R extends
         return insert(Command.HELPAUTOGEN, b);
     }
 
+    public T requiredArgs(int required) {
+        return insert(Command.REQUIREDARGS, required);
+    }
+
     public Map<String, Object> getData() {
         return data;
     }
