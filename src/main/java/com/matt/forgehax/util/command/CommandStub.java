@@ -58,6 +58,12 @@ public class CommandStub extends Command implements IKeyBind, ISerializableJson 
                         dt.stopProcessing();
                     }
                 });
+                this.processors.add(dt -> {
+                    if(dt.getArgumentCount() < 0
+                            && !dt.options().hasOptions()) {
+                        dt.write("Unknown command");
+                    }
+                });
             }
         } else {
             bind = null;
