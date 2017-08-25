@@ -216,7 +216,7 @@ public class Setting<E> extends Command implements ISerializableJson {
     @Override
     public void run(@Nonnull String[] args) throws CommandExecuteException, NullPointerException {
         String arg = ArrayHelper.getOrDefault(args, 0, Strings.EMPTY);
-        if(Strings.isNullOrEmpty(arg)) {
+        if(!Strings.isNullOrEmpty(arg)) {
             OptionSet options = parser.parse(CommandHelper.forward(args));
             ExecuteData data = new ExecuteData(this, options, arg);
 
