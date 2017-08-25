@@ -49,6 +49,6 @@ public class SettingBuilder<E> extends BaseCommandBuilder<SettingBuilder<E>, Set
 
     @Override
     public Setting<E> build() {
-        return new Setting<>(data);
+        return new Setting<>(has(Command.REQUIREDARGS) ? data : requiredArgs(1).data);
     }
 }

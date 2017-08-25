@@ -5,6 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
@@ -41,6 +42,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
     public static final String PARENT           = "Command.parent";
     public static final String HELPAUTOGEN      = "Command.helpAutoGen";
     public static final String CALLBACKS        = "Command.callbacks";
+    public static final String REQUIREDARGS     = "Command.requiredArgs";
 
     static {
         SETTINGS_DIR.mkdirs();
@@ -59,7 +61,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
 
     protected final Multimap<CallbackType, Consumer<CallbackData>> callbacks = Multimaps.newSetMultimap(Maps.newHashMap(), Sets::newLinkedHashSet);
 
-    //private final Collection<ICommandFlag> flags = Sets.newHashSet();
+    private final int requiredArgs;
 
     private Command parent;
 
@@ -97,6 +99,8 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
             if(callbacks != null) {
                 this.callbacks.putAll(callbacks);
             }
+
+            this.requiredArgs = Math.max(SafeConverter.toInteger(data.getOrDefault(REQUIREDARGS, 0)), 0);
         } catch (Throwable t) {
             throw new CommandBuildException("Failed to build command", t);
         }
@@ -243,10 +247,25 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
         return false;
     }
 
+    @SuppressWarnings("Duplicates")
     public void run(@Nonnull String[] args) throws CommandExecuteException, NullPointerException {
         if (!processChildren(args)) { // attempt to match child commands first
-            OptionSet options = parser.parse(args);
-            ExecuteData data = new ExecuteData(this, options);
+            OptionSet options;
+            String[] required;
+            if(requiredArgs > 0) {
+                if(args.length < requiredArgs) throw new CommandExecuteException("Missing argument(s)");
+                required = Arrays.copyOfRange(args, 0, requiredArgs); // do not pass through option processor
+                String[] nargs;
+                if(args.length > requiredArgs)
+                    nargs = Arrays.copyOfRange(args, requiredArgs + 1, args.length);
+                else
+                    nargs = new String[0];
+                options = parser.parse(nargs);
+            } else {
+                options = parser.parse(args);
+                required = new String[0];
+            }
+            ExecuteData data = new ExecuteData(this, options, required);
 
             // only process main if no help was processed
             if (!processHelp(data)) processMain(data);
