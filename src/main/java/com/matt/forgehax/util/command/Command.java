@@ -254,10 +254,10 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
             String[] required;
             if(requiredArgs > 0) {
                 if(args.length < requiredArgs) throw new CommandExecuteException("Missing argument(s)");
-                required = Arrays.copyOfRange(args, 0, requiredArgs - 1); // do not pass through option processor
+                required = Arrays.copyOfRange(args, 0, requiredArgs); // do not pass through option processor
                 String[] nargs;
                 if(args.length > requiredArgs)
-                    nargs = Arrays.copyOfRange(args, requiredArgs, args.length - 1);
+                    nargs = Arrays.copyOfRange(args, requiredArgs + 1, args.length);
                 else
                     nargs = new String[0];
                 options = parser.parse(nargs);
