@@ -1,5 +1,6 @@
 package com.matt.forgehax.util.command;
 
+import com.google.common.base.Strings;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
@@ -59,9 +60,9 @@ public class CommandStub extends Command implements IKeyBind, ISerializableJson 
                     }
                 });
                 this.processors.add(dt -> {
-                    if(dt.getArgumentCount() < 0
-                            && !dt.options().hasOptions()) {
-                        dt.write("Unknown command");
+                    if(!dt.options().hasOptions()
+                            && dt.getArgumentCount() > 0) {
+                        dt.write(String.format("Unknown command \"%s\"", Strings.nullToEmpty(dt.getArgumentAsString(0))));
                     }
                 });
             }
