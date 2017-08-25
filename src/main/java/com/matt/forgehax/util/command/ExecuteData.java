@@ -1,5 +1,6 @@
 package com.matt.forgehax.util.command;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
@@ -9,10 +10,7 @@ import com.matt.forgehax.util.SafeConverter;
 import joptsimple.OptionSet;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created on 6/6/2017 by fr1kin
@@ -28,7 +26,7 @@ public class ExecuteData implements Globals, ConsoleWriter {
     private final Command command;
     private final OptionSet options;
 
-    private final List<?> arguments;
+    private final List arguments = Lists.newArrayList();
 
     @Nullable
     private Map<String, Object> data = null;
@@ -37,10 +35,11 @@ public class ExecuteData implements Globals, ConsoleWriter {
 
     private boolean stopped = false;
 
-    public ExecuteData(Command command, OptionSet options) {
+    public ExecuteData(Command command, OptionSet options, Object... extraArguments) {
         this.command = command;
         this.options = options;
-        this.arguments = options.nonOptionArguments();
+        this.arguments.addAll(Arrays.asList(extraArguments));
+        this.arguments.addAll(options.nonOptionArguments());
     }
 
     public State state() {

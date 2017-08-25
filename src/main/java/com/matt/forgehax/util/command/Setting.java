@@ -2,12 +2,17 @@ package com.matt.forgehax.util.command;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.matt.forgehax.util.ArrayHelper;
 import com.matt.forgehax.util.SafeConverter;
+import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.command.callbacks.OnChangeCallback;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
+import com.matt.forgehax.util.command.exception.CommandExecuteException;
 import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
+import joptsimple.OptionSet;
+import joptsimple.internal.Strings;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -205,6 +210,28 @@ public class Setting<E> extends Command implements ISerializableJson {
     @Override
     public Collection<Command> getChildrenDeep() {
         return Collections.emptySet();
+    }
+
+    @SuppressWarnings("Duplicates")
+    @Override
+    public void run(@Nonnull String[] args) throws CommandExecuteException, NullPointerException {
+        String arg = ArrayHelper.getOrDefault(args, 0, Strings.EMPTY);
+        if(Strings.isNullOrEmpty(arg)) {
+            OptionSet options = parser.parse(CommandHelper.forward(args));
+            ExecuteData data = new ExecuteData(this, options, arg);
+
+            // only process main if no help was processed
+            if (!processHelp(data)) processMain(data);
+
+            switch (data.state()) {
+                case SUCCESS:
+                    invokeCallbacks(CallbackType.SUCCESS, new CallbackData(this));
+                    break;
+                case FAILED:
+                    invokeCallbacks(CallbackType.FAILURE, new CallbackData(this));
+                    break;
+            }
+        }
     }
 
     @Override
