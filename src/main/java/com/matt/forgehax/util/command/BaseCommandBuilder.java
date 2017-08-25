@@ -29,6 +29,10 @@ public abstract class BaseCommandBuilder<T extends BaseCommandBuilder, R extends
         return (T)this;
     }
 
+    protected boolean has(String entry) {
+        return data.get(entry) != null;
+    }
+
     @SuppressWarnings("unchecked")
     protected <E> Collection<E> getCallbacks(CallbackType type) {
         if(callbacks == null) {
