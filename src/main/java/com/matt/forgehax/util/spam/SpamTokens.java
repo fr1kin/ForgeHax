@@ -1,7 +1,6 @@
 package com.matt.forgehax.util.spam;
 
-import com.google.common.escape.CharEscaperBuilder;
-import com.google.common.escape.Escaper;
+import java.util.regex.Matcher;
 
 /**
  * Created on 7/18/2017 by fr1kin
@@ -27,9 +26,6 @@ public enum SpamTokens {
      */
     MESSAGE("MESSAGE"),
     ;
-    public static Escaper BAD_GOY_PREVENTER = new CharEscaperBuilder()
-            .addEscape('\\', "\\\\") //TODO: find out more bad goy methods for attempting escaping
-            .toEscaper();
 
     public static SpamTokens[] ALL = new SpamTokens[] {PLAYER_NAME, NAME_HISTORY, SENDER_NAME, MESSAGE};
     public static SpamTokens[] PLAYERNAME_NAMEHISTORY = new SpamTokens[] {PLAYER_NAME, NAME_HISTORY};
@@ -42,7 +38,7 @@ public enum SpamTokens {
     }
 
     public String fill(String str, String with) {
-        return str.replaceAll(token, BAD_GOY_PREVENTER.escape(with));
+        return str.replaceAll(token, Matcher.quoteReplacement(with));
     }
 
     public static String fillAll(String str, SpamTokens[] tokens, String... replacements) {
