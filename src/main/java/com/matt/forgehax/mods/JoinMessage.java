@@ -135,7 +135,7 @@ public class JoinMessage extends ToggleMod {
         SpamService.send(new SpamMessage(
                 replyMessage,
                 "JOIN_MESSAGE_REPLY",
-                2500,
+                0,
                 null,
                 PriorityEnum.HIGHEST
         ));
