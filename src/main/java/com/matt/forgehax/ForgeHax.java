@@ -1,6 +1,5 @@
 package com.matt.forgehax;
 
-import com.matt.forgehax.util.container.ContainerManager;
 import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -40,10 +39,6 @@ public class ForgeHax {
 			case CLIENT: {
 				//---- initialize mods ----//
 				getModManager().loadClasses();
-
-				//---- initialize configuration ----//
-				// init containers
-				ContainerManager.initialize();
 			}
 			default:
 				break;
