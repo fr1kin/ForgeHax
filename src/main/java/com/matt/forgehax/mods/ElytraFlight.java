@@ -15,6 +15,12 @@ import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
 public class ElytraFlight extends ToggleMod {
+	public final Setting<Boolean> fly_on_enable = getCommandStub().builders().<Boolean>newSettingBuilder()
+			.name("fly_on_enable")
+			.description("Start flying when enabled")
+			.defaultTo(false)
+			.build();
+
 	public final Setting<Double> speed = getCommandStub().builders().<Double>newSettingBuilder()
 			.name("speed")
 			.description("Movement speed")
@@ -26,8 +32,15 @@ public class ElytraFlight extends ToggleMod {
 	}
 
 	@Override
-	public void onDisabled() {
+	protected void onEnabled() {
+		if(fly_on_enable.get()) MC.addScheduledTask(() -> {
+			if(getLocalPlayer() != null &&
+					!getLocalPlayer().isElytraFlying()) getNetworkManager().sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
+		});
+	}
 
+	@Override
+	public void onDisabled() {
 		// Are we still here?
 		if (getLocalPlayer() != null) {
 
@@ -37,7 +50,6 @@ public class ElytraFlight extends ToggleMod {
 			// Ensure the player starts flying again.
 			getNetworkManager().sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
 		}
-
 	}
 
 	@SubscribeEvent
