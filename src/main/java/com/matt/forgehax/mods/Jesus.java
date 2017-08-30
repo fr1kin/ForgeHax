@@ -17,7 +17,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getModManager;
+import static com.matt.forgehax.Helper.getWorld;
 
 /**
  * Created by Babbaj on 8/29/2017.
@@ -30,10 +32,10 @@ public class Jesus extends ToggleMod {
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         if (!getModManager().getMod("Freecam").isEnabled()) {
-            if (isInWater(MC.player) && !MC.player.isSneaking()) {
-                MC.player.motionY = 0.1;
-                if (MC.player.getRidingEntity() != null && !(MC.player.getRidingEntity() instanceof EntityBoat)) {
-                    MC.player.getRidingEntity().motionY = 0.3;
+            if (isInWater(getLocalPlayer()) && !getLocalPlayer().isSneaking()) {
+                getLocalPlayer().motionY = 0.1;
+                if (getLocalPlayer().getRidingEntity() != null && !(getLocalPlayer().getRidingEntity() instanceof EntityBoat)) {
+                    getLocalPlayer().getRidingEntity().motionY = 0.3;
                 }
             }
         }
@@ -41,7 +43,7 @@ public class Jesus extends ToggleMod {
 
     @SubscribeEvent
     public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
-        if (MC.player == null) return;
+        if (getLocalPlayer() == null) return;
 
         AxisAlignedBB bb = new AxisAlignedBB(0, 0, 0, 1, 0.99, 1);
 
@@ -49,7 +51,7 @@ public class Jesus extends ToggleMod {
             bb = null;
         }
 
-        if (isInWater(MC.player) || MC.player.isSneaking() || MC.player.fallDistance > 3) {
+        if (isInWater(getLocalPlayer()) || getLocalPlayer().isSneaking() || getLocalPlayer().fallDistance > 3) {
             bb = null;
         }
 
@@ -63,8 +65,8 @@ public class Jesus extends ToggleMod {
     @SubscribeEvent
     public void onPacketSending(PacketEvent.Outgoing.Pre event) {
         if (event.getPacket() instanceof CPacketPlayer) {
-            if (isAboveWater(MC.player) && !isInWater(MC.player) && !isAboveLand(MC.player)) {
-                int ticks = MC.player.ticksExisted % 2;
+            if (isAboveWater(getLocalPlayer()) && !isInWater(getLocalPlayer()) && !isAboveLand(getLocalPlayer())) {
+                int ticks = getLocalPlayer().ticksExisted % 2;
                 double Y = FastReflection.Fields.CPacketPlayer_Y.get(event.getPacket());
 
                 if (ticks == 0) FastReflection.Fields.CPacketPlayer_Y.set(event.getPacket(), Y + 0.02 );
@@ -84,7 +86,7 @@ public class Jesus extends ToggleMod {
             for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
                 BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
 
-                if (MC.world.getBlockState(pos).getBlock().isFullBlock(MC.world.getBlockState(pos))) return true;
+                if (getWorld().getBlockState(pos).getBlock().isFullBlock(getWorld().getBlockState(pos))) return true;
             }
 
         return false;
@@ -97,7 +99,7 @@ public class Jesus extends ToggleMod {
             for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
                 BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
 
-                if (MC.world.getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
+                if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
             }
 
         return false;
@@ -112,7 +114,7 @@ public class Jesus extends ToggleMod {
             for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
                 BlockPos pos = new BlockPos(x, (int) y, z);
 
-                if (MC.world.getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
+                if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
             }
 
         return false;
