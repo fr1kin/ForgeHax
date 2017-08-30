@@ -6,6 +6,8 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.entity.mobtypes.MobType;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeRegistry;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -16,9 +18,7 @@ import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -221,5 +221,37 @@ public class EntityUtils implements Globals {
         } else {
             return Utils.Colors.WHITE;
         }
+    }
+
+    public static boolean isDrivenByPlayer(Entity entityIn) {
+            return MC.player != null && entityIn != null && entityIn.getPassengers().size() > 0 && entityIn.getPassengers().get(0).equals(MC.player);
+    }
+
+    public static boolean inLiquid(AxisAlignedBB bb) {
+        int i = MathHelper.floor(bb.minX);
+        int j = MathHelper.ceil(bb.maxX);
+        int k = MathHelper.floor(bb.minY);
+        int l = MathHelper.ceil(bb.maxY);
+        int i1 = MathHelper.floor(bb.minZ);
+        int j1 = MathHelper.ceil(bb.maxZ);
+        BlockPos.PooledMutableBlockPos pos = BlockPos.PooledMutableBlockPos.retain();
+
+        boolean liquid = false;
+        for (int k1 = i; k1 < j; ++k1) {
+            for (int l1 = k; l1 < l; ++l1) {
+                for (int i2 = i1; i2 < j1; ++i2) {
+                    IBlockState state = MC.world.getBlockState(pos.setPos(k1, l1, i2));
+
+                    if ((state.getMaterial() == Material.WATER) || (state.getMaterial() == Material.LAVA)) {
+                        liquid = true;
+                    } else if (state.getMaterial() != Material.AIR) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        pos.release();
+        return liquid;
     }
 }

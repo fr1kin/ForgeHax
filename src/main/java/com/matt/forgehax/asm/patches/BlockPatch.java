@@ -82,4 +82,31 @@ public class BlockPatch extends ClassTransformer {
             main.instructions.insertBefore(node, insnList);
         }
     }
+
+    @RegisterMethodTransformer
+    private class AddCollisionBoxToList_1 extends MethodTransformer {
+        @Override
+        public ASMMethod getMethod() {
+            return Methods.Block_addCollisionBoxToList_2;
+        }
+
+        @Inject(description = "Allows block collision boxes to be changed")
+        public void inject(MethodNode main) {
+            AbstractInsnNode node = main.instructions.getFirst();
+
+            Objects.requireNonNull(node, "Find pattern failed for node");
+
+            LabelNode jump = new LabelNode(); // if blockBoxOverride is null
+
+            InsnList insnList = new InsnList();
+
+            insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_blockBoxOverride)); // get BoundingBox
+            insnList.add(new JumpInsnNode(IFNULL, jump)); // if the bounding box is null dont do anything with it
+            insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_blockBoxOverride)); // result of get BoundingBox has been popped off the stack so we have to call it again
+            insnList.add(new VarInsnNode(ASTORE, 3)); // overwrite blockBox
+            insnList.add(jump);
+
+            main.instructions.insertBefore(node, insnList);
+        }
+    }
 }

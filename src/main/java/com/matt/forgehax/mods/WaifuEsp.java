@@ -23,8 +23,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class WaifuEsp extends ToggleMod {
     public WaifuEsp() { super ("WaifuESP", false, "overlay cute animes over players"); }
 
-    public final Setting<Boolean> renderPlayers = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("RenderPlayers")
+    public final Setting<Boolean> noRenderPlayers = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("noRenderPlayers")
             .description("render other players")
             .defaultTo(false)
             .build();
@@ -61,9 +61,7 @@ public class WaifuEsp extends ToggleMod {
 
                     // draw waifu
                     GlStateManager.enableTexture2D(); // not sure if this is necessary
-                    MC.renderEngine.bindTexture(waifu);
-                    GlStateManager.scale(1,1,1);
-                    GlStateManager.color(1,1,1);
+                    MC.renderEngine.bindTexture(waifu);GlStateManager.color(1,1,1);
 
                     Gui.drawScaledCustomSizeModalRect(x, y, 0, 0, width, height, width, height, width, height);
                     GlStateManager.disableTexture2D();
@@ -75,7 +73,7 @@ public class WaifuEsp extends ToggleMod {
 
     @SubscribeEvent
     public void onRenderPlayer(RenderPlayerEvent.Pre event) {
-        if(!renderPlayers.getAsBoolean() &&!event.getEntity().equals(MC.player)) {
+        if(noRenderPlayers.getAsBoolean() && !event.getEntity().equals(MC.player)) {
             event.setCanceled(true);
         }
     }
