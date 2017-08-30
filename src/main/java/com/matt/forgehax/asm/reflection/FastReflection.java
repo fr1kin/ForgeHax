@@ -19,6 +19,7 @@ import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.util.ResourceLocation;
@@ -80,6 +81,19 @@ public interface FastReflection extends ASMCommon {
                 .setName("onGround")
                 .autoAssign()
                 .asField();
+        FastField<Double> CPacketPlayer_Y = FastTypeBuilder.create()
+                .setInsideClass(CPacketPlayer.class)
+                .setName("y")
+                .autoAssign()
+                .asField();
+        /**
+         * CPacketVehicleMove
+         */
+        FastField<Float> CPacketVehicleMove_yaw = FastTypeBuilder.create()
+                .setInsideClass(CPacketVehicleMove.class)
+                .setName("yaw")
+                .autoAssign()
+                .asField();
         /**
          * SPacketPlayerPosLook
          */
@@ -102,6 +116,12 @@ public interface FastReflection extends ASMCommon {
                 .setName("dataManager")
                 .autoAssign()
                 .asField();
+        FastField<Boolean> Entity_inPortal = FastTypeBuilder.create()
+                .setInsideClass(Entity.class)
+                .setName("inPortal")
+                .autoAssign()
+                .asField();
+
 
         /**
          * EntityPigZombie

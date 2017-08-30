@@ -60,6 +60,7 @@ public class ForgeHaxHooks implements ASMCommon {
         responding.put("onComputeVisibility",               new DebugData("net.minecraft.client.renderer.chunk.VisGraph"));
         responding.put("onPushOutOfBlocks",                 new DebugData("net.minecraft.client.entity.EntityPlayerSP"));
         responding.put("onRenderBoat",                      new DebugData("net.minecraft.client.renderer.entity.RenderBoat"));
+        responding.put("onAddCollisionBoxToList",           new DebugData("net.minecraft.block.Block"));
 
     }
 
@@ -92,6 +93,9 @@ public class ForgeHaxHooks implements ASMCommon {
     public static boolean isNoBoatGravityActivated = false;
     public static boolean isNoBoatRotationActivated = false;
     public static boolean isNoClampingActivated = false;
+    public static boolean isNotRowingBoatActivated = false;
+
+    public static AxisAlignedBB blockBoxOverride;
 
     public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = Sets.newHashSet();
 

@@ -105,4 +105,38 @@ public class EntityPlayerSPPatch extends ClassTransformer {
 
         }
     }
+
+    @RegisterMethodTransformer
+    private class rowingBoat extends MethodTransformer {
+        @Override
+        public ASMMethod getMethod() {
+            return Methods.EntityPlayerSP_isRowingBoat;
+        }
+
+        @Inject(description = "Add hook to override returned value of isRowingBoat")
+        public void inject(MethodNode main) {
+            AbstractInsnNode preNode = main.instructions.getFirst();
+            AbstractInsnNode returnNode = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
+                            ALOAD, GETFIELD, IRETURN},
+                    "xxx");
+
+            Objects.requireNonNull(preNode, "Find pattern failed for pre node");
+            Objects.requireNonNull(returnNode, "Find pattern failed for return node");
+
+            LabelNode jump = new LabelNode();
+
+            InsnList insnPre = new InsnList();
+            //insnPre.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNotRowingBoatActivated));
+            //insnPre.add(new JumpInsnNode(IFEQ, jump));
+
+            insnPre.add(new InsnNode(ICONST_0));
+            insnPre.add(new InsnNode(IRETURN)); // return false
+
+
+
+            main.instructions.insert(insnPre);
+            main.instructions.insertBefore(returnNode, jump);
+
+        }
+    }
 }
