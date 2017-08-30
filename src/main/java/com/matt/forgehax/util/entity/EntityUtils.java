@@ -22,6 +22,7 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
@@ -84,6 +85,10 @@ public class EntityUtils implements Globals {
      */
     public static boolean isPlayer(Entity entity) {
         return entity instanceof EntityPlayer;
+    }
+
+    public static boolean isLocalPlayer(Entity entity) {
+        return Objects.equals(getLocalPlayer(), entity);
     }
 
     public static boolean isValidEntity(Entity entity) {
