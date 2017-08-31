@@ -95,8 +95,6 @@ public class ForgeHaxHooks implements ASMCommon {
     public static boolean isNoClampingActivated = false;
     public static boolean isNotRowingBoatActivated = false;
 
-    public static AxisAlignedBB blockBoxOverride;
-
     public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = Sets.newHashSet();
 
     /**

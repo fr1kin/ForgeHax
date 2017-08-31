@@ -48,11 +48,6 @@ public interface TypesHook {
                 .setType(boolean.class)
                 .build();
 
-        ASMField ForgeHaxHooks_blockBoxOverride = Classes.ForgeHaxHooks.childField()
-                .setName("blockBoxOverride")
-                .setType(TypesMc.Classes.AxisAlignedBB)
-                .build();
-
     }
 
     interface Methods {

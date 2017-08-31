@@ -229,17 +229,6 @@ public interface TypesMc {
                 .finish()
                 .autoAssign()
                 .build();
-        ASMMethod Block_addCollisionBoxToList_2 = Classes.Block.childMethod()
-                .setName("addCollisionBoxToList")
-                .setReturnType(void.class)
-                .beginParameters()
-                .add(Classes.BlockPos)
-                .add(Classes.AxisAlignedBB)
-                .add(List.class)
-                .add(Classes.AxisAlignedBB)
-                .finish()
-                .autoAssign()
-                .build(); // Method for Jesus
 
         ASMMethod ChunkRenderContainer_addRenderChunk = Classes.ChunkRenderContainer.childMethod()
                 .setName("addRenderChunk")
