@@ -1,8 +1,13 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.Helper;
+import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.material.Material;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -35,6 +40,15 @@ public class AntiOverlayMod extends ToggleMod {
         if (event.getType().equals(RenderGameOverlayEvent.ElementType.HELMET) ||
                 event.getType().equals(RenderGameOverlayEvent.ElementType.PORTAL))
             event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public void onRender(RenderEvent event) {
+        ItemStack item = FastReflection.Fields.EntityRenderer_itemActivationItem.get(MC.entityRenderer);
+
+        if (item != null && item.getItem() == Items.TOTEM_OF_UNDYING) {
+            FastReflection.Fields.EntityRenderer_itemActivationItem.set(MC.entityRenderer, null);
+        }
     }
 
 
