@@ -3,7 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
-import com.matt.forgehax.util.draw.SurfaceUtils;
+import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -64,12 +64,12 @@ public class ActiveModList extends ToggleMod {
     public void onRenderScreen(RenderGameOverlayEvent.Text event) {
         int posX = 1;
         int posY = 1;
-        SurfaceUtils.drawTextShadow(generateTickRateText(), posX, posY, Utils.Colors.WHITE);
-        posY += SurfaceUtils.getTextHeight() + 1;
+        SurfaceHelper.drawTextShadow(generateTickRateText(), posX, posY, Utils.Colors.WHITE);
+        posY += SurfaceHelper.getTextHeight() + 1;
         for(BaseMod mod : getModManager().getMods()) {
             if(mod.isEnabled() && !mod.isHidden()) {
-                SurfaceUtils.drawTextShadow(">" + mod.getDisplayText(), posX, posY, Utils.Colors.WHITE);
-                posY += SurfaceUtils.getTextHeight() + 1;
+                SurfaceHelper.drawTextShadow(">" + mod.getDisplayText(), posX, posY, Utils.Colors.WHITE);
+                posY += SurfaceHelper.getTextHeight() + 1;
             }
         }
         /*

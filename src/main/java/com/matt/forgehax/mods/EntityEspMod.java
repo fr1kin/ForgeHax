@@ -3,7 +3,7 @@ package com.matt.forgehax.mods;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
-import com.matt.forgehax.util.draw.SurfaceUtils;
+import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.entity.EnchantmentUtils;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -127,11 +127,11 @@ public class EntityEspMod extends ToggleMod {
                             int w = width;
                             int h = height;
                             // outer
-                            SurfaceUtils.drawOutlinedRect(x - 1, y - 1, w + 2, h + 2, Utils.Colors.BLACK, 2.f);
+                            SurfaceHelper.drawOutlinedRect(x - 1, y - 1, w + 2, h + 2, Utils.Colors.BLACK, 2.f);
                             // inner
-                            SurfaceUtils.drawOutlinedRect(x, y, w, h, EntityUtils.getDrawColor(living), 2.f);
+                            SurfaceHelper.drawOutlinedRect(x, y, w, h, EntityUtils.getDrawColor(living), 2.f);
                             // outer
-                            SurfaceUtils.drawOutlinedRect(x + 1, y + 1, w - 2, h - 2, Utils.Colors.BLACK, 2.f);
+                            SurfaceHelper.drawOutlinedRect(x + 1, y + 1, w - 2, h - 2, Utils.Colors.BLACK, 2.f);
                         }
 
                         //----TOP ESP----
@@ -141,8 +141,8 @@ public class EntityEspMod extends ToggleMod {
                             double hp = (living.getHealth() / living.getMaxHealth());
                             int posX = topX - (HEALTHBAR_WIDTH / 2);
                             int posY = topY - HEALTHBAR_HEIGHT - 2;
-                            SurfaceUtils.drawRect(posX, posY, HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT, Utils.toRGBA(0, 0, 0, 255));
-                            SurfaceUtils.drawRect(
+                            SurfaceHelper.drawRect(posX, posY, HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT, Utils.toRGBA(0, 0, 0, 255));
+                            SurfaceHelper.drawRect(
                                     posX + 1,
                                     posY + 1,
                                     (int) ((float) (HEALTHBAR_WIDTH - 2) * hp),
@@ -161,8 +161,8 @@ public class EntityEspMod extends ToggleMod {
                                     && (DrawOptions.SIMPLE.equals(enabled.get()) || DrawOptions.ADVANCED.equals(enabled.get()))) {
                                 text += String.format(" (%.1f)", living.getPositionVector().distanceTo(MC.player.getPositionVector()));
                             }
-                            SurfaceUtils.drawTextShadow(text, topX - (SurfaceUtils.getTextWidth(text) / 2), topY - SurfaceUtils.getTextHeight() - 1, Utils.toRGBA(255, 255, 255, 255));
-                            topY -= SurfaceUtils.getTextHeight() + 1;
+                            SurfaceHelper.drawTextShadow(text, topX - (SurfaceHelper.getTextWidth(text) / 2), topY - SurfaceHelper.getTextHeight() - 1, Utils.toRGBA(255, 255, 255, 255));
+                            topY -= SurfaceHelper.getTextHeight() + 1;
                         }
 
                         //----BOTTOM ESP----
@@ -180,19 +180,19 @@ public class EntityEspMod extends ToggleMod {
                                     ItemStack stack = armor.get(i);
                                     int startX = posX + (i * 16);
                                     int startY = botY;
-                                    SurfaceUtils.drawItemWithOverlay(stack, startX, startY);
+                                    SurfaceHelper.drawItemWithOverlay(stack, startX, startY);
                                     // enchantment esp
                                     if (ArmorOptions.ENCHANTMENTS.equals(this.armor.get())) {
                                         List<EnchantmentUtils.EntityEnchantment> enchantments = EnchantmentUtils.getEnchantmentsSorted(stack.getEnchantmentTagList());
                                         if (enchantments != null) {
                                             for (EnchantmentUtils.EntityEnchantment enchant : enchantments) {
-                                                SurfaceUtils.drawTextShadow(enchant.getShortName(),
+                                                SurfaceHelper.drawTextShadow(enchant.getShortName(),
                                                         startX,
                                                         startY,
                                                         Utils.toRGBA(255, 255, 255, 255),
                                                         0.50D
                                                 );
-                                                startY += SurfaceUtils.getTextHeight(0.50D);
+                                                startY += SurfaceHelper.getTextHeight(0.50D);
                                                 if (startY > endY)
                                                     endY = startY;
                                             }

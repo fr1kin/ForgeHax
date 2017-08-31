@@ -17,7 +17,7 @@ import org.lwjgl.opengl.GL11;
 /**
  * 2D rendering
  */
-public class SurfaceUtils implements Globals {
+public class SurfaceHelper implements Globals {
     public static void drawLine(int startX, int startY, int endX, int endY, int color) {
         float r = (float)(color >> 16 & 255) / 255.0F;
         float g = (float)(color >> 8 & 255) / 255.0F;

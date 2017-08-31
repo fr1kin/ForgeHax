@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.util.Utils;
-import com.matt.forgehax.util.draw.SurfaceUtils;
+import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.math.AngleHelper;
@@ -122,7 +122,7 @@ public class Tracers extends ToggleMod {
                                 break;
                         }
 
-                        SurfaceUtils.drawTriangle((int) x, (int) y, size, (float) ang, color);
+                        SurfaceHelper.drawTriangle((int) x, (int) y, size, (float) ang, color);
                     }
                 });
     }

@@ -9,7 +9,7 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
-import com.matt.forgehax.util.draw.SurfaceUtils;
+import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -102,7 +102,7 @@ public class LogoutSpot extends ToggleMod {
                 double distance = MC.player.getDistance((pos.pos[0].x+pos.pos[1].x)/2, pos.pos[0].y, (pos.pos[0].z+pos.pos[1].z)/2); // distance from player to logout spot
                 if (textPos.isVisible) {
                     String name = pos.name + String.format((" (%.1f)"), distance);
-                    SurfaceUtils.drawTextShadow(name, textPos.x - (SurfaceUtils.getTextWidth(name) / 2), textPos.y - (SurfaceUtils.getTextHeight() + 1), Utils.toRGBA(255,0,0,0));
+                    SurfaceHelper.drawTextShadow(name, textPos.x - (SurfaceHelper.getTextWidth(name) / 2), textPos.y - (SurfaceHelper.getTextHeight() + 1), Utils.toRGBA(255,0,0,0));
                 }
             }
         }
