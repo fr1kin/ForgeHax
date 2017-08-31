@@ -85,7 +85,7 @@ public class FreecamMod extends ToggleMod {
             posX = posY = posZ = 0.D;
             pitch = yaw = 0.f;
             try {
-                MC.player.capabilities.isFlying = getModManager().getMod("ElytraFlight").<Setting>getCommand("enabled").getAsBoolean();
+                MC.player.capabilities.isFlying = getModManager().getMod("ElytraFlight").isEnabled();
             } catch (Throwable t) {
                 MC.player.capabilities.isFlying = false;
             }
