@@ -47,7 +47,8 @@ public class Jesus extends ToggleMod {
                 && !(event.getEntity() instanceof EntityBoat)
                 && !getLocalPlayer().isSneaking()
                 && getLocalPlayer().fallDistance < 3
-                && !isInWater(getLocalPlayer())) {
+                && !isInWater(getLocalPlayer())
+                && isAboveWater(getLocalPlayer(), false)) {
             AxisAlignedBB axisalignedbb = WATER_WALK_AA.offset(event.getPos());
             if (event.getEntityBox().intersects(axisalignedbb)) event.getCollidingBoxes().add(axisalignedbb);
             // cancel event, which will stop it from calling the original code
@@ -58,7 +59,7 @@ public class Jesus extends ToggleMod {
     @SubscribeEvent
     public void onPacketSending(PacketEvent.Outgoing.Pre event) {
         if (event.getPacket() instanceof CPacketPlayer) {
-            if (isAboveWater(getLocalPlayer()) && !isInWater(getLocalPlayer()) && !isAboveLand(getLocalPlayer())) {
+            if (isAboveWater(getLocalPlayer(), true) && !isInWater(getLocalPlayer()) && !isAboveLand(getLocalPlayer())) {
                 int ticks = getLocalPlayer().ticksExisted % 2;
                 double y = FastReflection.Fields.CPacketPlayer_Y.get(event.getPacket());
                 if (ticks == 0) FastReflection.Fields.CPacketPlayer_Y.set(event.getPacket(), y + 0.02D );
@@ -84,7 +85,7 @@ public class Jesus extends ToggleMod {
     }
 
     private static boolean isAboveWater(Entity entity){
-        double y = entity.posY - 0.03;
+        double y = entity.posY - (packet ? 0.03 : 0.2); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
 
         for(int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++)
             for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
