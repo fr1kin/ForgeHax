@@ -42,9 +42,9 @@ public class Jesus extends ToggleMod {
     @SubscribeEvent
     public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
         if (getLocalPlayer() != null
-                && EntityUtils.isLocalPlayer(event.getEntity())
-                && event.getBlock() instanceof BlockLiquid
-                && !EntityUtils.isDrivenByPlayer(event.getEntity())
+                && (event.getBlock() instanceof BlockLiquid)
+                && (EntityUtils.isDrivenByPlayer(event.getEntity()) || EntityUtils.isLocalPlayer(event.getEntity()))
+                && !(event.getEntity() instanceof EntityBoat)
                 && !getLocalPlayer().isSneaking()
                 && getLocalPlayer().fallDistance < 3
                 && !isInWater(getLocalPlayer())) {
