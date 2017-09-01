@@ -48,7 +48,8 @@ public class Jesus extends ToggleMod {
                 && !getLocalPlayer().isSneaking()
                 && getLocalPlayer().fallDistance < 3
                 && !isInWater(getLocalPlayer())
-                && isAboveWater(getLocalPlayer(), false)) {
+                && isAboveWater(getLocalPlayer(), false)
+                && isAboveBlock(getLocalPlayer(), event.getPos())) {
             AxisAlignedBB axisalignedbb = WATER_WALK_AA.offset(event.getPos());
             if (event.getEntityBox().intersects(axisalignedbb)) event.getCollidingBoxes().add(axisalignedbb);
             // cancel event, which will stop it from calling the original code
@@ -84,7 +85,7 @@ public class Jesus extends ToggleMod {
         return false;
     }
 
-    private static boolean isAboveWater(Entity entity){
+    private static boolean isAboveWater(Entity entity, boolean packet){
         double y = entity.posY - (packet ? 0.03 : 0.2); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
 
         for(int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++)
@@ -110,6 +111,10 @@ public class Jesus extends ToggleMod {
             }
 
         return false;
+    }
+    
+    private static boolean isAboveBlock(Entity entity, BlockPos pos) {
+        return entity.posY  >= pos.getY();
     }
 
 }
