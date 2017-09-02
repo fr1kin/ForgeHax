@@ -1,14 +1,17 @@
 package com.matt.forgehax.mods.services;
 
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -52,5 +55,10 @@ public class RenderEventService extends ServiceMod {
         GlStateManager.enableDepth();
         GlStateManager.enableCull();
         GlStateManager.popMatrix();
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public void onRenderGameOverlayEvent(final RenderGameOverlayEvent.Text event) {
+        if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) MinecraftForge.EVENT_BUS.post(new Render2DEvent(event.getPartialTicks()));
     }
 }
