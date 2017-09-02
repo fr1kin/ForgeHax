@@ -28,14 +28,14 @@ public class HorseStats extends ToggleMod {
 
     @SubscribeEvent
     public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
-        if (!(getRidingEntity() instanceof AbstractHorse)) return;
+        if (EntityUtils.isDrivenByPlayer(event.getEntity()) && getRidingEntity() instanceof AbstractHorse) {
 
-        IAttribute JUMP_STRENGTH = FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getRidingEntity());
-        IAttribute MOVEMENT_SPEED = FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getRidingEntity());
+            IAttribute JUMP_STRENGTH = FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getRidingEntity());
+            IAttribute MOVEMENT_SPEED = FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getRidingEntity());
 
-       ((EntityLivingBase)getRidingEntity()).getEntityAttribute(JUMP_STRENGTH).setBaseValue(jumpHeight.getAsDouble());
-       ((EntityLivingBase)getRidingEntity()).getEntityAttribute(MOVEMENT_SPEED).setBaseValue(speed.getAsDouble());
-
+            ((EntityLivingBase) getRidingEntity()).getEntityAttribute(JUMP_STRENGTH).setBaseValue(jumpHeight.getAsDouble());
+            ((EntityLivingBase) getRidingEntity()).getEntityAttribute(MOVEMENT_SPEED).setBaseValue(speed.getAsDouble());
+        }
     }
 
 }
