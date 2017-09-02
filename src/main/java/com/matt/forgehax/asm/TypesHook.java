@@ -48,6 +48,11 @@ public interface TypesHook {
                 .setType(boolean.class)
                 .build();
 
+        ASMField ForgeHaxHooks_doIncreaseTabListSize = Classes.ForgeHaxHooks.childField()
+                .setName("doIncreaseTabListSize")
+                .setType(boolean.class)
+                .build();
+
     }
 
     interface Methods {
