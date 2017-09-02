@@ -10,7 +10,7 @@ import com.matt.forgehax.asm.reflection.FastReflection;
 
 @RegisterMod
 public class NoRotate extends ToggleMod {
-    public NoRotate() { super("NoRotate", true, "dont let server set pitch and yaw");}
+    public NoRotate() { super("NoRotate", false, "dont let server set pitch and yaw");}
 
     @SubscribeEvent
     public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
