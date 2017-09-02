@@ -1,23 +1,20 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
-import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.printMessage;
 
 /**
  * Created by Babbaj on 9/1/2017.
  */
 @RegisterMod
-public class AntiSetSlotMod extends ToggleMod {
-    public AntiSetSlotMod() {
-        super("AntiSetSlot", false, "prevents the server from changing selected hotbar slot");
+public class AntiHeldItemChangeMod extends ToggleMod {
+    public AntiHeldItemChangeMod() {
+        super("AntiHeldItemChange", false, "prevents the server from changing selected hotbar slot");
     }
 
     @SubscribeEvent
@@ -29,7 +26,6 @@ public class AntiSetSlotMod extends ToggleMod {
                 getNetworkManager().sendPacket(new CPacketHeldItemChange(currentSlot)); // set server's slot back to our slot
                 FastReflection.Methods.KeyBinding_unPress.invoke(MC.gameSettings.keyBindAttack); // likely will eating so stop right clicking
 
-                printMessage("Server attempted to change hotbar slot");
                 event.setCanceled(true);
             }
         }
