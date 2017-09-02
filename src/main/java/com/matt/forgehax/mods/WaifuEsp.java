@@ -61,7 +61,8 @@ public class WaifuEsp extends ToggleMod {
 
                     // draw waifu
                     GlStateManager.enableTexture2D(); // not sure if this is necessary
-                    MC.renderEngine.bindTexture(waifu);GlStateManager.color(1,1,1);
+                    MC.renderEngine.bindTexture(waifu);
+                    GlStateManager.color(1,1,1);
 
                     Gui.drawScaledCustomSizeModalRect(x, y, 0, 0, width, height, width, height, width, height);
                     GlStateManager.disableTexture2D();
