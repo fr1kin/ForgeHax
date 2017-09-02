@@ -109,4 +109,17 @@ public class Helper implements Globals {
         if (t.getCause() != null) handleThrowable(t.getCause());
         printStackTrace(t);
     }
+
+    public static void reloadChunks() {
+        // credits to 0x22
+        if(getWorld() != null && getLocalPlayer() != null) MC.addScheduledTask(() -> {
+            int x = (int) getLocalPlayer().posX;
+            int y = (int) getLocalPlayer().posY;
+            int z = (int) getLocalPlayer().posZ;
+
+            int distance = MC.gameSettings.renderDistanceChunks * 16;
+
+            MC.renderGlobal.markBlockRangeForRenderUpdate(x - distance, y - distance, z - distance, x + distance, y + distance, z + distance);
+        });
+    }
 }

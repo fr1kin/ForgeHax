@@ -48,6 +48,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 
+import static com.matt.forgehax.Helper.reloadChunks;
+
 /**
  * Created on 5/5/2017 by fr1kin
  */
@@ -108,12 +110,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         this.renderers = renderers;
     }
 
-    private void reloadRenderers() {
-        if(MC.isCallingFromMinecraftThread()) {
-            if (Helper.getWorld() != null) MC.renderGlobal.loadRenderers();
-        } else MC.addScheduledTask(this::reloadRenderers);
-    }
-
     @Override
     public void onLoad() {
         options.builders().newCommandBuilder()
@@ -160,7 +156,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                         }
                     });
                 })
-                .success(cmd -> this.reloadRenderers())
+                .success(cmd -> reloadChunks())
                 .build();
         options.builders().newCommandBuilder()
                 .name("remove")
@@ -199,7 +195,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                         }
                     });
                 })
-                .success(cmd -> this.reloadRenderers())
+                .success(cmd -> reloadChunks())
                 .build();
     }
 
@@ -214,7 +210,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         options.deserialize();
         Listeners.BLOCK_MODEL_RENDER_LISTENER.register(this);
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable();
-        reloadRenderers();
+        reloadChunks();
     }
 
     @Override

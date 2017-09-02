@@ -13,6 +13,8 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static com.matt.forgehax.Helper.reloadChunks;
+
 @RegisterMod
 public class XrayMod extends ToggleMod {
     public final Setting<Integer> opacity = getCommandStub().builders().<Integer>newSettingBuilder()
@@ -23,7 +25,7 @@ public class XrayMod extends ToggleMod {
             .max(255)
             .changed(cb -> {
                 ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (cb.getTo().floatValue() / 255.f);
-                reloadRenderers();
+                reloadChunks();
             })
             .build();
 
@@ -33,24 +35,13 @@ public class XrayMod extends ToggleMod {
         super("Xray", false, "See blocks through walls");
     }
 
-    public void reloadRenderers() {
-        if(MC.renderGlobal != null) {
-            if (!MC.isCallingFromMinecraftThread())
-                MC.addScheduledTask(() -> {
-                    MC.renderGlobal.loadRenderers();
-                });
-            else
-                MC.renderGlobal.loadRenderers();
-        }
-    }
-
     @Override
     public void onEnabled() {
         previousForgeLightPipelineEnabled = ForgeModContainer.forgeLightPipelineEnabled;
         ForgeModContainer.forgeLightPipelineEnabled = false;
         ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (this.opacity.getAsFloat() / 255.f);
         ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
-        reloadRenderers();
+        reloadChunks();
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable();
     }
 
@@ -58,7 +49,7 @@ public class XrayMod extends ToggleMod {
     public void onDisabled() {
         ForgeModContainer.forgeLightPipelineEnabled = previousForgeLightPipelineEnabled;
         ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
-        reloadRenderers();
+        reloadChunks();
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable();
     }
 
