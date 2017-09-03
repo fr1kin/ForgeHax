@@ -4,6 +4,8 @@ import com.matt.forgehax.util.Utils;
 import net.minecraft.client.renderer.GlStateManager;
 import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
 
+import java.util.Arrays;
+
 import static org.lwjgl.opengl.GL11.*;
 
 /**
@@ -20,7 +22,7 @@ public class SurfaceBuilder {
 
     // --------------------
 
-    private final float[] color4f = EMPTY_COLOR;
+    private final float[] color4f = Arrays.copyOf(EMPTY_COLOR, EMPTY_COLOR.length);
 
     public SurfaceBuilder begin(int mode) {
         glBegin(mode);
@@ -50,6 +52,7 @@ public class SurfaceBuilder {
     }
 
     public SurfaceBuilder pop() {
+        System.arraycopy(EMPTY_COLOR, 0, color4f, 0, color4f.length);
         GlStateManager.popMatrix();
         return this;
     }
