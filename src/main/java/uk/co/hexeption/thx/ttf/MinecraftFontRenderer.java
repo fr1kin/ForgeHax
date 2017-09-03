@@ -117,7 +117,7 @@ public class MinecraftFontRenderer extends CFont
             {
                 char character = text.charAt(i);
 
-                if ((character == '§') && (i < size))
+                if ((character == '\u00a7') && (i < size))
                 {
                     int colorIndex = 21;
 
@@ -266,7 +266,7 @@ public class MinecraftFontRenderer extends CFont
         {
             char character = text.charAt(i);
 
-            if ((character == '§') && (i < size))
+            if ((character == '\u00a7') && (i < size))
             {
                 int colorIndex = "0123456789abcdefklmnor".indexOf(character);
 
@@ -375,7 +375,7 @@ public class MinecraftFontRenderer extends CFont
                 {
                     char c = word.toCharArray()[i];
 
-                    if ((c == '§') && (i < word.toCharArray().length - 1))
+                    if ((c == '\u00a7') && (i < word.toCharArray().length - 1))
                     {
                         lastColorCode = word.toCharArray()[(i + 1)];
                     }
@@ -424,7 +424,7 @@ public class MinecraftFontRenderer extends CFont
         {
             char c = chars[i];
 
-            if ((c == '§') && (i < chars.length - 1))
+            if ((c == '\u00a7') && (i < chars.length - 1))
             {
                 lastColorCode = chars[(i + 1)];
             }
