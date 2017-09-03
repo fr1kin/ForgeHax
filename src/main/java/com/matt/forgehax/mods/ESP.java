@@ -31,7 +31,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 
 @RegisterMod
-public class Esp extends ToggleMod implements Fonts {
+public class ESP extends ToggleMod implements Fonts {
     private static final int HEALTHBAR_WIDTH = 15;
     private static final int HEALTHBAR_HEIGHT = 3;
 
@@ -67,7 +67,7 @@ public class Esp extends ToggleMod implements Fonts {
             .build();
 
     public Esp() {
-        super("Esp", false, "Shows entity locations and info");
+        super("ESP", false, "Shows entity locations and info");
     }
 
     @SubscribeEvent
