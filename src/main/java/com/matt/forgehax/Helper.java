@@ -47,6 +47,13 @@ public class Helper implements Globals {
         return MC.player;
     }
 
+    public static Entity getRidingEntity() {
+        if (getLocalPlayer() != null)
+            return getLocalPlayer().getRidingEntity();
+        else
+            return null;
+    }
+
     public static WorldClient getWorld() {
         return MC.world;
     }

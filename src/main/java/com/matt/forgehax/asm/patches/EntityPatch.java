@@ -87,6 +87,12 @@ public class EntityPatch extends ClassTransformer {
 
             Objects.requireNonNull(sneakFlagNode, "Find pattern failed for sneakFlagNode");
 
+            AbstractInsnNode instanceofCheck = sneakFlagNode.getNext();
+            for (int i = 0; i < 3; i++) {
+                instanceofCheck = instanceofCheck.getNext();
+                main.instructions.remove(instanceofCheck.getPrevious());
+            }
+
             // the original label to the jump
             LabelNode jumpToLabel = ((JumpInsnNode) sneakFlagNode).label;
             // the or statement jump if isSneaking returns false

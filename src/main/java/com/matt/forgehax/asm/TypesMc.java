@@ -185,6 +185,21 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
+        ASMClass GuiPlayerTabOverlay = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/gui/GuiPlayerTabOverlay")
+                .autoAssign()
+                .build();
+
+        ASMClass Scoreboard = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/scoreboard/Scoreboard")
+                .autoAssign()
+                .build();
+
+        ASMClass ScoreObjective = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/scoreboard/ScoreObjective")
+                .autoAssign()
+                .build();
+
     }
 
     interface Fields {
@@ -472,6 +487,17 @@ public interface TypesMc {
                 .add(double.class)
                 .add(float.class)
                 .add(float.class)
+                .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod PlayerTabOverlay_renderPlayerList = Classes.GuiPlayerTabOverlay.childMethod()
+                .setName("renderPlayerlist")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(int.class)
+                .add(Classes.Scoreboard)
+                .add(Classes.ScoreObjective)
                 .finish()
                 .autoAssign()
                 .build();

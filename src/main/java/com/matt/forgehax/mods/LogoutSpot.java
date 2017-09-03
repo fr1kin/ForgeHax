@@ -37,13 +37,13 @@ public class LogoutSpot extends ToggleMod {
 
 
     public final Setting<Boolean> renderPosition = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("RenderPosition").description("Create a cloned player entity where the player logged out")
+            .name("RenderPosition").description("Draw a box where the player logged out")
             .defaultTo(true).build();
     public final Setting<Integer> maxDistance = getCommandStub().builders().<Integer>newSettingBuilder()
-            .name("MaxDistance").description("distance from cloned entity before deleting it")
+            .name("MaxDistance").description("Distance from box before deleting it")
             .defaultTo(50).build();
     public final Setting<Boolean> outputToChat = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("OutputToChat").description("print coords to chat")
+            .name("OutputToChat").description("Print coords to chat")
             .defaultTo(true).build();
 
 

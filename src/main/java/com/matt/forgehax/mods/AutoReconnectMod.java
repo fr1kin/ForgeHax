@@ -24,6 +24,8 @@ import java.util.List;
 public class AutoReconnectMod extends ToggleMod {
     private static ServerData lastConnectedServer;
 
+    public static boolean hasAutoLogged = false; // used to disable autoreconnecting without disabling the entire mod
+
     public void updateLastConnectedServer() {
         ServerData data = MC.getCurrentServerData();
         if(data != null) lastConnectedServer = data;
@@ -32,7 +34,7 @@ public class AutoReconnectMod extends ToggleMod {
     public final Setting<Double> delay = getCommandStub().builders().<Double>newSettingBuilder()
             .name("delay")
             .description("Delay between each reconnect attempt")
-            .defaultTo(0.D)
+            .defaultTo(5.D)
             .build();
 
     public AutoReconnectMod() {
@@ -41,6 +43,7 @@ public class AutoReconnectMod extends ToggleMod {
 
     @SubscribeEvent
     public void onGuiOpened(GuiOpenEvent event) {
+        if (!hasAutoLogged)
         if(event.getGui() instanceof GuiDisconnected &&
                 !(event.getGui() instanceof GuiDisconnectedOverride)) {
             updateLastConnectedServer();
@@ -58,6 +61,7 @@ public class AutoReconnectMod extends ToggleMod {
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         // we got on the server or stopped joining, now undo queue
+        hasAutoLogged = false; // make mod work when you rejoin
     }
 
     @SubscribeEvent

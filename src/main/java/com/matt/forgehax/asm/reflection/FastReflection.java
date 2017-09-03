@@ -11,12 +11,18 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.monster.EntityPigZombie;
+import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketVehicleMove;
@@ -261,6 +267,32 @@ public interface FastReflection extends ASMCommon {
                 .setName("mapTextureObjects")
                 .autoAssign()
                 .asField();
+
+        /**
+         * EntityRenderer
+         */
+        FastField<ItemStack> EntityRenderer_itemActivationItem = FastTypeBuilder.create()
+                .setInsideClass(EntityRenderer.class)
+                .setName("itemActivationItem")
+                .autoAssign()
+                .asField();
+
+        /**
+         * AbstractHorse
+         */
+        FastField<IAttribute> AbstractHorse_JUMP_STRENGTH = FastTypeBuilder.create()
+                .setInsideClass(AbstractHorse.class)
+                .setName("JUMP_STRENGTH")
+                .autoAssign()
+                .asField();
+        /**
+         * SharedMonsterAttributes
+         */
+        FastField<IAttribute> SharedMonsterAttributes_MOVEMENT_SPEED = FastTypeBuilder.create()
+                .setInsideClass(SharedMonsterAttributes.class)
+                .setName("MOVEMENT_SPEED")
+                .autoAssign()
+                .asField();
     }
 
     // ****************************************
@@ -303,6 +335,17 @@ public interface FastReflection extends ASMCommon {
         FastMethod<Void> Minecraft_rightClickMouse = FastTypeBuilder.create()
                 .setInsideClass(Minecraft.class)
                 .setName("rightClickMouse")
+                .setParameters()
+                .setReturnType(void.class)
+                .autoAssign()
+                .asMethod();
+
+        /**
+         * KeyBinding
+         */
+        FastMethod<Void> KeyBinding_unPress = FastTypeBuilder.create()
+                .setInsideClass(KeyBinding.class)
+                .setName("unpressKey")
                 .setParameters()
                 .setReturnType(void.class)
                 .autoAssign()
