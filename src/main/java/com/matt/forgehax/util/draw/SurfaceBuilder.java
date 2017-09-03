@@ -2,9 +2,12 @@ package com.matt.forgehax.util.draw;
 
 import com.matt.forgehax.util.Utils;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.item.ItemStack;
 import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
 
 import static com.matt.forgehax.Globals.MC;
+import static com.matt.forgehax.Helper.getLocalPlayer;
 import static org.lwjgl.opengl.GL11.*;
 
 /**
@@ -177,6 +180,18 @@ public class SurfaceBuilder {
         return this;
     }
 
+    public SurfaceBuilder item(ItemStack stack, double x, double y) {
+        MC.getRenderItem().zLevel = 100.f;
+        SurfaceHelper.renderItemAndEffectIntoGUI(getLocalPlayer(), stack, x, y);
+        MC.getRenderItem().zLevel = 0.f;
+        return this;
+    }
+
+    public SurfaceBuilder itemOverlay(ItemStack stack, double x, double y) {
+        SurfaceHelper.renderItemOverlayIntoGUI(MC.fontRenderer, stack, x, y, null);
+        return this;
+    }
+
     public int getFontWidth(String text) {
         return fontRenderer != null ? fontRenderer.getStringWidth(text) : MC.fontRenderer.getStringWidth(text);
     }
@@ -188,16 +203,43 @@ public class SurfaceBuilder {
         return getFontHeight();
     }
 
+    private double _getScaled(int index, double p) {
+        return p * (1.D / scale3d[index]);
+    }
+    public double getScaledX(double x) {
+        return _getScaled(0, x);
+    }
+    public double getScaledY(double y) {
+        return _getScaled(1, y);
+    }
+    public double getScaledZ(double z) {
+        return _getScaled(2, z);
+    }
+    public double getScaled(double p) {
+        return getScaledX(p);
+    }
+
+    public double getItemSize() {
+        return 16;
+    }
+
+
     // --------------------
 
-    public static void preRender() {
-        GlStateManager.enableBlend();
+    public static void preRenderTexture2D() {
         GlStateManager.disableTexture2D();
+    }
+
+    public static void postRenderTexture2D() {
+        GlStateManager.enableTexture2D();
+    }
+
+    public static void preBlend() {
+        GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
     }
 
-    public static void postRender() {
-        GlStateManager.enableTexture2D();
+    public static void postBlend() {
         GlStateManager.disableBlend();
     }
 
@@ -207,5 +249,19 @@ public class SurfaceBuilder {
 
     public static void postFontRender() {
         GlStateManager.enableDepth();
+    }
+
+    public static void preItemRender() {
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.disableLighting();
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.enableColorMaterial();
+        GlStateManager.enableLighting();
+    }
+
+    public static void postItemRender() {
+        GlStateManager.disableLighting();
+        GlStateManager.enableDepth();
+        GlStateManager.color(1.f, 1.f, 1.f, 1.f);
     }
 }
