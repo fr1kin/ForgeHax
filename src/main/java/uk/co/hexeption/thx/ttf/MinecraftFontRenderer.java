@@ -388,13 +388,13 @@ public class MinecraftFontRenderer extends CFont
                 else
                 {
                     finalWords.add(currentWord);
-                    currentWord = "§" + lastColorCode + word + " ";
+                    currentWord = "\u00a7" + lastColorCode + word + " ";
                 }
             }
 
             if (currentWord.length() > 0) if (getStringWidth(currentWord) < width)
             {
-                finalWords.add("§" + lastColorCode + currentWord + " ");
+                finalWords.add("\u00a7" + lastColorCode + currentWord + " ");
                 currentWord = "";
             }
             else
@@ -436,7 +436,7 @@ public class MinecraftFontRenderer extends CFont
             else
             {
                 finalWords.add(currentWord);
-                currentWord = "§" + lastColorCode + String.valueOf(c);
+                currentWord = "\u00a7" + lastColorCode + String.valueOf(c);
             }
         }
 
