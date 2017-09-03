@@ -188,7 +188,7 @@ public class SurfaceBuilder {
     }
 
     public SurfaceBuilder itemOverlay(ItemStack stack, double x, double y) {
-        SurfaceHelper.renderItemOverlayIntoGUI(MC.fontRenderer, stack, x, y, scale3d != EMPTY_VECTOR3D ? scale3d[0] : 16.D);
+        SurfaceHelper.renderItemOverlayIntoGUI(MC.fontRenderer, stack, x, y, null, scale3d != EMPTY_VECTOR3D ? scale3d[0] : 16.D);
         return this;
     }
 

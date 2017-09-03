@@ -196,7 +196,7 @@ public class SurfaceHelper implements Globals {
         GlStateManager.enableLighting();
         MC.getRenderItem().zLevel = 100.f;
         renderItemAndEffectIntoGUI(getLocalPlayer(), item, x, y, 16.D);
-        renderItemOverlayIntoGUI(MC.fontRenderer, item, x, y, scale);
+        renderItemOverlayIntoGUI(MC.fontRenderer, item, x, y, null, scale);
         MC.getRenderItem().zLevel = 0.f;
         GlStateManager.popMatrix();
         GlStateManager.disableLighting();
@@ -223,18 +223,18 @@ public class SurfaceHelper implements Globals {
         GlStateManager.popMatrix();
     }
 
-    public static void drawHead(ResourceLocation skinResource, int x, int y, float scale) {
+    public static void drawHead(ResourceLocation skinResource, double x, double y, float scale) {
         GlStateManager.pushMatrix();
         MC.renderEngine.bindTexture(skinResource);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.F);
         GlStateManager.scale(scale, scale, scale);
-        Gui.drawScaledCustomSizeModalRect((int) (x * (1 / scale)), (int) (y * (1 / scale)),
+        drawScaledCustomSizeModalRect((x * (1 / scale)), (y * (1 / scale)),
                 8.0F, 8.0F,
                 8, 8,
                 12, 12,
                 64.0F, 64.0F
         );
-        Gui.drawScaledCustomSizeModalRect((int) (x * (1 / scale)), (int) (y * (1 / scale)),
+        drawScaledCustomSizeModalRect((x * (1 / scale)), (y * (1 / scale)),
                 40.0F, 8.0F,
                 8, 8,
                 12, 12,
@@ -288,13 +288,25 @@ public class SurfaceHelper implements Globals {
         MC.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
     }
 
-    protected static void renderItemOverlayIntoGUI(FontRenderer fr, ItemStack stack, double xPosition, double yPosition, double scale)
+    protected static void renderItemOverlayIntoGUI(FontRenderer fr, ItemStack stack, double xPosition, double yPosition, @Nullable String text, double scale)
     {
         final double SCALE_RATIO = 1.23076923077D;
 
         if (!stack.isEmpty())
         {
-            SurfaceBuilder builder = new SurfaceBuilder();
+            if (stack.getCount() != 1 || text != null)
+            {
+                String s = text == null ? String.valueOf(stack.getCount()) : text;
+                GlStateManager.disableLighting();
+                GlStateManager.disableDepth();
+                GlStateManager.disableBlend();
+                fr.drawStringWithShadow(s, (float)(xPosition + 19 - 2 - fr.getStringWidth(s)), (float)(yPosition + 6 + 3), 16777215);
+                GlStateManager.enableLighting();
+                GlStateManager.enableDepth();
+                // Fixes opaque cooldown overlay a bit lower
+                // TODO: check if enabled blending still screws things up down the line.
+                GlStateManager.enableBlend();
+            }
 
             if (stack.getItem().showDurabilityBar(stack))
             {
@@ -307,8 +319,8 @@ public class SurfaceHelper implements Globals {
                 int rgbfordisplay = stack.getItem().getRGBDurabilityForDisplay(stack);
                 int i = Math.round(13.0F - (float)health * 13.0F);
                 int j = rgbfordisplay;
-                draw(builder, xPosition + (scale / 8.D), yPosition + (scale / SCALE_RATIO), 13, 2, 0, 0, 0, 255);
-                draw(builder, xPosition + (scale / 8.D), yPosition + (scale / SCALE_RATIO), i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
+                draw(xPosition + (scale / 8.D), yPosition + (scale / SCALE_RATIO), 13, 2, 0, 0, 0, 255);
+                draw(xPosition + (scale / 8.D), yPosition + (scale / SCALE_RATIO), i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
                 GlStateManager.enableBlend();
                 GlStateManager.enableAlpha();
                 GlStateManager.enableTexture2D();
@@ -324,7 +336,7 @@ public class SurfaceHelper implements Globals {
                 GlStateManager.disableLighting();
                 GlStateManager.disableDepth();
                 GlStateManager.disableTexture2D();
-                draw(builder, xPosition, yPosition + scale * (1.0F - f3), 16, scale * f3, 255, 255, 255, 127);
+                draw(xPosition, yPosition + scale * (1.0F - f3), 16, scale * f3, 255, 255, 255, 127);
                 GlStateManager.enableTexture2D();
                 GlStateManager.enableLighting();
                 GlStateManager.enableDepth();
@@ -332,16 +344,30 @@ public class SurfaceHelper implements Globals {
         }
     }
 
-    private static void draw(SurfaceBuilder builder, double x, double y, double width, double height, int red, int green, int blue, int alpha)
+    private static void draw(double x, double y, double width, double height, int red, int green, int blue, int alpha)
     {
-        builder.clear()
-                .push()
-                .beginQuads()
-                .color(red, green, blue, alpha)
-                .apply()
-                .rectangle(x, y, width, height)
-                .end()
-                .pop();
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder renderer = tessellator.getBuffer();
+        renderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        renderer.pos((double)(x + 0), (double)(y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
+        renderer.pos((double)(x + 0), (double)(y + height), 0.0D).color(red, green, blue, alpha).endVertex();
+        renderer.pos((double)(x + width), (double)(y + height), 0.0D).color(red, green, blue, alpha).endVertex();
+        renderer.pos((double)(x + width), (double)(y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
+        Tessellator.getInstance().draw();
+    }
+
+    public static void drawScaledCustomSizeModalRect(double x, double y, float u, float v, double uWidth, double vHeight, double width, double height, double tileWidth, double tileHeight)
+    {
+        double f = 1.0F / tileWidth;
+        double f1 = 1.0F / tileHeight;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.pos((double)x, (double)(y + height), 0.0D).tex((double)(u * f), (double)((v + (float)vHeight) * f1)).endVertex();
+        bufferbuilder.pos((double)(x + width), (double)(y + height), 0.0D).tex((double)((u + (float)uWidth) * f), (double)((v + (float)vHeight) * f1)).endVertex();
+        bufferbuilder.pos((double)(x + width), (double)y, 0.0D).tex((double)((u + (float)uWidth) * f), (double)(v * f1)).endVertex();
+        bufferbuilder.pos((double)x, (double)y, 0.0D).tex((double)(u * f), (double)(v * f1)).endVertex();
+        tessellator.draw();
     }
 
     public static int getHeadWidth(float scale) {
