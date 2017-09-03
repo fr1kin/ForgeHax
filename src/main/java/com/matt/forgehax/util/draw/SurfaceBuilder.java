@@ -59,7 +59,7 @@ public class SurfaceBuilder {
         return this;
     }
     
-    public SurfaceBuilder detach() {
+    public SurfaceBuilder unapply() {
         color4d = EMPTY_VECTOR4D;
         scale3d = EMPTY_VECTOR3D;
         translate3d = EMPTY_VECTOR3D;
@@ -76,7 +76,7 @@ public class SurfaceBuilder {
 
     public SurfaceBuilder pop() {
         GlStateManager.popMatrix();
-        detach();
+        unapply();
         return this;
     }
 
@@ -164,6 +164,17 @@ public class SurfaceBuilder {
     public SurfaceBuilder task(Runnable task) {
         task.run();
         return this;
+    }
+
+    public int getFontWidth(String text) {
+        return fontRenderer != null ? fontRenderer.getStringWidth(text) : MC.fontRenderer.getStringWidth(text);
+    }
+
+    public int getFontHeight() {
+        return fontRenderer != null ? fontRenderer.getHeight() : MC.fontRenderer.FONT_HEIGHT;
+    }
+    public int getFontHeight(String text) {
+        return getFontHeight();
     }
 
     // --------------------
