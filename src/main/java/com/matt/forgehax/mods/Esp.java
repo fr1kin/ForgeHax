@@ -103,7 +103,7 @@ public class Esp extends ToggleMod implements Fonts {
                             break;
                     }
 
-                    if(setting != null && DrawOptions.DISABLED.equals(setting.get())) return;
+                    if(setting == null || DrawOptions.DISABLED.equals(setting.get())) return;
 
                     Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
                     Vec3d topPos = bottomPos.addVector(0.D, living.getRenderBoundingBox().maxY - living.posY, 0.D);
@@ -230,7 +230,7 @@ public class Esp extends ToggleMod implements Fonts {
                         .filter(stack -> !stack.isEmpty())
                         .collect(Collectors.toList());
                 if(!items.isEmpty()) { // only continue if there are elements present
-                    final double itemSize = builder.getItemSize();
+                    final double itemSize = 16;
                     double x = topX - ((itemSize * (double)items.size()) / 2.D);
                     double y = topY - itemSize;
                     for(int index = 0; index < items.size(); ++index) {
