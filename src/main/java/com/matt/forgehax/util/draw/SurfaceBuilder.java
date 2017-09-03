@@ -59,7 +59,7 @@ public class SurfaceBuilder {
         return this;
     }
     
-    public SurfaceBuilder unapply() {
+    public SurfaceBuilder clear() {
         color4d = EMPTY_VECTOR4D;
         scale3d = EMPTY_VECTOR3D;
         translate3d = EMPTY_VECTOR3D;
@@ -76,7 +76,7 @@ public class SurfaceBuilder {
 
     public SurfaceBuilder pop() {
         GlStateManager.popMatrix();
-        unapply();
+        clear();
         return this;
     }
 
