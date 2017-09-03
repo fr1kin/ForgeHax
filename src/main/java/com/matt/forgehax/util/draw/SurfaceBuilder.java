@@ -70,13 +70,11 @@ public class SurfaceBuilder {
 
     public SurfaceBuilder push() {
         GlStateManager.pushMatrix();
-        apply();
         return this;
     }
 
     public SurfaceBuilder pop() {
         GlStateManager.popMatrix();
-        clear();
         return this;
     }
 
