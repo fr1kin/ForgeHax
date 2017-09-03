@@ -60,10 +60,23 @@ public class SurfaceBuilder {
     }
     
     public SurfaceBuilder clear() {
-        color4d = EMPTY_VECTOR4D;
-        scale3d = EMPTY_VECTOR3D;
-        translate3d = EMPTY_VECTOR3D;
-        rotated4d = EMPTY_VECTOR4D;
+        // reset to what should be the original values... they might not be though
+        if(color4d != EMPTY_VECTOR4D) {
+            glColor4d(1.D, 1.D, 1.D, 1.D);
+            color4d = EMPTY_VECTOR4D;
+        }
+        if(scale3d != EMPTY_VECTOR3D) {
+            glScaled(1.D, 1.D, 1.D);
+            scale3d = EMPTY_VECTOR3D;
+        }
+        if(translate3d != EMPTY_VECTOR3D) {
+            glTranslated(0.D, 0.D, 0.D);
+            translate3d = EMPTY_VECTOR3D;
+        }
+        if(rotated4d != EMPTY_VECTOR4D) {
+            glRotated(0.D, 0.D, 0.D, 0.D);
+            rotated4d = EMPTY_VECTOR4D;
+        }
         fontRenderer = null;
         return this;
     }
