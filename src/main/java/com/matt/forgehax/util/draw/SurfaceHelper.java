@@ -20,7 +20,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
@@ -180,7 +179,7 @@ public class SurfaceHelper implements Globals {
         GlStateManager.enableColorMaterial();
         GlStateManager.enableLighting();
         MC.getRenderItem().zLevel = 100.f;
-        renderItemAndEffectIntoGUI(getLocalPlayer(), item, x, y);
+        renderItemAndEffectIntoGUI(getLocalPlayer(), item, x, y, 16.D);
         MC.getRenderItem().zLevel = 0.f;
         GlStateManager.popMatrix();
         GlStateManager.disableLighting();
@@ -188,7 +187,7 @@ public class SurfaceHelper implements Globals {
         GlStateManager.color(1.f, 1.f, 1.f, 1.f);
     }
 
-    public static void drawItemWithOverlay(ItemStack item, double x, double y) {
+    public static void drawItemWithOverlay(ItemStack item, double x, double y, double scale) {
         GlStateManager.pushMatrix();
         RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.disableLighting();
@@ -196,8 +195,8 @@ public class SurfaceHelper implements Globals {
         GlStateManager.enableColorMaterial();
         GlStateManager.enableLighting();
         MC.getRenderItem().zLevel = 100.f;
-        renderItemAndEffectIntoGUI(getLocalPlayer(), item, x, y);
-        renderItemOverlayIntoGUI(MC.fontRenderer, item, x, y, null);
+        renderItemAndEffectIntoGUI(getLocalPlayer(), item, x, y, 16.D);
+        renderItemOverlayIntoGUI(MC.fontRenderer, item, x, y, scale);
         MC.getRenderItem().zLevel = 0.f;
         GlStateManager.popMatrix();
         GlStateManager.disableLighting();
@@ -244,11 +243,11 @@ public class SurfaceHelper implements Globals {
         GlStateManager.popMatrix();
     }
 
-    protected static void renderItemAndEffectIntoGUI(@Nullable EntityLivingBase living, final ItemStack stack, double x, double y) {
+    protected static void renderItemAndEffectIntoGUI(@Nullable EntityLivingBase living, final ItemStack stack, double x, double y, double scale) {
         if(!stack.isEmpty()) {
             MC.getRenderItem().zLevel += 50.f;
             try {
-                renderItemModelIntoGUI(stack, x, y, MC.getRenderItem().getItemModelWithOverrides(stack, null, living));
+                renderItemModelIntoGUI(stack, x, y, MC.getRenderItem().getItemModelWithOverrides(stack, null, living), scale);
             } catch (Throwable t) {
                 Helper.handleThrowable(t);
             } finally {
@@ -257,7 +256,7 @@ public class SurfaceHelper implements Globals {
         }
     }
 
-    private static void renderItemModelIntoGUI(ItemStack stack, double x, double y, IBakedModel bakedmodel)
+    private static void renderItemModelIntoGUI(ItemStack stack, double x, double y, IBakedModel bakedmodel, double scale)
     {
         GlStateManager.pushMatrix();
         MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
@@ -272,7 +271,7 @@ public class SurfaceHelper implements Globals {
         GlStateManager.translate(x, y, 100.0F + MC.getRenderItem().zLevel);
         GlStateManager.translate(8.0F, 8.0F, 0.0F);
         GlStateManager.scale(1.0F, -1.0F, 1.0F);
-        GlStateManager.scale(16.0F, 16.0F, 16.0F);
+        GlStateManager.scale(scale, scale, scale);
 
         if (bakedmodel.isGui3d())
             GlStateManager.enableLighting();
@@ -289,25 +288,13 @@ public class SurfaceHelper implements Globals {
         MC.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
     }
 
-    protected static void renderItemOverlayIntoGUI(FontRenderer fr, ItemStack stack, double xPosition, double yPosition, @Nullable String text)
+    protected static void renderItemOverlayIntoGUI(FontRenderer fr, ItemStack stack, double xPosition, double yPosition, double scale)
     {
+        final double SCALE_RATIO = 1.23076923077D;
+
         if (!stack.isEmpty())
         {
             SurfaceBuilder builder = new SurfaceBuilder();
-
-            if (stack.getCount() != 1 || text != null)
-            {
-                String s = text == null ? String.valueOf(stack.getCount()) : text;
-                GlStateManager.disableLighting();
-                GlStateManager.disableDepth();
-                GlStateManager.disableBlend();
-                fr.drawStringWithShadow(s, (float)(xPosition + 19 - 2 - fr.getStringWidth(s)), (float)(yPosition + 6 + 3), 16777215);
-                GlStateManager.enableLighting();
-                GlStateManager.enableDepth();
-                // Fixes opaque cooldown overlay a bit lower
-                // TODO: check if enabled blending still screws things up down the line.
-                GlStateManager.enableBlend();
-            }
 
             if (stack.getItem().showDurabilityBar(stack))
             {
@@ -320,8 +307,8 @@ public class SurfaceHelper implements Globals {
                 int rgbfordisplay = stack.getItem().getRGBDurabilityForDisplay(stack);
                 int i = Math.round(13.0F - (float)health * 13.0F);
                 int j = rgbfordisplay;
-                draw(builder, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
-                draw(builder, xPosition + 2, yPosition + 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
+                draw(builder, xPosition + (scale / 8.D), yPosition + (scale / SCALE_RATIO), 13, 2, 0, 0, 0, 255);
+                draw(builder, xPosition + (scale / 8.D), yPosition + (scale / SCALE_RATIO), i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
                 GlStateManager.enableBlend();
                 GlStateManager.enableAlpha();
                 GlStateManager.enableTexture2D();
@@ -337,7 +324,7 @@ public class SurfaceHelper implements Globals {
                 GlStateManager.disableLighting();
                 GlStateManager.disableDepth();
                 GlStateManager.disableTexture2D();
-                draw(builder, xPosition, yPosition + MathHelper.floor(16.0F * (1.0F - f3)), 16, MathHelper.ceil(16.0F * f3), 255, 255, 255, 127);
+                draw(builder, xPosition, yPosition + scale * (1.0F - f3), 16, scale * f3, 255, 255, 255, 127);
                 GlStateManager.enableTexture2D();
                 GlStateManager.enableLighting();
                 GlStateManager.enableDepth();
@@ -347,7 +334,7 @@ public class SurfaceHelper implements Globals {
 
     private static void draw(SurfaceBuilder builder, double x, double y, double width, double height, int red, int green, int blue, int alpha)
     {
-        SurfaceBuilder.getBuilder().clear()
+        builder.clear()
                 .push()
                 .beginQuads()
                 .color(red, green, blue, alpha)

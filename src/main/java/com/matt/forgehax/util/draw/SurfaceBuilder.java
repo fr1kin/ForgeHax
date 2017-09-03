@@ -182,13 +182,13 @@ public class SurfaceBuilder {
 
     public SurfaceBuilder item(ItemStack stack, double x, double y) {
         MC.getRenderItem().zLevel = 100.f;
-        SurfaceHelper.renderItemAndEffectIntoGUI(getLocalPlayer(), stack, x, y);
+        SurfaceHelper.renderItemAndEffectIntoGUI(getLocalPlayer(), stack, x, y, scale3d != EMPTY_VECTOR3D ? scale3d[0] : 16.D);
         MC.getRenderItem().zLevel = 0.f;
         return this;
     }
 
     public SurfaceBuilder itemOverlay(ItemStack stack, double x, double y) {
-        SurfaceHelper.renderItemOverlayIntoGUI(MC.fontRenderer, stack, x, y, null);
+        SurfaceHelper.renderItemOverlayIntoGUI(MC.fontRenderer, stack, x, y, scale3d != EMPTY_VECTOR3D ? scale3d[0] : 16.D);
         return this;
     }
 
