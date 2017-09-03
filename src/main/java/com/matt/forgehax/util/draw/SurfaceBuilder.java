@@ -177,14 +177,22 @@ public class SurfaceBuilder {
 
     // --------------------
 
-    public static void preRenderSetup() {
+    public static void preRender() {
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
     }
 
-    public static void postRenderSetup() {
+    public static void postRender() {
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
+    }
+
+    public static void preFontRender() {
+        GlStateManager.disableDepth();
+    }
+
+    public static void postFontRender() {
+        GlStateManager.enableDepth();
     }
 }
