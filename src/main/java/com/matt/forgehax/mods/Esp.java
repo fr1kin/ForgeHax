@@ -66,18 +66,6 @@ public class Esp extends ToggleMod implements Fonts {
             .defaultTo(DrawOptions.NAME)
             .build();
 
-    public final Setting<ArmorOptions> armor = getCommandStub().builders().<ArmorOptions>newSettingEnumBuilder()
-            .name("armor")
-            .description("Draw armor")
-            .defaultTo(ArmorOptions.DISABLED)
-            .build();
-
-    public final Setting<Boolean> distance = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("distance")
-            .description("Draws distance")
-            .defaultTo(false)
-            .build();
-
     public Esp() {
         super("Esp", false, "Shows entity locations and info");
     }
