@@ -18,7 +18,7 @@ public class AntiAfkMod extends ToggleMod {
     public final Setting<Long> delay = getCommandStub().builders().<Long>newSettingBuilder()
             .name("delay")
             .description("Delay between swings in ms")
-            .defaultTo(50000L)
+            .defaultTo(5000L)
             .build();
     public final Setting<Boolean> silent = getCommandStub().builders().<Boolean>newSettingBuilder()
             .name("silent")
