@@ -8,7 +8,9 @@ import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -122,7 +124,15 @@ public class Tracers extends ToggleMod {
                                 break;
                         }
 
-                        SurfaceHelper.drawTriangle((int) x, (int) y, size, (float) ang, color);
+                        if (EntityUtils.isPlayer(entity)) {
+                            ResourceLocation resourceLocation = AbstractClientPlayer.getLocationSkin(entity.getName());
+                            AbstractClientPlayer.getDownloadImageSkin(resourceLocation, entity.getName());
+                            SurfaceHelper.drawHead(resourceLocation, (int)x - 6, (int)y - 6, 1);
+                        }
+                        else {
+                            SurfaceHelper.drawTriangle((int) x, (int) y, size, (float) ang, color);
+                        }
+
                     }
                 });
     }
