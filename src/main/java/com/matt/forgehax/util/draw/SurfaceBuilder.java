@@ -127,10 +127,10 @@ public class SurfaceBuilder {
         renderer.drawString(text, x, y, Utils.toRGBA(color4f), shadow);
         return this;
     }
-    private SurfaceBuilder text(MinecraftFontRenderer renderer, String text, double x, double y) {
+    public SurfaceBuilder text(MinecraftFontRenderer renderer, String text, double x, double y) {
         return text(renderer, text, x, y, false);
     }
-    private SurfaceBuilder textWithShadow(MinecraftFontRenderer renderer, String text, double x, double y) {
+    public SurfaceBuilder textWithShadow(MinecraftFontRenderer renderer, String text, double x, double y) {
         return text(renderer, text, x, y, true);
     }
 
