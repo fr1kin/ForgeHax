@@ -33,6 +33,10 @@ public class Utils implements Globals {
         if(colors.length != 4) throw new IllegalArgumentException("colors[] must have a length of 4!");
         return toRGBA(colors[0], colors[1], colors[2], colors[3]);
     }
+    public static int toRGBA(double[] colors) {
+        if(colors.length != 4) throw new IllegalArgumentException("colors[] must have a length of 4!");
+        return toRGBA((float)colors[0], (float)colors[1], (float)colors[2], (float)colors[3]);
+    }
 
     public static int[] toRGBAArray(int colorBuffer) {
         return new int[] {
