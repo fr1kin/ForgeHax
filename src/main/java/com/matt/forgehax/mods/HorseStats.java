@@ -21,7 +21,7 @@ public class HorseStats extends ToggleMod {
     public HorseStats() { super("HorseStats", false, "Change the stats of your horse"); }
 
     public final Setting<Double> jumpHeight = getCommandStub().builders().<Double>newSettingBuilder()
-            .name("jumpHeight").description("Modified horse jump height attribute. Default: 1")
+            .name("JumpHeight").description("Modified horse jump height attribute. Default: 1")
             .defaultTo(1.0D).build();
     public final Setting<Double> speed = getCommandStub().builders().<Double>newSettingBuilder()
             .name("Speed").description("Modiified horse speed attribute. Default: 0.3375")

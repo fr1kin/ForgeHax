@@ -82,7 +82,7 @@ public class BoatPatch extends ClassTransformer {
             LabelNode newLabelNodeLeft = new LabelNode();
 
             InsnList insnListLeft = new InsnList();
-            insnListLeft.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoBoatRotationActivated));
+            insnListLeft.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoBoatGravityActivated));
             insnListLeft.add(new JumpInsnNode(IFNE, newLabelNodeLeft)); // if nogravity is enabled
 
             main.instructions.insertBefore(rotationLeftNode, insnListLeft); // insert if
@@ -94,7 +94,7 @@ public class BoatPatch extends ClassTransformer {
             LabelNode newLabelNodeRight = new LabelNode();
 
             InsnList insnListRight = new InsnList();
-            insnListRight.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoBoatRotationActivated));
+            insnListRight.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoBoatGravityActivated));
             insnListRight.add(new JumpInsnNode(IFNE, newLabelNodeRight)); // if nogravity is enabled
 
             main.instructions.insertBefore(rotationRightNode, insnListRight); // insert if

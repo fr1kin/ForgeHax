@@ -8,6 +8,7 @@ import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.reflection.FastReflectionSpecial;
 import com.matt.forgehax.asm.utils.MultiSwitch;
+import com.matt.forgehax.events.RenderEvent;
 import journeymap.client.cartography.RGB;
 import journeymap.client.cartography.Stratum;
 import journeymap.client.cartography.render.BaseRenderer;
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.Packet;
@@ -91,7 +93,6 @@ public class ForgeHaxHooks implements ASMCommon {
     public static boolean isNoSlowDownActivated = false;
 
     public static boolean isNoBoatGravityActivated = false;
-    public static boolean isNoBoatRotationActivated = false;
     public static boolean isNoClampingActivated = false;
     public static boolean isNotRowingBoatActivated = false;
 
@@ -167,9 +168,11 @@ public class ForgeHaxHooks implements ASMCommon {
         return MinecraftForge.EVENT_BUS.post(new PushOutOfBlocksEvent());
     }
 
-    public static float onRenderBoat() {
+    public static float onRenderBoat(EntityBoat boat, float entityYaw) {
         reportHook("onRenderBoat");
-        return MC.player != null ? MC.player.rotationYaw : 0f;
+        RenderBoatEvent event = new RenderBoatEvent(boat, entityYaw);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.getYaw();
     }
 
     public static boolean onPreRenderBlockLayer(BlockRenderLayer layer, double partialTicks) {

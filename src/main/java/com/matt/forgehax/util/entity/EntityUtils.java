@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getRidingEntity;
 
 public class EntityUtils implements Globals {
     public static MobTypeEnum getRelationship(Entity entity) {
@@ -233,7 +234,7 @@ public class EntityUtils implements Globals {
     }
 
     public static boolean isDrivenByPlayer(Entity entityIn) {
-            return MC.player != null && entityIn != null && entityIn.getPassengers().size() > 0 && entityIn.getPassengers().get(0).equals(MC.player);
+            return getLocalPlayer() != null && entityIn != null && entityIn.equals(getRidingEntity());
     }
 
     public static boolean inLiquid(AxisAlignedBB bb) {

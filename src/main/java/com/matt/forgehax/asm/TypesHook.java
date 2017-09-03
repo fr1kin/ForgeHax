@@ -33,10 +33,6 @@ public interface TypesHook {
                 .setType(boolean.class)
                 .build();
 
-        ASMField ForgeHaxHooks_isNoBoatRotationActivated = Classes.ForgeHaxHooks.childField()
-                .setName("isNoBoatRotationActivated")
-                .setType(boolean.class)
-                .build();
 
         ASMField ForgeHaxHooks_isNoClampingActivated = Classes.ForgeHaxHooks.childField()
                 .setName("isNoClampingActivated")
@@ -301,7 +297,10 @@ public interface TypesHook {
         ASMMethod ForgeHaxHooks_onRenderBoat = Classes.ForgeHaxHooks.childMethod()
                 .setName("onRenderBoat")
                 .setReturnType(float.class)
-                .emptyParameters()
+                .beginParameters()
+                .add(TypesMc.Classes.EntityBoat)
+                .add(float.class)
+                .finish()
                 .build();
 
     }
