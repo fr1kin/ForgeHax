@@ -98,7 +98,7 @@ public class LogoutSpot extends ToggleMod {
         if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
             for (logoutPos pos : Lists.newArrayList(logoutPositions)) {
                 Vec3d topVec = new Vec3d((pos.pos[0].x+pos.pos[1].x)/2, pos.pos[1].y, (pos.pos[0].z+pos.pos[1].z)/2); // position where to place the text in the world
-                VectorUtils.ScreenPos textPos = VectorUtils.toScreen(topVec.x, topVec.y, topVec.z); // where to place the text on the screen
+                VectorUtils.ScreenPos textPos = VectorUtils._toScreen(topVec.x, topVec.y, topVec.z); // where to place the text on the screen
                 double distance = MC.player.getDistance((pos.pos[0].x+pos.pos[1].x)/2, pos.pos[0].y, (pos.pos[0].z+pos.pos[1].z)/2); // distance from player to logout spot
                 if (textPos.isVisible) {
                     String name = pos.name + String.format((" (%.1f)"), distance);

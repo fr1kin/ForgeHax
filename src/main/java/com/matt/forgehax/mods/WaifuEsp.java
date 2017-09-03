@@ -49,8 +49,8 @@ public class WaifuEsp extends ToggleMod {
                 EntityLivingBase living = (EntityLivingBase) (entity);
                 Vec3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
                 Vec3d topVec = bottomVec.add(new Vec3d(0, (entity.getRenderBoundingBox().maxY - entity.posY), 0));
-                VectorUtils.ScreenPos top = VectorUtils.toScreen(topVec.x, topVec.y, topVec.z);
-                VectorUtils.ScreenPos bot = VectorUtils.toScreen(bottomVec.x, bottomVec.y, bottomVec.z);
+                VectorUtils.ScreenPos top = VectorUtils._toScreen(topVec.x, topVec.y, topVec.z);
+                VectorUtils.ScreenPos bot = VectorUtils._toScreen(bottomVec.x, bottomVec.y, bottomVec.z);
                 if (top.isVisible || bot.isVisible) {
 
                     int height = (bot.y - top.y);

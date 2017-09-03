@@ -44,7 +44,7 @@ public class Tracers extends ToggleMod {
                 })
                 .forEach(entity -> {
                     Vec3d pos3d = EntityUtils.getInterpolatedEyePos(entity, MC.getRenderPartialTicks());
-                    VectorUtils.ScreenPos pos = VectorUtils.toScreen(pos3d);
+                    VectorUtils.ScreenPos pos = VectorUtils._toScreen(pos3d);
                     if(!pos.isVisible) {
                         // get position on ellipse
 
