@@ -4,15 +4,15 @@ import com.matt.forgehax.util.Utils;
 import net.minecraft.client.renderer.GlStateManager;
 import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
 
-import java.util.Arrays;
-
+import static com.matt.forgehax.Globals.MC;
 import static org.lwjgl.opengl.GL11.*;
 
 /**
  * Created on 9/2/2017 by fr1kin
  */
 public class SurfaceBuilder {
-    private static final float[] EMPTY_COLOR = new float[] {0.f, 0.f, 0.f, 0.f};
+    private static final double[] EMPTY_VECTOR3D = new double[] {0.D, 0.D, 0.D};
+    private static final double[] EMPTY_VECTOR4D = new double[] {0.D, 0.D, 0.D, 0.D};
 
     private static final SurfaceBuilder INSTANCE = new SurfaceBuilder();
 
@@ -22,7 +22,12 @@ public class SurfaceBuilder {
 
     // --------------------
 
-    private final float[] color4f = Arrays.copyOf(EMPTY_COLOR, EMPTY_COLOR.length);
+    private double[] color4d = EMPTY_VECTOR4D; // 0-3 = rgba
+    private double[] scale3d = EMPTY_VECTOR3D; // 0-2 = xyz
+    private double[] translate3d = EMPTY_VECTOR3D; // 0-2 = xyz
+    private double[] rotated4d = EMPTY_VECTOR4D; // 0 = angle, 1-3 = xyz
+
+    private MinecraftFontRenderer fontRenderer = null;
 
     public SurfaceBuilder begin(int mode) {
         glBegin(mode);
@@ -46,39 +51,53 @@ public class SurfaceBuilder {
         return this;
     }
 
+    public SurfaceBuilder apply() {
+        if(color4d != EMPTY_VECTOR4D) glColor4d(color4d[0], color4d[1], color4d[2], color4d[3]);
+        if(scale3d != EMPTY_VECTOR3D) glScaled(scale3d[0], scale3d[1], scale3d[2]);
+        if(translate3d != EMPTY_VECTOR3D) glTranslated(translate3d[0], translate3d[1], translate3d[2]);
+        if(rotated4d != EMPTY_VECTOR4D) glRotated(rotated4d[0], rotated4d[1], rotated4d[2], rotated4d[3]);
+        return this;
+    }
+    
+    public SurfaceBuilder detach() {
+        color4d = EMPTY_VECTOR4D;
+        scale3d = EMPTY_VECTOR3D;
+        translate3d = EMPTY_VECTOR3D;
+        rotated4d = EMPTY_VECTOR4D;
+        fontRenderer = null;
+        return this;
+    }
+
     public SurfaceBuilder push() {
         GlStateManager.pushMatrix();
+        apply();
         return this;
     }
 
     public SurfaceBuilder pop() {
-        System.arraycopy(EMPTY_COLOR, 0, color4f, 0, color4f.length);
         GlStateManager.popMatrix();
+        detach();
         return this;
     }
 
-    public SurfaceBuilder color(float r, float g, float b, float a) {
-        color4f[0] = r;
-        color4f[1] = g;
-        color4f[2] = b;
-        color4f[3] = a;
-        glColor4f(r, g, b, a);
+    public SurfaceBuilder color(double r, double g, double b, double a) {
+        color4d = new double[] {r, g, b, a};
         return this;
     }
     public SurfaceBuilder color(int buffer) {
         return color(
-                (buffer >> 16 & 255) / 255.0F,
-                (buffer >> 8 & 255) / 255.0F,
-                (buffer & 255) / 255.0F,
-                (buffer >> 24 & 255) / 255.0F
+                (buffer >> 16 & 255) / 255.D,
+                (buffer >> 8 & 255) / 255.D,
+                (buffer & 255) / 255.D,
+                (buffer >> 24 & 255) / 255.D
         );
     }
     public SurfaceBuilder color(int r, int g, int b, int a) {
-        return color(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
+        return color(r / 255.D, g / 255.D, b / 255.D, a / 255.D);
     }
 
     public SurfaceBuilder scale(double x, double y, double z) {
-        glScaled(Math.max(x, 0), Math.max(y, 0), Math.max(z, 0));
+        scale3d = new double[] {Math.max(x, 0), Math.max(y, 0), Math.max(z, 0)};
         return this;
     }
     public SurfaceBuilder scale(double s) {
@@ -89,12 +108,12 @@ public class SurfaceBuilder {
     }
 
     public SurfaceBuilder translate(double x, double y, double z) {
-        GlStateManager.translate(x, y, z);
+        translate3d = new double[] {x, y, z};
         return this;
     }
 
     public SurfaceBuilder rotate(double angle, double x, double y, double z) {
-        glRotated(angle, x, y, z);
+        rotated4d = new double[] {angle, x, y, z};
         return this;
     }
 
@@ -123,15 +142,23 @@ public class SurfaceBuilder {
                 .vertex(x + w, y);
     }
 
-    private SurfaceBuilder text(MinecraftFontRenderer renderer, String text, double x, double y, boolean shadow) {
-        renderer.drawString(text, x, y, Utils.toRGBA(color4f), shadow);
+    public SurfaceBuilder fontRenderer(MinecraftFontRenderer fontRenderer) {
+        this.fontRenderer = fontRenderer;
         return this;
     }
-    public SurfaceBuilder text(MinecraftFontRenderer renderer, String text, double x, double y) {
-        return text(renderer, text, x, y, false);
+
+    private SurfaceBuilder text(String text, double x, double y, boolean shadow) {
+        if(this.fontRenderer != null) // use custom font renderer
+            this.fontRenderer.drawString(text, x, y, Utils.toRGBA(color4d), shadow);
+        else // use default minecraft font
+            MC.fontRenderer.drawString(text, Math.round(x), Math.round(y), Utils.toRGBA(color4d), shadow);
+        return this;
     }
-    public SurfaceBuilder textWithShadow(MinecraftFontRenderer renderer, String text, double x, double y) {
-        return text(renderer, text, x, y, true);
+    public SurfaceBuilder text(String text, double x, double y) {
+        return text(text, x, y, false);
+    }
+    public SurfaceBuilder textWithShadow(String text, double x, double y) {
+        return text(text, x, y, true);
     }
 
     public SurfaceBuilder task(Runnable task) {
