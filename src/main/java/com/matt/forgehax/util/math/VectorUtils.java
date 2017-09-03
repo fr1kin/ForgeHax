@@ -28,10 +28,10 @@ public class VectorUtils implements Globals {
     /**
      * Convert 3D coord into 2D coordinate projected onto the screen
      */
-    public static ScreenPos toScreen(double x, double y, double z) {
+    public static Plane toScreen(double x, double y, double z) {
         Entity view = MC.getRenderViewEntity();
 
-        if(view == null) return new ScreenPos(0, 0, false);
+        if(view == null) return new Plane(0.D, 0.D, false);
 
         Vec3d camPos = FastReflection.Fields.ActiveRenderInfo_position.getStatic();
         Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
@@ -69,10 +69,20 @@ public class VectorUtils implements Globals {
         if(pos.x < 0 || pos.y < 0 || pos.x > res.getScaledWidth() || pos.y > res.getScaledHeight())
             bVisible = false;
 
-        return new ScreenPos(pos.x, pos.y, bVisible);
+        return new Plane(pos.x, pos.y, bVisible);
     }
-    public static ScreenPos toScreen(Vec3d vec3d) {
-        return toScreen(vec3d.x, vec3d.y, vec3d.z);
+    public static Plane toScreen(Vec3d vec) {
+        return toScreen(vec.x, vec.y, vec.z);
+    }
+
+    @Deprecated
+    public static ScreenPos _toScreen(double x, double y, double z) {
+        Plane plane = toScreen(x, y, z);
+        return new ScreenPos(plane.getX(), plane.getY(), plane.isVisible());
+    }
+    @Deprecated
+    public static ScreenPos _toScreen(Vec3d vec3d) {
+        return _toScreen(vec3d.x, vec3d.y, vec3d.z);
     }
 
     /**
@@ -99,14 +109,20 @@ public class VectorUtils implements Globals {
         return new Vec3d(toCopy.x, toCopy.y, toCopy.z);
     }
 
+    @Deprecated
     public static class ScreenPos {
         public final int x;
         public final int y;
         public final boolean isVisible;
 
+        public final double xD;
+        public final double yD;
+
         public ScreenPos(double x, double y, boolean isVisible) {
             this.x = (int)x;
             this.y = (int)y;
+            this.xD = x;
+            this.yD = y;
             this.isVisible = isVisible;
         }
     }
