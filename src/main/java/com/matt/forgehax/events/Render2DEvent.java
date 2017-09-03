@@ -1,6 +1,6 @@
 package com.matt.forgehax.events;
 
-import com.matt.forgehax.util.draw.SurfaceHelper;
+import com.matt.forgehax.util.draw.SurfaceBuilder;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
@@ -11,7 +11,7 @@ import static com.matt.forgehax.Globals.MC;
  */
 public class Render2DEvent extends Event {
     private final ScaledResolution resolution = new ScaledResolution(MC);
-    private final SurfaceHelper surfaceBuilder = new SurfaceHelper();
+    private final SurfaceBuilder surfaceBuilder = new SurfaceBuilder();
     private final float partialTicks;
 
     public Render2DEvent(float partialTicks) {
@@ -30,7 +30,7 @@ public class Render2DEvent extends Event {
         return resolution.getScaledHeight_double();
     }
 
-    public SurfaceHelper getSurfaceBuilder() {
+    public SurfaceBuilder getSurfaceBuilder() {
         return surfaceBuilder;
     }
 }
