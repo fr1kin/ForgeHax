@@ -66,7 +66,7 @@ public class ESP extends ToggleMod implements Fonts {
             .defaultTo(DrawOptions.NAME)
             .build();
 
-    public Esp() {
+    public ESP() {
         super("ESP", false, "Shows entity locations and info");
     }
 
