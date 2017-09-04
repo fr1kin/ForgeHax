@@ -4,6 +4,7 @@ import com.matt.forgehax.util.Utils;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
 
 import static com.matt.forgehax.Globals.MC;
@@ -189,6 +190,24 @@ public class SurfaceBuilder {
 
     public SurfaceBuilder itemOverlay(ItemStack stack, double x, double y) {
         SurfaceHelper.renderItemOverlayIntoGUI(MC.fontRenderer, stack, x, y, null, scale3d != EMPTY_VECTOR3D ? scale3d[0] : 16.D);
+        return this;
+    }
+
+    public SurfaceBuilder head(ResourceLocation resource, double x, double y) {
+        MC.renderEngine.bindTexture(resource);
+        double scale = scale3d != EMPTY_VECTOR3D ? scale3d[0] : 12.D;
+        SurfaceHelper.drawScaledCustomSizeModalRect((x * (1 / scale)), (y * (1 / scale)),
+                8.0F, 8.0F,
+                8, 8,
+                12, 12,
+                64.0F, 64.0F
+        );
+        SurfaceHelper.drawScaledCustomSizeModalRect((x * (1 / scale)), (y * (1 / scale)),
+                40.0F, 8.0F,
+                8, 8,
+                12, 12,
+                64.0F, 64.0F
+        );
         return this;
     }
 
