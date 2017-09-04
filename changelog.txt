@@ -6,15 +6,17 @@
         + All 2D drawing is now smoother
         + TTF Font support
         + Refined EntityESP (now renamed to ESP)
+        + Faster chunk reloading for Xray and Markers
     [Babbaj]
         + Added Jesus
         + Added PortalGui
-        + You can now open your inventory while paddling
+        + You can now use items while in a boat
         + Changed WaifuESP setting name
         + Added HorseStats
         + Added ExtraTab
         + Safewalk works for riding entities
         + NoTotem added to AntiOverlay
+        + AntiAFK can be silent, and can be set to be only be activated when no key presses have been detected.
 2.5.0
     [fr1kin]
         + Fixed issue with ModLoader not finding mods because of bug in guava
