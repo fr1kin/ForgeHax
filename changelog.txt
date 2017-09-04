@@ -10,13 +10,13 @@
     [Babbaj]
         + Added Jesus
         + Added PortalGui
-        + You can now use items while in a boat
+        + You can now use items while paddling
         + Changed WaifuESP setting name
         + Added HorseStats
         + Added ExtraTab
         + Safewalk works for riding entities
         + NoTotem added to AntiOverlay
-        + AntiAFK can be silent, and can be set to be only be activated when no key presses have been detected.
+        + AntiAFK can be silent, and can be set to be only be activated when no key presses have been detected, allowing it to be used without any gameplay interference.
 2.5.0
     [fr1kin]
         + Fixed issue with ModLoader not finding mods because of bug in guava
