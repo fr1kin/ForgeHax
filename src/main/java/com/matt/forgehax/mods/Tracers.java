@@ -1,19 +1,19 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.Utils;
-import com.matt.forgehax.util.draw.SurfaceHelper;
+import com.matt.forgehax.util.draw.SurfaceBuilder;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.math.AngleHelper;
+import com.matt.forgehax.util.math.Plane;
 import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
 import java.util.Objects;
 
@@ -30,7 +30,7 @@ public class Tracers extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onDrawScreen(RenderGameOverlayEvent.Text event) {
+    public void onDrawScreen(Render2DEvent event) {
         final double center = 0.D;
         final double cx = MC.displayWidth / 4.f;
         final double cy = MC.displayHeight / 4.f;
@@ -46,20 +46,20 @@ public class Tracers extends ToggleMod {
                 })
                 .forEach(entity -> {
                     Vec3d pos3d = EntityUtils.getInterpolatedEyePos(entity, MC.getRenderPartialTicks());
-                    VectorUtils.ScreenPos pos = VectorUtils._toScreen(pos3d);
-                    if(!pos.isVisible) {
+                    Plane pos = VectorUtils.toScreen(pos3d);
+                    if(!pos.isVisible()) {
                         // get position on ellipse
 
                         // dimensions of the ellipse
-                        double dx = cx - 2;
-                        double dy = cy - 20;
+                        final double dx = cx - 2;
+                        final double dy = cy - 20;
 
                         // ellipse = x^2/a^2 + y^2/b^2 = 1
                         // e = (pos - C) / d
                         //  C = center vector
                         //  d = dimensions
-                        double ex = (pos.x - cx) / dx;
-                        double ey = (pos.y - cy) / dy;
+                        double ex = (pos.getX() - cx) / dx;
+                        double ey = (pos.getY() - cy) / dy;
 
                         // normalize
                         // n = u/|u|
@@ -80,9 +80,9 @@ public class Tracers extends ToggleMod {
                         double wx = x - cx;
                         double wy = y - cy;
 
-                        // u = <w, h/2>
+                        // u = <w, 0>
                         double ux = MC.displayWidth / 2.f;
-                        double uy = center;
+                        double uy = 0.D;
 
                         // |u|
                         double mu = Math.sqrt(ux*ux + uy*uy);
@@ -124,6 +124,26 @@ public class Tracers extends ToggleMod {
                                 break;
                         }
 
+                        event.getSurfaceBuilder().clear()
+                                .push()
+                                .task(SurfaceBuilder::preBlend)
+                                .task(SurfaceBuilder::preRenderTexture2D)
+                                .task(() -> GL11.glEnable(GL11.GL_POLYGON_SMOOTH))
+                                .color(color)
+                                .translate(x, y, 0.D)
+                                .rotate(ang, 0.D, 0.D, size / 2.D)
+                                .apply()
+                                .begin(GL11.GL_TRIANGLES)
+                                .vertex(0, 0)
+                                .vertex(-size, -size)
+                                .vertex(-size, size)
+                                .end()
+                                .task(SurfaceBuilder::postBlend)
+                                .task(SurfaceBuilder::postRenderTexture2D)
+                                .task(() -> GL11.glDisable(GL11.GL_POLYGON_SMOOTH))
+                                .pop();
+
+                        /*
                         if (EntityUtils.isPlayer(entity)) {
                             ResourceLocation resourceLocation = AbstractClientPlayer.getLocationSkin(entity.getName());
                             AbstractClientPlayer.getDownloadImageSkin(resourceLocation, entity.getName());
@@ -131,8 +151,7 @@ public class Tracers extends ToggleMod {
                         }
                         else {
                             SurfaceHelper.drawTriangle((int) x, (int) y, size, (float) ang, color);
-                        }
-
+                        }*/
                     }
                 });
     }
