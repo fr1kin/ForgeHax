@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
@@ -31,7 +32,7 @@ public class ChamsMod extends ToggleMod {
             .build();
 
     public ChamsMod() {
-        super("Chams", false, "Render living models behind walls");
+        super(Category.RENDER, "Chams", false, "Render living models behind walls");
     }
 
     public boolean shouldDraw(EntityLivingBase entity) {

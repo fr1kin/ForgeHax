@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import net.minecraft.entity.Entity;
 
@@ -15,7 +16,7 @@ public class KillAura extends ToggleMod {
     private TargetModes modes = TargetModes.CLOSEST;
 
     public KillAura() {
-        super("KillAura", false, "Attack anything within given parameters");
+        super(Category.COMBAT, "KillAura", false, "Attack anything within given parameters");
     }
 
     private Entity getTarget() {

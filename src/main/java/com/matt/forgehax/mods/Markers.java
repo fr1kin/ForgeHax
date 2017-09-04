@@ -22,13 +22,14 @@ import com.matt.forgehax.util.command.options.BlockEntryProcessor;
 import com.matt.forgehax.util.command.options.OptionBuilders;
 import com.matt.forgehax.util.command.options.OptionProcessors;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -102,7 +103,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             .build();
 
     public Markers() {
-        super("Markers", false, "Renders a box around a block");
+        super(Category.RENDER, "Markers", false, "Renders a box around a block");
     }
 
     private void setRenderers(Renderers renderers) {

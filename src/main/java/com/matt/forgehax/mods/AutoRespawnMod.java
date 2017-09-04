@@ -1,16 +1,17 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getLocalPlayer;
 
 @RegisterMod
 public class AutoRespawnMod extends ToggleMod {
     public AutoRespawnMod() {
-        super("AutoRespawn", false, "Auto respawn on death");
+        super(Category.PLAYER, "AutoRespawn", false, "Auto respawn on death");
     }
 
     @SubscribeEvent

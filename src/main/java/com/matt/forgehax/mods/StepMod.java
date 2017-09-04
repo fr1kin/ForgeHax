@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.PacketHelper;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,7 +22,7 @@ public class StepMod extends ToggleMod {
     public final static float DEFAULT_STEP_HEIGHT = 0.6f;
 
     public StepMod() {
-        super("Step", false, "Step up blocks");
+        super(Category.PLAYER, "Step", false, "Step up blocks");
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.key.Bindings;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -25,7 +26,7 @@ public class AutoSprintMod extends ToggleMod {
             .build();
 
     public AutoSprintMod() {
-        super("AutoSprint", false, "Automatically sprints");
+        super(Category.PLAYER, "AutoSprint", false, "Automatically sprints");
     }
 
     private void startSprinting() {

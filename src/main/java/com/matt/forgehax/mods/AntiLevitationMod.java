@@ -1,12 +1,13 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getLocalPlayer;
 
 /**
  * Created on 11/28/2016 by fr1kin
@@ -15,7 +16,7 @@ import static com.matt.forgehax.Helper.*;
 @RegisterMod
 public class AntiLevitationMod extends ToggleMod {
     public AntiLevitationMod() {
-        super("AntiLevitation", false, "No levitation");
+        super(Category.PLAYER, "AntiLevitation", false, "No levitation");
     }
 
     @SubscribeEvent

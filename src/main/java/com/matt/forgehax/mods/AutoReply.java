@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import joptsimple.internal.Strings;
@@ -31,7 +32,7 @@ public class AutoReply extends ToggleMod {
             .build();
 		    
     public AutoReply() {
-        super("AutoReply", false, "Automatically talk in chat if finds a strings");
+        super(Category.MISC, "AutoReply", false, "Automatically talk in chat if finds a strings");
     }
 
     @SubscribeEvent

@@ -15,6 +15,7 @@ import com.matt.forgehax.util.common.PriorityEnum;
 import com.matt.forgehax.util.entity.PlayerInfo;
 import com.matt.forgehax.util.entity.PlayerInfoHelper;
 import com.matt.forgehax.util.entry.CustomMessageEntry;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.spam.SpamMessage;
@@ -105,7 +106,7 @@ public class JoinMessage extends ToggleMod {
     private final Map<UUID, AtomicLong> cooldowns = Maps.newConcurrentMap();
 
     public JoinMessage() {
-        super("JoinMessage", false, "Allows players to add custom join messages");
+        super(Category.MISC, "JoinMessage", false, "Allows players to add custom join messages");
     }
 
     private void debugMessage(String str) {

@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketEntityAction;
@@ -28,7 +29,7 @@ public class ElytraFlight extends ToggleMod {
 			.build();
 
 	public ElytraFlight() {
-		super("ElytraFlight", false, "Elytra Flight");
+		super(Category.PLAYER, "ElytraFlight", false, "Elytra Flight");
 	}
 
 	@Override

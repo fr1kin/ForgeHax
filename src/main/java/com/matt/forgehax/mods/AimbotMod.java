@@ -15,6 +15,7 @@ import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.ProjectileUtils;
 import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.Minecraft;
@@ -133,7 +134,7 @@ public class AimbotMod extends ToggleMod {
             .build();
 
     public AimbotMod() {
-        super("Aimbot", false, "Automatically attack entities and players");
+        super(Category.COMBAT, "Aimbot", false, "Automatically attack entities and players");
     }
 
     private double getLagComp() {

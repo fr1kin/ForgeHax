@@ -1,20 +1,22 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.RenderEvent;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.client.event.RenderBlockOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class AntiOverlayMod extends ToggleMod {
     public AntiOverlayMod() {
-        super("AntiOverlay", false, "Removes screen overlays");
+        super(Category.PLAYER, "AntiOverlay", false, "Removes screen overlays");
     }
 
     /**

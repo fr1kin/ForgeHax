@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.math.AngleN;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.projectile.Projectile;
@@ -19,7 +20,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 @RegisterMod
 public class TrajectoryMod extends ToggleMod {
     public TrajectoryMod() {
-        super("Trajectory", false, "Draws projectile trajectory");
+        super(Category.RENDER, "Trajectory", false, "Draws projectile trajectory");
     }
 
     @SubscribeEvent

@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.EntityLivingBase;
@@ -11,14 +12,14 @@ import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getRidingEntity;
 
 /**
  * Created by Babbaj on 9/1/2017.
  */
 @RegisterMod
 public class HorseStats extends ToggleMod {
-    public HorseStats() { super("HorseStats", false, "Change the stats of your horse"); }
+    public HorseStats() { super(Category.PLAYER, "HorseStats", false, "Change the stats of your horse"); }
 
     public final Setting<Double> jumpHeight = getCommandStub().builders().<Double>newSettingBuilder()
             .name("JumpHeight").description("Modified horse jump height attribute. Default: 1")

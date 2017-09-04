@@ -1,11 +1,12 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
+import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.PushOutOfBlocksEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
-import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
@@ -34,7 +35,7 @@ public class AntiKnockbackMod extends ToggleMod {
             .build();
 
     public AntiKnockbackMod() {
-        super("AntiKnockback", false, "Removes knockback movement");
+        super(Category.COMBAT, "AntiKnockback", false, "Removes knockback movement");
     }
 
     /**

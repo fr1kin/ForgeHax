@@ -4,6 +4,7 @@ import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -16,7 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getWorld;
 
 /**
  * Created on 9/4/2016 by fr1kin
@@ -26,7 +27,7 @@ import static com.matt.forgehax.Helper.*;
 public class StorageESPMod extends ToggleMod {
 
     public StorageESPMod() {
-        super("StorageESP", false, "Shows storage");
+        super(Category.RENDER, "StorageESP", false, "Shows storage");
     }
 
     private int getTileEntityColor(TileEntity tileEntity) {

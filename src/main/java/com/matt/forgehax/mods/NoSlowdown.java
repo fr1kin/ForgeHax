@@ -2,17 +2,19 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.DoBlockCollisionsEvent;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSoulSand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import static com.matt.forgehax.Helper.*;
+
+import static com.matt.forgehax.Helper.getLocalPlayer;
 
 @RegisterMod
 public class NoSlowdown extends ToggleMod {
     public NoSlowdown() {
-        super("NoSlowDown", false, "Disables block slowdown");
+        super(Category.PLAYER, "NoSlowDown", false, "Disables block slowdown");
     }
 
     @Override

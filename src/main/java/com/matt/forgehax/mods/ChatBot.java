@@ -14,6 +14,7 @@ import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.Options;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.common.PriorityEnum;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.serialization.GsonConstant;
@@ -49,7 +50,7 @@ public class ChatBot extends ToggleMod {
             .build();
 
     public ChatBot() {
-        super("ChatBot", false, "Spam chat");
+        super(Category.MISC, "ChatBot", false, "Spam chat");
     }
 
     @Override

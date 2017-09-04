@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.ChatMessageEvent;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -26,7 +27,7 @@ public class ChatLogger extends ToggleMod {
     private File publicLog;
 
     public ChatLogger() {
-        super("ChatLogger", false, "Logs chat messages");
+        super(Category.MISC, "ChatLogger", false, "Logs chat messages");
     }
 
     private File getServerDir() {

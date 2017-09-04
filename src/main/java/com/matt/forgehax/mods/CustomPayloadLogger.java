@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.Packet;
@@ -12,7 +13,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getFileManager;
 
 /**
  * Created on 6/1/2017 by fr1kin
@@ -23,7 +24,7 @@ public class CustomPayloadLogger extends ToggleMod {
     private static final File SERVER_PAYLOAD_LOG = getFileManager().getFileInBaseDirectory("server2client_payload.log");
 
     public CustomPayloadLogger() {
-        super("PayloadLogger", false, "Logs custom payloads");
+        super(Category.MISC, "PayloadLogger", false, "Logs custom payloads");
     }
 
     private void log(Packet packet) {

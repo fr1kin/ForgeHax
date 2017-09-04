@@ -5,6 +5,7 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -21,7 +22,7 @@ public class ActiveModList extends ToggleMod {
             .build();
 
     public ActiveModList() {
-        super("ActiveMods", true, "Shows list of all active mods");
+        super(Category.RENDER, "ActiveMods", true, "Shows list of all active mods");
     }
 
     @Override

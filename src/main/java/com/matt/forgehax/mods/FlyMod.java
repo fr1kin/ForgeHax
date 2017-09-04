@@ -4,6 +4,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketEntityAction;
@@ -14,7 +15,9 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Objects;
-import static com.matt.forgehax.Helper.*;
+
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
 @SuppressWarnings("MethodCallSideOnly")
@@ -23,7 +26,7 @@ public class FlyMod extends ToggleMod {
     private boolean zoomies = true;
 
     public FlyMod() {
-        super("Fly", false, "Enables flying");
+        super(Category.PLAYER, "Fly", false, "Enables flying");
     }
 
     @Override

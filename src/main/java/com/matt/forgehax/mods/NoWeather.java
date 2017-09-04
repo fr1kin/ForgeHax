@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.WorldChangeEvent;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketChangeGameState;
@@ -9,7 +10,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getWorld;
 
 /**
  * Created on 5/16/2017 by fr1kin
@@ -22,7 +23,7 @@ public class NoWeather extends ToggleMod {
     private float previousRainStrength = 0.f;
 
     public NoWeather() {
-        super("NoWeather", false, "Disables weather");
+        super(Category.WORLD, "NoWeather", false, "Disables weather");
     }
 
     private void saveState(World world) {

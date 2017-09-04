@@ -5,8 +5,9 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.VectorUtils;
-import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -21,7 +22,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class WaifuEsp extends ToggleMod {
-    public WaifuEsp() { super ("WaifuESP", false, "overlay cute animes over players"); }
+    public WaifuEsp() { super (Category.RENDER, "WaifuESP", false, "overlay cute animes over players"); }
 
     public final Setting<Boolean> noRenderPlayers = getCommandStub().builders().<Boolean>newSettingBuilder()
             .name("noRenderPlayers")

@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.key.Bindings;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.item.ItemFood;
@@ -17,7 +18,7 @@ public class AutoEatMod extends ToggleMod {
     private boolean isEating = false;
 
     public AutoEatMod() {
-        super("AutoEat", false, "Auto eats when you get hungry");
+        super(Category.PLAYER, "AutoEat", false, "Auto eats when you get hungry");
     }
 
     @SubscribeEvent

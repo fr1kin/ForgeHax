@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.ForgeHaxHooks;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 
@@ -11,7 +12,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 @RegisterMod
 public class SafeWalkMod extends ToggleMod {
     public SafeWalkMod() {
-        super("SafeWalk", false, "Prevents you from falling off blocks");
+        super(Category.PLAYER, "SafeWalk", false, "Prevents you from falling off blocks");
     }
 
     @Override

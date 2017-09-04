@@ -16,18 +16,21 @@ import static com.matt.forgehax.Helper.getGlobalCommand;
 
 public abstract class BaseMod implements Globals {
     // name of the mod
-    private String modName;
+    private final String modName;
     // description of mod
-    private String modDescription;
+    private final String modDescription;
+    // category of the mod
+    private final Category category;
 
     protected final Command stubCommand;
 
     // is the mod registered on the forge bus?
     private boolean registered = false;
 
-    public BaseMod(String name, String desc) {
-        modName = name;
-        modDescription = desc;
+    public BaseMod(Category category, String name, String desc) {
+        this.modName = name;
+        this.modDescription = desc;
+        this.category = category;
         stubCommand = buildStubCommand(
                 getGlobalCommand().builders().newStubBuilder()
                         .name(name)
@@ -36,8 +39,8 @@ public abstract class BaseMod implements Globals {
         ).build();
     }
 
-    public BaseMod(String name) {
-        this(name, Strings.EMPTY);
+    public BaseMod(Category category, String name) {
+        this(category, name, Strings.EMPTY);
     }
 
     /**
@@ -99,6 +102,13 @@ public abstract class BaseMod implements Globals {
      */
     public final String getModDescription() {
         return modDescription;
+    }
+
+    /**
+     * Get mod category
+     */
+    public Category getModCategory() {
+        return category;
     }
 
     /**

@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.GuiButton;
@@ -38,7 +39,7 @@ public class AutoReconnectMod extends ToggleMod {
             .build();
 
     public AutoReconnectMod() {
-        super("AutoReconnect", false, "Automatically reconnects to server");
+        super(Category.MISC, "AutoReconnect", false, "Automatically reconnects to server");
     }
 
     @SubscribeEvent

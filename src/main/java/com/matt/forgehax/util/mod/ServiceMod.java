@@ -7,11 +7,11 @@ import com.matt.forgehax.util.command.callbacks.CallbackData;
  */
 public class ServiceMod extends BaseMod {
     public ServiceMod(String name, String desc) {
-        super(name, desc);
+        super(Category.SERVICE, name, desc);
     }
 
     public ServiceMod(String name) {
-        super(name);
+        super(Category.SERVICE, name);
     }
 
     @Override

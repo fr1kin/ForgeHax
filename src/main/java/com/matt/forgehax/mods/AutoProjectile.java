@@ -5,6 +5,7 @@ import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.ProjectileUtils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,7 +24,7 @@ import static com.matt.forgehax.Helper.getNetworkManager;
 @RegisterMod
 public class AutoProjectile extends ToggleMod {
     public AutoProjectile() {
-        super("AutoProjectile", false, "Automatically sets pitch to best trajectory");
+        super(Category.PLAYER, "AutoProjectile", false, "Automatically sets pitch to best trajectory");
     }
 
     @SubscribeEvent

@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketChatMessage;
@@ -43,7 +44,7 @@ public class FancyChat extends ToggleMod {
 	// [0] = full width  [1] = circles  [2] = parentheses [3] = small
 
 	public FancyChat() {
-		super("FancyChat", false, "meme text");
+		super(Category.MISC, "FancyChat", false, "meme text");
 	}
 
 	@SubscribeEvent

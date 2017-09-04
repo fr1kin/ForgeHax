@@ -4,6 +4,7 @@ import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.RenderBlockInLayerEvent;
 import com.matt.forgehax.asm.events.RenderBlockLayerEvent;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
@@ -32,7 +33,7 @@ public class XrayMod extends ToggleMod {
     private boolean previousForgeLightPipelineEnabled = false;
 
     public XrayMod() {
-        super("Xray", false, "See blocks through walls");
+        super(Category.WORLD, "Xray", false, "See blocks through walls");
     }
 
     @Override

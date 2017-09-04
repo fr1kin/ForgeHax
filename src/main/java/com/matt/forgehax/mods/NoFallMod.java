@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.PacketHelper;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -14,7 +15,7 @@ import static com.matt.forgehax.Helper.getNetworkManager;
 @RegisterMod
 public class NoFallMod extends ToggleMod {
     public NoFallMod() {
-        super("NoFall", false, "Prevents fall damage from being taken");
+        super(Category.PLAYER, "NoFall", false, "Prevents fall damage from being taken");
     }
 
     private float lastFallDistance = 0;

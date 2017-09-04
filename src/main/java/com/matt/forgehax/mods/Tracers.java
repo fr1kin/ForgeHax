@@ -8,6 +8,7 @@ import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.math.Plane;
 import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.EntityLivingBase;
@@ -26,7 +27,7 @@ import static com.matt.forgehax.Helper.getWorld;
 @RegisterMod
 public class Tracers extends ToggleMod {
     public Tracers() {
-        super("Tracers", false, "See where other players are");
+        super(Category.RENDER, "Tracers", false, "See where other players are");
     }
 
     @SubscribeEvent

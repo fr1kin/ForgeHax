@@ -5,6 +5,7 @@ import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.mobtypes.MobType;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeRegistry;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
@@ -34,7 +35,7 @@ public class AntiBatsMod extends ToggleMod {
     };
 
     public AntiBatsMod() {
-        super("AntiBats", false, "666 KILL BATS 666");
+        super(Category.RENDER, "AntiBats", false, "666 KILL BATS 666");
     }
 
     @Override

@@ -10,6 +10,7 @@ import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.math.Plane;
 import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.EntityLivingBase;
@@ -67,7 +68,7 @@ public class ESP extends ToggleMod implements Fonts {
             .build();
 
     public ESP() {
-        super("ESP", false, "Shows entity locations and info");
+        super(Category.RENDER, "ESP", false, "Shows entity locations and info");
     }
 
     @SubscribeEvent

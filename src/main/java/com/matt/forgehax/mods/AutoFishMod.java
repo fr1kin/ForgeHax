@@ -4,6 +4,7 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -48,7 +49,7 @@ public class AutoFishMod extends ToggleMod {
             .build();
 
     public AutoFishMod() {
-        super("AutoFish", false, "Auto fish");
+        super(Category.PLAYER, "AutoFish", false, "Auto fish");
     }
 
     private boolean isCorrectSplashPacket(SPacketSoundEffect packet) {

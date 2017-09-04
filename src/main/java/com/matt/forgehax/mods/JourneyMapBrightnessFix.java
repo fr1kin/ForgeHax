@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.ForgeHaxHooks;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 
@@ -11,7 +12,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 @RegisterMod
 public class JourneyMapBrightnessFix extends ToggleMod {
     public JourneyMapBrightnessFix() {
-        super("JourneyMapLightingFix", false, "Fixes journey map lighting bug");
+        super(Category.MISC, "JourneyMapLightingFix", false, "Fixes journey map lighting bug");
     }
 
     @Override

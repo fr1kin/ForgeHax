@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.BlockLiquid;
@@ -25,7 +26,7 @@ import static com.matt.forgehax.Helper.*;
 public class Jesus extends ToggleMod {
     private static final AxisAlignedBB WATER_WALK_AA = new AxisAlignedBB(0.D, 0.D, 0.D, 1.D, 0.99D, 1.D);
 
-    public Jesus() { super("Jesus", false, "Walk on water"); }
+    public Jesus() { super(Category.PLAYER, "Jesus", false, "Walk on water"); }
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {

@@ -1,24 +1,18 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
-import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSpawnPlayer;
 import net.minecraft.util.text.TextComponentString;
-import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.UUID;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Scanner;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonObject;
-
 
 import static com.matt.forgehax.Helper.getNetworkManager;
 
@@ -26,7 +20,7 @@ import static com.matt.forgehax.Helper.getNetworkManager;
 public class AutoLog extends ToggleMod {
 
     public AutoLog () {
-        super("AutoLog",false,"automatically disconnect");
+        super(Category.COMBAT, "AutoLog",false,"automatically disconnect");
     }
 
     public final Setting<Integer> threshold = getCommandStub().builders().<Integer>newSettingBuilder()

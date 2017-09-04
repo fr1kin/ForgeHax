@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketAnimation;
@@ -29,7 +30,7 @@ public class AntiAfkMod extends ToggleMod {
     public SimpleTimer timer = new SimpleTimer();
 
     public AntiAfkMod() {
-        super("AntiAFK", false, "Swing arm to prevent being afk kicked");
+        super(Category.PLAYER, "AntiAFK", false, "Swing arm to prevent being afk kicked");
     }
 
     // Reset the timer if the player is not afk

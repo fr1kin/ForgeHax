@@ -11,6 +11,7 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.mojang.authlib.GameProfile;
@@ -33,7 +34,7 @@ import java.util.UUID;
 
 @RegisterMod
 public class LogoutSpot extends ToggleMod {
-    public LogoutSpot() { super("LogoutSpot", false, "show where a player logs out"); }
+    public LogoutSpot() { super(Category.RENDER, "LogoutSpot", false, "show where a player logs out"); }
 
 
     public final Setting<Boolean> renderPosition = getCommandStub().builders().<Boolean>newSettingBuilder()

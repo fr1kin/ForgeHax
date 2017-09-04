@@ -7,8 +7,8 @@ import com.matt.forgehax.util.command.callbacks.CallbackData;
 public class ToggleMod extends BaseMod {
     private final Setting<Boolean> enabled;
 
-    public ToggleMod(String modName, boolean defaultValue, String description) {
-        super(modName, description);
+    public ToggleMod(Category category, String modName, boolean defaultValue, String description) {
+        super(category, modName, description);
         this.enabled = getCommandStub().builders().<Boolean>newSettingBuilder()
                 .name("enabled")
                 .description("Enables the mod")
