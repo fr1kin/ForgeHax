@@ -10,7 +10,7 @@
     [Babbaj]
         + Added Jesus
         + Added PortalGui
-        + You can now use items while in a boat
+        + You can now use items while paddling
         + Changed WaifuESP setting name
         + Added HorseStats
         + Added ExtraTab
