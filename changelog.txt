@@ -1,3 +1,20 @@
+2.6.0
+    [fr1kin]
+        + Better feedback for unknown commands
+        + Fixed negative number arguments not working properly for settings
+        + No more delay for "Join message set" bot
+        + All 2D drawing is now smoother
+        + TTF Font support
+        + Refined EntityESP (now renamed to ESP)
+    [Babbaj]
+        + Added Jesus
+        + Added PortalGui
+        + You can now open your inventory while paddling
+        + Changed WaifuESP setting name
+        + Added HorseStats
+        + Added ExtraTab
+        + Safewalk works for riding entities
+        + NoTotem added to AntiOverlay
 2.5.0
     [fr1kin]
         + Fixed issue with ModLoader not finding mods because of bug in guava
