@@ -25,7 +25,7 @@ public class AntiHeldItemChangeMod extends ToggleMod {
 
             if (((SPacketSetSlot) event.getPacket()).getSlot() != currentSlot) {
                 getNetworkManager().sendPacket(new CPacketHeldItemChange(currentSlot)); // set server's slot back to our slot
-                FastReflection.Methods.KeyBinding_unPress.invoke(MC.gameSettings.keyBindAttack); // likely will eating so stop right clicking
+                FastReflection.Methods.KeyBinding_unPress.invoke(MC.gameSettings.keyBindUseItem); // likely will eating so stop right clicking
 
                 event.setCanceled(true);
             }
