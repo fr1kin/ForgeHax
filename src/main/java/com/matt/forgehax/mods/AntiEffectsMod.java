@@ -22,15 +22,6 @@ public class AntiEffectsMod extends ToggleMod {
         super("AntiPotionEffects", false, "Removes potion effects");
     }
 
-    @Override
-    public void onDisabled() {
-        if(MC.world != null) {
-            for (Entity entity : MC.world.loadedEntityList) {
-                if (entity instanceof EntityLivingBase)
-                    entity.setInvisible(true);
-            }
-        }
-    }
 
     @SubscribeEvent
     public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
@@ -47,4 +38,5 @@ public class AntiEffectsMod extends ToggleMod {
             FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(living);
         }
     }
+
 }
