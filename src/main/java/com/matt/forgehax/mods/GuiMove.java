@@ -16,7 +16,7 @@ import org.lwjgl.input.Keyboard;
  */
 @RegisterMod
 public class GuiMove extends ToggleMod {
-    public GuiMove() { super(Category.MISC, "GuiMove", false,"move in chat with a gui open"); }
+    public GuiMove() { super(Category.MISC, "GuiMove", false,"move with a gui open"); }
 
     @SubscribeEvent
     public void LocalPlayerUpdate(LocalPlayerUpdateEvent event) {
