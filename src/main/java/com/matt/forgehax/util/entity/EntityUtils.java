@@ -6,6 +6,7 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.entity.mobtypes.MobType;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeRegistry;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -26,6 +27,7 @@ import java.util.Objects;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getRidingEntity;
+import static com.matt.forgehax.Helper.getWorld;
 
 public class EntityUtils implements Globals {
     public static MobTypeEnum getRelationship(Entity entity) {
@@ -237,31 +239,34 @@ public class EntityUtils implements Globals {
             return getLocalPlayer() != null && entityIn != null && entityIn.equals(getRidingEntity());
     }
 
-    public static boolean inLiquid(AxisAlignedBB bb) {
-        int i = MathHelper.floor(bb.minX);
-        int j = MathHelper.ceil(bb.maxX);
-        int k = MathHelper.floor(bb.minY);
-        int l = MathHelper.ceil(bb.maxY);
-        int i1 = MathHelper.floor(bb.minZ);
-        int j1 = MathHelper.ceil(bb.maxZ);
-        BlockPos.PooledMutableBlockPos pos = BlockPos.PooledMutableBlockPos.retain();
+    public static boolean isAboveWater(Entity entity) { return isAboveWater(entity, false); }
+    public static boolean isAboveWater(Entity entity, boolean packet){
+        if (entity == null) return false;
 
-        boolean liquid = false;
-        for (int k1 = i; k1 < j; ++k1) {
-            for (int l1 = k; l1 < l; ++l1) {
-                for (int i2 = i1; i2 < j1; ++i2) {
-                    IBlockState state = MC.world.getBlockState(pos.setPos(k1, l1, i2));
+        double y = entity.posY - (packet ? 0.03 : (EntityUtils.isPlayer(entity) ? 0.2 : 0.5)); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
 
-                    if ((state.getMaterial() == Material.WATER) || (state.getMaterial() == Material.LAVA)) {
-                        liquid = true;
-                    } else if (state.getMaterial() != Material.AIR) {
-                        return false;
-                    }
-                }
+        for(int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++)
+            for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
+                BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
+
+                if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
             }
-        }
 
-        pos.release();
-        return liquid;
+        return false;
+    }
+
+    public static boolean isInWater(Entity entity) {
+        if(entity == null) return false;
+
+        double y = entity.posY + 0.01;
+
+        for(int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++)
+            for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
+                BlockPos pos = new BlockPos(x, (int) y, z);
+
+                if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
+            }
+
+        return false;
     }
 }
