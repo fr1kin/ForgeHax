@@ -200,6 +200,11 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
+        ASMClass KeyBinding = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/settings/KeyBinding")
+                .autoAssign()
+                .build();
+
     }
 
     interface Fields {
@@ -499,6 +504,13 @@ public interface TypesMc {
                 .add(Classes.Scoreboard)
                 .add(Classes.ScoreObjective)
                 .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod KeyBinding_isKeyDown = Classes.KeyBinding.childMethod()
+                .setName("isKeyDown")
+                .setReturnType(boolean.class)
+                .emptyParameters()
                 .autoAssign()
                 .build();
 
