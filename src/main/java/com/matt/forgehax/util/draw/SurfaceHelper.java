@@ -57,6 +57,7 @@ public class SurfaceHelper implements Globals {
         Gui.drawRect(x, y, x + w, y + h, color);
     }
 
+    // TODO: line loop doesnt fill in the corners correctly
     public static void drawOutlinedRect(int x, int y, int w, int h, int color, float width) {
         float r = (float)(color >> 16 & 255) / 255.0F;
         float g = (float)(color >> 8 & 255) / 255.0F;
@@ -85,6 +86,13 @@ public class SurfaceHelper implements Globals {
 
     public static void drawOutlinedRect(int x, int y, int w, int h, int color) {
         drawOutlinedRect(x, y, w, h, color, 1.f);
+    }
+
+    public static void drawOutlinedRectShaded(int x, int y, int w, int h, int colorOutline, int shade, float width) {
+        int shaded = (0x00FFFFFF & colorOutline) | ((shade & 255) << 24); // modify the alpha value
+        //int shaded = Utils.toRGBA(255,255,255, 100);
+        drawRect(x, y, w, h, shaded);
+        drawOutlinedRect(x, y, w, h, colorOutline, width);
     }
 
     public static void drawTexturedRect(int x, int y, int textureX, int textureY, int width, int height, int zLevel) {
