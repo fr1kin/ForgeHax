@@ -3,6 +3,7 @@ package com.matt.forgehax.gui.windows;
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.gui.elements.GuiButton;
 import com.matt.forgehax.gui.elements.GuiElement;
+import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
 
@@ -13,14 +14,14 @@ import java.util.ArrayList;
  */
 public class GuiWindowSetting extends GuiWindow {
 
-    public ArrayList<GuiElement> inputList = new ArrayList<GuiElement>();
+    public ArrayList<GuiElement> inputList = new ArrayList<GuiElement>(); // list of toggles, sliders, text inputs, etc.
 
     private BaseMod mod;
 
     public Category category;
 
     public GuiWindowSetting(Category categoryIn, BaseMod modIn, int x, int y) {
-        super(categoryIn);
+        super(WindowType.SETTING, categoryIn);
         this.mod = modIn;
         category = categoryIn;
     }
@@ -30,10 +31,22 @@ public class GuiWindowSetting extends GuiWindow {
         return mod.getModName();
     }
 
+
     public BaseMod getMod() {
         return this.mod;
     }
 
+    public void drawWindow(int mouseX, int mouseY) {
+
+    }
+
+    public void mouseClicked(int x, int y, int state) {
+
+    }
+
+    public void mouseReleased(int x, int y, int state) {
+
+    }
 
 
 }

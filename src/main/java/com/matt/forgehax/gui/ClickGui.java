@@ -7,7 +7,6 @@ import com.matt.forgehax.util.mod.Category;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
-import org.lwjgl.Sys;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,18 +26,18 @@ public class ClickGui extends GuiScreen implements Globals {
     GuiWindowMod worldWindow  = new GuiWindowMod(Category.WORLD);
     GuiWindowMod miscWindow   = new GuiWindowMod(Category.MISC);
 
-    ScaledResolution scaledResolution = new ScaledResolution(MC);
+    public static ScaledResolution scaledResolution = new ScaledResolution(MC);
 
-    public void initGui() {
+
+    public void initGui(){
         // set initial window positions
         //TODO: load from settings
-        for (int i = 0; i <= windowList.size()-1; i++) {
-            int x = (i+1) * scaledResolution.getScaledWidth()/(windowList.size()+1);
-            int y = scaledResolution.getScaledHeight()/10;
+        //TODO: improve this a bit maybe
+        for (int i = 0; i < windowList.size(); i++) {
+            int x = (i+1) * scaledResolution.getScaledWidth()/(windowList.size()+1) - windowList.get(i).width/2-10;
+            int y = scaledResolution.getScaledHeight()/15;
             windowList.get(i).setPosition(x,y);
-            System.out.print("ClickGui: " + x + " " + y);
         }
-        System.out.println("Set initial window positions");
     }
 
     public static ClickGui getClickGui() {
@@ -57,11 +56,11 @@ public class ClickGui extends GuiScreen implements Globals {
     }
 
 
-    public void drawScreen(int x, int y, float partialTicks) {
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         for (GuiWindow window : windowList) {
-            window.drawWindow();
+            window.drawWindow(mouseX, mouseY);
         }
-        super.drawScreen(x, y, partialTicks);
+        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     public void mouseClicked(int x, int y, int b) throws IOException { // TODO: check which one is on top
@@ -86,7 +85,7 @@ public class ClickGui extends GuiScreen implements Globals {
         // will be using this for settings and maybe search
         if (keyCode == 1)
         {
-            this.mc.displayGuiScreen((GuiScreen)null);
+            this.mc.displayGuiScreen(null);
 
             if (this.mc.currentScreen == null)
             {

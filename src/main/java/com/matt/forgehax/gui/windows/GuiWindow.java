@@ -10,34 +10,49 @@ import com.matt.forgehax.util.mod.Category;
  */
 public class GuiWindow {
 
-    Category category;
-    boolean isHidden; // whether or not not to show everything below the header
+    public Category category;
+    public WindowType type;
+    public boolean isHidden; // whether or not not to show everything below the header
 
-    private int x, y;
+    public String title;
 
-    public GuiWindow(Category categoryIn) {
-        category = categoryIn;
+    protected int posX, headerY;
+
+    final int maxHeight = (int)(ClickGui.scaledResolution.getScaledHeight() * 0.8); // a window can only take up 60% of the height of the window
+    public int width = 60, height = maxHeight; // width of the window
+
+
+    public GuiWindow(WindowType typeIn, Category categoryIn) {
+        this.category = categoryIn;
+        this.type = typeIn;
+        title = categoryIn.getPrettyName();
+        if (typeIn.equals(WindowType.SETTING)) title += " Settings";
         ClickGui.windowList.add(this);
     }
     public void setPosition(int x, int y) {
-        this.x = x;
-        this.y = y;
+        this.posX = x;
+        this.headerY = y;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public void mouseClicked(int x, int y, int state) {
 
     }
+
     public void mouseReleased(int x, int y, int state) {
 
     }
 
-    public void drawWindow() {
-        drawHeader();
+    public void drawWindow(int mouseX, int mouseY) {
+
     }
 
-    private void drawHeader() {
+    public void drawHeader() {
         // draw the title of the window
-        SurfaceHelper.drawOutlinedRectShaded(x, y, 80, 30, Utils.toRGBA(150,150,150,255), 50, 5);
+        SurfaceHelper.drawOutlinedRectShaded(posX, headerY, width, 20, Utils.toRGBA(150,150,150,255), 50, 5);
     }
 
     public String getName() {
