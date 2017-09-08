@@ -5,6 +5,8 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.Category;
 
+import java.io.IOException;
+
 /**
  * Created by Babbaj on 9/5/2017.
  */
@@ -16,9 +18,11 @@ public class GuiWindow {
 
     public String title;
 
-    protected int posX, headerY;
+    public int posX, headerY;
+    public int bottomX, bottomY;
 
-    final int maxHeight = (int)(ClickGui.scaledResolution.getScaledHeight() * 0.8); // a window can only take up 60% of the height of the window
+
+    final int maxHeight = (int)(ClickGui.scaledRes.getScaledHeight() * 0.8); // a window can only take up 60% of the height of the window
     public int width = 60, height = maxHeight; // width of the window
 
 
@@ -38,12 +42,21 @@ public class GuiWindow {
         return title;
     }
 
+    /**
+     *  0 == Left Click
+     *  1 == Right Click
+     *  2 == Middle Click
+     */
     public void mouseClicked(int x, int y, int state) {
 
     }
 
     public void mouseReleased(int x, int y, int state) {
 
+    }
+
+    public void handleMouseInput() throws IOException {
+        // used for scrolling
     }
 
     public void drawWindow(int mouseX, int mouseY) {

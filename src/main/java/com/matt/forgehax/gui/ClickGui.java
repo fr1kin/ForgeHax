@@ -1,5 +1,6 @@
 package com.matt.forgehax.gui;
 
+import com.google.common.collect.Lists;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.gui.windows.GuiWindow;
 import com.matt.forgehax.gui.windows.GuiWindowMod;
@@ -7,6 +8,7 @@ import com.matt.forgehax.util.mod.Category;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ public class ClickGui extends GuiScreen implements Globals {
     GuiWindowMod worldWindow  = new GuiWindowMod(Category.WORLD);
     GuiWindowMod miscWindow   = new GuiWindowMod(Category.MISC);
 
-    public static ScaledResolution scaledResolution = new ScaledResolution(MC);
+    public static ScaledResolution scaledRes = new ScaledResolution(MC);
 
 
     public void initGui(){
@@ -34,8 +36,8 @@ public class ClickGui extends GuiScreen implements Globals {
         //TODO: load from settings
         //TODO: improve this a bit maybe
         for (int i = 0; i < windowList.size(); i++) {
-            int x = (i+1) * scaledResolution.getScaledWidth()/(windowList.size()+1) - windowList.get(i).width/2-10;
-            int y = scaledResolution.getScaledHeight()/15;
+            int x = (i+1) * scaledRes.getScaledWidth()/(windowList.size()+1) - windowList.get(i).width/2-10;
+            int y = scaledRes.getScaledHeight()/15;
             windowList.get(i).setPosition(x,y);
         }
     }
@@ -55,6 +57,11 @@ public class ClickGui extends GuiScreen implements Globals {
         windowList.add(window);
     }
 
+    public boolean isMouseInWindow(int mouseX, int mouseY, GuiWindow window) {
+        return mouseX > window.posX  && mouseX < window.bottomX &&
+                mouseY > window.headerY && mouseY < window.bottomY;
+    }
+
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         for (GuiWindow window : windowList) {
@@ -63,13 +70,17 @@ public class ClickGui extends GuiScreen implements Globals {
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
-    public void mouseClicked(int x, int y, int b) throws IOException { // TODO: check which one is on top
+    public void mouseClicked(int mouseX, int mouseY, int b) throws IOException { // TODO: check which one is on top
         try
         {
-            for (GuiWindow window : windowList) {
-                window.mouseClicked(x, y, b);
+            for (GuiWindow window : Lists.reverse(windowList)) {
+                if (isMouseInWindow(mouseX, mouseY, window)) {
+                    window.mouseClicked(mouseX, mouseY, b);
+                    moveWindowToTop(window);
+                    return;
+                }
             }
-            super.mouseClicked(x, y, b);
+            super.mouseClicked(mouseX, mouseY, b);
         }catch(Exception e) {}
     }
 
@@ -92,6 +103,22 @@ public class ClickGui extends GuiScreen implements Globals {
                 this.mc.setIngameFocus();
             }
         }
+    }
+
+    public void handleMouseInput() throws IOException {
+        // used for scrolling
+        super.handleMouseInput();
+
+        int scale = scaledRes.getScaleFactor();
+
+        for (GuiWindow window : Lists.reverse(windowList)) {
+            if (isMouseInWindow(Mouse.getEventX()/scale, (MC.displayHeight-Mouse.getEventY())/scale, window)) {
+                window.handleMouseInput();
+                //moveWindowToTop(window);
+                return;
+            }
+        }
+
     }
 
 
