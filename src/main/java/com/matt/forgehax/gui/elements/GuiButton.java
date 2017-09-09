@@ -1,5 +1,6 @@
 package com.matt.forgehax.gui.elements;
 
+import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.BaseMod;
 
 /**
@@ -8,21 +9,29 @@ import com.matt.forgehax.util.mod.BaseMod;
 public class GuiButton extends GuiElement {
 
     private BaseMod mod;
-    private int index; // top == 0
+
+    public final int colorEnabled = Utils.toRGBA(80,80,80, 200);
+    public final int colorDisabled = Utils.toRGBA(100,100,100,150);
+
 
     public int width;
     public final int height = 15;
 
-    int x, y; // used to get the area they can be clicked in
+    public int x, y; // used to get the area they can be clicked in
 
     public GuiButton(BaseMod modIn) {
         this.mod = modIn;
     }
 
-    public void setIndex(int indexIn) {
-        this.index = indexIn;
+
+    public void setCoords(int xIn, int yIn) {
+        this.x = xIn;
+        this.y = yIn;
     }
 
+    public boolean isModEnabled() {
+        return mod.isEnabled();
+    }
 
     public void disableMod() {
         mod.disable();
@@ -38,6 +47,10 @@ public class GuiButton extends GuiElement {
 
     public BaseMod getMod() {
         return this.mod;
+    }
+
+    public int getColor() {
+        return isModEnabled() ? colorEnabled : colorDisabled;
     }
 
 

@@ -21,6 +21,10 @@ public class GuiWindow {
     public int posX, headerY;
     public int bottomX, bottomY;
 
+    public int dragX, dragY; // coords of where the window is being dragged from
+    public int lastDragX, lastDragY;
+
+    private boolean dragging;
 
     final int maxHeight = (int)(ClickGui.scaledRes.getScaledHeight() * 0.8); // a window can only take up 60% of the height of the window
     public int width = 60, height = maxHeight; // width of the window
@@ -42,30 +46,47 @@ public class GuiWindow {
         return title;
     }
 
+    private boolean isMouseInHeader(int mouseX, int mouseY) {
+        return (mouseX > posX && mouseX < posX+width &&
+                mouseY > headerY && mouseY < headerY+20);
+    }
+
     /**
      *  0 == Left Click
      *  1 == Right Click
      *  2 == Middle Click
      */
-    public void mouseClicked(int x, int y, int state) {
+    public void mouseClicked(int mouseX, int mouseY, int state) {
+        if (state != 0) return;
+        if (isMouseInHeader(mouseX, mouseY)) {
+            dragging = true;
 
+            lastDragX = mouseX - posX;
+            lastDragY = mouseY - headerY;
+        }
     }
 
     public void mouseReleased(int x, int y, int state) {
-
+        dragging = false;
     }
 
     public void handleMouseInput() throws IOException {
-        // used for scrolling
+        //scrolling
     }
 
     public void drawWindow(int mouseX, int mouseY) {
+        if (dragging) {
+            posX = dragX = mouseX - lastDragX;
+            headerY = dragY = mouseY - lastDragY;
 
+        }
+        drawHeader();
     }
 
     public void drawHeader() {
         // draw the title of the window
         SurfaceHelper.drawOutlinedRectShaded(posX, headerY, width, 20, Utils.toRGBA(150,150,150,255), 50, 5);
+        SurfaceHelper.drawTextShadowCentered(getTitle(), posX+width/2, headerY+10, Utils.toRGBA(255,255,255,255));
     }
 
     public String getName() {

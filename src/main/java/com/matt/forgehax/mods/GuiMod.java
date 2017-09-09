@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.gui.ClickGui;
+import com.matt.forgehax.gui.windows.GuiWindow;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -26,7 +27,7 @@ public class GuiMod extends ToggleMod {
     @Override
     public void onEnabled() {
         if (MC.world != null) { // dont attempt to open the gui when the game is starting
-            MC.displayGuiScreen(ClickGui.getClickGui());
+            MC.displayGuiScreen(ClickGui.getInstance());
         }
     }
 
@@ -34,6 +35,5 @@ public class GuiMod extends ToggleMod {
     public void onClientTick(TickEvent.ClientTickEvent event) {
         disable();
     }
-
 
 }

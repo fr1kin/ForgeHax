@@ -25,14 +25,13 @@ import static com.matt.forgehax.Helper.getModManager;
 public class GuiWindowMod extends GuiWindow {
 
     public ArrayList<GuiButton> buttonList = new ArrayList<GuiButton>();
-    //public Map<GuiButton, int[]> buttonAreaMap = new HashMap<GuiButton, int[]>(); // map each button to an area of the screen
 
     /**
      * The button list y coord needs to be offset to move them up or down the window
      * 0 = natural state
      * anything above 0 means the button list has moved up and the user has scrolled down
      */
-    int buttonListOffset;
+    private int buttonListOffset;
 
     public Category category;
 
@@ -46,15 +45,12 @@ public class GuiWindowMod extends GuiWindow {
     }
 
     private void addModsToButtonList() {
-        int index = 0; // index in the buttonList
         int maxWidth = 0;
         int newHeight = 0;
         for(BaseMod mod : getModManager().getMods()) {
-            if(mod.getModCategory().equals(category)) {
+            if(mod.getModCategory().equals(category) && !mod.isHidden()) {
                 GuiButton moduleButton = new GuiButton(mod);
-                moduleButton.setIndex(index);
                 buttonList.add(moduleButton);
-                index++;
 
                 newHeight += moduleButton.height+1;
 
@@ -64,27 +60,29 @@ public class GuiWindowMod extends GuiWindow {
             }
         }
         height = Math.min(maxHeight, newHeight+3);
-        maxWidth = Math.max(60, maxWidth);
-        width = maxWidth; // set the width of window to the width of the longest mod name
-
+        width = maxWidth+15; // set the width of window to the width of the longest mod name
 
     }
 
 
     public void drawWindow(int mouseX, int mouseY) {
-        drawHeader();
+        ClickGui.scaledRes = new ScaledResolution(MC);
+        super.drawWindow(mouseX, mouseY);
         this.listY = headerY + 22 ;
+
         SurfaceHelper.drawOutlinedRectShaded(posX, listY, width, height, Utils.toRGBA(130,130,130,255), 80, 3);
         int buttonY = listY - buttonListOffset + 2;
 
         int scale = ClickGui.scaledRes.getScaleFactor();
 
         GL11.glPushMatrix();
-        int scissorY = MC.displayHeight-(scale*listY+scale*height-4);
+        int scissorY = MC.displayHeight-(scale*listY+scale*height-3);
         GL11.glScissor(scale*posX, scissorY, scale*width , scale*height-8);
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         for (GuiButton button : buttonList) {
-            SurfaceHelper.drawRect(posX+2, buttonY,width-4, 15, Utils.toRGBA(255,0,0, 150));
+            SurfaceHelper.drawRect(posX+2, buttonY,width-4, 15, button.getColor());
+            SurfaceHelper.drawTextShadowCentered(button.getName(),(posX+2)+width/2, buttonY+button.height/2, Utils.toRGBA(255,255,255,255));
+            button.setCoords(posX +2, buttonY);
             buttonY += button.height+1;
         }
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
@@ -96,21 +94,30 @@ public class GuiWindowMod extends GuiWindow {
     }
 
     public void mouseClicked(int x, int y, int state) {
-
+        super.mouseClicked(x, y, state);
+        for (GuiButton button : buttonList) {
+            if (x > button.x && x < (button.x + width) &&
+                    y > button.y && y < (button.y + button.height))
+            {
+                if (button.isModEnabled())
+                    button.disableMod();
+                else
+                    button.enableMod();
+                return;
+            }
+        }
     }
-    public void mouseReleased(int x, int y, int state) {
 
+    public void mouseReleased(int x, int y, int state) {
+        super.mouseReleased(x,y,state);
     }
 
 
     public void handleMouseInput() throws IOException {
-        //super.handleMouseInput();
         int i = Mouse.getEventDWheel();
-        //System.out.println(i);
 
         i = MathHelper.clamp(i, -1, 1);
         buttonListOffset -= i*5;
-
 
         if (buttonListOffset < 0) buttonListOffset = 0; // dont scroll up if its already at the top
         int lowestButtonY = 16 * buttonList.size() + listY;

@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 public class ClickGui extends GuiScreen implements Globals {
 
-    public static ClickGui clickGui;
+    public static ClickGui INSTANCE;
 
     public static ArrayList<GuiWindow> windowList = new ArrayList<GuiWindow>();
 
@@ -31,7 +31,9 @@ public class ClickGui extends GuiScreen implements Globals {
     public static ScaledResolution scaledRes = new ScaledResolution(MC);
 
 
-    public void initGui(){
+
+
+    private ClickGui() {
         // set initial window positions
         //TODO: load from settings
         //TODO: improve this a bit maybe
@@ -42,8 +44,8 @@ public class ClickGui extends GuiScreen implements Globals {
         }
     }
 
-    public static ClickGui getClickGui() {
-        return (ClickGui.clickGui == null) ? (ClickGui.clickGui = new ClickGui()) : ClickGui.clickGui;
+    public static ClickGui getInstance() {
+        return (INSTANCE == null) ? (INSTANCE = new ClickGui()) : INSTANCE;
     }
 
     @Override
@@ -114,7 +116,6 @@ public class ClickGui extends GuiScreen implements Globals {
         for (GuiWindow window : Lists.reverse(windowList)) {
             if (isMouseInWindow(Mouse.getEventX()/scale, (MC.displayHeight-Mouse.getEventY())/scale, window)) {
                 window.handleMouseInput();
-                //moveWindowToTop(window);
                 return;
             }
         }
