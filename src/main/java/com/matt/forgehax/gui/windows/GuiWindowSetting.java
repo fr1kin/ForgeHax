@@ -3,11 +3,13 @@ package com.matt.forgehax.gui.windows;
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.gui.elements.GuiButton;
 import com.matt.forgehax.gui.elements.GuiElement;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by Babbaj on 9/5/2017.
@@ -24,19 +26,24 @@ public class GuiWindowSetting extends GuiWindow {
         super(WindowType.SETTING, categoryIn);
         this.mod = modIn;
         category = categoryIn;
+        initializeInputs();
     }
 
+    private void initializeInputs() {
+        Map<String, Object> settingMap;
+    }
 
     public String getModName() {
         return mod.getModName();
     }
-
 
     public BaseMod getMod() {
         return this.mod;
     }
 
     public void drawWindow(int mouseX, int mouseY) {
+        super.drawWindow(mouseX, mouseY);
+        windowY = headerY + 22 ;
 
     }
 

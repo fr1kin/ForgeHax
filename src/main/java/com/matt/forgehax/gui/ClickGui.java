@@ -5,7 +5,6 @@ import com.matt.forgehax.Globals;
 import com.matt.forgehax.gui.windows.GuiWindow;
 import com.matt.forgehax.gui.windows.GuiWindowMod;
 import com.matt.forgehax.util.mod.Category;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.input.Mouse;
@@ -30,8 +29,7 @@ public class ClickGui extends GuiScreen implements Globals {
 
     public static ScaledResolution scaledRes = new ScaledResolution(MC);
 
-
-
+    public int baseColor;
 
     private ClickGui() {
         // set initial window positions
@@ -72,7 +70,7 @@ public class ClickGui extends GuiScreen implements Globals {
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
-    public void mouseClicked(int mouseX, int mouseY, int b) throws IOException { // TODO: check which one is on top
+    public void mouseClicked(int mouseX, int mouseY, int b) throws IOException {
         try
         {
             for (GuiWindow window : Lists.reverse(windowList)) {
@@ -83,7 +81,7 @@ public class ClickGui extends GuiScreen implements Globals {
                 }
             }
             super.mouseClicked(mouseX, mouseY, b);
-        }catch(Exception e) {}
+        } catch(Exception e) {}
     }
 
     public void mouseReleased(int x, int y, int state) {
@@ -96,15 +94,7 @@ public class ClickGui extends GuiScreen implements Globals {
 
     public void keyTyped(char typedChar, int keyCode) throws IOException {
         // will be using this for settings and maybe search
-        if (keyCode == 1)
-        {
-            this.mc.displayGuiScreen(null);
-
-            if (this.mc.currentScreen == null)
-            {
-                this.mc.setIngameFocus();
-            }
-        }
+        super.keyTyped(typedChar, keyCode);
     }
 
     public void handleMouseInput() throws IOException {
@@ -112,16 +102,14 @@ public class ClickGui extends GuiScreen implements Globals {
         super.handleMouseInput();
 
         int scale = scaledRes.getScaleFactor();
-
         for (GuiWindow window : Lists.reverse(windowList)) {
             if (isMouseInWindow(Mouse.getEventX()/scale, (MC.displayHeight-Mouse.getEventY())/scale, window)) {
                 window.handleMouseInput();
-                return;
+                break;
             }
         }
 
     }
-
 
 
 }

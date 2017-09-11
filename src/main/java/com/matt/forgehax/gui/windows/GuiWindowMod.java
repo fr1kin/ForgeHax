@@ -35,7 +35,7 @@ public class GuiWindowMod extends GuiWindow {
 
     public Category category;
 
-    public int listY; // Y value of the modlist - 20 pixels lower than the header Y
+    //public int windowY; // Y value of the modlist - 20 pixels lower than the header Y
 
 
     public GuiWindowMod(Category categoryIn) {
@@ -52,7 +52,7 @@ public class GuiWindowMod extends GuiWindow {
                 GuiButton moduleButton = new GuiButton(mod);
                 buttonList.add(moduleButton);
 
-                newHeight += moduleButton.height+1;
+                newHeight += GuiButton.height+1;
 
                 String name = moduleButton.getName();
                 int width = SurfaceHelper.getTextWidth(name);
@@ -66,50 +66,43 @@ public class GuiWindowMod extends GuiWindow {
 
 
     public void drawWindow(int mouseX, int mouseY) {
-        ClickGui.scaledRes = new ScaledResolution(MC);
         super.drawWindow(mouseX, mouseY);
-        this.listY = headerY + 22 ;
+        windowY = headerY + 22 ;
 
-        SurfaceHelper.drawOutlinedRectShaded(posX, listY, width, height, Utils.toRGBA(130,130,130,255), 80, 3);
-        int buttonY = listY - buttonListOffset + 2;
+        SurfaceHelper.drawOutlinedRectShaded(posX, windowY, width, height, Utils.toRGBA(130,130,130,255), 80, 3);
+        int buttonY = windowY - buttonListOffset + 2;
 
         int scale = ClickGui.scaledRes.getScaleFactor();
 
         GL11.glPushMatrix();
-        int scissorY = MC.displayHeight-(scale*listY+scale*height-3);
+        int scissorY = MC.displayHeight-(scale*windowY+scale*height-3);
         GL11.glScissor(scale*posX, scissorY, scale*width , scale*height-8);
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         for (GuiButton button : buttonList) {
-            SurfaceHelper.drawRect(posX+2, buttonY,width-4, 15, button.getColor());
-            SurfaceHelper.drawTextShadowCentered(button.getName(),(posX+2)+width/2, buttonY+button.height/2, Utils.toRGBA(255,255,255,255));
+            SurfaceHelper.drawRect(posX+2, buttonY,width-4, GuiButton.height, button.getColor());
+            SurfaceHelper.drawTextShadowCentered(button.getName(),(posX+2)+width/2, buttonY+GuiButton.height/2, Utils.toRGBA(255,255,255,255));
             button.setCoords(posX +2, buttonY);
-            buttonY += button.height+1;
+            buttonY += GuiButton.height+1;
         }
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
         GL11.glPopMatrix();
 
         //update variables
         bottomX = posX + width; // set the coords of the bottom right corner for mouse coord testing
-        bottomY = listY + height;
+        bottomY = windowY + height;
     }
 
     public void mouseClicked(int x, int y, int state) {
         super.mouseClicked(x, y, state);
         for (GuiButton button : buttonList) {
             if (x > button.x && x < (button.x + width) &&
-                    y > button.y && y < (button.y + button.height))
+                    y > button.y && y < (button.y + GuiButton.height) &&
+                    !isMouseInHeader(x,y))
             {
-                if (button.isModEnabled())
-                    button.disableMod();
-                else
-                    button.enableMod();
-                return;
+                button.toggleMod();
+                break;
             }
         }
-    }
-
-    public void mouseReleased(int x, int y, int state) {
-        super.mouseReleased(x,y,state);
     }
 
 
@@ -117,15 +110,15 @@ public class GuiWindowMod extends GuiWindow {
         int i = Mouse.getEventDWheel();
 
         i = MathHelper.clamp(i, -1, 1);
-        buttonListOffset -= i*5;
+        buttonListOffset -= i*10;
 
         if (buttonListOffset < 0) buttonListOffset = 0; // dont scroll up if its already at the top
-        int lowestButtonY = 16 * buttonList.size() + listY;
-        int lowestAllowedOffset = lowestButtonY - height - listY + 3;
+
+        int lowestButtonY = (GuiButton.height+1) * buttonList.size() + windowY;
+        int lowestAllowedOffset = lowestButtonY - height - windowY + 3;
         if (lowestButtonY - buttonListOffset < bottomY)
             buttonListOffset = lowestAllowedOffset;
 
     }
-
 
 }

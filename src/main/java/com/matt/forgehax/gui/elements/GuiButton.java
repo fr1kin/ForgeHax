@@ -10,12 +10,12 @@ public class GuiButton extends GuiElement {
 
     private BaseMod mod;
 
-    public final int colorEnabled = Utils.toRGBA(80,80,80, 200);
-    public final int colorDisabled = Utils.toRGBA(100,100,100,150);
+    public static final int colorEnabled = Utils.toRGBA(80,80,80, 200);
+    public static final int colorDisabled = Utils.toRGBA(100,100,100,150);
 
 
     public int width;
-    public final int height = 15;
+    public static final int height = 15;
 
     public int x, y; // used to get the area they can be clicked in
 
@@ -33,12 +33,11 @@ public class GuiButton extends GuiElement {
         return mod.isEnabled();
     }
 
-    public void disableMod() {
-        mod.disable();
-    }
-
-    public void enableMod() {
-        mod.enable();
+    public void toggleMod() {
+        if (!mod.isEnabled())
+            mod.enable();
+        else
+            mod.disable();
     }
 
     public String getName() {

@@ -4,8 +4,11 @@ import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.Category;
+import net.minecraft.client.gui.ScaledResolution;
 
 import java.io.IOException;
+
+import static com.matt.forgehax.Globals.MC;
 
 /**
  * Created by Babbaj on 9/5/2017.
@@ -18,15 +21,15 @@ public class GuiWindow {
 
     public String title;
 
-    public int posX, headerY;
+    public int posX, headerY, windowY;
     public int bottomX, bottomY;
 
-    public int dragX, dragY; // coords of where the window is being dragged from
-    public int lastDragX, lastDragY;
+    // coords of where the window is being dragged from
+    public int dragX, dragY;
 
     private boolean dragging;
 
-    final int maxHeight = (int)(ClickGui.scaledRes.getScaledHeight() * 0.8); // a window can only take up 60% of the height of the window
+    final int maxHeight = (int)(ClickGui.scaledRes.getScaledHeight() * 0.8); // a window can only take up 80% of the height of the window
     public int width = 60, height = maxHeight; // width of the window
 
 
@@ -46,7 +49,7 @@ public class GuiWindow {
         return title;
     }
 
-    private boolean isMouseInHeader(int mouseX, int mouseY) {
+    public boolean isMouseInHeader(int mouseX, int mouseY) {
         return (mouseX > posX && mouseX < posX+width &&
                 mouseY > headerY && mouseY < headerY+20);
     }
@@ -61,8 +64,8 @@ public class GuiWindow {
         if (isMouseInHeader(mouseX, mouseY)) {
             dragging = true;
 
-            lastDragX = mouseX - posX;
-            lastDragY = mouseY - headerY;
+            dragX = mouseX - posX;
+            dragY = mouseY - headerY;
         }
     }
 
@@ -75,10 +78,10 @@ public class GuiWindow {
     }
 
     public void drawWindow(int mouseX, int mouseY) {
+        ClickGui.scaledRes = new ScaledResolution(MC);
         if (dragging) {
-            posX = dragX = mouseX - lastDragX;
-            headerY = dragY = mouseY - lastDragY;
-
+            posX = mouseX - dragX;
+            headerY = mouseY - dragY;
         }
         drawHeader();
     }
