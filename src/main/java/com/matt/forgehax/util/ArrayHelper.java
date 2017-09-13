@@ -10,4 +10,8 @@ public class ArrayHelper {
         else
             return defaultValue;
     }
+
+    public static <T> boolean isInRange(T[] array, int index) {
+        return array != null && index >= 0 && index < array.length;
+    }
 }
