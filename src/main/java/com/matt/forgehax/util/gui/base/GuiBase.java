@@ -38,7 +38,9 @@ public class GuiBase implements IGuiBase {
     private Integer fontColor = null;
 
     @Override
-    public void init(double screenWidth, double screenHeight) {}
+    public void init(double screenWidth, double screenHeight) {
+        getFocusStack().clear();
+    }
 
     @Override
     public double getX() {
