@@ -26,9 +26,6 @@ public class GuiCommand extends CommandMod {
                 .description("Forgehax gui")
                 .bind(Keyboard.KEY_INSERT)
                 .kpressed(cb -> MC.displayGuiScreen(gui))
-                .processor(data -> {
-                    MC.displayGuiScreen(gui);
-                })
                 .build();
     }
 }
