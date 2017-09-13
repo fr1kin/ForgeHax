@@ -1,13 +1,10 @@
 package com.matt.forgehax.util.gui.base;
 
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.draw.SurfaceBuilder;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.gui.IGuiLabel;
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Created on 9/10/2017 by fr1kin
@@ -34,16 +31,23 @@ public class GuiLabel extends GuiBase implements IGuiLabel {
 
     @Override
     public void onRender(GuiRenderEvent event) {
-        BufferBuilder builder = event.getBuilder();
+        GlStateManager.color(1.F, 0.F, 0.F, 50 / 255.f);
+        event.getSurfaceBuilder()
+                .task(SurfaceBuilder::preRenderTexture2D)
+                .task(SurfaceBuilder::preBlend)
+                .beginQuads()
+                .rectangle(getX(), getY(), getWidth(), getHeight())
+                .end()
+                .task(SurfaceBuilder::postRenderTexture2D)
+                .task(SurfaceBuilder::postBlend);
 
-        int[] color = Utils.toRGBAArray(Utils.toRGBA(255, 0, 0, 150));
-        GlStateManager.color(color[0] / 255.f, color[1] / 255.f, color[2] / 255.f, color[3] / 255.f);
-
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-        SurfaceHelper.buildRectangle(event.getBuilder(), getX(), getY(), getWidth(), getHeight());
-
-        event.getTessellator().draw();
-
-        SurfaceHelper.drawString(getFontRenderer(), getText(), getX(), getY(), getFontColor(), false);
+        event.getSurfaceBuilder()
+                .task(SurfaceBuilder::preFontRender)
+                .task(SurfaceBuilder::preBlend)
+                .fontRenderer(getFontRenderer())
+                .color(getFontColor())
+                .text(getText(), getX(), getY())
+                .task(SurfaceBuilder::postFontRender)
+                .task(SurfaceBuilder::postBlend);
     }
 }

@@ -11,6 +11,8 @@ public interface IGuiParent extends IGuiBase {
     void addChild(IGuiBase element);
     void removeChild(IGuiBase element);
 
+    void removeAllChildren();
+
     List<IGuiBase> getChildren();
     int getChildrenCount();
 

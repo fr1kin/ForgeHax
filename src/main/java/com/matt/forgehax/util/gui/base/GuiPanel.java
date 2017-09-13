@@ -19,7 +19,7 @@ import java.util.List;
  * Created on 9/9/2017 by fr1kin
  */
 public class GuiPanel extends GuiBase implements IGuiPanel {
-    protected List<IGuiBase> children = Lists.newArrayList();
+    protected final List<IGuiBase> children = Lists.newCopyOnWriteArrayList();
 
     private boolean collapsed = false;
 
@@ -96,6 +96,12 @@ public class GuiPanel extends GuiBase implements IGuiPanel {
     }
 
     @Override
+    public void removeAllChildren() {
+        children.forEach(this::removeChild);
+    }
+
+
+    @Override
     public List<IGuiBase> getChildren() {
         return Collections.unmodifiableList(children);
     }
@@ -113,14 +119,18 @@ public class GuiPanel extends GuiBase implements IGuiPanel {
 
     @Override
     public void onRenderChildren(GuiRenderEvent event) {
-        GlStateManager.pushMatrix();
+        double offsetY = 0.D;
 
-        GlStateManager.translate(getX(), getY(), 0.D);
+        for(IGuiBase gui : children) if(gui.isVisible()) {
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(getX(), getY() + offsetY, 0.D);
 
-        for(IGuiBase gui : children) if(gui.isVisible())
             gui.onRender(event);
 
-        GlStateManager.popMatrix();
+            GlStateManager.popMatrix();
+
+            offsetY += gui.getHeight();
+        }
     }
 
     @Override

@@ -13,17 +13,23 @@ public class GuiTestMain extends GuiPanel {
     public void init(double screenWidth, double screenHeight) {
         super.init(screenWidth, screenHeight);
 
+        removeAllChildren();
+
         setPos(50, 50);
         setSize(100, 100);
 
         setFontColor(0, 0, 0, 150);
         setFontRenderer(Fonts.ARIAL);
 
-        GuiLabel label = new GuiLabel();
-        label.setParent(this);
-        label.setText("Hello");
-        label.setFontColor(Utils.Colors.WHITE);
-        label.setPos(10, 10);
+        String[] labels = new String[] {"Hello", "These", "Are", "Labels"};
+
+        for(int i = 0; i < labels.length; i++) {
+            GuiLabel label = new GuiLabel();
+            label.setParent(this);
+            label.setText(labels[i]);
+            label.setFontColor(Utils.Colors.WHITE);
+            label.setPos(1, 1);
+        }
 
         // focus
         focus();
