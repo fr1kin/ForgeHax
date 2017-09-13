@@ -117,7 +117,7 @@ public class GuiBase implements IGuiBase {
             this.parent = parent;
             this.parent.addChild(this);
         }
-        onParentChanged(parent);
+        onResizeNeeded();
     }
 
     @Override
@@ -188,6 +188,7 @@ public class GuiBase implements IGuiBase {
     @Override
     public void setFontRenderer(MinecraftFontRenderer fontRenderer) {
         this.fontRenderer = fontRenderer;
+        onResizeNeeded();
     }
 
     @Override
@@ -201,7 +202,7 @@ public class GuiBase implements IGuiBase {
     }
 
     @Override
-    public void onParentChanged(IGuiParent parent) {}
+    public void onResizeNeeded() {}
 
     @Override
     public void onFocusChanged(boolean state) {}

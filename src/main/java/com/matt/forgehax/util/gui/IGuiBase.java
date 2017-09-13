@@ -218,7 +218,7 @@ public interface IGuiBase {
         setFontColor(Utils.toRGBA(r, g, b, a));
     }
 
-    void onParentChanged(IGuiParent parent);
+    void onResizeNeeded();
 
     /**
      * Called when focus is gained or lost
