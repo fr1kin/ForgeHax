@@ -98,7 +98,6 @@ public class PluginLoader {
                 if (className != null) {
                     try {
                         classes.add(Class.forName(className, false, loader));
-
                     } catch (Throwable t) {
                         getLog().error("Failed to load class: " + t.getMessage());
                         t.printStackTrace();
