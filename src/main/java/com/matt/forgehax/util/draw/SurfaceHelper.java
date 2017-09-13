@@ -2,11 +2,9 @@ package com.matt.forgehax.util.draw;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -21,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
+import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
 
 import javax.annotation.Nullable;
 
@@ -30,31 +29,33 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
  * 2D rendering
  */
 public class SurfaceHelper implements Globals {
-    public static void drawLine(int startX, int startY, int endX, int endY, int color) {
-        float r = (float)(color >> 16 & 255) / 255.0F;
-        float g = (float)(color >> 8 & 255) / 255.0F;
-        float b = (float)(color & 255) / 255.0F;
-        float a = (float)(color >> 24 & 255) / 255.0F;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder BufferBuilder = tessellator.getBuffer();
-
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.color(r, g, b, a);
-
-        BufferBuilder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
-        BufferBuilder.pos((double)startX, (double)startY, 0.0D).endVertex();
-        BufferBuilder.pos((double)endX, (double)endY, 0.0D).endVertex();
-        tessellator.draw();
-
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
+    public static void buildRectangle(BufferBuilder builder, double startX, double startY, double width, double height) {
+        builder.pos(startX, startY, 0.0D).endVertex();
+        builder.pos(startX, startY + height, 0.0D).endVertex();
+        builder.pos(startX + width, startY + height, 0.0D).endVertex();
+        builder.pos(startX + width, startY, 0.0D).endVertex();
     }
 
-    public static void drawRect(int x, int y, int w, int h, int color) {
-        GL11.glLineWidth(1.0f);
-        Gui.drawRect(x, y, x + w, y + h, color);
+    public static void drawString(@Nullable MinecraftFontRenderer fontRenderer, String text, double x, double y, int color, boolean shadow) {
+        if(fontRenderer == null) {
+            MC.fontRenderer.drawString(text, Math.round(x), Math.round(y), color, shadow);
+        } else {
+            fontRenderer.drawString(text, x, y, color, shadow);
+        }
+    }
+
+    public static double getStringWidth(@Nullable MinecraftFontRenderer fontRenderer, String text) {
+        if(fontRenderer == null)
+            return MC.fontRenderer.getStringWidth(text);
+        else
+            return fontRenderer.getStringWidth(text);
+    }
+
+    public static double getStringHeight(@Nullable MinecraftFontRenderer fontRenderer) {
+        if(fontRenderer == null)
+            return MC.fontRenderer.FONT_HEIGHT;
+        else
+            return fontRenderer.getHeight();
     }
 
     public static void drawOutlinedRect(int x, int y, int w, int h, int color, float width) {
@@ -83,10 +84,6 @@ public class SurfaceHelper implements Globals {
         GlStateManager.disableBlend();
     }
 
-    public static void drawOutlinedRect(int x, int y, int w, int h, int color) {
-        drawOutlinedRect(x, y, w, h, color, 1.f);
-    }
-
     public static void drawTexturedRect(int x, int y, int textureX, int textureY, int width, int height, int zLevel) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder BufferBuilder = tessellator.getBuffer();
@@ -96,38 +93,6 @@ public class SurfaceHelper implements Globals {
         BufferBuilder.pos((double)(x + width), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + width) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
         BufferBuilder.pos((double)(x + 0), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + 0) * 0.00390625F), (double)((float)(textureY + 0) * 0.00390625F)).endVertex();
         tessellator.draw();
-    }
-
-    public static void drawTriangle(int x, int y, int size, float rotate, int color) {
-        GlStateManager.pushMatrix();
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.getBuffer();
-
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
-
-        GlStateManager.translate(x, y, 0.f);
-        GlStateManager.rotate(rotate, 0.f, 0.f, size / 2.f);
-
-        int[] colors = Utils.toRGBAArray(color);
-        GlStateManager.color(colors[0], colors[1], colors[2], colors[3]);
-
-        builder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION);
-
-        builder.pos(0, 0, 0).endVertex();
-        builder.pos(-size, -size, 0).endVertex();
-        builder.pos(-size, size, 0).endVertex();
-
-        tessellator.draw();
-
-        GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
-
-        GlStateManager.popMatrix();
     }
 
     public static void drawText(String msg, int x, int y, int color) {
