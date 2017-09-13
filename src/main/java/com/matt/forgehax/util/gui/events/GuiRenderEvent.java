@@ -1,5 +1,6 @@
 package com.matt.forgehax.util.gui.events;
 
+import com.matt.forgehax.util.draw.SurfaceBuilder;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 
@@ -7,6 +8,8 @@ import net.minecraft.client.renderer.Tessellator;
  * Created on 9/10/2017 by fr1kin
  */
 public class GuiRenderEvent {
+    private final SurfaceBuilder surfaceBuilder = new SurfaceBuilder();
+
     private final Tessellator tessellator;
     private final BufferBuilder builder;
 
@@ -21,6 +24,10 @@ public class GuiRenderEvent {
         this.partialTicks = partialTicks;
         this.mouseX = mouseX;
         this.mouseY = mouseY;
+    }
+
+    public SurfaceBuilder getSurfaceBuilder() {
+        return surfaceBuilder;
     }
 
     public Tessellator getTessellator() {
