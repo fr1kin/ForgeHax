@@ -5,7 +5,7 @@ import com.matt.forgehax.util.draw.Fonts;
 import com.matt.forgehax.util.gui.mc.GuiParentScreen;
 import com.matt.forgehax.util.gui.mcgui.MCheckbox;
 import com.matt.forgehax.util.gui.mcgui.MLabel;
-import com.matt.forgehax.util.gui.mcgui.MPanel;
+import com.matt.forgehax.util.gui.mcgui.MWindow;
 
 /**
  * Created on 9/12/2017 by fr1kin
@@ -15,54 +15,54 @@ public class GuiTestMain extends GuiParentScreen {
     public GuiTestMain() {
         super();
 
-        MPanel panel = new MPanel();
-        panel.setParent(this);
+        MWindow window = new MWindow();
+        window.setParent(this);
 
-        panel.setPos(50, 50);
-        panel.setSize(100, 100);
+        window.setPos(50, 50);
+        window.setSize(100, 100);
 
-        panel.setBackgroundColor(Utils.toRGBA(255, 0, 0, 150));
+        window.setBackgroundColor(Utils.toRGBA(255, 0, 0, 150));
 
-        panel.setFontColor(Utils.Colors.WHITE);
-        panel.setFontRenderer(Fonts.ARIAL);
+        window.setFontColor(Utils.Colors.WHITE);
+        window.setFontRenderer(Fonts.ARIAL);
 
         String[] labels = new String[] {"Hello", "These", "Are", "Labels"};
 
         double h = 0;
         for(int i = 0; i < labels.length; i++) {
             MLabel label = new MLabel();
-            label.setParent(panel);
+            label.setParent(window);
             label.setText(labels[i]);
             label.setFontColor(Utils.Colors.WHITE);
-            label.setPos(1, (i * label.getHeight() + 2));
+            label.setPos(1, MWindow.BAR_HEIGHT + (i * label.getHeight() + 2));
             h = label.getHeight();
         }
 
         MCheckbox checkbox = new MCheckbox();
-        checkbox.setParent(panel);
+        checkbox.setParent(window);
         checkbox.setText("Hello");
         checkbox.setHoverText("This is a checkbox");
-        checkbox.setPos(1, (labels.length * h + 2));
+        checkbox.setPos(1, MWindow.BAR_HEIGHT + (labels.length * h + 2));
 
         // panel2
-        MPanel panel2 = new MPanel();
-        panel2.setParent(this);
+        MWindow window2 = new MWindow();
+        window2.setParent(this);
 
-        panel2.setPos(75, 75);
-        panel2.setSize(100, 100);
+        window2.setPos(50, 50);
+        window2.setSize(100, 100);
 
-        panel2.setBackgroundColor(Utils.toRGBA(0, 255, 0, 150));
+        window2.setBackgroundColor(Utils.toRGBA(0, 255, 0, 150));
 
         // panel3
-        MPanel panel3 = new MPanel();
-        panel3.setParent(this);
+        MWindow window3 = new MWindow();
+        window3.setParent(this);
 
-        panel3.setPos(75, 25);
-        panel3.setSize(100, 100);
+        window3.setPos(50, 50);
+        window3.setSize(100, 100);
 
-        panel3.setBackgroundColor(Utils.toRGBA(0, 0, 255, 150));
+        window3.setBackgroundColor(Utils.toRGBA(0, 0, 255, 150));
 
         // focus
-        panel.requestFocus();
+        window.requestFocus();
     }
 }

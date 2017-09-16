@@ -141,15 +141,12 @@ public class MBase implements IGuiBase {
     @Override
     public boolean isInFocus() {
         return getParent() == null
-                || getParent().getChildInFocus() == this;
+                || getParent().isInFocus() && getParent().getChildInFocus() == this;
     }
 
     @Override
     public void requestFocus() {
-        if(getParent() != null
-                && getParent().focus(this)) {
-            callbacks.forEach(GuiCallback::onFocusChange);
-        }
+        if(getParent() != null) getParent().focus(this);
     }
 
     @Override
@@ -181,6 +178,11 @@ public class MBase implements IGuiBase {
 
     @Override
     public void onUpdateSize() {}
+
+    @Override
+    public void onFocusChanged() {
+        callbacks.forEach(GuiCallback::onFocusChange);
+    }
 
     @Override
     public void onMouseEvent(GuiMouseEvent event) {

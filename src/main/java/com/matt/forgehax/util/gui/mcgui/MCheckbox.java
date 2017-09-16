@@ -11,8 +11,8 @@ import com.matt.forgehax.util.gui.events.GuiRenderEvent;
  * Created on 9/9/2017 by fr1kin
  */
 public class MCheckbox extends MBase implements IGuiCheckbox {
-    private static final int CHECKBOX_SIZE = 10;
-    private static final int BUFFER_SIZE = 2;
+    public static final int CHECKBOX_SIZE = 10;
+    public static final int BUFFER_SIZE = 2;
 
     private String text = "";
     private String hoverText = "";

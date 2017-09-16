@@ -1,6 +1,7 @@
 package com.matt.forgehax.util.gui.mcgui;
 
 import com.google.common.collect.Lists;
+import com.matt.forgehax.util.gui.GuiHelper;
 import com.matt.forgehax.util.gui.IGuiBase;
 import com.matt.forgehax.util.gui.IGuiParent;
 import com.matt.forgehax.util.gui.events.GuiKeyEvent;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created on 9/15/2017 by fr1kin
@@ -54,8 +56,17 @@ public class MParent extends MBase implements IGuiParent {
     public boolean focus(IGuiBase element) {
         if(this == element.getParent()
                 && element != getChildInFocus()) {
+            Optional<IGuiBase> previous = Optional.ofNullable(getChildInFocus());
+
             children.remove(element); // remove from list
             children.add(0, element); // readd at head of the stack
+
+            previous.filter(gui -> element != gui)
+                    .ifPresent(gui -> {
+                        gui.onFocusChanged();
+                        element.onFocusChanged();
+                    });
+
             return true;
         } else return false;
     }
@@ -101,23 +112,17 @@ public class MParent extends MBase implements IGuiParent {
     @Override
     public void onMouseEvent(GuiMouseEvent event) {
         super.onMouseEvent(event);
-        if(this.isInFocus()) {
-            for (IGuiBase gui : children)
-                if (gui.isVisible()) {
-                    gui.onMouseEvent(event);
-                }
-        }
+
+        GuiHelper.getTopGuiAt(this, event.getMouseX(), event.getMouseY())
+                .ifPresent(gui -> gui.onMouseEvent(event));
     }
 
     @Override
     public void onKeyEvent(GuiKeyEvent event) {
         super.onKeyEvent(event);
-        if(this.isInFocus()) {
-            for (IGuiBase gui : children)
-                if (gui.isVisible()) {
-                    gui.onKeyEvent(event);
-                }
-        }
+
+        Optional.ofNullable(getChildInFocus())
+                .ifPresent(gui -> gui.onKeyEvent(event));
     }
 
     @Override

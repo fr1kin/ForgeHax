@@ -180,6 +180,8 @@ public interface IGuiBase {
 
     void onUpdateSize();
 
+    void onFocusChanged();
+
     /**
      * Called when a mouse event is invoked
      * @param event event data

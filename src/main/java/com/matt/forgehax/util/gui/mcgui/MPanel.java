@@ -2,7 +2,6 @@ package com.matt.forgehax.util.gui.mcgui;
 
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceBuilder;
-import com.matt.forgehax.util.gui.IGuiBase;
 import com.matt.forgehax.util.gui.IGuiPanel;
 import com.matt.forgehax.util.gui.events.GuiMouseEvent;
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
@@ -83,9 +82,7 @@ public class MPanel extends MParent implements IGuiPanel {
 
     @Override
     public void onClicked(GuiMouseEvent event) {
-        IGuiBase current = getParent() != null ? getParent().getChildInFocus() : null;
-        if(current == null || !event.isMouseWithin(current)) // make sure the mouse isn't hovering over a panel already in focus
-            requestFocus(); // request focus on click
+        requestFocus(); // request focus on click
 
         super.onClicked(event);
     }
