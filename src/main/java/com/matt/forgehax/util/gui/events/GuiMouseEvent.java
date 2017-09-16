@@ -1,9 +1,16 @@
 package com.matt.forgehax.util.gui.events;
 
+import com.matt.forgehax.util.gui.GuiHelper;
+import com.matt.forgehax.util.gui.IGuiBase;
+
 /**
  * Created on 9/10/2017 by fr1kin
  */
 public class GuiMouseEvent {
+    public static final int LEFT_MOUSE = 0;
+    public static final int RIGHT_MOUSE = 1;
+    public static final int MIDDLE_MOUSE = 2;
+
     public enum Type {
         PRESSED,
         DOWN,
@@ -62,5 +69,23 @@ public class GuiMouseEvent {
 
     public boolean isWheelMoved() {
         return delta != 0;
+    }
+
+    public boolean isMouseWithin(IGuiBase base) {
+        double rx = base.getRealX();
+        double ry = base.getRealY();
+        return GuiHelper.isInArea(getMouseX(), getMouseY(), rx, ry, rx + base.getWidth(), ry + base.getHeight());
+    }
+
+    public boolean isLeftMouse() {
+        return mouseCode == LEFT_MOUSE;
+    }
+
+    public boolean isRightMouse() {
+        return mouseCode == RIGHT_MOUSE;
+    }
+
+    public boolean isMiddleMouse() {
+        return mouseCode == MIDDLE_MOUSE;
     }
 }

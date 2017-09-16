@@ -7,20 +7,12 @@ import com.matt.forgehax.util.gui.events.GuiRenderEvent;
 import com.matt.forgehax.util.gui.events.GuiUpdateEvent;
 import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Stack;
 
 /**
  * Created on 9/9/2017 by fr1kin
  */
 public interface IGuiBase {
-    int FOCUS_LOST = 0;
-    int FOCUS_GAINED = 1;
-
-    int HOVERING_STOP = 0;
-    int HOVERING_START = 1;
-
     /**
      * Initialize GUI. Called when created or when the UI is rescaled.
      * @param screenWidth scaled width
@@ -146,14 +138,6 @@ public interface IGuiBase {
     void setParent(@Nullable IGuiParent parent);
 
     /**
-     * Check if this element has a parent.
-     * @return true if getParent() returns non null result
-     */
-    default boolean hasParent() {
-        return getParent() != null;
-    }
-
-    /**
      * If the mouse is hovering over this element
      * @return true if mouse is hovering over
      */
@@ -166,41 +150,17 @@ public interface IGuiBase {
     int getHoveredTime();
 
     /**
-     * Get the focus stack
-     * @return stack of focused elements
-     */
-    @Nonnull
-    Stack<IGuiBase> getFocusStack();
-
-    /**
      * If this element has focus
      * @return true if has focus
      */
-    boolean isFocused();
-
-    /**
-     * If this element has top focus
-     * @return true if it has top focus
-     */
-    boolean isTopFocused();
+    boolean isInFocus();
 
     /**
      * Will give this element top focus
      * NOTE: Two of the same elements are not allowed sequentially, but are however allowed if split up.
      * If this method is called and the element is already at the top of the stack, nothing will be added.
      */
-    void focus();
-
-    /**
-     * Remove focus from this element
-     * Will only remove focus if the element currently has focus.
-     */
-    void unfocus();
-
-    /**
-     * Will remove all instances of this element from the focus stack
-     */
-    void unfocusHard();
+    void requestFocus();
 
     /**
      * Time this element has had top focus
@@ -218,13 +178,7 @@ public interface IGuiBase {
         setFontColor(Utils.toRGBA(r, g, b, a));
     }
 
-    void onResizeNeeded();
-
-    /**
-     * Called when focus is gained or lost
-     * @param state true for gained, false for lost
-     */
-    void onFocusChanged(boolean state);
+    void onUpdateSize();
 
     /**
      * Called when a mouse event is invoked
@@ -237,6 +191,8 @@ public interface IGuiBase {
      * @param event event data
      */
     void onKeyEvent(GuiKeyEvent event);
+
+    void onClicked(GuiMouseEvent event);
 
     /**
      * Called before rendering

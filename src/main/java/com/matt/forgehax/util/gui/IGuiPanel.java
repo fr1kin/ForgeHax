@@ -4,6 +4,9 @@ package com.matt.forgehax.util.gui;
  * Created on 9/9/2017 by fr1kin
  */
 public interface IGuiPanel extends IGuiParent {
+    int getBackgroundColor();
+    void setBackgroundColor(int color);
+
     boolean isCollapsed();
     void setCollapsed(boolean collapsed);
 

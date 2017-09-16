@@ -3,7 +3,7 @@ package com.matt.forgehax.mods.commands;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.gui.test.GuiTestMain;
-import com.matt.forgehax.util.gui.test.MinecraftGuiProxy;
+import com.matt.forgehax.util.gui.mc.MinecraftGuiProxy;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import org.lwjgl.input.Keyboard;
@@ -15,6 +15,10 @@ import org.lwjgl.input.Keyboard;
 public class GuiCommand extends CommandMod {
     private final MinecraftGuiProxy gui = new MinecraftGuiProxy(new GuiTestMain());
 
+    private MinecraftGuiProxy getGui() {
+        return new MinecraftGuiProxy(new GuiTestMain()); //gui;
+    }
+
     public GuiCommand() {
         super("GuiCommand");
     }
@@ -25,7 +29,7 @@ public class GuiCommand extends CommandMod {
                 .name("gui")
                 .description("Forgehax gui")
                 .bind(Keyboard.KEY_INSERT)
-                .kpressed(cb -> MC.displayGuiScreen(gui))
+                .kpressed(cb -> MC.displayGuiScreen(getGui()))
                 .build();
     }
 }

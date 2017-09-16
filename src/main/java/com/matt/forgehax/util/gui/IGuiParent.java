@@ -2,6 +2,7 @@ package com.matt.forgehax.util.gui;
 
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -16,8 +17,10 @@ public interface IGuiParent extends IGuiBase {
     List<IGuiBase> getChildren();
     int getChildrenCount();
 
-    void onChildAdded(IGuiBase element);
-    void onChildRemoved(IGuiBase element);
+    boolean focus(IGuiBase element);
+
+    @Nullable
+    IGuiBase getChildInFocus();
 
     void onRenderChildren(GuiRenderEvent event);
 }

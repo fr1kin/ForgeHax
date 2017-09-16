@@ -1,4 +1,4 @@
-package com.matt.forgehax.util.gui.test;
+package com.matt.forgehax.util.gui.mc;
 
 import com.google.common.collect.Maps;
 import com.matt.forgehax.Globals;
@@ -105,10 +105,11 @@ public class MinecraftGuiProxy extends GuiScreen implements Globals {
         // update ticks
         entry.incrementTicks();
 
+        int[] mpos = getMousePos();
         element.onMouseEvent(new GuiMouseEvent(
                 type,
                 mouseCode,
-                Mouse.getEventX(), Mouse.getEventY(),
+                mpos[0], mpos[1],
                 Mouse.getEventDWheel(),
                 entry.getTime(),
                 currentTimeMS - entry.getTimePressed())
@@ -125,20 +126,30 @@ public class MinecraftGuiProxy extends GuiScreen implements Globals {
 
     @Override
     public void updateScreen() {
-        element.onUpdate(new GuiUpdateEvent(Mouse.getX(), Mouse.getY()));
+        int[] mpos = getMousePos();
+        element.onUpdate(new GuiUpdateEvent(mpos[0], mpos[1]));
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         GlStateManager.pushMatrix();
-        SurfaceBuilder.preBlend();
-        SurfaceBuilder.preRenderTexture2D();
+        SurfaceBuilder.enableBlend();
+        SurfaceBuilder.disableTexture2D();
 
         element.onRender(new GuiRenderEvent(Tessellator.getInstance(), partialTicks, mouseX, mouseY));
 
-        SurfaceBuilder.postBlend();
-        SurfaceBuilder.postRenderTexture2D();
+        SurfaceBuilder.disableBlend();
+        SurfaceBuilder.enableTexture2D();
         GlStateManager.popMatrix();
+    }
+
+    private static int[] getMousePos() {
+        ScaledResolution resolution = new ScaledResolution(MC);
+        int width = resolution.getScaledWidth();
+        int height = resolution.getScaledHeight();
+        int mouseX = Mouse.getX() * width / MC.displayWidth;
+        int mouseY = height - Mouse.getY() * height / MC.displayHeight - 1;
+        return new int[] {mouseX, mouseY};
     }
 
     private static class InputEntry {

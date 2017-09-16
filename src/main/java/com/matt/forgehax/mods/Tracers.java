@@ -125,22 +125,21 @@ public class Tracers extends ToggleMod {
                                 break;
                         }
 
-                        event.getSurfaceBuilder().clear()
+                        event.getSurfaceBuilder().reset()
                                 .push()
-                                .task(SurfaceBuilder::preBlend)
-                                .task(SurfaceBuilder::preRenderTexture2D)
+                                .task(SurfaceBuilder::enableBlend)
+                                .task(SurfaceBuilder::disableTexture2D)
                                 .task(() -> GL11.glEnable(GL11.GL_POLYGON_SMOOTH))
                                 .color(color)
                                 .translate(x, y, 0.D)
                                 .rotate(ang, 0.D, 0.D, size / 2.D)
-                                .apply()
                                 .begin(GL11.GL_TRIANGLES)
                                 .vertex(0, 0)
                                 .vertex(-size, -size)
                                 .vertex(-size, size)
                                 .end()
-                                .task(SurfaceBuilder::postBlend)
-                                .task(SurfaceBuilder::postRenderTexture2D)
+                                .task(SurfaceBuilder::disableBlend)
+                                .task(SurfaceBuilder::enableTexture2D)
                                 .task(() -> GL11.glDisable(GL11.GL_POLYGON_SMOOTH))
                                 .pop();
 

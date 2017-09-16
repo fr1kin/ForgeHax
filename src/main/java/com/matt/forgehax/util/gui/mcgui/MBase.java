@@ -1,22 +1,26 @@
-package com.matt.forgehax.util.gui.base;
+package com.matt.forgehax.util.gui.mcgui;
 
+import com.google.common.collect.Lists;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.gui.GuiHelper;
 import com.matt.forgehax.util.gui.IGuiBase;
 import com.matt.forgehax.util.gui.IGuiParent;
+import com.matt.forgehax.util.gui.callbacks.GuiCallback;
 import com.matt.forgehax.util.gui.events.GuiKeyEvent;
 import com.matt.forgehax.util.gui.events.GuiMouseEvent;
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
 import com.matt.forgehax.util.gui.events.GuiUpdateEvent;
 import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Stack;
+import java.util.List;
 
 /**
  * Created on 9/9/2017 by fr1kin
  */
-public class GuiBase implements IGuiBase {
+public class MBase implements IGuiBase {
+    protected final List<GuiCallback> callbacks = Lists.newArrayList();
+
     private double x = 0;
     private double y = 0;
 
@@ -32,14 +36,15 @@ public class GuiBase implements IGuiBase {
 
     private int focusTime = 0;
 
-    private Stack<IGuiBase> focusStack = null;
-
     private MinecraftFontRenderer fontRenderer = null;
     private Integer fontColor = null;
 
     @Override
     public void init(double screenWidth, double screenHeight) {
-        getFocusStack().clear();
+        focusTime = 0;
+        hoveredTime = 0;
+        hovered = false;
+        onUpdateSize();
     }
 
     @Override
@@ -89,13 +94,14 @@ public class GuiBase implements IGuiBase {
 
     @Override
     public void setVisible(boolean visible) {
+        boolean previous = this.visible;
         this.visible = visible;
         if(!visible) {
             focusTime = 0;
             hoveredTime = 0;
             hovered = false;
-            unfocusHard();
         }
+        if(previous != visible) callbacks.forEach(GuiCallback::onVisibleChange);
     }
 
     @Override
@@ -119,7 +125,7 @@ public class GuiBase implements IGuiBase {
             this.parent = parent;
             this.parent.addChild(this);
         }
-        onResizeNeeded();
+        onUpdateSize();
     }
 
     @Override
@@ -133,47 +139,17 @@ public class GuiBase implements IGuiBase {
     }
 
     @Override
-    @Nonnull
-    public Stack<IGuiBase> getFocusStack() {
-        if(hasParent())
-            return getParent().getFocusStack(); // get parents focus stack
-        else {
-            // if it has no parent, then create own focus stack
-            if(this.focusStack == null) this.focusStack = new Stack<>();
-            return this.focusStack;
+    public boolean isInFocus() {
+        return getParent() == null
+                || getParent().getChildInFocus() == this;
+    }
+
+    @Override
+    public void requestFocus() {
+        if(getParent() != null
+                && getParent().focus(this)) {
+            callbacks.forEach(GuiCallback::onFocusChange);
         }
-    }
-
-    @Override
-    public boolean isFocused() {
-        return getFocusStack().contains(this);
-    }
-
-    @Override
-    public boolean isTopFocused() {
-        return !getFocusStack().isEmpty() && getFocusStack().peek() == this;
-    }
-
-    @Override
-    public void focus() {
-        if(!isTopFocused()) {
-            getFocusStack().push(this);
-            onFocusChanged(true);
-        }
-    }
-
-    @Override
-    public void unfocus() {
-        if(isTopFocused()) {
-            getFocusStack().pop();
-            onFocusChanged(false);
-        }
-    }
-
-    @Override
-    public void unfocusHard() {
-        unfocus();
-        while(getFocusStack().contains(this)) getFocusStack().removeElement(this);
     }
 
     @Override
@@ -190,7 +166,7 @@ public class GuiBase implements IGuiBase {
     @Override
     public void setFontRenderer(MinecraftFontRenderer fontRenderer) {
         this.fontRenderer = fontRenderer;
-        onResizeNeeded();
+        onUpdateSize();
     }
 
     @Override
@@ -204,40 +180,57 @@ public class GuiBase implements IGuiBase {
     }
 
     @Override
-    public void onResizeNeeded() {}
+    public void onUpdateSize() {}
 
     @Override
-    public void onFocusChanged(boolean state) {}
-
-    @Override
-    public void onMouseEvent(GuiMouseEvent event) {}
+    public void onMouseEvent(GuiMouseEvent event) {
+        switch (event.getType()) {
+            case PRESSED:
+            {
+                if(event.isMouseWithin(this))
+                    onClicked(event);
+                break;
+            }
+        }
+    }
 
     @Override
     public void onKeyEvent(GuiKeyEvent event) {}
 
     @Override
+    public void onClicked(GuiMouseEvent event) {
+        callbacks.forEach(cb -> cb.onClicked(event));
+    }
+
+    @Override
     public void onUpdate(GuiUpdateEvent event) {
         // check if mouse is hovered over
-        if(event.getMouseX() > getRealX()
-                && event.getMouseX() < (getRealX() + getWidth())
-                && event.getMouseY() > getRealY()
-                && event.getMouseY() < (getRealY() + getHeight())) {
+        double rx = getRealX();
+        double ry = getRealY();
+        boolean previous = this.hovered;
+        if(GuiHelper.isInArea(event.getMouseX(), event.getMouseY(), rx, ry, rx + getWidth(), ry + getHeight())) {
             this.hovered = true;
             this.hoveredTime++;
+            if(!previous) callbacks.forEach(GuiCallback::onMouseHoverChange);
         } else {
             this.hovered = false;
             this.hoveredTime = 0;
+            if(previous) callbacks.forEach(GuiCallback::onMouseHoverChange);
         }
 
         // update focus time
-        if(isTopFocused())
+        if(isInFocus())
             this.focusTime++;
         else
             this.focusTime = 0;
     }
 
     @Override
-    public void onRender(GuiRenderEvent event) {}
+    public void onRender(GuiRenderEvent event) {
+        onRenderPreBackground(event);
+
+        onRenderPostBackground(event);
+    }
 
     @Override
     public void onRenderPreBackground(GuiRenderEvent event) {}

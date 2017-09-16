@@ -163,20 +163,18 @@ public class ESP extends ToggleMod implements Fonts {
                 double x = topX - ((double)builder.getFontWidth(text) / 2.D);
                 double y = topY - (double)builder.getFontHeight() - 1.D;
 
-                builder.clear()
+                builder.reset()
                         .push()
-                        .task(SurfaceBuilder::preBlend)
-                        .task(SurfaceBuilder::preFontRender)
-                        .task(SurfaceBuilder::postRenderTexture2D) // enable texture
+                        .task(SurfaceBuilder::enableBlend)
+                        .task(SurfaceBuilder::enableFontRendering)
+                        .task(SurfaceBuilder::enableTexture2D) // enable texture
                         .fontRenderer(ARIAL)
                         .color(Utils.Colors.BLACK)
-                        .apply()
                         .text(text, x + 1, y + 1)
                         .color(Utils.Colors.WHITE)
-                        .apply()
                         .text(text, x, y)
-                        .task(SurfaceBuilder::postBlend)
-                        .task(SurfaceBuilder::postFontRender)
+                        .task(SurfaceBuilder::disableBlend)
+                        .task(SurfaceBuilder::disableFontRendering)
                         .pop();
 
                 return SurfaceHelper.getTextHeight() + 1.D;
@@ -196,23 +194,21 @@ public class ESP extends ToggleMod implements Fonts {
                 int color = (living.getHealth() + living.getAbsorptionAmount() > living.getMaxHealth()) ? Utils.Colors.YELLOW
                         : Utils.toRGBA((int) ((255 - hp) * 255), (int) (255 * hp), 0, 255); // if above 20 hp bar is yellow
 
-                builder.clear() // clean up from previous uses
+                builder.reset() // clean up from previous uses
                         .push()
-                        .task(SurfaceBuilder::preBlend)
-                        .task(SurfaceBuilder::preRenderTexture2D)
+                        .task(SurfaceBuilder::enableBlend)
+                        .task(SurfaceBuilder::disableTexture2D)
                         .beginQuads()
                         .color(Utils.Colors.BLACK)
-                        .apply() // apply color
                         .rectangle(x, y, HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT)
                         .end()
-                        .clear()
+                        .reset()
                         .beginQuads()
                         .color(color)
-                        .apply() // apply color
                         .rectangle(x + 1.D, y + 1.D, ((double)HEALTHBAR_WIDTH - 2.D) * hp, HEALTHBAR_HEIGHT - 2.D)
                         .end()
-                        .task(SurfaceBuilder::postBlend)
-                        .task(SurfaceBuilder::postRenderTexture2D)
+                        .task(SurfaceBuilder::disableBlend)
+                        .task(SurfaceBuilder::enableTexture2D)
                         .pop();
 
                 return HEALTHBAR_HEIGHT + 1.D;
@@ -237,12 +233,13 @@ public class ESP extends ToggleMod implements Fonts {
                     for(int index = 0; index < items.size(); ++index) {
                         ItemStack stack = items.get(index);
                         double xx = x + (index * itemSize);
-                        builder.clear()
+                        builder.reset()
                                 .push()
-                                .task(SurfaceBuilder::preItemRender)
+                                .task(SurfaceBuilder::clearColor)
+                                .task(SurfaceBuilder::enableItemRendering)
                                 .item(stack, xx, y)
                                 .itemOverlay(stack, xx, y)
-                                .task(SurfaceBuilder::postItemRender)
+                                .task(SurfaceBuilder::disableItemRendering)
                                 .pop();
                     }
                     return itemSize + 1.D;
