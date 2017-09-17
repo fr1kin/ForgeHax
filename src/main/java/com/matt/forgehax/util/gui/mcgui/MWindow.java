@@ -4,6 +4,7 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceBuilder;
 import com.matt.forgehax.util.gui.GuiHelper;
 import com.matt.forgehax.util.gui.IGuiWindow;
+import com.matt.forgehax.util.gui.callbacks.GuiCallbacks;
 import com.matt.forgehax.util.gui.events.GuiMouseEvent;
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
 
@@ -13,18 +14,50 @@ import com.matt.forgehax.util.gui.events.GuiRenderEvent;
 public class MWindow extends MParent implements IGuiWindow {
     public static final double BAR_HEIGHT = 20;
     public static final double BUTTON_SIZE = 7;
+    public static final double BUFFER = 2;
 
-    boolean closeable = true;
-    boolean collapsible = true;
-    boolean draggable = true;
+    private final MButton closeButton = new MButton();
+    private final MButton collapseButton = new MButton();
 
-    boolean collapsed = false;
-    boolean dragging = false;
+    private boolean closeable = true;
+    private boolean collapsible = true;
+    private boolean draggable = true;
 
-    double dragX = 0.D;
-    double dragY = 0.D;
+    private boolean dragging = false;
+
+    private double dragX = 0.D;
+    private double dragY = 0.D;
 
     private int backgroundColor = Utils.Colors.WHITE;
+
+    public MWindow() {
+        closeButton.setParent(this);
+        closeButton.setSize(BUTTON_SIZE, BUTTON_SIZE);
+        closeButton.setVisible(isCloseable());
+
+        collapseButton.setParent(this);
+        collapseButton.setSize(BUTTON_SIZE, BUTTON_SIZE);
+        collapseButton.setVisible(isCollapsible());
+        GuiCallbacks.newButtonPressed(collapseButton, () -> {
+            children.stream()
+                    .filter(gui -> gui != closeButton && gui != collapseButton)
+                    .forEach(gui -> gui.setVisible(collapseButton.isPressed()));
+        });
+
+        repositionButtons();
+    }
+
+    private void repositionButtons() {
+        if(isCloseable()) {
+            closeButton.setX(getWidth() - closeButton.getWidth() - BUFFER);
+            closeButton.setY(BAR_HEIGHT / 2 - closeButton.getHeight() / 2);
+        }
+
+        if(isCollapsible()) {
+            collapseButton.setX(closeButton.getX() - collapseButton.getWidth() - BUFFER);
+            collapseButton.setY(BAR_HEIGHT / 2 - collapseButton.getHeight() / 2);
+        }
+    }
 
     @Override
     public int getBackgroundColor() {
@@ -43,7 +76,10 @@ public class MWindow extends MParent implements IGuiWindow {
 
     @Override
     public void setCloseable(boolean closeable) {
-        this.closeable = closeable;
+        if(closeable != this.closeable) {
+            this.closeable = closeable;
+            repositionButtons();
+        }
     }
 
     @Override
@@ -53,17 +89,20 @@ public class MWindow extends MParent implements IGuiWindow {
 
     @Override
     public void setCollapsible(boolean collapsible) {
-        this.collapsible = collapsible;
+        if(collapsible != this.collapsible) {
+            this.collapsible = collapsible;
+            repositionButtons();
+        }
     }
 
     @Override
     public boolean isCollapsed() {
-        return collapsed;
+        return !collapseButton.isPressed();
     }
 
     @Override
     public void setCollapsed(boolean collapsed) {
-        this.collapsed = collapsed;
+        collapseButton.setPressed(collapsed);
     }
 
     @Override
@@ -83,18 +122,42 @@ public class MWindow extends MParent implements IGuiWindow {
     }
 
     @Override
+    public double getHeight() {
+        return isCollapsed() ? BAR_HEIGHT : super.getHeight();
+    }
+
+    @Override
     public void setHeight(double h) {
         super.setHeight(Math.max(h, BAR_HEIGHT));
     }
 
     @Override
-    public void onFocusChanged() {
-        super.onFocusChanged();
+    public boolean isVisible() {
+        return closeButton.isPressed();
+    }
 
+    @Override
+    public void setVisible(boolean visible) {
+        if(visible != closeButton.isPressed()) {
+            closeButton.setPressed(visible);
+            onVisibleChange();
+        }
+    }
+
+    @Override
+    public void onFocusChanged() {
         if(!isInFocus()) {
             // focus lost
             dragging = false;
         }
+        super.onFocusChanged();
+    }
+
+    @Override
+    public void onUpdateSize() {
+        repositionButtons();
+
+        super.onUpdateSize();
     }
 
     @Override
@@ -120,7 +183,7 @@ public class MWindow extends MParent implements IGuiWindow {
 
     @Override
     public void onRender(GuiRenderEvent event) {
-        if(dragging) {
+        if(isDraggable() && dragging) {
             setX(event.getMouseX() - dragX);
             setY(event.getMouseY() - dragY);
         }

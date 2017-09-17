@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.util.gui.GuiHelper;
 import com.matt.forgehax.util.gui.IGuiBase;
 import com.matt.forgehax.util.gui.IGuiParent;
+import com.matt.forgehax.util.gui.callbacks.IGuiCallbackChildEvent;
 import com.matt.forgehax.util.gui.events.GuiKeyEvent;
 import com.matt.forgehax.util.gui.events.GuiMouseEvent;
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
@@ -25,7 +26,9 @@ public class MParent extends MBase implements IGuiParent {
     public void addChild(IGuiBase element) {
         if(!children.contains(element) && children.add(element)) {
             element.setParent(this);
-            callbacks.forEach(cb -> cb.onChildAdded(element));
+            focus(element); // to invoke focus callbacks and add to head
+            callbacks.get(IGuiCallbackChildEvent.class)
+                    .forEach(listener -> listener.onChildAdded(element));
         }
     }
 
@@ -33,7 +36,8 @@ public class MParent extends MBase implements IGuiParent {
     public void removeChild(IGuiBase element) {
         if(children.remove(element)) {
             element.setParent(null);
-            callbacks.forEach(cb -> cb.onChildRemoved(element));
+            callbacks.get(IGuiCallbackChildEvent.class)
+                    .forEach(listener -> listener.onChildRemoved(element));
         }
     }
 
@@ -122,6 +126,7 @@ public class MParent extends MBase implements IGuiParent {
         super.onKeyEvent(event);
 
         Optional.ofNullable(getChildInFocus())
+                .filter(IGuiBase::isVisible)
                 .ifPresent(gui -> gui.onKeyEvent(event));
     }
 

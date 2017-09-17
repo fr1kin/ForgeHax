@@ -4,6 +4,7 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceBuilder;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.gui.IGuiCheckbox;
+import com.matt.forgehax.util.gui.callbacks.IGuiCallbackCheckboxStateChanged;
 import com.matt.forgehax.util.gui.events.GuiMouseEvent;
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
 
@@ -18,11 +19,6 @@ public class MCheckbox extends MBase implements IGuiCheckbox {
     private String hoverText = "";
 
     private boolean checked = false;
-
-    @Override
-    public void init(double screenWidth, double screenHeight) {
-        super.init(screenWidth, screenHeight);
-    }
 
     @Override
     public String getText() {
@@ -59,7 +55,10 @@ public class MCheckbox extends MBase implements IGuiCheckbox {
     }
 
     @Override
-    public void onCheckChanged() {}
+    public void onCheckChanged() {
+        callbacks.get(IGuiCallbackCheckboxStateChanged.class)
+                .forEach(IGuiCallbackCheckboxStateChanged::onCheckChanged);
+    }
 
     @Override
     public void onUpdateSize() {

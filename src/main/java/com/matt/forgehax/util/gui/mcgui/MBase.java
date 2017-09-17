@@ -1,11 +1,10 @@
 package com.matt.forgehax.util.gui.mcgui;
 
-import com.google.common.collect.Lists;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.gui.GuiHelper;
 import com.matt.forgehax.util.gui.IGuiBase;
 import com.matt.forgehax.util.gui.IGuiParent;
-import com.matt.forgehax.util.gui.callbacks.GuiCallback;
+import com.matt.forgehax.util.gui.callbacks.*;
 import com.matt.forgehax.util.gui.events.GuiKeyEvent;
 import com.matt.forgehax.util.gui.events.GuiMouseEvent;
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
@@ -13,13 +12,12 @@ import com.matt.forgehax.util.gui.events.GuiUpdateEvent;
 import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * Created on 9/9/2017 by fr1kin
  */
 public class MBase implements IGuiBase {
-    protected final List<GuiCallback> callbacks = Lists.newArrayList();
+    protected final CallbackList callbacks = new CallbackList();
 
     private double x = 0;
     private double y = 0;
@@ -94,14 +92,10 @@ public class MBase implements IGuiBase {
 
     @Override
     public void setVisible(boolean visible) {
-        boolean previous = this.visible;
-        this.visible = visible;
-        if(!visible) {
-            focusTime = 0;
-            hoveredTime = 0;
-            hovered = false;
+        if(visible != this.visible) {
+            this.visible = visible;
+            onVisibleChange();
         }
-        if(previous != visible) callbacks.forEach(GuiCallback::onVisibleChange);
     }
 
     @Override
@@ -180,11 +174,6 @@ public class MBase implements IGuiBase {
     public void onUpdateSize() {}
 
     @Override
-    public void onFocusChanged() {
-        callbacks.forEach(GuiCallback::onFocusChange);
-    }
-
-    @Override
     public void onMouseEvent(GuiMouseEvent event) {
         switch (event.getType()) {
             case PRESSED:
@@ -200,11 +189,6 @@ public class MBase implements IGuiBase {
     public void onKeyEvent(GuiKeyEvent event) {}
 
     @Override
-    public void onClicked(GuiMouseEvent event) {
-        callbacks.forEach(cb -> cb.onClicked(event));
-    }
-
-    @Override
     public void onUpdate(GuiUpdateEvent event) {
         // check if mouse is hovered over
         double rx = getRealX();
@@ -213,11 +197,11 @@ public class MBase implements IGuiBase {
         if(GuiHelper.isInArea(event.getMouseX(), event.getMouseY(), rx, ry, rx + getWidth(), ry + getHeight())) {
             this.hovered = true;
             this.hoveredTime++;
-            if(!previous) callbacks.forEach(GuiCallback::onMouseHoverChange);
+            if(!previous) onMouseHoverStateChange();
         } else {
             this.hovered = false;
             this.hoveredTime = 0;
-            if(previous) callbacks.forEach(GuiCallback::onMouseHoverChange);
+            if(previous) onMouseHoverStateChange();
         }
 
         // update focus time
@@ -239,4 +223,43 @@ public class MBase implements IGuiBase {
 
     @Override
     public void onRenderPostBackground(GuiRenderEvent event) {}
+
+    @Override
+    public <T extends IGuiCallbackBase> void addCallback(Class<T> clazz, T callback) {
+        callbacks.add(clazz, callback);
+    }
+
+    @Override
+    public <T extends IGuiCallbackBase> void removeCallback(Class<T> clazz, T callback) {
+        callbacks.remove(clazz, callback);
+    }
+
+    @Override
+    public void onVisibleChange() {
+        if(!isVisible()) {
+            focusTime = 0;
+            hoveredTime = 0;
+            hovered = false;
+        }
+        callbacks.get(IGuiCallbackVisibility.class)
+                .forEach(IGuiCallbackVisibility::onVisibilityChanged);
+    }
+
+    @Override
+    public void onFocusChanged() {
+        callbacks.get(IGuiCallbackFocus.class)
+                .forEach(IGuiCallbackFocus::onFocusChanged);
+    }
+
+    @Override
+    public void onMouseHoverStateChange() {
+        callbacks.get(IGuiCallbackMouseHoverState.class)
+                .forEach(IGuiCallbackMouseHoverState::onMouseHoverStateChange);
+    }
+
+    @Override
+    public void onClicked(final GuiMouseEvent event) {
+        callbacks.get(IGuiCallbackClicked.class)
+                .forEach(listener -> listener.onClicked(event));
+    }
 }

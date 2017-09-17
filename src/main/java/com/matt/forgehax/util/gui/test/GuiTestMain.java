@@ -13,8 +13,6 @@ import com.matt.forgehax.util.gui.mcgui.MWindow;
 public class GuiTestMain extends GuiParentScreen {
 
     public GuiTestMain() {
-        super();
-
         MWindow window = new MWindow();
         window.setParent(this);
 

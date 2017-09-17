@@ -19,6 +19,7 @@ public class GuiHelper {
 
     public static Optional<IGuiBase> getTopGuiAt(IGuiParent parent, final double x, final double y) {
         return parent.getChildren().stream()
+                .filter(IGuiBase::isVisible)
                 .filter(gui -> isInRectangle(x, y, gui.getRealX(), gui.getRealY(), gui.getWidth(), gui.getHeight()))
                 .findFirst();
     }

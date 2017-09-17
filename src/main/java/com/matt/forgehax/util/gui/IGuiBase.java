@@ -1,6 +1,7 @@
 package com.matt.forgehax.util.gui;
 
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.gui.callbacks.IGuiCallbackBase;
 import com.matt.forgehax.util.gui.events.GuiKeyEvent;
 import com.matt.forgehax.util.gui.events.GuiMouseEvent;
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
@@ -180,8 +181,6 @@ public interface IGuiBase {
 
     void onUpdateSize();
 
-    void onFocusChanged();
-
     /**
      * Called when a mouse event is invoked
      * @param event event data
@@ -194,8 +193,6 @@ public interface IGuiBase {
      */
     void onKeyEvent(GuiKeyEvent event);
 
-    void onClicked(GuiMouseEvent event);
-
     /**
      * Called before rendering
      * @param event event data
@@ -205,4 +202,13 @@ public interface IGuiBase {
 
     void onRenderPreBackground(GuiRenderEvent event);
     void onRenderPostBackground(GuiRenderEvent event);
+
+    <T extends IGuiCallbackBase> void addCallback(Class<T> clazz, T callback);
+    <T extends IGuiCallbackBase> void removeCallback(Class<T> clazz, T callback);
+
+    void onVisibleChange();
+    void onFocusChanged();
+    void onMouseHoverStateChange();
+
+    void onClicked(GuiMouseEvent event);
 }
