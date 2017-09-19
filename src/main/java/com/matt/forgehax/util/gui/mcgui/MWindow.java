@@ -31,14 +31,19 @@ public class MWindow extends MParent implements IGuiWindow {
     private int backgroundColor = Utils.Colors.WHITE;
 
     public MWindow() {
+        closeButton.setText("X");
+        closeButton.setFontColor(Utils.Colors.BLACK);
         closeButton.setParent(this);
         closeButton.setSize(BUTTON_SIZE, BUTTON_SIZE);
         closeButton.setVisible(isCloseable());
 
+        collapseButton.setText("-");
+        collapseButton.setFontColor(Utils.Colors.BLACK);
         collapseButton.setParent(this);
         collapseButton.setSize(BUTTON_SIZE, BUTTON_SIZE);
         collapseButton.setVisible(isCollapsible());
-        GuiCallbacks.newButtonPressed(collapseButton, () -> {
+        GuiCallbacks.addButtonClickedCallback(collapseButton, () -> {
+            collapseButton.setText(isCollapsed() ? "+" : "-");
             children.stream()
                     .filter(gui -> gui != closeButton && gui != collapseButton)
                     .forEach(gui -> gui.setVisible(collapseButton.isPressed()));
@@ -54,7 +59,7 @@ public class MWindow extends MParent implements IGuiWindow {
         }
 
         if(isCollapsible()) {
-            collapseButton.setX(closeButton.getX() - collapseButton.getWidth() - BUFFER);
+            collapseButton.setX((isCloseable() ? closeButton.getX() : getWidth()) - collapseButton.getWidth() - BUFFER);
             collapseButton.setY(BAR_HEIGHT / 2 - collapseButton.getHeight() / 2);
         }
     }

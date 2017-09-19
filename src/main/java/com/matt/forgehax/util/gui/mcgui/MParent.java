@@ -60,16 +60,15 @@ public class MParent extends MBase implements IGuiParent {
     public boolean focus(IGuiBase element) {
         if(this == element.getParent()
                 && element != getChildInFocus()) {
-            Optional<IGuiBase> previous = Optional.ofNullable(getChildInFocus());
+            Optional<IGuiBase> previous = Optional.ofNullable(getChildInFocus())
+                    .filter(gui -> element != gui);
 
             children.remove(element); // remove from list
             children.add(0, element); // readd at head of the stack
 
-            previous.filter(gui -> element != gui)
-                    .ifPresent(gui -> {
-                        gui.onFocusChanged();
-                        element.onFocusChanged();
-                    });
+            previous.ifPresent(IGuiBase::onFocusChanged);
+
+            element.onFocusChanged();
 
             return true;
         } else return false;
@@ -78,7 +77,7 @@ public class MParent extends MBase implements IGuiParent {
     @Nullable
     @Override
     public IGuiBase getChildInFocus() {
-        return !children.isEmpty() ? children.get(0) : null;
+        return children.isEmpty() ? null : children.get(0);
     }
 
     @Override
@@ -115,16 +114,18 @@ public class MParent extends MBase implements IGuiParent {
 
     @Override
     public void onMouseEvent(GuiMouseEvent event) {
-        super.onMouseEvent(event);
-
-        GuiHelper.getTopGuiAt(this, event.getMouseX(), event.getMouseY())
-                .ifPresent(gui -> gui.onMouseEvent(event));
+        Optional<IGuiBase> gui = GuiHelper.getTopGuiAt(this, event.getMouseX(), event.getMouseY());
+        if(gui.isPresent())
+            gui.get().onMouseEvent(event);
+        else
+            super.onMouseEvent(event);
     }
 
     @Override
     public void onKeyEvent(GuiKeyEvent event) {
         super.onKeyEvent(event);
 
+        // TODO: there will always be a child on top, need a find a way to give focus only to 1 at a time
         Optional.ofNullable(getChildInFocus())
                 .filter(IGuiBase::isVisible)
                 .ifPresent(gui -> gui.onKeyEvent(event));

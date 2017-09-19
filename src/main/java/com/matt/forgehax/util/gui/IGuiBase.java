@@ -124,6 +124,10 @@ public interface IGuiBase {
      */
     void setVisible(boolean visible);
 
+    boolean isLocked();
+
+    void setLocked(boolean locked);
+
     /**
      * This elements parent
      * @return null if no parent exists

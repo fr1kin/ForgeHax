@@ -26,6 +26,7 @@ public class MBase implements IGuiBase {
     private double height = 0;
 
     private boolean visible = true;
+    private boolean locked = false;
 
     private IGuiParent parent = null;
 
@@ -96,6 +97,16 @@ public class MBase implements IGuiBase {
             this.visible = visible;
             onVisibleChange();
         }
+    }
+
+    @Override
+    public boolean isLocked() {
+        return locked;
+    }
+
+    @Override
+    public void setLocked(boolean locked) {
+        this.locked = locked;
     }
 
     @Override

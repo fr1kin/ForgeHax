@@ -3,6 +3,7 @@ package com.matt.forgehax.util.gui.test;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.Fonts;
 import com.matt.forgehax.util.gui.mc.GuiParentScreen;
+import com.matt.forgehax.util.gui.mcgui.MButton;
 import com.matt.forgehax.util.gui.mcgui.MCheckbox;
 import com.matt.forgehax.util.gui.mcgui.MLabel;
 import com.matt.forgehax.util.gui.mcgui.MWindow;
@@ -13,6 +14,8 @@ import com.matt.forgehax.util.gui.mcgui.MWindow;
 public class GuiTestMain extends GuiParentScreen {
 
     public GuiTestMain() {
+        setFontRenderer(Fonts.ARIAL);
+
         MWindow window = new MWindow();
         window.setParent(this);
 
@@ -50,6 +53,12 @@ public class GuiTestMain extends GuiParentScreen {
         window2.setSize(100, 100);
 
         window2.setBackgroundColor(Utils.toRGBA(0, 255, 0, 150));
+
+        MButton button1 = new MButton();
+        button1.setParent(window2);
+        button1.setText("hello");
+        button1.setSize(75, 25);
+        button1.setPos(1, MWindow.BAR_HEIGHT + 1);
 
         // panel3
         MWindow window3 = new MWindow();

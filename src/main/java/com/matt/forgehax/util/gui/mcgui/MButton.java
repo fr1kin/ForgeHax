@@ -2,6 +2,7 @@ package com.matt.forgehax.util.gui.mcgui;
 
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceBuilder;
+import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.gui.IGuiButton;
 import com.matt.forgehax.util.gui.callbacks.IGuiCallbackButtonPressed;
 import com.matt.forgehax.util.gui.events.GuiMouseEvent;
@@ -70,8 +71,7 @@ public class MButton extends MBase implements IGuiButton {
 
     @Override
     public void onClicked(GuiMouseEvent event) {
-        setPressed(!isPressed());
-
+        if(event.isLeftMouse()) setPressed(!isPressed());
         super.onClicked(event);
     }
 
@@ -94,5 +94,25 @@ public class MButton extends MBase implements IGuiButton {
                 .pop()
                 .task(SurfaceBuilder::disableFontRendering)
                 .task(SurfaceBuilder::disableBlend);
+
+       // GL11.glScissor((int)getX(), (int)getY(), (int)getWidth(), (int)getHeight());
+        //GL11.glEnable(GL11.GL_SCISSOR_TEST);
+
+        double strWidth = SurfaceHelper.getStringWidth(getFontRenderer(), getText());
+        double strHeight = SurfaceHelper.getStringHeight(getFontRenderer());
+
+        event.getSurfaceBuilder()
+                .push()
+                .task(SurfaceBuilder::enableTexture2D)
+                .task(SurfaceBuilder::enableFontRendering)
+                .task(SurfaceBuilder::enableBlend)
+                .fontRenderer(getFontRenderer())
+                .color(getFontColor())
+                .text(getText(), getX() + (getWidth() / 2) - (strWidth / 2), getY() + (getHeight() / 2) - (strHeight / 2))
+                .task(SurfaceBuilder::disableFontRendering)
+                .task(SurfaceBuilder::disableBlend)
+                .pop();
+
+        //GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 }

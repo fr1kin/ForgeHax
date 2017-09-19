@@ -10,31 +10,31 @@ public class GuiCallbacks {
         Wrapper because I don't want to write a addCallbackblahblah for each type
      */
 
-    public static void newButtonPressed(IGuiBase base, IGuiCallbackButtonPressed callback) {
+    public static void addButtonClickedCallback(IGuiBase base, IGuiCallbackButtonPressed callback) {
         base.addCallback(IGuiCallbackButtonPressed.class, callback);
     }
 
-    public static void newCheckboxStateChanged(IGuiBase base, IGuiCallbackCheckboxStateChanged callback) {
+    public static void addCheckboxStateChangedCallback(IGuiBase base, IGuiCallbackCheckboxStateChanged callback) {
         base.addCallback(IGuiCallbackCheckboxStateChanged.class, callback);
     }
 
-    public static void newChildEvent(IGuiBase base, IGuiCallbackChildEvent callback) {
+    public static void addChildEventCallback(IGuiBase base, IGuiCallbackChildEvent callback) {
         base.addCallback(IGuiCallbackChildEvent.class, callback);
     }
 
-    public static void newClicked(IGuiBase base, IGuiCallbackClicked callback) {
+    public static void addClickedCallback(IGuiBase base, IGuiCallbackClicked callback) {
         base.addCallback(IGuiCallbackClicked.class, callback);
     }
 
-    public static void newFocusChanged(IGuiBase base, IGuiCallbackFocus callback) {
+    public static void addFocusChangedCallback(IGuiBase base, IGuiCallbackFocus callback) {
         base.addCallback(IGuiCallbackFocus.class, callback);
     }
 
-    public static void newMouseHoverState(IGuiBase base, IGuiCallbackMouseHoverState callback) {
+    public static void addMouseHoverStateCallback(IGuiBase base, IGuiCallbackMouseHoverState callback) {
         base.addCallback(IGuiCallbackMouseHoverState.class, callback);
     }
 
-    public static void newVisibilityChanged(IGuiBase base, IGuiCallbackVisibility callback) {
+    public static void addVisibilityChangedCallback(IGuiBase base, IGuiCallbackVisibility callback) {
         base.addCallback(IGuiCallbackVisibility.class, callback);
     }
 }
