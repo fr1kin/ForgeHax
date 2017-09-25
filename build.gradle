@@ -37,6 +37,7 @@ minecraft {
 
 dependencies {
     compile files("$rootDir/libs/journeymap-1.12-5.4.9.jar")
+    compile files("$rootDir/libs/Schematica-1.12-1.7.8.163-universal.jar")
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
@@ -72,14 +73,16 @@ processResources
     }
 
     // TODO: Filter images out properly
-    filter ReplaceTokens, tokens: [
-            "forgehax.version"      : project.property("forgehax.version"),
-            "forgehax.mc.version"   : project.property("forgehax.mc.version"),
-            "forgehax.forge.version": project.property("forgehax.forge.version"),
-            "forgehax.mcp.version"  : project.property("forgehax.mcp.version"),
-            "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
-            "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
-    ]
+    filesNotMatching("**/*.png") {
+        it.filter ReplaceTokens, tokens: [
+                "forgehax.version"      : project.property("forgehax.version"),
+                "forgehax.mc.version"   : project.property("forgehax.mc.version"),
+                "forgehax.forge.version": project.property("forgehax.forge.version"),
+                "forgehax.mcp.version"  : project.property("forgehax.mcp.version"),
+                "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
+                "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
+        ]
+    }
 }
 
 task setGameDir() {

@@ -205,6 +205,26 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
+        ASMClass WorldClient = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/multiplayer/WorldClient")
+                .autoAssign()
+                .build();
+
+        ASMClass ItemStack = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/item/ItemStack")
+                .autoAssign()
+                .build();
+
+        ASMClass EnumFacing = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/util/EnumFacing")
+                .autoAssign()
+                .build();
+
+        ASMClass EnumHand = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/util/EnumHand")
+                .autoAssign()
+                .build();
+
     }
 
     interface Fields {
@@ -513,7 +533,6 @@ public interface TypesMc {
                 .emptyParameters()
                 .autoAssign()
                 .build();
-
 
     }
 }

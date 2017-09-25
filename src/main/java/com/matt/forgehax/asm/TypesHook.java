@@ -33,9 +33,13 @@ public interface TypesHook {
                 .setType(boolean.class)
                 .build();
 
-
         ASMField ForgeHaxHooks_isNoClampingActivated = Classes.ForgeHaxHooks.childField()
                 .setName("isNoClampingActivated")
+                .setType(boolean.class)
+                .build();
+
+        ASMField ForgeHaxHooks_isBoatSetYawActivated = Classes.ForgeHaxHooks.childField()
+                .setName("isBoatSetYawActivated")
                 .setType(boolean.class)
                 .build();
 
@@ -300,6 +304,16 @@ public interface TypesHook {
                 .beginParameters()
                 .add(TypesMc.Classes.EntityBoat)
                 .add(float.class)
+                .finish()
+                .build();
+
+        ASMMethod ForgeHaxHooks_onSchematicaPlaceBlock = Classes.ForgeHaxHooks.childMethod()
+                .setName("onSchematicaPlaceBlock")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(TypesMc.Classes.ItemStack)
+                .add(TypesMc.Classes.BlockPos)
+                .add(TypesMc.Classes.Vec3d)
                 .finish()
                 .build();
 

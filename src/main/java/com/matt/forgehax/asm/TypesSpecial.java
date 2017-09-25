@@ -16,6 +16,10 @@ public interface TypesSpecial {
         ASMClass Stratum = ASMBuilders.newClassBuilder()
                 .setClassName("journeymap/client/cartography/Stratum")
                 .build();
+
+        ASMClass SchematicPrinter = ASMBuilders.newClassBuilder()
+                .setClassName("com/github/lunatrius/schematica/client/printer/SchematicPrinter")
+                .build();
     }
 
     interface Fields {
@@ -33,6 +37,20 @@ public interface TypesSpecial {
                 .add(boolean.class)
                 .add(boolean.class)
                 .add(boolean.class)
+                .finish()
+                .build();
+
+        ASMMethod SchematicPrinter_placeBlock = Classes.SchematicPrinter.childMethod()
+                .setName("placeBlock")
+                .setReturnType(boolean.class)
+                .beginParameters()
+                .add(TypesMc.Classes.WorldClient)
+                .add(TypesMc.Classes.EntityPlayerSP)
+                .add(TypesMc.Classes.ItemStack)
+                .add(TypesMc.Classes.BlockPos)
+                .add(TypesMc.Classes.EnumFacing)
+                .add(TypesMc.Classes.Vec3d)
+                .add(TypesMc.Classes.EnumHand)
                 .finish()
                 .build();
     }

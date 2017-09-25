@@ -23,7 +23,7 @@ public class AntiHeldItemChangeMod extends ToggleMod {
 
     @SubscribeEvent
     public void onPacketReceived(PacketEvent.Incoming.Pre event) {
-        if (event.getPacket() instanceof SPacketSetSlot) {
+        if (event.getPacket() instanceof SPacketSetSlot && getLocalPlayer() != null) {
             int currentSlot = getLocalPlayer().inventory.currentItem;
 
             if (((SPacketSetSlot) event.getPacket()).getSlot() != currentSlot) {
@@ -34,6 +34,5 @@ public class AntiHeldItemChangeMod extends ToggleMod {
             }
         }
     }
-
 
 }
