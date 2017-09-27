@@ -5,6 +5,7 @@ import com.matt.forgehax.Helper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -29,13 +30,6 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
  * 2D rendering
  */
 public class SurfaceHelper implements Globals {
-    public static void buildRectangle(BufferBuilder builder, double startX, double startY, double width, double height) {
-        builder.pos(startX, startY, 0.0D).endVertex();
-        builder.pos(startX, startY + height, 0.0D).endVertex();
-        builder.pos(startX + width, startY + height, 0.0D).endVertex();
-        builder.pos(startX + width, startY, 0.0D).endVertex();
-    }
-
     public static void drawString(@Nullable MinecraftFontRenderer fontRenderer, String text, double x, double y, int color, boolean shadow) {
         if(fontRenderer == null) {
             MC.fontRenderer.drawString(text, Math.round(x), Math.round(y), color, shadow);
@@ -56,6 +50,22 @@ public class SurfaceHelper implements Globals {
             return MC.fontRenderer.FONT_HEIGHT;
         else
             return fontRenderer.getHeight();
+    }
+
+    public static void drawRect(int x, int y, int w, int h, int color) {
+        GL11.glLineWidth(1.0f);
+        Gui.drawRect(x, y, x + w, y + h, color);
+    }
+
+    public static void drawOutlinedRect(int x, int y, int w, int h, int color) {
+        drawOutlinedRect(x, y, w, h, color, 1.f);
+    }
+
+    public static void drawOutlinedRectShaded(int x, int y, int w, int h, int colorOutline, int shade, float width) {
+        int shaded = (0x00FFFFFF & colorOutline) | ((shade & 255) << 24); // modify the alpha value
+        //int shaded = Utils.toRGBA(255,255,255, 100);
+        drawRect(x, y, w, h, shaded);
+        drawOutlinedRect(x, y, w, h, colorOutline, width);
     }
 
     public static void drawOutlinedRect(int x, int y, int w, int h, int color, float width) {
@@ -101,6 +111,12 @@ public class SurfaceHelper implements Globals {
 
     public static void drawTextShadow(String msg, int x, int y, int color) {
         MC.fontRenderer.drawStringWithShadow(msg, x, y, color);
+    }
+
+    public static void drawTextShadowCentered(String msg, int x, int y, int color) {
+        float offsetX = getTextWidth(msg)/2f;
+        float offsetY = getTextHeight()/2f;
+        MC.fontRenderer.drawStringWithShadow(msg, x-offsetX, y-offsetY, color);
     }
 
     public static void drawText(String msg, int x, int y, int color, double scale, boolean shadow) {
