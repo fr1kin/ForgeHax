@@ -29,30 +29,30 @@ public class Color {
         return color >> 24 & 255;
     }
 
-    public float getRedAsFloat() {
-        return getRed() / 255.f;
+    public float getRedf() {
+        return (float)getRed() / 255.f;
     }
-    public float getGreenAsFloat() {
-        return getGreen() / 255.f;
+    public float getGreenf() {
+        return (float)getGreen() / 255.f;
     }
-    public float getBlueAsFloat() {
-        return getBlue() / 255.f;
+    public float getBluef() {
+        return (float)getBlue() / 255.f;
     }
-    public float getAlphaAsFloat() {
-        return getAlpha() / 255.f;
+    public float getAlphaf() {
+        return (float)getAlpha() / 255.f;
     }
 
-    public double getRedAsDouble() {
-        return getRed() / 255.D;
+    public double getRedd() {
+        return (double)getRed() / 255.D;
     }
-    public double getGreenAsDouble() {
-        return getGreen() / 255.D;
+    public double getGreend() {
+        return (double)getGreen() / 255.D;
     }
-    public double getBlueAsDouble() {
-        return getBlue() / 255.D;
+    public double getBlued() {
+        return (double)getBlue() / 255.D;
     }
-    public double getAlphaAsDouble() {
-        return getAlpha() / 255.D;
+    public double getAlphad() {
+        return (double)getAlpha() / 255.D;
     }
 
     @Override

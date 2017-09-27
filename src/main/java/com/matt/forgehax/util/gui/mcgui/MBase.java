@@ -150,8 +150,8 @@ public class MBase implements IGuiBase {
     }
 
     @Override
-    public void requestFocus() {
-        if(getParent() != null) getParent().focus(this);
+    public boolean requestFocus() {
+        return getParent() != null && getParent().focus(this);
     }
 
     @Override

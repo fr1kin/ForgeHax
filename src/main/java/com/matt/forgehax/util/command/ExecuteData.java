@@ -35,7 +35,7 @@ public class ExecuteData implements Globals, ConsoleWriter {
 
     private boolean stopped = false;
 
-    public ExecuteData(Command command, OptionSet options, Object... extraArguments) {
+    public ExecuteData(Command command, OptionSet options, Object[] extraArguments) {
         this.command = command;
         this.options = options;
         this.arguments.addAll(Arrays.asList(extraArguments));

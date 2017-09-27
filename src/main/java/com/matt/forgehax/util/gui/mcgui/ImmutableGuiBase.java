@@ -91,7 +91,9 @@ public class ImmutableGuiBase implements IGuiBase {
     }
 
     @Override
-    public void requestFocus() {}
+    public boolean requestFocus() {
+        return false;
+    }
 
     @Override
     public int getFocusTime() {

@@ -165,7 +165,7 @@ public interface IGuiBase {
      * NOTE: Two of the same elements are not allowed sequentially, but are however allowed if split up.
      * If this method is called and the element is already at the top of the stack, nothing will be added.
      */
-    void requestFocus();
+    boolean requestFocus();
 
     /**
      * Time this element has had top focus
