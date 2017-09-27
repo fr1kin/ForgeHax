@@ -6,11 +6,7 @@ import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
-import com.matt.forgehax.asm.reflection.FastReflectionSpecial;
 import com.matt.forgehax.asm.utils.MultiSwitch;
-import journeymap.client.cartography.RGB;
-import journeymap.client.cartography.Stratum;
-import journeymap.client.cartography.render.BaseRenderer;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -20,7 +16,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.util.BlockRenderLayer;
@@ -267,49 +262,6 @@ public class ForgeHaxHooks implements ASMCommon {
 
     public static boolean shouldDisableCaveCulling() {
         return SHOULD_DISABLE_CAVE_CULLING.isEnabled();
-    }
-
-    public static boolean ENABLE_JOURNEYMAP_LIGHTING_FIX = false;
-
-    public static boolean onJournyMapSetStratumColor(Object thisPtr, Object stratumPtr, int lightAttenuation, Integer waterColor, boolean waterAbove, boolean underground, boolean mapCaveLighting) {
-        if(!ENABLE_JOURNEYMAP_LIGHTING_FIX) return false;
-        try {
-            BaseRenderer baseRenderer = (BaseRenderer)thisPtr;
-            Stratum stratum = (Stratum) stratumPtr;
-
-            int basicColor;
-            if (stratum.isUninitialized()) {
-                throw new IllegalStateException("Stratum wasn't initialized for setStratumColors");
-            }
-            float daylightDiff = (float)Math.max(1, Math.max(stratum.getLightLevel(), 15 - lightAttenuation)) / 15.0f;
-            daylightDiff +=  FastReflectionSpecial.Fields.BaseRenderer_tweakBrightenDaylightDiff.get(thisPtr, 0.f);
-            float moonLightLevel = FastReflectionSpecial.Fields.BaseRenderer_tweakMoonlightLevel.get(thisPtr, 0.f);
-            float nightLightDiff = Math.max(moonLightLevel, Math.max((float)stratum.getLightLevel(), moonLightLevel - (float)lightAttenuation)) / 15.0f;
-            if (stratum.isWater()) {
-                basicColor = waterColor;
-            } else {
-                basicColor = stratum.getBlockMD().getColor(stratum.getChunkMd(), stratum.getBlockPos());
-            }
-            Block block = stratum.getBlockMD().getBlockState().getBlock();
-            if (block == Blocks.GLOWSTONE || block == Blocks.LIT_REDSTONE_LAMP) {
-                basicColor = RGB.adjustBrightness(basicColor, FastReflectionSpecial.Fields.BaseRenderer_tweakBrightenLightsourceBlock.get(thisPtr, 0.f));
-            }
-            if (waterAbove && waterColor != null) {
-                int adjustedWaterColor = RGB.multiply(waterColor, FastReflectionSpecial.Fields.BaseRenderer_tweakDarkenWaterColorMultiplier.get(thisPtr, 0));
-                int adjustedBasicColor = RGB.adjustBrightness(basicColor, Math.max(daylightDiff, nightLightDiff));
-                stratum.setDayColor(RGB.blendWith(adjustedBasicColor, adjustedWaterColor, FastReflectionSpecial.Fields.BaseRenderer_tweakWaterColorBlend.get(thisPtr, 0.f)));
-                stratum.setNightColor(RGB.adjustBrightness(stratum.getDayColor(), Math.max(nightLightDiff, FastReflectionSpecial.Fields.BaseRenderer_tweakMinimumDarkenNightWater.get(thisPtr, 0.f))));
-            } else {
-                stratum.setDayColor(RGB.adjustBrightness(basicColor, daylightDiff));
-                stratum.setNightColor(RGB.darkenAmbient(basicColor, nightLightDiff, baseRenderer.getAmbientColor()));
-            }
-            if (underground) {
-                stratum.setCaveColor(mapCaveLighting ? stratum.getNightColor() : stratum.getDayColor());
-            }
-            return true;
-        } catch (Exception e) {}
-        // cancel older calculation
-        return false;
     }
 
     public static void onUpdateWalkingPlayerPre() {

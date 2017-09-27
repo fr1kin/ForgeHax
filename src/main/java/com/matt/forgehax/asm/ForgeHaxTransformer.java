@@ -41,7 +41,6 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         registerTransformer(new SchematicPrinterPatch());
 
         // special transformers
-        registerTransformer(new BaseRendererPatch());
     }
 
     private void registerTransformer(ClassTransformer transformer) {

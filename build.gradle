@@ -36,7 +36,6 @@ minecraft {
 }
 
 dependencies {
-    compile files("$rootDir/libs/journeymap-1.12-5.4.9.jar")
     //compile files("$rootDir/libs/Schematica-1.12-1.7.8.163-universal.jar")
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
@@ -73,7 +72,7 @@ processResources
     }
 
     // TODO: Filter images out properly
-    filesNotMatching("**/*.png") {
+    //filesNotMatching("**/*.png") {
         it.filter ReplaceTokens, tokens: [
                 "forgehax.version"      : project.property("forgehax.version"),
                 "forgehax.mc.version"   : project.property("forgehax.mc.version"),
@@ -82,7 +81,7 @@ processResources
                 "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
                 "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
         ]
-    }
+    //}
 }
 
 task setGameDir() {
