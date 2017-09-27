@@ -9,6 +9,7 @@ import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getNetworkManager;
 
 /**
@@ -22,8 +23,8 @@ public class AntiHeldItemChangeMod extends ToggleMod {
 
     @SubscribeEvent
     public void onPacketReceived(PacketEvent.Incoming.Pre event) {
-        if (event.getPacket() instanceof SPacketSetSlot) {
-            int currentSlot = MC.player.inventory.currentItem;
+        if (event.getPacket() instanceof SPacketSetSlot && getLocalPlayer() != null) {
+            int currentSlot = getLocalPlayer().inventory.currentItem;
 
             if (((SPacketSetSlot) event.getPacket()).getSlot() != currentSlot) {
                 getNetworkManager().sendPacket(new CPacketHeldItemChange(currentSlot)); // set server's slot back to our slot
@@ -33,6 +34,5 @@ public class AntiHeldItemChangeMod extends ToggleMod {
             }
         }
     }
-
 
 }

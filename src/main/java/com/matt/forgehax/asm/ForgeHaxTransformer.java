@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
 import com.matt.forgehax.asm.patches.*;
-import com.matt.forgehax.asm.patches.special.BaseRendererPatch;
+import com.matt.forgehax.asm.patches.special.*;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.objectweb.asm.ClassReader;
@@ -37,6 +37,8 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         registerTransformer(new BoatPatch());
         registerTransformer(new RenderBoatPatch());
         registerTransformer(new PlayerTabOverlayPatch());
+        registerTransformer(new KeyBindingPatch());
+        registerTransformer(new SchematicPrinterPatch());
 
         // special transformers
         registerTransformer(new BaseRendererPatch());

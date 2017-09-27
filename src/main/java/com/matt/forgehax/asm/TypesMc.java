@@ -200,6 +200,31 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
+        ASMClass KeyBinding = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/settings/KeyBinding")
+                .autoAssign()
+                .build();
+
+        ASMClass WorldClient = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/multiplayer/WorldClient")
+                .autoAssign()
+                .build();
+
+        ASMClass ItemStack = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/item/ItemStack")
+                .autoAssign()
+                .build();
+
+        ASMClass EnumFacing = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/util/EnumFacing")
+                .autoAssign()
+                .build();
+
+        ASMClass EnumHand = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/util/EnumHand")
+                .autoAssign()
+                .build();
+
     }
 
     interface Fields {
@@ -502,6 +527,12 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
+        ASMMethod KeyBinding_isKeyDown = Classes.KeyBinding.childMethod()
+                .setName("isKeyDown")
+                .setReturnType(boolean.class)
+                .emptyParameters()
+                .autoAssign()
+                .build();
 
     }
 }

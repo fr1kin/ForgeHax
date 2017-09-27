@@ -82,7 +82,7 @@ public class BoatPatch extends ClassTransformer {
             LabelNode newLabelNodeLeft = new LabelNode();
 
             InsnList insnListLeft = new InsnList();
-            insnListLeft.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoBoatGravityActivated));
+            insnListLeft.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isBoatSetYawActivated));
             insnListLeft.add(new JumpInsnNode(IFNE, newLabelNodeLeft)); // if nogravity is enabled
 
             main.instructions.insertBefore(rotationLeftNode, insnListLeft); // insert if
@@ -94,7 +94,7 @@ public class BoatPatch extends ClassTransformer {
             LabelNode newLabelNodeRight = new LabelNode();
 
             InsnList insnListRight = new InsnList();
-            insnListRight.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoBoatGravityActivated));
+            insnListRight.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isBoatSetYawActivated));
             insnListRight.add(new JumpInsnNode(IFNE, newLabelNodeRight)); // if nogravity is enabled
 
             main.instructions.insertBefore(rotationRightNode, insnListRight); // insert if
@@ -109,20 +109,26 @@ public class BoatPatch extends ClassTransformer {
             return Methods.EntityBoat_applyYawToEntity;
         }
 
-        @Inject(description = "Delete boat view clamping")
+        @Inject(description = "Disable boat view clamping")
         public void inject(MethodNode main) {
-            AbstractInsnNode node = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
+            AbstractInsnNode pre = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
                     FLOAD, LDC, LDC, INVOKESTATIC, FSTORE
             }, "xxxxx");
+            AbstractInsnNode post = pre.getNext().getNext().getNext(); // INVOKESTATIC
 
-            Objects.requireNonNull(node, "Find pattern failed for clamp node");
+            Objects.requireNonNull(pre, "Find pattern failed for clamp node");
+            Objects.requireNonNull(post, "Find pattern failed for clamp node post");
 
 
-            node = node.getNext(); // go to first LDC
-            for (int i = 0; i < 3; i++) { // remove clamping code and make it set 'f1' to 'f'
-                node = node.getNext();
-                main.instructions.remove(node.getPrevious());
-            }
+            InsnList insnList = new InsnList();
+
+            LabelNode jump = new LabelNode();
+
+            insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoClampingActivated));
+            insnList.add(new JumpInsnNode(IFNE, jump)); // if nogravity is enabled
+
+            main.instructions.insert(pre, insnList);
+            main.instructions.insert(post, jump);
 
         }
     }

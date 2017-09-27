@@ -18,6 +18,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.util.entity.EntityUtils.*;
+
 
 /**
  * Created by Babbaj on 8/29/2017.
@@ -82,36 +84,6 @@ public class Jesus extends ToggleMod {
                 BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
 
                 if (getWorld().getBlockState(pos).getBlock().isFullBlock(getWorld().getBlockState(pos))) return true;
-            }
-
-        return false;
-    }
-
-    private static boolean isAboveWater(Entity entity, boolean packet){
-        if (entity == null) return false;
-
-        double y = entity.posY - (packet ? 0.03 : (EntityUtils.isPlayer(entity) ? 0.2 : 0.5)); // increasing this seems to flag more in NCP but needs to be increased so the player lands on solid water
-
-        for(int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++)
-            for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
-                BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
-
-                if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
-            }
-
-        return false;
-    }
-
-    private static boolean isInWater(Entity entity) {
-        if(entity == null) return false;
-
-        double y = entity.posY + 0.01;
-
-        for(int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++)
-            for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
-                BlockPos pos = new BlockPos(x, (int) y, z);
-
-                if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
             }
 
         return false;

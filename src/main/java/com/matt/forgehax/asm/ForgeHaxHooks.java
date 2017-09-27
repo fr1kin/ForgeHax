@@ -8,7 +8,6 @@ import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.reflection.FastReflectionSpecial;
 import com.matt.forgehax.asm.utils.MultiSwitch;
-import com.matt.forgehax.events.RenderEvent;
 import journeymap.client.cartography.RGB;
 import journeymap.client.cartography.Stratum;
 import journeymap.client.cartography.render.BaseRenderer;
@@ -22,6 +21,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -36,8 +36,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.matt.forgehax.Globals.MC;
 
 public class ForgeHaxHooks implements ASMCommon {
     public static boolean isInDebugMode = true;
@@ -63,7 +61,6 @@ public class ForgeHaxHooks implements ASMCommon {
         responding.put("onPushOutOfBlocks",                 new DebugData("net.minecraft.client.entity.EntityPlayerSP"));
         responding.put("onRenderBoat",                      new DebugData("net.minecraft.client.renderer.entity.RenderBoat"));
         responding.put("onAddCollisionBoxToList",           new DebugData("net.minecraft.block.Block"));
-
     }
 
     private static void reportHook(String name) {
@@ -94,6 +91,7 @@ public class ForgeHaxHooks implements ASMCommon {
 
     public static boolean isNoBoatGravityActivated = false;
     public static boolean isNoClampingActivated = false;
+    public static boolean isBoatSetYawActivated = false;
     public static boolean isNotRowingBoatActivated = false;
 
     public static boolean doIncreaseTabListSize = false;
@@ -103,6 +101,23 @@ public class ForgeHaxHooks implements ASMCommon {
     /**
      * static hooks
      */
+
+    public static boolean onPushOutOfBlocks() {
+        reportHook("onPushOutOfBlocks");
+        return MinecraftForge.EVENT_BUS.post(new PushOutOfBlocksEvent());
+    }
+
+    public static float onRenderBoat(EntityBoat boat, float entityYaw) {
+        reportHook("onRenderBoat");
+        RenderBoatEvent event = new RenderBoatEvent(boat, entityYaw);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.getYaw();
+    }
+
+    public static void onSchematicaPlaceBlock(ItemStack itemIn, BlockPos posIn, Vec3d vecIn) {
+        reportHook("onSchematicaPlaceBlock");
+        MinecraftForge.EVENT_BUS.post(new SchematicaPlaceBlockEvent(itemIn, posIn, vecIn));
+    }
 
     public static boolean onHurtcamEffect(float partialTicks) {
         reportHook("onHurtcamEffect");
@@ -161,18 +176,6 @@ public class ForgeHaxHooks implements ASMCommon {
             }
         }
         return buffer;
-    }
-
-    public static boolean onPushOutOfBlocks() {
-        reportHook("onPushOutOfBlocks");
-        return MinecraftForge.EVENT_BUS.post(new PushOutOfBlocksEvent());
-    }
-
-    public static float onRenderBoat(EntityBoat boat, float entityYaw) {
-        reportHook("onRenderBoat");
-        RenderBoatEvent event = new RenderBoatEvent(boat, entityYaw);
-        MinecraftForge.EVENT_BUS.post(event);
-        return event.getYaw();
     }
 
     public static boolean onPreRenderBlockLayer(BlockRenderLayer layer, double partialTicks) {

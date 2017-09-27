@@ -13,9 +13,4 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 @Cancelable
 public class PushOutOfBlocksEvent extends Event {
 
-    public PushOutOfBlocksEvent() {
-
-    }
-
-
 }
