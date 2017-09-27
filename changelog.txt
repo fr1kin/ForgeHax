@@ -1,3 +1,14 @@
+2.8.0
+    [fr1kin]
+        + Removed JourneyMap lighting fix
+    [Babbaj]
+        + Added some mods (TODO: actually list the mods added)
+2.7.1
+    [fr1kin]
+        + Updated to 1.12.2
+    [Babbaj]
+        + Added GUI
+        + Added more mods (TODO: actually list the mods added)
 2.6.0
     [fr1kin]
         + Better feedback for unknown commands
