@@ -30,7 +30,7 @@ public class WaifuEsp extends ToggleMod {
             .defaultTo(false)
             .build();
 
-      private final ResourceLocation waifu = new ResourceLocation(ForgeHax.MOD_ID,"waifu1.png");
+      private final ResourceLocation waifu = new ResourceLocation("textures/forgehax/waifu1.png");
 
     private boolean shouldDraw(EntityLivingBase entity) {
         return LocalPlayerUtils.isTargetEntity(entity) || (
