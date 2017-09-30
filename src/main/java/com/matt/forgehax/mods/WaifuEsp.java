@@ -10,6 +10,7 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
@@ -19,10 +20,14 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.net.URL;
+
 
 @RegisterMod
-public class WaifuEsp extends ToggleMod {
-    public WaifuEsp() { super (Category.RENDER, "WaifuESP", false, "overlay cute animes over players"); }
+public class WaifuESP extends ToggleMod {
+    public WaifuESP() { super (Category.RENDER, "WaifuESP", false, "overlay cute animes over players"); }
 
     public final Setting<Boolean> noRenderPlayers = getCommandStub().builders().<Boolean>newSettingBuilder()
             .name("noRenderPlayers")
@@ -30,7 +35,21 @@ public class WaifuEsp extends ToggleMod {
             .defaultTo(false)
             .build();
 
-      private final ResourceLocation waifu = new ResourceLocation("textures/forgehax/waifu1.png");
+    //private final ResourceLocation waifu = new ResourceLocation("textures/forgehax/waifu1.png");
+    private ResourceLocation waifu;
+
+    private final String waifuUrl = "https://raw.githubusercontent.com/fr1kin/ForgeHax/master/src/main/resources/assets/minecraft/textures/forgehax/waifu1.png";
+
+    private BufferedImage getImageFromUrl(String link) {
+        BufferedImage image = new BufferedImage(128, 128, 1);
+        try {
+            URL url = new URL(link);
+            image = ImageIO.read(url);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return image;
+    }
 
     private boolean shouldDraw(EntityLivingBase entity) {
         return LocalPlayerUtils.isTargetEntity(entity) || (
@@ -78,5 +97,21 @@ public class WaifuEsp extends ToggleMod {
         if(noRenderPlayers.getAsBoolean() && !event.getEntity().equals(MC.player)) {
             event.setCanceled(true);
         }
+    }
+
+    @Override
+    public void onLoad() {
+        MC.addScheduledTask(() -> {
+            try {
+                BufferedImage image = getImageFromUrl(waifuUrl);
+                DynamicTexture dynamicTexture = new DynamicTexture(image);
+                dynamicTexture.loadTexture(MC.getResourceManager());
+                waifu = MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        });
     }
 }
