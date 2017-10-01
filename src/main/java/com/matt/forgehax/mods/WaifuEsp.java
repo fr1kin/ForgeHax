@@ -1,6 +1,5 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -25,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 
 
+
 @RegisterMod
 public class WaifuESP extends ToggleMod {
     public WaifuESP() { super (Category.RENDER, "WaifuESP", false, "overlay cute animes over players"); }
@@ -35,13 +35,13 @@ public class WaifuESP extends ToggleMod {
             .defaultTo(false)
             .build();
 
-    //private final ResourceLocation waifu = new ResourceLocation("textures/forgehax/waifu1.png");
+    //private ResourceLocation waifu = new ResourceLocation("textures/forgehax/waifu1.png");
     private ResourceLocation waifu;
 
     private final String waifuUrl = "https://raw.githubusercontent.com/fr1kin/ForgeHax/master/src/main/resources/assets/minecraft/textures/forgehax/waifu1.png";
 
     private BufferedImage getImageFromUrl(String link) {
-        BufferedImage image = new BufferedImage(128, 128, 1);
+        BufferedImage image = null;
         try {
             URL url = new URL(link);
             image = ImageIO.read(url);
@@ -64,6 +64,8 @@ public class WaifuESP extends ToggleMod {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRenderGameOverlayEvent (RenderGameOverlayEvent.Text event) {
+        if (waifu == null) return;
+
         for (Entity entity : MC.world.loadedEntityList) {
             if (EntityUtils.isLiving(entity) && shouldDraw((EntityLivingBase) entity)) {
                 EntityLivingBase living = (EntityLivingBase) (entity);
@@ -80,12 +82,10 @@ public class WaifuESP extends ToggleMod {
                     int y = top.y;
 
                     // draw waifu
-                    GlStateManager.enableTexture2D(); // not sure if this is necessary
                     MC.renderEngine.bindTexture(waifu);
-                    GlStateManager.color(1,1,1);
 
+                    GlStateManager.color(255,255,255);
                     Gui.drawScaledCustomSizeModalRect(x, y, 0, 0, width, height, width, height, width, height);
-                    GlStateManager.disableTexture2D();
                 }
             }
         }
@@ -104,10 +104,11 @@ public class WaifuESP extends ToggleMod {
         MC.addScheduledTask(() -> {
             try {
                 BufferedImage image = getImageFromUrl(waifuUrl);
+                if (image == null) { LOGGER.warn("Failed to download waifu image"); return; }
+
                 DynamicTexture dynamicTexture = new DynamicTexture(image);
                 dynamicTexture.loadTexture(MC.getResourceManager());
                 waifu = MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
