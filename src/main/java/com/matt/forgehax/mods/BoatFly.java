@@ -53,13 +53,7 @@ public class BoatFly extends ToggleMod {
         ForgeHaxHooks.isBoatSetYawActivated = false;
         //ForgeHaxHooks.isNotRowingBoatActivated = false; // items always usable - can not be disabled
     }
-
-    @Override
-    public void onLoad() {
-        ForgeHaxHooks.isNoClampingActivated = noClamp.getAsBoolean();
-        ForgeHaxHooks.isNoBoatGravityActivated = noGravity.getAsBoolean();
-        ForgeHaxHooks.isBoatSetYawActivated = setYaw.getAsBoolean();
-    }
+    
 
 
     @SubscribeEvent
