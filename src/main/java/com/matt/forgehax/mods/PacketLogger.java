@@ -19,6 +19,7 @@ import io.netty.buffer.ByteBuf;
 import joptsimple.internal.Strings;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.Packet;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nonnull;
@@ -221,11 +222,13 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
                             if(!Modifier.isStatic(field.getModifiers())) {
                                 field.setAccessible(true);
                                 Object value = null;
+                                String name;
                                 try {
                                     value = field.get(obj);
+                                    name = clazz.getSimpleName() + "." + field.getName() + "@" + Integer.toHexString(Objects.hashCode(value));
                                 } catch (Throwable t) {
+                                    name = "null@0";
                                 }
-                                String name = clazz.getSimpleName() + "." + field.getName() + "@" + Integer.toHexString(Objects.hashCode(value));
                                 if(dejaVu.contains(value))
                                     json.addProperty(name, Objects.toString(value));
                                 else
@@ -271,6 +274,8 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
                 return json;
             } else if (obj instanceof ByteBuf) {
                 return new JsonPrimitive(((ByteBuf) obj).toString(Charset.defaultCharset()));
+            } else if(obj instanceof ITextComponent) {
+                return new JsonPrimitive(((ITextComponent) obj).getUnformattedText());
             } else if (defaultToString(obj).equals(obj.toString())) { // not unique toString method
                 // NOTE: make sure this is the last if statement
                 return objectToElement(obj, true, null, dejaVu);
@@ -280,7 +285,11 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
     }
 
     private static String defaultToString(Object o) {
-        return o.getClass().getName() + "@" + Integer.toHexString(o.hashCode());
+        try {
+            return o.getClass().getName() + "@" + Integer.toHexString(Objects.hashCode(o));
+        } catch (Throwable t) {
+            return "null@0";
+        }
     }
 
     private static Collection<Class<?>> getLoadedClasses(ClassLoader loader) {
