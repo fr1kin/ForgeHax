@@ -61,7 +61,7 @@ public class HelpCommand extends CommandMod {
                             .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
                             .forEach(command -> {
                                 @Nullable BaseMod mod = getModManager().getMod(command.getName());
-                                if((Strings.isNullOrEmpty(arg) || command.getName().equalsIgnoreCase(arg))
+                                if((Strings.isNullOrEmpty(arg) || command.getName().toLowerCase().contains(arg.toLowerCase()))
                                         && (mod == null || showHidden || !mod.isHidden())) {
                                     build.append(command.getName());
                                     if (showDetails) {
