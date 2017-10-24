@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Created on 5/14/2017 by fr1kin
@@ -238,10 +239,20 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
 
     protected boolean processChildren(@Nonnull String[] args) throws CommandExecuteException, NullPointerException {
         if (args.length > 0) {
-            Command child = getChild(args[0]);
-            if(child != null) {
+            final String lookup = (args[0] != null ? args[0] : Strings.EMPTY).toLowerCase();
+            Command child = getChild(lookup);
+            if(child != null) { // perfect match, use this
                 child.run(CommandHelper.forward(args));
                 return true;
+            } else { // no match found, try and infer
+                List<Command> results = children.stream()
+                        .filter(cmd -> cmd.getName().toLowerCase().startsWith(lookup))
+                        .collect(Collectors.toList());
+
+                if(results.size() == 1) { // if found 1 result, use that
+                    results.get(0).run(CommandHelper.forward(args));
+                    return true;
+                }
             }
         }
         return false;
