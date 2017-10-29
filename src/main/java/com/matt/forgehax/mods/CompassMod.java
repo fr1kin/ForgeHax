@@ -26,7 +26,6 @@ public class CompassMod extends ToggleMod {
 
     private final double HALF_PI = Math.PI/2;
 
-
     private final String[] DIRECTIONS = {
             "N",
             "W",
@@ -34,7 +33,6 @@ public class CompassMod extends ToggleMod {
             "E"
     };
 
-    
     public CompassMod() { super(Category.RENDER, "Compass", false, "cool compass overlay"); }
 
     @SubscribeEvent
@@ -44,7 +42,7 @@ public class CompassMod extends ToggleMod {
 
         for (String str : DIRECTIONS) {
             double rad = getPosOnCompass(str);
-            SurfaceHelper.drawTextShadowCentered(str, (int) (centerX + getX(rad)), (int)(centerY + getY(rad)),
+            SurfaceHelper.drawTextShadowCentered(str, (float) (centerX + getX(rad)), (float)(centerY + getY(rad)),
                     str.equals("N") ? Utils.Colors.RED :Utils.Colors.WHITE);
         }
     }
@@ -54,7 +52,7 @@ public class CompassMod extends ToggleMod {
     }
 
     private double getY(double rad) {
-        double pitch = Math.toRadians(Helper.getLocalPlayer().rotationPitch); // player yaw
+        double pitch = Math.toRadians(Helper.getLocalPlayer().rotationPitch); // player pitch
         return Math.cos(rad) * (scale.get()*10) * Math.abs(Math.sin(pitch));
     }
 

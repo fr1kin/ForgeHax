@@ -113,7 +113,7 @@ public class SurfaceHelper implements Globals {
         MC.fontRenderer.drawStringWithShadow(msg, x, y, color);
     }
 
-    public static void drawTextShadowCentered(String msg, int x, int y, int color) {
+    public static void drawTextShadowCentered(String msg, float x, float y, int color) {
         float offsetX = getTextWidth(msg)/2f;
         float offsetY = getTextHeight()/2f;
         MC.fontRenderer.drawStringWithShadow(msg, x-offsetX, y-offsetY, color);

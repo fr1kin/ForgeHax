@@ -35,7 +35,7 @@ public class WaifuESP extends ToggleMod {
             .defaultTo(false)
             .build();
 
-    //private ResourceLocation waifu = new ResourceLocation("textures/forgehax/waifu1.png");
+    //private final ResourceLocation waifu = new ResourceLocation("textures/forgehax/waifu1.png");
     private ResourceLocation waifu;
 
     private final String waifuUrl = "https://raw.githubusercontent.com/fr1kin/ForgeHax/master/src/main/resources/assets/minecraft/textures/forgehax/waifu1.png";

@@ -36,7 +36,7 @@ public class GuiWindowMod extends GuiWindow {
 
 
     public GuiWindowMod(Category categoryIn) {
-        super(WindowType.MODULE, categoryIn);
+        super(categoryIn.getPrettyName());
         category = categoryIn;
         addModsToButtonList();
     }
@@ -77,7 +77,7 @@ public class GuiWindowMod extends GuiWindow {
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         for (GuiButton button : buttonList) {
             SurfaceHelper.drawRect(posX+2, buttonY,width-4, GuiButton.height, button.getColor());
-            SurfaceHelper.drawTextShadowCentered(button.getName(),(posX+2)+width/2, buttonY+GuiButton.height/2, Utils.toRGBA(255,255,255,255));
+            SurfaceHelper.drawTextShadowCentered(button.getName(),(posX+2)+width/2f, buttonY+GuiButton.height/2f, Utils.toRGBA(255,255,255,255));
             button.setCoords(posX +2, buttonY);
             buttonY += GuiButton.height+1;
         }

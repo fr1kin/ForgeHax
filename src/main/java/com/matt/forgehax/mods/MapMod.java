@@ -31,9 +31,9 @@ public class MapMod extends ToggleMod {
         super(Category.MISC, "MapMod", false, "custom map images");
     }
 
-    public enum Mode {
+    private enum Mode {
         DATA,
-        TEXTURE,
+        TEXTURE
     }
 
     public final Setting<MapMod.Mode> mode = getCommandStub().builders().<MapMod.Mode>newSettingEnumBuilder()
@@ -43,7 +43,7 @@ public class MapMod extends ToggleMod {
             .build();
 
 
-    public BufferedImage getImageFromUrl(String link) {
+    private BufferedImage getImageFromUrl(String link) {
         BufferedImage image = new BufferedImage(128, 128, 1);
         try {
             URL url = new URL(link);
@@ -54,7 +54,7 @@ public class MapMod extends ToggleMod {
         return image;
     }
 
-    public BufferedImage createResizedCopy(Image originalImage,
+    private BufferedImage createResizedCopy(Image originalImage,
                                     int scaledWidth, int scaledHeight,
                                     boolean preserveAlpha) {
         System.out.println("resizing...");
@@ -69,7 +69,7 @@ public class MapMod extends ToggleMod {
         return scaledBI;
     }
 
-    public int[][] imageToArray(BufferedImage imageIn) {
+    private int[][] imageToArray(BufferedImage imageIn) {
         int width = imageIn.getWidth();
         int height = imageIn.getHeight();
 
@@ -83,7 +83,7 @@ public class MapMod extends ToggleMod {
         return data;
     }
 
-    public byte closest_color_RGB(int colorIn) {
+    private byte closest_color_RGB(int colorIn) {
         int[] RGB_Array = Utils.toRGBAArray(colorIn); // [0] red [1] green [2] blue [3] alpha
 
         double closestDistance = 500; // create a starting point
@@ -100,12 +100,12 @@ public class MapMod extends ToggleMod {
         return (byte) closestColorIndex;
     }
 
-    public double distanceBetweenColors(int[] a, int[] b) {
+    private double distanceBetweenColors(int[] a, int[] b) {
         return Math.sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]) + (a[2] - b[2]) * (a[2] - b[2]));
     }
 
 
-    public void updateHeldMap(String url) {
+    private void updateHeldMap(String url) {
         if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof ItemMap)) return;
 
         BufferedImage image = getImageFromUrl(url);
@@ -132,7 +132,7 @@ public class MapMod extends ToggleMod {
 
     }
 
-    public void updateHeldMapTexture(String url) {
+    private void updateHeldMapTexture(String url) {
         if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof ItemMap)) return;
 
         MC.addScheduledTask(() -> { // allows DynamicTexture to work

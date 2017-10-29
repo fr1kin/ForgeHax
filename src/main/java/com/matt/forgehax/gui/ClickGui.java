@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 public class ClickGui extends GuiScreen implements Globals {
 
-    public static ClickGui INSTANCE;
+    private static ClickGui INSTANCE;
 
     public static ArrayList<GuiWindow> windowList = new ArrayList<GuiWindow>();
 
@@ -53,8 +53,8 @@ public class ClickGui extends GuiScreen implements Globals {
 
 
     public void moveWindowToTop (GuiWindow window) {
-        windowList.remove(window);
-        windowList.add(window);
+        if(windowList.remove(window)) // if it wasnt already in the list dont add it
+            windowList.add(window);
     }
 
     public boolean isMouseInWindow(int mouseX, int mouseY, GuiWindow window) {
@@ -67,7 +67,6 @@ public class ClickGui extends GuiScreen implements Globals {
         for (GuiWindow window : windowList) {
             window.drawWindow(mouseX, mouseY);
         }
-        super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     public void mouseClicked(int mouseX, int mouseY, int b) throws IOException {
@@ -81,7 +80,9 @@ public class ClickGui extends GuiScreen implements Globals {
                 }
             }
             super.mouseClicked(mouseX, mouseY, b);
-        } catch(Exception e) {}
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void mouseReleased(int x, int y, int state) {
@@ -93,8 +94,10 @@ public class ClickGui extends GuiScreen implements Globals {
     }
 
     public void keyTyped(char typedChar, int keyCode) throws IOException {
-        // will be using this for settings and maybe search
         super.keyTyped(typedChar, keyCode);
+        for (GuiWindow window : windowList) {
+            window.keyTyped(typedChar, keyCode);
+        }
     }
 
     public void handleMouseInput() throws IOException {
