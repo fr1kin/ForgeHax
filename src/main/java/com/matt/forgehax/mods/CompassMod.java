@@ -18,10 +18,10 @@ import org.apache.commons.lang3.ArrayUtils;
 @RegisterMod
 public class CompassMod extends ToggleMod {
 
-    public final Setting<Integer> scale = getCommandStub().builders().<Integer>newSettingBuilder()
+    public final Setting<Double> scale = getCommandStub().builders().<Double>newSettingBuilder()
             .name("scale")
             .description("size of the compass")
-            .defaultTo(3)
+            .defaultTo(3.D)
             .build();
 
     private final double HALF_PI = Math.PI/2;
@@ -42,18 +42,18 @@ public class CompassMod extends ToggleMod {
 
         for (String str : DIRECTIONS) {
             double rad = getPosOnCompass(str);
-            SurfaceHelper.drawTextShadowCentered(str, (float) (centerX + getX(rad)), (float)(centerY + getY(rad)),
+            SurfaceHelper.drawTextShadowCentered(str, (float)(centerX + getX(rad)), (float)(centerY + getY(rad)),
                     str.equals("N") ? Utils.Colors.RED :Utils.Colors.WHITE);
         }
     }
 
     private double getX(double rad) {
-        return Math.sin(rad) * (scale.get()*10);
+        return Math.sin(rad) * (scale.getAsDouble()*10);
     }
 
     private double getY(double rad) {
         double pitch = Math.toRadians(Helper.getLocalPlayer().rotationPitch); // player pitch
-        return Math.cos(rad) * (scale.get()*10) * Math.abs(Math.sin(pitch));
+        return Math.cos(rad) * Math.sin(pitch) * (scale.getAsDouble()*10);
     }
 
     // return the position on the circle in radians
