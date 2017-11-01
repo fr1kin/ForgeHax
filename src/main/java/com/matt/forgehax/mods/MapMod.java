@@ -57,7 +57,6 @@ public class MapMod extends ToggleMod {
     private BufferedImage createResizedCopy(Image originalImage,
                                     int scaledWidth, int scaledHeight,
                                     boolean preserveAlpha) {
-        System.out.println("resizing...");
         int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
         BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);
         Graphics2D g = scaledBI.createGraphics();
@@ -147,15 +146,12 @@ public class MapMod extends ToggleMod {
 
                 Map<ResourceLocation, ITextureObject> mapTextureObjects = FastReflection.Fields.TextureManager_mapTextureObjects.get(MC.getTextureManager());
 
-                Iterator iterator = mapTextureObjects.entrySet().iterator();
-                ResourceLocation textureLocation = null;
-                while (iterator.hasNext()) { // find the ResourceLocation of the texture of the map we are currently holding
-                    Map.Entry pair = (Map.Entry) iterator.next();
-                    if (((ResourceLocation) pair.getKey()).getResourcePath().contains(heldMapData.mapName)) {
-                        textureLocation = (ResourceLocation) pair.getKey();
-                        break;
-                    }
-                }
+                ResourceLocation textureLocation =
+                        mapTextureObjects.keySet()
+                                         .stream()
+                                         .filter(k -> k.getResourcePath().contains(heldMapData.mapName))
+                                         .findFirst()
+                                         .orElse(null);
 
                 mapTextureObjects.put(textureLocation, dynamicTexture); // overwrite old texture with our custom one
 
