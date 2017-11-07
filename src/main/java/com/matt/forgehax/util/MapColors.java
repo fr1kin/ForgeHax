@@ -50,7 +50,7 @@ public class MapColors {
     public static int getBaseColor(int index) {
         return BASE_COLORS[index];
     }
-    public int baseColorListLength() {
+    public static int baseColorListLength() {
         return BASE_COLORS.length;
     }
 }

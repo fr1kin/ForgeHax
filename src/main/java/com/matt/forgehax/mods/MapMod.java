@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.Map;
 
 import static com.matt.forgehax.util.MapColors.*;
+import static com.matt.forgehax.util.ImageUtils.*;
 
 
 /**
@@ -42,45 +43,6 @@ public class MapMod extends ToggleMod {
             .defaultTo(MapMod.Mode.DATA)
             .build();
 
-
-    private BufferedImage getImageFromUrl(String link) {
-        BufferedImage image = new BufferedImage(128, 128, 1);
-        try {
-            URL url = new URL(link);
-            image = ImageIO.read(url);
-        } catch (Exception e) {
-            Helper.printMessage("Failed to download image");
-        }
-        return image;
-    }
-
-    private BufferedImage createResizedCopy(Image originalImage,
-                                    int scaledWidth, int scaledHeight,
-                                    boolean preserveAlpha) {
-        int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
-        BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);
-        Graphics2D g = scaledBI.createGraphics();
-        if (preserveAlpha) {
-            g.setComposite(AlphaComposite.Src);
-        }
-        g.drawImage(originalImage, 0, 0, scaledWidth, scaledHeight, null);
-        g.dispose();
-        return scaledBI;
-    }
-
-    private int[][] imageToArray(BufferedImage imageIn) {
-        int width = imageIn.getWidth();
-        int height = imageIn.getHeight();
-
-        int[][] data = new int[height][width]; // array of rows
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                data[i][j] = imageIn.getRGB(i, j);
-            }
-        }
-        return data;
-    }
 
     private byte closest_color_RGB(int colorIn) {
         int[] RGB_Array = Utils.toRGBAArray(colorIn); // [0] red [1] green [2] blue [3] alpha
@@ -108,18 +70,23 @@ public class MapMod extends ToggleMod {
         if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof ItemMap)) return;
 
         BufferedImage image = getImageFromUrl(url);
+        if (image == null) {
+            Helper.printMessage("Failed to download image");
+            return;
+        }
+
         image = createResizedCopy(image, 128, 128, false);
         int[][] imageColors = imageToArray(image); // convert image into a 2d array of rgba integers
 
         byte[] convertedMapColors = new byte[128 * 128]; // create a 1d array 128^2 in length that will be used to hold the final map data
 
         int count = 0;
-        for (int i = 0; i < 128; i++) { // iterate vertically
-            for (int j = 0; j < 128; j++) { // iterate through row of pixels
-                imageColors[j][i] = closest_color_RGB(imageColors[j][i]); // each color in the image data is now an index of COLOR_LIST that most closely matches in color
-                convertedMapColors[count] = (byte) imageColors[j][i]; // convert the 2d array into a 1d array
+        for (int x = 0; x < 128; x++) { // iterate vertically
+            for (int y = 0; y < 128; y++) { // iterate through row of pixels
+                imageColors[y][x] = closest_color_RGB(imageColors[y][x]); // each color in the image data now a color in COLOR_LIST that is the closest match
+                convertedMapColors[count] = (byte) imageColors[y][x]; // convert the 2d array into a 1d array
                 count++;
-            } // normally would do [i][j] but that appears to cause a rotation problem that is fixed by doing [j][i]
+            } // normally would do [x][y] but that appears to cause a rotation problem that is fixed by doing [j][i]
         }
 
 
