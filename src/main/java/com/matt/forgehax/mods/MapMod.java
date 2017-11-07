@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -16,10 +17,9 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Map;
 
-import static com.matt.forgehax.util.MapColors.COLOR_LIST;
+import static com.matt.forgehax.util.MapColors.*;
 
 
 /**
@@ -49,7 +49,7 @@ public class MapMod extends ToggleMod {
             URL url = new URL(link);
             image = ImageIO.read(url);
         } catch (Exception e) {
-            e.printStackTrace();
+            Helper.printMessage("Failed to download image");
         }
         return image;
     }
@@ -87,8 +87,8 @@ public class MapMod extends ToggleMod {
 
         double closestDistance = 500; // create a starting point
         int closestColorIndex = 4; // index of COLOR_LIST that is the closest color we've found to the input color - start at 4 so we dont ever use air
-        for (int i = 4; i < COLOR_LIST.length; i++) {
-            int[] currentColor = Utils.toRGBAArray(COLOR_LIST[i]);
+        for (int i = 4; i < colorListLength(); i++) {
+            int[] currentColor = Utils.toRGBAArray(getColor(i));
             double distance = distanceBetweenColors(currentColor, RGB_Array);
             if (distance < closestDistance) {
                 closestDistance = distance;
