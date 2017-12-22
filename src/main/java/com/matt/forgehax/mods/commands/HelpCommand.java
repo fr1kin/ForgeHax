@@ -27,6 +27,15 @@ public class HelpCommand extends CommandMod {
     }
 
     @RegisterCommand
+    public Command save(CommandBuilders builder) {
+        return builder.newCommandBuilder()
+                .name("save")
+                .description("Save all configurations")
+                .processor(data -> getGlobalCommand().serializeAll())
+                .build();
+    }
+
+    @RegisterCommand
     public Command help(CommandBuilders builder) {
         return builder.newCommandBuilder()
                 .name("help")
