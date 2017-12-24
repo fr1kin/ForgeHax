@@ -53,7 +53,7 @@ public class BoatFly extends ToggleMod {
         ForgeHaxHooks.isBoatSetYawActivated = false;
         //ForgeHaxHooks.isNotRowingBoatActivated = false; // items always usable - can not be disabled
     }
-    
+
 
 
     @SubscribeEvent

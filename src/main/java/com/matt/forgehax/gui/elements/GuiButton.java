@@ -6,12 +6,12 @@ import com.matt.forgehax.util.mod.BaseMod;
 /**
  * Created by Babbaj on 9/5/2017.
  */
-public class GuiButton extends GuiElement {
+public class GuiButton {
 
     private BaseMod mod;
 
-    public static final int colorEnabled = Utils.toRGBA(80,80,80, 200);
-    public static final int colorDisabled = Utils.toRGBA(100,100,100,150);
+    public static final int COLOR_ENABLED = Utils.toRGBA(65,65,65, 200);
+    public static final int COLOR_DISABLED = Utils.toRGBA(100,100,100,150);
 
 
     public int width;
@@ -49,7 +49,7 @@ public class GuiButton extends GuiElement {
     }
 
     public int getColor() {
-        return isModEnabled() ? colorEnabled : colorDisabled;
+        return isModEnabled() ? COLOR_ENABLED : COLOR_DISABLED;
     }
 
 

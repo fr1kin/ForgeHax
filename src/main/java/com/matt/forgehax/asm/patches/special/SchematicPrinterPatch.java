@@ -28,8 +28,6 @@ public class SchematicPrinterPatch extends ClassTransformer {
     @RegisterMethodTransformer
     private class PlaceBlock extends MethodTransformer {
 
-        private final State state = RuntimeState.getState();
-
         @Override
         public ASMMethod getMethod() {
             return TypesSpecial.Methods.SchematicPrinter_placeBlock;

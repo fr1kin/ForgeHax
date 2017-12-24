@@ -3,7 +3,6 @@ package com.matt.forgehax.gui.windows;
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceHelper;
-import com.matt.forgehax.util.mod.Category;
 import net.minecraft.client.gui.ScaledResolution;
 
 import java.io.IOException;
@@ -15,8 +14,6 @@ import static com.matt.forgehax.Globals.MC;
  */
 public class GuiWindow {
 
-    public Category category;
-    public WindowType type;
     public boolean isHidden; // whether or not not to show everything below the header
 
     public String title;
@@ -30,14 +27,12 @@ public class GuiWindow {
     private boolean dragging;
 
     final int maxHeight = (int)(ClickGui.scaledRes.getScaledHeight() * 0.8); // a window can only take up 80% of the height of the window
-    public int width = 60, height = maxHeight; // width of the window
+    public int width, height; // width of the window
 
 
-    public GuiWindow(WindowType typeIn, Category categoryIn) {
-        this.category = categoryIn;
-        this.type = typeIn;
-        title = categoryIn.getPrettyName();
-        if (typeIn.equals(WindowType.SETTING)) title += " Settings";
+    public GuiWindow(String titleIn) {
+        this.title = titleIn;
+        width = SurfaceHelper.getTextWidth(title) + 15;
         ClickGui.windowList.add(this);
     }
     public void setPosition(int x, int y) {
@@ -77,6 +72,10 @@ public class GuiWindow {
         //scrolling
     }
 
+    public void keyTyped(char typedChar, int keyCode) throws IOException {
+        // text input
+    }
+
     public void drawWindow(int mouseX, int mouseY) {
         ClickGui.scaledRes = new ScaledResolution(MC);
         if (dragging) {
@@ -84,18 +83,14 @@ public class GuiWindow {
             headerY = mouseY - dragY;
         }
         drawHeader();
+        windowY = headerY + 21 ;
+        SurfaceHelper.drawOutlinedRectShaded(posX, windowY, width, height, Utils.toRGBA(130,130,130,255), 80, 3);
     }
 
     public void drawHeader() {
         // draw the title of the window
         SurfaceHelper.drawOutlinedRectShaded(posX, headerY, width, 20, Utils.toRGBA(150,150,150,255), 50, 5);
-        SurfaceHelper.drawTextShadowCentered(getTitle(), posX+width/2, headerY+10, Utils.toRGBA(255,255,255,255));
+        SurfaceHelper.drawTextShadowCentered(getTitle(), posX+width/2f, headerY+10, Utils.toRGBA(255,255,255,255));
     }
 
-    public String getName() {
-        return category.getPrettyName();
-    }
-    public String getDescription() {
-        return category.getDescription();
-    }
 }
