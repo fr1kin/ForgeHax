@@ -129,4 +129,10 @@ public class Helper implements Globals {
             MC.renderGlobal.markBlockRangeForRenderUpdate(x - distance, y - distance, z - distance, x + distance, y + distance, z + distance);
         });
     }
+
+    public static void reloadChunksHard() {
+        MC.addScheduledTask(() -> {
+            if(getWorld() != null && getLocalPlayer() != null) MC.renderGlobal.loadRenderers();
+        });
+    }
 }
