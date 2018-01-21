@@ -115,7 +115,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
      * @throws UploaderException if the upload failed
      */
     public void upload() throws UploaderException {
-        if(getTessellator() == null) return;
+        if(getTessellator() == null) return; // no tessellator
         if(!MC.isCallingFromMinecraftThread()) throw new UploaderException("Not calling from main Minecraft thread");
         if(isTessellatorDrawing()) throw new UploaderException("Tried to upload VBO while tessellator is still drawing");
 

@@ -31,6 +31,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -42,6 +43,7 @@ import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Set;
 
 import static com.matt.forgehax.Helper.reloadChunks;
 import static com.matt.forgehax.Helper.reloadChunksHard;
@@ -75,6 +77,79 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             .description("Marker block options")
             .supplier(Sets::newConcurrentHashSet)
             .factory(BlockEntry::new)
+            .defaults(() -> {
+                Set<BlockEntry> contents = Sets.newHashSet();
+                BlockEntry entry;
+                try {
+                    // chest
+                    entry = new BlockEntry(Blocks.CHEST, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(255, 128, 0, 255);
+                    contents.add(entry);
+
+                    // trapped chest
+                    entry = new BlockEntry(Blocks.TRAPPED_CHEST, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(255, 92, 0, 255);
+                    contents.add(entry);
+
+                    // ender chest
+                    entry = new BlockEntry(Blocks.ENDER_CHEST, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(64, 0, 128, 255);
+                    contents.add(entry);
+
+                    // nether portal
+                    entry = new BlockEntry(Blocks.PORTAL, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(255, 0, 255, 255);
+                    contents.add(entry);
+
+                    // end portal
+                    entry = new BlockEntry(Blocks.END_PORTAL, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(64, 0, 64, 255);
+                    contents.add(entry);
+
+                    // bed
+                    entry = new BlockEntry(Blocks.BED, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(255, 0, 0, 255);
+                    contents.add(entry);
+
+                    // dispenser
+                    entry = new BlockEntry(Blocks.DISPENSER, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(0, 255, 0, 100);
+                    contents.add(entry);
+
+                    // dropper
+                    entry = new BlockEntry(Blocks.DROPPER, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(0, 128, 0, 150);
+                    contents.add(entry);
+
+                    // hopper
+                    entry = new BlockEntry(Blocks.HOPPER, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(0, 64, 128, 75);
+                    contents.add(entry);
+
+                    // furnace
+                    entry = new BlockEntry(Blocks.FURNACE, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(128, 128, 128, 150);
+                    contents.add(entry);
+
+                    // furnace
+                    entry = new BlockEntry(Blocks.LIT_FURNACE, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(128, 128, 128, 150);
+                    contents.add(entry);
+
+                    // beacon
+                    entry = new BlockEntry(Blocks.BEACON, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(0, 255, 255, 150);
+                    contents.add(entry);
+
+                    // mob_spawner
+                    entry = new BlockEntry(Blocks.MOB_SPAWNER, -1, true);
+                    entry.getWritableProperty(ColorProperty.class).set(255, 64, 64, 255);
+                    contents.add(entry);
+                } catch (Throwable t) {
+                    // ignore
+                }
+                return contents;
+            })
             .build();
 
     public final Setting<Boolean> clear_buffer = getCommandStub().builders().<Boolean>newSettingBuilder()
@@ -196,7 +271,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
         try {
             // create new instances
-            uploaders = new Uploaders<>(RenderUploader::new, new TessellatorCache<>(VERTEX_BUFFER_COUNT, GeometryTessellator::new));
+            uploaders = new Uploaders<>(RenderUploader::new, new TessellatorCache<>(VERTEX_BUFFER_COUNT, () -> new GeometryTessellator(VERTEX_BUFFER_SIZE)));
             uploaders.onShutdown(uploader -> MC.addScheduledTask(() -> {
                 uploader.nullifyCurrentThread(); // this will stop anything currently running
 
