@@ -6,10 +6,7 @@ import com.matt.forgehax.util.command.exception.CommandBuildException;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -19,9 +16,12 @@ import java.util.function.Supplier;
 public class Options<E extends ISerializableJson> extends Command implements Collection<E>, ISerializableJson {
     public static final String SUPPLIER     = "Options.supplier";
     public static final String FACTORY      = "Options.factory";
+    public static final String DEFAULTS     = "Options.defaults";
 
     private final Collection<E> contents;
     private final Function<String, E> factory;
+
+    private final Collection<E> defaults;
 
     @SuppressWarnings("unchecked")
     protected Options(Map<String, Object> data) throws CommandBuildException {
@@ -32,6 +32,16 @@ public class Options<E extends ISerializableJson> extends Command implements Col
 
             this.contents = supplier.get();
             this.factory =                      (Function<String, E>)       data.get(FACTORY);
+
+            Supplier<Collection<E>> defaults =  (Supplier<Collection<E>>)   data.get(DEFAULTS);
+            if(defaults != null) {
+                this.defaults = supplier.get();
+                this.defaults.addAll(defaults.get());
+                this.contents.addAll(defaults.get());
+            } else {
+                this.defaults = Collections.emptyList();
+            }
+
         } catch (Throwable t) {
             throw new CommandBuildException("Failed to build options", t);
         }
@@ -129,6 +139,7 @@ public class Options<E extends ISerializableJson> extends Command implements Col
 
         reader.nextName(); // data
         reader.beginObject();
+        clear(); // clear current contents
         while(reader.hasNext()) {
             String name = reader.nextName();
             E element = factory.apply(name);

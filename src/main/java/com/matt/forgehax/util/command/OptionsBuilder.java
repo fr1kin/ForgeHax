@@ -18,6 +18,10 @@ public class OptionsBuilder<E extends ISerializableJson> extends BaseCommandBuil
         return insert(Options.FACTORY, factory);
     }
 
+    public OptionsBuilder<E> defaults(Supplier<Collection<E>> defaults) {
+        return insert(Options.DEFAULTS, defaults);
+    }
+
     @Override
     public Options<E> build() {
         return new Options<E>(data);
