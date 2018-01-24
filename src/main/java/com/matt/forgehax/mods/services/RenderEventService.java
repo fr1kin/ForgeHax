@@ -59,6 +59,9 @@ public class RenderEventService extends ServiceMod {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onRenderGameOverlayEvent(final RenderGameOverlayEvent.Text event) {
-        if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) MinecraftForge.EVENT_BUS.post(new Render2DEvent(event.getPartialTicks()));
+        if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
+            MinecraftForge.EVENT_BUS.post(new Render2DEvent(event.getPartialTicks()));
+            GlStateManager.color(1.f, 1.f, 1.f, 1.f); // reset color
+        }
     }
 }
