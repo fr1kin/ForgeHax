@@ -20,7 +20,7 @@ public class RenderBoatPatch extends ClassTransformer {
     }
 
     @RegisterMethodTransformer
-    private class doRender extends MethodTransformer {
+    private class DoRender extends MethodTransformer {
         @Override
         public ASMMethod getMethod() {
             return Methods.RenderBoat_doRender;

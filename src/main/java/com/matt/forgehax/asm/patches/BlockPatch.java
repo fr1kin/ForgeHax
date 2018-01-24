@@ -3,10 +3,7 @@ package com.matt.forgehax.asm.patches;
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
-import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
-import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
-import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
-import com.matt.forgehax.asm.utils.transforming.Inject;
+import com.matt.forgehax.asm.utils.transforming.*;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -54,7 +51,7 @@ public class BlockPatch extends ClassTransformer {
             return Methods.Block_addCollisionBoxToList;
         }
 
-        @Inject(description = "Redirects method to our hook and allows the vanilla code to be canceled from executing")
+        @Inject(description = "Redirects method to our hook and allows the vanilla code to be canceled from executing", priority = InjectPriority.LOWEST)
         public void inject(MethodNode main) {
             AbstractInsnNode node = main.instructions.getFirst();
             AbstractInsnNode end = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {

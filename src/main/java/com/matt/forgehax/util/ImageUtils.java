@@ -1,7 +1,6 @@
 package com.matt.forgehax.util;
 
 import com.matt.forgehax.Globals;
-import com.matt.forgehax.Helper;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

@@ -107,7 +107,7 @@ public class EntityPlayerSPPatch extends ClassTransformer {
     }
 
     @RegisterMethodTransformer
-    private class rowingBoat extends MethodTransformer {
+    private class RowingBoat extends MethodTransformer {
         @Override
         public ASMMethod getMethod() {
             return Methods.EntityPlayerSP_isRowingBoat;
