@@ -11,6 +11,7 @@ import com.matt.forgehax.util.serialization.ISerializableJson;
 import joptsimple.internal.Strings;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 
 import javax.annotation.Nonnull;
@@ -50,7 +51,7 @@ public class BlockEntry implements ISerializableJson, Globals {
         }
         this.block = block;
         this.meta = meta;
-        this.item = Item.getItemFromBlock(block);
+        this.item = block == null ? Items.AIR : Item.getItemFromBlock(block);
     }
 
     public BlockEntry(Block block, int meta, boolean check) throws BlockDoesNotExistException {
