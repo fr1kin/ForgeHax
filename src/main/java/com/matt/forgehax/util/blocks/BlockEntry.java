@@ -11,6 +11,7 @@ import com.matt.forgehax.util.serialization.ISerializableJson;
 import joptsimple.internal.Strings;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -33,6 +34,8 @@ public class BlockEntry implements ISerializableJson, Globals {
     private final Block block;
     private final int meta;
 
+    private final Item item;
+
     public BlockEntry(String uniqueId) {
         this.uniqueId = uniqueId;
         Block block;
@@ -47,6 +50,7 @@ public class BlockEntry implements ISerializableJson, Globals {
         }
         this.block = block;
         this.meta = meta;
+        this.item = Item.getItemFromBlock(block);
     }
 
     public BlockEntry(Block block, int meta, boolean check) throws BlockDoesNotExistException {
@@ -55,6 +59,7 @@ public class BlockEntry implements ISerializableJson, Globals {
         this.block = block;
         this.meta = BlockOptionHelper.getAllBlocks(block).size() > 1 ? meta : -1;
         this.uniqueId = getResourceName() + (isMetadata() ? ("::" + getMetadata()) : Strings.EMPTY);
+        this.item = Item.getItemFromBlock(block);
     }
 
     public BlockEntry(String name, int meta) throws BlockDoesNotExistException {
@@ -99,6 +104,10 @@ public class BlockEntry implements ISerializableJson, Globals {
 
     public boolean isMetadata() {
         return meta > -1;
+    }
+
+    public Item getItem() {
+        return item;
     }
 
     private <T extends IBlockProperty> T getProperty(@Nonnull Class<T> clazz, OpenMode mode) {
