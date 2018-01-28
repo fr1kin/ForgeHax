@@ -106,6 +106,9 @@ public class Helper implements Globals {
     public static void printMessage(String message) {
         if(!Strings.isNullOrEmpty(message)) printMessageNaked("[FH] " + message);
     }
+    public static void printMessage(String format, Object... args) {
+        printMessage(String.format(format, args));
+    }
 
     public static void printStackTrace(Throwable t) {
         getLog().error(Throwables.getStackTraceAsString(t));

@@ -25,9 +25,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @RegisterMod
@@ -36,34 +34,35 @@ public class LogoutSpot extends ToggleMod {
 
 
     public final Setting<Boolean> renderPosition = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("RenderPosition").description("Draw a box where the player logged out")
-            .defaultTo(true).build();
+            .name("RenderPosition")
+            .description("Draw a box where the player logged out")
+            .defaultTo(true)
+            .build();
     public final Setting<Integer> maxDistance = getCommandStub().builders().<Integer>newSettingBuilder()
-            .name("MaxDistance").description("Distance from box before deleting it")
-            .defaultTo(50).build();
+            .name("MaxDistance")
+            .description("Distance from box before deleting it")
+            .defaultTo(50)
+            .build();
     public final Setting<Boolean> outputToChat = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("OutputToChat").description("Print coords to chat")
-            .defaultTo(true).build();
+            .name("OutputToChat")
+            .description("Print coords to chat")
+            .defaultTo(true)
+            .build();
 
 
-    private final List<LogoutPos> logoutSpots = new ArrayList<>();
-    private final List<LogoutPos> toRemove = new ArrayList<>(); // avoid concurrency exceptions
-
+    private final Set<LogoutPos> logoutSpots = new HashSet<>();
     
     @SubscribeEvent
     public void onPlayerJoin(PlayerConnectEvent.Join event) {
-        logoutSpots.stream()
-                   .filter(pos -> pos.id.equals(event.getPlayerInfo().getId()))
-                   .forEach(pos -> {
-                       toRemove.add(pos);
-                       if (outputToChat.getAsBoolean()) {
-                           Helper.printMessage(event.getPlayerInfo().getName() + " has joined!");
-                       }
-                   });
-
-        logoutSpots.removeAll(toRemove);
-        toRemove.clear();
-
+        logoutSpots.removeIf(pos -> {
+            if (pos.id.equals(event.getPlayerInfo().getId())) {
+                if (outputToChat.getAsBoolean()) {
+                    Helper.printMessage(event.getPlayerInfo().getName() + " has joined!");
+                }
+                return true;
+            }
+            return false;
+        });
     }
 
     @SubscribeEvent
@@ -104,7 +103,7 @@ public class LogoutSpot extends ToggleMod {
         if (renderPosition.getAsBoolean()) {
             event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
-            for (LogoutPos position : logoutSpots) {
+            logoutSpots.forEach(position ->  {
                 GeometryTessellator.drawQuads(event.getBuffer(), // horizontal lines
                         position.pos[0].x,
                         position.pos[0].y,
@@ -122,7 +121,7 @@ public class LogoutSpot extends ToggleMod {
                         position.pos[1].y,
                         position.pos[1].z,
                         GeometryMasks.Quad.ALL, Utils.Colors.RED);
-            }
+            });
 
             event.getTessellator().draw();
         }
@@ -132,15 +131,10 @@ public class LogoutSpot extends ToggleMod {
 
     @SubscribeEvent
     public void onPlayerUpdate(LocalPlayerUpdateEvent event) { // delete cloned player if they're too far
-        logoutSpots.stream()
-                   .filter(pos -> {
-                       double distance = MC.player.getDistance((pos.pos[0].x+pos.pos[1].x)/2, pos.pos[0].y, (pos.pos[0].z+pos.pos[1].z)/2); // distance from player to entity
-                       return distance >= maxDistance.getAsDouble() && distance > 0;
-                   })
-                   .forEach(toRemove::add);
-
-        logoutSpots.removeAll(toRemove);
-        toRemove.clear();
+        logoutSpots.removeIf(pos -> {
+            double distance = MC.player.getDistance((pos.pos[0].x+pos.pos[1].x)/2, pos.pos[0].y, (pos.pos[0].z+pos.pos[1].z)/2); // distance from player to entity
+            return distance >= maxDistance.getAsDouble() && distance > 0;
+        });
     }
 
 
@@ -165,9 +159,13 @@ public class LogoutSpot extends ToggleMod {
             this.name = name;
         }
 
-        public boolean equals(LogoutPos other) {
-            return (other == this) || this.id.equals(other.id);
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof LogoutPos)) return false;
+
+            return (other == this) || this.id.equals(((LogoutPos)other).id);
         }
+        @Override
         public int hashCode() {
             return id.hashCode();
         }
@@ -187,7 +185,6 @@ public class LogoutSpot extends ToggleMod {
                 .name("clear")
                 .description("Clear cloned players")
                 .processor(data -> {
-                    data.requiredArguments(0);
                     logoutSpots.clear();
                 })
                 .build();
