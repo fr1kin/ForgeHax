@@ -4,10 +4,12 @@ import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -32,9 +34,9 @@ public class RenderUploader<E extends Tessellator> implements Globals {
      */
     private volatile Thread currentThread;
 
-    private boolean rendering = false;
     private boolean uploaded = false;
     private int renderCount = 0;
+    private int regionHash = -1;
 
     public RenderUploader(Uploaders<E> parent, VertexFormat format) {
         this.parent = parent;
@@ -92,7 +94,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
      */
     public void validateCurrentThread() throws ThreadMismatchException {
         if(currentThread != Thread.currentThread())
-            throw new ThreadMismatchException("Tried executing in incorrect thread");
+            throw new ThreadMismatchException("Tried executing in incorrect thread (this is normal)");
     }
     /**
      * Same thing but returns a boolean instead of throwing error
@@ -132,13 +134,14 @@ public class RenderUploader<E extends Tessellator> implements Globals {
      * @throws UploaderException if the unload failed
      */
     public void unload() throws UploaderException {
+        if(!isUploaded()) return;
         if(!MC.isCallingFromMinecraftThread()) throw new UploaderException("Not calling from main Minecraft thread");
-        if(!isUploaded()) throw new VertexBufferException("Vertex buffer hasn't been uploaded yet");
 
         try {
             vertexBuffer.deleteGlBuffers();
         } finally {
             uploaded = false;
+            resetRegionHash();
         }
     }
 
@@ -150,11 +153,11 @@ public class RenderUploader<E extends Tessellator> implements Globals {
         return getTessellator() != null && FastReflection.Fields.BufferBuilder_isDrawing.get(getBufferBuilder());
     }
 
-    public boolean isRendering() {
-        return rendering;
-    }
-    public void setRendering(boolean rendering) {
-        this.rendering = rendering;
+    public void finishDrawing() {
+        if(!isTessellatorDrawing()) return;
+
+        getBufferBuilder().finishDrawing();
+        renderCount = getBufferBuilder().getVertexCount() / 24;
     }
 
     /**
@@ -172,15 +175,29 @@ public class RenderUploader<E extends Tessellator> implements Globals {
     public int getRenderCount() {
         return renderCount;
     }
-    public void incrementRenderCount() {
-        ++renderCount;
-    }
     public void resetRenderCount() {
         renderCount = 0;
     }
 
+    public void setRegionHash(RenderChunk chunk) {
+        regionHash = generateRegionHash(chunk);
+    }
+    public void resetRegionHash() {
+        regionHash = -1;
+    }
+    public int getRegionHash() {
+        return regionHash;
+    }
+    public boolean isCorrectRegion(RenderChunk chunk) {
+        return regionHash != -1 && regionHash == generateRegionHash(chunk);
+    }
+
     public ReentrantLock lock() {
         return _lock;
+    }
+
+    private static int generateRegionHash(RenderChunk chunk) {
+        return chunk != null ? Objects.hash(chunk.getPosition()) : -1;
     }
 
     public static class UploaderException extends Exception {

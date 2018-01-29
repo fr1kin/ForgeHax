@@ -8,6 +8,7 @@ import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
+import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.blocks.BlockEntry;
 import com.matt.forgehax.util.blocks.properties.BoundProperty;
@@ -27,15 +28,16 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -43,27 +45,16 @@ import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
-import static com.matt.forgehax.Helper.reloadChunks;
-import static com.matt.forgehax.Helper.reloadChunksHard;
+import static com.matt.forgehax.Helper.*;
 
 /**
  * Created on 5/5/2017 by fr1kin
  */
 @RegisterMod
 public class Markers extends ToggleMod implements BlockModelRenderListener {
-    // TODO: Bug when a render chunk is empty according to isEmptyLayer but actually contains tile entities with an invisible render layer type. This will cause them not to be rendered provided they are the only blocks within that region.
-
-    // TODO:
-    // there are two bugs currently
-    // 1) isChunkEmpty stops chunk from being processed (easy fix - just add or in the statement, but this may slow down chunk loading)
-    // 2) sometimes while one chunk is still being processed another thread will start processing it (this is why the exception
-    //      RuntimeException("attempted to take a tessellator despite not needing one") is thrown). i still havent figured out a way to
-    //      safely terminate the other process, but this will cause chunks to be skipped and old buffer data to be rendered.
-    //      One solution is how schematica does it (essentially copies the render code), this would be faster but would be alot of work.
-    //      edit: should be fixed now
-
     private static final int VERTEX_BUFFER_COUNT = 100;
     private static final int VERTEX_BUFFER_SIZE = 0x200;
 
@@ -145,8 +136,33 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                     entry = new BlockEntry(Blocks.MOB_SPAWNER, -1, true);
                     entry.getWritableProperty(ColorProperty.class).set(255, 64, 64, 255);
                     contents.add(entry);
+
+                    // shulker boxes
+                    for(Block shulker : new Block[] {
+                            Blocks.WHITE_SHULKER_BOX,
+                            Blocks.ORANGE_SHULKER_BOX,
+                            Blocks.MAGENTA_SHULKER_BOX,
+                            Blocks.LIGHT_BLUE_SHULKER_BOX,
+                            Blocks.YELLOW_SHULKER_BOX,
+                            Blocks.LIME_SHULKER_BOX,
+                            Blocks.PINK_SHULKER_BOX,
+                            Blocks.GRAY_SHULKER_BOX,
+                            Blocks.SILVER_SHULKER_BOX,
+                            Blocks.CYAN_SHULKER_BOX,
+                            Blocks.PURPLE_SHULKER_BOX,
+                            Blocks.BLUE_SHULKER_BOX,
+                            Blocks.BROWN_SHULKER_BOX,
+                            Blocks.GREEN_SHULKER_BOX,
+                            Blocks.RED_SHULKER_BOX,
+                            Blocks.BLACK_SHULKER_BOX
+                    }) {
+                        entry = new BlockEntry(shulker, -1, true);
+                        entry.getWritableProperty(ColorProperty.class).set(255, 255, 0, 255);
+                        contents.add(entry);
+                    }
                 } catch (Throwable t) {
                     // ignore
+                    getLog().warn(t.getMessage());
                 }
                 return contents;
             })
@@ -416,7 +432,9 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                     // ensure we are in the right thread
                     uploader.validateCurrentThread();
                     // finish drawing
-                    if(uploader.isTessellatorDrawing()) uploader.getBufferBuilder().finishDrawing();
+                    uploader.finishDrawing();
+                } catch (RenderUploader.ThreadMismatchException e) {
+                    // ignore
                 } catch (Throwable t) {
                     handleException(event.getRenderChunk(), t);
                 } finally {
@@ -447,9 +465,10 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                                     GeometryMasks.Line.ALL,
                                     blockEntry.getReadableProperty(ColorProperty.class).getAsBuffer()
                             );
-                            uploader.incrementRenderCount();
                         }
                     }
+                } catch (RenderUploader.ThreadMismatchException e) {
+                    // ignore
                 } catch (Throwable t) {
                     handleException(renderChunk, t);
                 } finally {
@@ -467,6 +486,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
                 try {
                     uploader.upload();
+                    uploader.setRegionHash(event.getRenderChunk());
                 } catch (Throwable t) {
                     handleException(event.getRenderChunk(), t);
                 }
@@ -479,7 +499,13 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     @SubscribeEvent
     public void onChunkDeleted(DeleteGlResourcesEvent event) {
         if(uploaders != null) try {
-            uploaders.unregister(event.getRenderChunk());
+            uploaders.get(event.getRenderChunk()).ifPresent(uploader -> MC.addScheduledTask(() -> {
+                try {
+                    uploader.unload();
+                } catch (Throwable t) {
+                    handleException(event.getRenderChunk(), t);
+                }
+            }));
         } catch (Throwable t) {
             // ignore
         }
@@ -491,17 +517,8 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         renderingOffset = EntityUtils.getInterpolatedPos(event.getRenderEntity(), MC.getRenderPartialTicks());
     }
 
-    @SubscribeEvent
-    public void onRenderChunkAdded(AddRenderChunkEvent event) {
-        if(uploaders != null) try {
-            uploaders.get(event.getRenderChunk()).ifPresent(uploader -> uploader.setRendering(true));
-        } catch (Throwable t) {
-            // ignore
-        }
-    }
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onRenderWorld(RenderWorldLastEvent event) {
+    public void onRenderWorld(RenderEvent event) {
         if(uploaders != null) try {
             GlStateManager.pushMatrix();
             GlStateManager.disableTexture2D();
@@ -523,7 +540,9 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             GlStateManager.glEnableClientState(GL11.GL_COLOR_ARRAY);
 
             uploaders.forEach((k, v) -> {
-                if (v.isRendering()) {
+                if (v.isUploaded()
+                        && !Uploaders.isDummy(k)
+                        && v.isCorrectRegion(k)) {
                     if(aa_enabled && (aa_max == 0 || v.getRenderCount() <= aa_max))
                         GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
@@ -558,8 +577,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                     GlStateManager.popMatrix();
 
                     GL11.glDisable(GL11.GL_LINE_SMOOTH);
-
-                    v.setRendering(false);
                 }
             });
 
@@ -569,6 +586,63 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             GlStateManager.glDisableClientState(GL11.GL_COLOR_ARRAY);
 
             OpenGlHelper.glBindBuffer(OpenGlHelper.GL_ARRAY_BUFFER, 0);
+
+            //
+            //
+            //
+
+            // draw markers around entities that have blocks inside them
+            GlStateManager.pushMatrix();
+
+            final GeometryTessellator tessellator = event.getTessellator();
+            final BufferBuilder builder = tessellator.getBuffer();
+
+            final double partialTicks = MC.getRenderPartialTicks();
+
+            tessellator.beginLines();
+            tessellator.setTranslation(0, 0, 0);
+
+            GlStateManager.translate(0, 0, 0);
+            GlStateManager.translate(
+                    -renderingOffset.x,
+                    -renderingOffset.y,
+                    -renderingOffset.z
+            );
+
+            if(aa_enabled) GL11.glEnable(GL11.GL_LINE_SMOOTH);
+
+            getWorld().loadedEntityList.stream()
+                    .filter(EntityMinecart.class::isInstance)
+                    .map(e -> (EntityMinecart)e)
+                    .forEach(e -> options.stream()
+                            .filter(entry -> Objects.equals(e.getDefaultDisplayTile().getBlock(), entry.getBlock()))
+                            .findFirst()
+                            .ifPresent(entry -> {
+                                builder.setTranslation(
+                                        e.posX - e.lastTickPosX + (e.posX - e.lastTickPosX) * partialTicks,
+                                        e.posY - e.lastTickPosY + (e.posY - e.lastTickPosY) * partialTicks,
+                                        e.posZ - e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * partialTicks
+                                );
+                                AxisAlignedBB bb = e.getEntityBoundingBox();
+                                GeometryTessellator.drawLines(
+                                        builder,
+                                        bb.minX, bb.minY, bb.minZ,
+                                        bb.maxX, bb.maxY, bb.maxZ,
+                                        GeometryMasks.Line.ALL,
+                                        entry.getReadableProperty(ColorProperty.class).getAsBuffer()
+                                );
+                            })
+                    );
+
+            tessellator.draw();
+            tessellator.setTranslation(0, 0, 0);
+
+            GL11.glDisable(GL11.GL_LINE_SMOOTH);
+            GlStateManager.popMatrix();
+
+            //
+            //
+            //
 
             GlStateManager.shadeModel(GL11.GL_FLAT);
             GlStateManager.disableBlend();

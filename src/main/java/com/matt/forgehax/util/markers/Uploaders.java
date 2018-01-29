@@ -2,6 +2,7 @@ package com.matt.forgehax.util.markers;
 
 import com.google.common.collect.Maps;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.chunk.CompiledChunk;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 
 import java.util.Map;
@@ -87,6 +88,10 @@ public class Uploaders<E extends Tessellator> {
 
     public TessellatorCache<E> cache() {
         return cache;
+    }
+
+    public static boolean isDummy(RenderChunk chunk) {
+        return chunk != null && chunk.getCompiledChunk() == CompiledChunk.DUMMY;
     }
 
     public interface UploaderSupplier<T extends Tessellator> {
