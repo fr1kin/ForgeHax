@@ -41,6 +41,10 @@ public class Tracers extends ToggleMod {
             .name("drawLines").description("draw lines to entities")
             .defaultTo(false).build();
 
+    public final Setting<Integer> opacity = getCommandStub().builders().<Integer>newSettingBuilder()
+            .name("opacity").description("trace friendly mobs")
+            .defaultTo(255).build();
+
     public final Setting<Boolean> players = getCommandStub().builders().<Boolean>newSettingBuilder()
             .name("players").description("trace players")
             .defaultTo(true).build();
@@ -198,15 +202,23 @@ public class Tracers extends ToggleMod {
     }
 
     private int entityColor(Entity entity) {
+        int color;
         switch (EntityUtils.getRelationship(entity)) {
             case PLAYER:
-                return Utils.Colors.YELLOW;
+                color = Utils.Colors.YELLOW;
+                break;
             case HOSTILE:
-                return Utils.Colors.RED;
+                color = Utils.Colors.RED;
+                break;
             case NEUTRAL:
-                return Utils.Colors.BLUE;
+                color = Utils.Colors.BLUE;
+                break;
             default:
-                return Utils.Colors.GREEN;
+                color = Utils.Colors.GREEN;
+                break;
         }
+        int[] rgba = Utils.toRGBAArray(color);
+        rgba[3] = opacity.getAsInteger();
+        return Utils.toRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 }
