@@ -105,6 +105,30 @@ public class SurfaceHelper implements Globals {
         tessellator.draw();
     }
 
+    public static void drawLine(int x1, int y1, int x2, int y2, int color, float width) {
+        float r = (float)(color >> 16 & 255) / 255.0F;
+        float g = (float)(color >> 8 & 255) / 255.0F;
+        float b = (float)(color & 255) / 255.0F;
+        float a = (float)(color >> 24 & 255) / 255.0F;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder BufferBuilder = tessellator.getBuffer();
+
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.color(r, g, b, a);
+
+        GL11.glLineWidth(width);
+
+        BufferBuilder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
+        BufferBuilder.pos((double)x1, (double)y1, 0.0D).endVertex();
+        BufferBuilder.pos((double)x2, (double)y2, 0.0D).endVertex();
+        tessellator.draw();
+
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+    }
+
     public static void drawText(String msg, int x, int y, int color) {
         MC.fontRenderer.drawString(msg, x, y, color);
     }
