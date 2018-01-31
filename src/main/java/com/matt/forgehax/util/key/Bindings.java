@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+
 import static java.util.stream.Collectors.toList;
 
 public class Bindings implements Globals {
@@ -17,7 +19,7 @@ public class Bindings implements Globals {
     @Nullable
     public static KeyBindingHandler getKey(String name) {
         return Bindings.KEY_LIST.stream()
-                .filter(k -> k.getBinding().getKeyDescription().toLowerCase().contains(name))
+                .filter(k -> k.getBinding().getKeyDescription().toLowerCase().contains(name.toLowerCase()))
                 .findFirst()
                 .orElse(null);
     }
@@ -43,15 +45,17 @@ public class Bindings implements Globals {
         Field[] fields = GameSettings.class.getFields();
         return Arrays.stream(fields)
                 .filter(f -> f.getType() == KeyBinding.class)
-                .map(f -> {
-                    try {
-                        return (KeyBinding)f.get(MC.gameSettings);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
+                .map(Bindings::getBinding)
+                .filter(Objects::nonNull)
                 .map(KeyBindingHandler::new)
                 .collect(toList());
+    }
+    private static KeyBinding getBinding(Field field) {
+        try {
+            return (KeyBinding)field.get(MC.gameSettings);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

@@ -125,6 +125,7 @@ public class SurfaceHelper implements Globals {
         BufferBuilder.pos((double)x2, (double)y2, 0.0D).endVertex();
         tessellator.draw();
 
+        GlStateManager.color(1f, 1f, 1f);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
     }

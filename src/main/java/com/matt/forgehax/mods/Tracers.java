@@ -34,16 +34,19 @@ public class Tracers extends ToggleMod {
     }
 
     public final Setting<Boolean> drawArrows = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("drawArrows").description("draw arrows at off-screen entities")
+            .name("drawArrows").description("draw arrows to off-screen entities")
             .defaultTo(true).build();
 
     public final Setting<Boolean> drawLines = getCommandStub().builders().<Boolean>newSettingBuilder()
             .name("drawLines").description("draw lines to entities")
             .defaultTo(false).build();
 
-    public final Setting<Integer> opacity = getCommandStub().builders().<Integer>newSettingBuilder()
-            .name("opacity").description("trace friendly mobs")
-            .defaultTo(255).build();
+    public final Setting<Double> opacity = getCommandStub().builders().<Double>newSettingBuilder()
+            .name("opacity").description("transparency of the tracers")
+            .defaultTo(1D)
+            .min(0D)
+            .max(1D)
+            .build();
 
     public final Setting<Boolean> players = getCommandStub().builders().<Boolean>newSettingBuilder()
             .name("players").description("trace players")
@@ -67,27 +70,24 @@ public class Tracers extends ToggleMod {
                 .filter(entity -> !Objects.equals(entity, getLocalPlayer()))
                 .filter(entity -> entity instanceof EntityLivingBase)
                 .filter(entity -> !EntityUtils.getRelationship(entity).equals(MobTypeEnum.INVALID))
-                .sorted((o1, o2) ->
-                {
+                .filter(entity -> {
+                    switch (EntityUtils.getRelationship(entity)) {
+                        case PLAYER:
+                            return players.getAsBoolean();
+                        case HOSTILE:
+                            return hostile.getAsBoolean();
+                        case NEUTRAL:
+                            return neutral.getAsBoolean();
+                        default:
+                            return friendly.getAsBoolean();
+                    }
+                })
+                .sorted((o1, o2) -> {
                     MobTypeEnum r1 = EntityUtils.getRelationship(o1);
                     MobTypeEnum r2 = EntityUtils.getRelationship(o2);
                     return r2.compareTo(r1);
                 })
                 .forEach(entity -> {
-                    switch (EntityUtils.getRelationship(entity)) {
-                        case PLAYER:
-                            if (!players.getAsBoolean()) return;
-                            break;
-                        case HOSTILE:
-                            if (!hostile.getAsBoolean()) return;
-                            break;
-                        case NEUTRAL:
-                            if (!neutral.getAsBoolean()) return;
-                            break;
-                        default:
-                            if (!friendly.getAsBoolean()) return;
-                            break;
-                    }
                     if (drawArrows.getAsBoolean()) drawArrow(event, entity);
                     if (drawLines.getAsBoolean()) drawLine(event, entity);
                 });
@@ -218,7 +218,7 @@ public class Tracers extends ToggleMod {
                 break;
         }
         int[] rgba = Utils.toRGBAArray(color);
-        rgba[3] = opacity.getAsInteger();
+        rgba[3] = (int)Math.round(opacity.getAsDouble() * 255);
         return Utils.toRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 }
