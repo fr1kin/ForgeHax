@@ -186,6 +186,12 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             .defaultTo(0)
             .build();
 
+    public final Setting<Boolean> show_entities = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("show_entities")
+            .description("Mark entities that contain blocks, such as mine carts.")
+            .defaultTo(true)
+            .build();
+
     public Markers() {
         super(Category.RENDER, "Markers", false, "Renders a box around a block");
     }
@@ -591,54 +597,56 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             //
             //
 
-            // draw markers around entities that have blocks inside them
-            GlStateManager.pushMatrix();
+            if(show_entities.get()) {
+                // draw markers around entities that have blocks inside them
+                GlStateManager.pushMatrix();
 
-            final GeometryTessellator tessellator = event.getTessellator();
-            final BufferBuilder builder = tessellator.getBuffer();
+                final GeometryTessellator tessellator = event.getTessellator();
+                final BufferBuilder builder = tessellator.getBuffer();
 
-            final double partialTicks = MC.getRenderPartialTicks();
+                final double partialTicks = MC.getRenderPartialTicks();
 
-            tessellator.beginLines();
-            tessellator.setTranslation(0, 0, 0);
+                tessellator.beginLines();
+                tessellator.setTranslation(0, 0, 0);
 
-            GlStateManager.translate(0, 0, 0);
-            GlStateManager.translate(
-                    -renderingOffset.x,
-                    -renderingOffset.y,
-                    -renderingOffset.z
-            );
+                GlStateManager.translate(0, 0, 0);
+                GlStateManager.translate(
+                        -renderingOffset.x,
+                        -renderingOffset.y,
+                        -renderingOffset.z
+                );
 
-            if(aa_enabled) GL11.glEnable(GL11.GL_LINE_SMOOTH);
+                if (aa_enabled) GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
-            getWorld().loadedEntityList.stream()
-                    .filter(EntityMinecart.class::isInstance)
-                    .map(e -> (EntityMinecart)e)
-                    .forEach(e -> options.stream()
-                            .filter(entry -> Objects.equals(e.getDefaultDisplayTile().getBlock(), entry.getBlock()))
-                            .findFirst()
-                            .ifPresent(entry -> {
-                                builder.setTranslation(
-                                        e.posX - e.lastTickPosX + (e.posX - e.lastTickPosX) * partialTicks,
-                                        e.posY - e.lastTickPosY + (e.posY - e.lastTickPosY) * partialTicks,
-                                        e.posZ - e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * partialTicks
-                                );
-                                AxisAlignedBB bb = e.getEntityBoundingBox();
-                                GeometryTessellator.drawLines(
-                                        builder,
-                                        bb.minX, bb.minY, bb.minZ,
-                                        bb.maxX, bb.maxY, bb.maxZ,
-                                        GeometryMasks.Line.ALL,
-                                        entry.getReadableProperty(ColorProperty.class).getAsBuffer()
-                                );
-                            })
-                    );
+                getWorld().loadedEntityList.stream()
+                        .filter(EntityMinecart.class::isInstance)
+                        .map(e -> (EntityMinecart) e)
+                        .forEach(e -> options.stream()
+                                .filter(entry -> Objects.equals(e.getDefaultDisplayTile().getBlock(), entry.getBlock()))
+                                .findFirst()
+                                .ifPresent(entry -> {
+                                    builder.setTranslation(
+                                            e.posX - e.lastTickPosX + (e.posX - e.lastTickPosX) * partialTicks,
+                                            e.posY - e.lastTickPosY + (e.posY - e.lastTickPosY) * partialTicks,
+                                            e.posZ - e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * partialTicks
+                                    );
+                                    AxisAlignedBB bb = e.getEntityBoundingBox();
+                                    GeometryTessellator.drawLines(
+                                            builder,
+                                            bb.minX, bb.minY, bb.minZ,
+                                            bb.maxX, bb.maxY, bb.maxZ,
+                                            GeometryMasks.Line.ALL,
+                                            entry.getReadableProperty(ColorProperty.class).getAsBuffer()
+                                    );
+                                })
+                        );
 
-            tessellator.draw();
-            tessellator.setTranslation(0, 0, 0);
+                tessellator.draw();
+                tessellator.setTranslation(0, 0, 0);
 
-            GL11.glDisable(GL11.GL_LINE_SMOOTH);
-            GlStateManager.popMatrix();
+                GL11.glDisable(GL11.GL_LINE_SMOOTH);
+                GlStateManager.popMatrix();
+            }
 
             //
             //
