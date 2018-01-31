@@ -349,14 +349,12 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable();
     }
 
-    /*
     @Override
-    public String getDisplayText() {
+    public String getDebugDisplayText() {
         int cacheSize = uploaders != null ? uploaders.cache().size() : 0;
         int cacheCapacity = uploaders != null ? uploaders.cache().capacity() : 0;
-        return super.getDisplayText() + String.format("[C:%d/%d]", cacheSize, cacheCapacity);
+        return super.getDebugDisplayText() + String.format(" [C:%d/%d]", cacheSize, cacheCapacity);
     }
-    */
 
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Load event) {
@@ -517,15 +515,12 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
-    @SubscribeEvent
-    public void onSetupTerrain(SetupTerrainEvent event) {
-        // doesn't have to be here, I just conveniently had this hook
-        renderingOffset = EntityUtils.getInterpolatedPos(event.getRenderEntity(), MC.getRenderPartialTicks());
-    }
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRenderWorld(RenderEvent event) {
-        if(uploaders != null) try {
+        if(uploaders != null
+                && MC.getRenderViewEntity() != null) try {
+            renderingOffset = EntityUtils.getInterpolatedPos(MC.getRenderViewEntity(), MC.getRenderPartialTicks());
+
             GlStateManager.pushMatrix();
             GlStateManager.disableTexture2D();
             GlStateManager.enableBlend();
