@@ -15,6 +15,12 @@ import static com.matt.forgehax.Helper.getModManager;
 
 @RegisterMod
 public class ActiveModList extends ToggleMod {
+    public final Setting<Boolean> debug = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("debug")
+            .description("Disables debug text on mods that have it")
+            .defaultTo(false)
+            .build();
+
     public final Setting<Integer> factor = getCommandStub().builders().<Integer>newSettingBuilder()
             .name("factor")
             .description("Splitting up the tick rate data")
@@ -69,7 +75,7 @@ public class ActiveModList extends ToggleMod {
         posY += SurfaceHelper.getTextHeight() + 1;
         for(BaseMod mod : getModManager().getMods()) {
             if(mod.isEnabled() && !mod.isHidden()) {
-                SurfaceHelper.drawTextShadow(">" + mod.getDisplayText(), posX, posY, Utils.Colors.WHITE);
+                SurfaceHelper.drawTextShadow(">" + (debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText()), posX, posY, Utils.Colors.WHITE);
                 posY += SurfaceHelper.getTextHeight() + 1;
             }
         }
