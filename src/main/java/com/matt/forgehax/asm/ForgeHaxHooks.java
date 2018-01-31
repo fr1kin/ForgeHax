@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
-import com.matt.forgehax.asm.utils.MultiSwitch;
+import com.matt.forgehax.asm.utils.MultiBoolean;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -258,7 +258,7 @@ public class ForgeHaxHooks implements ASMCommon {
         MinecraftForge.EVENT_BUS.post(new WorldRendererDeallocatedEvent(generator, generator.getRenderChunk()));
     }
 
-    public static final MultiSwitch SHOULD_DISABLE_CAVE_CULLING = new MultiSwitch();
+    public static final MultiBoolean SHOULD_DISABLE_CAVE_CULLING = new MultiBoolean();
 
     public static boolean shouldDisableCaveCulling() {
         return SHOULD_DISABLE_CAVE_CULLING.isEnabled();

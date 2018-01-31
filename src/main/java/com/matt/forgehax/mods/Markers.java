@@ -338,7 +338,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     @Override
     public void onEnabled() {
         Listeners.BLOCK_MODEL_RENDER_LISTENER.register(this);
-        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable(); // need cave culling disabled to parse every block
+        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable("Markers"); // need cave culling disabled to parse every block
         reloadChunksHard();
     }
 
@@ -346,7 +346,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     public void onDisabled() {
         vboShutdown();
         Listeners.BLOCK_MODEL_RENDER_LISTENER.unregister(this);
-        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable();
+        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("Markers");
     }
 
     @Override

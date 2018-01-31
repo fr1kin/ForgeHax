@@ -13,11 +13,11 @@ public class NoCaveCulling extends ToggleMod {
 
     @Override
     public void onEnabled() {
-        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable();
+        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable("NoCaveCulling");
     }
 
     @Override
     public void onDisabled() {
-        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable();
+        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("NoCaveCulling");
     }
 }
