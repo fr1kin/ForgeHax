@@ -30,7 +30,6 @@ public class SchematicaPrinterBypass extends ToggleMod {
         getNetworkManager().sendPacket(new CPacketPlayer.Rotation((float)lookAngle.getYaw(), (float)lookAngle.getPitch(), getLocalPlayer().onGround));
         //getLocalPlayer().rotationYaw = getLocalPlayer().prevRotationYaw = (float)lookAngle.getYaw();
         //getLocalPlayer().rotationPitch = getLocalPlayer().prevRotationPitch = (float)lookAngle.getPitch();
-        printMessage("Placed Block");
     }
 
 }
