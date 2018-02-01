@@ -1,6 +1,7 @@
 # ForgeHax
 A Minecraft cheat that runs as a Forge mod
 
+Latest builds available here:
 [![Build Status](http://jenkins.daporkchop.net/job/Minecraft/job/ForgeHax/badge/icon)](http://jenkins.daporkchop.net/job/Minecraft/job/ForgeHax/)
 
 Since ForgeGradle has updated to 2.3, Java 8 Version 131 (lastest as of writing this) is required. Make sure your JAVA_HOME is set to this version of the JDK. If you don't, setupDecompWorkspace will fail at recompileMc.
