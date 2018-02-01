@@ -18,11 +18,19 @@ import java.util.Objects;
 public class ParameterBuilder {
     private ASMMethodBuilder callback = null;
     private List<IName<Type>> parameters = Lists.newArrayList();
+    private boolean overrideObfuscation = false;
 
     protected ParameterBuilder() {}
 
     protected ParameterBuilder(ASMMethodBuilder callback) {
         this.callback = callback;
+    }
+
+    // Override runtime obfuscation state so
+    // every type is treated as unobfuscated
+    public ParameterBuilder unobfuscated() {
+        overrideObfuscation = true;
+        return this;
     }
 
     public ParameterBuilder add(Type parameter) {
@@ -39,7 +47,10 @@ public class ParameterBuilder {
     }
 
     public ParameterBuilder add(ASMClass parameter) {
-        parameters.add(parameter.getAll());
+        if (overrideObfuscation)
+            parameters.add(NameBuilder.createSingleName(parameter.getAll().get()));
+        else
+            parameters.add(parameter.getAll());
         return this;
     }
 
