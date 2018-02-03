@@ -327,6 +327,14 @@ public interface FastReflection extends ASMCommon {
                 .setName("tickLength")
                 .autoAssign()
                 .asField();
+        /**
+         * KeyBinding
+         */
+        FastField<Integer> Binding_pressTime = FastTypeBuilder.create()
+                .setInsideClass(KeyBinding.class)
+                .setName("pressTime")
+                .autoAssign()
+                .asField();
 
     }
 

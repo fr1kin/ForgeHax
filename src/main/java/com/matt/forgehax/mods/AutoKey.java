@@ -1,6 +1,8 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.asm.utils.fasttype.FastField;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.key.Bindings;
@@ -27,7 +29,7 @@ public class AutoKey extends ToggleMod {
             .name("delay")
             .description("delay(ms) between clicks")
             .defaultTo(500) // 500 ms
-            .min(200) // approximate minimum for reliable key pressing
+            .min(150) // approximate minimum for reliable key pressing
             .build();
 
     // TODO: make serializable and save as json
@@ -42,12 +44,12 @@ public class AutoKey extends ToggleMod {
             lastTimeMillis = System.currentTimeMillis();
 
         activeKeys.forEach((key, mode) -> mode.apply(key, lastClick));
-
     }
 
 
     @Override
     public void onLoad() {
+        // add a key
         getCommandStub().builders().newCommandBuilder()
                 .name("addKey")
                 .description("add a key to the active key list - (ex: addKey \"jump\" \"hold\"")
@@ -94,24 +96,36 @@ public class AutoKey extends ToggleMod {
                     KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
                     ClickMode mode = activeKeys.remove(key);
                     if (mode != null)
-                        Helper.printMessage("Removed key: %s", data.getArgumentAsString(0));
+                        Helper.printMessage("Removed key: %s", mode.name());
                     else
                         Helper.printMessage("Unknown key");
                 })
                 .build();
-
     }
 
+
+    private static void incrementPressTime(KeyBindingHandler binding) {
+        FastField<Integer> field = FastReflection.Fields.Binding_pressTime;
+        int currTime = field.get(binding.getBinding());
+        field.set(binding.getBinding(), currTime + 1);
+    }
 
     // TODO: proper key pressing
     private enum ClickMode {
         TAP((key, time) -> {
-            key.setPressed(time < 100);
+            if (time < 100) {
+                incrementPressTime(key);
+                key.setPressed(true);
+            }
+            else
+                key.setPressed(false);
         }), // hold key for up to 100 ms
 
         HOLD((key, time) -> {
-            if (!key.getBinding().isKeyDown())
+            if (!key.getBinding().isKeyDown()) {
+                incrementPressTime(key);
                 key.setPressed(true);
+            }
         }); // hold key forever
 
         BiConsumer<KeyBindingHandler, Integer> clickAction;

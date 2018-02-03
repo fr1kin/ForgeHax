@@ -17,7 +17,9 @@ import static com.matt.forgehax.Helper.*;
 @RegisterMod
 public class SchematicaPrinterBypass extends ToggleMod {
 
-    public SchematicaPrinterBypass() { super(Category.NONE, "PrinterBypass", false, "Set silent angles for schematica printer"); }
+    public SchematicaPrinterBypass() {
+        super(Category.MISC, "PrinterBypass", false, "Set silent angles for schematica printer");
+    }
 
     @Override
     public boolean isHidden() {

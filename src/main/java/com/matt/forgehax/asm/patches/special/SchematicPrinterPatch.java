@@ -37,7 +37,6 @@ public class SchematicPrinterPatch extends ClassTransformer {
         public void inject(MethodNode main) {
             AbstractInsnNode start = main.instructions.getFirst();
 
-
             InsnList insnList = new InsnList();
             insnList.add(new VarInsnNode(ALOAD, 3)); // load ItemStack
             insnList.add(new VarInsnNode(ALOAD, 4)); // load BlockPos
