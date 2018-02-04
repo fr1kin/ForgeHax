@@ -42,7 +42,7 @@ public class TypeConverterRegistry {
 
     @SuppressWarnings("unchecked")
     @Nullable
-    public static <T> TypeConverter<T> getFromName(String className) {
+    public static <T> TypeConverter<T> getByName(String className) {
         return REGISTRY.entrySet().stream()
                 .filter(entry -> Objects.equals(className, entry.getKey().getName()))
                 .findFirst()
