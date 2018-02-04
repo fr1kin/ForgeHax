@@ -2,6 +2,7 @@ package com.matt.forgehax.util.typeconverter;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import joptsimple.internal.Strings;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -39,7 +40,22 @@ public class TypeConverterRegistry {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public static <T> TypeConverter<T> getFromName(String className) {
+        if(Strings.isNullOrEmpty(className)) return null;
+        try {
+            return REGISTRY.entrySet().stream()
+                    .filter(entry -> className.equals(entry.getKey().getName()))
+                    .findFirst()
+                    .map(entry -> (TypeConverter<T>)entry.getValue())
+                    .get();
+        } catch (Throwable t) {}
+        return null;
+    }
+
     static {
+        // Will add both the Java object and primitive type
         registerAll(TypeConverters.BOOLEAN, boolean.class);
         registerAll(TypeConverters.BYTE, byte.class);
         registerAll(TypeConverters.CHARACTER, char.class);
