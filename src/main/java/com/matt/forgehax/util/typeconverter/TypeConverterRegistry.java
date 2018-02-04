@@ -2,11 +2,11 @@ package com.matt.forgehax.util.typeconverter;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import joptsimple.internal.Strings;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created on 6/3/2017 by fr1kin
@@ -43,15 +43,17 @@ public class TypeConverterRegistry {
     @SuppressWarnings("unchecked")
     @Nullable
     public static <T> TypeConverter<T> getFromName(String className) {
-        if(Strings.isNullOrEmpty(className)) return null;
-        try {
-            return REGISTRY.entrySet().stream()
-                    .filter(entry -> className.equals(entry.getKey().getName()))
-                    .findFirst()
-                    .map(entry -> (TypeConverter<T>)entry.getValue())
-                    .get();
-        } catch (Throwable t) {}
-        return null;
+        return REGISTRY.entrySet().stream()
+                .filter(entry -> Objects.equals(className, entry.getKey().getName()))
+                .findFirst()
+                .map(entry -> {
+                    try {
+                        return (TypeConverter<T>)entry.getValue();
+                    } catch (Throwable t) {
+                        return null;
+                    }
+                })
+                .orElse(null);
     }
 
     static {
