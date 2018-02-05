@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -23,13 +24,17 @@ import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
+import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Session;
+import net.minecraft.util.Timer;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
@@ -193,6 +198,11 @@ public interface FastReflection extends ASMCommon {
                 .setName("rightClickDelayTimer")
                 .autoAssign()
                 .asField();
+        FastField<Timer> Minecraft_timer = FastTypeBuilder.create()
+                .setInsideClass(Minecraft.class)
+                .setName("timer")
+                .autoAssign()
+                .asField();
 
         /**
          * PlayerControllerMP
@@ -293,6 +303,39 @@ public interface FastReflection extends ASMCommon {
                 .setName("MOVEMENT_SPEED")
                 .autoAssign()
                 .asField();
+        /**
+         * GuiEditSign
+         */
+        FastField<TileEntitySign> GuiEditSign_tileSign = FastTypeBuilder.create()
+                .setInsideClass(GuiEditSign.class)
+                .setName("tileSign")
+                .autoAssign()
+                .asField();
+        /**
+         * NBTTagCompound
+         */
+        FastField<Map<String, NBTBase>> NBTTag_tagMap = FastTypeBuilder.create()
+                .setInsideClass(NBTTagCompound.class)
+                .setName("tagMap")
+                .autoAssign()
+                .asField();
+        /**
+         * Timer
+         */
+        FastField<Float> Timer_tickLength = FastTypeBuilder.create()
+                .setInsideClass(Timer.class)
+                .setName("tickLength")
+                .autoAssign()
+                .asField();
+        /**
+         * KeyBinding
+         */
+        FastField<Integer> Binding_pressTime = FastTypeBuilder.create()
+                .setInsideClass(KeyBinding.class)
+                .setName("pressTime")
+                .autoAssign()
+                .asField();
+
     }
 
     // ****************************************

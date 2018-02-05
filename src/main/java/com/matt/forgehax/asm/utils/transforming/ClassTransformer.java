@@ -71,7 +71,9 @@ public abstract class ClassTransformer implements ASMCommon, TypesMc {
 
     public final void transform(final ClassNode node) {
         for(final MethodNode methodNode : node.methods) methodTransformers.stream()
-                .filter(t -> Objects.equals(t.getMethod().getRuntimeName(), methodNode.name) && Objects.equals(t.getMethod().getRuntimeDescriptor(), methodNode.desc))
+                .filter(t -> Objects.equals(t.getMethod().getRuntimeName(), methodNode.name)
+                          && Objects.equals(t.getMethod().getRuntimeDescriptor(), methodNode.desc)
+                )
                 .forEach(t -> t.getTasks().forEach(task -> {
                     // set obfuscation state
                     RuntimeState.setState(getClassObfuscationState());

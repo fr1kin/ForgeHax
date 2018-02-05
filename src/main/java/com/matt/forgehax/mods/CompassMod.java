@@ -59,7 +59,7 @@ public class CompassMod extends ToggleMod {
     // return the position on the circle in radians
     private double getPosOnCompass(String s) {
         double yaw = Math.toRadians(MathHelper.wrapDegrees(Helper.getLocalPlayer().rotationYaw - 90)); // player yaw
-        int index = ArrayUtils.indexOf(DIRECTIONS, s)+1; // directions index in the list
+        int index = ArrayUtils.indexOf(DIRECTIONS, s) + 1; // directions index in the list
         return yaw + index * HALF_PI;
     }
 

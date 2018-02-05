@@ -12,6 +12,7 @@ public interface TypesSpecial {
         ASMClass SchematicPrinter = ASMBuilders.newClassBuilder()
                 .setClassName("com/github/lunatrius/schematica/client/printer/SchematicPrinter")
                 .build();
+
     }
 
     interface Fields {
@@ -23,6 +24,7 @@ public interface TypesSpecial {
                 .setName("placeBlock")
                 .setReturnType(boolean.class)
                 .beginParameters()
+                .unobfuscated()
                 .add(TypesMc.Classes.WorldClient)
                 .add(TypesMc.Classes.EntityPlayerSP)
                 .add(TypesMc.Classes.ItemStack)

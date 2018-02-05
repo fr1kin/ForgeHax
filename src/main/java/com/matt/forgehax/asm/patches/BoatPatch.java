@@ -19,7 +19,7 @@ public class BoatPatch extends ClassTransformer {
     }
 
     @RegisterMethodTransformer
-    private class updateMotion extends MethodTransformer {
+    private class UpdateMotion extends MethodTransformer {
         @Override
         public ASMMethod getMethod() {
             return Methods.EntityBoat_updateMotion;
@@ -50,7 +50,7 @@ public class BoatPatch extends ClassTransformer {
     }
 
     @RegisterMethodTransformer
-    private class controlBoat extends MethodTransformer {
+    private class ControlBoat extends MethodTransformer {
         @Override
         public ASMMethod getMethod() {
             return Methods.EntityBoat_controlBoat;
@@ -103,7 +103,7 @@ public class BoatPatch extends ClassTransformer {
     }
 
     @RegisterMethodTransformer
-    private class removeClamp extends MethodTransformer {
+    private class RemoveClamp extends MethodTransformer {
         @Override
         public ASMMethod getMethod() {
             return Methods.EntityBoat_applyYawToEntity;
@@ -118,7 +118,6 @@ public class BoatPatch extends ClassTransformer {
 
             Objects.requireNonNull(pre, "Find pattern failed for clamp node");
             Objects.requireNonNull(post, "Find pattern failed for clamp node post");
-
 
             InsnList insnList = new InsnList();
 

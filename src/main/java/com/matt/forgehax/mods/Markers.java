@@ -234,10 +234,10 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                                     .forEach(bound -> existing.getWritableProperty(BoundProperty.class).add(bound.getMin(), bound.getMax()));
                             data.markSuccess();
                         } else if(options.add(entry)) {
-                            Helper.printMessage(String.format("Added block \"%s\"", entry.getPrettyName()));
+                            Helper.printMessage("Added block \"%s\"", entry.getPrettyName());
                             data.markSuccess();
                         } else {
-                            Helper.printMessage(String.format("Failed to add block \"%s\"", entry.getPrettyName()));
+                            Helper.printMessage("Failed to add block \"%s\"", entry.getPrettyName());
                             data.markFailed(ExecuteData.State.SUCCESS);
                         }
                     });
@@ -272,11 +272,11 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                                         .forEach(bound -> existing.getWritableProperty(BoundProperty.class).remove(bound.getMin(), bound.getMax()));
                                 data.markSuccess();
                             } else if(options.remove(existing)) {
-                                Helper.printMessage(String.format("Removed block \"%s\"", entry.getPrettyName()));
+                                Helper.printMessage("Removed block \"%s\"", entry.getPrettyName());
                                 data.markSuccess();
                             }
                         } else if(entries.size() <= 1) {
-                            Helper.printMessage(String.format("Failed to remove block \"%s\"", entry.getPrettyName()));
+                            Helper.printMessage("Failed to remove block \"%s\"", entry.getPrettyName());
                             data.markFailed(ExecuteData.State.SUCCESS);
                         }
                     });

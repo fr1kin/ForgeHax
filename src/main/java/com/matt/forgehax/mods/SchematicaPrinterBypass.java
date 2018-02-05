@@ -17,7 +17,9 @@ import static com.matt.forgehax.Helper.*;
 @RegisterMod
 public class SchematicaPrinterBypass extends ToggleMod {
 
-    public SchematicaPrinterBypass() { super(Category.NONE, "PrinterBypass", false, "Set silent angles for schematica printer"); }
+    public SchematicaPrinterBypass() {
+        super(Category.MISC, "PrinterBypass", false, "Set silent angles for schematica printer");
+    }
 
     @Override
     public boolean isHidden() {
@@ -30,7 +32,6 @@ public class SchematicaPrinterBypass extends ToggleMod {
         getNetworkManager().sendPacket(new CPacketPlayer.Rotation((float)lookAngle.getYaw(), (float)lookAngle.getPitch(), getLocalPlayer().onGround));
         //getLocalPlayer().rotationYaw = getLocalPlayer().prevRotationYaw = (float)lookAngle.getYaw();
         //getLocalPlayer().rotationPitch = getLocalPlayer().prevRotationPitch = (float)lookAngle.getPitch();
-        printMessage("Placed Block");
     }
 
 }

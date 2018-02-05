@@ -2,10 +2,9 @@ package com.matt.forgehax.mods;
 
 import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.events.PlayerConnectEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -14,22 +13,19 @@ import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import com.mojang.authlib.GameProfile;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 
 @RegisterMod
@@ -38,74 +34,67 @@ public class LogoutSpot extends ToggleMod {
 
 
     public final Setting<Boolean> renderPosition = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("RenderPosition").description("Draw a box where the player logged out")
-            .defaultTo(true).build();
+            .name("RenderPosition")
+            .description("Draw a box where the player logged out")
+            .defaultTo(true)
+            .build();
     public final Setting<Integer> maxDistance = getCommandStub().builders().<Integer>newSettingBuilder()
-            .name("MaxDistance").description("Distance from box before deleting it")
-            .defaultTo(50).build();
+            .name("MaxDistance")
+            .description("Distance from box before deleting it")
+            .defaultTo(50)
+            .build();
     public final Setting<Boolean> outputToChat = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("OutputToChat").description("Print coords to chat")
-            .defaultTo(true).build();
+            .name("OutputToChat")
+            .description("Print coords to chat")
+            .defaultTo(true)
+            .build();
 
 
-    private List<logoutPos> logoutPositions = Lists.newArrayList();
+    private final Set<LogoutPos> logoutSpots = new HashSet<>();
+    
+    @SubscribeEvent
+    public void onPlayerJoin(PlayerConnectEvent.Join event) {
+        logoutSpots.removeIf(pos -> {
+            if (pos.id.equals(event.getPlayerInfo().getId())) {
+                if (outputToChat.getAsBoolean()) {
+                    Helper.printMessage(event.getPlayerInfo().getName() + " has joined!");
+                }
+                return true;
+            }
+            return false;
+        });
+    }
 
     @SubscribeEvent
-    public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
-        if(event.getPacket() instanceof SPacketPlayerListItem) {
-            SPacketPlayerListItem playerListPacket = (SPacketPlayerListItem)event.getPacket();
-            if (playerListPacket.getAction().equals(SPacketPlayerListItem.Action.REMOVE_PLAYER) || playerListPacket.getAction().equals(SPacketPlayerListItem.Action.ADD_PLAYER)) {
-                try {
-                    playerListPacket.getEntries()
-                            .stream()
-                            .filter(Objects::nonNull)
-                            .filter(data -> {
-                                String name = getNameFromComponent(data.getProfile());
-                                return !Strings.isNullOrEmpty(name) && !isLocalPlayer(name) || playerListPacket.getAction().equals(SPacketPlayerListItem.Action.REMOVE_PLAYER);
-                            })
-                            .forEach(data -> {
-                                String name = getNameFromComponent(data.getProfile());
-                                UUID id = data.getProfile().getId();
-                                switch(playerListPacket.getAction()) {
-                                    case ADD_PLAYER: // if they come back then remove it
-                                        for (logoutPos pos : logoutPositions) {
-                                            if (pos.id.equals(id))
-                                                logoutPositions.remove(pos);
-                                        }
-                                        break;
+    public void onPlayerLeave(PlayerConnectEvent.Leave event) {
+        UUID id = event.getPlayerInfo().getId();
+        EntityPlayer player = MC.world.getPlayerEntityByUUID(id);
+        if (player != null) {
+            AxisAlignedBB BB = player.getEntityBoundingBox();
+            Vec3d[] pos = {new Vec3d(BB.minX, BB.minY, BB.minZ), new Vec3d(BB.maxX, BB.maxY, BB.maxZ)};
+            logoutSpots.add(new LogoutPos(pos, id, player.getName()));
 
-                                    case REMOVE_PLAYER: // if they leave and they are in the world save it
-                                        if (MC.world.getPlayerEntityByUUID(id) != null) {
-                                            EntityPlayer player = MC.world.getPlayerEntityByUUID(id);
-                                            AxisAlignedBB BB = player.getEntityBoundingBox();
-                                            Vec3d[] pos = {new Vec3d(BB.minX, BB.minY, BB.minZ), new Vec3d(BB.maxX, BB.maxY, BB.maxZ)};
-                                            logoutPositions.add(new logoutPos(pos, id, player.getName()));
-                                        }
-                                        break;
-                                }
-
-                            });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if (outputToChat.getAsBoolean()) {
+                Helper.printMessage(event.getPlayerInfo().getName() + " has disconnected!");
             }
-
         }
+
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
-        if (renderPosition.getAsBoolean())
-        if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
-            for (logoutPos pos : Lists.newArrayList(logoutPositions)) {
-                Vec3d topVec = new Vec3d((pos.pos[0].x+pos.pos[1].x)/2, pos.pos[1].y, (pos.pos[0].z+pos.pos[1].z)/2); // position where to place the text in the world
+        if (renderPosition.getAsBoolean() &&
+                event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
+
+            logoutSpots.forEach(pos -> {
+                Vec3d topVec = new Vec3d((pos.pos[0].x + pos.pos[1].x) / 2, pos.pos[1].y, (pos.pos[0].z + pos.pos[1].z) / 2); // position where to place the text in the world
                 VectorUtils.ScreenPos textPos = VectorUtils._toScreen(topVec.x, topVec.y, topVec.z); // where to place the text on the screen
-                double distance = MC.player.getDistance((pos.pos[0].x+pos.pos[1].x)/2, pos.pos[0].y, (pos.pos[0].z+pos.pos[1].z)/2); // distance from player to logout spot
+                double distance = MC.player.getDistance((pos.pos[0].x + pos.pos[1].x) / 2, pos.pos[0].y, (pos.pos[0].z + pos.pos[1].z) / 2); // distance from player to logout spot
                 if (textPos.isVisible) {
-                    String name = pos.name + String.format((" (%.1f)"), distance);
-                    SurfaceHelper.drawTextShadow(name, textPos.x - (SurfaceHelper.getTextWidth(name) / 2), textPos.y - (SurfaceHelper.getTextHeight() + 1), Utils.toRGBA(255,0,0,0));
+                    String name = pos.name + String.format(" (%.1f)", distance);
+                    SurfaceHelper.drawTextShadow(name, textPos.x - (SurfaceHelper.getTextWidth(name) / 2), textPos.y - (SurfaceHelper.getTextHeight() + 1), Utils.toRGBA(255, 0, 0, 0));
                 }
-            }
+            });
         }
     }
 
@@ -114,7 +103,7 @@ public class LogoutSpot extends ToggleMod {
         if (renderPosition.getAsBoolean()) {
             event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
-            for (logoutPos position : logoutPositions) {
+            logoutSpots.forEach(position ->  {
                 GeometryTessellator.drawQuads(event.getBuffer(), // horizontal lines
                         position.pos[0].x,
                         position.pos[0].y,
@@ -132,7 +121,7 @@ public class LogoutSpot extends ToggleMod {
                         position.pos[1].y,
                         position.pos[1].z,
                         GeometryMasks.Quad.ALL, Utils.Colors.RED);
-            }
+            });
 
             event.getTessellator().draw();
         }
@@ -142,33 +131,43 @@ public class LogoutSpot extends ToggleMod {
 
     @SubscribeEvent
     public void onPlayerUpdate(LocalPlayerUpdateEvent event) { // delete cloned player if they're too far
-        for (logoutPos pos : logoutPositions) {
+        logoutSpots.removeIf(pos -> {
             double distance = MC.player.getDistance((pos.pos[0].x+pos.pos[1].x)/2, pos.pos[0].y, (pos.pos[0].z+pos.pos[1].z)/2); // distance from player to entity
-            if (distance >= maxDistance.getAsDouble() && distance > 0)
-                logoutPositions.remove(pos);
-            break; // prevent crash maybe
-        }
+            return distance >= maxDistance.getAsDouble() && distance > 0;
+        });
     }
 
-    /*
+
     @SubscribeEvent
     public void onWorldUnload (WorldEvent.Unload event) {
-        logoutPositions.clear();
+        logoutSpots.clear();
     }
     @SubscribeEvent
     public void onWorldLoad (WorldEvent.Load event) {
-        logoutPositions.clear();
+        logoutSpots.clear();
     }
-    */
 
-    private class logoutPos { // keeps track of positions and uuid   should just use Entities
-        Vec3d[] pos;
-        UUID id;
-        String name;
-        public logoutPos(Vec3d[] position, UUID uuid, String name) {
+
+    private class LogoutPos { // keeps track of positions and uuid
+        final Vec3d[] pos;
+        final UUID id;
+        final String name;
+
+        private LogoutPos(Vec3d[] position, UUID uuid, String name) {
             this.pos = position;
             this.id = uuid;
             this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof LogoutPos)) return false;
+
+            return (other == this) || this.id.equals(((LogoutPos)other).id);
+        }
+        @Override
+        public int hashCode() {
+            return id.hashCode();
         }
     }
 
@@ -178,13 +177,6 @@ public class LogoutSpot extends ToggleMod {
         float f2 = (float)(entityIn.posZ - MC.player.posZ);
         return MathHelper.sqrt(f*f + f2*f2);
     }
-    private String getNameFromComponent(GameProfile profile) {
-        return Objects.nonNull(profile) ? profile.getName() : "";
-    }
-    private boolean isLocalPlayer(String username) {
-        return Objects.nonNull(MC.player) && MC.player.getDisplayName().getUnformattedText().equals(username);
-    }
-
 
 
     @Override
@@ -193,8 +185,7 @@ public class LogoutSpot extends ToggleMod {
                 .name("clear")
                 .description("Clear cloned players")
                 .processor(data -> {
-                    data.requiredArguments(0);
-                    logoutPositions.clear();
+                    logoutSpots.clear();
                 })
                 .build();
     }
