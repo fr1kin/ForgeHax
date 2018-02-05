@@ -28,9 +28,9 @@ public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
             try {
                 Boolean isObfuscated = (Boolean)data.get("runtimeDeobfuscationEnabled");
                 if(isObfuscated) {
-                    RuntimeState.markAsObfuscated();
+                    RuntimeState.markDefaultAsObfuscated();
                 } else {
-                    RuntimeState.markAsNormal();
+                    RuntimeState.markDefaultAsNormal();
                 }
                 //FileDumper.dumpAllFiles();
             } catch (Exception e) {

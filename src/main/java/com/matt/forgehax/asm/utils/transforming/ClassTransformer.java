@@ -5,6 +5,8 @@ import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.TypesMc;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.asmtype.ASMClass;
+import com.matt.forgehax.asm.utils.environment.RuntimeState;
+import com.matt.forgehax.asm.utils.environment.State;
 import com.matt.forgehax.mcversion.MCVersionChecker;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -14,7 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
 
-import static com.matt.forgehax.asm.utils.ASMStackLogger.*;
+import static com.matt.forgehax.asm.utils.ASMStackLogger.printStackTrace;
 
 public abstract class ClassTransformer implements ASMCommon, TypesMc {
     private final ASMClass transformingClass;
@@ -47,6 +49,14 @@ public abstract class ClassTransformer implements ASMCommon, TypesMc {
         }
     }
 
+    /**
+     * This method will return the class obfuscation state.
+     * @return the state the Minecraft class/method/field obfuscation
+     */
+    public State getClassObfuscationState() {
+        return RuntimeState.getDefaultState();
+    }
+
     public void registerMethodPatch(MethodTransformer transformer) {
         methodTransformers.add(transformer);
     }
@@ -63,6 +73,8 @@ public abstract class ClassTransformer implements ASMCommon, TypesMc {
         for(final MethodNode methodNode : node.methods) methodTransformers.stream()
                 .filter(t -> Objects.equals(t.getMethod().getRuntimeName(), methodNode.name) && Objects.equals(t.getMethod().getRuntimeDescriptor(), methodNode.desc))
                 .forEach(t -> t.getTasks().forEach(task -> {
+                    // set obfuscation state
+                    RuntimeState.setState(getClassObfuscationState());
                     try {
                         task.getMethod().invoke(t, methodNode);
                         // if we have gotten this far the transformation should have been successful
@@ -88,6 +100,8 @@ public abstract class ClassTransformer implements ASMCommon, TypesMc {
                         builder.append(e.getMessage());
                         LOGGER.error(builder.toString());
                         printStackTrace(e);
+                    } finally {
+                        RuntimeState.releaseState();
                     }
                 }));
     }
