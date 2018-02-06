@@ -1,7 +1,8 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.Render2DEvent;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Color;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceBuilder;
 import com.matt.forgehax.util.draw.SurfaceHelper;
@@ -28,7 +29,7 @@ import static com.matt.forgehax.Helper.getWorld;
  * Created on 8/6/2017 by fr1kin
  */
 @RegisterMod
-public class Tracers extends ToggleMod {
+public class Tracers extends ToggleMod implements Colors {
     public Tracers() {
         super(Category.RENDER, "Tracers", false, "See where other players are");
     }
@@ -69,31 +70,20 @@ public class Tracers extends ToggleMod {
         getWorld().loadedEntityList.stream()
                 .filter(entity -> !Objects.equals(entity, getLocalPlayer()))
                 .filter(entity -> entity instanceof EntityLivingBase)
-                .filter(entity -> !EntityUtils.getRelationship(entity).equals(MobTypeEnum.INVALID))
-                .filter(entity -> {
-                    switch (EntityUtils.getRelationship(entity)) {
-                        case PLAYER:
-                            return players.getAsBoolean();
-                        case HOSTILE:
-                            return hostile.getAsBoolean();
-                        case NEUTRAL:
-                            return neutral.getAsBoolean();
-                        default:
-                            return friendly.getAsBoolean();
-                    }
-                })
-                .sorted((o1, o2) -> {
-                    MobTypeEnum r1 = EntityUtils.getRelationship(o1);
-                    MobTypeEnum r2 = EntityUtils.getRelationship(o2);
-                    return r2.compareTo(r1);
-                })
-                .forEach(entity -> {
-                    if (drawArrows.getAsBoolean()) drawArrow(event, entity);
-                    if (drawLines.getAsBoolean()) drawLine(event, entity);
+                .map(EntityRelations::new)
+                .filter(w -> w.getRelationship().equals(MobTypeEnum.INVALID))
+                .filter(EntityRelations::isOptionEnabled)
+                .sorted()
+                .forEach(w -> {
+                    if (drawArrows.getAsBoolean()) drawArrow(event, w);
+                    if (drawLines.getAsBoolean()) drawLine(event, w);
                 });
     }
 
-    private void drawArrow(Render2DEvent event, Entity entity) {
+    private void drawArrow(Render2DEvent event, EntityRelations w) {
+        final Entity entity = w.getEntity();
+        final MobTypeEnum relationship = w.getRelationship();
+
         final double cx = MC.displayWidth / 4.f;
         final double cy = MC.displayHeight / 4.f;
         Vec3d pos3d = EntityUtils.getInterpolatedEyePos(entity, MC.getRenderPartialTicks());
@@ -155,7 +145,7 @@ public class Tracers extends ToggleMod {
             // --------------------
 
             int size = 5;
-            if (EntityUtils.getRelationship(entity) == MobTypeEnum.PLAYER) {
+            if (relationship == MobTypeEnum.PLAYER) {
                 size = 8;
             }
 
@@ -164,7 +154,7 @@ public class Tracers extends ToggleMod {
                     .task(SurfaceBuilder::enableBlend)
                     .task(SurfaceBuilder::disableTexture2D)
                     .task(() -> GL11.glEnable(GL11.GL_POLYGON_SMOOTH))
-                    .color(entityColor(entity))
+                    .color(w.getColor().setAlpha((int)(255 * opacity.get())).toBuffer())
                     .translate(x, y, 0.D)
                     .rotate(ang, 0.D, 0.D, size / 2.D)
                     .begin(GL11.GL_TRIANGLES)
@@ -189,7 +179,9 @@ public class Tracers extends ToggleMod {
         }
     }
 
-    private void drawLine(Render2DEvent event, Entity entity) {
+    private void drawLine(Render2DEvent event, EntityRelations w) {
+        final Entity entity = w.getEntity();
+
         final double cx = MC.displayWidth / 4.f;
         final double cy = MC.displayHeight / 4.f;
         Vec3d pos3d = EntityUtils.getInterpolatedEyePos(entity, MC.getRenderPartialTicks());
@@ -198,27 +190,56 @@ public class Tracers extends ToggleMod {
         if (EntityUtils.getRelationship(entity) == MobTypeEnum.PLAYER) {
             size = 2;
         }
-        SurfaceHelper.drawLine((int)cx, (int)cy, (int)pos.getX(), (int)pos.getY(), entityColor(entity), size);
+        SurfaceHelper.drawLine((int)cx, (int)cy, (int)pos.getX(), (int)pos.getY(), w.getColor().setAlpha((int)(255 * opacity.get())).toBuffer(), size);
     }
 
-    private int entityColor(Entity entity) {
-        int color;
-        switch (EntityUtils.getRelationship(entity)) {
-            case PLAYER:
-                color = Utils.Colors.YELLOW;
-                break;
-            case HOSTILE:
-                color = Utils.Colors.RED;
-                break;
-            case NEUTRAL:
-                color = Utils.Colors.BLUE;
-                break;
-            default:
-                color = Utils.Colors.GREEN;
-                break;
+    private class EntityRelations implements Comparable<EntityRelations> {
+        private final Entity entity;
+        private final MobTypeEnum relationship;
+
+        public EntityRelations(Entity entity) {
+            Objects.requireNonNull(entity);
+            this.entity = entity;
+            this.relationship = EntityUtils.getRelationship(entity);
         }
-        int[] rgba = Utils.toRGBAArray(color);
-        rgba[3] = (int)Math.round(opacity.getAsDouble() * 255);
-        return Utils.toRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+        public Entity getEntity() {
+            return entity;
+        }
+
+        public MobTypeEnum getRelationship() {
+            return relationship;
+        }
+
+        public Color getColor() {
+            switch (relationship) {
+                case PLAYER:
+                    return YELLOW;
+                case HOSTILE:
+                    return RED;
+                case NEUTRAL:
+                    return BLUE;
+                default:
+                    return GREEN;
+            }
+        }
+
+        public boolean isOptionEnabled() {
+            switch (relationship) {
+                case PLAYER:
+                    return players.getAsBoolean();
+                case HOSTILE:
+                    return hostile.getAsBoolean();
+                case NEUTRAL:
+                    return neutral.getAsBoolean();
+                default:
+                    return friendly.getAsBoolean();
+            }
+        }
+
+        @Override
+        public int compareTo(EntityRelations o) {
+            return getRelationship().compareTo(o.getRelationship());
+        }
     }
 }
