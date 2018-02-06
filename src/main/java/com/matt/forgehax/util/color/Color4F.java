@@ -6,16 +6,29 @@ import java.util.Arrays;
  * Created on 2/6/2018 by fr1kin
  */
 public class Color4F extends Color {
+    private static final Color FACTORY = new Color4F();
+
+    public static Color getFactory() {
+        return FACTORY;
+    }
+
+    //
+    //
+    //
+
     private final float[] color = new float[4];
 
-    protected Color4F() {}
-    private Color4F(Color4F other) {
-        set(other.color);
+    private Color4F() {}
+    private Color4F(float red, float green, float blue, float alpha) {
+        color[0] = red;
+        color[1] = green;
+        color[2] = blue;
+        color[3] = alpha;
     }
 
     @Override
-    public void set(int buffer) {
-        set(
+    public Color set(int buffer) {
+        return set(
                 (float)(buffer >> 16 & 255) / 255.f,
                 (float)(buffer >> 8 & 255) / 255.f,
                 (float)(buffer & 255) / 255.f,
@@ -24,11 +37,8 @@ public class Color4F extends Color {
     }
 
     @Override
-    public void set(float red, float green, float blue, float alpha) {
-        color[0] = red;
-        color[1] = green;
-        color[2] = blue;
-        color[3] = alpha;
+    public Color set(float red, float green, float blue, float alpha) {
+        return new Color4F(red, green, blue, alpha);
     }
 
     @Override
@@ -77,16 +87,6 @@ public class Color4F extends Color {
     }
 
     @Override
-    public Color toImmutable() {
-        return new Immutable(this);
-    }
-
-    @Override
-    public Color copy() {
-        return new Color4F(this);
-    }
-
-    @Override
     public String toString() {
         return String.format("r=%.2f,g=%.2f,b=%.2f,a=%.2f", getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat());
     }
@@ -94,16 +94,5 @@ public class Color4F extends Color {
     @Override
     public int hashCode() {
         return Arrays.hashCode(color);
-    }
-
-    private static class Immutable extends Color4F {
-        public Immutable(Color4F other) {
-            super(other);
-        }
-
-        @Override
-        public void set(float red, float green, float blue, float alpha) {
-            throw new UnsupportedOperationException("Color has been made immutable");
-        }
     }
 }

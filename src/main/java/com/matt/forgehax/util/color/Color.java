@@ -13,65 +13,44 @@ public abstract class Color {
         return Math.min(1.f, Math.max(0.f, c));
     }
 
-    public static Color newColorBuffer() {
-        return new ColorBuffer();
+    public static Color ofInteger() {
+        return ColorBuffer.getFactory();
     }
-
-    public static Color newColor4F() {
-        return new Color4F();
+    public static Color ofFloat() {
+        return Color4F.getFactory();
     }
 
     public static Color of(int buffer) {
-        Color c = newColorBuffer();
-        c.set(buffer);
-        return c;
+        return ofInteger().set(buffer);
     }
     public static Color of(int red, int green, int blue, int alpha) {
-        Color c = newColorBuffer();
-        c.set(red, green, blue, alpha);
-        return c;
+        return ofInteger().set(red, green, blue, alpha);
     }
     public static Color of(int red, int green, int blue) {
-        Color c = newColorBuffer();
-        c.set(red, green, blue);
-        return c;
+        return ofInteger().set(red, green, blue);
     }
     public static Color of(int[] color) {
-        Color c = newColorBuffer();
-        c.set(color);
-        return c;
+        return ofInteger().set(color);
     }
 
     public static Color of(float red, float green, float blue, float alpha) {
-        Color c = newColor4F();
-        c.set(red, green, blue, alpha);
-        return c;
+        return ofFloat().set(red, green, blue, alpha);
     }
     public static Color of(float red, float green, float blue) {
-        Color c = newColor4F();
-        c.set(red, green, blue);
-        return c;
+        return ofFloat().set(red, green, blue);
     }
     public static Color of(float[] color) {
-        Color c = newColor4F();
-        c.set(color);
-        return c;
+        return ofFloat().set(color);
     }
 
     public static Color of(double red, double green, double blue, double alpha) {
-        Color c = newColor4F();
-        c.set(red, green, blue, alpha);
-        return c;
+        return ofFloat().set(red, green, blue, alpha);
     }
     public static Color of(double red, double green, double blue) {
-        Color c = newColor4F();
-        c.set(red, green, blue);
-        return c;
+        return ofFloat().set(red, green, blue);
     }
     public static Color of(double[] color) {
-        Color c = newColor4F();
-        c.set(color);
-        return c;
+        return ofFloat().set(color);
     }
 
     //
@@ -82,7 +61,7 @@ public abstract class Color {
      * Set color by buffer
      * @param buffer color buffer
      */
-    public abstract void set(int buffer);
+    public abstract Color set(int buffer);
 
     /**
      * Set the RGBA accordingly
@@ -91,8 +70,8 @@ public abstract class Color {
      * @param blue as integer 0-255
      * @param alpha as integer 0-255
      */
-    public void set(int red, int green, int blue, int alpha) {
-        set((red << 16) + (green << 8) + blue + (alpha << 24));
+    public Color set(int red, int green, int blue, int alpha) {
+        return set((red << 16) + (green << 8) + blue + (alpha << 24));
     }
     /**
      * Set the RGB accordingly, using 255 (maximum) for the alpha
@@ -100,19 +79,17 @@ public abstract class Color {
      * @param green as integer 0-255
      * @param blue as integer 0-255
      */
-    public void set(int red, int green, int blue) {
-        set(red, green, blue, 255);
+    public Color set(int red, int green, int blue) {
+        return set(red, green, blue, 255);
     }
 
-    public void set(int[] color) {
+    public Color set(int[] color) {
         Objects.requireNonNull(color);
         switch (color.length) {
             case 3:
-                set(color[0], color[1], color[2]);
-                break;
+                return set(color[0], color[1], color[2]);
             case 4:
-                set(color[0], color[1], color[2], color[3]);
-                break;
+                return set(color[0], color[1], color[2], color[3]);
             default: throw new IllegalArgumentException("color[] must be of length 3 or 4");
         }
     }
@@ -124,25 +101,23 @@ public abstract class Color {
      * @param blue as float 0-1
      * @param alpha as float 0-1
      */
-    public abstract void set(float red, float green, float blue, float alpha);
+    public abstract Color set(float red, float green, float blue, float alpha);
     /**
      * Set the RGBA accordingly, using 1.f (maximum) for the alpha
      * @param red as float 0-1
      * @param green as float 0-1
      * @param blue as float 0-1
      */
-    public void set(float red, float green, float blue) {
-        set(red, green, blue, 1.f);
+    public Color set(float red, float green, float blue) {
+        return set(red, green, blue, 1.f);
     }
-    public void set(float[] color) {
+    public Color set(float[] color) {
         Objects.requireNonNull(color);
         switch (color.length) {
             case 3:
-                set(color[0], color[1], color[2]);
-                break;
+                return set(color[0], color[1], color[2]);
             case 4:
-                set(color[0], color[1], color[2], color[3]);
-                break;
+                return set(color[0], color[1], color[2], color[3]);
             default: throw new IllegalArgumentException("color[] must be of length 3 or 4");
         }
     }
@@ -155,8 +130,8 @@ public abstract class Color {
      * @param blue as double 0-1
      * @param alpha as double 0-1
      */
-    public void set(double red, double green, double blue, double alpha) {
-        set((float)red, (float)green, (float)blue, (float)alpha);
+    public Color set(double red, double green, double blue, double alpha) {
+        return set((float)red, (float)green, (float)blue, (float)alpha);
     }
     /**
      * Set the RGBA accordingly, using 1.D (maximum) for the alpha
@@ -165,18 +140,16 @@ public abstract class Color {
      * @param green as double 0-1
      * @param blue as double 0-1
      */
-    public void set(double red, double green, double blue) {
-        set(red, green, blue, 1.D);
+    public Color set(double red, double green, double blue) {
+        return set(red, green, blue, 1.D);
     }
-    public void set(double[] color) {
+    public Color set(double[] color) {
         Objects.requireNonNull(color);
         switch (color.length) {
             case 3:
-                set(color[0], color[1], color[2]);
-                break;
+                return set(color[0], color[1], color[2]);
             case 4:
-                set(color[0], color[1], color[2], color[3]);
-                break;
+                return set(color[0], color[1], color[2], color[3]);
             default: throw new IllegalArgumentException("color[] must be of length 3 or 4");
         }
     }
@@ -206,29 +179,29 @@ public abstract class Color {
      * Set red ranging from 0-255
      * @param red as integer
      */
-    public void setRed(int red) {
-        set(red, getGreen(), getBlue(), getAlpha());
+    public Color setRed(int red) {
+        return set(red, getGreen(), getBlue(), getAlpha());
     }
     /**
      * Set green ranging from 0-255
      * @param green as integer
      */
-    public void setGreen(int green) {
-        set(getRed(), green, getBlue(), getAlpha());
+    public Color setGreen(int green) {
+        return set(getRed(), green, getBlue(), getAlpha());
     }
     /**
      * Set blue ranging from 0-255
      * @param blue as integer
      */
-    public void setBlue(int blue) {
-        set(getRed(), getGreen(), blue, getAlpha());
+    public Color setBlue(int blue) {
+        return set(getRed(), getGreen(), blue, getAlpha());
     }
     /**
      * Set alpha ranging from 0-255
      * @param alpha as integer
      */
-    public void setAlpha(int alpha) {
-        set(getRed(), getGreen(), getBlue(), alpha);
+    public Color setAlpha(int alpha) {
+        return set(getRed(), getGreen(), getBlue(), alpha);
     }
 
     /**
@@ -256,29 +229,29 @@ public abstract class Color {
      * Set red ranging from 0-1
      * @param red as float
      */
-    public void setRed(float red) {
-        set(red, getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat());
+    public Color setRed(float red) {
+        return set(red, getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat());
     }
     /**
      * Set green ranging from 0-1
      * @param green as float
      */
-    public void setGreen(float green) {
-        set(getRedAsFloat(), green, getBlueAsFloat(), getAlphaAsFloat());
+    public Color setGreen(float green) {
+        return set(getRedAsFloat(), green, getBlueAsFloat(), getAlphaAsFloat());
     }
     /**
      * Set blue ranging from 0-1
      * @param blue as float
      */
-    public void setBlue(float blue) {
-        set(getRedAsFloat(), getGreenAsFloat(), blue, getAlphaAsFloat());
+    public Color setBlue(float blue) {
+        return set(getRedAsFloat(), getGreenAsFloat(), blue, getAlphaAsFloat());
     }
     /**
      * Set alpha ranging from 0-1
      * @param alpha as float
      */
-    public void setAlpha(float alpha) {
-        set(getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), alpha);
+    public Color setAlpha(float alpha) {
+        return set(getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), alpha);
     }
 
     /**
@@ -319,32 +292,32 @@ public abstract class Color {
      * NOTE: double is overkill for color, this is just a convenience method that will cast the argument as a double
      * @param red as double (will be casted to float)
      */
-    public void setRed(double red) {
-        setRed((float)red);
+    public Color setRed(double red) {
+        return setRed((float)red);
     }
     /**
      * Set green ranging from 0-1
      * NOTE: double is overkill for color, this is just a convenience method that will cast the argument as a double
      * @param green as double (will be casted to float)
      */
-    public void setGreen(double green) {
-        setGreen((float)green);
+    public Color setGreen(double green) {
+        return setGreen((float)green);
     }
     /**
      * Set blue ranging from 0-1
      * NOTE: double is overkill for color, this is just a convenience method that will cast the argument as a double
      * @param blue as double (will be casted to float)
      */
-    public void setBlue(double blue) {
-        setBlue((float)blue);
+    public Color setBlue(double blue) {
+        return setBlue((float)blue);
     }
     /**
      * Set alpha ranging from 0-1
      * NOTE: double is overkill for color, this is just a convenience method that will cast the argument as a double
      * @param alpha as double (will be casted to float)
      */
-    public void setAlpha(double alpha) {
-        setAlpha((float)alpha);
+    public Color setAlpha(double alpha) {
+        return setAlpha((float)alpha);
     }
 
     /**
@@ -380,19 +353,6 @@ public abstract class Color {
         float[] array = toFloatArray();
         return new double[] {array[0], array[1], array[2], array[3]};
     }
-
-    /**
-     * Creates a color instance that's setters
-     * @return immutable color instance
-     */
-    public abstract Color toImmutable();
-
-    /**
-     * Will copy this instance into another instance.
-     * Instance will be mutable even if toImmutable() was used to make the parent class.
-     * @return a mutable new instance of the object
-     */
-    public abstract Color copy();
 
     @Override
     public abstract String toString();
