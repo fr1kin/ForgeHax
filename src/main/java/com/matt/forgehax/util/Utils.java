@@ -22,22 +22,27 @@ public class Utils implements Globals {
     @Deprecated
     public static final List<Packet> OUTGOING_PACKET_IGNORE_LIST = Collections.emptyList();
 
+    @Deprecated
     public static int toRGBA(int r, int g, int b, int a) {
         return (r << 16) + (g << 8) + (b << 0) + (a << 24);
     }
 
+    @Deprecated
     public static int toRGBA(float r, float g, float b, float a) {
         return toRGBA((int) (r * 255.f), (int) (g * 255.f), (int) (b * 255.f), (int) (a * 255.f));
     }
+    @Deprecated
     public static int toRGBA(float[] colors) {
         if(colors.length != 4) throw new IllegalArgumentException("colors[] must have a length of 4!");
         return toRGBA(colors[0], colors[1], colors[2], colors[3]);
     }
+    @Deprecated
     public static int toRGBA(double[] colors) {
         if(colors.length != 4) throw new IllegalArgumentException("colors[] must have a length of 4!");
         return toRGBA((float)colors[0], (float)colors[1], (float)colors[2], (float)colors[3]);
     }
 
+    @Deprecated
     public static int[] toRGBAArray(int colorBuffer) {
         return new int[] {
                 (colorBuffer >> 16 & 255),
