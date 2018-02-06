@@ -70,41 +70,43 @@ public abstract class ClassTransformer implements ASMCommon, TypesMc {
     }
 
     public final void transform(final ClassNode node) {
-        for(final MethodNode methodNode : node.methods) methodTransformers.stream()
-                .filter(t -> Objects.equals(t.getMethod().getRuntimeName(), methodNode.name)
-                          && Objects.equals(t.getMethod().getRuntimeDescriptor(), methodNode.desc)
-                )
-                .forEach(t -> t.getTasks().forEach(task -> {
-                    // set obfuscation state
-                    RuntimeState.setState(getClassObfuscationState());
-                    try {
-                        task.getMethod().invoke(t, methodNode);
-                        // if we have gotten this far the transformation should have been successful
-                        StringBuilder builder = new StringBuilder();
-                        builder.append("Successfully transformed the task \"");
-                        builder.append(task.getDescription());
-                        builder.append("\" for ");
-                        builder.append(getTransformingClassName());
-                        builder.append("::");
-                        builder.append(t.getMethod().getName());
-                        LOGGER.info(builder.toString());
-                    } catch (Throwable e) {
-                        if(e instanceof InvocationTargetException) e = e.getCause();
-                        StringBuilder builder = new StringBuilder();
-                        builder.append(e.getClass().getSimpleName()); // exception name
-                        builder.append(" thrown from ");
-                        builder.append(getTransformingClassName());
-                        builder.append("::");
-                        builder.append(t.getMethod().getName());
-                        builder.append(" for the task with the description \"");
-                        builder.append(task.getDescription());
-                        builder.append("\": ");
-                        builder.append(e.getMessage());
-                        LOGGER.error(builder.toString());
-                        printStackTrace(e);
-                    } finally {
-                        RuntimeState.releaseState();
-                    }
-                }));
+        RuntimeState.setState(getClassObfuscationState());
+        try {
+            for (final MethodNode methodNode : node.methods)
+                methodTransformers.stream()
+                        .filter(t -> Objects.equals(t.getMethod().getRuntimeName(), methodNode.name)
+                                && Objects.equals(t.getMethod().getRuntimeDescriptor(), methodNode.desc)
+                        )
+                        .forEach(t -> t.getTasks().forEach(task -> {
+                            try {
+                                task.getMethod().invoke(t, methodNode);
+                                // if we have gotten this far the transformation should have been successful
+                                StringBuilder builder = new StringBuilder();
+                                builder.append("Successfully transformed the task \"");
+                                builder.append(task.getDescription());
+                                builder.append("\" for ");
+                                builder.append(getTransformingClassName());
+                                builder.append("::");
+                                builder.append(t.getMethod().getName());
+                                LOGGER.info(builder.toString());
+                            } catch (Throwable e) {
+                                if (e instanceof InvocationTargetException) e = e.getCause();
+                                StringBuilder builder = new StringBuilder();
+                                builder.append(e.getClass().getSimpleName()); // exception name
+                                builder.append(" thrown from ");
+                                builder.append(getTransformingClassName());
+                                builder.append("::");
+                                builder.append(t.getMethod().getName());
+                                builder.append(" for the task with the description \"");
+                                builder.append(task.getDescription());
+                                builder.append("\": ");
+                                builder.append(e.getMessage());
+                                LOGGER.error(builder.toString());
+                                printStackTrace(e);
+                            }
+                        }));
+        } finally {
+            RuntimeState.releaseState();
+        }
     }
 }
