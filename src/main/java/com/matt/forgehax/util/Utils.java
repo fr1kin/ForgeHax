@@ -95,6 +95,7 @@ public class Utils implements Globals {
         return to_min + (to_max - to_min) * ((x - from_min) / (from_max - from_min));
     }
 
+    @Deprecated
     public static class Colors {
         public final static int WHITE           = Utils.toRGBA(255,     255,    255,    255);
         public final static int BLACK           = Utils.toRGBA(0,       0,      0,      255);
