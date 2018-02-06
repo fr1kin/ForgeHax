@@ -28,10 +28,6 @@ Use quotes.
 
 Example: `.chatbot spam add spam "This will be treated as one argument"`
 
-_Is there a GUI?_
-
-No, but I do plan on making one.
-
 _How do I see a list of mods?_
 
 Type `.mods <search>` in chat. The search argument is optional.
