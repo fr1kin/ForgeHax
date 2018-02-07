@@ -228,13 +228,13 @@ public class Tracers extends ToggleMod implements Colors {
         public boolean isOptionEnabled() {
             switch (relationship) {
                 case PLAYER:
-                    return players.getAsBoolean();
+                    return players.get();
                 case HOSTILE:
-                    return hostile.getAsBoolean();
+                    return hostile.get();
                 case NEUTRAL:
-                    return neutral.getAsBoolean();
+                    return neutral.get();
                 default:
-                    return friendly.getAsBoolean();
+                    return friendly.get();
             }
         }
 
