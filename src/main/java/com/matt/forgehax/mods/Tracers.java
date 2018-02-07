@@ -181,13 +181,14 @@ public class Tracers extends ToggleMod implements Colors {
 
     private void drawLine(Render2DEvent event, EntityRelations w) {
         final Entity entity = w.getEntity();
+        final MobTypeEnum relation = w.getRelationship();
 
         final double cx = MC.displayWidth / 4.f;
         final double cy = MC.displayHeight / 4.f;
         Vec3d pos3d = EntityUtils.getInterpolatedEyePos(entity, MC.getRenderPartialTicks());
         Plane pos = VectorUtils.toScreen(pos3d);
         int size = 1;
-        if (EntityUtils.getRelationship(entity) == MobTypeEnum.PLAYER) {
+        if (relation == MobTypeEnum.PLAYER) {
             size = 2;
         }
         SurfaceHelper.drawLine((int)cx, (int)cy, (int)pos.getX(), (int)pos.getY(), w.getColor().setAlpha((int)(255 * opacity.get())).toBuffer(), size);
