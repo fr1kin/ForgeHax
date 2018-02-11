@@ -5,10 +5,7 @@ package com.matt.forgehax.util;
  */
 public class ArrayHelper {
     public static <T> T getOrDefault(T[] array, int index, T defaultValue) {
-        if(array != null && index >= 0 && index < array.length)
-            return array[index];
-        else
-            return defaultValue;
+        return isInRange(array, index) ? array[index] : defaultValue;
     }
 
     public static <T> boolean isInRange(T[] array, int index) {

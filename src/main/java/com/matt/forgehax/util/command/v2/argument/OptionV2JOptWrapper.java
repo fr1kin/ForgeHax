@@ -4,6 +4,7 @@ package com.matt.forgehax.util.command.v2.argument;
  * Created on 2/3/2018 by fr1kin
  */
 
+import com.matt.forgehax.util.command.v2.ICommandV2;
 import com.matt.forgehax.util.command.v2.exception.CommandRuntimeExceptionV2;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
 import com.matt.forgehax.util.typeconverter.TypeConverterRegistry;
@@ -159,46 +160,25 @@ public class OptionV2JOptWrapper extends OptionV2 {
         //
         //
 
-        public static class Suggestions extends AcceptsArgument {
-            private final ISuggestionProvider.Function<OptionV2> suggestionsFunction;
+        public static class Extension extends AcceptsArgument {
+            private final IPredictableArgument.Function<OptionV2> predictor;
 
-            protected Suggestions(@Nonnull OptionDescriptor descriptor, @Nullable ArgumentV2<?> argument, @Nonnull ISuggestionProvider.Function<OptionV2> suggestionsFunction) throws NullPointerException, CommandRuntimeExceptionV2.CreationFailure {
+            protected Extension(@Nonnull OptionDescriptor descriptor, @Nullable ArgumentV2<?> argument, @Nonnull IPredictableArgument.Function<OptionV2> predictor) throws NullPointerException, CommandRuntimeExceptionV2.CreationFailure {
                 super(descriptor, argument);
-                Objects.requireNonNull(suggestionsFunction, "suggestions function is null");
-                this.suggestionsFunction = suggestionsFunction;
+                Objects.requireNonNull(predictor, "predictor function is null");
+                this.predictor = predictor;
             }
-
+            
             @Nonnull
             @Override
-            public List<String> getSuggestions(String input) {
-                return suggestionsFunction.apply(this, input);
+            public List<String> getPredictions(ICommandV2 command, String input) {
+                return predictor.apply(this, command, input);
             }
 
             @Override
             public OptionV2Builder copy() {
-                return super.copy().suggestions(suggestionsFunction);
+                return super.copy().predictor(predictor);
             }
-        }
-    }
-
-    public static class Suggestions extends OptionV2JOptWrapper {
-        private final ISuggestionProvider.Function<OptionV2> suggestionsFunction;
-
-        protected Suggestions(@Nonnull OptionDescriptor descriptor, @Nonnull ISuggestionProvider.Function<OptionV2> suggestionsFunction) throws NullPointerException, CommandRuntimeExceptionV2.CreationFailure {
-            super(descriptor);
-            Objects.requireNonNull(suggestionsFunction, "suggestions function is null");
-            this.suggestionsFunction = suggestionsFunction;
-        }
-
-        @Nonnull
-        @Override
-        public List<String> getSuggestions(String input) {
-            return suggestionsFunction.apply(this, input);
-        }
-
-        @Override
-        public OptionV2Builder copy() {
-            return super.copy().suggestions(suggestionsFunction);
         }
     }
 }

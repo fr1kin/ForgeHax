@@ -1,5 +1,6 @@
 package com.matt.forgehax.util.command.v2;
 
+import com.google.common.collect.ImmutableList;
 import com.matt.forgehax.util.command.v2.argument.ArgumentV2;
 import com.matt.forgehax.util.command.v2.argument.OptionV2;
 import com.matt.forgehax.util.command.v2.callback.ICommandCallbackV2;
@@ -10,6 +11,8 @@ import com.matt.forgehax.util.serialization.ISerializableJson;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created on 12/25/2017 by fr1kin
@@ -47,6 +50,42 @@ public interface ICommandV2 extends ISerializableJson {
     Collection<String> getAliases();
 
     /**
+     * Returns names and aliases
+     * @return list of names and aliases
+     */
+    default Collection<String> getAllNames() {
+        return getAliases().isEmpty() ? Collections.singleton(getName()) :
+                ImmutableList.<String>builder()
+                        .add(getName())
+                        .addAll(getAliases())
+                        .build();
+    }
+
+    /**
+     * If this command can be identified by the given name.
+     * Command names are case insensitive.
+     * @param name
+     * @return
+     */
+    default boolean isIdentifiableAs(String name) {
+        return CommandHelperV2.isNameValid(name) && (
+                getName().equalsIgnoreCase(name)
+                        || getAbsoluteName().equalsIgnoreCase(name)
+                        || getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(name)));
+    }
+
+    /**
+     * Check if these two commands have conflicting naming schemes
+     * @param other
+     * @return
+     */
+    default boolean isConflictingWith(ICommandV2 other) {
+        return getName().equalsIgnoreCase(other.getName()) || (
+                !other.getAliases().isEmpty() // we don't need to evaluate this.getAliases() as anyMatch will do that for us
+                        && getAliases().stream().anyMatch(alias -> other.getAliases().stream().anyMatch(alias::equalsIgnoreCase)));
+    }
+
+    /**
      * Commands description
      * @return description
      */
@@ -59,8 +98,8 @@ public interface ICommandV2 extends ISerializableJson {
     @Nullable
     IParentCommandV2 getParent();
 
-    Collection<ArgumentV2<?>> getArguments();
-    Collection<OptionV2> getOptions();
+    List<ArgumentV2<?>> getArguments();
+    List<OptionV2> getOptions();
 
     String getHelpText(IHelpTextFormatter formatter);
     String getSyntaxHelpText();

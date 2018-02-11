@@ -1,8 +1,10 @@
 package com.matt.forgehax.util.command.v2;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.matt.forgehax.util.ImmutableCollectors;
 import com.matt.forgehax.util.command.v2.argument.ArgumentHelper;
 import com.matt.forgehax.util.command.v2.argument.ArgumentV2;
 import com.matt.forgehax.util.command.v2.argument.OptionV2;
@@ -22,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.matt.forgehax.util.command.v2.argument.OptionV2.Type.OPTIONAL_ARGUMENT;
 import static com.matt.forgehax.util.command.v2.argument.OptionV2.Type.REQUIRED_ARGUMENT;
@@ -35,13 +36,13 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
     private final Collection<String> aliases;
     private final String description;
     private final IParentCommandV2 parent;
-    private final Collection<ArgumentV2<?>> arguments;
-    private final Collection<OptionV2> options;
+    private final List<ArgumentV2<?>> arguments;
+    private final List<OptionV2> options;
 
     private final OptionParser parser;
 
-    private final Set<ICommandFlagV2> flags = Collections.synchronizedSet(Sets.newHashSet());
-    private final Set<ICommandCallbackV2> callbacks = Collections.synchronizedSet(Sets.newHashSet());
+    private final Set<ICommandFlagV2> flags = Sets.newCopyOnWriteArraySet();
+    private final Set<ICommandCallbackV2> callbacks = Sets.newCopyOnWriteArraySet();
 
     public AbstractCommandV2(String name,
                              @Nullable Collection<String> aliases,
@@ -58,7 +59,12 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
         this.parent = parent;
         this.arguments = efficientImmutableCopy(arguments);
 
-        if(ArgumentHelper.isInvalidArgumentOrder(this.arguments)) throw new CommandRuntimeExceptionV2.CreationFailure("required arguments are not allowed after non-required arguments");
+        // make sure no alias with the same name as the command exists
+        if(this.aliases.stream().anyMatch(name::equalsIgnoreCase))
+            throw new CommandRuntimeExceptionV2.CreationFailure("alias cannot be root name");
+
+        if(ArgumentHelper.isInvalidArgumentOrder(this.arguments))
+            throw new CommandRuntimeExceptionV2.CreationFailure("required arguments are not allowed after non-required arguments");
 
         this.parser = new OptionParser();
 
@@ -126,6 +132,21 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
     }
 
     @Override
+    public boolean isIdentifiableAs(String name) {
+        return CommandHelperV2.isNameValid(name) && (
+                getName().equalsIgnoreCase(name)
+                        || getAbsoluteName().equalsIgnoreCase(name)
+                        || getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(name)));
+    }
+
+    @Override
+    public boolean isConflictingWith(ICommandV2 other) {
+        return getName().equalsIgnoreCase(other.getName()) || (
+                !getAliases().isEmpty() && other.getAliases().isEmpty() // we don't want to compute this is neither has aliases assigned
+                        && getAliases().stream().anyMatch(alias -> other.getAliases().stream().anyMatch(alias::equalsIgnoreCase)));
+    }
+
+    @Override
     public String getDescription() {
         return description;
     }
@@ -137,12 +158,12 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
     }
 
     @Override
-    public Collection<ArgumentV2<?>> getArguments() {
+    public List<ArgumentV2<?>> getArguments() {
         return arguments;
     }
 
     @Override
-    public Collection<OptionV2> getOptions() {
+    public List<OptionV2> getOptions() {
         return options;
     }
 
@@ -158,9 +179,7 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
 
     @Override
     public Collection<ICommandFlagV2> getFlags() {
-        synchronized (flags) {
-            return Lists.newArrayList(flags);
-        }
+        return ImmutableSet.copyOf(flags);
     }
 
     protected Collection<ICommandFlagV2> _getFlags() {
@@ -169,60 +188,42 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
 
     @Override
     public boolean addFlag(ICommandFlagV2 flag) {
-        synchronized (flags) {
-            return flags.add(flag);
-        }
+        return flags.add(flag);
     }
 
     @Override
     public boolean removeFlag(ICommandFlagV2 flag) {
-        synchronized (flags) {
-            return flags.remove(flag);
-        }
+        return flags.remove(flag);
     }
 
     @Override
     public boolean containsFlag(ICommandFlagV2 flag) {
-        synchronized (flags) {
-            return flags.contains(flag);
-        }
+        return !flags.isEmpty() && flags.contains(flag);
     }
 
     @Nonnull
     @Override
     public Collection<ICommandCallbackV2> getCallbacks() {
-        synchronized (callbacks) {
-            return Sets.newHashSet(callbacks);
-        }
+        return ImmutableSet.copyOf(callbacks);
     }
 
     @Nonnull
     @Override
     public <T extends ICommandCallbackV2> Collection<T> getCallbacksOfType(Class<T> clazz) {
-        synchronized (callbacks) {
-            return callbacks.stream()
-                    .filter(clazz::isInstance)
-                    .map(clazz::cast)
-                    .collect(Collectors.toSet());
-        }
-    }
-
-    protected Collection<ICommandCallbackV2> _getCallbacks() {
-        return callbacks;
+        return callbacks.stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .collect(ImmutableCollectors.toImmutableSet());
     }
 
     @Override
     public boolean addCallback(ICommandCallbackV2 callback) {
-        synchronized (callbacks) {
-            return callbacks.add(callback);
-        }
+        return callbacks.add(callback);
     }
 
     @Override
     public boolean removeCallback(ICommandCallbackV2 callback) {
-        synchronized (callbacks) {
-            return callbacks.remove(callback);
-        }
+        return callbacks.remove(callback);
     }
 
     protected OptionParser _getParser() {

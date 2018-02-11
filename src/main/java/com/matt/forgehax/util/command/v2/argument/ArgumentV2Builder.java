@@ -12,7 +12,7 @@ public class ArgumentV2Builder<E> {
     private TypeConverter<E> converter = null;
     private boolean required = true;
     private E defaultValue = null;
-    private ISuggestionProvider.Function<ArgumentV2<E>> suggestionsFunction = null;
+    private IPredictableArgument.Function<ArgumentV2<E>> predictor = null;
 
     /**
      * Short description of what this argument exists for
@@ -67,11 +67,11 @@ public class ArgumentV2Builder<E> {
 
     /**
      * Generates list of possible options given a certain input
-     * @param suggestionsFunction function
+     * @param predictor function
      * @return this
      */
-    public ArgumentV2Builder<E> suggestions(ISuggestionProvider.Function<ArgumentV2<E>> suggestionsFunction) {
-        this.suggestionsFunction = suggestionsFunction;
+    public ArgumentV2Builder<E> predictor(IPredictableArgument.Function<ArgumentV2<E>> predictor) {
+        this.predictor = predictor;
         return this;
     }
 
@@ -81,8 +81,8 @@ public class ArgumentV2Builder<E> {
      * @throws CommandRuntimeExceptionV2.CreationFailure if there is anything wrong with the provided data
      */
     public ArgumentV2<E> build() throws CommandRuntimeExceptionV2.CreationFailure {
-        return suggestionsFunction == null ? new ArgumentV2Generic<>(description, converter, required, defaultValue)
-                : new ArgumentV2Generic.InputHelper<>(description, converter, required, defaultValue, suggestionsFunction);
+        return predictor == null ? new ArgumentV2Generic<>(description, converter, required, defaultValue)
+                : new ArgumentV2Generic.Extension<>(description, converter, required, defaultValue, predictor);
     }
 
     public ArgumentV2 empty() throws CommandRuntimeExceptionV2.CreationFailure {

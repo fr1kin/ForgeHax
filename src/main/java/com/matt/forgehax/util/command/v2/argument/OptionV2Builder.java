@@ -15,7 +15,7 @@ public class OptionV2Builder {
     private boolean required = false;
     private OptionDescriptor descriptor = null;
     private ArgumentV2<?> argument = null;
-    private ISuggestionProvider.Function<OptionV2> suggestionsFunction = null;
+    private IPredictableArgument.Function<OptionV2> predictor = null;
 
     /**
      * Name(s) to be associated with this option
@@ -62,11 +62,11 @@ public class OptionV2Builder {
 
     /**
      * Generates list of possible options given a certain input
-     * @param suggestionsFunction function
+     * @param predictor function
      * @return this
      */
-    public OptionV2Builder suggestions(ISuggestionProvider.Function<OptionV2> suggestionsFunction) {
-        this.suggestionsFunction = suggestionsFunction;
+    public OptionV2Builder predictor(IPredictableArgument.Function<OptionV2> predictor) {
+        this.predictor = predictor;
         return this;
     }
 
@@ -81,19 +81,17 @@ public class OptionV2Builder {
 
     public OptionV2 asGeneric() {
         if(ArgumentHelper.isNullOrEmpty(argument)) // no argument
-            return suggestionsFunction == null ? new OptionV2Generic(names, description, required)
-                    : new OptionV2Generic.Suggestions(names, description, required, suggestionsFunction);
+            return new OptionV2Generic(names, description, required); // no argument means you cant predict the result
         else // argument
-            return suggestionsFunction == null ? new OptionV2Generic.AcceptsArgument(names, description, required, argument)
-                    : new OptionV2Generic.AcceptsArgument.Suggestions(names, description, required, argument, suggestionsFunction);
+            return predictor == null ? new OptionV2Generic.AcceptsArgument(names, description, required, argument)
+                    : new OptionV2Generic.AcceptsArgument.Extension(names, description, required, argument, predictor);
     }
 
     public OptionV2 asJOptWrapper() {
         if(!descriptor.acceptsArguments()) // no argument
-            return suggestionsFunction == null ? new OptionV2JOptWrapper(descriptor)
-                    : new OptionV2JOptWrapper.Suggestions(descriptor, suggestionsFunction);
+            return new OptionV2JOptWrapper(descriptor); // no argument means you cant predict the result
         else // argument
-            return suggestionsFunction == null ? new OptionV2JOptWrapper.AcceptsArgument(descriptor, argument)
-                    : new OptionV2JOptWrapper.AcceptsArgument.Suggestions(descriptor, argument, suggestionsFunction);
+            return predictor == null ? new OptionV2JOptWrapper.AcceptsArgument(descriptor, argument)
+                    : new OptionV2JOptWrapper.AcceptsArgument.Extension(descriptor, argument, predictor);
     }
 }

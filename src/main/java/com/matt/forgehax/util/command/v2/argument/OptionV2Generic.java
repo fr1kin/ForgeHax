@@ -1,6 +1,7 @@
 package com.matt.forgehax.util.command.v2.argument;
 
 import com.google.common.collect.ImmutableList;
+import com.matt.forgehax.util.command.v2.ICommandV2;
 import com.matt.forgehax.util.command.v2.exception.CommandExceptions;
 import com.matt.forgehax.util.command.v2.exception.CommandRuntimeExceptionV2;
 
@@ -89,46 +90,25 @@ public class OptionV2Generic extends OptionV2 {
         //
         //
 
-        public static class Suggestions extends AcceptsArgument {
-            private final ISuggestionProvider.Function<OptionV2> suggestionsFunction;
+        public static class Extension extends AcceptsArgument {
+            private final IPredictableArgument.Function<OptionV2> predictor;
 
-            protected Suggestions(Collection<String> names, @Nullable String description, boolean required, @Nonnull ArgumentV2<?> argument, @Nonnull ISuggestionProvider.Function<OptionV2> suggestionsFunction) throws CommandRuntimeExceptionV2 {
+            protected Extension(Collection<String> names, @Nullable String description, boolean required, @Nonnull ArgumentV2<?> argument, @Nonnull IPredictableArgument.Function<OptionV2> predictor) throws CommandRuntimeExceptionV2 {
                 super(names, description, required, argument);
-                CommandExceptions.checkIfNull(suggestionsFunction, "suggestions function is null");
-                this.suggestionsFunction = suggestionsFunction;
+                CommandExceptions.checkIfNull(predictor, "predictor function is null");
+                this.predictor = predictor;
             }
 
             @Nonnull
             @Override
-            public List<String> getSuggestions(String input) {
-                return suggestionsFunction.apply(this, input);
+            public List<String> getPredictions(ICommandV2 command, String input) {
+                return predictor.apply(this, command, input);
             }
 
             @Override
             public OptionV2Builder copy() {
-                return super.copy().suggestions(suggestionsFunction);
+                return super.copy().predictor(predictor);
             }
-        }
-    }
-
-    public static class Suggestions extends OptionV2Generic {
-        private final ISuggestionProvider.Function<OptionV2> suggestionsFunction;
-
-        protected Suggestions(Collection<String> names, @Nullable String description, boolean required, @Nonnull ISuggestionProvider.Function<OptionV2> suggestionsFunction) throws CommandRuntimeExceptionV2 {
-            super(names, description, required);
-            CommandExceptions.checkIfNull(suggestionsFunction, "suggestions function is null");
-            this.suggestionsFunction = suggestionsFunction;
-        }
-
-        @Nonnull
-        @Override
-        public List<String> getSuggestions(String input) {
-            return suggestionsFunction.apply(this, input);
-        }
-
-        @Override
-        public OptionV2Builder copy() {
-            return super.copy().suggestions(suggestionsFunction);
         }
     }
 }

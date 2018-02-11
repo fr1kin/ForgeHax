@@ -1,12 +1,12 @@
 package com.matt.forgehax.util.command.v2.argument;
 
+import com.matt.forgehax.util.command.v2.ICommandV2;
 import com.matt.forgehax.util.command.v2.exception.CommandRuntimeExceptionV2;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
 import joptsimple.internal.Strings;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,33 +69,27 @@ public class ArgumentV2Generic<E> extends ArgumentV2<E> {
         return defaultValue;
     }
 
-    @Nonnull
-    @Override
-    public List<String> getSuggestions(String input) {
-        return Collections.emptyList();
-    }
-
     //
     //
     //
 
-    public static class InputHelper<E> extends ArgumentV2Generic<E> {
-        private final ISuggestionProvider.Function<ArgumentV2<E>> suggestionsFunction;
+    public static class Extension<E> extends ArgumentV2Generic<E> {
+        private final IPredictableArgument.Function<ArgumentV2<E>> predictor;
 
-        protected InputHelper(@Nullable String description,
-                              TypeConverter<E> converter,
-                              boolean required,
-                              @Nullable E defaultValue,
-                              @Nonnull ISuggestionProvider.Function<ArgumentV2<E>> suggestionsFunction) throws CommandRuntimeExceptionV2.CreationFailure {
+        protected Extension(@Nullable String description,
+                            TypeConverter<E> converter,
+                            boolean required,
+                            @Nullable E defaultValue,
+                            @Nonnull IPredictableArgument.Function<ArgumentV2<E>> predictor) throws CommandRuntimeExceptionV2.CreationFailure {
             super(description, converter, required, defaultValue);
-            Objects.requireNonNull(suggestionsFunction, "suggestions function is null");
-            this.suggestionsFunction = suggestionsFunction;
+            Objects.requireNonNull(predictor, "predictor function is null");
+            this.predictor = predictor;
         }
 
         @Nonnull
         @Override
-        public List<String> getSuggestions(String input) {
-            return suggestionsFunction.apply(this, input);
+        public List<String> getPredictions(ICommandV2 command, String input) {
+            return predictor.apply(this, command, input);
         }
     }
 }

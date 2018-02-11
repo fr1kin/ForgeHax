@@ -1,5 +1,6 @@
 package com.matt.forgehax.util.command.v2.argument;
 
+import com.matt.forgehax.util.command.v2.ICommandV2;
 import com.matt.forgehax.util.command.v2.exception.CommandExceptions;
 import com.matt.forgehax.util.command.v2.exception.CommandRuntimeExceptionV2;
 import joptsimple.internal.Strings;
@@ -13,7 +14,7 @@ import java.util.Objects;
 /**
  * Created on 2/3/2018 by fr1kin
  */
-public abstract class OptionV2 implements ISuggestionProvider {
+public abstract class OptionV2 implements IPredictableArgument {
     protected static final String NO_DESCRIPTION = "No description given";
 
     public enum Type {
@@ -116,7 +117,7 @@ public abstract class OptionV2 implements ISuggestionProvider {
 
     @Nonnull
     @Override
-    public List<String> getSuggestions(String input) {
+    public List<String> getPredictions(ICommandV2 command, String input) {
         return Collections.emptyList();
     }
 
@@ -129,11 +130,5 @@ public abstract class OptionV2 implements ISuggestionProvider {
         if(names.isEmpty()) throw new CommandRuntimeExceptionV2.CreationFailure("no name(s) provided");
         for(String n : names) if(Strings.isNullOrEmpty(n))
             throw new CommandRuntimeExceptionV2.CreationFailure("provided name is null or empty");
-    }
-
-    public static class BadOptionException extends RuntimeException {
-        public BadOptionException(String msg) {
-            super(msg);
-        }
     }
 }

@@ -25,4 +25,10 @@ public class CommandRuntimeExceptionV2 extends RuntimeException {
             super(msg);
         }
     }
+
+    public static class ConflictingCommands extends CommandRuntimeExceptionV2 {
+        public ConflictingCommands(String msg) {
+            super(msg);
+        }
+    }
 }

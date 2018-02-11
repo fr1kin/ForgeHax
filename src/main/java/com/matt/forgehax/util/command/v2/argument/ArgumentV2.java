@@ -1,5 +1,6 @@
 package com.matt.forgehax.util.command.v2.argument;
 
+import com.matt.forgehax.util.command.v2.ICommandV2;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
 
 import javax.annotation.Nonnull;
@@ -11,7 +12,7 @@ import java.util.Objects;
 /**
  * Created on 12/25/2017 by fr1kin
  */
-public abstract class ArgumentV2<E> implements ISuggestionProvider {
+public abstract class ArgumentV2<E> implements IPredictableArgument {
     /**
      * Description of the command
      * @return description
@@ -53,7 +54,7 @@ public abstract class ArgumentV2<E> implements ISuggestionProvider {
 
     @Nonnull
     @Override
-    public List<String> getSuggestions(String input) {
+    public List<String> getPredictions(ICommandV2 command, String input) {
         return Collections.emptyList();
     }
 
