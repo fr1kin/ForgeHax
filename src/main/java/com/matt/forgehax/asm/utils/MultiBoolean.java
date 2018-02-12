@@ -2,7 +2,6 @@ package com.matt.forgehax.asm.utils;
 
 import com.google.common.collect.Sets;
 
-import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -12,7 +11,7 @@ public class MultiBoolean {
     /**
      * A list of unique string ids so that one mod cannot increment the level more than once.
      */
-    private final Set<String> ids = Collections.synchronizedSet(Sets.newHashSet());
+    private final Set<String> ids = Sets.newCopyOnWriteArraySet();
     private int level = 0;
 
     private void clampLevel() {
@@ -24,11 +23,9 @@ public class MultiBoolean {
      * @param uniqueId id used to identify this increment
      */
     public void enable(String uniqueId) {
-        synchronized (ids) {
-            if(ids.add(uniqueId)) {
-                ++level;
-                clampLevel();
-            }
+        if(ids.add(uniqueId)) {
+            ++level;
+            clampLevel();
         }
     }
 
@@ -37,11 +34,9 @@ public class MultiBoolean {
      * @param uniqueId unique id
      */
     public void disable(String uniqueId) {
-        synchronized (ids) {
-            if(ids.remove(uniqueId)) {
-                --level;
-                clampLevel();
-            }
+        if(ids.remove(uniqueId)) {
+            --level;
+            clampLevel();
         }
     }
 
@@ -50,10 +45,8 @@ public class MultiBoolean {
      * Do not use this unless it's absolutely necessary
      */
     public void forceDisable() {
-        synchronized (ids) {
-            level = 0;
-            ids.clear();
-        }
+        level = 0;
+        ids.clear();
     }
 
     /**
