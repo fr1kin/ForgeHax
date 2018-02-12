@@ -1,10 +1,9 @@
 package com.matt.forgehax.util.command.v2;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.matt.forgehax.util.ImmutableCollectors;
+import com.matt.forgehax.util.Immutables;
 import com.matt.forgehax.util.command.v2.argument.ArgumentHelper;
 import com.matt.forgehax.util.command.v2.argument.ArgumentV2;
 import com.matt.forgehax.util.command.v2.argument.OptionV2;
@@ -21,7 +20,6 @@ import joptsimple.ValueConverter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -54,10 +52,10 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
         CommandExceptions.checkIfNullOrEmpty(description, "description missing");
 
         this.name = name;
-        this.aliases = efficientImmutableCopy(aliases);
+        this.aliases = Immutables.copyToList(aliases);
         this.description = description;
         this.parent = parent;
-        this.arguments = efficientImmutableCopy(arguments);
+        this.arguments = Immutables.copyToList(arguments);
 
         // make sure no alias with the same name as the command exists
         if(this.aliases.stream().anyMatch(name::equalsIgnoreCase))
@@ -112,7 +110,7 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
         }
 
         // copy wrapped options to immutable list
-        this.options = efficientImmutableCopy(wrapped);
+        this.options = Immutables.copyToList(wrapped);
     }
 
     @Override
@@ -213,7 +211,7 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
         return callbacks.stream()
                 .filter(clazz::isInstance)
                 .map(clazz::cast)
-                .collect(ImmutableCollectors.toImmutableSet());
+                .collect(Immutables.toImmutableSet());
     }
 
     @Override
@@ -234,18 +232,5 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
     public boolean equals(Object obj) {
         return obj instanceof ICommandV2
                 && getAbsoluteName().equalsIgnoreCase(((ICommandV2) obj).getAbsoluteName());
-    }
-
-    //
-    // util
-    //
-
-    protected static <T> List<T> efficientImmutableCopy(@Nullable Collection<T> collection) {
-        if(collection == null || collection.isEmpty())
-            return Collections.emptyList();
-        else if(collection.size() == 1)
-            return Collections.singletonList(collection.iterator().next());
-        else
-            return ImmutableList.copyOf(collection);
     }
 }
