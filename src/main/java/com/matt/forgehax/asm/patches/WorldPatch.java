@@ -53,4 +53,32 @@ public class WorldPatch extends ClassTransformer {
             method.instructions.insertBefore(postNode, endJump);
         }
     }
+
+    @RegisterMethodTransformer
+    private class CheckLightFor extends MethodTransformer {
+        @Override
+        public ASMMethod getMethod() {
+            return Methods.World_checkLightFor;
+        }
+
+        @Inject(description = "Add hook before everything")
+        public void inject(MethodNode method) {
+            AbstractInsnNode node = method.instructions.getFirst();
+
+            Objects.requireNonNull(node, "Failed to find node.");
+
+            LabelNode label = new LabelNode();
+
+            InsnList list = new InsnList();
+            list.add(new VarInsnNode(ALOAD, 1)); // enum
+            list.add(new VarInsnNode(ALOAD, 2)); // blockpos
+            list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onWorldCheckLightFor));
+            list.add(new JumpInsnNode(IFEQ, label));
+            list.add(new InsnNode(ICONST_0));
+            list.add(new InsnNode(IRETURN));
+            list.add(label);
+
+            method.instructions.insertBefore(node, list);
+        }
+    }
 }

@@ -225,6 +225,11 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
+        ASMClass EnumSkyBlock = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/world/EnumSkyBlock")
+                .autoAssign()
+                .build();
+
     }
 
     interface Fields {
@@ -475,6 +480,15 @@ public interface TypesMc {
                 .add(Classes.AxisAlignedBB)
                 .add(Classes.Material)
                 .add(Classes.Entity)
+                .finish()
+                .autoAssign()
+                .build();
+        ASMMethod World_checkLightFor = Classes.World.childMethod()
+                .setName("checkLightFor")
+                .setReturnType(boolean.class)
+                .beginParameters()
+                .add(Classes.EnumSkyBlock)
+                .add(Classes.BlockPos)
                 .finish()
                 .autoAssign()
                 .build();

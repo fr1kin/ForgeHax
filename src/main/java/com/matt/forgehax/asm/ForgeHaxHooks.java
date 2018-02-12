@@ -20,6 +20,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -200,10 +201,14 @@ public class ForgeHaxHooks implements ASMCommon {
     }
 
     public static void onUpdateWalkingPlayerPre() {
-        MinecraftForge.EVENT_BUS.register(new LocalPlayerUpdateMovementEvent.Pre());
+        MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Pre());
     }
 
     public static void onUpdateWalkingPlayerPost() {
-        MinecraftForge.EVENT_BUS.register(new LocalPlayerUpdateMovementEvent.Post());
+        MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Post());
+    }
+
+    public static boolean onWorldCheckLightFor(EnumSkyBlock enumSkyBlock, BlockPos pos) {
+        return MinecraftForge.EVENT_BUS.post(new WorldCheckLightForEvent(enumSkyBlock, pos));
     }
 }

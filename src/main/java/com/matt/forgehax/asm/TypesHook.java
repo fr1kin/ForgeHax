@@ -317,5 +317,13 @@ public interface TypesHook {
                 .finish()
                 .build();
 
+        ASMMethod ForgeHaxHooks_onWorldCheckLightFor = Classes.ForgeHaxHooks.childMethod()
+                .setName("onWorldCheckLightFor")
+                .setReturnType(boolean.class)
+                .beginParameters()
+                .add(TypesMc.Classes.EnumSkyBlock)
+                .add(TypesMc.Classes.BlockPos)
+                .finish()
+                .build();
     }
 }
