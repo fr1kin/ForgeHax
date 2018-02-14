@@ -3,6 +3,7 @@ package com.matt.forgehax.util.mod.loader;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.util.ClassLoaderHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraft.launchwrapper.Launch;
 

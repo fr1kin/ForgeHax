@@ -1,4 +1,4 @@
-package com.matt.forgehax.util.mod.loader;
+package com.matt.forgehax.util;
 
 import sun.net.www.protocol.file.FileURLConnection;
 
