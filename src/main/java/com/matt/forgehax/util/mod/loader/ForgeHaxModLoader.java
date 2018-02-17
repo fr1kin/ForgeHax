@@ -1,68 +1,46 @@
 package com.matt.forgehax.util.mod.loader;
 
-import com.google.common.collect.Lists;
-import com.matt.forgehax.Globals;
-import com.matt.forgehax.Helper;
-import com.matt.forgehax.util.ClassLoaderHelper;
+import com.matt.forgehax.util.classloader.AbstractClassLoader;
 import com.matt.forgehax.util.mod.BaseMod;
-import net.minecraft.launchwrapper.Launch;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static com.matt.forgehax.Helper.getLog;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Created on 5/16/2017 by fr1kin
  */
-public class ForgeHaxModLoader implements Globals {
+public class ForgeHaxModLoader extends AbstractClassLoader<BaseMod> {
+    private static final ForgeHaxModLoader INSTANCE = new ForgeHaxModLoader();
 
-    @SuppressWarnings("unchecked")
-    public static Collection<Class<? extends BaseMod>> getClassesInPackage(String pack) {
-        try {
-            return ClassLoaderHelper.getClassesForPackage(getFMLClassLoader(), pack).stream()
-                    .filter(ForgeHaxModLoader::isClassValid)
-                    .map(c -> (Class<? extends BaseMod>)c)
-                    .collect(Collectors.toList());
-        } catch (Throwable t) {
-            Helper.handleThrowable(t);
-        }
-        return Collections.emptyList();
+    public static ForgeHaxModLoader getInstance() {
+        return INSTANCE;
     }
 
-    protected static boolean isClassValid(Class<?> clazz) {
+    @Override
+    public Class<BaseMod> getInheritedClass() {
+        return BaseMod.class;
+    }
+
+    @Override
+    public Class<? extends Annotation> getAnnotationClass() {
+        return RegisterMod.class;
+    }
+
+    @Override
+    public boolean valid(Class<? extends BaseMod> clazz) {
         try {
-            Objects.requireNonNull(clazz);
-            if(!clazz.isAnnotationPresent(RegisterMod.class))
-                throw new Exception("missing @RegisterMod annotation");
-            if(!BaseMod.class.isAssignableFrom(clazz))
-                throw new Exception("does not extend BaseMod class");
-            if(clazz.getDeclaredConstructor() == null)
-                throw new Exception("missing default constructor");
-            return true;
-        } catch (Throwable t) {
-            getLog().warn(String.format("Invalid class \"%s\": %s", clazz.getName(), t.getMessage()));
+            return clazz.getDeclaredConstructor() != null;
+        } catch (NoSuchMethodException e) {
             return false;
         }
     }
 
-    public static Collection<BaseMod> loadClasses(Collection<Class<? extends BaseMod>> classes) {
-        List<BaseMod> mods = Lists.newArrayList();
-        classes.forEach(clazz -> {
-            try {
-                mods.add(clazz.getDeclaredConstructor().newInstance());
-            } catch (Exception e) {
-                Helper.printStackTrace(e);
-                getLog().warn(String.format("Failed to create a new instance of '%s': %s", clazz.getSimpleName(), e.getMessage()));
-            }
-        });
-        return Collections.unmodifiableCollection(mods);
-    }
-
-    private static ClassLoader getFMLClassLoader() {
-        return Launch.classLoader;
+    @Override
+    public BaseMod create(Class<? extends BaseMod> clazz) {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            return null;
+        }
     }
 }

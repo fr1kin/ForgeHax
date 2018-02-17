@@ -8,6 +8,7 @@ import joptsimple.internal.Strings;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -63,23 +64,27 @@ public class ModManager implements Globals {
 
     public void addClassesInPackage(String pkg) {
         LOGGER.info("Search for mods inside \"" + pkg + "\"");
-        foundClasses.addAll(ForgeHaxModLoader.getClassesInPackage(pkg));
+        try {
+            foundClasses.addAll(ForgeHaxModLoader.getInstance().getClassesInPackage(pkg));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void getPluginClasses() {
         PluginLoader.getJars().forEach(jar -> {
             getLog().info(String.format("Found jar \"%s\"", jar.getName()));
             PluginLoader.getAllClasses(jar, Strings.EMPTY).stream()
-                    .filter(ForgeHaxModLoader::isClassValid)
-                    .forEach(clazz -> {
-                        getLog().info(String.format("Found class \"%s\"", clazz.getName()));
-                        addClass(clazz);
-                    });
+                    .filter(clazz -> clazz.isAnnotationPresent(RegisterMod.class))
+                    .filter(BaseMod.class::isAssignableFrom)
+                    .map(clazz -> (Class<? extends BaseMod>)clazz)
+                    .filter(ForgeHaxModLoader.getInstance()::valid)
+                    .forEach(this::addClass);
         });
     }
 
     public void loadClasses() {
-        ForgeHaxModLoader.loadClasses(foundClasses).forEach(this::registerMod);
+        ForgeHaxModLoader.getInstance().getClassInstances(foundClasses).forEach(this::registerMod);
     }
 
     public void reloadClasses() {
