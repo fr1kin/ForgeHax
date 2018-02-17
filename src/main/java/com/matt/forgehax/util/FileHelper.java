@@ -4,7 +4,11 @@ import joptsimple.internal.Strings;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,5 +78,24 @@ public class FileHelper {
     public static String getJarPathFromFullPath(String file) {
         Matcher matcher = PATTERN_JAR_DIR_FROM_PATH.matcher(file);
         return matcher.find() ? matcher.group(1) : null;
+    }
+
+    public static FileSystem newFileSystem(Path filePath, ClassLoader parent) throws IOException {
+        return FileSystems.newFileSystem(filePath, parent);
+    }
+    public static FileSystem newFileSystem(File file, ClassLoader parent) throws IOException {
+        return FileSystems.newFileSystem(file.toPath(), parent);
+    }
+    public static FileSystem newFileSystem(String filePath, ClassLoader parent) throws IOException {
+        return FileSystems.newFileSystem(Paths.get(filePath), parent);
+    }
+    public static FileSystem newFileSystem(Path filePath) throws IOException {
+        return newFileSystem(filePath, null);
+    }
+    public static FileSystem newFileSystem(File file) throws IOException {
+        return newFileSystem(file, null);
+    }
+    public static FileSystem newFileSystem(String filePath) throws IOException {
+        return newFileSystem(filePath, null);
     }
 }

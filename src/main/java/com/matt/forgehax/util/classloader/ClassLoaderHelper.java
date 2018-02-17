@@ -68,8 +68,7 @@ public class ClassLoaderHelper {
         Objects.requireNonNull(packageDir);
 
         // open new file system to the jar file
-        FileSystem fs = FileSystems.newFileSystem(Paths.get(jarFile.getName()), null);
-        final Path root = fs.getPath("/");
+        final Path root = newFileSystem(jarFile.getName()).getPath("/");
         final Path packagePath = root.resolve(packageDir);
 
         return Streamables.enumerationStream(jarFile.entries())
