@@ -12,29 +12,48 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 import static com.matt.forgehax.util.FileHelper.*;
 
 public class ClassLoaderHelper {
-    private static void getClassPathsInDirectory(final Path directory, final List<Path> found, final boolean recursive) {
+    private static void searchDirectory(final Path directory, final List<Path> results, final BiFunction<Path, List<Path>, Boolean> function) {
         Optional.ofNullable(directory)
                 .filter(Files::exists)
                 .filter(Files::isDirectory)
                 .ifPresent(dir -> {
                     try {
                         Files.list(dir).forEach(path -> {
-                            if(Files.isDirectory(path)) {
-                                if(recursive) getClassPathsInDirectory(path, found, true); // will always be true;
-                            }
-                            else if(getFileExtension(path).equals("class"))
-                                found.add(path);
+                            if(function.apply(path, results)) searchDirectory(path, results, function);
                         });
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 });
+    }
+
+    public static List<Path> getJarPathsInDirectory(Path directory, boolean recursive) {
+        List<Path> results = Lists.newArrayList();
+        searchDirectory(directory, results, (path, paths) -> {
+            if(Files.isDirectory(path))
+                return recursive;
+            else if(getFileExtension(path).equals("jar"))
+                paths.add(path);
+            return false;
+        });
+        return results;
+    }
+    public static List<Path> getJarPathsInDirectory(File directory, boolean recursive) {
+        return getJarPathsInDirectory(directory.toPath(), recursive);
+    }
+    public static List<Path> getJarPathsInDirectory(String directory, boolean recursive) {
+        return getJarPathsInDirectory(Paths.get(directory), recursive);
+    }
+    public static List<Path> getJarPathsInDirectory(String directory) {
+        boolean recursive = directory.endsWith("/*") || directory.endsWith("\\*");
+        return getJarPathsInDirectory(Paths.get(recursive ? directory.substring(0, directory.length() - 2) : directory), recursive);
     }
 
     /**
@@ -44,15 +63,25 @@ public class ClassLoaderHelper {
      * @return All files inside the directory that have the .class extension
      */
     public static List<Path> getClassPathsInDirectory(Path directory, boolean recursive) {
-        List<Path> found = Lists.newArrayList();
-        getClassPathsInDirectory(directory, found, recursive);
-        return found;
+        List<Path> results = Lists.newArrayList();
+        searchDirectory(directory, results, (path, paths) -> {
+            if(Files.isDirectory(path))
+                return recursive;
+            else if(getFileExtension(path).equals("class"))
+                paths.add(path);
+            return false;
+        });
+        return results;
     }
     public static List<Path> getClassPathsInDirectory(File directory, boolean recursive) {
         return getClassPathsInDirectory(directory.toPath(), recursive);
     }
     public static List<Path> getClassPathsInDirectory(String directory, boolean recursive) {
         return getClassPathsInDirectory(Paths.get(directory), recursive);
+    }
+    public static List<Path> getClassPathsInDirectory(String directory) {
+        boolean recursive = directory.endsWith("/*") || directory.endsWith("\\*");
+        return getClassPathsInDirectory(Paths.get(recursive ? directory.substring(0, directory.length() - 2) : directory), recursive);
     }
 
     /**
@@ -112,23 +141,24 @@ public class ClassLoaderHelper {
                     URLConnection connection;
                     try {
                         connection = url.openConnection();
+                        String path = URLDecoder.decode(url.getPath(), "UTF-8");
                         if(connection instanceof FileURLConnection) {
                             results.addAll(getClassPathsInDirectory(
-                                    URLDecoder.decode(url.getPath(), "UTF-8").substring(1), // substring(1) will remove '/'
+                                    path.substring(1), // substring(1) will remove '/'
                                     recursive
                             ));
                         }
                         else if(connection instanceof JarURLConnection) {
                             results.addAll(getClassPathsInJar(
                                     ((JarURLConnection)connection).getJarFile(),
-                                    asFilePath(getPackageFromFullPath(URLDecoder.decode(url.getPath(), "UTF-8").substring(6))), // substring(6) will remove 'file:/'
+                                    asFilePath(getPackageFromFullPath(path.substring(6))), // substring(6) will remove 'file:/'
                                     recursive
                             ));
                         }
                         else if(connection instanceof sun.net.www.protocol.jar.JarURLConnection) {
                             results.addAll(getClassPathsInJar(
                                     ((sun.net.www.protocol.jar.JarURLConnection)connection).getJarFile(),
-                                    asFilePath(getPackageFromFullPath(URLDecoder.decode(url.getPath(), "UTF-8").substring(6))), // substring(6) will remove 'file:/'
+                                    asFilePath(getPackageFromFullPath(path.substring(6))), // substring(6) will remove 'file:/'
                                     recursive
                             ));
                         }
