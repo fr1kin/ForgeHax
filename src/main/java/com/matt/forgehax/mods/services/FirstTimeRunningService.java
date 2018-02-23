@@ -44,6 +44,6 @@ public class FirstTimeRunningService extends ServiceMod {
                 ;
             }
         }
-        getModManager().unregisterMod(this);
+        getModManager().unload(this);
     }
 }

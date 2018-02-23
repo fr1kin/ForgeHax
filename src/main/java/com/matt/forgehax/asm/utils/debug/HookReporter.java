@@ -64,18 +64,24 @@ public class HookReporter {
         return eventClasses;
     }
 
+    /**
+     * Gets all Forge Events represented by this hook
+     * @return immutable list of forge events
+     */
+    @SuppressWarnings("unchecked")
     public List<Class<? extends Event>> getForgeEventClasses() {
         return eventClasses.stream()
                 .filter(Event.class::isAssignableFrom)
                 .map(clazz -> (Class<? extends Event>)clazz)
-                .collect(Collectors.toList());
+                .collect(Immutables.toImmutableList());
     }
 
+    @SuppressWarnings("unchecked")
     public List<Class<? extends ListenerHook>> getListenerEventClasses() {
         return eventClasses.stream()
                 .filter(ListenerHook.class::isAssignableFrom)
                 .map(clazz -> (Class<? extends ListenerHook>)clazz)
-                .collect(Collectors.toList());
+                .collect(Immutables.toImmutableList());
     }
 
     /**
@@ -124,6 +130,21 @@ public class HookReporter {
      */
     public boolean isDeprecatedHook() {
         return method.isAnnotationPresent(Deprecated.class);
+    }
+
+    @Override
+    public int hashCode() {
+        return method.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj || (obj instanceof HookReporter && Objects.equals(getMethod(), ((HookReporter) obj).getMethod()));
+    }
+
+    @Override
+    public String toString() {
+        return method.getName();
     }
 
     public static class Builder {

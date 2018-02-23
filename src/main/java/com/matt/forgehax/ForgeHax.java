@@ -5,6 +5,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+import static com.matt.forgehax.Helper.getFileManager;
 import static com.matt.forgehax.Helper.getModManager;
 
 @Mod(modid = ForgeHax.MOD_ID, clientSideOnly = true)
@@ -17,11 +18,9 @@ public class ForgeHax {
 		// NOTE: if you ever change the package name make sure this
 		// is updated or mods will not load anymore
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		getModManager().addClassesInPackage("com.matt.forgehax.mods");
-		getModManager().addClassesInPackage("com.matt.forgehax.mods.commands");
-		getModManager().addClassesInPackage("com.matt.forgehax.mods.services");
-		getModManager().addClassesInPackage("com.matt.forgehax.mods.services.tasks");
-		getModManager().getPluginClasses();
+		getModManager().searchPackage("com.matt.forgehax.mods.*");
+		getModManager().searchPluginDirectory(getFileManager().getBaseDirectory().toPath().resolve("plugins"));
+
 	}
 
 	public static String getWelcomeMessage() {
@@ -38,7 +37,7 @@ public class ForgeHax {
 		switch (event.getSide()) {
 			case CLIENT: {
 				//---- initialize mods ----//
-				getModManager().loadClasses();
+				getModManager().loadAll();
 			}
 			default:
 				break;

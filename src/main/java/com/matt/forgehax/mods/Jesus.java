@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -18,7 +19,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.*;
-import static com.matt.forgehax.util.entity.EntityUtils.*;
+import static com.matt.forgehax.util.entity.EntityUtils.isAboveWater;
+import static com.matt.forgehax.util.entity.EntityUtils.isInWater;
 
 
 /**
@@ -32,7 +34,7 @@ public class Jesus extends ToggleMod {
 
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        if (!getModManager().getMod("Freecam").isEnabled()) {
+        if (!getModManager().get(FreecamMod.class).map(BaseMod::isEnabled).orElse(false)) {
             if (isInWater(getLocalPlayer()) && !getLocalPlayer().isSneaking()) {
                 getLocalPlayer().motionY = 0.1;
                 if (getLocalPlayer().getRidingEntity() != null && !(getLocalPlayer().getRidingEntity() instanceof EntityBoat)) {

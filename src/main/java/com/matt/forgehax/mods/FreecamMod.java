@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -85,11 +86,9 @@ public class FreecamMod extends ToggleMod {
             clonedPlayer = null;
             posX = posY = posZ = 0.D;
             pitch = yaw = 0.f;
-            try {
-                MC.player.capabilities.isFlying = getModManager().getMod("ElytraFlight").isEnabled();
-            } catch (Throwable t) {
-                MC.player.capabilities.isFlying = false;
-            }
+            getLocalPlayer().capabilities.isFlying = getModManager().get(ElytraFlight.class)
+                    .map(BaseMod::isEnabled)
+                    .orElse(false);
             MC.player.capabilities.setFlySpeed(0.05f);
             MC.player.noClip = false;
             MC.player.motionX = MC.player.motionY = MC.player.motionZ = 0.f;
