@@ -1,6 +1,7 @@
 package com.matt.forgehax.util.classloader;
 
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -103,7 +104,7 @@ public abstract class AbstractClassLoader<E> {
     //
     //
 
-    public static ClassLoader getFMLClassLoader() {
+    public static LaunchClassLoader getFMLClassLoader() {
         return Launch.classLoader;
     }
 }
