@@ -154,28 +154,25 @@ public class ClassLoaderHelper {
                     URLConnection connection;
                     try {
                         connection = url.openConnection();
-                        String path = URLDecoder.decode(url.getPath(), "UTF-8");
-                        String parentDir = path.substring(0, path.indexOf(pkgdir));
+
+                        // get the path to the jar/folder containing the classes
+                        String path = URLDecoder.decode(url.getPath(), "UTF-8")
+                                .replace('\\', '/'); // get path and covert backslashes to forward slashes
+                        path = path.substring(path.indexOf('/') + 1, path.length()); // remove the initial '/' or 'file:/' appended to the path
+
+                        // the root directory to the jar/folder containing the classes
+                        String rootDir = path.substring(0, path.indexOf(pkgdir));
+                        // package directory
+                        String packDir = path.substring(path.lastIndexOf(pkgdir), path.length());
+
                         if(connection instanceof FileURLConnection) {
-                            // substring(1) will remove '/'
-                            Path parent = Paths.get(parentDir.substring(1)).normalize();
-                            getClassPathsInDirectory(path.substring(1), recursive).stream()
-                                    .map(parent::relativize)
+                            final Path root = Paths.get(rootDir).normalize();
+                            getClassPathsInDirectory(path, recursive).stream()
+                                    .map(root::relativize)
                                     .forEach(results::add);
                         }
                         else if(connection instanceof JarURLConnection) {
-                            results.addAll(getClassPathsInJar(
-                                    ((JarURLConnection)connection).getJarFile(),
-                                    asFilePath(getPackageFromFullPath(path.substring(6))), // substring(6) will remove 'file:/'
-                                    recursive
-                            ));
-                        }
-                        else if(connection instanceof sun.net.www.protocol.jar.JarURLConnection) {
-                            results.addAll(getClassPathsInJar(
-                                    ((sun.net.www.protocol.jar.JarURLConnection)connection).getJarFile(),
-                                    asFilePath(getPackageFromFullPath(path.substring(6))), // substring(6) will remove 'file:/'
-                                    recursive
-                            ));
+                            results.addAll(getClassPathsInJar(((JarURLConnection)connection).getJarFile(), packDir, recursive));
                         }
                         else throw new UnknownConnectionType();
                     } catch (Exception e) {
