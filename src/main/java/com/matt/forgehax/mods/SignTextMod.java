@@ -7,6 +7,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
@@ -46,7 +47,7 @@ public class SignTextMod extends ToggleMod {
                     String[] lines = new String[signTextLength];
 
                     for (int i = 0; i < signTextLength; i++) {
-                        lines[i] = sign.signText[i].getFormattedText();
+                        lines[i] = sign.signText[i].getFormattedText().replaceAll(TextFormatting.RESET.toString(), "");
                     }
 
                     String fullText = String.join("\n", lines);
@@ -60,7 +61,7 @@ public class SignTextMod extends ToggleMod {
 
     }
 
-    private void setClipboardString(String stringIn) {
+    private static void setClipboardString(String stringIn) {
         StringSelection selection = new StringSelection(stringIn);
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
     }
