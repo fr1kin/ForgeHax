@@ -66,7 +66,7 @@ public class AutoCrystalMod extends ToggleMod {
             .build();
 
     public AutoCrystalMod() {
-        super(Category.PLAYER, "AutoCrystal", false, "Automatically detonates nearby end crystals");
+        super(Category.COMBAT, "AutoCrystal", false, "Automatically detonates nearby end crystals");
     }
 
     private SimpleTimer timer = new SimpleTimer();
