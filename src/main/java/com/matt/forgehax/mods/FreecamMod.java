@@ -98,7 +98,7 @@ public class FreecamMod extends ToggleMod {
             }
         }
     }
-    @SubscribeEvent(priority = EventPriority.LOWEST) // Setting EventPriority makes no difference
+    @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         MC.player.capabilities.isFlying = true;
         MC.player.capabilities.setFlySpeed(speed.getAsFloat());

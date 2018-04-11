@@ -38,7 +38,7 @@ public class ModManager extends AbstractClassLoader<BaseMod> implements Globals 
     //
 
     private final Set<Class<? extends BaseMod>> classes = Sets.newHashSet();
-    private final Set<BaseMod> active = Sets.newTreeSet(((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getModName(), o2.getModName())));
+    private final Set<BaseMod> active = Sets.newTreeSet(Comparator.comparing(BaseMod::getModName, String.CASE_INSENSITIVE_ORDER));
 
     public boolean searchPackage(String packageDir) {
         try {
@@ -113,9 +113,11 @@ public class ModManager extends AbstractClassLoader<BaseMod> implements Globals 
                 .findFirst();
     }
 
-    public Optional<? extends BaseMod> get(final Class<? extends BaseMod> clazz) {
+    @SuppressWarnings("unchecked")
+    public <T extends BaseMod> Optional<T> get(final Class<T> clazz) {
         return active.stream()
                 .filter(mod -> Objects.equals(clazz, mod.getClass()))
+                .map(mod -> (T)mod)
                 .findFirst();
     }
 

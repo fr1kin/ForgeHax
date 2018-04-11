@@ -4,6 +4,7 @@ import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.command.CommandHelper;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.command.exception.CommandExecuteException;
 import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -34,18 +35,25 @@ public class ChatCommandService extends ServiceMod {
             if(message.startsWith(activationCharacter.getAsString()) && message.length() > 1) {
                 // cut out the . from the message
                 String line = message.substring(1);
-                ConsoleIO.start();
-                ConsoleIO.write(line, ConsoleIO.HEADING);
-                ConsoleIO.incrementIndent();
-                try {
-                    String[] arguments = CommandHelper.translate(line);
-                    GLOBAL_COMMAND.run(arguments);
-                } catch (Throwable t) {
-                    Helper.printMessage(t.getMessage());
-                }
-                ConsoleIO.finished();
+                handleCommand(line);
                 event.setCanceled(true);
             }
         }
+    }
+
+    // to be called from MainMenuGuiService
+    public static void handleCommand(String message) {
+        ConsoleIO.start();
+        ConsoleIO.write(message, ConsoleIO.HEADING);
+        ConsoleIO.incrementIndent();
+        try {
+            String[] arguments = CommandHelper.translate(message);
+            GLOBAL_COMMAND.run(arguments);
+        } catch (Throwable t) {
+            if (!(t instanceof CommandExecuteException))
+                t.printStackTrace();
+            Helper.printMessage(t.getMessage());
+        }
+        ConsoleIO.finished();
     }
 }

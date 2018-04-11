@@ -121,7 +121,7 @@ public abstract class BaseMod implements Globals {
     /**
      * Check if mod is currently registered
      */
-    public final boolean isRegisterd() {
+    public final boolean isRegistered() {
         return registered;
     }
 

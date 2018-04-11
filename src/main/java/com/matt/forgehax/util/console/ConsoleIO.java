@@ -2,6 +2,7 @@ package com.matt.forgehax.util.console;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.mods.services.MainMenuGuiService.CommandInputGui;
 import joptsimple.internal.Strings;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;

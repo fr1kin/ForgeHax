@@ -1,6 +1,5 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -23,19 +22,24 @@ public class TimerMod extends ToggleMod {
             .description("how fast to make the game run")
             .defaultTo(1f)
             .min(0f)
-            .success(cb -> updateTimer())
+            .success(__ -> updateTimer())
             .build();
 
-    private final float DEF_SPEED = 1000f / 20; // default speed - 50 ms
+    private final float DEFAULT_SPEED = 1000f / 20; // default speed - 50 ms
+
+    @Override
+    public void onEnabled() {
+        updateTimer();
+    }
 
     @Override
     public void onDisabled() {
-        setSpeed(DEF_SPEED);
+        setSpeed(DEFAULT_SPEED);
     }
 
     private void updateTimer() {
         if (this.isEnabled())
-            setSpeed(DEF_SPEED / factor.getAsFloat());
+            setSpeed(DEFAULT_SPEED / factor.getAsFloat());
     }
 
     private void setSpeed(float value) {

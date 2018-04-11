@@ -196,19 +196,18 @@ public class EntityUtils implements Globals {
 		RayTraceResult result = null;
 		double hitDistance = -1;
 
-		for (Object obj : world.loadedEntityList) {
-			Entity entity = (Entity) obj;
+		for (Entity ent : world.loadedEntityList) {
 
-			if (filter.contains(entity))
+			if (filter.contains(ent))
 				continue;
 
-			double distance = start.distanceTo(entity.getPositionVector());
-			RayTraceResult trace = entity.getEntityBoundingBox().calculateIntercept(start, end);
+			double distance = start.distanceTo(ent.getPositionVector());
+			RayTraceResult trace = ent.getEntityBoundingBox().calculateIntercept(start, end);
 
 			if (trace != null && (hitDistance == -1 || distance < hitDistance)) {
 				hitDistance = distance;
 				result = trace;
-				result.entityHit = entity;
+				result.entityHit = ent;
 			}
 		}
 
@@ -236,7 +235,7 @@ public class EntityUtils implements Globals {
     }
 
     public static boolean isDrivenByPlayer(Entity entityIn) {
-            return getLocalPlayer() != null && entityIn != null && entityIn.equals(getRidingEntity());
+            return getLocalPlayer() != null && entityIn != null && entityIn == getRidingEntity();
     }
 
     public static boolean isAboveWater(Entity entity) { return isAboveWater(entity, false); }

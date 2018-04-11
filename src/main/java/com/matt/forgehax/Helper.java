@@ -2,6 +2,7 @@ package com.matt.forgehax;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.matt.forgehax.mods.services.MainMenuGuiService.CommandInputGui;
 import com.matt.forgehax.util.command.CommandGlobal;
 import com.matt.forgehax.util.mod.loader.ModManager;
 import net.minecraft.client.Minecraft;
@@ -17,6 +18,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.Scanner;
 
 /**
@@ -47,6 +49,7 @@ public class Helper implements Globals {
         return MC.player;
     }
 
+    @Nullable
     public static Entity getRidingEntity() {
         if (getLocalPlayer() != null)
             return getLocalPlayer().getRidingEntity();
@@ -69,7 +72,7 @@ public class Helper implements Globals {
     }
 
     public static void printMessageNaked(String startWith, String message, Style firstStyle, Style secondStyle) {
-        if(getLocalPlayer() != null && !Strings.isNullOrEmpty(message)) {
+        if(!Strings.isNullOrEmpty(message)) {
             if(message.contains("\n")) {
                 Scanner scanner = new Scanner(message);
                 scanner.useDelimiter("\n");
@@ -85,8 +88,16 @@ public class Helper implements Globals {
             } else {
                 TextComponentString string = new TextComponentString(startWith + message.replaceAll("\r", ""));
                 string.setStyle(firstStyle);
-                getLocalPlayer().sendMessage(string);
+                outputMessage(string.getFormattedText());
             }
+        }
+    }
+    // private function that is ultimately used to output the message
+    private static void outputMessage(String text) {
+        if (getLocalPlayer() != null) {
+            getLocalPlayer().sendMessage(new TextComponentString(text));
+        } else if(MC.currentScreen instanceof CommandInputGui) {
+            ((CommandInputGui)MC.currentScreen).print(text);
         }
     }
 

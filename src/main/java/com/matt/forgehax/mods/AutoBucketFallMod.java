@@ -85,7 +85,7 @@ public class AutoBucketFallMod extends ToggleMod {
     }
     private int findBucketHotbar() {
         for (int i = 0; i < 9; i++) // iterate through hotbar slots
-            if (getLocalPlayer().inventory.getStackInSlot(i) == WATER_BUCKET) return i;
+            if (getLocalPlayer().inventory.getStackInSlot(i).getItem() == Items.WATER_BUCKET) return i;
         return -1;
     }
 

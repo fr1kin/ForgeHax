@@ -33,17 +33,19 @@ public class CompassMod extends ToggleMod {
             "E"
     };
 
-    public CompassMod() { super(Category.RENDER, "Compass", false, "cool compass overlay"); }
+    public CompassMod() {
+        super(Category.RENDER, "Compass", false, "cool compass overlay");
+    }
 
     @SubscribeEvent
     public void onRender(Render2DEvent event) {
-        double centerX = event.getScreenWidth()/2;
-        double centerY = event.getScreenHeight()*0.8;
+        final double centerX = event.getScreenWidth()/2;
+        final double centerY = event.getScreenHeight()*0.8;
 
-        for (String str : DIRECTIONS) {
-            double rad = getPosOnCompass(str);
-            SurfaceHelper.drawTextShadowCentered(str, (float)(centerX + getX(rad)), (float)(centerY + getY(rad)),
-                    str.equals("N") ? Utils.Colors.RED :Utils.Colors.WHITE);
+        for (String dir : DIRECTIONS) {
+            double rad = getPosOnCompass(dir);
+            SurfaceHelper.drawTextShadowCentered(dir, (float)(centerX + getX(rad)), (float)(centerY + getY(rad)),
+                    dir.equals("N") ? Utils.Colors.RED : Utils.Colors.WHITE);
         }
     }
 
@@ -59,8 +61,8 @@ public class CompassMod extends ToggleMod {
     // return the position on the circle in radians
     private double getPosOnCompass(String s) {
         double yaw = Math.toRadians(MathHelper.wrapDegrees(Helper.getLocalPlayer().rotationYaw - 90)); // player yaw
-        int index = ArrayUtils.indexOf(DIRECTIONS, s) + 1; // directions index in the list
-        return yaw + index * HALF_PI;
+        int index = ArrayUtils.indexOf(DIRECTIONS, s) + 1;
+        return yaw + (index * HALF_PI);
     }
 
 }

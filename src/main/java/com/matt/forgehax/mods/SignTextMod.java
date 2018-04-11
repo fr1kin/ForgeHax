@@ -47,7 +47,7 @@ public class SignTextMod extends ToggleMod {
                     String[] lines = new String[signTextLength];
 
                     for (int i = 0; i < signTextLength; i++) {
-                        lines[i] = sign.signText[i].getFormattedText().replaceAll(TextFormatting.RESET.toString(), "");
+                        lines[i] = sign.signText[i].getFormattedText().replace(TextFormatting.RESET.toString(), "");
                     }
 
                     String fullText = String.join("\n", lines);

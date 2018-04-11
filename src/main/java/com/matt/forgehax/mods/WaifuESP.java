@@ -40,11 +40,10 @@ public class WaifuESP extends ToggleMod {
 
     private final String waifuUrl = "https://raw.githubusercontent.com/fr1kin/ForgeHax/master/src/main/resources/assets/minecraft/textures/forgehax/waifu1.png";
 
-    private BufferedImage getImageFromUrl(String link) {
+    private BufferedImage getImageFromUrl(String url) {
         BufferedImage image = null;
         try {
-            URL url = new URL(link);
-            image = ImageIO.read(url);
+            image = ImageIO.read(new URL(url));
         } catch (Exception e) {
             e.printStackTrace();
         }

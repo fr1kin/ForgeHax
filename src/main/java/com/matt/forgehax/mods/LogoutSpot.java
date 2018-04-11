@@ -2,7 +2,9 @@ package com.matt.forgehax.mods;
 
 import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.google.common.base.Strings;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
 import com.matt.forgehax.events.RenderEvent;
@@ -13,9 +15,11 @@ import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -51,8 +55,61 @@ public class LogoutSpot extends ToggleMod {
 
 
     private final Set<LogoutPos> logoutSpots = new HashSet<>();
-    
+
+    // join/leave event does not work
     @SubscribeEvent
+    public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
+        if(event.getPacket() instanceof SPacketPlayerListItem) {
+            SPacketPlayerListItem playerListPacket = (SPacketPlayerListItem)event.getPacket();
+            if (playerListPacket.getAction().equals(SPacketPlayerListItem.Action.REMOVE_PLAYER) || playerListPacket.getAction().equals(SPacketPlayerListItem.Action.ADD_PLAYER)) {
+                try {
+                    playerListPacket.getEntries()
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .filter(data -> {
+                                String name = getNameFromComponent(data.getProfile());
+                                return !Strings.isNullOrEmpty(name) && !isLocalPlayer(name) || playerListPacket.getAction().equals(SPacketPlayerListItem.Action.REMOVE_PLAYER);
+                            })
+                            .forEach(data -> {
+                                final String name = getNameFromComponent(data.getProfile());
+                                final UUID id = data.getProfile().getId();
+                                switch(playerListPacket.getAction()) {
+                                    case ADD_PLAYER:
+                                        logoutSpots.removeIf(pos -> {
+                                            if (pos.id.equals(id)) {
+                                                if (outputToChat.getAsBoolean()) {
+                                                    Helper.printMessage(name + " has joined!");
+                                                }
+                                                return true;
+                                            }
+                                            return false;
+                                        });
+                                        break;
+
+                                    case REMOVE_PLAYER: // if they leave and they are in the world save it
+                                        EntityPlayer player = MC.world.getPlayerEntityByUUID(id);
+                                        if (player != null) {
+                                            AxisAlignedBB BB = player.getEntityBoundingBox();
+                                            Vec3d[] pos = {new Vec3d(BB.minX, BB.minY, BB.minZ), new Vec3d(BB.maxX, BB.maxY, BB.maxZ)};
+                                            logoutSpots.add(new LogoutPos(pos, id, player.getName()));
+
+                                            if (outputToChat.getAsBoolean()) {
+                                                Helper.printMessage(name + " has disconnected!");
+                                            }
+                                        }
+                                        break;
+                                }
+
+                            });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+    
+    /*@SubscribeEvent
     public void onPlayerJoin(PlayerConnectEvent.Join event) {
         logoutSpots.removeIf(pos -> {
             if (pos.id.equals(event.getPlayerInfo().getId())) {
@@ -79,7 +136,7 @@ public class LogoutSpot extends ToggleMod {
             }
         }
 
-    }
+    }*/
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
@@ -176,6 +233,12 @@ public class LogoutSpot extends ToggleMod {
         float f = (float)(entityIn.posX - MC.player.posX);
         float f2 = (float)(entityIn.posZ - MC.player.posZ);
         return MathHelper.sqrt(f*f + f2*f2);
+    }
+    private String getNameFromComponent(GameProfile profile) {
+        return Objects.nonNull(profile) ? profile.getName() : "";
+    }
+    private boolean isLocalPlayer(String username) {
+        return Objects.nonNull(MC.player) && MC.player.getDisplayName().getUnformattedText().equals(username);
     }
 
 

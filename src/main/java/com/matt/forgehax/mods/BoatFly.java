@@ -24,18 +24,33 @@ import static com.matt.forgehax.Helper.*;
 public class BoatFly extends ToggleMod {
 
     public final Setting<Double> speed = getCommandStub().builders().<Double>newSettingBuilder()
-            .name("speed").description("how fast to move").defaultTo(5.0D).build();
+            .name("speed")
+            .description("how fast to move")
+            .defaultTo(5.0D)
+            .build();
     /*public final Setting<Double> maintainY = getCommandStub().builders().<Double>newSettingBuilder()
             .name("YLevel").description("automatically teleport back up to this Y level").defaultTo(0.0D).build();*/
     public final Setting<Double> speedY = getCommandStub().builders().<Double>newSettingBuilder()
-            .name("FallSpeed").description("how slowly to fall").defaultTo(0.033D).build();
+            .name("FallSpeed")
+            .description("how slowly to fall")
+            .defaultTo(0.033D)
+            .build();
 
     public final Setting<Boolean> setYaw = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("SetYaw").description("set the boat yaw").defaultTo(true).build();
+            .name("SetYaw")
+            .description("set the boat yaw")
+            .defaultTo(true)
+            .build();
     public final Setting<Boolean> noClamp = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("NoClamp").description("clamp view angles").defaultTo(true).build();
+            .name("NoClamp")
+            .description("clamp view angles")
+            .defaultTo(true)
+            .build();
     public final Setting<Boolean> noGravity = getCommandStub().builders().<Boolean>newSettingBuilder()
-            .name("NoGravity").description("disable boat gravity").defaultTo(true).build();
+            .name("NoGravity")
+            .description("disable boat gravity")
+            .defaultTo(true)
+            .build();
 
     public BoatFly() {
         super(Category.MISC,"BoatFly", false, "Boathax");
@@ -54,16 +69,20 @@ public class BoatFly extends ToggleMod {
         //ForgeHaxHooks.isNotRowingBoatActivated = false; // items always usable - can not be disabled
     }
 
+    @Override
+    public void onLoad() {
+        ForgeHaxHooks.isNoClampingActivated = noClamp.getAsBoolean();
+    }
+
 
 
     @SubscribeEvent
-    public void onRenderBoat (RenderBoatEvent event) {
+    public void onRenderBoat(RenderBoatEvent event) {
         if (EntityUtils.isDrivenByPlayer(event.getBoat()) && setYaw.getAsBoolean()) {
             float yaw = getLocalPlayer().rotationYaw;
             event.getBoat().rotationYaw = yaw;
             event.setYaw(yaw);
         }
-
     }
 
 

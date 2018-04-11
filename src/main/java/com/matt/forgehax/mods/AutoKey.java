@@ -29,8 +29,18 @@ public class AutoKey extends ToggleMod {
             .name("delay")
             .description("delay(ms) between clicks")
             .defaultTo(500) // 500 ms
-            .min(150) // approximate minimum for reliable key pressing
+            .min(0)
             .build();
+
+    private static Setting<Integer> holdTime; // static to allow easy access from ClickMode
+    {
+        holdTime = getCommandStub().builders().<Integer>newSettingBuilder()
+                .name("holdTime")
+                .description("how long to hold button for tap")
+                .defaultTo(150) // approximate minimum for reliable key pressing
+                .build();
+    }
+
 
     // TODO: make serializable and save as json
     private final Map<KeyBindingHandler, ClickMode> activeKeys = new HashMap<>();
@@ -96,7 +106,7 @@ public class AutoKey extends ToggleMod {
                     KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
                     ClickMode mode = activeKeys.remove(key);
                     if (mode != null)
-                        Helper.printMessage("Removed key: %s", mode.name());
+                        Helper.printMessage("Removed key: %s", key.getBinding().getKeyDescription());
                     else
                         Helper.printMessage("Unknown key");
                 })
@@ -110,22 +120,19 @@ public class AutoKey extends ToggleMod {
         field.set(binding.getBinding(), currTime + 1);
     }
 
-    // TODO: proper key pressing
     private enum ClickMode {
         TAP((key, time) -> {
-            if (time < 100) {
+            if (time < holdTime.getAsInteger()) {
                 incrementPressTime(key);
                 key.setPressed(true);
             }
             else
                 key.setPressed(false);
-        }), // hold key for up to 100 ms
+        }), // hold key for at least 150ms
 
         HOLD((key, time) -> {
-            if (!key.getBinding().isKeyDown()) {
-                incrementPressTime(key);
-                key.setPressed(true);
-            }
+            incrementPressTime(key);
+            key.setPressed(true);
         }); // hold key forever
 
         BiConsumer<KeyBindingHandler, Integer> clickAction;
