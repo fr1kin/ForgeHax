@@ -5,16 +5,18 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+
 import static net.minecraft.util.text.TextFormatting.*;
+import static org.lwjgl.input.Keyboard.*;
+
+import org.lwjgl.input.Keyboard;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Keyboard;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Deque;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * Created by Babbaj on 4/10/2018.
@@ -63,8 +65,12 @@ public class MainMenuGuiService extends ServiceMod {
         GuiTextField inputField;
         GuiButton modeButton;
         ClientMode mode = ClientMode.FORGEHAX;
-        Deque<ITextComponent> messageHistory = new LinkedList<>();
-        Deque<ITextComponent> inputHistory = new LinkedList<>();
+        Deque<String> messageHistory = new LinkedList<>();
+
+        // ordered from oldest to newest
+        List<String> inputHistory = new ArrayList<>();
+        int sentHistoryCursor = 0;
+        String historyBuffer = "";
 
 
         @Override
@@ -83,7 +89,6 @@ public class MainMenuGuiService extends ServiceMod {
                     100,
                     20,
                     mode.getName()
-
             ));
         }
 
@@ -122,36 +127,40 @@ public class MainMenuGuiService extends ServiceMod {
             AtomicDouble offset = new AtomicDouble();
             messageHistory.stream()
                     .limit(100)
-                    .map(ITextComponent::getFormattedText)
                     .forEach(str -> {
                         MC.fontRenderer.drawString(str, 5, (this.height - 50 - offset.intValue()), Utils.Colors.WHITE);
-                        offset.addAndGet(10D);
+                        offset.addAndGet(10);
                     });
-
         }
 
         @Override
         protected void keyTyped(char typedChar, int keyCode) throws IOException
         {
-            if (keyCode == 1)
+            if (keyCode == KEY_ESCAPE)
             {
                 this.mc.displayGuiScreen(null);
             }
-            else if (keyCode != 28 && keyCode != 156)
+            else if (keyCode != KEY_RETURN && keyCode != KEY_NUMPADENTER)
             {
-                if (keyCode == 200)
+                if (keyCode == KEY_UP) // up arrow
                 {
-                    //this.getSentHistory(-1);
+                    //older
+                    String sent = getSentHistory(-1);
+                    if (sent != null)
+                        inputField.setText(sent);
                 }
-                else if (keyCode == 208)
+                else if (keyCode == KEY_DOWN) // down arrow
                 {
-                    //this.getSentHistory(1);
+                    // newer
+                    String sent = getSentHistory(1);
+                    if (sent != null)
+                        inputField.setText(sent);
                 }
-                else if (keyCode == 201)
+                else if (keyCode == KEY_PRIOR)
                 {
                     //this.mc.ingameGUI.getChatGUI().scroll(this.mc.ingameGUI.getChatGUI().getLineCount() - 1);
                 }
-                else if (keyCode == 209)
+                else if (keyCode == KEY_NEXT)
                 {
                     //this.mc.ingameGUI.getChatGUI().scroll(-this.mc.ingameGUI.getChatGUI().getLineCount() + 1);
                 }
@@ -160,7 +169,7 @@ public class MainMenuGuiService extends ServiceMod {
                     this.inputField.textboxKeyTyped(typedChar, keyCode);
                 }
             }
-            else
+            else // on enter
             {
                 String str = this.inputField.getText().trim();
 
@@ -168,16 +177,39 @@ public class MainMenuGuiService extends ServiceMod {
                 {
                     //this.print("> " + str);
                     this.inputField.setText("");
+                    if (this.inputHistory.isEmpty() || !this.inputHistory.get(this.inputHistory.size() - 1).equals(str)) {
+                        this.inputHistory.add(str);
+                    }
+                    this.sentHistoryCursor = inputHistory.size();
                     this.runCommand(str);
                 }
 
             }
         }
 
+        @Nullable
+        private String getSentHistory(int offset) {
+            int pos = this.sentHistoryCursor + offset;
+            final int max = this.inputHistory.size();
+            pos = MathHelper.clamp(pos, 0, max);
+            if (pos != sentHistoryCursor) {
+                if (pos == max) {
+                    this.sentHistoryCursor = max;
+                    return this.historyBuffer;
+                }
+                if (this.sentHistoryCursor == max) {
+                    this.historyBuffer = inputField.getText();
+                }
+                this.sentHistoryCursor = pos;
+                return inputHistory.get(pos);
+            }
+            return null; // if cursor is out of bounds or there is no history
+        }
+
         public void print(String message) {
             if (!message.isEmpty()) {
                 for (String str : message.split("\n")) {
-                    messageHistory.push(new TextComponentString(str));
+                    messageHistory.push(str);
                 }
             }
         }
