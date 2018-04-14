@@ -19,6 +19,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.Scanner;
 
 /**
@@ -56,6 +57,17 @@ public class Helper implements Globals {
         else
             return null;
     }
+
+    public static Optional<Entity> getOptionalRidingEntity() {
+        return Optional.ofNullable(getRidingEntity());
+    }
+
+    // Returns the riding entity if present, otherwise the local player
+    @Nullable
+    public static Entity getRidingOrPlayer() {
+        return getRidingEntity() != null ? getRidingEntity() : getLocalPlayer();
+    }
+
 
     public static WorldClient getWorld() {
         return MC.world;
