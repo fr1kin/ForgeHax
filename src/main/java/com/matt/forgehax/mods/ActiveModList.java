@@ -15,6 +15,12 @@ import static com.matt.forgehax.Helper.getModManager;
 
 @RegisterMod
 public class ActiveModList extends ToggleMod {
+    public final Setting<Boolean> tps_meter = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("tps-meter")
+            .description("Shows the server tps")
+            .defaultTo(true)
+            .build();
+
     public final Setting<Boolean> debug = getCommandStub().builders().<Boolean>newSettingBuilder()
             .name("debug")
             .description("Disables debug text on mods that have it")
@@ -25,6 +31,8 @@ public class ActiveModList extends ToggleMod {
             .name("factor")
             .description("Splitting up the tick rate data")
             .defaultTo(25)
+            .min(1)
+            .max(100)
             .build();
 
     public ActiveModList() {
@@ -71,8 +79,10 @@ public class ActiveModList extends ToggleMod {
     public void onRenderScreen(RenderGameOverlayEvent.Text event) {
         int posX = 1;
         int posY = 1;
-        SurfaceHelper.drawTextShadow(generateTickRateText(), posX, posY, Utils.Colors.WHITE);
-        posY += SurfaceHelper.getTextHeight() + 1;
+        if(tps_meter.get()) {
+            SurfaceHelper.drawTextShadow(generateTickRateText(), posX, posY, Utils.Colors.WHITE);
+            posY += SurfaceHelper.getTextHeight() + 1;
+        }
         for(BaseMod mod : getModManager().getMods()) {
             if(mod.isEnabled() && !mod.isHidden()) {
                 SurfaceHelper.drawTextShadow(">" + (debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText()), posX, posY, Utils.Colors.WHITE);
