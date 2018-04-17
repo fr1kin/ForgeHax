@@ -11,6 +11,9 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static com.matt.forgehax.Helper.getModManager;
 
 @RegisterMod
@@ -33,6 +36,12 @@ public class ActiveModList extends ToggleMod {
             .defaultTo(25)
             .min(1)
             .max(100)
+            .build();
+
+    public final Setting<SortMode> sortMode = getCommandStub().builders().<SortMode>newSettingEnumBuilder()
+            .name("sorting")
+            .description("Sorting mode")
+            .defaultTo(SortMode.ALPHABETICAL)
             .build();
 
     public ActiveModList() {
@@ -78,21 +87,40 @@ public class ActiveModList extends ToggleMod {
     @SubscribeEvent
     public void onRenderScreen(RenderGameOverlayEvent.Text event) {
         int posX = 1;
-        int posY = 1;
+        final AtomicInteger posY = new AtomicInteger(1);
         if(tps_meter.get()) {
-            SurfaceHelper.drawTextShadow(generateTickRateText(), posX, posY, Utils.Colors.WHITE);
-            posY += SurfaceHelper.getTextHeight() + 1;
+            SurfaceHelper.drawTextShadow(generateTickRateText(), posX, posY.get(), Utils.Colors.WHITE);
+            posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
         }
-        for(BaseMod mod : getModManager().getMods()) {
-            if(mod.isEnabled() && !mod.isHidden()) {
-                SurfaceHelper.drawTextShadow(">" + (debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText()), posX, posY, Utils.Colors.WHITE);
-                posY += SurfaceHelper.getTextHeight() + 1;
-            }
-        }
+        getModManager().getMods().stream()
+                .filter(BaseMod::isEnabled)
+                .filter(mod -> !mod.isHidden())
+                .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
+                .sorted(sortMode.get().getComparator())
+                .forEach(name -> {
+                    SurfaceHelper.drawTextShadow(">" + name, posX, posY.get(), Utils.Colors.WHITE);
+                    posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
+                });
         /*
         posY += (Render2DUtils.getTextHeight() + 1) * 2;
         Render2DUtils.drawTextShadow(String.format("Pitch: %.4f", MC.thePlayer.rotationPitch), posX, posY, Utils.toRGBA(255, 255, 255, 255));
         posY += Render2DUtils.getTextHeight() + 1;
         Render2DUtils.drawTextShadow(String.format("Yaw: %.4f", MC.thePlayer.rotationYaw), posX, posY, Utils.toRGBA(255, 255, 255, 255));*/
+    }
+
+    private enum SortMode {
+        ALPHABETICAL((o1, o2) -> 0), // mod list is already sorted alphabetically
+        LENGTH(Comparator.<String, Integer>comparing(SurfaceHelper::getTextWidth).reversed());
+
+        private final Comparator<String> comparator;
+
+        public Comparator<String> getComparator() {
+            return this.comparator;
+        }
+
+        SortMode(Comparator<String> comparatorIn){
+            this.comparator = comparatorIn;
+        }
+
     }
 }
