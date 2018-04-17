@@ -53,6 +53,11 @@ public class ToggleMod extends BaseMod {
     }
 
     @Override
+    public String getDebugDisplayText() {
+        return super.getDebugDisplayText();
+    }
+
+    @Override
     public boolean isHidden() {
         return false;
     }

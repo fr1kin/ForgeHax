@@ -47,4 +47,9 @@ public class TimerMod extends ToggleMod {
         FastReflection.Fields.Timer_tickLength.set(timer, value);
     }
 
+    @Override
+    public String getDebugDisplayText() {
+        return String.format("%s[%.2f]", super.getDebugDisplayText(), factor.get());
+    }
+
 }
