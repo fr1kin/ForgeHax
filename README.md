@@ -42,7 +42,7 @@ _How do I see a list of commands for a mod?_
 
 Type `.<mod name>` and it should show a list of settings (if any), their current value, and their description.
 
-Example: .`.step`
+Example: `.step`
 
 _How do I see a list of options for a command?_
 
