@@ -8,7 +8,7 @@ import com.matt.forgehax.util.mod.BaseMod;
  */
 public class GuiButton {
 
-    private BaseMod mod;
+    private final BaseMod mod;
 
     public static final int COLOR_ENABLED = Utils.toRGBA(65,65,65, 200);
     public static final int COLOR_DISABLED = Utils.toRGBA(100,100,100,150);

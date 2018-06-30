@@ -110,7 +110,7 @@ public class ActiveModList extends ToggleMod {
 
     private enum SortMode {
         ALPHABETICAL((o1, o2) -> 0), // mod list is already sorted alphabetically
-        LENGTH(Comparator.<String, Integer>comparing(SurfaceHelper::getTextWidth).reversed());
+        LENGTH(Comparator.<String>comparingInt(SurfaceHelper::getTextWidth).reversed());
 
         private final Comparator<String> comparator;
 
@@ -121,6 +121,5 @@ public class ActiveModList extends ToggleMod {
         SortMode(Comparator<String> comparatorIn){
             this.comparator = comparatorIn;
         }
-
     }
 }

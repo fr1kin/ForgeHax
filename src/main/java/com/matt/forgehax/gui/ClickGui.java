@@ -11,6 +11,7 @@ import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Babbaj on 9/5/2017.
@@ -19,13 +20,20 @@ public class ClickGui extends GuiScreen implements Globals {
 
     private static ClickGui INSTANCE;
 
-    public static ArrayList<GuiWindow> windowList = new ArrayList<GuiWindow>();
+    public final List<GuiWindow> windowList = new ArrayList<>();
 
-    GuiWindowMod combatWindow = new GuiWindowMod(Category.COMBAT);
-    GuiWindowMod playerWindow = new GuiWindowMod(Category.PLAYER);
-    GuiWindowMod renderWindow = new GuiWindowMod(Category.RENDER);
-    GuiWindowMod worldWindow  = new GuiWindowMod(Category.WORLD);
-    GuiWindowMod miscWindow   = new GuiWindowMod(Category.MISC);
+    private GuiWindowMod combatWindow = new GuiWindowMod(Category.COMBAT);
+    private GuiWindowMod playerWindow = new GuiWindowMod(Category.PLAYER);
+    private GuiWindowMod renderWindow = new GuiWindowMod(Category.RENDER);
+    private GuiWindowMod worldWindow  = new GuiWindowMod(Category.WORLD);
+    private GuiWindowMod miscWindow   = new GuiWindowMod(Category.MISC);
+    {
+        windowList.add(combatWindow);
+        windowList.add(playerWindow);
+        windowList.add(renderWindow);
+        windowList.add(worldWindow);
+        windowList.add(miscWindow);
+    }
 
     public static ScaledResolution scaledRes = new ScaledResolution(MC);
 
