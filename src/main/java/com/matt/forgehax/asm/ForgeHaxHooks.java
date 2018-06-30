@@ -9,7 +9,9 @@ import com.matt.forgehax.asm.utils.MultiBoolean;
 import com.matt.forgehax.asm.utils.debug.HookReporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.*;
 import net.minecraft.entity.Entity;
@@ -18,6 +20,7 @@ import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -62,6 +65,36 @@ public class ForgeHaxHooks implements ASMCommon {
     /**
      * static hooks
      */
+
+
+
+    /**
+     * onPacketEncode
+     */
+    public static final HookReporter HOOK_onPacketEncode = newHookReporter()
+            .hook("onPacketEncode")
+            .dependsOn(TypesMc.Methods.NettyPacketEncoder_encode)
+            .forgeEvent(PacketEncodeEvent.class)
+            .build();
+    public static boolean onPacketEncode(Packet<?> packet, PacketBuffer buffer) {
+        return HOOK_onPacketEncode.reportHook() && MinecraftForge.EVENT_BUS.post(new PacketEncodeEvent(packet, buffer));
+    }
+
+    public static void onPlayerListAdd(NetworkPlayerInfo info) {
+        MinecraftForge.EVENT_BUS.post(new PlayerListAddEvent(info));
+    }
+
+    public static void onSkinAvailable(ThreadDownloadImageData texture) {
+        MinecraftForge.EVENT_BUS.post(new SkinAvailableEvent(texture));
+    }
+
+    public static void onSkinDownload(Thread thread) {
+        MinecraftForge.EVENT_BUS.post(new SkinDownloadEvent(thread));
+    }
+
+    public static boolean onPlayerList() {
+        return MinecraftForge.EVENT_BUS.post(new PlayerListEvent());
+    }
 
     /**
      * onPushOutOfBlocks

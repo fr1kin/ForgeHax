@@ -325,5 +325,45 @@ public interface TypesHook {
                 .add(TypesMc.Classes.BlockPos)
                 .finish()
                 .build();
+
+        ASMMethod ForgeHaxHooks_onPlayerList = Classes.ForgeHaxHooks.childMethod()
+                .setName("onPlayerList")
+                .setReturnType(boolean.class)
+                .emptyParameters()
+                .build();
+
+        ASMMethod ForgeHaxHooks_onSkinDownload = Classes.ForgeHaxHooks.childMethod()
+                .setName("onSkinDownload")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(Thread.class)
+                .finish()
+                .build();
+
+        ASMMethod ForgeHaxHooks_onSkinAvailable = Classes.ForgeHaxHooks.childMethod()
+                .setName("onSkinAvailable")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(TypesMc.Classes.ThreadDownloadingImageData)
+                .finish()
+                .build();
+
+        ASMMethod ForgehaxHooks_onPlayerListAdd = Classes.ForgeHaxHooks.childMethod()
+                .setName("onPlayerListAdd")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(TypesMc.Classes.NetworkPlayerInfo)
+                .finish()
+                .build();
+
+        ASMMethod ForgehaxHooks_onPacketEncode = Classes.ForgeHaxHooks.childMethod()
+                .setName("onPacketEncode")
+                .setReturnType(boolean.class)
+                .beginParameters()
+                .add(TypesMc.Classes.Packet)
+                .add(TypesMc.Classes.PacketBuffer)
+                .finish()
+                .build();
+
     }
 }

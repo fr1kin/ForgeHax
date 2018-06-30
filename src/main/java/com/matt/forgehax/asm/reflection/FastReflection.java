@@ -13,6 +13,7 @@ import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.KeyBinding;
@@ -39,6 +40,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.nio.FloatBuffer;
 import java.util.Map;
 
@@ -335,6 +338,24 @@ public interface FastReflection extends ASMCommon {
                 .setName("pressTime")
                 .autoAssign()
                 .asField();
+        /**
+         * ThreadDownloadImageData
+         */
+        FastField<File> ThreadDownloadImageData_cacheFile = FastTypeBuilder.create()
+                .setInsideClass(ThreadDownloadImageData.class)
+                .setName("cacheFile")
+                .autoAssign()
+                .asField();
+        FastField<Boolean> ThreadDownloadImageData_textureUploaded = FastTypeBuilder.create()
+                .setInsideClass(ThreadDownloadImageData.class)
+                .setName("textureUploaded")
+                .autoAssign()
+                .asField();
+        FastField<BufferedImage> ThreadDownloadImageData_bufferedImage = FastTypeBuilder.create()
+                .setInsideClass(ThreadDownloadImageData.class)
+                .setName("bufferedImage")
+                .autoAssign()
+                .asField();
 
     }
 
@@ -393,5 +414,16 @@ public interface FastReflection extends ASMCommon {
                 .setReturnType(void.class)
                 .autoAssign()
                 .asMethod();
+        /**
+         * ThreadDownloadImageData
+         */
+        FastMethod<Void> ThreadDownloadImageData_bufferedImage = FastTypeBuilder.create()
+                .setInsideClass(ThreadDownloadImageData.class)
+                .setName("checkTextureUploaded")
+                .setParameters()
+                .setReturnType(void.class)
+                .autoAssign()
+                .asMethod();
+
     }
 }

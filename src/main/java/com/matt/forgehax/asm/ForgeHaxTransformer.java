@@ -36,11 +36,17 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         // Babbaj
         registerTransformer(new BoatPatch());
         registerTransformer(new RenderBoatPatch());
-        registerTransformer(new PlayerTabOverlayPatch());
         registerTransformer(new KeyBindingPatch());
-        registerTransformer(new SchematicPrinterPatch());
+        registerTransformer(new PlayerTabOverlayPatch());
+        registerTransformer(new SkinManagerPatch());
+        registerTransformer(new ThreadDownloaderPatch());
+        registerTransformer(new NetHandlerPlayClientPatch());
+        registerTransformer(new NettyPacketEncoderPatch());
+        registerTransformer(new NettyDecompressionPatch());
 
         // special transformers
+        registerTransformer(new SchematicPrinterPatch());
+        registerTransformer(new NetHandlerPlayServerReader());
     }
 
     private void registerTransformer(ClassTransformer transformer) {

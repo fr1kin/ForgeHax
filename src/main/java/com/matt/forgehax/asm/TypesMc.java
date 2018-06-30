@@ -5,9 +5,11 @@ import com.matt.forgehax.asm.utils.asmtype.ASMClass;
 import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.asmtype.builders.ASMBuilders;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.GenericFutureListener;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
@@ -17,6 +19,11 @@ public interface TypesMc {
     interface Classes {
         ASMClass Packet = ASMBuilders.newClassBuilder()
                 .setClassName("net/minecraft/network/Packet")
+                .autoAssign()
+                .build();
+
+        ASMClass PacketBuffer = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/network/PacketBuffer")
                 .autoAssign()
                 .build();
 
@@ -185,11 +192,6 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
-        ASMClass GuiPlayerTabOverlay = ASMBuilders.newClassBuilder()
-                .setClassName("net/minecraft/client/gui/GuiPlayerTabOverlay")
-                .autoAssign()
-                .build();
-
         ASMClass Scoreboard = ASMBuilders.newClassBuilder()
                 .setClassName("net/minecraft/scoreboard/Scoreboard")
                 .autoAssign()
@@ -230,6 +232,73 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
+        ASMClass GuiPlayerTabOverlay = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/gui/GuiPlayerTabOverlay")
+                .autoAssign()
+                .build();
+
+        // runnable
+        ASMClass SkinManager$3 = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/resources/SkinManager$3")
+                .autoAssign()
+                .build();
+
+        ASMClass ThreadDownloadingImageData = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/renderer/ThreadDownloadImageData")
+                .autoAssign()
+                .build();
+
+        ASMClass IResourceManager = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/resources/IResourceManager")
+                .autoAssign()
+                .build();
+
+        ASMClass NetHandlerPlayClient = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/network/NetHandlerPlayClient")
+                //.setObfuscatedClassName("brx") // something is wrong with this class
+                .autoAssign()
+                .build();
+
+        ASMClass NetworkPlayerInfo = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/network/NetworkPlayerInfo")
+                .autoAssign()
+                .build();
+
+        ASMClass SPacketPlayerListItem = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/network/play/server/SPacketPlayerListItem")
+                .autoAssign()
+                .build();
+
+        ASMClass NettyPacketEncoder = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/network/NettyPacketEncoder")
+                .autoAssign()
+                .build();
+
+        ASMClass NetHandlerPlayServer = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/network/NetHandlerPlayServer")
+                .autoAssign()
+                .build();
+
+        ASMClass CPacketCustomPayload = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/network/play/client/CPacketCustomPayload")
+                .autoAssign()
+                .build();
+
+        ASMClass NettyCompressionDecoder = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/network/NettyCompressionDecoder")
+                .autoAssign()
+                .build();
+
+        ASMClass GuiScreen = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/gui/GuiScreen")
+                .autoAssign()
+                .build();
+
+        ASMClass GuiButton = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/gui/GuiButton")
+                .autoAssign()
+                .build();
+
     }
 
     interface Fields {
@@ -243,9 +312,16 @@ public interface TypesMc {
                 .setType(Classes.ViewFrustum)
                 .autoAssign()
                 .build();
+
         ASMField RenderGlobal_renderDispatcher = Classes.RenderGlobal.childField()
                 .setName("renderDispatcher")
                 .setType(Classes.ChunkRenderDispatcher)
+                .autoAssign()
+                .build();
+
+        ASMField GuiScreen_buttonList = Classes.GuiScreen.childField()
+                .setName("buttonList")
+                .setType(List.class)
                 .autoAssign()
                 .build();
     }
@@ -483,6 +559,7 @@ public interface TypesMc {
                 .finish()
                 .autoAssign()
                 .build();
+
         ASMMethod World_checkLightFor = Classes.World.childMethod()
                 .setName("checkLightFor")
                 .setReturnType(boolean.class)
@@ -547,6 +624,90 @@ public interface TypesMc {
                 .emptyParameters()
                 .autoAssign()
                 .build();
+
+        ASMMethod GuiTabOverlay_renderPlayerlist = Classes.GuiPlayerTabOverlay.childMethod()
+                .setName("renderPlayerlist")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(int.class)
+                .add(Classes.Scoreboard)
+                .add(Classes.ScoreObjective)
+                .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod SkinManager$3_run = Classes.SkinManager$3.childMethod()
+                .setName("run")
+                .setReturnType(void.class)
+                .emptyParameters()
+                .build(); // does not have an obfuscated or an srg name
+
+        ASMMethod ThreadDownloader_loadTexture = Classes.ThreadDownloadingImageData.childMethod()
+                .setName("loadTexture")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(Classes.IResourceManager)
+                .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod ThreadDownloader_loadTextureFromServer = Classes.ThreadDownloadingImageData.childMethod()
+                .setName("loadTextureFromServer")
+                .setReturnType(void.class)
+                .emptyParameters()
+                .autoAssign()
+                .build();
+
+        ASMMethod ThreadDownloader_setBufferedImage = Classes.ThreadDownloadingImageData.childMethod()
+                .setName("setBufferedImage")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(BufferedImage.class)
+                .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod NetHandlerPlayClient_handlePlayerListItem = Classes.NetHandlerPlayClient.childMethod()
+                .setName("handlePlayerListItem")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(Classes.SPacketPlayerListItem)
+                .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod NettyPacketEncoder_encode = Classes.NettyPacketEncoder.childMethod()
+                .setName("encode")
+                .setObfuscatedName("a") // not a vanilla class
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(ChannelHandlerContext.class)
+                .add(Classes.Packet)
+                .add(ByteBuf.class)
+                .finish()
+                //.autoAssign()
+                .build();
+
+        ASMMethod NetHandlerPlayServer_processCustomPayload = Classes.NetHandlerPlayServer.childMethod()
+                .setName("processCustomPayload")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(Classes.CPacketCustomPayload)
+                .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod NettyCompressionDecoder_decode = Classes.NettyCompressionDecoder.childMethod()
+                .setName("decode")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(ChannelHandlerContext.class)
+                .add(ByteBuf.class)
+                .add(List.class)
+                .finish()
+                .autoAssign()
+                .build();
+
 
     }
 }
