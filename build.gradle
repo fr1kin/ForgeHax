@@ -3,6 +3,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
+apply plugin: 'com.github.johnrengelman.shadow'
+
 
 buildscript {
     repositories {
@@ -11,6 +13,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     }
 }
 
@@ -42,6 +45,19 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
 }
 
+reobf {
+    shadowJar {
+        mappingType = 'SEARGE'
+        classpath = sourceSets.main.compileClasspath
+    }
+}
+
+shadowJar {
+    dependencies {
+        include(dependency(files("$rootDir/libs/asmlib-0.1-SNAPSHOT.jar")))
+    }
+}
+
 
 jar {
     manifest {
@@ -50,6 +66,7 @@ jar {
                 'FMLCorePluginContainsFMLMod': 'true'
         )
     }
+
 }
 
 processResources
@@ -124,8 +141,10 @@ task copyJar(type: Copy, dependsOn: [setGameDir]) {
     }
 
     // copy forgehax jar from libs to forge mod folder
-    from jar
+    //from jar
+    from shadowJar
     into "$gameDir/mods/" + minecraft.version
 }
 
+build.dependsOn(shadowJar)
 build.finalizedBy copyJar
