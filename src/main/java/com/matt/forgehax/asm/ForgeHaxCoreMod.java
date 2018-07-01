@@ -1,6 +1,5 @@
 package com.matt.forgehax.asm;
 
-import com.matt.forgehax.asm.asmlib.AsmLibTestConfig;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import net.futureclient.asm.AsmLibApi;
@@ -54,7 +53,7 @@ public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
                 }
             }
         });
-        //AsmLibApi.addConfigByClass(AsmLibTestConfig.class.getName());
+        AsmLibApi.addConfig("forgehax_config.json");
     }
 
     @Override

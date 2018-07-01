@@ -1,0 +1,28 @@
+{
+  "name": "Forgehax-asmlib",
+  "required": true,
+  "priority": 1000,
+
+  "transformers": {
+    "com.matt.forgehax.asm.asmlib.patches": [
+      "BlockPatch",
+      "BoatPatch",
+      "BufferBuilderPatch",
+      "ChunkRenderContainerPatch",
+      "ChunkRenderDispatcherPatch",
+      "ChunkRenderWorkerPatch",
+      "EntityPatch",
+      "EntityPlayerSPPatch",
+      "EntityRendererPatch",
+      "KeyBindingPatch",
+      "NetManager$4Patch",
+      "NetManagerPatch",
+      "PlayerTabOverlayPatch",
+      "RenderBoatPatch",
+      "RenderChunkPatch",
+      "RenderGlobalPatch",
+      "VisGraphPatch",
+      "WorldPatch"
+    ]
+  }
+}

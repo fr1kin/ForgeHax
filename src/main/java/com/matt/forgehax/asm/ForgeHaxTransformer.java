@@ -18,27 +18,27 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     private Map<String, ClassTransformer> transformingClasses = Maps.newHashMap();
 
     public ForgeHaxTransformer() {
-        registerTransformer(new BlockPatch());
-        registerTransformer(new ChunkRenderContainerPatch());
-        registerTransformer(new ChunkRenderDispatcherPatch());
-        registerTransformer(new ChunkRenderWorkerPatch());
-        registerTransformer(new EntityPatch());
-        registerTransformer(new EntityPlayerSPPatch());
-        registerTransformer(new EntityRendererPatch());
-        registerTransformer(new NetManagerPatch());
-        registerTransformer(new NetManager$4Patch());
-        registerTransformer(new RenderChunkPatch());
-        registerTransformer(new RenderGlobalPatch());
-        registerTransformer(new BufferBuilderPatch());
-        registerTransformer(new VisGraphPatch());
-        registerTransformer(new WorldPatch());
+        //registerTransformer(new BlockPatch());
+        //registerTransformer(new ChunkRenderContainerPatch());
+        //registerTransformer(new ChunkRenderDispatcherPatch());
+        //registerTransformer(new ChunkRenderWorkerPatch());
+        //registerTransformer(new EntityPatch());
+        //registerTransformer(new EntityPlayerSPPatch());
+        //registerTransformer(new EntityRendererPatch());
+        //registerTransformer(new NetManagerPatch());
+        //registerTransformer(new NetManager$4Patch());
+        //registerTransformer(new RenderChunkPatch());
+        //registerTransformer(new RenderGlobalPatch());
+        //registerTransformer(new BufferBuilderPatch());
+        //registerTransformer(new VisGraphPatch());
+        //registerTransformer(new WorldPatch());
 
         // Babbaj
-        registerTransformer(new BoatPatch());
-        registerTransformer(new RenderBoatPatch());
-        registerTransformer(new PlayerTabOverlayPatch());
-        registerTransformer(new KeyBindingPatch());
-        registerTransformer(new SchematicPrinterPatch());
+        //registerTransformer(new BoatPatch());
+        //registerTransformer(new RenderBoatPatch());
+        //registerTransformer(new PlayerTabOverlayPatch());
+        //registerTransformer(new KeyBindingPatch());
+        //registerTransformer(new SchematicPrinterPatch());
 
         // special transformers
     }
