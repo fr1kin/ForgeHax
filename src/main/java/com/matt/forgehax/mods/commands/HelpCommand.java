@@ -13,6 +13,7 @@ import joptsimple.internal.Strings;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.matt.forgehax.Helper.getGlobalCommand;
 import static com.matt.forgehax.Helper.getModManager;
@@ -136,6 +137,41 @@ public class HelpCommand extends CommandMod {
                                 build.append('\n');
                             });
                     data.write(build.toString());
+                })
+                .build();
+    }
+
+    @RegisterCommand
+    public Command online(CommandBuilders builder) {
+        return builder.newCommandBuilder()
+                .name("online")
+                .description("List of online players. Optionally with an argument to match")
+                .processor(data -> {
+                    List<PlayerInfo> players = PlayerInfoHelper.getOnlinePlayers();
+
+                    if(players.size() > 0) {
+                        final String match = data.getArgumentCount() > 0 ? data.getArgumentAsString(0) : "";
+
+                        StringBuilder str = new StringBuilder();
+                        str.append(players.size());
+                        if(match.isEmpty())
+                            str.append(" players online: ");
+                        else {
+                            str.append(" players online matching '");
+                            str.append(match);
+                            str.append("': ");
+                        }
+                        players.forEach(pl -> {
+                            if(match.isEmpty() || pl.getName().equalsIgnoreCase(match)) {
+                                str.append(pl.isOfflinePlayer() ? "!" : "");
+                                str.append(pl.getName());
+                                str.append(", ");
+                            }
+                        });
+                        data.write(str.substring(0, str.length() - ", ".length()));
+                    } else {
+                        data.write("No players online.");
+                    }
                 })
                 .build();
     }
