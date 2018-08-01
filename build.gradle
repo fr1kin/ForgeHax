@@ -15,7 +15,10 @@ buildscript {
 }
 
 repositories {
+    mavenCentral()
     mavenLocal()
+
+    maven { url 'https://oss.sonatype.org/content/groups/public/' }
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -26,6 +29,10 @@ group 'com.matt.forgehax'
 version project.property('forgehax.version')
 
 archivesBaseName = "forgehax-" + project.property('forgehax.mc.version')
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
 
 minecraft {
     version = project.property('forgehax.forge.version')
@@ -39,7 +46,10 @@ dependencies {
     //compile files("$rootDir/libs/Schematica-1.12-1.7.8.163-universal.jar")
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
+
+
+    //compile group: "info.journeymap", name: "journeymap-api", version: '1.12-1.4', changing: true
 }
 
 

@@ -1,0 +1,5 @@
+1) Finish plugin loader, add ASM plugin support
+2) Finish CommandV2 API
+3) Finish GUI API
+4) Rework Markers mod to not use hooks placed in vanilla MC code
+5) Rework Aimbot mod, create way to prioritize movement packets sent between mods
