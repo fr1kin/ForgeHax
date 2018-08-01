@@ -1,8 +1,9 @@
 package com.matt.forgehax.util.command.v2;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.util.Immutables;
 import com.matt.forgehax.util.command.v2.argument.ArgumentHelper;
 import com.matt.forgehax.util.command.v2.argument.ArgumentV2;
@@ -11,20 +12,13 @@ import com.matt.forgehax.util.command.v2.callback.ICommandCallbackV2;
 import com.matt.forgehax.util.command.v2.exception.CommandExceptions;
 import com.matt.forgehax.util.command.v2.exception.CommandRuntimeExceptionV2;
 import com.matt.forgehax.util.command.v2.flag.ICommandFlagV2;
-import com.matt.forgehax.util.typeconverter.TypeConverter;
-import joptsimple.ArgumentAcceptingOptionSpec;
-import joptsimple.OptionParser;
-import joptsimple.OptionSpecBuilder;
-import joptsimple.ValueConverter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
-import static com.matt.forgehax.util.command.v2.argument.OptionV2.Type.OPTIONAL_ARGUMENT;
-import static com.matt.forgehax.util.command.v2.argument.OptionV2.Type.REQUIRED_ARGUMENT;
 
 /**
  * Created on 12/26/2017 by fr1kin
@@ -35,27 +29,26 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
     private final String description;
     private final IParentCommandV2 parent;
     private final List<ArgumentV2<?>> arguments;
-    private final List<OptionV2> options;
+    private final List<OptionV2<?>> options;
 
-    private final OptionParser parser;
-
-    private final Set<ICommandFlagV2> flags = Sets.newCopyOnWriteArraySet();
-    private final Set<ICommandCallbackV2> callbacks = Sets.newCopyOnWriteArraySet();
+    protected final Set<Enum<? extends ICommandFlagV2>> flags = Sets.newCopyOnWriteArraySet();
+    protected final Set<ICommandCallbackV2> callbacks = Sets.newCopyOnWriteArraySet();
 
     public AbstractCommandV2(String name,
                              @Nullable Collection<String> aliases,
                              String description,
                              @Nullable IParentCommandV2 parent,
                              @Nullable Collection<ArgumentV2<?>> arguments,
-                             @Nullable Collection<OptionV2> options) throws CommandRuntimeExceptionV2.CreationFailure {
-        CommandExceptions.checkIfNullOrEmpty(name, "name missing");
-        CommandExceptions.checkIfNullOrEmpty(description, "description missing");
+                             @Nullable Collection<OptionV2<?>> options) throws CommandRuntimeExceptionV2.CreationFailure {
+        CommandExceptions.checkIfNullOrEmpty(name, "name empty or null");
+        CommandExceptions.checkIfNullOrEmpty(description, "description empty or null");
 
         this.name = name;
         this.aliases = Immutables.copyToList(aliases);
         this.description = description;
         this.parent = parent;
         this.arguments = Immutables.copyToList(arguments);
+        this.options = Immutables.copyToList(options);
 
         // make sure no alias with the same name as the command exists
         if(this.aliases.stream().anyMatch(name::equalsIgnoreCase))
@@ -64,54 +57,14 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
         if(ArgumentHelper.isInvalidArgumentOrder(this.arguments))
             throw new CommandRuntimeExceptionV2.CreationFailure("required arguments are not allowed after non-required arguments");
 
-        this.parser = new OptionParser();
-
-        // add all options to parser
-        List<OptionV2> wrapped = Lists.newArrayList();
-
-        if(options != null) {
-            // add all options to parser
-            for (OptionV2 option : options) {
-                OptionSpecBuilder builder = this.parser.acceptsAll(option.getNames(), option.getDescription());
-
-                if (option.getType() == OPTIONAL_ARGUMENT || option.getType() == REQUIRED_ARGUMENT) {
-                    ArgumentV2<?> arg = option.getArgument();
-
-                    ArgumentAcceptingOptionSpec aopt = (option.getType() == OPTIONAL_ARGUMENT ? builder.withOptionalArg() : builder.withRequiredArg()) // set required
-                            .describedAs(arg.getDescription()); // set description
-
-                    try {
-                        aopt.ofType(arg.getConverter().type()); // set type
-                    } catch (Throwable t) {
-                        // something went wrong, we have to make our own converter
-                        final TypeConverter typeConverter = arg.getConverter();
-                        aopt.withValuesConvertedBy(new ValueConverter() {
-                            @Override
-                            public Object convert(String value) {
-                                return typeConverter.parse(value);
-                            }
-
-                            @Override
-                            public Class valueType() {
-                                return typeConverter.type();
-                            }
-
-                            @Override
-                            public String valuePattern() {
-                                return null;
-                            }
-                        });
-                    }
-
-                    if (arg.getDefaultValue() != null) aopt.defaultsTo(arg.getDefaultValue()); // set default value
-                }
-                wrapped.add(option.copy().fromDescriptor(builder).asJOptWrapper());
-            }
-        }
-
-        // copy wrapped options to immutable list
-        this.options = Immutables.copyToList(wrapped);
+        __initialize();
     }
+
+    /**
+     * Method that is called at the end of the super constructor.
+     * Useful for adding flags.
+     */
+    protected void __initialize() {}
 
     @Override
     public String getName() {
@@ -161,7 +114,7 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
     }
 
     @Override
-    public List<OptionV2> getOptions() {
+    public List<OptionV2<?>> getOptions() {
         return options;
     }
 
@@ -176,26 +129,22 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
     }
 
     @Override
-    public Collection<ICommandFlagV2> getFlags() {
+    public Collection<Enum<? extends ICommandFlagV2>> getFlags() {
         return ImmutableSet.copyOf(flags);
     }
 
-    protected Collection<ICommandFlagV2> _getFlags() {
-        return flags;
-    }
-
     @Override
-    public boolean addFlag(ICommandFlagV2 flag) {
+    public boolean addFlag(Enum<? extends ICommandFlagV2> flag) {
         return flags.add(flag);
     }
 
     @Override
-    public boolean removeFlag(ICommandFlagV2 flag) {
+    public boolean removeFlag(Enum<? extends ICommandFlagV2> flag) {
         return flags.remove(flag);
     }
 
     @Override
-    public boolean containsFlag(ICommandFlagV2 flag) {
+    public boolean containsFlag(Enum<? extends ICommandFlagV2> flag) {
         return !flags.isEmpty() && flags.contains(flag);
     }
 
@@ -224,13 +173,64 @@ public abstract class AbstractCommandV2 implements ICommandV2 {
         return callbacks.remove(callback);
     }
 
-    protected OptionParser _getParser() {
-        return parser;
-    }
-
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof ICommandV2
-                && getAbsoluteName().equalsIgnoreCase(((ICommandV2) obj).getAbsoluteName());
+        return obj instanceof ICommandV2 && isAbsoluteNameMatching(((ICommandV2) obj).getAbsoluteName());
+    }
+
+    @SuppressWarnings("Duplicates")
+    @Override
+    public void serialize(JsonWriter writer) throws IOException {
+        writer.beginObject(); // {
+
+        // core attributes
+
+        if(!flags.isEmpty()) { // only write if not-empty
+            writer.name("flags");
+            writer.beginArray(); // [
+
+            for(Enum<? extends ICommandFlagV2> val : flags) {
+                writer.value(val.getDeclaringClass().getName() + "::" + val.name());
+            }
+
+            writer.endArray(); // ]
+        }
+
+        writer.endObject(); // }
+    }
+
+    @SuppressWarnings("Duplicates")
+    @Override
+    public void deserialize(JsonReader reader) throws IOException {
+        reader.beginObject(); // {
+
+        while(reader.hasNext()) {
+            switch (reader.nextName()) {
+                case "flags": // should always be first
+                {
+                    reader.beginArray(); // [
+
+                    flags.clear(); // remove all current flags
+
+                    while(reader.hasNext()) {
+                        String next = reader.nextName();
+                        Enum<? extends ICommandFlagV2> value = ICommandFlagV2.Registry.getFromSerializedString(next);
+                        if(value != null) addFlag(value);
+                    }
+
+                    reader.endArray(); // ]
+
+                    break;
+                }
+                default:
+                {
+                    // possibly legacy code
+                    reader.skipValue();
+                    break;
+                }
+            }
+        }
+
+        reader.endObject(); // }
     }
 }

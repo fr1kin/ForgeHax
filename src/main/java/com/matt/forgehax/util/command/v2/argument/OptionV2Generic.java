@@ -13,12 +13,14 @@ import java.util.List;
 /**
  * Created on 12/25/2017 by fr1kin
  */
-public class OptionV2Generic extends OptionV2 {
+public class OptionV2Generic<E> extends OptionV2<E> {
     private final List<String> names;
     private final String description;
     private final boolean required;
 
-    protected OptionV2Generic(Collection<String> names, @Nullable String description, boolean required) throws CommandRuntimeExceptionV2 {
+    private OptionV2Generic(Collection<String> names,
+                              @Nullable String description,
+                              boolean required) throws CommandRuntimeExceptionV2 {
         requireValidNames(names);
         this.names = ImmutableList.copyOf(names);
         this.description = description == null ? NO_DESCRIPTION : description;
@@ -47,15 +49,14 @@ public class OptionV2Generic extends OptionV2 {
         return required;
     }
 
-    @Nonnull
     @Override
-    public ArgumentV2<?> getArgument() {
+    public ArgumentV2<E> getArgument() {
         return ArgumentV2Empty.getInstance();
     }
 
     @Override
-    public OptionV2Builder copy() {
-        return new OptionV2Builder()
+    public OptionV2Builder<E> copy() {
+        return new OptionV2Builder<E>()
                 .names(getNames())
                 .description(getDescription())
                 .required(isRequired())
@@ -66,13 +67,19 @@ public class OptionV2Generic extends OptionV2 {
     //
     //
 
-    public static class AcceptsArgument extends OptionV2Generic {
-        private final ArgumentV2<?> argument;
+    public static class AcceptsArgument<E> extends OptionV2Generic<E> {
+        private final ArgumentV2<E> argument;
+        private final InputInterpreter.Function<OptionV2<E>> predictor;
 
-        protected AcceptsArgument(Collection<String> names, @Nullable String description, boolean required, @Nonnull ArgumentV2<?> argument) throws CommandRuntimeExceptionV2 {
+        private AcceptsArgument(Collection<String> names,
+                                  @Nullable String description,
+                                  boolean required,
+                                  @Nonnull ArgumentV2<E> argument,
+                                  @Nullable InputInterpreter.Function<OptionV2<E>> predictor) throws CommandRuntimeExceptionV2 {
             super(names, description, required);
             CommandExceptions.checkIfNull(argument, "argument provided is null");
             this.argument = argument;
+            this.predictor = predictor;
         }
 
         @Override
@@ -80,35 +87,42 @@ public class OptionV2Generic extends OptionV2 {
             return argument.isRequired() ? Type.REQUIRED_ARGUMENT : Type.OPTIONAL_ARGUMENT;
         }
 
-        @Nonnull
         @Override
-        public ArgumentV2<?> getArgument() {
+        public ArgumentV2<E> getArgument() {
             return argument;
         }
 
-        //
-        //
-        //
+        @Nonnull
+        @Override
+        public List<String> getInterpretations(ICommandV2 command, String input) {
+            return predictor == null ? super.getInterpretations(command, input) : predictor.apply(this, command, input);
+        }
 
-        public static class Extension extends AcceptsArgument {
-            private final IPredictableArgument.Function<OptionV2> predictor;
+        @Override
+        public boolean isInterpretable() {
+            return predictor != null;
+        }
 
-            protected Extension(Collection<String> names, @Nullable String description, boolean required, @Nonnull ArgumentV2<?> argument, @Nonnull IPredictableArgument.Function<OptionV2> predictor) throws CommandRuntimeExceptionV2 {
-                super(names, description, required, argument);
-                CommandExceptions.checkIfNull(predictor, "predictor function is null");
-                this.predictor = predictor;
-            }
+        @Override
+        public OptionV2Builder<E> copy() {
+            return super.copy().interpreter(predictor).argument(argument);
+        }
+    }
 
-            @Nonnull
-            @Override
-            public List<String> getPredictions(ICommandV2 command, String input) {
-                return predictor.apply(this, command, input);
-            }
+    public static class Factory {
+        public static <T> OptionV2<T> make(Collection<String> names,
+                                    @Nullable String description,
+                                    boolean required,
+                                    @Nullable ArgumentV2<T> argument,
+                                    @Nullable InputInterpreter.Function<OptionV2<T>> predictor) {
+            return ArgumentHelper.isNullOrEmpty(argument) ? new OptionV2Generic<>(names, description, required)
+                    : new OptionV2Generic.AcceptsArgument<>(names, description, required, argument, predictor);
+        }
 
-            @Override
-            public OptionV2Builder copy() {
-                return super.copy().predictor(predictor);
-            }
+        public static <T> OptionV2<T> make(Collection<String> names,
+                                    @Nullable String description,
+                                    boolean required) {
+            return make(names, description, required, null, null);
         }
     }
 }

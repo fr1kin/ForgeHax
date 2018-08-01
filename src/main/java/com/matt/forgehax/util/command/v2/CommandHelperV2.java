@@ -2,7 +2,6 @@ package com.matt.forgehax.util.command.v2;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -19,11 +18,13 @@ public class CommandHelperV2 {
         return VALID_CHARACTERS_PATTERN.matcher(name).matches();
     }
 
-    @Nullable
-    public static String getBestMatchingName(ICommandV2 command, String name) {
+    public static String getBestMatchingName(ICommandV2 command, String name, String defaultTo) {
         return getSortedMatching(command.getAllNames(), name, true).stream()
                 .findFirst()
-                .orElse(null);
+                .orElse(defaultTo);
+    }
+    public static String getBestMatchingName(ICommandV2 command, String name) {
+        return getBestMatchingName(command, name, null);
     }
 
     public static List<String> getSortedMatching(Collection<String> strings, String match, final boolean ignoreCase) {

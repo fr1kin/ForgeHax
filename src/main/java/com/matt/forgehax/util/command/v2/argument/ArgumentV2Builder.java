@@ -1,18 +1,24 @@
 package com.matt.forgehax.util.command.v2.argument;
 
 import com.matt.forgehax.util.command.v2.exception.CommandRuntimeExceptionV2;
+import com.matt.forgehax.util.command.v2.templates.ConverterBuilder;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
-import com.matt.forgehax.util.typeconverter.TypeConverterRegistry;
 
 /**
  * Created on 1/30/2018 by fr1kin
  */
-public class ArgumentV2Builder<E> {
+public class ArgumentV2Builder<E> implements ConverterBuilder<E, ArgumentV2Builder<E>> {
     private String description = null;
     private TypeConverter<E> converter = null;
     private boolean required = true;
     private E defaultValue = null;
-    private IPredictableArgument.Function<ArgumentV2<E>> predictor = null;
+    private InputInterpreter.Function<ArgumentV2<E>> predictor = null;
+
+    @Override
+    public ArgumentV2Builder<E> converter(TypeConverter<E> typeConverter) {
+        this.converter = typeConverter;
+        return this;
+    }
 
     /**
      * Short description of what this argument exists for
@@ -25,27 +31,6 @@ public class ArgumentV2Builder<E> {
     }
 
     /**
-     * Converter for changing objects to a string and an string to an object
-     * @param converter converter instance
-     * @return this
-     */
-    public ArgumentV2Builder<E> converter(TypeConverter<E> converter) {
-        this.converter = converter;
-        return this;
-    }
-
-    /**
-     * Alternative to using ::converter, will try and lookup the class in the type converter registry.
-     * If it fails to find anything, this.converter will be null and CommandRuntimeExceptionV2.CreationFailure
-     * will be thrown when build() is called.
-     * @param clazz class of converter
-     * @return this
-     */
-    public ArgumentV2Builder<E> type(Class<E> clazz) {
-        return converter(TypeConverterRegistry.get(clazz));
-    }
-
-    /**
      * If the argument is required
      * @param required required
      * @return this
@@ -53,6 +38,12 @@ public class ArgumentV2Builder<E> {
     public ArgumentV2Builder<E> required(boolean required) {
         this.required = required;
         return this;
+    }
+    public ArgumentV2Builder<E> required() {
+        return required(true);
+    }
+    public ArgumentV2Builder<E> notRequired() {
+        return required(false);
     }
 
     /**
@@ -70,7 +61,7 @@ public class ArgumentV2Builder<E> {
      * @param predictor function
      * @return this
      */
-    public ArgumentV2Builder<E> predictor(IPredictableArgument.Function<ArgumentV2<E>> predictor) {
+    public ArgumentV2Builder<E> interpreter(InputInterpreter.Function<ArgumentV2<E>> predictor) {
         this.predictor = predictor;
         return this;
     }
@@ -81,8 +72,7 @@ public class ArgumentV2Builder<E> {
      * @throws CommandRuntimeExceptionV2.CreationFailure if there is anything wrong with the provided data
      */
     public ArgumentV2<E> build() throws CommandRuntimeExceptionV2.CreationFailure {
-        return predictor == null ? new ArgumentV2Generic<>(description, converter, required, defaultValue)
-                : new ArgumentV2Generic.Extension<>(description, converter, required, defaultValue, predictor);
+        return ArgumentV2Generic.Factory.make(description, converter, required, defaultValue, predictor);
     }
 
     public ArgumentV2 empty() throws CommandRuntimeExceptionV2.CreationFailure {

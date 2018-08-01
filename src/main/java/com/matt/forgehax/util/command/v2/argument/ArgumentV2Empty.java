@@ -11,7 +11,8 @@ import javax.annotation.Nullable;
 public class ArgumentV2Empty<E> extends ArgumentV2<E> {
     private static final ArgumentV2Empty INSTANCE = new ArgumentV2Empty();
 
-    public static ArgumentV2 getInstance() {
+    @SuppressWarnings("unchecked")
+    public static <T> ArgumentV2<T> getInstance() {
         return INSTANCE;
     }
 

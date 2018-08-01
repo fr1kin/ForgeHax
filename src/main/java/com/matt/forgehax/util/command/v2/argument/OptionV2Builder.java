@@ -1,7 +1,6 @@
 package com.matt.forgehax.util.command.v2.argument;
 
 import com.google.common.collect.Lists;
-import joptsimple.OptionDescriptor;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,24 +8,23 @@ import java.util.Collection;
 /**
  * Created on 1/30/2018 by fr1kin
  */
-public class OptionV2Builder {
+public class OptionV2Builder<E> {
     private Collection<String> names = Lists.newArrayList();
     private String description = null;
     private boolean required = false;
-    private OptionDescriptor descriptor = null;
-    private ArgumentV2<?> argument = null;
-    private IPredictableArgument.Function<OptionV2> predictor = null;
+    private ArgumentV2<E> argument = null;
+    private InputInterpreter.Function<OptionV2<E>> predictor = null;
 
     /**
      * Name(s) to be associated with this option
      * @param names name(s)
      * @return this
      */
-    public OptionV2Builder names(Collection<String> names) {
+    public OptionV2Builder<E> names(Collection<String> names) {
         this.names.addAll(names);
         return this;
     }
-    public OptionV2Builder names(String... names) {
+    public OptionV2Builder<E> names(String... names) {
         return this.names(Arrays.asList(names));
     }
 
@@ -35,27 +33,17 @@ public class OptionV2Builder {
      * @param description describe what this option does
      * @return this
      */
-    public OptionV2Builder description(String description) {
+    public OptionV2Builder<E> description(String description) {
         this.description = description;
         return this;
     }
 
-    public OptionV2Builder required(boolean required) {
+    public OptionV2Builder<E> required(boolean required) {
         this.required = required;
         return this;
     }
 
-    /**
-     * Creates option that wraps around a JOpt OptionDescriptor.
-     * @param descriptor descriptor instance
-     * @return this
-     */
-    public OptionV2Builder fromDescriptor(OptionDescriptor descriptor) {
-        this.descriptor = descriptor;
-        return this;
-    }
-
-    public OptionV2Builder argument(ArgumentV2<?> argument) {
+    public OptionV2Builder<E> argument(ArgumentV2<E> argument) {
         this.argument = argument;
         return this;
     }
@@ -65,7 +53,7 @@ public class OptionV2Builder {
      * @param predictor function
      * @return this
      */
-    public OptionV2Builder predictor(IPredictableArgument.Function<OptionV2> predictor) {
+    public OptionV2Builder<E> interpreter(InputInterpreter.Function<OptionV2<E>> predictor) {
         this.predictor = predictor;
         return this;
     }
@@ -75,23 +63,11 @@ public class OptionV2Builder {
      * Will automatically decide which child class to create it from.
      * @return new instance containing data provided
      */
-    public OptionV2 build() {
-        return descriptor == null ? asGeneric() : asJOptWrapper();
+    public OptionV2<E> build() {
+        return asGeneric();
     }
 
-    public OptionV2 asGeneric() {
-        if(ArgumentHelper.isNullOrEmpty(argument)) // no argument
-            return new OptionV2Generic(names, description, required); // no argument means you cant predict the result
-        else // argument
-            return predictor == null ? new OptionV2Generic.AcceptsArgument(names, description, required, argument)
-                    : new OptionV2Generic.AcceptsArgument.Extension(names, description, required, argument, predictor);
-    }
-
-    public OptionV2 asJOptWrapper() {
-        if(!descriptor.acceptsArguments()) // no argument
-            return new OptionV2JOptWrapper(descriptor); // no argument means you cant predict the result
-        else // argument
-            return predictor == null ? new OptionV2JOptWrapper.AcceptsArgument(descriptor, argument)
-                    : new OptionV2JOptWrapper.AcceptsArgument.Extension(descriptor, argument, predictor);
+    public OptionV2<E> asGeneric() {
+        return OptionV2Generic.Factory.make(names, description, required, argument, predictor);
     }
 }

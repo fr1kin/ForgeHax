@@ -1,5 +1,7 @@
 package com.matt.forgehax.util.command.v2.argument;
 
+import com.matt.forgehax.util.CaseSensitive;
+import com.matt.forgehax.util.Immutables;
 import com.matt.forgehax.util.command.v2.ICommandV2;
 import com.matt.forgehax.util.command.v2.exception.CommandExceptions;
 import com.matt.forgehax.util.command.v2.exception.CommandRuntimeExceptionV2;
@@ -14,8 +16,8 @@ import java.util.Objects;
 /**
  * Created on 2/3/2018 by fr1kin
  */
-public abstract class OptionV2 implements IPredictableArgument {
-    protected static final String NO_DESCRIPTION = "No description given";
+public abstract class OptionV2<E> implements InputInterpreter {
+    protected static final String NO_DESCRIPTION = "<none>";
 
     public enum Type {
         /**
@@ -44,6 +46,18 @@ public abstract class OptionV2 implements IPredictableArgument {
     @Nonnull
     public abstract List<String> getNames();
 
+    public List<String> getShortNames() {
+        return getNames().stream()
+                .filter(n -> n.length() == 1)
+                .collect(Immutables.toImmutableList());
+    }
+
+    public List<String> getFullNames() {
+        return getNames().stream()
+                .filter(n -> n.length() > 1)
+                .collect(Immutables.toImmutableList());
+    }
+
     /**
      * Description for this option
      * @return NO_DESCRIPTION is description is null
@@ -61,14 +75,27 @@ public abstract class OptionV2 implements IPredictableArgument {
      * Gets the optional argument
      * @return argument
      */
-    @Nonnull
-    public abstract ArgumentV2<?> getArgument();
+    public abstract ArgumentV2<E> getArgument();
+
+    public final boolean hasArgument() {
+        return !getType().equals(Type.FLAG);
+    }
+
+    public OptionV2<E> appendValue(E value) {
+        return new ArgValue<>(this, getArgument().withValue(value));
+    }
+    public final OptionV2<E> appendValue(String value) {
+        return appendValue(getArgument().getConverter().parse(value));
+    }
+    public final OptionV2<E> appendDefaultValue() {
+        return appendValue(getArgument().getDefaultValue());
+    }
 
     /**
      * Copy this options contents into a mutable builder
      * @return new builder instance
      */
-    public abstract OptionV2Builder copy();
+    public abstract OptionV2Builder<E> copy();
 
     /**
      * Checks if any of the provided name any of the matches these options names.
@@ -76,9 +103,9 @@ public abstract class OptionV2 implements IPredictableArgument {
      * @param name name to check
      * @return true if a match is found
      */
-    public boolean contains(String name) {
+    public boolean contains(@CaseSensitive String name) {
         if(Strings.isNullOrEmpty(name)) return false;
-        for(String n : getNames()) if(Objects.equals(name, n)) return true;
+        for(String n : getNames()) if(name.equals(n)) return true;
         return false;
     }
 
@@ -88,7 +115,7 @@ public abstract class OptionV2 implements IPredictableArgument {
      * @param names list of names to check
      * @return true if a match is found
      */
-    public boolean contains(String[] names) {
+    public boolean contains(@CaseSensitive String[] names) {
         for(String n : names) if(contains(n))
             return true;
         return false;
@@ -100,25 +127,34 @@ public abstract class OptionV2 implements IPredictableArgument {
      * @param names list of names to check
      * @return true if a match is found
      */
-    public boolean contains(Collection<String> names) {
+    public boolean contains(@CaseSensitive Collection<String> names) {
         for(String n : names) if(contains(n)) return true;
         return false;
     }
 
+    public boolean matches(OptionV2<?> option) {
+        return contains(option.getNames());
+    }
+
     @Override
     public final int hashCode() {
-        return Objects.hash(getNames(), getDescription());
+        return Objects.hash(getNames());
     }
 
     @Override
     public final boolean equals(Object obj) {
-        return obj instanceof OptionV2 && hashCode() == obj.hashCode();
+        return this == obj || (obj instanceof OptionV2 && matches((OptionV2)obj));
     }
 
     @Nonnull
     @Override
-    public List<String> getPredictions(ICommandV2 command, String input) {
+    public List<String> getInterpretations(ICommandV2 command, String input) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isInterpretable() {
+        return false;
     }
 
     //
@@ -130,5 +166,64 @@ public abstract class OptionV2 implements IPredictableArgument {
         if(names.isEmpty()) throw new CommandRuntimeExceptionV2.CreationFailure("no name(s) provided");
         for(String n : names) if(Strings.isNullOrEmpty(n))
             throw new CommandRuntimeExceptionV2.CreationFailure("provided name is null or empty");
+    }
+
+    static class ArgValue<E> extends OptionV2<E> {
+        private final OptionV2<E> option;
+        private final ArgumentV2<E> argument;
+
+        public ArgValue(OptionV2<E> option, ArgumentV2<E> argument) {
+            this.option = option;
+            this.argument = argument;
+        }
+
+        @Override
+        public Type getType() {
+            return option.getType();
+        }
+
+        @Nonnull
+        @Override
+        public List<String> getNames() {
+            return option.getNames();
+        }
+
+        @Nonnull
+        @Override
+        public String getDescription() {
+            return option.getDescription();
+        }
+
+        @Override
+        public boolean isRequired() {
+            return option.isRequired();
+        }
+
+        @Nonnull
+        @Override
+        public ArgumentV2<E> getArgument() {
+            return argument;
+        }
+
+        @Override
+        public OptionV2<E> appendValue(E value) {
+            return new ArgValue<>(option, argument.withValue(value));
+        }
+
+        @Override
+        public OptionV2Builder<E> copy() {
+            return option.copy().argument(argument);
+        }
+
+        @Nonnull
+        @Override
+        public List<String> getInterpretations(ICommandV2 command, String input) {
+            return option.getInterpretations(command, input);
+        }
+
+        @Override
+        public boolean isInterpretable() {
+            return option.isInterpretable();
+        }
     }
 }

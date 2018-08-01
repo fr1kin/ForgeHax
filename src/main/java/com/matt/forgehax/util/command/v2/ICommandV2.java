@@ -30,10 +30,6 @@ import java.util.List;
         Callbacks           Mutable         Command callback
  */
 public interface ICommandV2 extends ISerializableJson {
-    String[]            EMPTY_ALIASES           = new String[0];
-    ArgumentV2<?>[]     EMPTY_ARGUMENTS         = new ArgumentV2[0];
-    OptionV2[]          EMPTY_OPTIONS           = new OptionV2[0];
-
     /**
      * The formal name for this command
      * @return formal name
@@ -62,15 +58,27 @@ public interface ICommandV2 extends ISerializableJson {
     }
 
     /**
+     * Check if the string matches this commands name
+     * @param name
+     * @return
+     */
+    default boolean isNameMatching(String name) {
+        return getName().equalsIgnoreCase(name);
+    }
+    default boolean isAbsoluteNameMatching(String name) {
+        return getAbsoluteName().equalsIgnoreCase(name);
+    }
+
+    /**
      * If this command can be identified by the given name.
      * Command names are case insensitive.
      * @param name
      * @return
      */
-    default boolean isIdentifiableAs(String name) {
+    default boolean isIdentifiableAs(final String name) {
         return CommandHelperV2.isNameValid(name) && (
-                getName().equalsIgnoreCase(name)
-                        || getAbsoluteName().equalsIgnoreCase(name)
+                isNameMatching(name)
+                        || isAbsoluteNameMatching(name)
                         || getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(name)));
     }
 
@@ -80,9 +88,7 @@ public interface ICommandV2 extends ISerializableJson {
      * @return
      */
     default boolean isConflictingWith(ICommandV2 other) {
-        return getName().equalsIgnoreCase(other.getName()) || (
-                !other.getAliases().isEmpty() // we don't need to evaluate this.getAliases() as anyMatch will do that for us
-                        && getAliases().stream().anyMatch(alias -> other.getAliases().stream().anyMatch(alias::equalsIgnoreCase)));
+        return isNameMatching(other.getName());
     }
 
     /**
@@ -99,7 +105,42 @@ public interface ICommandV2 extends ISerializableJson {
     IParentCommandV2 getParent();
 
     List<ArgumentV2<?>> getArguments();
-    List<OptionV2> getOptions();
+
+    default ArgumentV2<?> getArgument(int index, ArgumentV2<?> defaultTo) {
+        return (index > -1 && index < getArgumentCount()) ? getArguments().get(index) : defaultTo;
+    }
+    default ArgumentV2<?> getArgument(int index) {
+        return getArgument(index, null);
+    }
+
+    default int getArgumentCount() {
+        return getArguments().size();
+    }
+
+    default int getRequiredArgumentCount() {
+        return (int)getArguments().stream()
+                .filter(ArgumentV2::isRequired)
+                .count();
+    }
+
+    default int getOptionalArgumentCount() {
+        return (int)getArguments().stream()
+                .filter(arg -> !arg.isRequired())
+                .count();
+    }
+
+    List<OptionV2<?>> getOptions();
+
+    default OptionV2<?> getOption(String name, OptionV2<?> defaultTo) {
+        return getOptions().stream()
+                .filter(o -> o.contains(name))
+                .findFirst()
+                .orElse(defaultTo);
+    }
+    @Nullable
+    default OptionV2<?> getOption(String name) {
+        return getOption(name, null);
+    }
 
     String getHelpText(IHelpTextFormatter formatter);
     String getSyntaxHelpText();
@@ -108,28 +149,28 @@ public interface ICommandV2 extends ISerializableJson {
      * Array of flags designated to this command
      * @return empty list if command has no flags
      */
-    Collection<ICommandFlagV2> getFlags();
+    Collection<Enum<? extends ICommandFlagV2>> getFlags();
 
     /**
      * Adds a flag to the command
      * @param flag flag
      * @return true if added, otherwise false
      */
-    boolean addFlag(ICommandFlagV2 flag);
+    boolean addFlag(Enum<? extends ICommandFlagV2> flag);
 
     /**
      * Removes a flag to the command
      * @param flag flag
      * @return true if removed, otherwise false
      */
-    boolean removeFlag(ICommandFlagV2 flag);
+    boolean removeFlag(Enum<? extends ICommandFlagV2> flag);
 
     /**
      * Checks if the command contains the flag
      * @param flag flag
      * @return true if contains, otherwise false
      */
-    boolean containsFlag(ICommandFlagV2 flag);
+    boolean containsFlag(Enum<? extends ICommandFlagV2> flag);
 
     @Nonnull
     Collection<ICommandCallbackV2> getCallbacks();
@@ -148,4 +189,9 @@ public interface ICommandV2 extends ISerializableJson {
      * @throws CommandRuntimeExceptionV2.ProcessingFailure for any processing exceptions
      */
     boolean process(String[] args) throws CommandRuntimeExceptionV2.ProcessingFailure;
+
+    @Override
+    default String getUniqueHeader() {
+        return getAbsoluteName(); // no not overload this, will experience weird results when serializing
+    }
 }

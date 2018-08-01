@@ -21,7 +21,7 @@ public class CommandBuilderV2 {
     private List<String> aliases = Lists.newArrayList();
 
     private List<ArgumentV2<?>> arguments = Lists.newArrayList();
-    private List<OptionV2> options = Lists.newArrayList();
+    private List<OptionV2<?>> options = Lists.newArrayList();
 
     public CommandBuilderV2(@Nullable IParentCommandV2 parent) {
         this.parent = parent;
@@ -99,11 +99,11 @@ public class CommandBuilderV2 {
      * @param options varargs of options
      * @return this
      */
-    public CommandBuilderV2 options(Collection<OptionV2> options) {
+    public CommandBuilderV2 options(Collection<OptionV2<?>> options) {
         this.options.addAll(options);
         return this;
     }
-    public CommandBuilderV2 options(OptionV2... options) {
+    public CommandBuilderV2 options(OptionV2<?>... options) {
         return options(Arrays.asList(options));
     }
 
