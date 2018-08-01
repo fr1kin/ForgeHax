@@ -37,6 +37,7 @@ public class FPSLock extends ToggleMod {
             MC.gameSettings.limitFramerate = menu_fps.get();
     }
 
+    @SubscribeEvent
     void onWorldUnload(WorldEvent.Unload event) {
         MC.gameSettings.limitFramerate = menu_fps.get();
     }
