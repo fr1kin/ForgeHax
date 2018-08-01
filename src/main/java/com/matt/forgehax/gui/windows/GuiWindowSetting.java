@@ -1,23 +1,20 @@
 package com.matt.forgehax.gui.windows;
 
 import com.matt.forgehax.gui.ClickGui;
-import com.matt.forgehax.gui.elements.GuiButton;
 import com.matt.forgehax.gui.elements.GuiElement;
 import com.matt.forgehax.gui.elements.GuiTextInput;
-import com.matt.forgehax.util.command.Setting;
-import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
-import com.matt.forgehax.util.mod.Category;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Babbaj on 9/5/2017.
  */
 public class GuiWindowSetting extends GuiWindow {
 
-    public ArrayList<GuiElement> inputList = new ArrayList<GuiElement>(); // list of toggles, sliders, text inputs, etc.
+    public List<GuiElement> inputList = new ArrayList<>(); // list of toggles, sliders, text inputs, etc.
 
     private BaseMod mod;
 
@@ -66,7 +63,7 @@ public class GuiWindowSetting extends GuiWindow {
     public void mouseClicked(int x, int y, int state) {
         super.mouseClicked(x, y, state);
         if (state == 2 && isMouseInHeader(x,y))  { // delete the window on middle click
-           ClickGui.windowList.remove(this);
+           ClickGui.getInstance().windowList.remove(this);
         }
         else {
             for (GuiElement input : inputList) {

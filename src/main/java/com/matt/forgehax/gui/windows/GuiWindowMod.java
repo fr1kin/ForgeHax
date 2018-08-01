@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.matt.forgehax.Globals.MC;
 import static com.matt.forgehax.Helper.getModManager;
@@ -21,7 +22,7 @@ import static com.matt.forgehax.Helper.getModManager;
  */
 public class GuiWindowMod extends GuiWindow {
 
-    public ArrayList<GuiButton> buttonList = new ArrayList<GuiButton>();
+    public List<GuiButton> buttonList = new ArrayList<>();
 
     /**
      * The button list y coord needs to be offset to move them up or down the window
@@ -58,7 +59,6 @@ public class GuiWindowMod extends GuiWindow {
         }
         height = Math.min(maxHeight, newHeight+3);
         width = maxWidth+15; // set the width of window to the width of the longest mod name
-
     }
 
 

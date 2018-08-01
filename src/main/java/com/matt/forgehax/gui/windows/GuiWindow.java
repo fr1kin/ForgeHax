@@ -12,7 +12,7 @@ import static com.matt.forgehax.Globals.MC;
 /**
  * Created by Babbaj on 9/5/2017.
  */
-public class GuiWindow {
+public abstract class GuiWindow {
 
     public boolean isHidden; // whether or not not to show everything below the header
 
@@ -33,8 +33,8 @@ public class GuiWindow {
     public GuiWindow(String titleIn) {
         this.title = titleIn;
         width = SurfaceHelper.getTextWidth(title) + 15;
-        ClickGui.windowList.add(this);
     }
+
     public void setPosition(int x, int y) {
         this.posX = x;
         this.headerY = y;
