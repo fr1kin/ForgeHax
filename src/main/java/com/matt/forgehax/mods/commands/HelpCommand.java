@@ -150,7 +150,7 @@ public class HelpCommand extends CommandMod {
                     List<PlayerInfo> players = PlayerInfoHelper.getOnlinePlayers();
 
                     if(players.size() > 0) {
-                        final String match = data.getArgumentCount() > 0 ? data.getArgumentAsString(0) : "";
+                        final String match = data.getArgumentCount() > 0 ? data.getArgumentAsString(0).toLowerCase() : "";
 
                         StringBuilder str = new StringBuilder();
                         str.append(players.size());
@@ -162,7 +162,7 @@ public class HelpCommand extends CommandMod {
                             str.append("': ");
                         }
                         players.forEach(pl -> {
-                            if(match.isEmpty() || pl.getName().equalsIgnoreCase(match)) {
+                            if(match.isEmpty() || pl.getName().toLowerCase().contains(match)) {
                                 str.append(pl.isOfflinePlayer() ? "!" : "");
                                 str.append(pl.getName());
                                 str.append(", ");
