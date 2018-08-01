@@ -79,7 +79,9 @@ public class ChatIdentifierService extends ServiceMod {
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {}
+                        public void onFailure(Throwable t) {
+                            PlayerInfoHelper.invokeEfficiently(senderProfile.getName(), true, this);
+                        }
                     });
                 })) return;
 
@@ -96,12 +98,16 @@ public class ChatIdentifierService extends ServiceMod {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {}
+                                public void onFailure(Throwable t) {
+                                    PlayerInfoHelper.invokeEfficiently(getLocalPlayer().getName(), true, this);
+                                }
                             });
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {}
+                        public void onFailure(Throwable t) {
+                            PlayerInfoHelper.invokeEfficiently(senderProfile.getName(), true, this);
+                        }
                     });
                 })) return;
 
@@ -118,12 +124,16 @@ public class ChatIdentifierService extends ServiceMod {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {}
+                                public void onFailure(Throwable t) {
+                                    PlayerInfoHelper.invokeEfficiently(getLocalPlayer().getName(), true, this);
+                                }
                             });
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {}
+                        public void onFailure(Throwable t) {
+                            PlayerInfoHelper.invokeEfficiently(receiverProfile.getName(), true, this);
+                        }
                     });
                 })) return;
 

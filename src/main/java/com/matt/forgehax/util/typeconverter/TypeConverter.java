@@ -13,24 +13,33 @@ public abstract class TypeConverter<E> {
     public abstract Class<E> type();
 
     public abstract E parse(String value);
-    public abstract String toString(E value);
 
-    @Nullable
-    public E parseSafe(String value) {
+    public E parse(String value, @Nullable E defaultTo) {
         try {
             return parse(value);
         } catch (Throwable t) {
-            return null;
+            return defaultTo;
         }
+    }
+
+    public abstract String toString(E value);
+
+    public String toString(E value, @Nonnull String defaultTo) {
+        try {
+            return toString(value);
+        } catch (Throwable t) {
+            return defaultTo;
+        }
+    }
+
+    @Nullable
+    public E parseSafe(String value) {
+        return parse(value, null);
     }
 
     @Nonnull
     public String toStringSafe(E value) {
-        try {
-            return toString(value);
-        } catch (Throwable t) {
-            return String.valueOf((Object) null);
-        }
+        return toString(value, String.valueOf((Object)null));
     }
 
     public boolean isType(Class<?> clazz) {

@@ -24,6 +24,8 @@ public class Immutables {
     public static <T> List<T> copyToList(@Nullable Collection<T> collection) {
         if(collection == null || collection.isEmpty())
             return Collections.emptyList();
+        if(collection instanceof ImmutableList)
+            return (List<T>) collection;
         else if(collection.size() == 1)
             return Collections.singletonList(collection.iterator().next());
         else
