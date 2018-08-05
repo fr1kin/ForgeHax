@@ -10,6 +10,7 @@ import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
 import com.matt.forgehax.util.command.exception.CommandParentNonNullException;
+import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.serialization.GsonConstant;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import com.matt.forgehax.util.serialization.ISerializer;
@@ -266,6 +267,10 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
             OptionSet options;
             String[] required;
             if(requiredArgs > 0) {
+                if(args.length == 0) {
+                    ConsoleIO.write(getPrintText());
+                    return;
+                }
                 if(args.length < requiredArgs) throw new CommandExecuteException("Missing argument(s)");
                 required = Arrays.copyOfRange(args, 0, requiredArgs); // do not pass through option processor
                 String[] nargs;
