@@ -97,7 +97,7 @@ public class HelpCommand extends CommandMod {
                     final StringBuilder build = new StringBuilder();
                     final String arg = data.getArgumentAsString(0);
                     final int indents = ConsoleIO.getIndents();
-                    PlayerInfoHelper.invokeEfficiently(arg, new FutureCallback<PlayerInfo>() {
+                    PlayerInfoHelper.registerWithCallback(arg, new FutureCallback<PlayerInfo>() {
                         @Override
                         public void onSuccess(@Nullable PlayerInfo result) {
                             if(result == null) return;

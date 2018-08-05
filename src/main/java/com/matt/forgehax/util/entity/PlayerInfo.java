@@ -12,7 +12,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
@@ -38,19 +37,15 @@ public class PlayerInfo implements Globals, GsonConstant {
      */
     private final List<Name> names;
 
-    public PlayerInfo(UUID id) {
+    public PlayerInfo(UUID id) throws IOException {
+        Objects.requireNonNull(id);
         this.id = id;
-        List<Name> temp;
-        try {
-            temp = getHistoryOfNames(id);
-        } catch (Throwable t) {
-            temp = Collections.emptyList();
-        }
-        this.names = ImmutableList.copyOf(temp);
+        this.names = ImmutableList.copyOf(lookupNames(id));
         this.offlineId = EntityPlayerSP.getOfflineUUID(getName());
         this.isOfflinePlayer = false;
     }
     public PlayerInfo(String name) throws IOException, NullPointerException {
+        Objects.requireNonNull(name);
         JsonArray ar = new JsonArray();
         ar.add(name);
 
@@ -61,7 +56,7 @@ public class PlayerInfo implements Globals, GsonConstant {
         Objects.requireNonNull(uuid);
 
         this.id = uuid;
-        this.names = ImmutableList.copyOf(getHistoryOfNames(uuid));
+        this.names = ImmutableList.copyOf(lookupNames(uuid));
         this.offlineId = EntityPlayerSP.getOfflineUUID(name);
         this.isOfflinePlayer = false;
     }
@@ -72,7 +67,7 @@ public class PlayerInfo implements Globals, GsonConstant {
         this.isOfflinePlayer = true;
     }
 
-    private static List<Name> getHistoryOfNames(UUID id) throws IOException {
+    private static List<Name> lookupNames(UUID id) throws IOException {
         JsonArray array = getResources(new URL("https://api.mojang.com/user/profiles/" + PlayerInfoHelper.getIdNoHyphens(id) + "/names"), "GET").getAsJsonArray();
         List<Name> temp = Lists.newArrayList();
         for (JsonElement e : array) {

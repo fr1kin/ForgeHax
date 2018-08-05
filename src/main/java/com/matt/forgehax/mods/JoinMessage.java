@@ -183,7 +183,7 @@ public class JoinMessage extends ToggleMod {
             return; // join message set, stop here
         }
 
-        PlayerInfoHelper.invokeEfficiently(target, new FutureCallback<PlayerInfo>() {
+        PlayerInfoHelper.registerWithCallback(target, new FutureCallback<PlayerInfo>() {
             @Override
             public void onSuccess(@Nullable PlayerInfo result) {
                 if(result != null && !result.isOfflinePlayer()) setJoinMessage(result.getId(), event.getSender().getId(), message);
