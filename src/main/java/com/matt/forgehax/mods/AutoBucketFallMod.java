@@ -26,7 +26,7 @@ import static com.matt.forgehax.util.entity.EntityUtils.*;
  */
 @RegisterMod
 public class AutoBucketFallMod extends ToggleMod {
-    public AutoBucketFallMod() { super(Category.PLAYER,"AutoBucket", false, "Automatically place bucket to stop fall damage"); }
+    public AutoBucketFallMod() { super(Category.PLAYER,"AutoBucket", false, "Automatically place bucket to reset fall damage"); }
 
     public final Setting<Double> preHeight = getCommandStub().builders().<Double>newSettingBuilder()
             .name("PreHeight")

@@ -180,7 +180,7 @@ public class BookBot extends ToggleMod {
                 .build();
 
         getCommandStub().builders().newCommandBuilder()
-                .name("stop")
+                .name("reset")
                 .description("Stop the BookBot task")
                 .processor(data -> {
                     if(writer != null) {
