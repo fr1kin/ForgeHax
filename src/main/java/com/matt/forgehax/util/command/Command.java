@@ -252,6 +252,8 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
                 if(results.size() == 1) { // if found 1 result, use that
                     results.get(0).run(CommandHelper.forward(args));
                     return true;
+                } else if(results.size() > 1) {
+                    throw new CommandExecuteException(String.format("Ambiguous command \"%s\": %s", lookup, results.stream().map(Command::getName).collect(Collectors.joining(", "))));
                 }
             }
         }
