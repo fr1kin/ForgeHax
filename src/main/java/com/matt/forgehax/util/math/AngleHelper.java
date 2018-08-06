@@ -34,8 +34,8 @@ public class AngleHelper {
     }
 
     public static double normalizeInDegrees(double ang) {
-        while (ang <= -180) ang += 360;
-        while (ang > 180) ang -= 360;
+        while (ang <= -180.D) ang += 360.D;
+        while (ang > 180.D) ang -= 360.D;
         return ang;
     }
 
