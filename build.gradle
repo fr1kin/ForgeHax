@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 apply plugin: 'java'
 apply plugin: 'idea'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 buildscript {
     repositories {
@@ -16,7 +16,6 @@ buildscript {
 
 repositories {
     mavenCentral()
-    mavenLocal()
 
     maven { url 'https://oss.sonatype.org/content/groups/public/' }
 }
@@ -29,6 +28,32 @@ group 'com.matt.forgehax'
 version project.property('forgehax.version')
 
 archivesBaseName = "forgehax-" + project.property('forgehax.mc.version')
+
+publishing {
+    publications {
+        // publish the forgehax
+        maven(MavenPublication) {
+            groupId = rootProject.group
+            artifactId = rootProject.name
+            version = rootProject.version
+            from components.java
+        }
+
+        /*
+        // publish all the dependencies
+        List allowedConfigs = ['forgeGradleMcDeps', 'forgeGradleMcDepsClient', 'forgeGradleMcNatives']
+        getConfigurations().findAll {it.name in allowedConfigs}.each {
+            it.dependencies.each {
+                def dep = it
+                a(MavenPublication) {
+                    groupId = dep.group
+                    artifactId = dep.name
+                    version = dep.version
+                }
+            }
+        }*/ // TODO: finish
+    }
+}
 
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
@@ -43,13 +68,8 @@ minecraft {
 }
 
 dependencies {
-    //compile files("$rootDir/libs/Schematica-1.12-1.7.8.163-universal.jar")
-
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
-
-
-    //compile group: "info.journeymap", name: "journeymap-api", version: '1.12-1.4', changing: true
 }
 
 
@@ -138,4 +158,4 @@ task copyJar(type: Copy, dependsOn: [setGameDir]) {
     into "$gameDir/mods/" + minecraft.version
 }
 
-build.finalizedBy copyJar
+build.finalizedBy copyJar, publishToMavenLocal
