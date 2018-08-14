@@ -1,6 +1,5 @@
 package com.matt.forgehax.asm.patches;
 
-import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
@@ -12,7 +11,6 @@ import org.objectweb.asm.tree.*;
 import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Opcodes.IFNE;
 
 /**
  * Created by Babbaj on 9/5/2017.

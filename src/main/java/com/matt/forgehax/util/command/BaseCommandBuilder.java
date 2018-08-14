@@ -6,6 +6,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -15,8 +16,8 @@ import java.util.function.Consumer;
 public abstract class BaseCommandBuilder<T extends BaseCommandBuilder, R extends Command> {
     protected final Map<String, Object> data = Maps.newHashMap();
 
-    private Collection<Consumer<OptionParser>> optionBuilders;
-    private Collection<Consumer<ExecuteData>> processors;
+    private List<Consumer<OptionParser>> optionBuilders;
+    private List<Consumer<ExecuteData>> processors;
     private Multimap<CallbackType, Consumer<CallbackData>> callbacks;
 
     @SuppressWarnings("unchecked")
