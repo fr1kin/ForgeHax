@@ -98,7 +98,6 @@ public class MacroCommand extends CommandMod {
                         // remove by key
                         final int key = Keyboard.getKeyIndex(data.getOptionAsString("key").toUpperCase());
                         MACROS.stream()
-                                .peek(macro -> Helper.printMessage("MacroKey: " + Keyboard.getKeyName(macro.getKey())))
                                 .filter(macro -> macro.getKey() == key)
                                 .peek(__ -> Helper.printMessage("Removing bind for key \"%s\"", Keyboard.getKeyName(key)))
                                 .forEach(this::removeMacro);
@@ -110,8 +109,6 @@ public class MacroCommand extends CommandMod {
                                 .filter(macro -> macro.getName().map(name::equals).orElseGet(name::isEmpty))
                                 .peek(__ -> Helper.printMessage("Removing bind \"%s\"", name))
                                 .forEach(this::removeMacro);
-
-                        Helper.printMessage("Name: " + data.getOption("name"));
                     }
 
                 })
@@ -138,17 +135,6 @@ public class MacroCommand extends CommandMod {
                             .orElseThrow(() -> new CommandExecuteException(String.format("Unknown macro: \"%s\"", name)));
 
                     executeMacro(macro);
-                })
-                .build();
-    }
-
-    @RegisterCommand
-    public Command listMacros(CommandBuilders builder) {
-        return builder.newCommandBuilder()
-                .name("list_macros")
-                .description("show macros")
-                .processor(data -> {
-                    Helper.printMessage(Arrays.toString(MACROS.toArray()));
                 })
                 .build();
     }
