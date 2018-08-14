@@ -4,8 +4,9 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.*;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.Immutables;
-import net.minecraft.client.network.NetworkPlayerInfo;
+import joptsimple.internal.Strings;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -41,7 +42,7 @@ public class PlayerInfoHelper implements Globals {
         UUID_TO_INFO.put(info.getId(), info);
         return info;
     }
-    private static PlayerInfo register(UUID uuid) {
+    private static PlayerInfo register(UUID uuid) throws IOException {
         PlayerInfo info = new PlayerInfo(uuid);
         NAME_TO_INFO.put(info.getName().toLowerCase(), info);
         UUID_TO_INFO.put(info.getId(), info);
@@ -54,10 +55,10 @@ public class PlayerInfoHelper implements Globals {
     }
 
     public static PlayerInfo get(String name) {
-        return NAME_TO_INFO.get(name.toLowerCase());
+        return Strings.isNullOrEmpty(name) ? null : NAME_TO_INFO.get(name.toLowerCase());
     }
     public static PlayerInfo get(UUID uuid) {
-        return UUID_TO_INFO.get(uuid);
+        return uuid == null ? null : UUID_TO_INFO.get(uuid);
     }
 
     public static List<PlayerInfo> getPlayers() {
@@ -80,7 +81,7 @@ public class PlayerInfoHelper implements Globals {
         else
             return info;
     }
-    public static PlayerInfo lookup(UUID uuid) {
+    public static PlayerInfo lookup(UUID uuid) throws IOException {
         PlayerInfo info = get(uuid);
         if(info == null)
             return register(uuid);
@@ -94,28 +95,47 @@ public class PlayerInfoHelper implements Globals {
      * @param callback
      * @return true if the player info is being looked up on a separate thread
      */
-    public static boolean invokeEfficiently(final String name, final boolean offline, final FutureCallback<PlayerInfo> callback) {
+    @SuppressWarnings("Duplicates")
+    public static boolean registerWithCallback(final String name, final FutureCallback<PlayerInfo> callback) {
         PlayerInfo info = get(name);
-        ListenableFuture<PlayerInfo> future;
-        boolean threaded;
         if(info == null) {
-            if(offline) {
-                future = Futures.immediateFuture(PlayerInfoHelper.offlineUser(name));
-                threaded = false;
-            }
-            else {
-                future = EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(name));
-                threaded = true;
-            }
+            Futures.addCallback(EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(name)), callback);
+            return true;
         } else {
-            future = Futures.immediateFuture(info);
-            threaded = false;
+            Futures.addCallback(Futures.immediateFuture(info), callback);
+            return false;
         }
-        Futures.addCallback(future, callback);
-        return threaded;
     }
-    public static boolean invokeEfficiently(final String name, final FutureCallback<PlayerInfo> callback) {
-        return invokeEfficiently(name, false, callback);
+    @SuppressWarnings("Duplicates")
+    public static boolean registerWithCallback(final UUID uuid, final FutureCallback<PlayerInfo> callback) {
+        PlayerInfo info = get(uuid);
+        if(info == null) {
+            Futures.addCallback(EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(uuid)), callback);
+            return true;
+        } else {
+            Futures.addCallback(Futures.immediateFuture(info), callback);
+            return false;
+        }
+    }
+
+    public static boolean registerWithCallback(final UUID uuid, final String name, final FutureCallback<PlayerInfo> callback) {
+        return registerWithCallback(uuid, new FutureCallback<PlayerInfo>() {
+            @Override
+            public void onSuccess(@Nullable PlayerInfo result) {
+                callback.onSuccess(result); // uuid successfully found player data, call original onSuccess
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                registerWithCallback(name, callback); // try name instead
+            }
+        });
+    }
+
+    public static boolean generateOfflineWithCallback(final String name, final FutureCallback<PlayerInfo> callback) {
+        ListenableFuture<PlayerInfo> future = Futures.immediateFuture(PlayerInfoHelper.offlineUser(name));
+        Futures.addCallback(future, callback);
+        return false;
     }
 
     public static UUID getIdFromString(String uuid) {
