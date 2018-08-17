@@ -46,6 +46,7 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.matt.forgehax.Helper.*;
@@ -329,6 +330,17 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
+    private final ThreadLocal<RenderUploader<GeometryTessellator>> localUploader = new ThreadLocal<>();
+
+    /**
+     * Improve speed by looking up in smaller map
+     */
+    private Optional<RenderUploader<GeometryTessellator>> getCurrentRenderUploader(RenderChunk optional) {
+        if(uploaders == null) return Optional.empty();
+        RenderUploader<GeometryTessellator> ru = localUploader.get();
+        return ru == null ? uploaders.get(optional) : Optional.of(ru);
+    }
+
     @Override
     public void onUnload() {
         options.forEach(BlockEntry::cleanupProperties);
@@ -402,6 +414,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
                 uploader.lock().lock();
                 try {
+                    localUploader.set(uploader);
                     uploader.setCurrentThread(); // set this to the current thread, stopping other threads processing this same chunk from continuing
 
                     // check if a tessellator already exists, if so then this chunk is being processed on another thread and we should stop it
@@ -430,7 +443,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     @SubscribeEvent
     public void onPostBuildChunk(BuildChunkEvent.Post event) {
         if(uploaders != null) try {
-            uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
+            getCurrentRenderUploader(event.getRenderChunk()).ifPresent(uploader -> {
                 uploader.lock().lock();
                 try {
                     // ensure we are in the right thread
@@ -442,6 +455,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 } catch (Throwable t) {
                     handleException(event.getRenderChunk(), t);
                 } finally {
+                    localUploader.remove();
                     uploader.lock().unlock();
                 }
             });
@@ -453,7 +467,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     @Override
     public void onBlockRenderInLoop(final RenderChunk renderChunk, final Block block, final IBlockState state, final BlockPos pos) {
         if(uploaders != null) try {
-            uploaders.get(renderChunk).ifPresent(uploader -> {
+            getCurrentRenderUploader(renderChunk).ifPresent(uploader -> {
                 uploader.lock().lock();
                 try {
                     uploader.validateCurrentThread();
@@ -541,9 +555,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             GlStateManager.glEnableClientState(GL11.GL_COLOR_ARRAY);
 
             uploaders.forEach((k, v) -> {
-                if (v.isUploaded()
-                        && !Uploaders.isDummy(k)
-                        && v.isCorrectRegion(k)) {
+                if (v.isUploaded()) {
                     if(aa_enabled && (aa_max == 0 || v.getRenderCount() <= aa_max))
                         GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
