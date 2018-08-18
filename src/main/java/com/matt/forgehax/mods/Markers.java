@@ -615,9 +615,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                     dummyCount.incrementAndGet();
                 } else if(v.isUploaded() && !v.isCorrectRegion(k)) {
                     wrongRegionCount.incrementAndGet();
-                    chunks.add(k.getPosition());
-                } else if(debug_mode) {
-                    //chunks.add(k.getPosition());
+                    if(debug_mode) chunks.add(k.getPosition());
                 }
             });
 
