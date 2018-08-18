@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.ForgeHaxHooks;
@@ -44,10 +45,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.matt.forgehax.Helper.*;
 
@@ -58,6 +57,10 @@ import static com.matt.forgehax.Helper.*;
 public class Markers extends ToggleMod implements BlockModelRenderListener {
     private static final int VERTEX_BUFFER_COUNT = 100;
     private static final int VERTEX_BUFFER_SIZE = 0x200;
+
+    private final AtomicInteger renderingCount = new AtomicInteger(0);
+    private final AtomicInteger dummyCount = new AtomicInteger(0);
+    private final AtomicInteger wrongRegionCount = new AtomicInteger(0);
 
     @Nullable
     private Uploaders<GeometryTessellator> uploaders;
@@ -191,6 +194,12 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             .name("show_entities")
             .description("Mark entities that contain blocks, such as mine carts.")
             .defaultTo(true)
+            .build();
+
+    public final Setting<Boolean> debug = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("debug")
+            .description("Enable debug mode")
+            .defaultTo(false)
             .build();
 
     public Markers() {
@@ -365,7 +374,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     public String getDebugDisplayText() {
         int cacheSize = uploaders != null ? uploaders.cache().size() : 0;
         int cacheCapacity = uploaders != null ? uploaders.cache().capacity() : 0;
-        return super.getDebugDisplayText() + String.format(" [C:%d/%d]", cacheSize, cacheCapacity);
+        return super.getDebugDisplayText() + String.format(" [size = %d/%d | chunks = %d | dummy = %d | bad-region = %d]", cacheSize, cacheCapacity, renderingCount.get(), dummyCount.get(), wrongRegionCount.get());
     }
 
     @SubscribeEvent
@@ -416,6 +425,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 try {
                     localUploader.set(uploader);
                     uploader.setCurrentThread(); // set this to the current thread, stopping other threads processing this same chunk from continuing
+                    uploader.setDrawing(false); // sometimes a chunk will still be uploaded, but will be old data. in that case we dont want to draw but still what the uploaded field to be true so that it can be cleaned up
 
                     // check if a tessellator already exists, if so then this chunk is being processed on another thread and we should stop it
                     if(uploader.getTessellator() != null) uploader.freeTessellator();
@@ -504,7 +514,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
                 try {
                     uploader.upload();
-                    uploader.setRegionHash(event.getRenderChunk());
+                    uploader.setRegion(event.getRenderChunk());
                 } catch (Throwable t) {
                     handleException(event.getRenderChunk(), t);
                 }
@@ -548,14 +558,23 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
             }
 
+            final boolean debug_mode = debug.get();
+            final List<BlockPos> chunks = Lists.newArrayList();
+
             final boolean aa_enabled = anti_aliasing.get();
             final int aa_max = anti_aliasing_max.get();
+
+            renderingCount.set(0);
+            dummyCount.set(0);
+            wrongRegionCount.set(0);
 
             GlStateManager.glEnableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.glEnableClientState(GL11.GL_COLOR_ARRAY);
 
             uploaders.forEach((k, v) -> {
-                if (v.isUploaded()) {
+                if (v.isUploaded()
+                        /*&& !Uploaders.isDummy(k)*/
+                        && v.isCorrectRegion(k)) {
                     if(aa_enabled && (aa_max == 0 || v.getRenderCount() <= aa_max))
                         GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
@@ -590,6 +609,15 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                     GlStateManager.popMatrix();
 
                     GL11.glDisable(GL11.GL_LINE_SMOOTH);
+
+                    renderingCount.incrementAndGet();
+                } else if(v.isUploaded() && Uploaders.isDummy(k)) {
+                    dummyCount.incrementAndGet();
+                } else if(v.isUploaded() && !v.isCorrectRegion(k)) {
+                    wrongRegionCount.incrementAndGet();
+                    chunks.add(k.getPosition());
+                } else if(debug_mode) {
+                    //chunks.add(k.getPosition());
                 }
             });
 
@@ -658,6 +686,40 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             //
             //
             //
+
+            if(debug_mode) {
+                GlStateManager.pushMatrix();
+
+                GlStateManager.translate(0, 0, 0);
+                GlStateManager.translate(
+                        -renderingOffset.x,
+                        -renderingOffset.y,
+                        -renderingOffset.z
+                );
+
+                final GeometryTessellator tessellator = event.getTessellator();
+                final BufferBuilder builder = tessellator.getBuffer();
+
+                tessellator.beginLines();
+
+                chunks.forEach(pos -> {
+                    builder.setTranslation(pos.getX(), pos.getY(), pos.getZ());
+
+                    GeometryTessellator.drawLines(
+                            builder,
+                            0.8, 0.8, 0.8,
+                            16.f - 0.16, 16.f - 0.16, 16.f - 0.16,
+                            GeometryMasks.Line.ALL,
+                            Utils.Colors.RED
+                    );
+                });
+
+                tessellator.draw();
+
+                GlStateManager.popMatrix();
+
+                builder.setTranslation(0, 0, 0);
+            }
 
             GlStateManager.shadeModel(GL11.GL_FLAT);
             GlStateManager.disableBlend();

@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,9 +35,10 @@ public class RenderUploader<E extends Tessellator> implements Globals {
      */
     private volatile Thread currentThread;
 
+    private boolean drawing = false;
     private boolean uploaded = false;
     private int renderCount = 0;
-    private int regionHash = -1;
+    private BlockPos region = null;
 
     public RenderUploader(Uploaders<E> parent, VertexFormat format) {
         this.parent = parent;
@@ -44,6 +46,14 @@ public class RenderUploader<E extends Tessellator> implements Globals {
     }
     public RenderUploader(Uploaders<E> parent) {
         this(parent, DefaultVertexFormats.POSITION_COLOR);
+    }
+
+    public boolean isDrawing() {
+        return drawing;
+    }
+
+    public void setDrawing(boolean drawing) {
+        this.drawing = drawing;
     }
 
     /**
@@ -125,6 +135,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
             getBufferBuilder().reset();
             vertexBuffer.bufferData(getBufferBuilder().getByteBuffer());
         } finally {
+            setDrawing(true);
             uploaded = true;
         }
     }
@@ -141,7 +152,8 @@ public class RenderUploader<E extends Tessellator> implements Globals {
             vertexBuffer.deleteGlBuffers();
         } finally {
             uploaded = false;
-            resetRegionHash();
+            setDrawing(false);
+            resetRegion();
         }
     }
 
@@ -179,25 +191,21 @@ public class RenderUploader<E extends Tessellator> implements Globals {
         renderCount = 0;
     }
 
-    public void setRegionHash(RenderChunk chunk) {
-        regionHash = generateRegionHash(chunk);
+    public void setRegion(RenderChunk chunk) {
+        region = new BlockPos(chunk.getPosition()); // copy because RenderChunk.position is mutable
     }
-    public void resetRegionHash() {
-        regionHash = -1;
+    public void resetRegion() {
+        region = null;
     }
-    public int getRegionHash() {
-        return regionHash;
+    public BlockPos getRegion() {
+        return region;
     }
     public boolean isCorrectRegion(RenderChunk chunk) {
-        return regionHash != -1 && regionHash == generateRegionHash(chunk);
+        return region != null && region.equals(chunk.getPosition());
     }
 
     public ReentrantLock lock() {
         return _lock;
-    }
-
-    private static int generateRegionHash(RenderChunk chunk) {
-        return chunk != null ? Objects.hash(chunk.getPosition()) : -1;
     }
 
     public static class UploaderException extends Exception {
