@@ -28,12 +28,15 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -425,7 +428,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 try {
                     localUploader.set(uploader);
                     uploader.setCurrentThread(); // set this to the current thread, stopping other threads processing this same chunk from continuing
-                    uploader.setDrawing(false); // sometimes a chunk will still be uploaded, but will be old data. in that case we dont want to draw but still what the uploaded field to be true so that it can be cleaned up
+                    uploader.setComplete(false); // sometimes a chunk will still be uploaded, but will be old data. in that case we dont want to draw but still what the uploaded field to be true so that it can be cleaned up
 
                     // check if a tessellator already exists, if so then this chunk is being processed on another thread and we should stop it
                     if(uploader.getTessellator() != null) uploader.freeTessellator();
@@ -513,7 +516,9 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         if(uploaders != null) try {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
                 try {
-                    uploader.upload();
+                    if(uploader.upload())
+                        event.getRenderChunk().setNeedsUpdate(false);
+
                     uploader.setRegion(event.getRenderChunk());
                 } catch (Throwable t) {
                     handleException(event.getRenderChunk(), t);
@@ -652,18 +657,19 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 if (aa_enabled) GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
                 getWorld().loadedEntityList.stream()
-                        .filter(EntityMinecart.class::isInstance)
-                        .map(e -> (EntityMinecart) e)
-                        .forEach(e -> options.stream()
-                                .filter(entry -> Objects.equals(e.getDefaultDisplayTile().getBlock(), entry.getBlock()))
+                        .map(BlockHolder::new)
+                        .filter(BlockHolder::nonNull)
+                        .forEach(o -> options.stream()
+                                .filter(entry -> Objects.equals(o.getBlock(), entry.getBlock()))
                                 .findFirst()
                                 .ifPresent(entry -> {
+                                    Entity e = o.getEntity();
                                     builder.setTranslation(
                                             e.posX - e.lastTickPosX + (e.posX - e.lastTickPosX) * partialTicks,
                                             e.posY - e.lastTickPosY + (e.posY - e.lastTickPosY) * partialTicks,
                                             e.posZ - e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * partialTicks
                                     );
-                                    AxisAlignedBB bb = e.getEntityBoundingBox();
+                                    AxisAlignedBB bb = o.getBoundingBox();
                                     GeometryTessellator.drawLines(
                                             builder,
                                             bb.minX, bb.minY, bb.minZ,
@@ -734,8 +740,48 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     private static void handleException(RenderChunk renderChunk, Throwable t) {
         //throwable.printStackTrace();
         Helper.getLog().error(t.toString());
+        t.printStackTrace();
     }
     private static void handleException(Throwable t) {
         handleException(null, t);
+    }
+
+    static class BlockHolder {
+        final Entity entity;
+        final Block block;
+        final AxisAlignedBB boundingBox;
+
+        BlockHolder(Entity entity) {
+            this.entity = entity;
+
+            if(entity instanceof EntityMinecart) {
+                EntityMinecart ent = (EntityMinecart)entity;
+                this.block = ent.getDefaultDisplayTile().getBlock();
+                this.boundingBox = ent.getEntityBoundingBox();
+            } else if(entity instanceof EntityItemFrame) {
+                EntityItemFrame ent = (EntityItemFrame)entity;
+                this.block = Block.getBlockFromItem(ent.getDisplayedItem().getItem());
+                this.boundingBox = ent.getEntityBoundingBox();
+            } else {
+                this.block = null;
+                this.boundingBox = null;
+            }
+        }
+
+        public boolean nonNull() {
+            return block != null;
+        }
+
+        public Entity getEntity() {
+            return entity;
+        }
+
+        public Block getBlock() {
+            return block;
+        }
+
+        public AxisAlignedBB getBoundingBox() {
+            return boundingBox;
+        }
     }
 }

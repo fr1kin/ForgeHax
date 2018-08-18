@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -35,7 +34,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
      */
     private volatile Thread currentThread;
 
-    private boolean drawing = false;
+    private boolean complete = false;
     private boolean uploaded = false;
     private int renderCount = 0;
     private BlockPos region = null;
@@ -48,12 +47,12 @@ public class RenderUploader<E extends Tessellator> implements Globals {
         this(parent, DefaultVertexFormats.POSITION_COLOR);
     }
 
-    public boolean isDrawing() {
-        return drawing;
+    public boolean isComplete() {
+        return complete;
     }
 
-    public void setDrawing(boolean drawing) {
-        this.drawing = drawing;
+    public void setComplete(boolean complete) {
+        this.complete = complete;
     }
 
     /**
@@ -126,18 +125,30 @@ public class RenderUploader<E extends Tessellator> implements Globals {
      * Upload the vertex buffer to the GPU
      * @throws UploaderException if the upload failed
      */
-    public void upload() throws UploaderException {
-        if(getTessellator() == null) return; // no tessellator
+    public boolean upload() throws UploaderException {
+        if(getTessellator() == null) return false; // no tessellator
         if(!MC.isCallingFromMinecraftThread()) throw new UploaderException("Not calling from main Minecraft thread");
-        if(isTessellatorDrawing()) throw new UploaderException("Tried to upload VBO while tessellator is still drawing");
+        //if(isTessellatorDrawing()) throw new UploaderException("Tried to upload VBO while tessellator is still drawing");
 
+        //while (isTessellatorDrawing()); // wait until drawing is finished. could cause thread lockups
+
+        boolean update = false;
+
+        lock().lock();
         try {
+            if(isTessellatorDrawing()) {
+                finishDrawing(); // force to stop
+                update = true;
+            }
+
             getBufferBuilder().reset();
             vertexBuffer.bufferData(getBufferBuilder().getByteBuffer());
         } finally {
-            setDrawing(true);
+            setComplete(true);
             uploaded = true;
+            lock().unlock();
         }
+        return update;
     }
 
     /**
@@ -152,7 +163,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
             vertexBuffer.deleteGlBuffers();
         } finally {
             uploaded = false;
-            setDrawing(false);
+            setComplete(false);
             resetRegion();
         }
     }
@@ -168,8 +179,8 @@ public class RenderUploader<E extends Tessellator> implements Globals {
     public void finishDrawing() {
         if(!isTessellatorDrawing()) return;
 
-        getBufferBuilder().finishDrawing();
         renderCount = getBufferBuilder().getVertexCount() / 24;
+        getBufferBuilder().finishDrawing();
     }
 
     /**
