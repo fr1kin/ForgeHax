@@ -106,7 +106,6 @@ public class Tracers extends ToggleMod implements Colors {
                 .map(EntityRelations::new)
                 .filter(er -> !er.getRelationship().equals(MobTypeEnum.INVALID))
                 .filter(EntityRelations::isOptionEnabled)
-                //.sorted()
                 .forEach(er -> {
                     Entity entity = er.getEntity();
                     MobTypeEnum relationship = er.getRelationship();
