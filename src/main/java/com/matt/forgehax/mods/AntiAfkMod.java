@@ -89,7 +89,6 @@ public class AntiAfkMod extends ToggleMod {
 
     private final SimpleTimer timer = new SimpleTimer();
     private final AtomicBoolean ranStop = new AtomicBoolean(false);
-    private final Lock lock = new ReentrantLock();
 
     private TaskEnum task = TaskEnum.NONE;
 
@@ -226,7 +225,7 @@ public class AntiAfkMod extends ToggleMod {
             @Override
             public void onTick() {
                 Bindings.forward.setPressed(true);
-                LocalPlayerUtils.setViewAngles(getLocalPlayer().rotationPitch, angle);
+                LocalPlayerUtils.setViewAngles(0, angle);
             }
 
             @Override
@@ -243,14 +242,11 @@ public class AntiAfkMod extends ToggleMod {
                 double lastDistance = -1.D;
                 for(double y : yaws) {
                     double[] cc = AngleN.degrees(0.f, y).forward();
-                    Vec3d view = eye.add(new Vec3d(cc[0], cc[1], cc[2]).normalize().scale(64));
+                    Vec3d target = eye.add(new Vec3d(cc[0], cc[1], cc[2]).normalize().scale(64));
 
-                    RayTraceResult result = getWorld().rayTraceBlocks(eye, view);
-                    if(result == null)
-                        continue;
-
-                    double distance = eye.distanceTo(result.hitVec);
-                    if((distance >= 1.D || lastDistance == -1) && (distance > lastDistance || ThreadLocalRandom.current().nextFloat() <= 0.20f)) {
+                    RayTraceResult result = getWorld().rayTraceBlocks(eye, target, false, true, false);
+                    double distance = result == null ? 64.D : eye.distanceTo(result.hitVec);
+                    if ((distance >= 1.D || lastDistance == -1.D) && (distance > lastDistance || Math.random() < 0.20D)) {
                         angle = y;
                         lastDistance = distance;
                     }
@@ -261,7 +257,10 @@ public class AntiAfkMod extends ToggleMod {
             public void onStop() {
                 Bindings.forward.setPressed(false);
                 Bindings.forward.unbind();
-                MC.addScheduledTask(() -> MC.addScheduledTask(() -> getModManager().get(SafeWalkMod.class).ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled()))); // wait
+                getLocalPlayer().motionX = 0.D;
+                getLocalPlayer().motionY = 0.D;
+                getLocalPlayer().motionZ = 0.D;
+                MC.addScheduledTask(() -> getModManager().get(SafeWalkMod.class).ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled())); // wait
             }
         },
         SPIN {
