@@ -83,6 +83,7 @@ public abstract class AbstractClassLoader<E> {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             getLog().error("Failed to initialize class " + clazz.getSimpleName() + ": " + e.getClass().getSimpleName() + " - " + e.getMessage() + " - caused by: " + e.getCause());
+            e.printStackTrace();
             return null;
         }
     }
