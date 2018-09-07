@@ -1,78 +1,121 @@
 package com.matt.forgehax.util.command.v2;
 
 import com.google.common.collect.Lists;
-import com.matt.forgehax.util.CaseSensitive;
-import com.matt.forgehax.util.command.v2.argument.ArgumentV2;
-import com.matt.forgehax.util.command.v2.argument.OptionV2;
-import com.matt.forgehax.util.command.v2.exception.CommandRuntimeExceptionV2;
+import com.matt.forgehax.util.ArrayHelper;
+import com.matt.forgehax.util.command.v2.argument.*;
+import com.matt.forgehax.util.command.v2.exception.CmdMissingArgumentException;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created on 4/18/2018 by fr1kin
  */
-public class Parser<E extends ICommandV2> {
-    protected Parser(E command, String[] args) throws CommandRuntimeExceptionV2.MissingArgument {
-        Options options = new Options(command.getOptions());
+public class Parser<E extends ICmd> {
+    private final List<ArgMap<?>> arguments;
+    private final List<OptionMap<?>> options;
+    private final List<String> remaining = Lists.newArrayList();
 
-        boolean acceptingArguments = true;
+    protected Parser(E command, String[] args) throws CmdMissingArgumentException {
+        this.arguments = command.getArguments().stream()
+                .map(ArgBuilder::newArgMap)
+                .collect(Collectors.toList());
 
-        ListIterator<String> it = Arrays.asList(args).listIterator();
-        ListIterator<ArgumentV2<?>> itargs = command.getArguments().listIterator();
+        this.options = command.getOptions().stream()
+                .map(OptionBuilder::newOptionMap)
+                .collect(Collectors.toList());
 
-        while(it.hasNext()) {
-            String next = it.next();
+        boolean stopOptions = false;
 
-            if(isOption(next)) {
-                String[] ss = parseOption(next);
-                String name = ss[0], arg = ss[1];
+        int index = 0;
+        int argumentIndex = 0;
+
+        for(; index < args.length; ++index) {
+            String next = args[index];
+
+            if(!stopOptions && isOption(next)) {
+                Extract parse = new Extract(next);
 
                 // look for the option
-                OptionV2 option = command.getOption(name);
+                Optional<OptionMap<Object>> opt = getOption(parse.name);
 
-                if(option != null) { // we have a match
-                    if(option.hasArgument()) {
-                        ArgumentV2<?> argu = option.getArgument();
-                        if(arg == null) { // we have to check the next argument in the list
-                            if(it.hasNext()) { // we have another argument
-                                arg = it.next();
+                if(opt.isPresent()) { // we have a match
+                    OptionMap option = opt.get();
+                    if(!option.isFlag()) {
+                        if(parse.value != null) {
+                            option.withInput(parse.value); // already provided the argument
+                        } else if(ArrayHelper.isInRange(args, index + 1)) { // we have another argument
+                            String arg = args[++index]; // get next arg
 
-                                // check to see if the argument is another option
-                                if(isOption(arg)) {
-                                    ss = parseOption(arg);
-                                    if(command.getOption(ss[0]) != null) { // if an option matches the next argument, then it is probably not a coincidence
-                                        if(argu.isRequired())
-                                            throw new CommandRuntimeExceptionV2.MissingArgument(argu); // stop processing and throw missing argument exception
-                                        else {
-                                            // this options argument is optional, so it will use the default value
-                                            arg = null;
-                                            it.previous();
-                                        }
+                            if(isOption(arg)) {
+                                Extract p = new Extract(arg);
+                                if(getOption(p.name) == null) {
+                                    option.withInput(arg); // since there is no matching option, assume this was intended to be an argument
+                                } else {
+                                    if(option.isRequired())
+                                        throw new CmdMissingArgumentException(command, option); // no argument provided
+                                    else if(option.isOptional()) {
+                                        option.withDefaultValue(); // append the default value
+                                        --index; // go back to process the option we jumped to properly
                                     }
                                 }
-                            } else if(argu.isRequired()) throw new CommandRuntimeExceptionV2.MissingArgument(argu); // this argument must exist
+                            } else {
+                                option.withInput(arg); // normal value
+                            }
+                        } else {
+                            if (option.isRequired())
+                                throw new CmdMissingArgumentException(command, option); // no argument provided
+                            else if(option.isOptional()) {
+                                option.withDefaultValue(); // use default argument since none was provided
+                            }
                         }
-                    } else arg = null; // this option doesn't have an argument, so just ignore this
-
-                    // add the option to the list
-                    options.append(option, arg);
-
-                    // stop accepting arguments
-                    acceptingArguments = false;
-
+                    } else {
+                        option.withDefaultValue();
+                    }
                     continue; // stop
                 }
+
+                // since this isn't an option, it will be interpreted as an argument
             }
 
-            if(acceptingArguments) {
-
+            if(argumentIndex > arguments.size() - 1) {
+                remaining.add(next);
+                continue;
             }
+
+            arguments.get(argumentIndex).withInput(next);
+
+            ++argumentIndex;
+            stopOptions = true; // do not process anymore options
+        }
+
+        for(int i = argumentIndex; i < arguments.size(); ++i) {
+            ArgMap<?> arg = arguments.get(i);
+            if(arg.isRequired())
+                throw new CmdMissingArgumentException(command, arg);
+            else
+                arg.withDefaultValue();
         }
     }
+
+    public <T> Optional<ArgMap<T>> getArgument(int index) {
+        return index > -1 && index < arguments.size() ? Optional.of(arguments.get(index)).map(a -> (ArgMap<T>)a) : Optional.empty();
+    }
+
+    public <T> Optional<OptionMap<T>> getOption(String name) {
+        return options.stream()
+                .filter(option -> option.contains(name))
+                .findFirst()
+                .map(o -> (OptionMap<T>)o);
+    }
+
+    public String[] getRemaining() {
+        return remaining.toArray(new String[0]);
+    }
+
+    //
+    //
+    //
 
     private static boolean isLongToken(String text) {
         return text.startsWith("--") && text.length() > "--".length();
@@ -104,68 +147,14 @@ public class Parser<E extends ICommandV2> {
         return new String[] {name, arg};
     }
 
-    public static class Arguments {
-        final List<ArgumentV2<?>> all = Lists.newArrayList();
+    static final class Extract {
+        String name;
+        String value;
 
-        Arguments(List<ArgumentV2<?>> defaults) {
-            all.addAll(defaults);
-        }
-    }
-
-    public static class Options {
-        final List<OptionV2<?>> all = Lists.newArrayList();
-
-        Options(List<OptionV2<?>> defaults) {
-            all.addAll(defaults);
-        }
-
-        private void verify() {
-            for(OptionV2<?> op : all) {
-                switch (op.getType()) {
-                    case OPTIONAL_ARGUMENT:
-                    {
-                        if(!op.getArgument().hasValue()) appendDefault(op); // use default value
-                        break;
-                    }
-                    default: break;
-                }
-            }
-        }
-
-        private Optional<OptionV2<?>> find(OptionV2<?> similar) {
-            return all.stream()
-                    .filter(similar::equals)
-                    .findFirst();
-        }
-
-        private Optional<OptionV2<?>> find(final String name) {
-            return all.stream()
-                    .filter(op -> op.contains(name))
-                    .findFirst();
-        }
-
-        private void append(OptionV2<?> similar, final String value) {
-            find(similar).ifPresent(op -> all.set(all.indexOf(op), op.appendValue(value)));
-        }
-        private void appendDefault(OptionV2<?> similar) {
-            find(similar).ifPresent(op -> all.set(all.indexOf(op), op.appendDefaultValue()));
-        }
-
-        @Nullable
-        public OptionV2<?> get(OptionV2<?> similar) {
-            return find(similar).filter(op -> !op.hasArgument() || op.getArgument().hasValue()).orElse(null);
-        }
-
-        @Nullable
-        public OptionV2<?> get(@CaseSensitive final String name) {
-            return find(name).filter(op -> !op.hasArgument() || op.getArgument().hasValue()).orElse(null);
-        }
-
-        public boolean has(OptionV2<?> option) {
-            return get(option) != null;
-        }
-        public boolean has(@CaseSensitive final String name) {
-            return get(name) != null;
+        Extract(String from) {
+            String[] ss = parseOption(from);
+            this.name = ss[0];
+            this.value = ss[1];
         }
     }
 }

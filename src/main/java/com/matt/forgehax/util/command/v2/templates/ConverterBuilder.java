@@ -18,7 +18,7 @@ public interface ConverterBuilder<T, R> {
 
     /**
      * Alternative to using ::converter, will try and lookup the class in the type converter registry.
-     * If it fails to find anything, this.converter will be null and CommandRuntimeExceptionV2.CreationFailure
+     * If it fails to find anything, this.converter will be null and CmdRuntimeException.CreationFailure
      * will be thrown when build() is called.
      * @param clazz class of converter
      * @return this

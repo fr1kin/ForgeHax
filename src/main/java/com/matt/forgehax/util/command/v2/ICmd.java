@@ -1,11 +1,14 @@
 package com.matt.forgehax.util.command.v2;
 
 import com.google.common.collect.ImmutableList;
-import com.matt.forgehax.util.command.v2.argument.ArgumentV2;
-import com.matt.forgehax.util.command.v2.argument.OptionV2;
-import com.matt.forgehax.util.command.v2.callback.ICommandCallbackV2;
-import com.matt.forgehax.util.command.v2.exception.CommandRuntimeExceptionV2;
-import com.matt.forgehax.util.command.v2.flag.ICommandFlagV2;
+import com.matt.forgehax.util.command.v2.argument.IArg;
+import com.matt.forgehax.util.command.v2.argument.IOption;
+import com.matt.forgehax.util.command.v2.callback.ICmdCallback;
+import com.matt.forgehax.util.command.v2.exception.CmdAmbiguousException;
+import com.matt.forgehax.util.command.v2.exception.CmdMissingArgumentException;
+import com.matt.forgehax.util.command.v2.exception.CmdRuntimeException;
+import com.matt.forgehax.util.command.v2.exception.CmdUnknownException;
+import com.matt.forgehax.util.command.v2.flag.ICmdFlag;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 
 import javax.annotation.Nonnull;
@@ -29,7 +32,7 @@ import java.util.List;
         Flags               Mutable         Command flags (if any)
         Callbacks           Mutable         Command callback
  */
-public interface ICommandV2 extends ISerializableJson {
+public interface ICmd extends ISerializableJson, Comparable<ICmd> {
     /**
      * The formal name for this command
      * @return formal name
@@ -65,8 +68,14 @@ public interface ICommandV2 extends ISerializableJson {
     default boolean isNameMatching(String name) {
         return getName().equalsIgnoreCase(name);
     }
+    default boolean isNameMatching(ICmd other) {
+        return isNameMatching(other.getName());
+    }
     default boolean isAbsoluteNameMatching(String name) {
         return getAbsoluteName().equalsIgnoreCase(name);
+    }
+    default boolean isAbsoluteNameMatching(ICmd other) {
+        return isAbsoluteNameMatching(other.getAbsoluteName());
     }
 
     /**
@@ -76,7 +85,7 @@ public interface ICommandV2 extends ISerializableJson {
      * @return
      */
     default boolean isIdentifiableAs(final String name) {
-        return CommandHelperV2.isNameValid(name) && (
+        return CmdHelper.isNameValid(name) && (
                 isNameMatching(name)
                         || isAbsoluteNameMatching(name)
                         || getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(name)));
@@ -87,7 +96,7 @@ public interface ICommandV2 extends ISerializableJson {
      * @param other
      * @return
      */
-    default boolean isConflictingWith(ICommandV2 other) {
+    default boolean isConflictingWith(ICmd other) {
         return isNameMatching(other.getName());
     }
 
@@ -102,14 +111,14 @@ public interface ICommandV2 extends ISerializableJson {
      * @return null if no parent
      */
     @Nullable
-    IParentCommandV2 getParent();
+    IParentCmd getParent();
 
-    List<ArgumentV2<?>> getArguments();
+    List<IArg<?>> getArguments();
 
-    default ArgumentV2<?> getArgument(int index, ArgumentV2<?> defaultTo) {
+    default IArg<?> getArgument(int index, IArg<?> defaultTo) {
         return (index > -1 && index < getArgumentCount()) ? getArguments().get(index) : defaultTo;
     }
-    default ArgumentV2<?> getArgument(int index) {
+    default IArg<?> getArgument(int index) {
         return getArgument(index, null);
     }
 
@@ -119,7 +128,7 @@ public interface ICommandV2 extends ISerializableJson {
 
     default int getRequiredArgumentCount() {
         return (int)getArguments().stream()
-                .filter(ArgumentV2::isRequired)
+                .filter(IArg::isRequired)
                 .count();
     }
 
@@ -129,16 +138,16 @@ public interface ICommandV2 extends ISerializableJson {
                 .count();
     }
 
-    List<OptionV2<?>> getOptions();
+    List<IOption<?>> getOptions();
 
-    default OptionV2<?> getOption(String name, OptionV2<?> defaultTo) {
+    default IOption<?> getOption(String name, IOption<?> defaultTo) {
         return getOptions().stream()
                 .filter(o -> o.contains(name))
                 .findFirst()
                 .orElse(defaultTo);
     }
     @Nullable
-    default OptionV2<?> getOption(String name) {
+    default IOption<?> getOption(String name) {
         return getOption(name, null);
     }
 
@@ -149,46 +158,49 @@ public interface ICommandV2 extends ISerializableJson {
      * Array of flags designated to this command
      * @return empty list if command has no flags
      */
-    Collection<Enum<? extends ICommandFlagV2>> getFlags();
+    Collection<Enum<? extends ICmdFlag>> getFlags();
 
     /**
      * Adds a flag to the command
      * @param flag flag
      * @return true if added, otherwise false
      */
-    boolean addFlag(Enum<? extends ICommandFlagV2> flag);
+    boolean addFlag(Enum<? extends ICmdFlag> flag);
 
     /**
      * Removes a flag to the command
      * @param flag flag
      * @return true if removed, otherwise false
      */
-    boolean removeFlag(Enum<? extends ICommandFlagV2> flag);
+    boolean removeFlag(Enum<? extends ICmdFlag> flag);
 
     /**
      * Checks if the command contains the flag
      * @param flag flag
      * @return true if contains, otherwise false
      */
-    boolean containsFlag(Enum<? extends ICommandFlagV2> flag);
+    boolean containsFlag(Enum<? extends ICmdFlag> flag);
+
+    /**
+     * Remove all the flags this command has
+     */
+    void clearFlags();
 
     @Nonnull
-    Collection<ICommandCallbackV2> getCallbacks();
+    Collection<ICmdCallback> getCallbacks();
     @Nonnull
-    <T extends ICommandCallbackV2> Collection<T> getCallbacksOfType(Class<T> clazz);
+    <T extends ICmdCallback> Collection<T> getCallbacksOfType(Class<T> clazz);
 
-    boolean addCallback(ICommandCallbackV2 callback);
-    boolean removeCallback(ICommandCallbackV2 callback);
-
-    CommandBuilderV2 copy(IParentCommandV2 parent);
+    boolean addCallback(ICmdCallback callback);
+    boolean removeCallback(ICmdCallback callback);
 
     /**
      * Process the command
      * @param args command arguments
      * @return true if the command was processed successfully
-     * @throws CommandRuntimeExceptionV2.ProcessingFailure for any processing exceptions
+     * @throws CmdMissingArgumentException if there are many missing arguments
      */
-    boolean process(String[] args) throws CommandRuntimeExceptionV2.ProcessingFailure;
+    boolean process(String[] args) throws CmdUnknownException, CmdMissingArgumentException, CmdAmbiguousException;
 
     @Override
     default String getUniqueHeader() {
