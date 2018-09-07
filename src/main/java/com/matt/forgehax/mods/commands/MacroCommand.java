@@ -159,8 +159,7 @@ public class MacroCommand extends CommandMod {
                 .processor(data -> {
                     data.requiredArguments(2);
                     final int key = Keyboard.getKeyIndex(data.getArgumentAsString(0).toUpperCase());
-                    if (key == Keyboard.KEY_NONE)
-                        throw new CommandExecuteException("Can not bind key to KEY_NONE");
+
                     final List<ImmutableList<String>> commands = data.arguments().stream()
                             .skip(1) // skip key
                             .map(Object::toString)
@@ -282,17 +281,17 @@ public class MacroCommand extends CommandMod {
     }
 
     private static class MacroBuilders {
-        public static void nameOption(OptionParser parser) {
+        static void nameOption(OptionParser parser) {
             parser.acceptsAll(Arrays.asList("name", "n"), "name")
                     .withRequiredArg();
         }
 
-        public static void keyOption(OptionParser parser) {
+        static void keyOption(OptionParser parser) {
             parser.acceptsAll(Arrays.asList("key", "k"), "key")
                     .withRequiredArg();
         }
 
-        public static void parseName(ExecuteData data) {
+        static void parseName(ExecuteData data) {
             final @Nullable String name = (String)data.getOption("name");
             data.set("name", Optional.ofNullable(name));
         }
