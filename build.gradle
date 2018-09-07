@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 apply plugin: 'java'
 apply plugin: 'idea'
-apply plugin: 'maven-publish'
+//apply plugin: 'maven-publish'
 
 buildscript {
     repositories {
@@ -28,7 +28,7 @@ group 'com.matt.forgehax'
 version project.property('forgehax.version')
 
 archivesBaseName = "forgehax-" + project.property('forgehax.mc.version')
-
+/*
 publishing {
     publications {
         // publish the forgehax
@@ -51,9 +51,9 @@ publishing {
                     version = dep.version
                 }
             }
-        }*/ // TODO: finish
+        } // TODO: finish
     }
-}
+}*/
 
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
@@ -68,6 +68,7 @@ minecraft {
 }
 
 dependencies {
+    compile group: "info.journeymap", name: "journeymap-api", version: '1.12-1.4', changing: true
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
 }
