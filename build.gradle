@@ -130,4 +130,6 @@ task copyJar(type: Copy, dependsOn: [setGameDir]) {
     into "$gameDir/mods/" + minecraft.version
 }
 
+task publishToMavenLocal() {} // dummy
+
 build.finalizedBy copyJar
