@@ -177,6 +177,14 @@ public class SurfaceHelper implements Globals {
         return (int)(MC.fontRenderer.FONT_HEIGHT * scale);
     }
 
+    public static void drawItem(ItemStack item, int x, int y) {
+        MC.getRenderItem().renderItemAndEffectIntoGUI(item, x, y);
+    }
+
+    public static void drawItemOverlay(ItemStack stack, int x, int y) {
+        MC.getRenderItem().renderItemOverlayIntoGUI(MC.fontRenderer, stack, x, y, null);
+    }
+
     public static void drawItem(ItemStack item, double x, double y) {
         GlStateManager.pushMatrix();
         RenderHelper.enableGUIStandardItemLighting();
