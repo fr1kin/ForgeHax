@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -97,6 +98,10 @@ public class Utils implements Globals {
 
     public static <T> T defaultTo(T value, T defaultTo) {
         return value == null ? defaultTo : value;
+    }
+
+    public static <T> T getOrDefault(Collection<T> collection, int index, T defaultTo) {
+        return collection.stream().skip(index).findFirst().orElse(defaultTo);
     }
 
     @Deprecated
