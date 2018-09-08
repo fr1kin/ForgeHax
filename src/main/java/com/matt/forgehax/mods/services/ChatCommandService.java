@@ -16,16 +16,26 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @RegisterMod
 public class ChatCommandService extends ServiceMod {
-    private static final Character ACTIVATION_CHARACTER = '.';
+    private static Character ACTIVATION_CHARACTER = '.';
+
+    public static Character getActivationCharacter() {
+        return ACTIVATION_CHARACTER;
+    }
 
     public final Setting<Character> activationCharacter = getCommandStub().builders().<Character>newSettingBuilder()
             .name("activation_char")
             .description("Activation character")
             .defaultTo('.')
+            .changed(cb -> ACTIVATION_CHARACTER = cb.getTo())
             .build();
 
     public ChatCommandService() {
         super("ChatCommandService", "Listeners for activation key in chat messages typed");
+    }
+
+    @Override
+    protected void onLoad() {
+        ACTIVATION_CHARACTER = activationCharacter.get();
     }
 
     @SubscribeEvent
