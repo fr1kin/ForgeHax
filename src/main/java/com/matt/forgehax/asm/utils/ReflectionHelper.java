@@ -21,6 +21,9 @@ public class ReflectionHelper {
             field.set(to, field.get(from));
         }
     }
+    public static <F, T extends F> void copyOf(F from, T to) throws NoSuchFieldException, IllegalAccessException {
+        copyOf(from, to, false);
+    }
 
     public static boolean isStatic(Member instance) {
         return (instance.getModifiers() & Modifier.STATIC) != 0;
