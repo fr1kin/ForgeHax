@@ -105,17 +105,6 @@ public class Utils implements Globals {
         return value == null ? defaultTo : value;
     }
 
-    public static <T> T getOrDefault(Iterable<T> iterable, int index, T defaultTo) {
-        Iterator<T> iterator = iterable.iterator();
-        T next;
-        int count = 0;
-        while(iterator.hasNext()) {
-            next = iterator.next();
-            if(count++ == index) return next;
-        }
-        return defaultTo;
-    }
-
     @Deprecated
     public static class Colors {
         public final static int WHITE           = Utils.toRGBA(255,     255,    255,    255);
