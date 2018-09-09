@@ -27,6 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.network.play.client.CPacketCloseWindow;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
@@ -105,6 +106,16 @@ public interface FastReflection extends ASMCommon {
                 .setName("yaw")
                 .autoAssign()
                 .asField();
+
+        /**
+         * CPacketCloseWindow
+         */
+        FastField<Float> CPacketCloseWindow_windowId = FastTypeBuilder.create()
+                .setInsideClass(CPacketCloseWindow.class)
+                .setName("windowId")
+                .autoAssign()
+                .asField();
+
         /**
          * SPacketPlayerPosLook
          */
