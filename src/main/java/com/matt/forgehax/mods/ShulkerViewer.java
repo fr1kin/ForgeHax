@@ -183,8 +183,8 @@ public class ShulkerViewer extends ToggleMod {
         return contents;
     }
 
-    private GuiShulkerViewer newShulkerGui(ItemStack parentShulker) {
-        return new GuiShulkerViewer(new ShulkerContainer(new ShulkerInventory(getShulkerContents(parentShulker)), 27), parentShulker);
+    private GuiShulkerViewer newShulkerGui(ItemStack parentShulker, int priority) {
+        return new GuiShulkerViewer(new ShulkerContainer(new ShulkerInventory(getShulkerContents(parentShulker)), 27), parentShulker, priority);
     }
 
     private boolean isInRegion(int x, int y, int width, int height, int testingX, int testingY) {
@@ -269,14 +269,14 @@ public class ShulkerViewer extends ToggleMod {
                 if(slotUnder == null || !slotUnder.getHasStack() || slotUnder.getStack().isEmpty() || !(slotUnder.getStack().getItem() instanceof ItemShulkerBox))
                     setInCache(CACHE_HOVERING_INDEX, null);
                 else if (!ItemStack.areItemStacksEqual(getInCache(0).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY), slotUnder.getStack()))
-                    setInCache(CACHE_HOVERING_INDEX, newShulkerGui(slotUnder.getStack()));
+                    setInCache(CACHE_HOVERING_INDEX, newShulkerGui(slotUnder.getStack(), 1));
 
                 // show stats for held item
                 ItemStack stackHeld = LocalPlayerInventory.getPlayerInventory().getItemStack();
                 if(stackHeld.isEmpty() || !(stackHeld.getItem() instanceof ItemShulkerBox))
                     setInCache(CACHE_HOLDING_INDEX, null);
-                if (!ItemStack.areItemStacksEqual(getInCache(1).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY), stackHeld))
-                    setInCache(CACHE_HOLDING_INDEX, newShulkerGui(stackHeld));
+                else if (!ItemStack.areItemStacksEqual(getInCache(1).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY), stackHeld))
+                    setInCache(CACHE_HOLDING_INDEX, newShulkerGui(stackHeld, 0));
 
                 if(locked && !updated && guiCache.stream().anyMatch(Objects::nonNull))
                     updated = true;
@@ -336,15 +336,15 @@ public class ShulkerViewer extends ToggleMod {
 
     class GuiShulkerViewer extends GuiContainer implements Comparable<GuiShulkerViewer> {
         private final ItemStack parentShulker;
-        private final long createdTime;
+        private final int priority;
 
         public int posX = 0;
         public int posY = 0;
 
-        public GuiShulkerViewer(Container inventorySlotsIn, ItemStack parentShulker) {
+        public GuiShulkerViewer(Container inventorySlotsIn, ItemStack parentShulker, int priority) {
             super(inventorySlotsIn);
             this.parentShulker = parentShulker;
-            this.createdTime = System.currentTimeMillis();
+            this.priority = priority;
             this.mc = MC;
             this.fontRenderer = MC.fontRenderer;
             this.width = MC.displayWidth;
@@ -460,7 +460,7 @@ public class ShulkerViewer extends ToggleMod {
 
         @Override
         public int compareTo(GuiShulkerViewer o) {
-            return Long.compare(createdTime, o.createdTime);
+            return Integer.compare(priority, o.priority);
         }
     }
 
