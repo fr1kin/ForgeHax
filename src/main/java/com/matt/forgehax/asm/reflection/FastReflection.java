@@ -110,7 +110,7 @@ public interface FastReflection extends ASMCommon {
         /**
          * CPacketCloseWindow
          */
-        FastField<Float> CPacketCloseWindow_windowId = FastTypeBuilder.create()
+        FastField<Integer> CPacketCloseWindow_windowId = FastTypeBuilder.create()
                 .setInsideClass(CPacketCloseWindow.class)
                 .setName("windowId")
                 .autoAssign()
