@@ -221,6 +221,7 @@ public class ShulkerViewer extends ToggleMod {
                 if(toggle_lock.get()) {
                     if(!isKeySet) {
                         locked = !locked;
+                        if(!locked) updated = false;
                         isKeySet = true;
                     }
                 } else {
@@ -265,16 +266,16 @@ public class ShulkerViewer extends ToggleMod {
             if (!isLocked()) {
                 // show stats for the item being hovered over
                 Slot slotUnder = gui.getSlotUnderMouse();
-                if(slotUnder == null || !slotUnder.getHasStack() || slotUnder.getStack().isEmpty())
+                if(slotUnder == null || !slotUnder.getHasStack() || slotUnder.getStack().isEmpty() || !(slotUnder.getStack().getItem() instanceof ItemShulkerBox))
                     setInCache(CACHE_HOVERING_INDEX, null);
-                else if (slotUnder.getStack().getItem() instanceof ItemShulkerBox && !ItemStack.areItemStacksEqual(getInCache(0).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY), slotUnder.getStack()))
+                else if (!ItemStack.areItemStacksEqual(getInCache(0).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY), slotUnder.getStack()))
                     setInCache(CACHE_HOVERING_INDEX, newShulkerGui(slotUnder.getStack()));
 
                 // show stats for held item
                 ItemStack stackHeld = LocalPlayerInventory.getPlayerInventory().getItemStack();
-                if(stackHeld.isEmpty())
+                if(stackHeld.isEmpty() || !(stackHeld.getItem() instanceof ItemShulkerBox))
                     setInCache(CACHE_HOLDING_INDEX, null);
-                if (stackHeld.getItem() instanceof ItemShulkerBox && !ItemStack.areItemStacksEqual(getInCache(1).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY), stackHeld))
+                if (!ItemStack.areItemStacksEqual(getInCache(1).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY), stackHeld))
                     setInCache(CACHE_HOLDING_INDEX, newShulkerGui(stackHeld));
 
                 if(locked && !updated && guiCache.stream().anyMatch(Objects::nonNull))
