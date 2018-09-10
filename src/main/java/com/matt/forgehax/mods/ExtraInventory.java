@@ -19,7 +19,6 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
@@ -29,7 +28,7 @@ import static com.matt.forgehax.Helper.getNetworkManager;
 public class ExtraInventory extends ToggleMod {
     private static final int GUI_INVENTORY_ID = 0;
 
-    private final Queue<Runnable> inventoryTasks = Queues.newArrayDeque();
+    private TaskChain service = null;
 
     private GuiInventory guiBackground = null;
     private AtomicBoolean guiNeedsClose = new AtomicBoolean(false);
@@ -43,38 +42,53 @@ public class ExtraInventory extends ToggleMod {
         return getPlayerContainer().isPresent();
     }
 
-    private Queue<Runnable> getSlotSettingTasks(final Queue<Runnable> tasks, Slot source, EasyIndex destination) {
+    private TaskChain getSlotSettingTask(Slot source, EasyIndex destination) {
+        final Slot dst = getSlot(destination);
+        // copy the original slot for later integrity checks
+        final Slot dstCopy = copyOfSlot(dst);
+        final Slot srcCopy = copyOfSlot(source);
         switch (destination) {
-            case HOLDING: {
-                final Slot original = copyOfSlot(source); // copy the original slot for later integrity checks
-                tasks.offer(() -> {
-                    ContainerPlayer container = getPlayerContainer().orElseThrow(ExecutionFailure::new);
-                    checkSlotIntegrity(original, source);
+            case HOLDING:
+                return () -> {
+                    // pick up the item
+                    checkContainerIntegrity();
+                    checkSlotIntegrity(source, srcCopy);
 
                     ItemStack moved = getCurrentContainer().slotClick(source.slotNumber, 0, ClickType.PICKUP, getLocalPlayer());
                     getNetworkManager().sendPacket(newClickPacket(source.slotNumber, 0, ClickType.PICKUP, moved));
-                });
-                break;
-            }
+
+                    return null; // stop task
+                };
             case CRAFTING_0:
             case CRAFTING_1:
             case CRAFTING_2:
-            case CRAFTING_3: {
-                getPlayerContainer()
-                        .filter(container -> Utils.isInRange(container.inventorySlots, destination.ordinal()))
-                        .map(container -> container.inventorySlots.get(destination.ordinal()))
-                        .ifPresent(slot -> {
-                            final Slot original = copyOfSlot(source); // copy the original slot for later integrity checks
-                            tasks.offer(() -> {
+            case CRAFTING_3:
+                return dst == null ? null : () -> {
+                    // pick up the item
+                    checkContainerIntegrity();
+                    checkSlotIntegrity(source, srcCopy);
+                    checkSlotIntegrity(dst, dstCopy);
 
-                            });
-                        });
-                break;
-            }
+                    ItemStack moved = getCurrentContainer().slotClick(source.slotNumber, 0, ClickType.PICKUP, getLocalPlayer());
+                    getNetworkManager().sendPacket(newClickPacket(source.slotNumber, 0, ClickType.PICKUP, moved));
+
+                    final Slot srcCopy2 = copyOfSlot(source); // copy the new source
+
+                    return () -> {
+                        // place item in crafting inventory
+                        checkContainerIntegrity();
+                        checkSlotIntegrity(source, srcCopy2);
+                        checkSlotIntegrity(dst, dstCopy);
+
+                        final ItemStack moved2 = getCurrentContainer().slotClick(dst.slotNumber, 0, ClickType.PICKUP, getLocalPlayer());
+                        getNetworkManager().sendPacket(newClickPacket(dst.slotNumber, 0, ClickType.PICKUP, moved2));
+
+                        return null; // stop task
+                    };
+                };
             default:
-                break;
+                return null;
         }
-        return tasks;
     }
 
     private Slot getSlot(EasyIndex index) {
@@ -120,7 +134,7 @@ public class ExtraInventory extends ToggleMod {
     }
 
     private void reset() {
-        inventoryTasks.clear();
+        service = null;
         guiBackground = null;
         guiNeedsClose.set(false);
         guiCloseGuard = false;
@@ -190,16 +204,16 @@ public class ExtraInventory extends ToggleMod {
     }
 
     private static Slot copyOfSlot(Slot slot) {
-        return new DuplicateSlot(slot);
+        return (slot == null || slot.slotNumber == -999) ? null : new DuplicateSlot(slot);
     }
 
-    private static void checkContainer() throws ExecutionFailure {
+    private static void checkContainerIntegrity() throws ExecutionFailure {
         if(!getPlayerContainer().isPresent()) fail();
     }
 
     private static void checkSlotIntegrity(Slot s1, Slot s2) throws ExecutionFailure {
         // compare references (yes i realize im doing ItemStack == ItemStack)
-        if(s1.inventory != s2.inventory || s1.getSlotIndex() != s2.getSlotIndex() || s1.slotNumber != s2.slotNumber || s1.getStack() != s2.getStack()) fail();
+        if(s1 != null && s2 != null && (s1.inventory != s2.inventory || s1.getSlotIndex() != s2.getSlotIndex() || s1.slotNumber != s2.slotNumber || s1.getStack() != s2.getStack())) fail();
     }
 
     private static void fail() {
@@ -221,6 +235,10 @@ public class ExtraInventory extends ToggleMod {
         public ItemStack getStack() {
             return stack;
         }
+    }
+
+    private interface TaskChain {
+        TaskChain run();
     }
 
     enum EasyIndex {
