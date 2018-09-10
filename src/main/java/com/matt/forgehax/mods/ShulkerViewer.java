@@ -272,7 +272,7 @@ public class ShulkerViewer extends ToggleMod {
                     setInCache(CACHE_HOVERING_INDEX, newShulkerGui(slotUnder.getStack(), 1));
 
                 // show stats for held item
-                ItemStack stackHeld = LocalPlayerInventory.getPlayerInventory().getItemStack();
+                ItemStack stackHeld = LocalPlayerInventory.getInventory().getItemStack();
                 if(stackHeld.isEmpty() || !(stackHeld.getItem() instanceof ItemShulkerBox))
                     setInCache(CACHE_HOLDING_INDEX, null);
                 else if (!ItemStack.areItemStacksEqual(getInCache(1).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY), stackHeld))

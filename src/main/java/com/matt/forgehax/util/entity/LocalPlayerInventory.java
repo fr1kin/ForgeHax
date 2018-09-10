@@ -1,6 +1,7 @@
 package com.matt.forgehax.util.entity;
 
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 
 import java.util.List;
@@ -11,13 +12,17 @@ import java.util.stream.Collectors;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
 public class LocalPlayerInventory {
-    public static InventoryPlayer getPlayerInventory() {
+    public static InventoryPlayer getInventory() {
         return getLocalPlayer().inventory;
+    }
+
+    public static Container getContainer() {
+        return getLocalPlayer().inventoryContainer;
     }
 
     public static List<InvItem> getMainInventory() {
         AtomicInteger next = new AtomicInteger(0);
-        return getPlayerInventory().mainInventory.stream()
+        return getInventory().mainInventory.stream()
                 .map(item -> new InvItem(item, next.getAndIncrement()))
                 .collect(Collectors.toList());
     }
@@ -30,14 +35,14 @@ public class LocalPlayerInventory {
     }
 
     public static InvItem getSelected() {
-        return getMainInventory().get(getPlayerInventory().currentItem);
+        return getMainInventory().get(getInventory().currentItem);
     }
 
     public static void setSelected(int index) {
         if(index < 0 || index > 8)
             throw new IndexOutOfBoundsException("Can only select index in hot bar (0-8)");
 
-        getPlayerInventory().currentItem = index;
+        getInventory().currentItem = index;
     }
     public static void setSelected(InvItem invItem) {
         setSelected(invItem.getIndex());
