@@ -142,7 +142,7 @@ public class ExtraInventory extends ToggleMod {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onGuiOpen(GuiOpenEvent event) {
         if(guiCloseGuard) {
-            event.setCanceled(false);
+            event.setCanceled(true);
         } else if(event.getGui() instanceof GuiInventory) {
             try {
                 GuiInventoryWrapper wrapper = new GuiInventoryWrapper();
