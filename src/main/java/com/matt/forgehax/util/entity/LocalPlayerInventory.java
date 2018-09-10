@@ -20,6 +20,10 @@ public class LocalPlayerInventory {
         return getLocalPlayer().inventoryContainer;
     }
 
+    public static Container getOpenContainer() {
+        return getLocalPlayer().openContainer;
+    }
+
     public static List<InvItem> getMainInventory() {
         AtomicInteger next = new AtomicInteger(0);
         return getInventory().mainInventory.stream()
