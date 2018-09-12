@@ -5,7 +5,11 @@ import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.VectorUtils;
 import net.minecraft.entity.Entity;
+import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.*;
@@ -103,6 +107,19 @@ public class Utils implements Globals {
 
     public static <T> T defaultTo(T value, T defaultTo) {
         return value == null ? defaultTo : value;
+    }
+
+    public static List<ItemStack> getShulkerContents(ItemStack stack) { // TODO: move somewhere else
+        NonNullList<ItemStack> contents = NonNullList.withSize(27, ItemStack.EMPTY);
+        NBTTagCompound compound = stack.getTagCompound();
+        if(compound != null && compound.hasKey("BlockEntityTag", 10)) {
+            NBTTagCompound tags = compound.getCompoundTag("BlockEntityTag");
+            if (tags.hasKey("Items", 9)) {
+                // load in the items
+                ItemStackHelper.loadAllItems(tags, contents);
+            }
+        }
+        return contents;
     }
 
     @Deprecated

@@ -169,22 +169,8 @@ public class ShulkerViewer extends ToggleMod {
         clearCache();
     }
 
-    private List<ItemStack> getShulkerContents(ItemStack stack) {
-        NonNullList<ItemStack> contents = NonNullList.withSize(27, ItemStack.EMPTY);
-
-        NBTTagCompound compound = stack.getTagCompound();
-        if(compound != null && compound.hasKey("BlockEntityTag", 10)) {
-            NBTTagCompound tags = compound.getCompoundTag("BlockEntityTag");
-            if (tags.hasKey("Items", 9)) {
-                // load in the items
-                ItemStackHelper.loadAllItems(tags, contents);
-            }
-        }
-        return contents;
-    }
-
     private GuiShulkerViewer newShulkerGui(ItemStack parentShulker, int priority) {
-        return new GuiShulkerViewer(new ShulkerContainer(new ShulkerInventory(getShulkerContents(parentShulker)), 27), parentShulker, priority);
+        return new GuiShulkerViewer(new ShulkerContainer(new ShulkerInventory(Utils.getShulkerContents(parentShulker)), 27), parentShulker, priority);
     }
 
     private boolean isInRegion(int x, int y, int width, int height, int testingX, int testingY) {
