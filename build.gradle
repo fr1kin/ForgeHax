@@ -10,10 +10,14 @@ buildscript {
     repositories {
         jcenter()
         maven { url = "http://files.minecraftforge.net/maven" }
+
+        flatDir dirs: "C:/asmlibgradle/build/libs"
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+
+        classpath 'net.futureclient.asmlib:asmlibgradle:0.1-SNAPSHOT'
     }
 }
 
@@ -23,12 +27,19 @@ repositories {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
+apply plugin: 'net.futureclient.asmlib'
+
+
 sourceCompatibility = targetCompatibility = '1.8'
 
 group 'com.matt.forgehax'
 version project.property('forgehax.version')
 
 archivesBaseName = "forgehax-" + project.property('forgehax.mc.version')
+
+asmlib {
+    add sourceSets.main, 'asmlib.forgehax.mappings.json', ['asmlib.forgehax.config.json']
+}
 
 minecraft {
     version = project.property('forgehax.forge.version')
