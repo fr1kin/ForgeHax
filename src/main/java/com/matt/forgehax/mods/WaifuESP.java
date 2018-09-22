@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -21,8 +22,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
-
+import java.nio.file.Path;
+import java.util.function.Function;
 
 
 @RegisterMod
@@ -40,14 +44,15 @@ public class WaifuESP extends ToggleMod {
 
     private final String waifuUrl = "https://raw.githubusercontent.com/fr1kin/ForgeHax/master/src/main/resources/assets/minecraft/textures/forgehax/waifu1.png";
 
-    private BufferedImage getImageFromUrl(String url) {
-        BufferedImage image = null;
+    private final File waifuCache = new File(Helper.getFileManager().getCacheDirectory(), "waifu.png");
+
+    private <T> BufferedImage getImage(T source, ThrowingFunction<T, BufferedImage> readFunction) {
         try {
-            image = ImageIO.read(new URL(url));
-        } catch (Exception e) {
-            e.printStackTrace();
+            return readFunction.apply(source);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        return image;
     }
 
     private boolean shouldDraw(EntityLivingBase entity) {
@@ -102,7 +107,19 @@ public class WaifuESP extends ToggleMod {
     public void onLoad() {
         MC.addScheduledTask(() -> {
             try {
-                BufferedImage image = getImageFromUrl(waifuUrl);
+                BufferedImage image;
+                if (waifuCache.exists()) { // TODO: download async
+                    image = getImage(waifuCache, ImageIO::read); // from cache
+                } else {
+                    image = getImage(new URL(waifuUrl), ImageIO::read); // from internet
+                    if (image != null) {
+                        try {
+                            ImageIO.write(image, "png", waifuCache);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
                 if (image == null) { LOGGER.warn("Failed to download waifu image"); return; }
 
                 DynamicTexture dynamicTexture = new DynamicTexture(image);
@@ -113,5 +130,10 @@ public class WaifuESP extends ToggleMod {
             }
 
         });
+    }
+
+    @FunctionalInterface
+    private interface ThrowingFunction<T, R> {
+        R apply(T obj) throws IOException;
     }
 }
