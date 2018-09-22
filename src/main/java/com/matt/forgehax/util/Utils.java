@@ -101,7 +101,7 @@ public class Utils implements Globals {
         return array != null && index >= 0 && index < array.length;
     }
 
-    public static <T> boolean isInRange(List<T> list, int index) {
+    public static <T> boolean isInRange(Collection<T> list, int index) {
         return list != null && index >= 0 && index < list.size();
     }
 
