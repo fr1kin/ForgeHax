@@ -47,6 +47,10 @@ public class Options<E extends ISerializableJson> extends Command implements Col
         }
     }
 
+    public Collection<E> contents() {
+        return contents;
+    }
+
     public E get(Object o) {
         for(E element : this) if(Objects.equals(element, o))
             return element;
