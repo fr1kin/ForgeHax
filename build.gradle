@@ -73,8 +73,11 @@ shadowJar {
 jar {
     manifest {
         attributes (
-                'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
-                'FMLCorePluginContainsFMLMod': 'true'
+                //'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
+                //'FMLCorePluginContainsFMLMod': 'true'
+                TweakClass: 'com.matt.forgehax.asm.tweaker.ForgehaxTweaker',
+                TweakOrder: '0'
+
         )
     }
 
