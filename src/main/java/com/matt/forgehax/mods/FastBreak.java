@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.Category;
@@ -13,6 +14,7 @@ public class FastBreak extends ToggleMod {
         super(Category.PLAYER, "FastBreak", false, "Fast break retard");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         if(MC.playerController != null)

@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import com.google.common.collect.Sets;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.*;
@@ -356,6 +357,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         return super.getDebugDisplayText() + String.format(" [C:%d/%d]", cacheSize, cacheCapacity);
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Load event) {
         try {
@@ -366,6 +368,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onLoadRenderers(LoadRenderersEvent event) {
         try {
@@ -378,6 +381,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldRendererDeallocated(WorldRendererDeallocatedEvent event) {
         if(uploaders != null) try {
@@ -396,6 +400,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPreBuildChunk(BuildChunkEvent.Pre event) {
         if(uploaders != null) try {
@@ -427,6 +432,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPostBuildChunk(BuildChunkEvent.Post event) {
         if(uploaders != null) try {
@@ -484,6 +490,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onChunkUploaded(ChunkUploadedEvent event) {
         if(uploaders != null) try {
@@ -500,6 +507,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onChunkDeleted(DeleteGlResourcesEvent event) {
         if(uploaders != null) try {
@@ -515,6 +523,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
+    @Subscribe
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRenderWorld(RenderEvent event) {
         if(uploaders != null

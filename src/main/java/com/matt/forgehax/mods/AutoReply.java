@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -35,6 +36,7 @@ public class AutoReply extends ToggleMod {
         super(Category.MISC, "AutoReply", false, "Automatically talk in chat if finds a strings");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onClientChat(ClientChatReceivedEvent event) {
         String message = ( event.getMessage().getUnformattedText() );

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -61,6 +62,7 @@ public class WaifuESP extends ToggleMod {
 
 
 
+    @Subscribe
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRenderGameOverlayEvent (RenderGameOverlayEvent.Text event) {
         if (waifu == null) return;
@@ -91,6 +93,7 @@ public class WaifuESP extends ToggleMod {
     }
 
 
+    @Subscribe
     @SubscribeEvent
     public void onRenderPlayer(RenderPlayerEvent.Pre event) {
         if(noRenderPlayers.getAsBoolean() && !event.getEntity().equals(MC.player)) {

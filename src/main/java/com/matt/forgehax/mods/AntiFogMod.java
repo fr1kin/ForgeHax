@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -12,12 +13,14 @@ public class AntiFogMod extends ToggleMod {
         super(Category.WORLD, "AntiFog", false, "Removes fog");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onFogDensity(EntityViewRenderEvent.FogDensity event) {
         event.setDensity(0);
         event.setCanceled(true);
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onFogColor(EntityViewRenderEvent.FogColors event) {
         event.setRed(55);

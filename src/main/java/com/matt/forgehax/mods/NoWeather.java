@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.WorldChangeEvent;
 import com.matt.forgehax.util.mod.Category;
@@ -67,16 +68,19 @@ public class NoWeather extends ToggleMod {
         resetState();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldChange(WorldChangeEvent event) {
         saveState(event.getWorld());
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldTick(TickEvent.ClientTickEvent event) {
         disableRain();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketChangeGameState) {

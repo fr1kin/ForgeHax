@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.RenderBlockInLayerEvent;
 import com.matt.forgehax.asm.events.RenderBlockLayerEvent;
@@ -56,6 +57,7 @@ public class XrayMod extends ToggleMod {
 
     private boolean isInternalCall = false;
 
+    @Subscribe
     @SubscribeEvent
     public void onPreRenderBlockLayer(RenderBlockLayerEvent.Pre event) {
         if(!isInternalCall) {
@@ -77,9 +79,11 @@ public class XrayMod extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPostRenderBlockLayer(RenderBlockLayerEvent.Post event) {}
 
+    @Subscribe
     @SubscribeEvent
     public void onRenderBlockInLayer(RenderBlockInLayerEvent event) {
         if(event.getCompareToLayer().equals(BlockRenderLayer.TRANSLUCENT)) {

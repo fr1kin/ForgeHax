@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -38,6 +39,7 @@ public class YawLockMod extends ToggleMod {
         return Math.round((LocalPlayerUtils.getViewAngles().getYaw() + 1.f) / 45.f) * 45.f;
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         double yaw = getYawDirection();

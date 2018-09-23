@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
@@ -42,6 +43,7 @@ public class AutoReconnectMod extends ToggleMod {
         super(Category.MISC, "AutoReconnect", false, "Automatically reconnects to server");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onGuiOpened(GuiOpenEvent event) {
         if (!hasAutoLogged)
@@ -59,12 +61,14 @@ public class AutoReconnectMod extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         // we got on the server or stopped joining, now undo queue
         hasAutoLogged = false; // make mod work when you rejoin
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
         updateLastConnectedServer();

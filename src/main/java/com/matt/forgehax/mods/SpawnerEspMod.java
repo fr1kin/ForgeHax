@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.Category;
@@ -26,6 +27,7 @@ public class SpawnerEspMod extends ToggleMod {
         super(Category.RENDER, "SpawnerESP", false, "Spawner esp");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onRender(RenderEvent event) {
         event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);

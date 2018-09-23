@@ -1,7 +1,9 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.WorldChangeEvent;
 import com.matt.forgehax.events.listeners.WorldListener;
+import com.matt.forgehax.util.event.ForgehaxEventBus;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,14 +21,16 @@ public class WorldEventService extends ServiceMod {
         super("WorldEventService");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         event.getWorld().addEventListener(WORLD_LISTENER);
-        MinecraftForge.EVENT_BUS.post(new WorldChangeEvent(event.getWorld()));
+        ForgehaxEventBus.EVENT_BUS.post(new WorldChangeEvent(event.getWorld()));
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
-        MinecraftForge.EVENT_BUS.post(new WorldChangeEvent(event.getWorld()));
+        ForgehaxEventBus.EVENT_BUS.post(new WorldChangeEvent(event.getWorld()));
     }
 }

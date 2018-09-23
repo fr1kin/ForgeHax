@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.Utils;
@@ -71,12 +72,14 @@ public class ESP extends ToggleMod implements Fonts {
         super(Category.RENDER, "ESP", false, "Shows entity locations and info");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onRenderPlayerNameTag(RenderLivingEvent.Specials.Pre event) {
         if(EntityUtils.isPlayer(event.getEntity()))
             event.setCanceled(true);
     }
 
+    @Subscribe
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onRender2D(final Render2DEvent event) {
         getWorld().loadedEntityList.stream()

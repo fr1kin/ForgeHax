@@ -2,6 +2,7 @@ package com.matt.forgehax.mods.services;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ServiceMod;
@@ -76,6 +77,7 @@ public class SpamService extends ServiceMod {
                 .build();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onTick(LocalPlayerUpdateEvent event) {
         if(!SENDING.isEmpty() && System.currentTimeMillis() > nextSendMs) {

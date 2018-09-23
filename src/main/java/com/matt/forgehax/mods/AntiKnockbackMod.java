@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.PushOutOfBlocksEvent;
@@ -41,6 +42,7 @@ public class AntiKnockbackMod extends ToggleMod {
     /**
      * Stops TNT and knockback velocity
      */
+    @Subscribe
     @SubscribeEvent
     public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketExplosion) {
@@ -71,6 +73,7 @@ public class AntiKnockbackMod extends ToggleMod {
     /**
      * Stops velocity from water
      */
+    @Subscribe
     @SubscribeEvent
     public void onWaterMovementEvent(WaterMovementEvent event) {
         if(event.getEntity().equals(MC.player)) {
@@ -85,6 +88,7 @@ public class AntiKnockbackMod extends ToggleMod {
     /**
      * Stops velocity from collision
      */
+    @Subscribe
     @SubscribeEvent
     public void onApplyCollisionMotion(ApplyCollisionMotionEvent event) {
         if(event.getEntity().equals(MC.player)) {
@@ -97,6 +101,7 @@ public class AntiKnockbackMod extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPushOutOfBlocks (PushOutOfBlocksEvent event) {
         event.setCanceled(true);

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.command.Setting;
@@ -34,12 +35,14 @@ public class AntiAfkMod extends ToggleMod {
     }
 
     // Reset the timer if the player is not afk
+    @Subscribe
     @SubscribeEvent
     public void onKeyboardinput(InputEvent.KeyInputEvent event) {
         if(timer.isStarted())
             timer.start();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         if(!timer.isStarted())

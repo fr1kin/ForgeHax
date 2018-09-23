@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -23,6 +24,7 @@ public class SignTextMod extends ToggleMod {
     public SignTextMod() { super(Category.MISC, "SignText", false, "get sign text"); }
 
 
+    @Subscribe
     @SubscribeEvent
     public void onInput(MouseEvent event) {
         if (event.getButton() == 2 && Mouse.getEventButtonState()) { // on middle click

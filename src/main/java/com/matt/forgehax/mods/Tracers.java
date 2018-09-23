@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.color.Colors;
@@ -65,6 +66,7 @@ public class Tracers extends ToggleMod implements Colors {
             .name("friendly").description("trace friendly mobs")
             .defaultTo(true).build();
 
+    @Subscribe
     @SubscribeEvent
     public void onDrawScreen(Render2DEvent event) {
         getWorld().loadedEntityList.stream()

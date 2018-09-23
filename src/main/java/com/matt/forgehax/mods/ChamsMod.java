@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.Category;
@@ -44,6 +45,7 @@ public class ChamsMod extends ToggleMod {
         );
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPreRenderLiving(RenderLivingEvent.Pre event) {
         GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
@@ -51,6 +53,7 @@ public class ChamsMod extends ToggleMod {
         GlStateManager.doPolygonOffset(1.0F, -1000000);
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPostRenderLiving(RenderLivingEvent.Post event) {
         GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);

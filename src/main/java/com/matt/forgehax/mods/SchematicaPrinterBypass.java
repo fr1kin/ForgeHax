@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.SchematicaPlaceBlockEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.math.Angle;
@@ -26,6 +27,7 @@ public class SchematicaPrinterBypass extends ToggleMod {
         return true;
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPrinterBlockPlace(SchematicaPlaceBlockEvent event) {
         Angle lookAngle = Utils.getLookAtAngles(event.getVec());

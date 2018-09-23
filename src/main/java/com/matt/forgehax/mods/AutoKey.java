@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.asm.utils.fasttype.FastField;
@@ -47,6 +48,7 @@ public class AutoKey extends ToggleMod {
 
     private long lastTimeMillis;
 
+    @Subscribe
     @SubscribeEvent
     public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
         final int lastClick = (int)(System.currentTimeMillis() - lastTimeMillis);

@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.events.ChatMessageEvent;
@@ -142,6 +143,7 @@ public class JoinMessage extends ToggleMod {
         ));
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPlayerChat(ChatMessageEvent event) {
         String[] args = event.getMessage().split(" ");
@@ -194,6 +196,7 @@ public class JoinMessage extends ToggleMod {
         });
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPlayerConnect(PlayerConnectEvent.Join event) {
         CustomMessageEntry entry = messages.get(event.getPlayerInfo().getId());

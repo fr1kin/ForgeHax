@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.key.Bindings;
@@ -34,6 +35,7 @@ public class AutoWalkMod extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         if(!isBound) {

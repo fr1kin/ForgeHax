@@ -2,6 +2,7 @@ package com.matt.forgehax.mods.services;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -47,12 +48,14 @@ public class TickRateService extends ServiceMod {
         super("TickManager", "Records the average tick rate");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         timeLastTimeUpdate = -1;
         TICK_DATA.onWorldLoaded();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketTimeUpdate) {

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -43,11 +44,13 @@ public class CustomPayloadLogger extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onOutgoingCustomPayload(PacketEvent.Outgoing.Pre event) {
         log(event.getPacket());
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onIncomingCustomPayload(PacketEvent.Incoming.Pre event) {
         log(event.getPacket());

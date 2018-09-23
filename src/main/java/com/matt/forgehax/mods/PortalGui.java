@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class PortalGui extends ToggleMod {
     public PortalGui() { super(Category.PLAYER, "PortalGui", false, "Guis work while in portals"); }
 
+    @Subscribe
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         FastReflection.Fields.Entity_inPortal.set(Helper.getLocalPlayer(), false);

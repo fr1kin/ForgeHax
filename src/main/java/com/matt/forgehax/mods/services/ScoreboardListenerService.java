@@ -1,11 +1,13 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.PlayerInfo;
 import com.matt.forgehax.util.entity.PlayerInfoHelper;
+import com.matt.forgehax.util.event.ForgehaxEventBus;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.mojang.authlib.GameProfile;
@@ -38,11 +40,11 @@ public class ScoreboardListenerService extends ServiceMod {
     private void fireEvents(SPacketPlayerListItem.Action action, PlayerInfo info, GameProfile profile) {
         switch (action) {
             case ADD_PLAYER: {
-                MinecraftForge.EVENT_BUS.post(new PlayerConnectEvent.Join(info, profile));
+                ForgehaxEventBus.EVENT_BUS.post(new PlayerConnectEvent.Join(info, profile));
                 break;
             }
             case REMOVE_PLAYER: {
-                MinecraftForge.EVENT_BUS.post(new PlayerConnectEvent.Leave(info, profile));
+                ForgehaxEventBus.EVENT_BUS.post(new PlayerConnectEvent.Leave(info, profile));
                 break;
             }
         }
@@ -50,11 +52,13 @@ public class ScoreboardListenerService extends ServiceMod {
 
     private long waitTime = 0;
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         waitTime = System.currentTimeMillis() + wait.get();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onScoreboardEvent(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketPlayerListItem

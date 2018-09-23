@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.command.CommandHelper;
@@ -28,6 +29,7 @@ public class ChatCommandService extends ServiceMod {
         super("ChatCommandService", "Listeners for activation key in chat messages typed");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onSendPacket(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketChatMessage) {

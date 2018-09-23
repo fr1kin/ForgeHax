@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -35,6 +36,7 @@ public class FlyMod extends ToggleMod {
             getLocalPlayer().noClip = false;
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         try {
@@ -70,6 +72,7 @@ public class FlyMod extends ToggleMod {
         return new double[] { MC.player.rotationYaw * 360 / 360 * 180 / 180, 0 };
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onOutgoingPacketSent(PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketPlayerPosLook) {

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.mod.Category;
@@ -22,6 +23,7 @@ public class AntiOverlayMod extends ToggleMod {
     /**
      * Disables water/lava fog
      */
+    @Subscribe
     @SubscribeEvent
     public void onFogRender(EntityViewRenderEvent.FogDensity event) {
         if(event.getState().getMaterial().equals(Material.WATER) ||
@@ -34,9 +36,11 @@ public class AntiOverlayMod extends ToggleMod {
     /**
      * Disables screen overlays
      */
+    @Subscribe
     @SubscribeEvent
     public void onRenderBlockOverlay(RenderBlockOverlayEvent event) { event.setCanceled(true); }
 
+    @Subscribe
     @SubscribeEvent
     public void onRenderGameOverlay(RenderGameOverlayEvent event) {
         if (event.getType().equals(RenderGameOverlayEvent.ElementType.HELMET) ||
@@ -44,6 +48,7 @@ public class AntiOverlayMod extends ToggleMod {
             event.setCanceled(true);
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onRender(RenderEvent event) {
         ItemStack item = FastReflection.Fields.EntityRenderer_itemActivationItem.get(MC.entityRenderer);

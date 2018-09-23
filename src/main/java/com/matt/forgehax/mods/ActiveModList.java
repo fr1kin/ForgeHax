@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -84,6 +85,7 @@ public class ActiveModList extends ToggleMod {
         return builder.toString();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onRenderScreen(RenderGameOverlayEvent.Text event) {
         int posX = 1;

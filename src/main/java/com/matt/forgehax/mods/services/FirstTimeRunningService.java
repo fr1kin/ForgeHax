@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.FileManager;
 import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -34,6 +35,7 @@ public class FirstTimeRunningService extends ServiceMod {
         super("FirstTimeRunningService");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         if(!Objects.equals(ForgeHax.MOD_VERSION, getOnceFileVersion())) {

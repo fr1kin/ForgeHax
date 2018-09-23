@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.command.Setting;
@@ -88,6 +89,7 @@ public class AutoCrystalMod extends ToggleMod {
                 .anyMatch(p -> e.getDistanceSqToEntity(p) < dist * dist);
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onTick(LocalPlayerUpdateEvent event) {
         if (getWorld() != null && getLocalPlayer() != null) {

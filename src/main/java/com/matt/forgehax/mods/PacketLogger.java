@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.eventbus.Subscribe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -179,12 +180,14 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
         onDisabled();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketInbound(PacketEvent.Incoming.Pre event) {
         if(!blacklist_on.get() || blacklist.get(event.getPacket().getClass()) == null)
             logPacket(stream_packet_in, event.getPacket());
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketOutbound(PacketEvent.Outgoing.Pre event) {
         if(!blacklist_on.get() || blacklist.get(event.getPacket().getClass()) == null)

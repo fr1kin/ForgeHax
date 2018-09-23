@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods.services.tasks;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.LocalPlayerUpdateMovementEvent;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -18,12 +19,14 @@ public class MoveViewManagerService extends ServiceMod {
 
     private Task.TaskProcessing processing = null;
 
+    @Subscribe
     @SubscribeEvent
     public void onMovementUpdatePre(LocalPlayerUpdateMovementEvent.Pre event) {
         processing = TaskManager.getTop(Task.Type.LOOK);
         if(processing != null) processing.preProcessing();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onMovementUpdatePost(LocalPlayerUpdateMovementEvent.Post event) {
         if(processing != null) processing.postProcessing();

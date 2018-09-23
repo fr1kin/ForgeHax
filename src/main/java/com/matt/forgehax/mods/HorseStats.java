@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
@@ -32,6 +33,7 @@ public class HorseStats extends ToggleMod {
             .defaultTo(0.3375D)
             .build();
 
+    @Subscribe
     @SubscribeEvent
     public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
         if (EntityUtils.isDrivenByPlayer(event.getEntity()) && getRidingEntity() instanceof AbstractHorse) {

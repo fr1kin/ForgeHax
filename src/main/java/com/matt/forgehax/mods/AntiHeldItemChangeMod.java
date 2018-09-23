@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.Category;
@@ -21,6 +22,7 @@ public class AntiHeldItemChangeMod extends ToggleMod {
         super(Category.PLAYER, "AntiHeldItemChange", false, "prevents the server from changing selected hotbar slot");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketReceived(PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketSetSlot && getLocalPlayer() != null) {

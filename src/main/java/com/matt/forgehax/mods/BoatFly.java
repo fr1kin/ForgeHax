@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.RenderBoatEvent;
@@ -56,6 +57,7 @@ public class BoatFly extends ToggleMod {
         super(Category.MISC,"BoatFly", false, "Boathax");
     }
 
+    @Subscribe
     @SubscribeEvent // disable gravity
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         ForgeHaxHooks.isNoBoatGravityActivated = getRidingEntity() instanceof EntityBoat; // disable gravity if in boat
@@ -76,6 +78,7 @@ public class BoatFly extends ToggleMod {
 
 
 
+    @Subscribe
     @SubscribeEvent
     public void onRenderBoat(RenderBoatEvent event) {
         if (EntityUtils.isDrivenByPlayer(event.getBoat()) && setYaw.getAsBoolean()) {
@@ -86,6 +89,7 @@ public class BoatFly extends ToggleMod {
     }
 
 
+    @Subscribe
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
         //check if the player is really riding a entity

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -27,6 +28,7 @@ public class AutoProjectile extends ToggleMod {
         super(Category.PLAYER, "AutoProjectile", false, "Automatically sets pitch to best trajectory");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onSendingPacket(PacketEvent.Outgoing.Pre event) {
         EntityPlayer localPlayer = MC.player;

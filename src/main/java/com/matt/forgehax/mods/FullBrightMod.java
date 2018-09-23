@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -22,6 +23,7 @@ public class FullBrightMod extends ToggleMod {
         MC.gameSettings.gammaSetting = 1F;
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
         MC.gameSettings.gammaSetting = 16F;

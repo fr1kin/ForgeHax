@@ -1,10 +1,12 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.ChatMessageEvent;
 import com.matt.forgehax.util.entity.PlayerInfo;
 import com.matt.forgehax.util.entity.PlayerInfoHelper;
+import com.matt.forgehax.util.event.ForgehaxEventBus;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.mojang.authlib.GameProfile;
@@ -64,6 +66,7 @@ public class ChatIdentifierService extends ServiceMod {
     }
 
     @SuppressWarnings("Duplicates")
+    @Subscribe
     @SubscribeEvent
     public void onChatMessage(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketChat) {
@@ -75,7 +78,7 @@ public class ChatIdentifierService extends ServiceMod {
                     PlayerInfoHelper.invokeEfficiently(senderProfile.getName(), new FutureCallback<PlayerInfo>() {
                         @Override
                         public void onSuccess(@Nullable PlayerInfo result) {
-                            if(result != null) MinecraftForge.EVENT_BUS.post(ChatMessageEvent.newPublicChat(result, msg));
+                            if(result != null) ForgehaxEventBus.EVENT_BUS.post(ChatMessageEvent.newPublicChat(result, msg));
                         }
 
                         @Override
@@ -92,7 +95,7 @@ public class ChatIdentifierService extends ServiceMod {
                             if(sender != null) PlayerInfoHelper.invokeEfficiently(getLocalPlayer().getName(), new FutureCallback<PlayerInfo>() {
                                 @Override
                                 public void onSuccess(@Nullable PlayerInfo result) {
-                                    if(result != null) MinecraftForge.EVENT_BUS.post(ChatMessageEvent.newPrivateChat(sender, result, msg));
+                                    if(result != null) ForgehaxEventBus.EVENT_BUS.post(ChatMessageEvent.newPrivateChat(sender, result, msg));
                                 }
 
                                 @Override
@@ -114,7 +117,7 @@ public class ChatIdentifierService extends ServiceMod {
                             if(receiver != null) PlayerInfoHelper.invokeEfficiently(getLocalPlayer().getName(), new FutureCallback<PlayerInfo>() {
                                 @Override
                                 public void onSuccess(@Nullable PlayerInfo sender) {
-                                    if(sender != null) MinecraftForge.EVENT_BUS.post(ChatMessageEvent.newPrivateChat(sender, receiver, msg));
+                                    if(sender != null) ForgehaxEventBus.EVENT_BUS.post(ChatMessageEvent.newPrivateChat(sender, receiver, msg));
                                 }
 
                                 @Override

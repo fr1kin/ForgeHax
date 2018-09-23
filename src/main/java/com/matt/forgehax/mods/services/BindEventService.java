@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.util.command.CommandStub;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -17,6 +18,7 @@ public class BindEventService extends ServiceMod {
         super("BindEventService");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onKeyboardEvent(InputEvent.KeyInputEvent event) {
         getGlobalCommand().getChildrenDeep().stream()

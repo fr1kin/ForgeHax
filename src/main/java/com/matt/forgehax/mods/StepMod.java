@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.PacketHelper;
@@ -32,6 +33,7 @@ public class StepMod extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         EntityPlayer localPlayer = (EntityPlayer)event.getEntityLiving();
@@ -44,6 +46,7 @@ public class StepMod extends ToggleMod {
 
     private CPacketPlayer previousPositionPacket = null;
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketSending(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer.Position ||

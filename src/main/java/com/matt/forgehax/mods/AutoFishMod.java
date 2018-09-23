@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -83,6 +84,7 @@ public class AutoFishMod extends ToggleMod {
         resetLocals();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         EntityPlayer me = getLocalPlayer();
@@ -117,6 +119,7 @@ public class AutoFishMod extends ToggleMod {
         } else resetLocals();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onMouseEvent(InputEvent.MouseInputEvent event) {
         if(MC.gameSettings.keyBindUseItem.isKeyDown() && ticksHookDeployed > 0) {
@@ -124,6 +127,7 @@ public class AutoFishMod extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketSoundEffect) {

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.HurtCamEffectEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -12,6 +13,7 @@ public class AntiHurtCamMod extends ToggleMod {
         super(Category.PLAYER, "AntiHurtcam", false, "Removes hurt camera effect");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onHurtCamEffect(HurtCamEffectEvent event) {
         event.setCanceled(true);

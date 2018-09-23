@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.AddCollisionBoxToListEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
@@ -32,6 +33,7 @@ public class Jesus extends ToggleMod {
 
     public Jesus() { super(Category.PLAYER, "Jesus", false, "Walk on water"); }
 
+    @Subscribe
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         if (!getModManager().get(FreecamMod.class).map(BaseMod::isEnabled).orElse(false)) {
@@ -44,6 +46,7 @@ public class Jesus extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
         if (getLocalPlayer() != null
@@ -63,6 +66,7 @@ public class Jesus extends ToggleMod {
 
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketSending(PacketEvent.Outgoing.Pre event) {
         if (event.getPacket() instanceof CPacketPlayer) {

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
@@ -98,6 +99,7 @@ public class FreecamMod extends ToggleMod {
             }
         }
     }
+    @Subscribe
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         MC.player.capabilities.isFlying = true;
@@ -107,6 +109,7 @@ public class FreecamMod extends ToggleMod {
         MC.player.fallDistance = 0;
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer || event.getPacket() instanceof CPacketInput) {
@@ -114,6 +117,7 @@ public class FreecamMod extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketReceived (PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
@@ -126,6 +130,7 @@ public class FreecamMod extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldLoad (WorldEvent.Load event) {
         posX = startPosX;

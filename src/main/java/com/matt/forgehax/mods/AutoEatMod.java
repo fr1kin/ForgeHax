@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.key.Bindings;
@@ -21,6 +22,7 @@ public class AutoEatMod extends ToggleMod {
         super(Category.PLAYER, "AutoEat", false, "Auto eats when you get hungry");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         FoodStats foodStats = getLocalPlayer().getFoodStats();

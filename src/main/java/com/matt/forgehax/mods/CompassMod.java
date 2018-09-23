@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.Utils;
@@ -37,6 +38,7 @@ public class CompassMod extends ToggleMod {
         super(Category.RENDER, "Compass", false, "cool compass overlay");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onRender(Render2DEvent event) {
         final double centerX = event.getScreenWidth()/2;

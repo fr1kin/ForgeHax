@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
@@ -33,6 +34,7 @@ public class AutoLog extends ToggleMod {
             .name("NewPlayer").description("Disconnect if a player enters render distance")
             .defaultTo(false).build();
 
+    @Subscribe
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         if (MC.player != null) {
@@ -45,6 +47,7 @@ public class AutoLog extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketSpawnPlayer) {

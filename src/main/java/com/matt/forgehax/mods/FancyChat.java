@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.command.Setting;
@@ -47,6 +48,7 @@ public class FancyChat extends ToggleMod {
 		super(Category.MISC, "FancyChat", false, "meme text");
 	}
 
+	@Subscribe
 	@SubscribeEvent
 	public void onPacketSent(PacketEvent.Outgoing.Pre event)
 	{

@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -46,6 +47,7 @@ public class PayloadSpoofer extends ToggleMod {
         return false;
     }
 
+    @Subscribe
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onIncomingPacket(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketCustomPayload) {
@@ -55,6 +57,7 @@ public class PayloadSpoofer extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onOutgoingPacket(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketCustomPayload) {

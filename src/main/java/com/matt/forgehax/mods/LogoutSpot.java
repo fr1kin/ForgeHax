@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import com.google.common.base.Strings;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -57,6 +58,7 @@ public class LogoutSpot extends ToggleMod {
     private final Set<LogoutPos> logoutSpots = new HashSet<>();
 
     // join/leave event does not work
+    @Subscribe
     @SubscribeEvent
     public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketPlayerListItem) {
@@ -109,7 +111,8 @@ public class LogoutSpot extends ToggleMod {
         }
     }
     
-    /*@SubscribeEvent
+    /*@Subscribe
+    @SubscribeEvent
     public void onPlayerJoin(PlayerConnectEvent.Join event) {
         logoutSpots.removeIf(pos -> {
             if (pos.id.equals(event.getPlayerInfo().getId())) {
@@ -122,7 +125,7 @@ public class LogoutSpot extends ToggleMod {
         });
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onPlayerLeave(PlayerConnectEvent.Leave event) {
         UUID id = event.getPlayerInfo().getId();
         EntityPlayer player = MC.world.getPlayerEntityByUUID(id);
@@ -138,6 +141,7 @@ public class LogoutSpot extends ToggleMod {
 
     }*/
 
+    @Subscribe
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
         if (renderPosition.getAsBoolean() &&
@@ -155,6 +159,7 @@ public class LogoutSpot extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onRender(RenderEvent event) { // render box
         if (renderPosition.getAsBoolean()) {
@@ -186,6 +191,7 @@ public class LogoutSpot extends ToggleMod {
 
 
 
+    @Subscribe
     @SubscribeEvent
     public void onPlayerUpdate(LocalPlayerUpdateEvent event) { // delete cloned player if they're too far
         logoutSpots.removeIf(pos -> {
@@ -195,10 +201,12 @@ public class LogoutSpot extends ToggleMod {
     }
 
 
+    @Subscribe
     @SubscribeEvent
     public void onWorldUnload (WorldEvent.Unload event) {
         logoutSpots.clear();
     }
+    @Subscribe
     @SubscribeEvent
     public void onWorldLoad (WorldEvent.Load event) {
         logoutSpots.clear();

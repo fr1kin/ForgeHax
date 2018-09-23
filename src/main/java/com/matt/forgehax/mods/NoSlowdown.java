@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.DoBlockCollisionsEvent;
 import com.matt.forgehax.util.mod.Category;
@@ -33,6 +34,7 @@ public class NoSlowdown extends ToggleMod {
         } catch (Exception e) {}
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onDoApplyBlockMovement(DoBlockCollisionsEvent event) {
         if(event.getEntity().equals(getLocalPlayer())) {

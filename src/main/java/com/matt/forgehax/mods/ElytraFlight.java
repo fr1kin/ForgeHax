@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -53,7 +54,8 @@ public class ElytraFlight extends ToggleMod {
 		}
 	}
 
-	@SubscribeEvent
+    @Subscribe
+    @SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
 		// Enable our flight as soon as the player starts flying his elytra.

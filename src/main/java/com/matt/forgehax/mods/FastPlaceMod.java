@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.Category;
@@ -17,6 +18,7 @@ public class FastPlaceMod extends ToggleMod {
         super(Category.PLAYER, "FastPlace", false, "Fast place");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, 0);

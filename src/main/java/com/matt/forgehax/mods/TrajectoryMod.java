@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.math.AngleN;
 import com.matt.forgehax.util.mod.Category;
@@ -23,6 +24,7 @@ public class TrajectoryMod extends ToggleMod {
         super(Category.RENDER, "Trajectory", false, "Draws projectile trajectory");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onRender(RenderEvent event) {
         Projectile projectile = Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItemMainhand());

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.ChatMessageEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -47,16 +48,19 @@ public class ChatLogger extends ToggleMod {
         return publicLog;
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
         getOrSetPublicLog(); // set public log file
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         publicLog = null;
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onChat(ChatMessageEvent event) {
         if(event.isWhispering()) {

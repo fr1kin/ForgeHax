@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import static com.matt.forgehax.Helper.*;
 import static net.minecraft.util.math.RayTraceResult.Type;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -41,6 +42,7 @@ public class AutoBucketFallMod extends ToggleMod {
 
     private ItemStack WATER_BUCKET = new ItemStack(Items.WATER_BUCKET);
 
+    @Subscribe
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (getLocalPlayer() == null

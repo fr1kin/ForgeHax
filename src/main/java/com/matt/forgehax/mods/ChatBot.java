@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Sets;
+import com.google.common.eventbus.Subscribe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -249,6 +250,7 @@ public class ChatBot extends ToggleMod {
                 .build();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onTick(LocalPlayerUpdateEvent event) {
         if(SpamService.isEmpty() && !spams.isEmpty()) for(SpamEntry e : spams) {
@@ -267,6 +269,7 @@ public class ChatBot extends ToggleMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onChat(ChatMessageEvent event) {
         if(event.getSender().isLocalPlayer()) return;
@@ -311,6 +314,7 @@ public class ChatBot extends ToggleMod {
                 });
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPlayerConnect(PlayerConnectEvent.Join event) {
         final String player = event.getProfile() != null ? event.getProfile().getName() : "null";
@@ -338,6 +342,7 @@ public class ChatBot extends ToggleMod {
                 });
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
         final String player = event.getProfile() != null ? event.getProfile().getName() : "null";

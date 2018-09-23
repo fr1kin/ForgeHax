@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -16,6 +17,7 @@ public class PigmenAngerCooldownService extends ServiceMod {
         super("PigmenAngerCooldownService");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onUpdate(LivingEvent.LivingUpdateEvent event) {
         if(event.getEntityLiving() instanceof EntityPigZombie) {

@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -249,6 +250,7 @@ public class AimbotMod extends ToggleMod {
         LocalPlayerUtils.setFakeViewAngles(null);
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         EntityPlayer localPlayer = MC.player;
@@ -321,6 +323,7 @@ public class AimbotMod extends ToggleMod {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @Subscribe
     public void onPacketSending(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer) {
             // send fake angles if any rotation updates are sent to the server

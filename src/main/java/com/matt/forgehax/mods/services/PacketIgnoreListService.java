@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.mod.ServiceMod;
@@ -16,11 +17,13 @@ public class PacketIgnoreListService extends ServiceMod {
         super("PacketIgnoreListService");
     }
 
+    @Subscribe
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSentPacket(PacketEvent.Outgoing.Post event) {
         if(PacketHelper.isIgnored(event.getPacket())) PacketHelper.remove(event.getPacket());
     }
 
+    @Subscribe
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onIncomingPacket(PacketEvent.Incoming.Post event) {
         if(PacketHelper.isIgnored(event.getPacket())) PacketHelper.remove(event.getPacket());

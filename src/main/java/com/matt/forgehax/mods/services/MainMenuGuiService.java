@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods.services;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.ServiceMod;
@@ -30,6 +31,7 @@ public class MainMenuGuiService extends ServiceMod {
         super("MainMenuGuiService");
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onGui(GuiScreenEvent.InitGuiEvent.Post event) {
         if (event.getGui() instanceof GuiMainMenu) {
@@ -52,6 +54,7 @@ public class MainMenuGuiService extends ServiceMod {
         }
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onActionPerformed(GuiScreenEvent.ActionPerformedEvent event) {
         if (event.getButton() == customButton) {
