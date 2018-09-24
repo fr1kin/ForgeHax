@@ -22,7 +22,9 @@ buildscript {
 }
 
 repositories {
-    mavenLocal()
+    mavenCentral()
+
+    maven { url 'https://oss.sonatype.org/content/groups/public/' }
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -37,6 +39,10 @@ version project.property('forgehax.version')
 
 archivesBaseName = "forgehax-" + project.property('forgehax.mc.version')
 
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 asmlib {
     add sourceSets.main, 'asmlib.forgehax.mappings.json', ['asmlib.forgehax.config.json']
 }
@@ -50,10 +56,8 @@ minecraft {
 }
 
 dependencies {
-    //compile files("$rootDir/libs/Schematica-1.12-1.7.8.163-universal.jar")
-
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
 }
 
 reobf {
@@ -80,6 +84,7 @@ jar {
 
         )
     }
+    exclude ('assets/minecraft/textures/forgehax/*')
 
 }
 
@@ -101,6 +106,7 @@ processResources
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+
 
     // TODO: Filter images out properly
     //filesNotMatching("**/*.png") {
@@ -159,6 +165,8 @@ task copyJar(type: Copy, dependsOn: [setGameDir]) {
     from shadowJar
     into "$gameDir/mods/" + minecraft.version
 }
+
+task publishToMavenLocal() {} // dummy
 
 build.dependsOn(shadowJar)
 build.finalizedBy copyJar

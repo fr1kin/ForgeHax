@@ -40,6 +40,7 @@ public class SettingBuilder<E> extends BaseCommandBuilder<SettingBuilder<E>, Set
     }
 
     public SettingBuilder<E> type(Class<?> clazz) {
+        if (has(Setting.CONVERTER)) return this;
         return converter(TypeConverterRegistry.get(clazz));
     }
 

@@ -44,7 +44,7 @@ public class AutoReply extends ToggleMod {
              String append;
              switch (mode.get().toUpperCase()) {
                  case "REPLY":
-                     append = "/w ";
+                     append = "/r ";
                      break;
                  case "CHAT":
                  default:

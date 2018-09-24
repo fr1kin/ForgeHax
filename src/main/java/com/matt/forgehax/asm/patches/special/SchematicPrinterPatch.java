@@ -25,6 +25,11 @@ public class SchematicPrinterPatch extends ClassTransformer {
         super(TypesSpecial.Classes.SchematicPrinter);
     }
 
+    @Override
+    public State getClassObfuscationState() {
+        return State.NORMAL;
+    }
+
     @RegisterMethodTransformer
     private class PlaceBlock extends MethodTransformer {
 

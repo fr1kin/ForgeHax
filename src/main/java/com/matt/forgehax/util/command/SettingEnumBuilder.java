@@ -4,8 +4,10 @@ import com.matt.forgehax.util.command.callbacks.OnChangeCallback;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
 import com.matt.forgehax.util.typeconverter.TypeConverterRegistry;
 import net.minecraft.util.math.MathHelper;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
@@ -55,23 +57,18 @@ public class SettingEnumBuilder<E extends Enum<E>> extends BaseCommandBuilder<Se
 
             @Override
             public E parse(String value) {
-                E[] values = type().getEnumConstants();
-                try {
-                    // first try by name
-                    for(E v : values) if(v.name().equalsIgnoreCase(value))
-                        return v;
-                    // jump to catch
-                    throw new NullPointerException();
-                } catch (Throwable t) {
-                    try {
-                        // if name failed, try by index
-                        // if it goes over or under the limit, clamp it
-                        int index = Integer.valueOf(value);
-                        return values[MathHelper.clamp(index, 0, values.length - 1)];
-                    } catch (Throwable et) {
-                        return null;
-                    }
-                }
+                return Arrays.stream(type().getEnumConstants())
+                        .filter(e -> e.name().toLowerCase().contains(value.toLowerCase()))
+                        .min(Comparator.comparing(e -> StringUtils.getLevenshteinDistance(e.name().toLowerCase(), value.toLowerCase())))
+                        .orElseGet(() -> {
+                            E[] values = type().getEnumConstants();
+                            try {
+                                int index = Integer.valueOf(value);
+                                return values[MathHelper.clamp(index, 0, values.length - 1)];
+                            } catch (NumberFormatException e) {
+                                return values[0];
+                            }
+                        });
             }
 
             @Override
@@ -106,6 +103,6 @@ public class SettingEnumBuilder<E extends Enum<E>> extends BaseCommandBuilder<Se
 
     @Override
     public Setting<E> build() {
-        return new Setting<>(data);
+        return new Setting<>(has(Command.REQUIREDARGS) ? data : requiredArgs(1).data);
     }
 }

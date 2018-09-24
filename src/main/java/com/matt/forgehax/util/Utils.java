@@ -8,9 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -93,6 +91,18 @@ public class Utils implements Globals {
 
     public static double scale(double x, double from_min, double from_max, double to_min, double to_max) {
         return to_min + (to_max - to_min) * ((x - from_min) / (from_max - from_min));
+    }
+
+    public static <T> boolean isInRange(T[] array, int index) {
+        return array != null && index >= 0 && index < array.length;
+    }
+
+    public static <T> boolean isInRange(List<T> list, int index) {
+        return list != null && index >= 0 && index < list.size();
+    }
+
+    public static <T> T defaultTo(T value, T defaultTo) {
+        return value == null ? defaultTo : value;
     }
 
     @Deprecated

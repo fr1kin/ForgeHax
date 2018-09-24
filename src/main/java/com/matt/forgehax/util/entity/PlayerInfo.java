@@ -11,6 +11,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -36,49 +37,37 @@ public class PlayerInfo implements Globals, GsonConstant {
      */
     private final List<Name> names;
 
-    public PlayerInfo(UUID id) {
+    public PlayerInfo(UUID id) throws IOException {
+        Objects.requireNonNull(id);
         this.id = id;
-        List<Name> temp;
-        try {
-            temp = getHistoryOfNames(id);
-        } catch (Throwable t) {
-            temp = Collections.emptyList();
-        }
-        this.names = ImmutableList.copyOf(temp);
+        this.names = ImmutableList.copyOf(lookupNames(id));
         this.offlineId = EntityPlayerSP.getOfflineUUID(getName());
         this.isOfflinePlayer = false;
     }
-    public PlayerInfo(String name) {
+    public PlayerInfo(String name) throws IOException, NullPointerException {
+        Objects.requireNonNull(name);
         JsonArray ar = new JsonArray();
         ar.add(name);
 
-        UUID _id = UUID.randomUUID();
-        List<Name> _temp = Collections.emptyList();
-        boolean _offline = true;
+        JsonArray array = getResources(new URL("https://api.mojang.com/profiles/minecraft"), "POST", ar).getAsJsonArray();
+        JsonObject node = array.get(0).getAsJsonObject();
 
-        try {
-            JsonArray array = getResources(new URL("https://api.mojang.com/profiles/minecraft"), "POST", ar).getAsJsonArray();
-            JsonObject node = array.get(0).getAsJsonObject();
+        UUID uuid = PlayerInfoHelper.getIdFromString(node.get("id").getAsString());
+        Objects.requireNonNull(uuid);
 
-            UUID uuid = PlayerInfoHelper.getIdFromString(node.get("id").getAsString());
-            Objects.requireNonNull(uuid);
-
-            _id = uuid;
-            _temp = ImmutableList.copyOf(getHistoryOfNames(_id));
-            _offline = false;
-        } catch (Throwable t) {
-            _id = EntityPlayerSP.getOfflineUUID(name);
-            _temp = Collections.singletonList(new Name(name));
-            _offline = true;
-        } finally {
-            this.id = _id;
-            this.names = _temp;
-            this.offlineId = EntityPlayerSP.getOfflineUUID(getName());
-            this.isOfflinePlayer = _offline;
-        }
+        this.id = uuid;
+        this.names = ImmutableList.copyOf(lookupNames(uuid));
+        this.offlineId = EntityPlayerSP.getOfflineUUID(name);
+        this.isOfflinePlayer = false;
+    }
+    public PlayerInfo(String name, boolean _) {
+        this.id = EntityPlayerSP.getOfflineUUID(name);
+        this.names = Collections.singletonList(new Name(name));
+        this.offlineId = this.id;
+        this.isOfflinePlayer = true;
     }
 
-    private static List<Name> getHistoryOfNames(UUID id) throws Throwable {
+    private static List<Name> lookupNames(UUID id) throws IOException {
         JsonArray array = getResources(new URL("https://api.mojang.com/user/profiles/" + PlayerInfoHelper.getIdNoHyphens(id) + "/names"), "GET").getAsJsonArray();
         List<Name> temp = Lists.newArrayList();
         for (JsonElement e : array) {
@@ -148,6 +137,10 @@ public class PlayerInfo implements Globals, GsonConstant {
         return String.CASE_INSENSITIVE_ORDER.compare(getName(), getLocalPlayer().getName()) == 0;
     }
 
+    public boolean matches(UUID otherId) {
+        return otherId != null && (otherId.equals(getOfflineId()) || otherId.equals(getId()));
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof PlayerInfo && id.equals(((PlayerInfo) obj).id);
@@ -163,7 +156,7 @@ public class PlayerInfo implements Globals, GsonConstant {
         return id.toString();
     }
 
-    private static JsonElement getResources(URL url, String request, JsonElement element) throws Exception {
+    private static JsonElement getResources(URL url, String request, JsonElement element) throws IOException {
         JsonElement data;
         HttpsURLConnection connection = null;
         try {
@@ -193,7 +186,7 @@ public class PlayerInfo implements Globals, GsonConstant {
         }
         return data;
     }
-    private static JsonElement getResources(URL url, String request) throws Exception {
+    private static JsonElement getResources(URL url, String request) throws IOException {
         return getResources(url, request, null);
     }
 

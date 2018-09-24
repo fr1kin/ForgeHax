@@ -74,58 +74,68 @@ public class ChatIdentifierService extends ServiceMod {
             if(!Strings.isNullOrEmpty(message)) {
                 // normal public messages
                 if(extract(message, MESSAGE_PATTERNS, (senderProfile, msg) -> {
-                    PlayerInfoHelper.invokeEfficiently(senderProfile.getName(), new FutureCallback<PlayerInfo>() {
+                    PlayerInfoHelper.registerWithCallback(senderProfile.getName(), new FutureCallback<PlayerInfo>() {
                         @Override
                         public void onSuccess(@Nullable PlayerInfo result) {
                             if(result != null) ForgeHax.EVENT_BUS.post(ChatMessageEvent.newPublicChat(result, msg));
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {}
+                        public void onFailure(Throwable t) {
+                            PlayerInfoHelper.generateOfflineWithCallback(senderProfile.getName(), this);
+                        }
                     });
                 })) return;
 
                 // private messages to the local player
                 if(extract(message, INCOMING_PRIVATE_MESSAGES, (senderProfile, msg) -> {
-                    PlayerInfoHelper.invokeEfficiently(senderProfile.getName(), new FutureCallback<PlayerInfo>() {
+                    PlayerInfoHelper.registerWithCallback(senderProfile.getName(), new FutureCallback<PlayerInfo>() {
                         @Override
                         public void onSuccess(final @Nullable PlayerInfo sender) {
                             // now get the local player
-                            if(sender != null) PlayerInfoHelper.invokeEfficiently(getLocalPlayer().getName(), new FutureCallback<PlayerInfo>() {
+                            if(sender != null) PlayerInfoHelper.registerWithCallback(getLocalPlayer().getName(), new FutureCallback<PlayerInfo>() {
                                 @Override
                                 public void onSuccess(@Nullable PlayerInfo result) {
                                     if(result != null) ForgeHax.EVENT_BUS.post(ChatMessageEvent.newPrivateChat(sender, result, msg));
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {}
+                                public void onFailure(Throwable t) {
+                                    PlayerInfoHelper.generateOfflineWithCallback(getLocalPlayer().getName(), this);
+                                }
                             });
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {}
+                        public void onFailure(Throwable t) {
+                            PlayerInfoHelper.generateOfflineWithCallback(senderProfile.getName(), this);
+                        }
                     });
                 })) return;
 
                 // outgoing pms from local player
                 if(extract(message, OUTGOING_PRIVATE_MESSAGES, (receiverProfile, msg) -> {
-                    PlayerInfoHelper.invokeEfficiently(receiverProfile.getName(), new FutureCallback<PlayerInfo>() {
+                    PlayerInfoHelper.registerWithCallback(receiverProfile.getName(), new FutureCallback<PlayerInfo>() {
                         @Override
                         public void onSuccess(final @Nullable PlayerInfo receiver) {
                             // now get the local player
-                            if(receiver != null) PlayerInfoHelper.invokeEfficiently(getLocalPlayer().getName(), new FutureCallback<PlayerInfo>() {
+                            if(receiver != null) PlayerInfoHelper.registerWithCallback(getLocalPlayer().getName(), new FutureCallback<PlayerInfo>() {
                                 @Override
                                 public void onSuccess(@Nullable PlayerInfo sender) {
                                     if(sender != null) ForgeHax.EVENT_BUS.post(ChatMessageEvent.newPrivateChat(sender, receiver, msg));
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {}
+                                public void onFailure(Throwable t) {
+                                    PlayerInfoHelper.generateOfflineWithCallback(getLocalPlayer().getName(), this);
+                                }
                             });
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {}
+                        public void onFailure(Throwable t) {
+                            PlayerInfoHelper.generateOfflineWithCallback(receiverProfile.getName(), this);
+                        }
                     });
                 })) return;
 

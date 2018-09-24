@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
@@ -28,12 +29,15 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -45,9 +49,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.matt.forgehax.Helper.*;
 
@@ -58,6 +61,10 @@ import static com.matt.forgehax.Helper.*;
 public class Markers extends ToggleMod implements BlockModelRenderListener {
     private static final int VERTEX_BUFFER_COUNT = 100;
     private static final int VERTEX_BUFFER_SIZE = 0x200;
+
+    private final AtomicInteger renderingCount = new AtomicInteger(0);
+    private final AtomicInteger dummyCount = new AtomicInteger(0);
+    private final AtomicInteger wrongRegionCount = new AtomicInteger(0);
 
     @Nullable
     private Uploaders<GeometryTessellator> uploaders;
@@ -191,6 +198,12 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             .name("show_entities")
             .description("Mark entities that contain blocks, such as mine carts.")
             .defaultTo(true)
+            .build();
+
+    public final Setting<Boolean> debug = getCommandStub().builders().<Boolean>newSettingBuilder()
+            .name("debug")
+            .description("Enable debug mode")
+            .defaultTo(false)
             .build();
 
     public Markers() {
@@ -330,6 +343,17 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         }
     }
 
+    private final ThreadLocal<RenderUploader<GeometryTessellator>> localUploader = new ThreadLocal<>();
+
+    /**
+     * Improve speed by looking up in smaller map
+     */
+    private Optional<RenderUploader<GeometryTessellator>> getCurrentRenderUploader(RenderChunk optional) {
+        if(uploaders == null) return Optional.empty();
+        RenderUploader<GeometryTessellator> ru = localUploader.get();
+        return ru == null ? uploaders.get(optional) : Optional.of(ru);
+    }
+
     @Override
     public void onUnload() {
         options.forEach(BlockEntry::cleanupProperties);
@@ -354,7 +378,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     public String getDebugDisplayText() {
         int cacheSize = uploaders != null ? uploaders.cache().size() : 0;
         int cacheCapacity = uploaders != null ? uploaders.cache().capacity() : 0;
-        return super.getDebugDisplayText() + String.format(" [C:%d/%d]", cacheSize, cacheCapacity);
+        return super.getDebugDisplayText() + String.format(" [size = %d/%d | chunks = %d | dummy = %d | bad-region = %d]", cacheSize, cacheCapacity, renderingCount.get(), dummyCount.get(), wrongRegionCount.get());
     }
 
     @Subscribe
@@ -407,7 +431,9 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
                 uploader.lock().lock();
                 try {
+                    localUploader.set(uploader);
                     uploader.setCurrentThread(); // set this to the current thread, stopping other threads processing this same chunk from continuing
+                    uploader.setComplete(false); // sometimes a chunk will still be uploaded, but will be old data. in that case we dont want to draw but still what the uploaded field to be true so that it can be cleaned up
 
                     // check if a tessellator already exists, if so then this chunk is being processed on another thread and we should stop it
                     if(uploader.getTessellator() != null) uploader.freeTessellator();
@@ -436,7 +462,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     @SubscribeEvent
     public void onPostBuildChunk(BuildChunkEvent.Post event) {
         if(uploaders != null) try {
-            uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
+            getCurrentRenderUploader(event.getRenderChunk()).ifPresent(uploader -> {
                 uploader.lock().lock();
                 try {
                     // ensure we are in the right thread
@@ -448,6 +474,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 } catch (Throwable t) {
                     handleException(event.getRenderChunk(), t);
                 } finally {
+                    localUploader.remove();
                     uploader.lock().unlock();
                 }
             });
@@ -459,7 +486,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     @Override
     public void onBlockRenderInLoop(final RenderChunk renderChunk, final Block block, final IBlockState state, final BlockPos pos) {
         if(uploaders != null) try {
-            uploaders.get(renderChunk).ifPresent(uploader -> {
+            getCurrentRenderUploader(renderChunk).ifPresent(uploader -> {
                 uploader.lock().lock();
                 try {
                     uploader.validateCurrentThread();
@@ -496,8 +523,10 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         if(uploaders != null) try {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
                 try {
-                    uploader.upload();
-                    uploader.setRegionHash(event.getRenderChunk());
+                    if(uploader.upload())
+                        event.getRenderChunk().setNeedsUpdate(false);
+
+                    uploader.setRegion(event.getRenderChunk());
                 } catch (Throwable t) {
                     handleException(event.getRenderChunk(), t);
                 }
@@ -543,15 +572,22 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
             }
 
+            final boolean debug_mode = debug.get();
+            final List<BlockPos> chunks = Lists.newArrayList();
+
             final boolean aa_enabled = anti_aliasing.get();
             final int aa_max = anti_aliasing_max.get();
+
+            renderingCount.set(0);
+            dummyCount.set(0);
+            wrongRegionCount.set(0);
 
             GlStateManager.glEnableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.glEnableClientState(GL11.GL_COLOR_ARRAY);
 
             uploaders.forEach((k, v) -> {
                 if (v.isUploaded()
-                        && !Uploaders.isDummy(k)
+                        /*&& !Uploaders.isDummy(k)*/
                         && v.isCorrectRegion(k)) {
                     if(aa_enabled && (aa_max == 0 || v.getRenderCount() <= aa_max))
                         GL11.glEnable(GL11.GL_LINE_SMOOTH);
@@ -587,6 +623,13 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                     GlStateManager.popMatrix();
 
                     GL11.glDisable(GL11.GL_LINE_SMOOTH);
+
+                    renderingCount.incrementAndGet();
+                } else if(v.isUploaded() && Uploaders.isDummy(k)) {
+                    dummyCount.incrementAndGet();
+                } else if(v.isUploaded() && !v.isCorrectRegion(k)) {
+                    wrongRegionCount.incrementAndGet();
+                    if(debug_mode) chunks.add(k.getPosition());
                 }
             });
 
@@ -623,18 +666,19 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                 if (aa_enabled) GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
                 getWorld().loadedEntityList.stream()
-                        .filter(EntityMinecart.class::isInstance)
-                        .map(e -> (EntityMinecart) e)
-                        .forEach(e -> options.stream()
-                                .filter(entry -> Objects.equals(e.getDefaultDisplayTile().getBlock(), entry.getBlock()))
+                        .map(BlockHolder::new)
+                        .filter(BlockHolder::nonNull)
+                        .forEach(o -> options.stream()
+                                .filter(entry -> Objects.equals(o.getBlock(), entry.getBlock()))
                                 .findFirst()
                                 .ifPresent(entry -> {
+                                    Entity e = o.getEntity();
                                     builder.setTranslation(
                                             e.posX - e.lastTickPosX + (e.posX - e.lastTickPosX) * partialTicks,
                                             e.posY - e.lastTickPosY + (e.posY - e.lastTickPosY) * partialTicks,
                                             e.posZ - e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * partialTicks
                                     );
-                                    AxisAlignedBB bb = e.getEntityBoundingBox();
+                                    AxisAlignedBB bb = o.getBoundingBox();
                                     GeometryTessellator.drawLines(
                                             builder,
                                             bb.minX, bb.minY, bb.minZ,
@@ -656,6 +700,40 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             //
             //
 
+            if(debug_mode) {
+                GlStateManager.pushMatrix();
+
+                GlStateManager.translate(0, 0, 0);
+                GlStateManager.translate(
+                        -renderingOffset.x,
+                        -renderingOffset.y,
+                        -renderingOffset.z
+                );
+
+                final GeometryTessellator tessellator = event.getTessellator();
+                final BufferBuilder builder = tessellator.getBuffer();
+
+                tessellator.beginLines();
+
+                chunks.forEach(pos -> {
+                    builder.setTranslation(pos.getX(), pos.getY(), pos.getZ());
+
+                    GeometryTessellator.drawLines(
+                            builder,
+                            0.8, 0.8, 0.8,
+                            16.f - 0.16, 16.f - 0.16, 16.f - 0.16,
+                            GeometryMasks.Line.ALL,
+                            Utils.Colors.RED
+                    );
+                });
+
+                tessellator.draw();
+
+                GlStateManager.popMatrix();
+
+                builder.setTranslation(0, 0, 0);
+            }
+
             GlStateManager.shadeModel(GL11.GL_FLAT);
             GlStateManager.disableBlend();
             GlStateManager.enableAlpha();
@@ -671,8 +749,48 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     private static void handleException(RenderChunk renderChunk, Throwable t) {
         //throwable.printStackTrace();
         Helper.getLog().error(t.toString());
+        t.printStackTrace();
     }
     private static void handleException(Throwable t) {
         handleException(null, t);
+    }
+
+    static class BlockHolder {
+        final Entity entity;
+        final Block block;
+        final AxisAlignedBB boundingBox;
+
+        BlockHolder(Entity entity) {
+            this.entity = entity;
+
+            if(entity instanceof EntityMinecart) {
+                EntityMinecart ent = (EntityMinecart)entity;
+                this.block = ent.getDefaultDisplayTile().getBlock();
+                this.boundingBox = ent.getEntityBoundingBox();
+            } else if(entity instanceof EntityItemFrame) {
+                EntityItemFrame ent = (EntityItemFrame)entity;
+                this.block = Block.getBlockFromItem(ent.getDisplayedItem().getItem());
+                this.boundingBox = ent.getEntityBoundingBox();
+            } else {
+                this.block = null;
+                this.boundingBox = null;
+            }
+        }
+
+        public boolean nonNull() {
+            return block != null;
+        }
+
+        public Entity getEntity() {
+            return entity;
+        }
+
+        public Block getBlock() {
+            return block;
+        }
+
+        public AxisAlignedBB getBoundingBox() {
+            return boundingBox;
+        }
     }
 }
