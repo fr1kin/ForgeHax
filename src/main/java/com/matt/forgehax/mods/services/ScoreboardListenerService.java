@@ -2,18 +2,17 @@ package com.matt.forgehax.mods.services;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.FutureCallback;
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.PlayerInfo;
 import com.matt.forgehax.util.entity.PlayerInfoHelper;
-import com.matt.forgehax.util.event.ForgehaxEventBus;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.mojang.authlib.GameProfile;
 import joptsimple.internal.Strings;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -40,11 +39,11 @@ public class ScoreboardListenerService extends ServiceMod {
     private void fireEvents(SPacketPlayerListItem.Action action, PlayerInfo info, GameProfile profile) {
         switch (action) {
             case ADD_PLAYER: {
-                ForgehaxEventBus.EVENT_BUS.post(new PlayerConnectEvent.Join(info, profile));
+                ForgeHax.EVENT_BUS.post(new PlayerConnectEvent.Join(info, profile));
                 break;
             }
             case REMOVE_PLAYER: {
-                ForgehaxEventBus.EVENT_BUS.post(new PlayerConnectEvent.Leave(info, profile));
+                ForgeHax.EVENT_BUS.post(new PlayerConnectEvent.Leave(info, profile));
                 break;
             }
         }

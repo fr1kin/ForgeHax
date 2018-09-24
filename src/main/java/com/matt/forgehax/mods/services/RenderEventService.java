@@ -2,10 +2,10 @@ package com.matt.forgehax.mods.services;
 
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.event.ForgehaxEventBus;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
@@ -47,7 +47,7 @@ public class RenderEventService extends ServiceMod {
 
         RenderEvent e = new RenderEvent(TESSELLATOR, renderPos);
         e.resetTranslation();
-        ForgehaxEventBus.EVENT_BUS.post(e);
+        ForgeHax.EVENT_BUS.post(e);
 
         GlStateManager.glLineWidth(1.f);
 
@@ -64,7 +64,7 @@ public class RenderEventService extends ServiceMod {
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onRenderGameOverlayEvent(final RenderGameOverlayEvent.Text event) {
         if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
-            ForgehaxEventBus.EVENT_BUS.post(new Render2DEvent(event.getPartialTicks()));
+            ForgeHax.EVENT_BUS.post(new Render2DEvent(event.getPartialTicks()));
             GlStateManager.color(1.f, 1.f, 1.f, 1.f); // reset color
         }
     }

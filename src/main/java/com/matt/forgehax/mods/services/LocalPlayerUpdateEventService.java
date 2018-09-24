@@ -1,11 +1,10 @@
 package com.matt.forgehax.mods.services;
 
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
-import com.matt.forgehax.util.event.ForgehaxEventBus;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -25,7 +24,7 @@ public class LocalPlayerUpdateEventService extends ServiceMod {
         if(MC.world != null &&
                 event.getEntityLiving().equals(MC.player)) {
             Event ev = new LocalPlayerUpdateEvent(event.getEntityLiving());
-            ForgehaxEventBus.EVENT_BUS.post(ev);
+            ForgeHax.EVENT_BUS.post(ev);
             event.setCanceled(ev.isCanceled());
         }
     }

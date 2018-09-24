@@ -2,12 +2,12 @@ package com.matt.forgehax.asm;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.utils.MultiBoolean;
 import com.matt.forgehax.asm.utils.debug.HookReporter;
-import com.matt.forgehax.util.event.ForgehaxEventBus;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -73,7 +73,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(PushOutOfBlocksEvent.class)
             .build();
     public static boolean onPushOutOfBlocks() {
-        return HOOK_onPushOutOfBlocks.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new PushOutOfBlocksEvent());
+        return HOOK_onPushOutOfBlocks.reportHook() && ForgeHax.EVENT_BUS.post(new PushOutOfBlocksEvent());
     }
 
     /**
@@ -87,7 +87,7 @@ public class ForgeHaxHooks implements ASMCommon {
     public static float onRenderBoat(EntityBoat boat, float entityYaw) {
         if(HOOK_onRenderBoat.reportHook()) {
             RenderBoatEvent event = new RenderBoatEvent(boat, entityYaw);
-            ForgehaxEventBus.EVENT_BUS.post(event);
+            ForgeHax.EVENT_BUS.post(event);
             return event.getYaw();
         } else return entityYaw;
     }
@@ -101,7 +101,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(SchematicaPlaceBlockEvent.class)
             .build();
     public static void onSchematicaPlaceBlock(ItemStack itemIn, BlockPos posIn, Vec3d vecIn) {
-        if(HOOK_onSchematicaPlaceBlock.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new SchematicaPlaceBlockEvent(itemIn, posIn, vecIn));
+        if(HOOK_onSchematicaPlaceBlock.reportHook()) ForgeHax.EVENT_BUS.post(new SchematicaPlaceBlockEvent(itemIn, posIn, vecIn));
     }
 
     /**
@@ -113,7 +113,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(HurtCamEffectEvent.class)
             .build();
     public static boolean onHurtcamEffect(float partialTicks) {
-        return HOOK_onHurtcamEffect.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new HurtCamEffectEvent(partialTicks));
+        return HOOK_onHurtcamEffect.reportHook() && ForgeHax.EVENT_BUS.post(new HurtCamEffectEvent(partialTicks));
     }
 
     /**
@@ -126,7 +126,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(PacketEvent.Outgoing.Pre.class)
             .build();
     public static boolean onSendingPacket(Packet<?> packet) {
-        return HOOK_onSendingPacket.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new PacketEvent.Outgoing.Pre(packet));
+        return HOOK_onSendingPacket.reportHook() && ForgeHax.EVENT_BUS.post(new PacketEvent.Outgoing.Pre(packet));
     }
 
     /**
@@ -139,7 +139,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(PacketEvent.Outgoing.Post.class)
             .build();
     public static void onSentPacket(Packet<?> packet) {
-        if(HOOK_onSentPacket.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new PacketEvent.Outgoing.Post(packet));
+        if(HOOK_onSentPacket.reportHook()) ForgeHax.EVENT_BUS.post(new PacketEvent.Outgoing.Post(packet));
     }
 
     /**
@@ -151,7 +151,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(PacketEvent.Incoming.Pre.class)
             .build();
     public static boolean onPreReceived(Packet<?> packet) {
-        return HOOK_onPreReceived.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new PacketEvent.Incoming.Pre(packet));
+        return HOOK_onPreReceived.reportHook() && ForgeHax.EVENT_BUS.post(new PacketEvent.Incoming.Pre(packet));
     }
 
     /**
@@ -163,7 +163,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(PacketEvent.Incoming.Post.class)
             .build();
     public static void onPostReceived(Packet<?> packet) {
-        if(HOOK_onPostReceived.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new PacketEvent.Incoming.Post(packet));
+        if(HOOK_onPostReceived.reportHook()) ForgeHax.EVENT_BUS.post(new PacketEvent.Incoming.Post(packet));
     }
 
     /**
@@ -175,7 +175,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(WaterMovementEvent.class)
             .build();
     public static boolean onWaterMovement(Entity entity, Vec3d moveDir) {
-        return HOOK_onWaterMovement.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new WaterMovementEvent(entity, moveDir));
+        return HOOK_onWaterMovement.reportHook() && ForgeHax.EVENT_BUS.post(new WaterMovementEvent(entity, moveDir));
     }
 
     /**
@@ -187,7 +187,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(ApplyCollisionMotionEvent.class)
             .build();
     public static boolean onApplyCollisionMotion(Entity entity, Entity collidedWithEntity, double x, double z) {
-        return HOOK_onApplyCollisionMotion.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new ApplyCollisionMotionEvent(entity, collidedWithEntity, x, 0.D, z));
+        return HOOK_onApplyCollisionMotion.reportHook() && ForgeHax.EVENT_BUS.post(new ApplyCollisionMotionEvent(entity, collidedWithEntity, x, 0.D, z));
     }
 
     /**
@@ -230,7 +230,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(RenderBlockLayerEvent.Pre.class)
             .build();
     public static boolean onPreRenderBlockLayer(BlockRenderLayer layer, double partialTicks) {
-        return HOOK_onPreRenderBlockLayer.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new RenderBlockLayerEvent.Pre(layer, partialTicks));
+        return HOOK_onPreRenderBlockLayer.reportHook() && ForgeHax.EVENT_BUS.post(new RenderBlockLayerEvent.Pre(layer, partialTicks));
     }
 
     /**
@@ -242,7 +242,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(RenderBlockLayerEvent.Post.class)
             .build();
     public static void onPostRenderBlockLayer(BlockRenderLayer layer, double partialTicks) {
-        if(HOOK_onPostRenderBlockLayer.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new RenderBlockLayerEvent.Post(layer, partialTicks));
+        if(HOOK_onPostRenderBlockLayer.reportHook()) ForgeHax.EVENT_BUS.post(new RenderBlockLayerEvent.Post(layer, partialTicks));
     }
 
     /**
@@ -256,7 +256,7 @@ public class ForgeHaxHooks implements ASMCommon {
     public static boolean onSetupTerrain(Entity renderEntity, boolean playerSpectator) {
         if(HOOK_onSetupTerrain.reportHook()) {
             SetupTerrainEvent event = new SetupTerrainEvent(renderEntity, playerSpectator);
-            ForgehaxEventBus.EVENT_BUS.post(event);
+            ForgeHax.EVENT_BUS.post(event);
             return event.isCulling();
         } else return playerSpectator;
     }
@@ -271,7 +271,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .build();
     @Deprecated
     public static void onComputeVisibility(VisGraph visGraph, SetVisibility setVisibility) {
-        if(HOOK_onComputeVisibility.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new ComputeVisibilityEvent(visGraph, setVisibility));
+        if(HOOK_onComputeVisibility.reportHook()) ForgeHax.EVENT_BUS.post(new ComputeVisibilityEvent(visGraph, setVisibility));
     }
 
     /**
@@ -284,7 +284,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .build();
     @Deprecated
     public static boolean onDoBlockCollisions(Entity entity, BlockPos pos, IBlockState state) {
-        return HOOK_onDoBlockCollisions.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new DoBlockCollisionsEvent(entity, pos, state));
+        return HOOK_onDoBlockCollisions.reportHook() && ForgeHax.EVENT_BUS.post(new DoBlockCollisionsEvent(entity, pos, state));
     }
 
     /**
@@ -311,7 +311,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .build();
     @Deprecated
     public static boolean onApplyClimbableBlockMovement(EntityLivingBase livingBase) {
-        return HOOK_onApplyClimbableBlockMovement.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new ApplyClimbableBlockMovement(livingBase));
+        return HOOK_onApplyClimbableBlockMovement.reportHook() && ForgeHax.EVENT_BUS.post(new ApplyClimbableBlockMovement(livingBase));
     }
 
     /**
@@ -325,7 +325,7 @@ public class ForgeHaxHooks implements ASMCommon {
     public static BlockRenderLayer onRenderBlockInLayer(Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
         if(HOOK_onRenderBlockInLayer.reportHook()) {
             RenderBlockInLayerEvent event = new RenderBlockInLayerEvent(block, state, layer, compareToLayer);
-            ForgehaxEventBus.EVENT_BUS.post(event);
+            ForgeHax.EVENT_BUS.post(event);
             return event.getLayer();
         } else return layer;
     }
@@ -340,7 +340,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .build();
     @Deprecated
     public static void onBlockRender(BlockPos pos, IBlockState state, IBlockAccess access, BufferBuilder buffer) {
-        if(HOOK_onBlockRender.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
+        if(HOOK_onBlockRender.reportHook()) ForgeHax.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
     }
 
     /**
@@ -352,7 +352,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(AddCollisionBoxToListEvent.class)
             .build();
     public static boolean onAddCollisionBoxToList(Block block, IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean bool) {
-        return HOOK_onAddCollisionBoxToList.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new AddCollisionBoxToListEvent(block, state, worldIn, pos, entityBox, collidingBoxes, entityIn, bool));
+        return HOOK_onAddCollisionBoxToList.reportHook() && ForgeHax.EVENT_BUS.post(new AddCollisionBoxToListEvent(block, state, worldIn, pos, entityBox, collidingBoxes, entityIn, bool));
     }
 
     /**
@@ -379,7 +379,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(BuildChunkEvent.Pre.class)
             .build();
     public static void onPreBuildChunk(RenderChunk renderChunk) {
-        if(HOOK_onPreBuildChunk.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new BuildChunkEvent.Pre(renderChunk));
+        if(HOOK_onPreBuildChunk.reportHook()) ForgeHax.EVENT_BUS.post(new BuildChunkEvent.Pre(renderChunk));
     }
 
     /**
@@ -392,7 +392,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .build();
     public static void onPostBuildChunk(RenderChunk renderChunk) {
         // i couldn't place a post block render hook within the if label so I have to do this
-        if(HOOK_onPostBuildChunk.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new BuildChunkEvent.Post(renderChunk));
+        if(HOOK_onPostBuildChunk.reportHook()) ForgeHax.EVENT_BUS.post(new BuildChunkEvent.Post(renderChunk));
     }
 
     /**
@@ -404,7 +404,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(DeleteGlResourcesEvent.class)
             .build();
     public static void onDeleteGlResources(RenderChunk renderChunk) {
-        if(HOOK_onDeleteGlResources.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new DeleteGlResourcesEvent(renderChunk));
+        if(HOOK_onDeleteGlResources.reportHook()) ForgeHax.EVENT_BUS.post(new DeleteGlResourcesEvent(renderChunk));
     }
 
     /**
@@ -416,7 +416,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(AddRenderChunkEvent.class)
             .build();
     public static void onAddRenderChunk(RenderChunk renderChunk, BlockRenderLayer layer) {
-        if(HOOK_onAddRenderChunk.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new AddRenderChunkEvent(renderChunk, layer));
+        if(HOOK_onAddRenderChunk.reportHook()) ForgeHax.EVENT_BUS.post(new AddRenderChunkEvent(renderChunk, layer));
     }
 
     /**
@@ -428,7 +428,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(ChunkUploadedEvent.class)
             .build();
     public static void onChunkUploaded(RenderChunk chunk, BufferBuilder buffer) {
-        if(HOOK_onChunkUploaded.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new ChunkUploadedEvent(chunk, buffer));
+        if(HOOK_onChunkUploaded.reportHook()) ForgeHax.EVENT_BUS.post(new ChunkUploadedEvent(chunk, buffer));
     }
 
     /**
@@ -440,7 +440,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(LoadRenderersEvent.class)
             .build();
     public static void onLoadRenderers(ViewFrustum viewFrustum, ChunkRenderDispatcher renderDispatcher) {
-        if(HOOK_onLoadRenderers.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new LoadRenderersEvent(viewFrustum, renderDispatcher));
+        if(HOOK_onLoadRenderers.reportHook()) ForgeHax.EVENT_BUS.post(new LoadRenderersEvent(viewFrustum, renderDispatcher));
     }
 
     /**
@@ -452,7 +452,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(WorldRendererDeallocatedEvent.class)
             .build();
     public static void onWorldRendererDeallocated(ChunkCompileTaskGenerator generator) {
-        if(HOOK_onWorldRendererDeallocated.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new WorldRendererDeallocatedEvent(generator, generator.getRenderChunk()));
+        if(HOOK_onWorldRendererDeallocated.reportHook()) ForgeHax.EVENT_BUS.post(new WorldRendererDeallocatedEvent(generator, generator.getRenderChunk()));
     }
 
     /**
@@ -480,7 +480,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(LocalPlayerUpdateMovementEvent.Pre.class)
             .build();
     public static void onUpdateWalkingPlayerPre() {
-        if(HOOK_onUpdateWalkingPlayerPre.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Pre());
+        if(HOOK_onUpdateWalkingPlayerPre.reportHook()) ForgeHax.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Pre());
     }
 
     /**
@@ -492,7 +492,7 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(LocalPlayerUpdateMovementEvent.Post.class)
             .build();
     public static void onUpdateWalkingPlayerPost() {
-        if(HOOK_onUpdateWalkingPlayerPost.reportHook()) ForgehaxEventBus.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Post());
+        if(HOOK_onUpdateWalkingPlayerPost.reportHook()) ForgeHax.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Post());
     }
 
     /**
@@ -504,6 +504,6 @@ public class ForgeHaxHooks implements ASMCommon {
             .forgeEvent(WorldCheckLightForEvent.class)
             .build();
     public static boolean onWorldCheckLightFor(EnumSkyBlock enumSkyBlock, BlockPos pos) {
-        return HOOK_onWorldCheckLightFor.reportHook() && ForgehaxEventBus.EVENT_BUS.post(new WorldCheckLightForEvent(enumSkyBlock, pos));
+        return HOOK_onWorldCheckLightFor.reportHook() && ForgeHax.EVENT_BUS.post(new WorldCheckLightForEvent(enumSkyBlock, pos));
     }
 }

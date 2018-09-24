@@ -6,6 +6,7 @@
 
   "transformers": {
     "com.matt.forgehax.asm.asmlib.patches": [
+      "MinecraftPatch",
       "BlockPatch",
       "BoatPatch",
       "BufferBuilderPatch",

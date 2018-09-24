@@ -1,12 +1,12 @@
 package com.matt.forgehax.util.mod;
 
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.ExecuteData;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.command.StubBuilder;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
-import com.matt.forgehax.util.event.ForgehaxEventBus;
 import joptsimple.internal.Strings;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -132,7 +132,7 @@ public abstract class BaseMod implements Globals {
     public final boolean register() {
         if(!registered) {
             MinecraftForge.EVENT_BUS.register(this);
-            ForgehaxEventBus.EVENT_BUS.register(this);
+            ForgeHax.EVENT_BUS.register(this);
             registered = true;
             return true;
         } else return false;
@@ -144,7 +144,7 @@ public abstract class BaseMod implements Globals {
     public final boolean unregister() {
         if(registered) {
             MinecraftForge.EVENT_BUS.unregister(this);
-            ForgehaxEventBus.EVENT_BUS.unregister(this);
+            ForgeHax.EVENT_BUS.unregister(this);
             registered = false;
             return true;
         } else return false;
