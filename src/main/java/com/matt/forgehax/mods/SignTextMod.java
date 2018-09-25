@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.asm.events.ReplacementHooks.InputEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -25,9 +26,8 @@ public class SignTextMod extends ToggleMod {
 
 
     @Subscribe
-    @SubscribeEvent
-    public void onInput(MouseEvent event) {
-        if (event.getButton() == 2 && Mouse.getEventButtonState()) { // on middle click
+    public void onInput(InputEvent.MouseInputEvent event) {
+        if (Mouse.getEventButton() == 2 && Mouse.getEventButtonState()) { // on middle click
             RayTraceResult result = MC.player.rayTrace(999, 0);
             if (result == null) return;
             if (result.typeOfHit == RayTraceResult.Type.BLOCK) {

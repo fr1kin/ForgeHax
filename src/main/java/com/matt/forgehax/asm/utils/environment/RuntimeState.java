@@ -2,11 +2,22 @@ package com.matt.forgehax.asm.utils.environment;
 
 import com.matt.forgehax.asm.utils.remapping.NonObfuscatedStateMapper;
 import com.matt.forgehax.asm.utils.remapping.ObfuscatedStateMapper;
+import net.futureclient.asm.obfuscation.MappingType;
 
 /**
  * Created on 5/26/2017 by fr1kin
  */
 public class RuntimeState {
+    static {
+        MappingType mappingType = net.futureclient.asm.obfuscation.RuntimeState.getRuntimeMappingType();
+        if (mappingType == MappingType.MCP) {
+            RuntimeState.markDefaultAsNormal();
+        }
+        if (mappingType == MappingType.NOTCH) {
+            RuntimeState.markDefaultAsObfuscated();
+        }
+    }
+
     /**
      * Used for remapping Notch to SRG and obfuscated naming conventions
      */
@@ -20,7 +31,7 @@ public class RuntimeState {
     /**
      * Default state use (unless specified not to)
      */
-    private static State defaultState = State.OBFUSCATED;
+    private static State defaultState;// = State.OBFUSCATED;
 
     public static State getDefaultState() {
         return defaultState;

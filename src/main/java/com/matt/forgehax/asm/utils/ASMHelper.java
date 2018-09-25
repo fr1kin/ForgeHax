@@ -52,6 +52,7 @@ public class ASMHelper {
      * @param mask same length as the pattern. 'x' indicates the node will be checked, '?' indicates the node will be skipped over (has a bad opcode)
      * @return top node of matching pattern or null if nothing is found
      */
+    // TODO; return class that contains start and end of pattern
     public static AbstractInsnNode findPattern(AbstractInsnNode start, int[] pattern, char[] mask) {
         if(start != null &&
                 pattern.length == mask.length) {

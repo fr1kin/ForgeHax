@@ -34,12 +34,12 @@ public class ChatCommandService extends ServiceMod {
         super("ChatCommandService", "Listeners for activation key in chat messages typed");
     }
 
-    @Subscribe
     @Override
     protected void onLoad() {
         ACTIVATION_CHARACTER = activationCharacter.get();
     }
 
+    @Subscribe
     @SubscribeEvent
     public void onSendPacket(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketChatMessage) {

@@ -3,7 +3,6 @@
   "required": true,
   "priority": 1000,
   "mappings": "asmlib.forgehax.mappings.json",
-
   "transformers": {
     "com.matt.forgehax.asm.asmlib.patches": [
       "MinecraftPatch",
@@ -24,7 +23,9 @@
       "RenderChunkPatch",
       "RenderGlobalPatch",
       "VisGraphPatch",
-      "WorldPatch"
+      "WorldPatch",
+      "WorldClientPatch",
+      "GuiScreenPatch"
     ]
   }
 }

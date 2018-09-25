@@ -78,7 +78,7 @@ jar {
     manifest {
         attributes (
                 //'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
-                //'FMLCorePluginContainsFMLMod': 'true'
+                //'FMLCorePluginContainsFMLMod': 'true',
                 TweakClass: 'com.matt.forgehax.asm.tweaker.ForgehaxTweaker',
                 TweakOrder: '0'
 

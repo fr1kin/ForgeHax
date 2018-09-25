@@ -6,10 +6,6 @@ import com.matt.forgehax.util.command.StubBuilder;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.event.MouseEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.lwjgl.input.Keyboard;
 
 
