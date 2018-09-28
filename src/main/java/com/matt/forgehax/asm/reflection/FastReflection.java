@@ -6,6 +6,7 @@ import com.matt.forgehax.asm.utils.fasttype.FastMethod;
 import com.matt.forgehax.asm.utils.fasttype.FastTypeBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiEditSign;
@@ -41,6 +42,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
 import java.nio.FloatBuffer;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -344,6 +346,14 @@ public interface FastReflection extends ASMCommon {
         FastField<Integer> Binding_pressTime = FastTypeBuilder.create()
                 .setInsideClass(KeyBinding.class)
                 .setName("pressTime")
+                .autoAssign()
+                .asField();
+        /**
+         * GuiScreen
+         */
+        FastField<List<GuiButton>> GuiScreen_buttonList = FastTypeBuilder.create()
+                .setInsideClass(GuiScreen.class)
+                .setName("buttonList")
                 .autoAssign()
                 .asField();
 

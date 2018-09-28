@@ -2,7 +2,6 @@ package com.matt.forgehax.asm;
 
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
-import net.futureclient.asm.AsmLibApi;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import java.util.Map;

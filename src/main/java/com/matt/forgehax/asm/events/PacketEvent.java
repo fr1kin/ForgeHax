@@ -1,8 +1,8 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.util.event.Cancelable;
+import com.matt.forgehax.util.event.Event;
 import net.minecraft.network.Packet;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class PacketEvent extends Event {
     private final Packet<?> packet;
@@ -20,8 +20,7 @@ public class PacketEvent extends Event {
             super(packetIn);
         }
 
-        @Cancelable
-        public static class Pre extends Outgoing {
+        public static class Pre extends Outgoing implements Cancelable {
             public Pre(Packet<?> packetIn) {
                 super(packetIn);
             }
@@ -39,8 +38,7 @@ public class PacketEvent extends Event {
             super(packetIn);
         }
 
-        @Cancelable
-        public static class Pre extends Incoming {
+        public static class Pre extends Incoming implements Cancelable {
             public Pre(Packet<?> packetIn) {
                 super(packetIn);
             }

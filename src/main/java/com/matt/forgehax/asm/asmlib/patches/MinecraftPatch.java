@@ -7,9 +7,7 @@ import com.matt.forgehax.asm.events.ReplacementHooks.GuiOpenEvent;
 import com.matt.forgehax.asm.events.ReplacementHooks.InputEvent;
 import com.matt.forgehax.asm.events.ReplacementHooks.WorldEvent;
 import com.matt.forgehax.asm.utils.ASMHelper;
-import com.matt.forgehax.util.event.Cancelable;
-import com.matt.forgehax.util.mod.BaseMod;
-import net.futureclient.asm.transformer.ASMUtils;
+import com.matt.forgehax.util.event.Event;
 import net.futureclient.asm.transformer.AsmMethod;
 import net.futureclient.asm.transformer.annotation.Inject;
 import net.futureclient.asm.transformer.annotation.Transformer;
@@ -98,22 +96,22 @@ public class MinecraftPatch {
             return event;
         });
         method.visitInsn(new InsnNode(DUP)); // 2 event objects now on the stack
-        method.<Predicate<GuiOpenEvent>>invoke(Cancelable::isCanceled);
+        method.<Predicate<GuiOpenEvent>>invoke(Event::isCanceled);
         method.returnIf(true);
         method.apply(GuiOpenEvent::getGui);
         method.visitInsn(new VarInsnNode(ASTORE, 1));
     }
 
-    @Inject(name = "loadWorld", args = {WorldClient.class, String.class})
+    /*@Inject(name = "loadWorld", args = {WorldClient.class, String.class})
     public void loadWorldHook(AsmMethod method) {
         method.run(() -> {
-            if (MC.world != null) {
-                ForgeHax.EVENT_BUS.post(new WorldEvent.UnLoad(MC.world));
+            if (Helper.getWorld() != null) {
+                ForgeHax.EVENT_BUS.post(new WorldEvent.UnLoad(Helper.getWorld()));
             }
         });
-    }
+    }*/
 
-    private AbstractInsnNode getReturnNode(AsmMethod method) {
+    private static AbstractInsnNode getReturnNode(AsmMethod method) {
         return method.stream()
                 .filter(insn -> insn.getOpcode() == RETURN)
                 .findFirst()

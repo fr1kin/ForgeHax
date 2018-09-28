@@ -201,7 +201,7 @@ public class HookReporter {
             return hook(parentClass, methodName);
         }
 
-        public Builder forgeEvent(Class<? extends Event> clazz) {
+        public Builder forgeEvent(Class<?/* extends Event*/> clazz) { // FIXME
             eventClasses.add(clazz);
             return this;
         }

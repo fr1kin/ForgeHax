@@ -1,7 +1,7 @@
 package com.matt.forgehax.util.event;
 
 
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 public class ForgehaxEventBus implements EventBus {
 
@@ -10,8 +10,12 @@ public class ForgehaxEventBus implements EventBus {
     @Override
     public boolean post(Object event) {
         GUAVA_EVENT_BUS.post(event);
-        if (event instanceof Cancelable) return ((Cancelable)event).isCanceled();
-        if (event instanceof Event) return ((Event)event).isCanceled(); // TODO: remove this
+        if (event instanceof Event && event instanceof Cancelable) {
+            return ((Event)event).isCanceled();
+        }
+        if (event instanceof net.minecraftforge.fml.common.eventhandler.Event) {
+            return ((net.minecraftforge.fml.common.eventhandler.Event)event).isCanceled(); // TODO: remove this
+        }
         return false;
     }
 
