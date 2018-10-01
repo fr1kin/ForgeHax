@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.RenderTooltipEvent;
 import com.matt.forgehax.asm.events.replacementhooks.GuiOpenEvent;
 import com.matt.forgehax.mods.services.ChatCommandService;
 import com.matt.forgehax.util.Utils;
@@ -30,11 +31,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nonnull;
@@ -238,8 +236,8 @@ public class ShulkerViewer extends ToggleMod {
         }
     }
 
-    @SubscribeEvent
-    public void onPreTooptipRender(RenderTooltipEvent.Pre event) {
+    @Subscribe
+    public void onTooltipRender(RenderTooltipEvent event) {
         if(!(MC.currentScreen instanceof GuiContainer) || isModGeneratedToolTip)
             return;
 

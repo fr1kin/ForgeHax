@@ -1,6 +1,7 @@
 package com.matt.forgehax.asm.asmlib.patches;
 
 import com.matt.forgehax.ForgeHax;
+import com.matt.forgehax.asm.events.replacementhooks.RenderTooltipEvent;
 import com.matt.forgehax.asm.events.replacementhooks.GuiScreenEvent;
 import com.matt.forgehax.asm.events.replacementhooks.GuiScreenEvent.*;
 import com.matt.forgehax.asm.reflection.FastReflection;
@@ -11,12 +12,15 @@ import net.futureclient.asm.transformer.AsmMethod;
 import net.futureclient.asm.transformer.annotation.Inject;
 import net.futureclient.asm.transformer.annotation.Transformer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.item.ItemStack;
 import org.objectweb.asm.tree.*;
 
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.*;
@@ -152,6 +156,58 @@ public class GuiScreenPatch {
         method.visitInsn(new VarInsnNode(ALOAD, 0));
         method.invoke(eventFunc);
         method.visitInsn(new JumpInsnNode(IFNE, label)); // continue;
+    }
+
+
+    public static ItemStack cachedToolTip = ItemStack.EMPTY;
+
+    // TODO: set local variables from event
+    @Inject(name = "drawHoveringText", args = {List.class, int.class, int.class, FontRenderer.class},
+            description = "Add hook for tool tip event")
+    public void drawHoveringTextHook(AsmMethod method) {
+        InsnPattern node = ASMHelper._findPattern(method.method.instructions.getFirst(), new int[] {
+                ALOAD, INVOKEINTERFACE, IFNE
+        }, "xxx");
+        if (node == null) {
+            System.out.println("Failed to find pattern for drawHoveringText, probably in forge environment");
+            return;
+        }
+        doDrawHoveringTextHook(method, Arrays.asList(
+                new VarInsnNode(ALOAD, 1),
+                new VarInsnNode(ILOAD, 2),
+                new VarInsnNode(ILOAD, 3),
+                new VarInsnNode(ALOAD, 4)
+        ));
+
+    }
+    public static void doDrawHoveringTextHook(AsmMethod method, List<VarInsnNode> args) {
+        InsnPattern node = ASMHelper._findPattern(method.method.instructions.getFirst(), new int[] {
+                ALOAD, INVOKEINTERFACE, IFNE
+        }, "xxx");
+        Objects.requireNonNull(node);
+
+        method.setCursor(node.getLast().getNext());
+        args.forEach(method::visitInsn);
+        method.<HoverTextPredicate>invoke((lines, mouseX, mouseY, fr) ->
+            ForgeHax.EVENT_BUS.post(new RenderTooltipEvent(cachedToolTip, lines, mouseX, mouseY, fr))
+        );
+        method.returnIf(true);
+    }
+
+    private interface HoverTextPredicate {
+        boolean test(List<String> lines, int x, int y, FontRenderer fr);
+    }
+
+    @Inject(name = "renderToolTip", args = {ItemStack.class, int.class, int.class})
+    public void renderToolTipHook(AsmMethod method) {
+        method.visitInsn(new VarInsnNode(ALOAD, 1)); // stack
+        method.<ItemStack>consume(stack -> cachedToolTip = stack);
+
+        AbstractInsnNode ret = ASMHelper.findPattern(method.method.instructions.getFirst(), new int[] {
+                RETURN
+        }, "x");
+        method.setCursor(ret);
+        method.run(() -> cachedToolTip = ItemStack.EMPTY);
     }
 
 

@@ -106,8 +106,9 @@ public class ASMHelper {
 
     public static InsnPattern _findPattern(AbstractInsnNode start, int[] pattern, String mask) {
         final AbstractInsnNode first = findPattern(start, pattern, mask);
+        if (first == null) return null;
         AbstractInsnNode last = first;
-        for (int i = 0; i < pattern.length; i++) {
+        for (int i = 0; i < pattern.length - 1; i++) {
             last = last.getNext();
         }
         return new InsnPattern(first, last);

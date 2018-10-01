@@ -13,7 +13,6 @@ import static org.lwjgl.input.Keyboard.*;
 
 import org.lwjgl.input.Keyboard;
 import net.minecraft.util.math.MathHelper;
-//import net.minecraftforge.client.event.GuiScreenEvent;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -33,7 +32,6 @@ public class MainMenuGuiService extends ServiceMod {
 
 
     @Subscribe
-    //@SubscribeEvent
     public void onGui(GuiScreenEvent.InitGuiEvent.Post event) {
         if (event.getGui() instanceof GuiMainMenu) {
             GuiMainMenu gui = (GuiMainMenu) event.getGui();

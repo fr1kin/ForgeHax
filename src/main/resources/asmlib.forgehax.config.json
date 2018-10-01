@@ -26,7 +26,8 @@
       "VisGraphPatch",
       "WorldPatch",
       "WorldClientPatch",
-      "GuiScreenPatch"
+      "GuiScreenPatch",
+      "Forge_GuiUtilsPatch"
     ]
   }
 }
