@@ -80,6 +80,11 @@ public interface TypesMc {
                 .autoAssign()
                 .build();
 
+        ASMClass Minecraft = ASMBuilders.newClassBuilder()
+                .setClassName("net/minecraft/client/Minecraft")
+                .autoAssign()
+                .build();
+
         ASMClass NetworkManager$4 = ASMBuilders.newClassBuilder()
                 .setClassName("net/minecraft/network/NetworkManager$4")
                 .autoAssign()
@@ -368,6 +373,27 @@ public interface TypesMc {
                 .setReturnType(void.class)
                 .beginParameters()
                 .add(float.class)
+                .finish()
+                .autoAssign()
+                .build();
+
+        ASMMethod Minecraft_setIngameFocus = Classes.Minecraft.childMethod()
+                .setName("setIngameFocus")
+                .setReturnType(void.class)
+                .emptyParameters()
+                .autoAssign()
+                .build();
+        ASMMethod Minecraft_runTick = Classes.Minecraft.childMethod()
+                .setName("runTick")
+                .setReturnType(void.class)
+                .emptyParameters()
+                .autoAssign()
+                .build();
+        ASMMethod Minecraft_sendClickBlockToController = Classes.Minecraft.childMethod()
+                .setName("sendClickBlockToController")
+                .setReturnType(void.class)
+                .beginParameters()
+                .add(boolean.class)
                 .finish()
                 .autoAssign()
                 .build();

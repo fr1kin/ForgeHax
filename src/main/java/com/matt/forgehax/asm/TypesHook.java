@@ -325,5 +325,27 @@ public interface TypesHook {
                 .add(TypesMc.Classes.BlockPos)
                 .finish()
                 .build();
+
+        ASMMethod ForgeHaxHooks_onLeftClickCounterSet = Classes.ForgeHaxHooks.childMethod()
+                .setName("onLeftClickCounterSet")
+                .setReturnType(int.class)
+                .beginParameters()
+                .add(int.class)
+                .finish()
+                .build();
+
+        ASMMethod ForgeHaxHooks_isUserInputAllowed = Classes.ForgeHaxHooks.childMethod()
+                .setName("isUserInputAllowed")
+                .setReturnType(boolean.class)
+                .emptyParameters()
+                .build();
+
+        ASMMethod ForgeHaxHooks_onSendClickBlockToController = Classes.ForgeHaxHooks.childMethod()
+                .setName("onSendClickBlockToController")
+                .setReturnType(boolean.class)
+                .beginParameters()
+                .add(boolean.class)
+                .finish()
+                .build();
     }
 }

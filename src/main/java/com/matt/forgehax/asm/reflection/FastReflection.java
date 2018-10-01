@@ -346,6 +346,11 @@ public interface FastReflection extends ASMCommon {
                 .setName("pressTime")
                 .autoAssign()
                 .asField();
+        FastField<Boolean> Binding_pressed = FastTypeBuilder.create()
+                .setInsideClass(KeyBinding.class)
+                .setName("pressed")
+                .autoAssign()
+                .asField();
 
     }
 
@@ -386,6 +391,13 @@ public interface FastReflection extends ASMCommon {
         /**
          * Minecraft
          */
+        FastMethod<Void> Minecraft_clickMouse = FastTypeBuilder.create()
+                .setInsideClass(Minecraft.class)
+                .setName("clickMouse")
+                .setParameters()
+                .setReturnType(void.class)
+                .autoAssign()
+                .asMethod();
         FastMethod<Void> Minecraft_rightClickMouse = FastTypeBuilder.create()
                 .setInsideClass(Minecraft.class)
                 .setName("rightClickMouse")

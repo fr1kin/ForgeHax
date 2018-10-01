@@ -505,4 +505,40 @@ public class ForgeHaxHooks implements ASMCommon {
     public static boolean onWorldCheckLightFor(EnumSkyBlock enumSkyBlock, BlockPos pos) {
         return HOOK_onWorldCheckLightFor.reportHook() && MinecraftForge.EVENT_BUS.post(new WorldCheckLightForEvent(enumSkyBlock, pos));
     }
+
+    public static final HookReporter HOOK_onLeftClickCounterSet = newHookReporter()
+            .hook("onLeftClickCounterSet")
+            .dependsOn(TypesMc.Methods.Minecraft_runTick)
+            .dependsOn(TypesMc.Methods.Minecraft_setIngameFocus)
+            .forgeEvent(LeftClickCounterUpdateEvent.class)
+            .build();
+    public static int onLeftClickCounterSet(int value) {
+        if(HOOK_onLeftClickCounterSet.reportHook()) {
+            LeftClickCounterUpdateEvent event = new LeftClickCounterUpdateEvent(value);
+            MinecraftForge.EVENT_BUS.post(event);
+            return event.getValue();
+        } else return value;
+    }
+
+    public static final HookReporter HOOK_isUserInputAllowed = newHookReporter()
+            .hook("isUserInputAllowed")
+            .dependsOn(TypesMc.Methods.Minecraft_runTick)
+            .forgeEvent(ShouldAllowUserInputEvent.class)
+            .build();
+    public static boolean isUserInputAllowed() {
+        return HOOK_isUserInputAllowed.reportHook() && MinecraftForge.EVENT_BUS.post(new ShouldAllowUserInputEvent());
+    }
+
+    public static final HookReporter HOOK_onSendClickBlockToController = newHookReporter()
+            .hook("onSendClickBlockToController")
+            .dependsOn(TypesMc.Methods.Minecraft_runTick)
+            .forgeEvent(ShouldAllowUserInputEvent.class)
+            .build();
+    public static boolean onSendClickBlockToController(boolean clicked) {
+        if(HOOK_onSendClickBlockToController.reportHook()) {
+            OnSendClickBlockToControllerEvent event = new OnSendClickBlockToControllerEvent(clicked);
+            MinecraftForge.EVENT_BUS.post(event);
+            return event.isClicked();
+        } else return clicked;
+    }
 }
