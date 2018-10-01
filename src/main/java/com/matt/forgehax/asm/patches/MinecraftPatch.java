@@ -2,13 +2,11 @@ package com.matt.forgehax.asm.patches;
 
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
-import com.matt.forgehax.asm.utils.asmtype.ASMClass;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
 import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.TypeHost;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
