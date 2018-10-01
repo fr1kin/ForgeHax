@@ -23,7 +23,7 @@ import static com.matt.forgehax.Helper.getWorld;
 
 @RegisterMod
 public class AutoMine extends ToggleMod {
-    private int clickCount = 0;
+    private boolean pressed = false;
 
     public AutoMine() {
         super(Category.PLAYER, "AutoMine", false, "Auto mine blocks");
@@ -36,7 +36,9 @@ public class AutoMine extends ToggleMod {
 
     @Override
     protected void onDisabled() {
+        Bindings.attack.setPressed(false);
         Bindings.attack.unbind();
+        pressed = false;
     }
 
     @SubscribeEvent
@@ -56,9 +58,13 @@ public class AutoMine extends ToggleMod {
                 if (tr.typeOfHit != RayTraceResult.Type.BLOCK || Material.AIR.equals(state.getMaterial()))
                     return;
 
-                FastReflection.Fields.Binding_pressed.set(MC.gameSettings.keyBindAttack, true);
+                Bindings.attack.setPressed(true);
+                pressed = true;
                 break;
             }
+            case END:
+                pressed = false;
+                break;
         }
     }
 
@@ -76,6 +82,6 @@ public class AutoMine extends ToggleMod {
 
     @SubscribeEvent
     public void onBlockCounterUpdate(OnSendClickBlockToControllerEvent event) {
-        event.setClicked(true);
+        if(pressed) event.setClicked(true);
     }
 }
