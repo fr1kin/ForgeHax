@@ -59,7 +59,6 @@ public class LogoutSpot extends ToggleMod {
 
     // join/leave event does not work
     @Subscribe
-    @SubscribeEvent
     public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketPlayerListItem) {
             SPacketPlayerListItem playerListPacket = (SPacketPlayerListItem)event.getPacket();

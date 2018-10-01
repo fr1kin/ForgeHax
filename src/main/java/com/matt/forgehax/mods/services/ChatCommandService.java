@@ -40,7 +40,6 @@ public class ChatCommandService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onSendPacket(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketChatMessage) {
             String message = ((CPacketChatMessage) event.getPacket()).getMessage();

@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -13,7 +14,7 @@ public class StopEntityUpdates extends ToggleMod {
         super(Category.MISC, "StopEntityUpdates", false, "Prevent entity metadata update packets from being processed");
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onPacketIn(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketEntityMetadata) {
             event.setCanceled(true);

@@ -47,12 +47,14 @@ public class ASMHelper {
 
     /**
      * Finds a pattern of opcodes and returns the first node of the matched pattern if found
+     *
+     * @see ASMHelper#_findPattern(AbstractInsnNode, int[], String)
+     *
      * @param start starting node
      * @param pattern integer array of opcodes
      * @param mask same length as the pattern. 'x' indicates the node will be checked, '?' indicates the node will be skipped over (has a bad opcode)
      * @return top node of matching pattern or null if nothing is found
      */
-    // TODO; return class that contains start and end of pattern
     public static AbstractInsnNode findPattern(AbstractInsnNode start, int[] pattern, char[] mask) {
         if(start != null &&
                 pattern.length == mask.length) {
@@ -100,6 +102,15 @@ public class ASMHelper {
         return findPattern(start,
                 pattern,
                 mask.toCharArray());
+    }
+
+    public static InsnPattern _findPattern(AbstractInsnNode start, int[] pattern, String mask) {
+        final AbstractInsnNode first = findPattern(start, pattern, mask);
+        AbstractInsnNode last = first;
+        for (int i = 0; i < pattern.length; i++) {
+            last = last.getNext();
+        }
+        return new InsnPattern(first, last);
     }
 
     public static AbstractInsnNode findStart(AbstractInsnNode start) {

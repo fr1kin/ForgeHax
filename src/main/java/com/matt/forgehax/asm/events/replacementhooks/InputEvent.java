@@ -1,4 +1,4 @@
-package com.matt.forgehax.asm.events.ReplacementHooks;
+package com.matt.forgehax.asm.events.replacementhooks;
 
 public class InputEvent {
     protected InputEvent() {}

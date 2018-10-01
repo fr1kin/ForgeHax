@@ -45,13 +45,11 @@ public class CustomPayloadLogger extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onOutgoingCustomPayload(PacketEvent.Outgoing.Pre event) {
         log(event.getPacket());
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onIncomingCustomPayload(PacketEvent.Incoming.Pre event) {
         log(event.getPacket());
     }

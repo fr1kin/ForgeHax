@@ -67,7 +67,6 @@ public class Jesus extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketSending(PacketEvent.Outgoing.Pre event) {
         if (event.getPacket() instanceof CPacketPlayer) {
             if (isAboveWater(getLocalPlayer(), true) && !isInWater(getLocalPlayer()) && !isAboveLand(getLocalPlayer())) {

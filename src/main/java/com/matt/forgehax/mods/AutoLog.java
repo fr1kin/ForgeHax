@@ -48,7 +48,6 @@ public class AutoLog extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketSpawnPlayer) {
             if (disconnectOnNewPlayer.getAsBoolean()) {

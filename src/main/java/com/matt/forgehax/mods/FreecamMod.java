@@ -110,7 +110,6 @@ public class FreecamMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketSend(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer || event.getPacket() instanceof CPacketInput) {
             event.setCanceled(true);
@@ -118,7 +117,6 @@ public class FreecamMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketReceived (PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
             SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();

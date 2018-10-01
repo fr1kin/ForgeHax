@@ -43,7 +43,6 @@ public class AntiKnockbackMod extends ToggleMod {
      * Stops TNT and knockback velocity
      */
     @Subscribe
-    @SubscribeEvent
     public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketExplosion) {
             // for tnt knockback

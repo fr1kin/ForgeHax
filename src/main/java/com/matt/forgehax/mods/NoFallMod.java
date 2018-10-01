@@ -22,7 +22,6 @@ public class NoFallMod extends ToggleMod {
     private float lastFallDistance = 0;
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketSend(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer && !(event.getPacket() instanceof CPacketPlayer.Rotation) &&
                 !PacketHelper.isIgnored(event.getPacket())) {

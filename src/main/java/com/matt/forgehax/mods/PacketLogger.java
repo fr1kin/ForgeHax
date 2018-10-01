@@ -181,14 +181,12 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketInbound(PacketEvent.Incoming.Pre event) {
         if(!blacklist_on.get() || blacklist.get(event.getPacket().getClass()) == null)
             logPacket(stream_packet_in, event.getPacket());
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketOutbound(PacketEvent.Outgoing.Pre event) {
         if(!blacklist_on.get() || blacklist.get(event.getPacket().getClass()) == null)
             logPacket(stream_packet_out, event.getPacket());

@@ -1,6 +1,8 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.GuiOpenEvent;
 import com.matt.forgehax.mods.services.ChatCommandService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Colors;
@@ -10,6 +12,7 @@ import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.matt.forgehax.asm.events.replacementhooks.GuiScreenEvent;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -27,8 +30,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -214,8 +215,8 @@ public class ShulkerViewer extends ToggleMod {
         return super.getDebugDisplayText() + " " + String.format("[size = %d]", guiCache.size());
     }
 
-    @SubscribeEvent
-    public void onKeyboardInput(GuiScreenEvent.KeyboardInputEvent event) {
+    @Subscribe
+    public void onKeyboardInput(GuiScreenEvent.KeyboardInputEvent.Pre event) {
         if(Keyboard.getEventKey() == lockDownKey.getKeyCode()) {
             if(Keyboard.getEventKeyState()) {
                 if(toggle_lock.get()) {
@@ -249,12 +250,12 @@ public class ShulkerViewer extends ToggleMod {
             event.setCanceled(true); // do not draw normal tool tip
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onGuiChanged(GuiOpenEvent event) {
         if(event.getGui() == null) reset();
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @Subscribe
     public void onRender(GuiScreenEvent.DrawScreenEvent.Post event) {
         if(!(MC.currentScreen instanceof GuiContainer))
             return;

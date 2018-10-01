@@ -1,11 +1,10 @@
 package com.matt.forgehax.asm.asmlib.patches;
 
 import com.matt.forgehax.ForgeHax;
-import com.matt.forgehax.Helper;
-import com.matt.forgehax.asm.events.ReplacementHooks.ClientTickEvent;
-import com.matt.forgehax.asm.events.ReplacementHooks.GuiOpenEvent;
-import com.matt.forgehax.asm.events.ReplacementHooks.InputEvent;
-import com.matt.forgehax.asm.events.ReplacementHooks.WorldEvent;
+import com.matt.forgehax.asm.events.replacementhooks.ClientTickEvent;
+import com.matt.forgehax.asm.events.replacementhooks.GuiOpenEvent;
+import com.matt.forgehax.asm.events.replacementhooks.InputEvent;
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.util.event.Event;
 import net.futureclient.asm.transformer.AsmMethod;
@@ -17,13 +16,10 @@ import net.minecraft.client.multiplayer.WorldClient;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.matt.forgehax.Globals.MC;
-import static com.matt.forgehax.Helper.getFileManager;
-import static com.matt.forgehax.Helper.getModManager;
 import static org.objectweb.asm.Opcodes.*;
 
 @Transformer(Minecraft.class)
@@ -102,14 +98,14 @@ public class MinecraftPatch {
         method.visitInsn(new VarInsnNode(ASTORE, 1));
     }
 
-    /*@Inject(name = "loadWorld", args = {WorldClient.class, String.class})
+    @Inject(name = "loadWorld", args = {WorldClient.class, String.class})
     public void loadWorldHook(AsmMethod method) {
         method.run(() -> {
-            if (Helper.getWorld() != null) {
-                ForgeHax.EVENT_BUS.post(new WorldEvent.UnLoad(Helper.getWorld()));
+            if (MC.world != null) {
+                ForgeHax.EVENT_BUS.post(new WorldEvent.UnLoad(MC.world));
             }
         });
-    }*/
+    }
 
     private static AbstractInsnNode getReturnNode(AsmMethod method) {
         return method.stream()

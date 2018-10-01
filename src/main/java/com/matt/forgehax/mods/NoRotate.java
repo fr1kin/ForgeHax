@@ -15,7 +15,6 @@ public class NoRotate extends ToggleMod {
     public NoRotate() { super(Category.PLAYER, "NoRotate", false, "dont let server set pitch and yaw");}
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
             SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();

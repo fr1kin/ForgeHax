@@ -1,8 +1,5 @@
 package com.matt.forgehax.util.event;
 
-
-import com.matt.forgehax.util.event.Event;
-
 public class ForgehaxEventBus implements EventBus {
 
     private final com.google.common.eventbus.EventBus GUAVA_EVENT_BUS = new com.google.common.eventbus.EventBus("ForgehaxEventBus");

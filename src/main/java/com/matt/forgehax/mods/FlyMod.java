@@ -73,7 +73,6 @@ public class FlyMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onOutgoingPacketSent(PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
             SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();

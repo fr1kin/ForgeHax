@@ -2,7 +2,7 @@ package com.matt.forgehax.mods.services;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AtomicDouble;
-import com.matt.forgehax.asm.events.ReplacementHooks.GuiScreenEvent;
+import com.matt.forgehax.asm.events.replacementhooks.GuiScreenEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -14,7 +14,6 @@ import static org.lwjgl.input.Keyboard.*;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.util.math.MathHelper;
 //import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -57,8 +56,7 @@ public class MainMenuGuiService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
-    public void onActionPerformed(net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent event) {
+    public void onActionPerformed(GuiScreenEvent.ActionPerformedEvent.Pre event) {
         if (event.getButton() == customButton) {
             MC.displayGuiScreen(new CommandInputGui());
         }

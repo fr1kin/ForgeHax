@@ -1,4 +1,4 @@
-package com.matt.forgehax.asm.events.ReplacementHooks;
+package com.matt.forgehax.asm.events.replacementhooks;
 
 import com.matt.forgehax.util.event.Cancelable;
 import com.matt.forgehax.util.event.Event;

@@ -5,6 +5,7 @@ import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
@@ -148,7 +149,7 @@ public class ChunkLogger extends ToggleMod {
         }
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onPacketInbound(PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketChunkData) {
             SPacketChunkData packet = (SPacketChunkData) event.getPacket();

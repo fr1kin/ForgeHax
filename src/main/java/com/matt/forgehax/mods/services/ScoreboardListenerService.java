@@ -78,7 +78,7 @@ public class ScoreboardListenerService extends ServiceMod {
         ignore = false;
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onPacketIn(PacketEvent.Incoming.Pre event) {
         if(ignore && timer.isStarted() && timer.hasTimeElapsed(wait.get())) ignore = false;
 
@@ -92,7 +92,6 @@ public class ScoreboardListenerService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onScoreboardEvent(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketPlayerListItem) {
             final SPacketPlayerListItem packet = (SPacketPlayerListItem) event.getPacket();

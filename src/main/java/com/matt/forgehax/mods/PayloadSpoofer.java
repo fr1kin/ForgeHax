@@ -48,7 +48,6 @@ public class PayloadSpoofer extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onIncomingPacket(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketCustomPayload) {
             String channel = ((SPacketCustomPayload) event.getPacket()).getChannelName();
@@ -58,7 +57,6 @@ public class PayloadSpoofer extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onOutgoingPacket(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketCustomPayload) {
             String channel = ((CPacketCustomPayload) event.getPacket()).getChannelName();

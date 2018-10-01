@@ -47,7 +47,6 @@ public class StepMod extends ToggleMod {
     private CPacketPlayer previousPositionPacket = null;
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketSending(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer.Position ||
                 event.getPacket() instanceof CPacketPlayer.PositionRotation) {

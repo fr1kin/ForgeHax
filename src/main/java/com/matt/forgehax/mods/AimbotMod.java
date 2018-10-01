@@ -322,7 +322,6 @@ public class AimbotMod extends ToggleMod {
         LocalPlayerUtils.setProjectileTargetAcquired(false);
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
     @Subscribe
     public void onPacketSending(PacketEvent.Outgoing.Pre event) {
         if(event.getPacket() instanceof CPacketPlayer) {

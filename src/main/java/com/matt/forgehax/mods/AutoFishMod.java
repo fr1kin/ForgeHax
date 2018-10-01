@@ -128,7 +128,6 @@ public class AutoFishMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketSoundEffect) {
             SPacketSoundEffect packet = (SPacketSoundEffect)event.getPacket();

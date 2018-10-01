@@ -56,7 +56,6 @@ public class TickRateService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketTimeUpdate) {
             if(timeLastTimeUpdate != -1) {

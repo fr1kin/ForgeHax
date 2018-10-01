@@ -18,13 +18,11 @@ public class PacketIgnoreListService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSentPacket(PacketEvent.Outgoing.Post event) {
         if(PacketHelper.isIgnored(event.getPacket())) PacketHelper.remove(event.getPacket());
     }
 
     @Subscribe
-    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onIncomingPacket(PacketEvent.Incoming.Post event) {
         if(PacketHelper.isIgnored(event.getPacket())) PacketHelper.remove(event.getPacket());
     }

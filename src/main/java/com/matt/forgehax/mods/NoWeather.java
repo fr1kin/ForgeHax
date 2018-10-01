@@ -81,7 +81,6 @@ public class NoWeather extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
         if(event.getPacket() instanceof SPacketChangeGameState) {
             int state = ((SPacketChangeGameState) event.getPacket()).getGameState();

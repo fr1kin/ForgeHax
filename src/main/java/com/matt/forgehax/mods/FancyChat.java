@@ -49,7 +49,6 @@ public class FancyChat extends ToggleMod {
 	}
 
 	@Subscribe
-	@SubscribeEvent
 	public void onPacketSent(PacketEvent.Outgoing.Pre event)
 	{
 		if (event.getPacket() instanceof CPacketChatMessage
