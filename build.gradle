@@ -52,6 +52,7 @@ jar {
                 'FMLCorePluginContainsFMLMod': 'true'
         )
     }
+    exclude ('assets/minecraft/textures/forgehax/*')
 }
 
 processResources
@@ -72,6 +73,7 @@ processResources
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+
 
     // TODO: Filter images out properly
     //filesNotMatching("**/*.png") {

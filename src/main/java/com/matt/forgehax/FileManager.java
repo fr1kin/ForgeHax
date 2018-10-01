@@ -22,6 +22,7 @@ public class FileManager {
 
     private final File baseDirectory;
     private final File configDirectory;
+    private final File cacheDirectory;
     private final Configuration forgeConfiguration;
 
     private FileManager() {
@@ -29,6 +30,8 @@ public class FileManager {
         baseDirectory.mkdirs();
         configDirectory = getFileInBaseDirectory("config");
         configDirectory.mkdirs();
+        cacheDirectory = getFileInBaseDirectory("cache");
+        cacheDirectory.mkdir();
         forgeConfiguration = new Configuration(getFileInConfigDirectory("settings.json"));
     }
 
@@ -38,6 +41,10 @@ public class FileManager {
 
     public File getConfigDirectory() {
         return configDirectory;
+    }
+
+    public File getCacheDirectory() {
+        return cacheDirectory;
     }
 
     public Configuration getForgeConfiguration() {

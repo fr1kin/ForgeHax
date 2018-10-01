@@ -117,7 +117,6 @@ public class MacroCommand extends CommandMod {
 
     @Override
     public void onUnload() {
-        super.unload();
         MACROS.serializeAll();
     }
 
