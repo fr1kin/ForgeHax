@@ -219,7 +219,7 @@ public class AntiAfkMod extends ToggleMod {
 
             @Override
             public void onTick() {
-                Bindings.forward.setKeyStatePressed(true);
+                Bindings.forward.setPressed(true);
                 LocalPlayerUtils.setViewAngles(0, angle);
             }
 
@@ -250,7 +250,7 @@ public class AntiAfkMod extends ToggleMod {
 
             @Override
             public void onStop() {
-                Bindings.forward.setKeyStatePressed(false);
+                Bindings.forward.setPressed(false);
                 Bindings.forward.unbind();
                 getLocalPlayer().motionX = 0.D;
                 getLocalPlayer().motionY = 0.D;

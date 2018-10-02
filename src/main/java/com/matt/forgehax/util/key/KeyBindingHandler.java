@@ -1,6 +1,7 @@
 package com.matt.forgehax.util.key;
 
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 
@@ -31,9 +32,20 @@ public class KeyBindingHandler implements Globals {
         return binding;
     }
 
-    public void setKeyStatePressed(boolean b) {
-        // press key
-        KeyBinding.setKeyBindState(binding.getKeyCode(), b);
+    public boolean isPressed() {
+        return FastReflection.Fields.Binding_pressed.get(binding);
+    }
+
+    public void setPressed(boolean pressed) {
+        FastReflection.Fields.Binding_pressed.set(binding, pressed);
+    }
+
+    public int getPressTime() {
+        return FastReflection.Fields.Binding_pressTime.get(binding);
+    }
+
+    public void setPressTime(int time) {
+        FastReflection.Fields.Binding_pressTime.set(binding, time);
     }
 
     public boolean isBound() {

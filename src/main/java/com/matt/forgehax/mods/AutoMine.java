@@ -26,7 +26,7 @@ public class AutoMine extends ToggleMod {
     }
 
     private void setPressed(boolean state) {
-        Bindings.attack.setKeyStatePressed(state);
+        Bindings.attack.setPressed(state);
         pressed = state;
     }
 

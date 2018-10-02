@@ -124,15 +124,15 @@ public class AutoKey extends ToggleMod {
         TAP((key, time) -> {
             if (time < holdTime.getAsInteger()) {
                 incrementPressTime(key);
-                key.setKeyStatePressed(true);
+                key.setPressed(true);
             }
             else
-                key.setKeyStatePressed(false);
+                key.setPressed(false);
         }), // hold key for at least 150ms
 
         HOLD((key, time) -> {
             incrementPressTime(key);
-            key.setKeyStatePressed(true);
+            key.setPressed(true);
         }); // hold key forever
 
         BiConsumer<KeyBindingHandler, Integer> clickAction;
