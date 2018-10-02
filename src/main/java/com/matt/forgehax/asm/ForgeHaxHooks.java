@@ -520,19 +520,10 @@ public class ForgeHaxHooks implements ASMCommon {
         } else return value;
     }
 
-    public static final HookReporter HOOK_isUserInputAllowed = newHookReporter()
-            .hook("isUserInputAllowed")
-            .dependsOn(TypesMc.Methods.Minecraft_runTick)
-            .forgeEvent(ShouldAllowUserInputEvent.class)
-            .build();
-    public static boolean isUserInputAllowed() {
-        return HOOK_isUserInputAllowed.reportHook() && MinecraftForge.EVENT_BUS.post(new ShouldAllowUserInputEvent());
-    }
-
     public static final HookReporter HOOK_onSendClickBlockToController = newHookReporter()
             .hook("onSendClickBlockToController")
             .dependsOn(TypesMc.Methods.Minecraft_runTick)
-            .forgeEvent(ShouldAllowUserInputEvent.class)
+            .forgeEvent(OnSendClickBlockToControllerEvent.class)
             .build();
     public static boolean onSendClickBlockToController(boolean clicked) {
         if(HOOK_onSendClickBlockToController.reportHook()) {

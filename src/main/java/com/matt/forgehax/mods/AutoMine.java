@@ -2,16 +2,12 @@ package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.LeftClickCounterUpdateEvent;
 import com.matt.forgehax.asm.events.OnSendClickBlockToControllerEvent;
-import com.matt.forgehax.asm.events.ShouldAllowUserInputEvent;
-import com.matt.forgehax.asm.reflection.FastReflection;
-import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -29,6 +25,11 @@ public class AutoMine extends ToggleMod {
         super(Category.PLAYER, "AutoMine", false, "Auto mine blocks");
     }
 
+    private void setPressed(boolean state) {
+        Bindings.attack.setPressed(state);
+        pressed = state;
+    }
+
     @Override
     protected void onEnabled() {
         Bindings.attack.bind();
@@ -36,9 +37,8 @@ public class AutoMine extends ToggleMod {
 
     @Override
     protected void onDisabled() {
-        Bindings.attack.setPressed(false);
+        setPressed(false);
         Bindings.attack.unbind();
-        pressed = false;
     }
 
     @SubscribeEvent
@@ -50,38 +50,44 @@ public class AutoMine extends ToggleMod {
             case START: {
                 RayTraceResult tr = MC.objectMouseOver;
 
-                if (tr == null || tr.getBlockPos() == null)
+                if (tr == null || tr.getBlockPos() == null) {
+                    setPressed(false);
                     return;
+                }
 
                 IBlockState state = getWorld().getBlockState(tr.getBlockPos());
 
-                if (tr.typeOfHit != RayTraceResult.Type.BLOCK || Material.AIR.equals(state.getMaterial()))
+                if (tr.typeOfHit != RayTraceResult.Type.BLOCK || Material.AIR.equals(state.getMaterial())) {
+                    setPressed(false);
                     return;
+                }
 
-                Bindings.attack.setPressed(true);
-                pressed = true;
+                setPressed(true);
                 break;
             }
             case END:
-                pressed = false;
+                setPressed(false);
                 break;
         }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onGuiOpen(ShouldAllowUserInputEvent event) {
-        if(getWorld() != null && getLocalPlayer() != null) {
-            event.setCanceled(true);
-        }
+    public void onGuiOpened(GuiOpenEvent event) {
+        // process keys and mouse input even if this gui is open
+        if(getWorld() != null && getLocalPlayer() != null && event.getGui() != null)
+            event.getGui().allowUserInput = true;
     }
 
     @SubscribeEvent
     public void onLeftClickCouterUpdate(LeftClickCounterUpdateEvent event) {
+        // prevent the leftClickCounter from changing
         event.setValue(event.getCurrentValue());
     }
 
     @SubscribeEvent
     public void onBlockCounterUpdate(OnSendClickBlockToControllerEvent event) {
+        // bug fix - left click is actually false after processing the key bindings
+        // this will set that boolean to the correct value
         if(pressed) event.setClicked(true);
     }
 }

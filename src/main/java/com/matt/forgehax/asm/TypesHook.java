@@ -334,12 +334,6 @@ public interface TypesHook {
                 .finish()
                 .build();
 
-        ASMMethod ForgeHaxHooks_isUserInputAllowed = Classes.ForgeHaxHooks.childMethod()
-                .setName("isUserInputAllowed")
-                .setReturnType(boolean.class)
-                .emptyParameters()
-                .build();
-
         ASMMethod ForgeHaxHooks_onSendClickBlockToController = Classes.ForgeHaxHooks.childMethod()
                 .setName("onSendClickBlockToController")
                 .setReturnType(boolean.class)

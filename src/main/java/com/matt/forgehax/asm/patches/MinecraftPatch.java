@@ -54,21 +54,6 @@ public class MinecraftPatch extends ClassTransformer {
 
             method.instructions.insert(node, list);
         }
-
-        @Inject(description = "Add callback for userinput hook")
-        public void inject2(MethodNode method) {
-            AbstractInsnNode node = ASMHelper.findPattern(method.instructions.getFirst(), new int[] {IFNULL, ALOAD, GETFIELD, GETFIELD, IFEQ, 0, 0, 0, ALOAD, GETFIELD, LDC}, "xxxxx???xxx");
-            Objects.requireNonNull(node, "Failed to find IFNULL");
-
-            JumpInsnNode jmp = (JumpInsnNode)node;
-            LabelNode to = jmp.label;
-
-            InsnList list = new InsnList();
-            list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_isUserInputAllowed));
-            list.add(new JumpInsnNode(IFNE, to));
-
-            method.instructions.insert(node, list);
-        }
     }
 
     @RegisterMethodTransformer
