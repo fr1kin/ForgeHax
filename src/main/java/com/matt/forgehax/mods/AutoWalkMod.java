@@ -28,7 +28,7 @@ public class AutoWalkMod extends ToggleMod {
     @Override
     public void onDisabled() {
         if(isBound) {
-            Bindings.forward.setPressed(false);
+            Bindings.forward.setKeyStatePressed(false);
             Bindings.forward.unbind();
             isBound = false;
         }
@@ -41,11 +41,11 @@ public class AutoWalkMod extends ToggleMod {
             isBound = true;
         }
         if(!Bindings.forward.getBinding().isKeyDown())
-            Bindings.forward.setPressed(true);
+            Bindings.forward.setKeyStatePressed(true);
 
         if(stop_at_unloaded_chunks.get()) {
             if(!getWorld().getChunkFromBlockCoords(getLocalPlayer().getPosition()).isLoaded())
-                Bindings.forward.setPressed(false);
+                Bindings.forward.setKeyStatePressed(false);
         }
     }
 }

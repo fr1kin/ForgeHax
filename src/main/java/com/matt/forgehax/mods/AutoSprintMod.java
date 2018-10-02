@@ -42,14 +42,14 @@ public class AutoSprintMod extends ToggleMod {
                     isBound = true;
                 }
                 if (!Bindings.sprint.getBinding().isKeyDown())
-                    Bindings.sprint.setPressed(true);
+                    Bindings.sprint.setKeyStatePressed(true);
                 break;
         }
     }
 
     private void stopSprinting() {
         if(isBound) {
-            Bindings.sprint.setPressed(false);
+            Bindings.sprint.setKeyStatePressed(false);
             Bindings.sprint.unbind();
             isBound = false;
         }

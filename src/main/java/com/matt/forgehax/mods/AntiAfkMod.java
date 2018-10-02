@@ -11,16 +11,13 @@ import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.math.Angle;
-import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.math.AngleN;
-import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemRedstone;
 import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.EnumFacing;
@@ -39,8 +36,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static com.matt.forgehax.Helper.*;
@@ -224,7 +219,7 @@ public class AntiAfkMod extends ToggleMod {
 
             @Override
             public void onTick() {
-                Bindings.forward.setPressed(true);
+                Bindings.forward.setKeyStatePressed(true);
                 LocalPlayerUtils.setViewAngles(0, angle);
             }
 
@@ -255,7 +250,7 @@ public class AntiAfkMod extends ToggleMod {
 
             @Override
             public void onStop() {
-                Bindings.forward.setPressed(false);
+                Bindings.forward.setKeyStatePressed(false);
                 Bindings.forward.unbind();
                 getLocalPlayer().motionX = 0.D;
                 getLocalPlayer().motionY = 0.D;

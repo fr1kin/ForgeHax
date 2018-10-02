@@ -43,14 +43,14 @@ public class AutoEatMod extends ToggleMod {
                 isEating = true;
                 MC.player.inventory.currentItem = foodSlot;
                 // need to fake use key to stop code that stops the eating
-                Bindings.use.setPressed(true);
+                Bindings.use.setKeyStatePressed(true);
                 FastReflection.Methods.Minecraft_rightClickMouse.invoke(MC);
                 return;
             }
         }
         if(isEating && !getLocalPlayer().isHandActive()) {
             isEating = false;
-            Bindings.use.setPressed(false);
+            Bindings.use.setKeyStatePressed(false);
         }
     }
 }

@@ -309,7 +309,7 @@ public class AimbotMod extends ToggleMod {
                     if(projectile_auto_attack.get() &&
                             Bindings.use.getBinding().isKeyDown() &&
                             ProjectileUtils.getForce(heldItem) >= result.maxForce) {
-                        Bindings.use.setPressed(false);
+                        Bindings.use.setKeyStatePressed(false);
                     }
                     return;
                 }

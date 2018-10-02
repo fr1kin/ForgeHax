@@ -31,7 +31,7 @@ public class KeyBindingHandler implements Globals {
         return binding;
     }
 
-    public void setPressed(boolean b) {
+    public void setKeyStatePressed(boolean b) {
         // press key
         KeyBinding.setKeyBindState(binding.getKeyCode(), b);
     }
