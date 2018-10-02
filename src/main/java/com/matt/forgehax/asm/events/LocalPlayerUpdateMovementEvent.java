@@ -24,6 +24,7 @@ public class LocalPlayerUpdateMovementEvent extends Event {
             super(localPlayer);
         }
     }
+
     public static class Post extends LocalPlayerUpdateMovementEvent {
         public Post(EntityPlayerSP localPlayer) {
             super(localPlayer);
