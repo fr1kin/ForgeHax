@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.LeftClickCounterUpdateEvent;
-import com.matt.forgehax.asm.events.OnSendClickBlockToControllerEvent;
+import com.matt.forgehax.asm.events.BlockControllerProcessEvent;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -81,13 +81,13 @@ public class AutoMine extends ToggleMod {
     @SubscribeEvent
     public void onLeftClickCouterUpdate(LeftClickCounterUpdateEvent event) {
         // prevent the leftClickCounter from changing
-        event.setValue(event.getCurrentValue());
+        event.setCanceled(true);
     }
 
     @SubscribeEvent
-    public void onBlockCounterUpdate(OnSendClickBlockToControllerEvent event) {
+    public void onBlockCounterUpdate(BlockControllerProcessEvent event) {
         // bug fix - left click is actually false after processing the key bindings
         // this will set that boolean to the correct value
-        if(pressed) event.setClicked(true);
+        if(pressed) event.setLeftClicked(true);
     }
 }

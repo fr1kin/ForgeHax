@@ -9,6 +9,7 @@ import com.matt.forgehax.asm.utils.MultiBoolean;
 import com.matt.forgehax.asm.utils.debug.HookReporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.*;
@@ -506,30 +507,35 @@ public class ForgeHaxHooks implements ASMCommon {
         return HOOK_onWorldCheckLightFor.reportHook() && MinecraftForge.EVENT_BUS.post(new WorldCheckLightForEvent(enumSkyBlock, pos));
     }
 
+    /**
+     * onLeftClickCounterSet
+     */
     public static final HookReporter HOOK_onLeftClickCounterSet = newHookReporter()
             .hook("onLeftClickCounterSet")
             .dependsOn(TypesMc.Methods.Minecraft_runTick)
             .dependsOn(TypesMc.Methods.Minecraft_setIngameFocus)
             .forgeEvent(LeftClickCounterUpdateEvent.class)
             .build();
-    public static int onLeftClickCounterSet(int value) {
+    public static int onLeftClickCounterSet(int value, Minecraft minecraft) {
         if(HOOK_onLeftClickCounterSet.reportHook()) {
-            LeftClickCounterUpdateEvent event = new LeftClickCounterUpdateEvent(value);
-            MinecraftForge.EVENT_BUS.post(event);
-            return event.getValue();
+            LeftClickCounterUpdateEvent event = new LeftClickCounterUpdateEvent(minecraft, value);
+            return MinecraftForge.EVENT_BUS.post(event) ? event.getCurrentValue() : event.getValue();
         } else return value;
     }
 
+    /**
+     * onSendClickBlockToController
+     */
     public static final HookReporter HOOK_onSendClickBlockToController = newHookReporter()
             .hook("onSendClickBlockToController")
             .dependsOn(TypesMc.Methods.Minecraft_runTick)
-            .forgeEvent(OnSendClickBlockToControllerEvent.class)
+            .forgeEvent(BlockControllerProcessEvent.class)
             .build();
-    public static boolean onSendClickBlockToController(boolean clicked) {
+    public static boolean onSendClickBlockToController(Minecraft minecraft, boolean clicked) {
         if(HOOK_onSendClickBlockToController.reportHook()) {
-            OnSendClickBlockToControllerEvent event = new OnSendClickBlockToControllerEvent(clicked);
+            BlockControllerProcessEvent event = new BlockControllerProcessEvent(minecraft, clicked);
             MinecraftForge.EVENT_BUS.post(event);
-            return event.isClicked();
+            return event.isLeftClicked();
         } else return clicked;
     }
 }

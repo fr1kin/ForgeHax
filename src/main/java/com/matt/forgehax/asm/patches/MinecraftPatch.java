@@ -31,6 +31,7 @@ public class MinecraftPatch extends ClassTransformer {
             Objects.requireNonNull(node, "Failed to find SIPUSH node");
 
             InsnList list = new InsnList();
+            list.add(new VarInsnNode(ALOAD, 0));
             list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
 
             method.instructions.insert(node, list);
@@ -50,6 +51,7 @@ public class MinecraftPatch extends ClassTransformer {
             Objects.requireNonNull(node, "Failed to find SIPUSH node");
 
             InsnList list = new InsnList();
+            list.add(new VarInsnNode(ALOAD, 0));
             list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
 
             method.instructions.insert(node, list);
@@ -66,6 +68,7 @@ public class MinecraftPatch extends ClassTransformer {
         @Inject(description = "Add hook to set left click")
         public void inject(MethodNode method) {
             InsnList list = new InsnList();
+            list.add(new VarInsnNode(ALOAD, 0));
             list.add(new VarInsnNode(ILOAD, 1));
             list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendClickBlockToController));
             list.add(new VarInsnNode(ISTORE, 1));

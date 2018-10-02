@@ -331,6 +331,7 @@ public interface TypesHook {
                 .setReturnType(int.class)
                 .beginParameters()
                 .add(int.class)
+                .add(TypesMc.Classes.Minecraft)
                 .finish()
                 .build();
 
@@ -338,6 +339,7 @@ public interface TypesHook {
                 .setName("onSendClickBlockToController")
                 .setReturnType(boolean.class)
                 .beginParameters()
+                .add(TypesMc.Classes.Minecraft)
                 .add(boolean.class)
                 .finish()
                 .build();
