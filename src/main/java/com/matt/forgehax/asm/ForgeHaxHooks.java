@@ -10,6 +10,7 @@ import com.matt.forgehax.asm.utils.debug.HookReporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.*;
@@ -479,8 +480,8 @@ public class ForgeHaxHooks implements ASMCommon {
             .dependsOn(TypesMc.Methods.EntityPlayerSP_onUpdateWalkingPlayer)
             .forgeEvent(LocalPlayerUpdateMovementEvent.Pre.class)
             .build();
-    public static void onUpdateWalkingPlayerPre() {
-        if(HOOK_onUpdateWalkingPlayerPre.reportHook()) MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Pre());
+    public static boolean onUpdateWalkingPlayerPre(EntityPlayerSP localPlayer) {
+        return HOOK_onUpdateWalkingPlayerPre.reportHook() && MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Pre(localPlayer));
     }
 
     /**
@@ -491,8 +492,8 @@ public class ForgeHaxHooks implements ASMCommon {
             .dependsOn(TypesMc.Methods.EntityPlayerSP_onUpdateWalkingPlayer)
             .forgeEvent(LocalPlayerUpdateMovementEvent.Post.class)
             .build();
-    public static void onUpdateWalkingPlayerPost() {
-        if(HOOK_onUpdateWalkingPlayerPost.reportHook()) MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Post());
+    public static void onUpdateWalkingPlayerPost(EntityPlayerSP localPlayer) {
+        if(HOOK_onUpdateWalkingPlayerPost.reportHook()) MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Post(localPlayer));
     }
 
     /**

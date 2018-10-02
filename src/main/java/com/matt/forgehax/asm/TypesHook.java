@@ -282,14 +282,18 @@ public interface TypesHook {
 
         ASMMethod ForgeHaxHooks_onUpdateWalkingPlayerPre = Classes.ForgeHaxHooks.childMethod()
                 .setName("onUpdateWalkingPlayerPre")
-                .setReturnType(void.class)
-                .emptyParameters()
+                .setReturnType(boolean.class)
+                .beginParameters()
+                .add(TypesMc.Classes.EntityPlayerSP)
+                .finish()
                 .build();
 
         ASMMethod ForgeHaxHooks_onUpdateWalkingPlayerPost = Classes.ForgeHaxHooks.childMethod()
                 .setName("onUpdateWalkingPlayerPost")
                 .setReturnType(void.class)
-                .emptyParameters()
+                .beginParameters()
+                .add(TypesMc.Classes.EntityPlayerSP)
+                .finish()
                 .build();
 
         ASMMethod ForgeHaxHooks_onPushOutOfBlocks = Classes.ForgeHaxHooks.childMethod()

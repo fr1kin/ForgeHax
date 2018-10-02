@@ -66,11 +66,17 @@ public class EntityPlayerSPPatch extends ClassTransformer {
             Objects.requireNonNull(top, "Find pattern failed for top node");
             Objects.requireNonNull(bottom, "Find pattern failed for bottom node");
 
+            LabelNode jmp = new LabelNode();
+
             InsnList pre = new InsnList();
+            pre.add(new VarInsnNode(ALOAD, 0));
             pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPre));
+            pre.add(new JumpInsnNode(IFNE, jmp));
 
             InsnList post = new InsnList();
+            post.add(new VarInsnNode(ALOAD, 0));
             post.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
+            post.add(jmp);
 
             main.instructions.insertBefore(top, pre);
             main.instructions.insertBefore(bottom, post);
