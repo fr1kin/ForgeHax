@@ -58,27 +58,6 @@ public class PositionRotationManager extends ServiceMod {
         player.posZ = position.z;
     }
 
-    /*
-    @SubscribeEvent
-    public void onIncomingPacket(PacketEvent.Incoming.Pre event) {
-        if(event.getPacket() instanceof CPacketPlayer.PositionRotation || event.getPacket() instanceof CPacketPlayer.Rotation) {
-            CPacketPlayer packet = (CPacketPlayer)event.getPacket();
-            STATE.setServerViewAngles(packet.getPitch(0.f), packet.getYaw(0.f));
-        }
-    }*/
-
-    @SubscribeEvent
-    public void onRenderEvent(TickEvent.RenderTickEvent event) {
-        if(getLocalPlayer() == null)
-            return;
-
-        switch (event.phase) {
-            case START:
-                if(STATE.isActive() && !STATE.isSilent());
-                    //setPlayerAngles(getLocalPlayer(), STATE.getClientViewAngles());
-        }
-    }
-
     @SubscribeEvent
     public void onMovementUpdatePre(LocalPlayerUpdateMovementEvent.Pre event) {
         // updated view angles
