@@ -4,10 +4,12 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.common.PriorityEnum;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.entity.PlayerUtils;
@@ -40,7 +42,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
-public class AimbotMod extends ToggleMod {
+public class AimbotMod extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
     public final Setting<Boolean> silent = getCommandStub().builders().<Boolean>newSettingBuilder()
             .name("silent")
             .description("Won't look at target when aiming")
@@ -242,97 +244,24 @@ public class AimbotMod extends ToggleMod {
     }
 
     @Override
+    protected void onEnabled() {
+        PositionRotationManager.getManager().register(this, PriorityEnum.HIGH);
+    }
+
+    @Override
     public void onDisabled() {
+        PositionRotationManager.getManager().unregister(this);
+
         LocalPlayerUtils.setTargetEntity(null);
         LocalPlayerUtils.setActiveFakeAngles(false);
         LocalPlayerUtils.setProjectileTargetAcquired(false);
         LocalPlayerUtils.setFakeViewAngles(null);
     }
 
-    @SubscribeEvent
-    public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        EntityPlayer localPlayer = MC.player;
-        Entity target = LocalPlayerUtils.getTargetEntity();
-        // local player eye pos
-        Vec3d selfPos = EntityUtils.getEyePos(localPlayer);
-        // local player look vec
-        Vec3d selfLookVec = localPlayer.getLookVec();
-        // local player view angles
-        Angle viewAngles = VectorUtils.vectorAngle(selfLookVec);
-        if(hold_target.get()) {
-            if(target == null ||
-                    !isValidTarget(target, EntityUtils.getOBBCenter(target), selfPos, selfLookVec, viewAngles)) {
-                target = findTargetEntity(selfPos, selfLookVec, viewAngles);
-            }
-        } else {
-            target = findTargetEntity(selfPos, selfLookVec, viewAngles);
-        }
-        if(target != null) {
-            if(!isHoldingProjectileItem()) {
-                Angle aim = Utils.getLookAtAngles(target);
-                if (!silent.get())
-                    LocalPlayerUtils.setViewAngles(aim);
-                if (canAttack(localPlayer, target)) {
-                    // attack entity
-                    MC.playerController.attackEntity(MC.player, target);
-                    // swing hand
-                    localPlayer.swingArm(EnumHand.MAIN_HAND);
-                    // for rotation packets
-                    if (silent.get()) {
-                        LocalPlayerUtils.setActiveFakeAngles(true);
-                        LocalPlayerUtils.setFakeViewAngles(aim);
-                        LocalPlayerUtils.sendRotatePacket(aim);
-                        return;
-                    }
-                }
-            } else {
-                ItemStack heldItem = localPlayer.getHeldItemMainhand();
-                //Vec3d startPos = EntityUtils.getInterpolatedPos(target, 1).addVector(0, target.getEyeHeight(), 0);
-                //Vec3d endPos = EntityUtils.getInterpolatedPos(target, 5).addVector(0, target.getEyeHeight() / 2, 0);
-                // this will find the angle we need to shoot at
-                ProjectileUtils.ProjectileTraceResult result = new ProjectileUtils.ProjectileTraceResult();
-                boolean exists = ProjectileUtils.projectileTrajectoryHitsEntity(target, selfPos, getAimPos(target), result);
-                if(!exists || result.shootAngle == null) {
-                    LocalPlayerUtils.setProjectileTargetAcquired(false);
-                } else {
-                    // we have a projectile target
-                    LocalPlayerUtils.setProjectileTargetAcquired(true);
-                    // set view angles
-                    LocalPlayerUtils.setFakeViewAngles(result.shootAngle);
-                    if (!silent.get() && Bindings.use.getBinding().isKeyDown()) {
-                        LocalPlayerUtils.setViewAngles(result.shootAngle);
-                    }
-                    // fake angles no active (wont change rotation packets)
-                    LocalPlayerUtils.setActiveFakeAngles(false);
-                    // bow auto attack will release the use key when
-                    // the force is greater than or equal to the max force
-                    if(projectile_auto_attack.get() &&
-                            Bindings.use.getBinding().isKeyDown() &&
-                            ProjectileUtils.getForce(heldItem) >= result.maxForce) {
-                        Bindings.use.setPressed(false);
-                    }
-                    return;
-                }
-            }
-        }
-        // disable aiming from last tick
-        LocalPlayerUtils.setActiveFakeAngles(false);
-        LocalPlayerUtils.setProjectileTargetAcquired(false);
-    }
-
+    /*
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPacketSending(PacketEvent.Outgoing.Pre event) {
-        if(event.getPacket() instanceof CPacketPlayer) {
-            // send fake angles if any rotation updates are sent to the server
-            CPacketPlayer packet = (CPacketPlayer)event.getPacket();
-            if(FastReflection.Fields.CPacketPlayer_rotating.get(packet) &&
-                    LocalPlayerUtils.isFakeAnglesActive() &&
-                    LocalPlayerUtils.getFakeViewAngles() != null) {
-                Angle viewAngles = LocalPlayerUtils.getFakeViewAngles();
-                FastReflection.Fields.CPacketPlayer_pitch.set(packet, (float)viewAngles.getPitch());
-                FastReflection.Fields.CPacketPlayer_yaw.set(packet, (float)viewAngles.getYaw());
-            }
-        } else if(event.getPacket() instanceof CPacketPlayerDigging) {
+        if(event.getPacket() instanceof CPacketPlayerDigging) {
             // called when the bow release packet is sent by the client
             // make sure the packet isn't being called inside this method
             if(((CPacketPlayerDigging) event.getPacket()).getAction().equals(CPacketPlayerDigging.Action.RELEASE_USE_ITEM) &&
@@ -378,5 +307,66 @@ public class AimbotMod extends ToggleMod {
                 event.setCanceled(true);
             }
         }
+    }*/
+
+    @Override
+    public void onLocalPlayerMovementUpdate(PositionRotationManager.RotationState state) {
+        EntityPlayer localPlayer = MC.player;
+        Entity target = LocalPlayerUtils.getTargetEntity();
+        // local player eye pos
+        Vec3d selfPos = EntityUtils.getEyePos(localPlayer);
+        // local player look vec
+        Vec3d selfLookVec = localPlayer.getLookVec();
+        // local player view angles
+        Angle viewAngles = VectorUtils.vectorAngle(selfLookVec);
+        if(hold_target.get()) {
+            if(target == null ||
+                    !isValidTarget(target, EntityUtils.getOBBCenter(target), selfPos, selfLookVec, viewAngles)) {
+                target = findTargetEntity(selfPos, selfLookVec, viewAngles);
+            }
+        } else {
+            target = findTargetEntity(selfPos, selfLookVec, viewAngles);
+        }
+        if(target != null) {
+            if(!isHoldingProjectileItem()) {
+                Angle aim = Utils.getLookAtAngles(target);
+                state.setViewAngles((float)aim.getPitch(), (float)aim.getYaw(), silent.get());
+
+                if (canAttack(localPlayer, target)) {
+                    final Entity t = target;
+                    state.processAfter(() -> {
+                        // attack entity
+                        MC.playerController.attackEntity(MC.player, t);
+                        // swing hand
+                        localPlayer.swingArm(EnumHand.MAIN_HAND);
+                    });
+                }
+            } else {
+                ItemStack holding = localPlayer.getHeldItemMainhand();
+
+                // this will find the angle we need to shoot at
+                ProjectileUtils.ProjectileTraceResult result = new ProjectileUtils.ProjectileTraceResult();
+                boolean exists = ProjectileUtils.projectileTrajectoryHitsEntity(target, selfPos, getAimPos(target), result);
+                if(!exists || result.shootAngle == null) {
+                    LocalPlayerUtils.setProjectileTargetAcquired(false);
+                } else {
+                    // we have a projectile target
+                    LocalPlayerUtils.setProjectileTargetAcquired(true);
+
+                    // set view angles
+                    state.setViewAngles((float)result.shootAngle.getPitch(), (float)result.shootAngle.getYaw(), silent.get());
+
+                    // bow auto attack will release the use key when
+                    // the force is greater than or equal to the max force
+                    if(projectile_auto_attack.get() &&
+                            Bindings.use.getBinding().isKeyDown() &&
+                            ProjectileUtils.getForce(holding) >= result.maxForce) {
+                        Bindings.use.setPressed(false);
+                    }
+                    return;
+                }
+            }
+        }
+        LocalPlayerUtils.setProjectileTargetAcquired(false);
     }
 }

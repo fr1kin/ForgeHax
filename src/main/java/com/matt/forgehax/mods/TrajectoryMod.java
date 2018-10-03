@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.RenderEvent;
+import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.util.math.AngleN;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -28,7 +29,7 @@ public class TrajectoryMod extends ToggleMod {
         Projectile projectile = Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItemMainhand());
         if(!projectile.isNull()) {
             SimulationResult result = projectile.getSimulatedTrajectoryFromEntity(getLocalPlayer(),
-                    AngleN.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw),
+                    PositionRotationManager.getState().getActiveServerViewAngles(),
                     projectile.getForce(getLocalPlayer().getHeldItemMainhand().getMaxItemUseDuration() - getLocalPlayer().getItemInUseCount()),
                     0
             );

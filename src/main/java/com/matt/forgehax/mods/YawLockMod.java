@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.mod.Category;
@@ -9,7 +10,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
-public class YawLockMod extends ToggleMod {
+public class YawLockMod extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
     public final Setting<Boolean> do_once = getCommandStub().builders().<Boolean>newSettingBuilder()
             .name("do_once")
             .description("Will only fire update once")
@@ -35,15 +36,25 @@ public class YawLockMod extends ToggleMod {
     }
 
     public double getYawDirection() {
-        return Math.round((LocalPlayerUtils.getViewAngles().getYaw() + 1.f) / 45.f) * 45.f;
+        return (int)Math.round((LocalPlayerUtils.getViewAngles().getYaw() + 1.f) / 45.f) * 45.f;
     }
 
-    @SubscribeEvent
-    public void onUpdate(LocalPlayerUpdateEvent event) {
+    @Override
+    protected void onEnabled() {
+        PositionRotationManager.getManager().register(this);
+    }
+
+    @Override
+    protected void onDisabled() {
+        PositionRotationManager.getManager().unregister(this);
+    }
+
+    @Override
+    public void onLocalPlayerMovementUpdate(PositionRotationManager.RotationState state) {
         double yaw = getYawDirection();
         if(!auto_angle.get())
             yaw = custom_angle.get();
-        LocalPlayerUtils.setViewAngles(event.getEntityLiving().rotationPitch, yaw);
+        state.setViewAngles((float)state.getServerViewAngles().pitch(), (float)yaw);
         // disable after first set if set to do once
         if(isEnabled() && do_once.get())
             disable();
