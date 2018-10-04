@@ -26,35 +26,28 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import bspkrs.mmv.version.NaturalOrderComparator;
 import java.util.Comparator;
 
-import bspkrs.mmv.version.NaturalOrderComparator;
+public class SplittedNaturalComparator implements Comparator<Object> {
+  private final String splitter;
 
-public class SplittedNaturalComparator implements Comparator<Object>
-{
-    private final String splitter;
+  public SplittedNaturalComparator(String splitter) {
+    this.splitter = splitter;
+  }
 
-    public SplittedNaturalComparator(String splitter)
-    {
-        this.splitter = splitter;
+  @Override
+  public int compare(Object o1, Object o2) {
+    String[] a = o1.toString().split(splitter);
+    String[] b = o2.toString().split(splitter);
+
+    if (a.length != b.length) return b.length - a.length;
+
+    NaturalOrderComparator comp = new NaturalOrderComparator();
+    for (int i = 0; i < a.length; i++) {
+      int comparison = comp.compare(a[i], b[i]);
+      if (comparison != 0) return comparison;
     }
-
-    @Override
-    public int compare(Object o1, Object o2)
-    {
-        String[] a = o1.toString().split(splitter);
-        String[] b = o2.toString().split(splitter);
-
-        if (a.length != b.length)
-            return b.length - a.length;
-
-        NaturalOrderComparator comp = new NaturalOrderComparator();
-        for (int i = 0; i < a.length; i++)
-        {
-            int comparison = comp.compare(a[i], b[i]);
-            if (comparison != 0)
-                return comparison;
-        }
-        return 0;
-    }
+    return 0;
+  }
 }

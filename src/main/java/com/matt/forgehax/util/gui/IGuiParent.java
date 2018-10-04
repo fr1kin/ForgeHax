@@ -1,26 +1,25 @@
 package com.matt.forgehax.util.gui;
 
 import com.matt.forgehax.util.gui.events.GuiRenderEvent;
-
-import javax.annotation.Nullable;
 import java.util.List;
+import javax.annotation.Nullable;
 
-/**
- * Created on 9/9/2017 by fr1kin
- */
+/** Created on 9/9/2017 by fr1kin */
 public interface IGuiParent extends IGuiBase {
-    void addChild(IGuiBase element);
-    void removeChild(IGuiBase element);
+  void addChild(IGuiBase element);
 
-    void removeAllChildren();
+  void removeChild(IGuiBase element);
 
-    List<IGuiBase> getChildren();
-    int getChildrenCount();
+  void removeAllChildren();
 
-    boolean focus(IGuiBase element);
+  List<IGuiBase> getChildren();
 
-    @Nullable
-    IGuiBase getChildInFocus();
+  int getChildrenCount();
 
-    void onRenderChildren(GuiRenderEvent event);
+  boolean focus(IGuiBase element);
+
+  @Nullable
+  IGuiBase getChildInFocus();
+
+  void onRenderChildren(GuiRenderEvent event);
 }

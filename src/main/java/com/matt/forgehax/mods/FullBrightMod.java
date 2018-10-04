@@ -8,22 +8,22 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 @RegisterMod
 public class FullBrightMod extends ToggleMod {
-    public FullBrightMod() {
-        super(Category.WORLD, "FullBright", false, "Makes everything render with maximum brightness");
-    }
+  public FullBrightMod() {
+    super(Category.WORLD, "FullBright", false, "Makes everything render with maximum brightness");
+  }
 
-    @Override
-    public void onEnabled() {
-        MC.gameSettings.gammaSetting = 16F;
-    }
+  @Override
+  public void onEnabled() {
+    MC.gameSettings.gammaSetting = 16F;
+  }
 
-    @Override
-    public void onDisabled() {
-        MC.gameSettings.gammaSetting = 1F;
-    }
+  @Override
+  public void onDisabled() {
+    MC.gameSettings.gammaSetting = 1F;
+  }
 
-    @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event) {
-        MC.gameSettings.gammaSetting = 16F;
-    }
+  @SubscribeEvent
+  public void onClientTick(TickEvent.ClientTickEvent event) {
+    MC.gameSettings.gammaSetting = 16F;
+  }
 }

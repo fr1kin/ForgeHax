@@ -9,14 +9,18 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class StopEntityUpdates extends ToggleMod {
-    public StopEntityUpdates() {
-        super(Category.MISC, "StopEntityUpdates", false, "Prevent entity metadata update packets from being processed");
-    }
+  public StopEntityUpdates() {
+    super(
+        Category.MISC,
+        "StopEntityUpdates",
+        false,
+        "Prevent entity metadata update packets from being processed");
+  }
 
-    @SubscribeEvent
-    public void onPacketIn(PacketEvent.Incoming.Pre event) {
-        if(event.getPacket() instanceof SPacketEntityMetadata) {
-            event.setCanceled(true);
-        }
+  @SubscribeEvent
+  public void onPacketIn(PacketEvent.Incoming.Pre event) {
+    if (event.getPacket() instanceof SPacketEntityMetadata) {
+      event.setCanceled(true);
     }
+  }
 }

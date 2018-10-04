@@ -8,12 +8,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class AntiFireMod extends ToggleMod {
-    public AntiFireMod() {
-        super(Category.PLAYER, "AntiFire", false, "Removes fire");
-    }
+  public AntiFireMod() {
+    super(Category.PLAYER, "AntiFire", false, "Removes fire");
+  }
 
-    @SubscribeEvent
-    public void onUpdate(LocalPlayerUpdateEvent event) {
-        event.getEntityLiving().extinguish();
-    }
+  @SubscribeEvent
+  public void onUpdate(LocalPlayerUpdateEvent event) {
+    event.getEntityLiving().extinguish();
+  }
 }

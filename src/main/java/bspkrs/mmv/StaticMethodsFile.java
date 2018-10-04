@@ -34,36 +34,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class StaticMethodsFile
-{
-    private final File  file;
-    public List<String> staticMethods;
+public class StaticMethodsFile {
+  private final File file;
+  public List<String> staticMethods;
 
-    public StaticMethodsFile(File file) throws IOException
-    {
-        this.file = file;
-        staticMethods = new ArrayList<String>();
-        readFromFile();
-    }
+  public StaticMethodsFile(File file) throws IOException {
+    this.file = file;
+    staticMethods = new ArrayList<String>();
+    readFromFile();
+  }
 
-    public void readFromFile() throws IOException
-    {
-        Scanner in = new Scanner(new BufferedReader(new FileReader(file)));
-        try
-        {
-            while (in.hasNextLine())
-            {
-                staticMethods.add(in.nextLine());
-            }
-        }
-        finally
-        {
-            in.close();
-        }
+  public void readFromFile() throws IOException {
+    Scanner in = new Scanner(new BufferedReader(new FileReader(file)));
+    try {
+      while (in.hasNextLine()) {
+        staticMethods.add(in.nextLine());
+      }
+    } finally {
+      in.close();
     }
+  }
 
-    public boolean contains(String srgName)
-    {
-        return staticMethods.contains(srgName);
-    }
+  public boolean contains(String srgName) {
+    return staticMethods.contains(srgName);
+  }
 }

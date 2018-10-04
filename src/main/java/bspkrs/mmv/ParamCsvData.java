@@ -26,56 +26,46 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-public class ParamCsvData implements Comparable<ParamCsvData>
-{
-    private final String srgName;
-    private String       mcpName;
-    private final int    side;
+public class ParamCsvData implements Comparable<ParamCsvData> {
+  private final String srgName;
+  private String mcpName;
+  private final int side;
 
-    public ParamCsvData(String srgName, String mcpName, int side)
-    {
-        this.srgName = srgName;
-        this.mcpName = mcpName;
-        this.side = side;
-    }
+  public ParamCsvData(String srgName, String mcpName, int side) {
+    this.srgName = srgName;
+    this.mcpName = mcpName;
+    this.side = side;
+  }
 
-    public String toCsv()
-    {
-        return srgName + "," + mcpName + "," + side;
-    }
+  public String toCsv() {
+    return srgName + "," + mcpName + "," + side;
+  }
 
-    public String getSrgName()
-    {
-        return srgName;
-    }
+  public String getSrgName() {
+    return srgName;
+  }
 
-    public String getMcpName()
-    {
-        return mcpName;
-    }
+  public String getMcpName() {
+    return mcpName;
+  }
 
-    public ParamCsvData setMcpName(String mcpName)
-    {
-        this.mcpName = mcpName;
-        return this;
-    }
+  public ParamCsvData setMcpName(String mcpName) {
+    this.mcpName = mcpName;
+    return this;
+  }
 
-    public int getSide()
-    {
-        return side;
-    }
+  public int getSide() {
+    return side;
+  }
 
-    @Override
-    public int compareTo(ParamCsvData o)
-    {
-        if (o != null)
-            return srgName.compareTo(o.srgName);
+  @Override
+  public int compareTo(ParamCsvData o) {
+    if (o != null) return srgName.compareTo(o.srgName);
 
-        return 1;
-    }
+    return 1;
+  }
 
-    public boolean contains(String s)
-    {
-        return mcpName.contains(s);
-    }
+  public boolean contains(String s) {
+    return mcpName.contains(s);
+  }
 }

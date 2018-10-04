@@ -7,17 +7,17 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 
 @RegisterMod
 public class NoCaveCulling extends ToggleMod {
-    public NoCaveCulling() {
-        super(Category.RENDER, "NoCaveCulling", false, "Disables mojangs dumb cave culling shit");
-    }
+  public NoCaveCulling() {
+    super(Category.RENDER, "NoCaveCulling", false, "Disables mojangs dumb cave culling shit");
+  }
 
-    @Override
-    public void onEnabled() {
-        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable("NoCaveCulling");
-    }
+  @Override
+  public void onEnabled() {
+    ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable("NoCaveCulling");
+  }
 
-    @Override
-    public void onDisabled() {
-        ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("NoCaveCulling");
-    }
+  @Override
+  public void onDisabled() {
+    ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("NoCaveCulling");
+  }
 }

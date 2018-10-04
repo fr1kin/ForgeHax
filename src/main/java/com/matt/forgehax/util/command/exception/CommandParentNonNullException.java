@@ -1,10 +1,8 @@
 package com.matt.forgehax.util.command.exception;
 
-/**
- * Created on 6/3/2017 by fr1kin
- */
+/** Created on 6/3/2017 by fr1kin */
 public class CommandParentNonNullException extends RuntimeException {
-    public CommandParentNonNullException(String msg) {
-        super(msg);
-    }
+  public CommandParentNonNullException(String msg) {
+    super(msg);
+  }
 }

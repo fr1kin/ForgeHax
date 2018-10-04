@@ -3,23 +3,23 @@ package com.matt.forgehax.util.command.v2;
 import javax.annotation.Nullable;
 
 public class CmdBuilders {
-    private static final CmdBuilders INSTANCE = new CmdBuilders();
+  private static final CmdBuilders INSTANCE = new CmdBuilders();
 
-    public static CmdBuilders getInstance() {
-        return INSTANCE;
-    }
+  public static CmdBuilders getInstance() {
+    return INSTANCE;
+  }
 
-    @Nullable
-    private final IParentCmd parent;
+  @Nullable private final IParentCmd parent;
 
-    public CmdBuilders(IParentCmd parent) {
-        this.parent = parent;
-    }
-    public CmdBuilders() {
-        this(null);
-    }
+  public CmdBuilders(IParentCmd parent) {
+    this.parent = parent;
+  }
 
-    public ParentCmdBuilder newParent() {
-        return new ParentCmdBuilder(parent);
-    }
+  public CmdBuilders() {
+    this(null);
+  }
+
+  public ParentCmdBuilder newParent() {
+    return new ParentCmdBuilder(parent);
+  }
 }

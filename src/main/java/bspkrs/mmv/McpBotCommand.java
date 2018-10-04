@@ -11,74 +11,65 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-public class McpBotCommand
-{
-    public enum BotCommand
-    {
-        SF,
-        SM,
-        SP,
-        FSF,
-        FSM,
-        FSP;
-    }
+public class McpBotCommand {
+  public enum BotCommand {
+    SF,
+    SM,
+    SP,
+    FSF,
+    FSM,
+    FSP;
+  }
 
-    public enum MemberType
-    {
-        FIELD,
-        METHOD,
-        PARAM;
-    }
+  public enum MemberType {
+    FIELD,
+    METHOD,
+    PARAM;
+  }
 
-    public static BotCommand getCommand(MemberType type, boolean isForced)
-    {
-        switch (type)
-        {
-            case METHOD:
-                return isForced ? BotCommand.FSM : BotCommand.SM;
-            case PARAM:
-                return isForced ? BotCommand.FSP : BotCommand.SP;
-            default:
-                return isForced ? BotCommand.FSF : BotCommand.SF;
-        }
+  public static BotCommand getCommand(MemberType type, boolean isForced) {
+    switch (type) {
+      case METHOD:
+        return isForced ? BotCommand.FSM : BotCommand.SM;
+      case PARAM:
+        return isForced ? BotCommand.FSP : BotCommand.SP;
+      default:
+        return isForced ? BotCommand.FSF : BotCommand.SF;
     }
+  }
 
-    private final BotCommand command;
-    private final String     srgName;
-    private final String     newName;
-    private final String     comment;
+  private final BotCommand command;
+  private final String srgName;
+  private final String newName;
+  private final String comment;
 
-    public McpBotCommand(BotCommand command, String srgName, String newName, String comment)
-    {
-        this.command = command;
-        this.srgName = srgName;
-        this.newName = newName;
-        this.comment = comment;
-    }
+  public McpBotCommand(BotCommand command, String srgName, String newName, String comment) {
+    this.command = command;
+    this.srgName = srgName;
+    this.newName = newName;
+    this.comment = comment;
+  }
 
-    public McpBotCommand(BotCommand command, String srgName, String newName)
-    {
-        this(command, srgName, newName, "");
-    }
+  public McpBotCommand(BotCommand command, String srgName, String newName) {
+    this(command, srgName, newName, "");
+  }
 
-    public static McpBotCommand getMcpBotCommand(MemberType type, boolean isForced, String srgName, String newName, String comment)
-    {
-        return new McpBotCommand(getCommand(type, isForced), srgName, newName, comment);
-    }
+  public static McpBotCommand getMcpBotCommand(
+      MemberType type, boolean isForced, String srgName, String newName, String comment) {
+    return new McpBotCommand(getCommand(type, isForced), srgName, newName, comment);
+  }
 
-    public BotCommand getCommand()
-    {
-        return command;
-    }
+  public BotCommand getCommand() {
+    return command;
+  }
 
-    public String getNewName()
-    {
-        return newName;
-    }
+  public String getNewName() {
+    return newName;
+  }
 
-    @Override
-    public String toString()
-    {
-        return String.format("!%s %s %s %s", command.toString().toLowerCase(), srgName, newName, comment);
-    }
+  @Override
+  public String toString() {
+    return String.format(
+        "!%s %s %s %s", command.toString().toLowerCase(), srgName, newName, comment);
+  }
 }

@@ -1,17 +1,18 @@
 package com.matt.forgehax.util.gui;
 
-/**
- * Created on 9/9/2017 by fr1kin
- */
+/** Created on 9/9/2017 by fr1kin */
 public interface IGuiCheckbox extends IGuiBase {
-    String getText();
-    void setText(String text);
+  String getText();
 
-    String getHoverText();
-    void setHoverText(String text);
+  void setText(String text);
 
-    boolean isChecked();
-    void setChecked(boolean checked);
+  String getHoverText();
 
-    void onCheckChanged();
+  void setHoverText(String text);
+
+  boolean isChecked();
+
+  void setChecked(boolean checked);
+
+  void onCheckChanged();
 }

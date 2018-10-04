@@ -1,20 +1,22 @@
 package com.matt.forgehax.util.gui;
 
-/**
- * Created on 9/16/2017 by fr1kin
- */
+/** Created on 9/16/2017 by fr1kin */
 public interface IGuiButton {
-    int getBackgroundColor();
-    void setBackgroundColor(int color);
+  int getBackgroundColor();
 
-    boolean isPressed();
-    void setPressed(boolean pressed);
+  void setBackgroundColor(int color);
 
-    String getText();
-    void setText(String text);
+  boolean isPressed();
 
-    String getHoverText();
-    void setHoverText(String text);
+  void setPressed(boolean pressed);
 
-    void onPressed();
+  String getText();
+
+  void setText(String text);
+
+  String getHoverText();
+
+  void setHoverText(String text);
+
+  void onPressed();
 }
