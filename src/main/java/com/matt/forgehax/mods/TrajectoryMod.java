@@ -25,7 +25,6 @@ public class TrajectoryMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onRender(RenderEvent event) {
         Projectile projectile = Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItemMainhand());
         if(!projectile.isNull()) {

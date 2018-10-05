@@ -6,9 +6,10 @@ import net.minecraft.client.gui.GuiScreen;
 
 public class GuiOpenEvent extends Event implements Cancelable {
     private GuiScreen gui;
+
     public GuiOpenEvent(GuiScreen gui)
     {
-        this.setGui(gui);
+        this.gui = gui;
     }
 
     public GuiScreen getGui()

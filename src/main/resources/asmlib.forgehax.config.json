@@ -27,7 +27,13 @@
       "WorldPatch",
       "WorldClientPatch",
       "GuiScreenPatch",
-      "Forge_GuiUtilsPatch"
+      "Forge_GuiUtilsPatch",
+      "RenderPlayerPatch",
+      "ForgeHooksClientPatch",
+      "EntityLivingBasePatch",
+      "ItemRendererPatch",
+      "GuiIngamePatch",
+      "GuiIngameForgePatch"
     ]
   }
 }

@@ -3,18 +3,13 @@ package com.matt.forgehax.mods.services;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.ForgeHax;
-import com.matt.forgehax.events.Render2DEvent;
+import com.matt.forgehax.asm.events.replacementhooks.RenderWorldLastEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
@@ -31,7 +26,6 @@ public class RenderEventService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent event) {
         GlStateManager.pushMatrix();
         GlStateManager.disableTexture2D();
@@ -60,12 +54,12 @@ public class RenderEventService extends ServiceMod {
         GlStateManager.popMatrix();
     }
 
-    @Subscribe
+    /*@Subscribe
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onRenderGameOverlayEvent(final RenderGameOverlayEvent.Text event) {
         if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
             ForgeHax.EVENT_BUS.post(new Render2DEvent(event.getPartialTicks()));
             GlStateManager.color(1.f, 1.f, 1.f, 1.f); // reset color
         }
-    }
+    }*/
 }

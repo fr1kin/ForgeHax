@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.RenderBlockOverlayEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.mod.Category;
@@ -10,7 +11,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -37,7 +37,6 @@ public class AntiOverlayMod extends ToggleMod {
      * Disables screen overlays
      */
     @Subscribe
-    @SubscribeEvent
     public void onRenderBlockOverlay(RenderBlockOverlayEvent event) { event.setCanceled(true); }
 
     @Subscribe
@@ -49,7 +48,6 @@ public class AntiOverlayMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onRender(RenderEvent event) {
         ItemStack item = FastReflection.Fields.EntityRenderer_itemActivationItem.get(MC.entityRenderer);
 

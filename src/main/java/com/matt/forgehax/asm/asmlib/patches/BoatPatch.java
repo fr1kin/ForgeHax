@@ -11,7 +11,6 @@ import org.objectweb.asm.tree.*;
 import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Opcodes.IFNE;
 
 @Transformer(EntityBoat.class)
 public class BoatPatch {

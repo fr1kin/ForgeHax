@@ -5,6 +5,7 @@ import net.futureclient.asm.transformer.annotation.Inject;
 import net.futureclient.asm.transformer.annotation.Transformer;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.Arrays;
@@ -12,7 +13,7 @@ import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
 
-@Transformer(target = "net.minecraftforge.fml.client.config.GuiUtils")
+@Transformer(GuiUtils.class)
 public class Forge_GuiUtilsPatch {
 
     @Inject(name = "drawHoveringText", args = {ItemStack.class, List.class, int.class, int.class, int.class, int.class, int.class, FontRenderer.class},

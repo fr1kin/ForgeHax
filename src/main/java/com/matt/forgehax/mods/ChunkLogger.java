@@ -157,7 +157,7 @@ public class ChunkLogger extends ToggleMod {
         }
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onRender(RenderEvent event) {
         if(chunks == null)
             return;

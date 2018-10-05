@@ -3,12 +3,11 @@ package com.matt.forgehax.events;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * Created on 5/5/2017 by fr1kin
  */
-public class RenderEvent extends Event {
+public class RenderEvent {
     private final GeometryTessellator tessellator;
     private final Vec3d renderPos;
 

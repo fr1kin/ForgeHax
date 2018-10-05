@@ -115,9 +115,8 @@ public class ModManager extends AbstractClassLoader<BaseMod> implements Globals 
 
     @SuppressWarnings("unchecked")
     public <T extends BaseMod> Optional<T> get(final Class<T> clazz) {
-        return active.stream()
+        return (Optional<T>)active.stream()
                 .filter(mod -> Objects.equals(clazz, mod.getClass()))
-                .map(mod -> (T)mod)
                 .findFirst();
     }
 

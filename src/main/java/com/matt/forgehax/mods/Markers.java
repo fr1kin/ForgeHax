@@ -553,7 +553,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Subscribe
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    //@SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRenderWorld(RenderEvent event) {
         if(uploaders != null
                 && MC.getRenderViewEntity() != null) try {

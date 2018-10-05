@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import static com.matt.forgehax.Helper.getWorld;
@@ -28,7 +27,6 @@ public class SpawnerEspMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onRender(RenderEvent event) {
         event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 

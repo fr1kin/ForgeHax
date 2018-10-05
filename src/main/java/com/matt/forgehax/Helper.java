@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.Style;
@@ -161,4 +162,5 @@ public class Helper implements Globals {
             if(getWorld() != null && getLocalPlayer() != null) MC.renderGlobal.loadRenderers();
         });
     }
+
 }

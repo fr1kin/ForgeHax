@@ -55,7 +55,6 @@ public class StorageESPMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onRender(RenderEvent event) {
         event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 

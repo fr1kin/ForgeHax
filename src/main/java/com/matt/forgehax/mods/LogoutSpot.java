@@ -159,7 +159,6 @@ public class LogoutSpot extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onRender(RenderEvent event) { // render box
         if (renderPosition.getAsBoolean()) {
             event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);

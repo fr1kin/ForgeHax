@@ -76,14 +76,14 @@ public class GuiScreenPatch {
 
     @Inject(name = "mouseClicked", args = {int.class, int.class, int.class})
     public void mouseClickedHook(AsmMethod method) {
-        AbstractInsnNode ifMousePressed = ASMHelper.findPattern(method.method.instructions.getFirst(), new int[] {
+        InsnPattern ifMousePressed = ASMHelper._findPattern(method.method.instructions.getFirst(), new int[] {
                 ALOAD, ALOAD, GETFIELD, ILOAD, ILOAD, INVOKEVIRTUAL, IFEQ
         }, "xxxxxxx");
         Objects.requireNonNull(ifMousePressed, "Failed to find ifMousePressed node");
 
         final int GUIBUTTON_INDEX = 5;
 
-        final JumpInsnNode jumpNode = ((JumpInsnNode)ifMousePressed.getNext().getNext().getNext().getNext().getNext().getNext());
+        final JumpInsnNode jumpNode = ifMousePressed.getLast();
 
         final AbstractInsnNode start = jumpNode.getNext();
         final AbstractInsnNode end = jumpNode.label;
@@ -159,7 +159,7 @@ public class GuiScreenPatch {
     }
 
 
-    public static ItemStack cachedToolTip = ItemStack.EMPTY;
+    public static ItemStack cachedToolTip; //= ItemStack.EMPTY;
 
     // TODO: set local variables from event
     @Inject(name = "drawHoveringText", args = {List.class, int.class, int.class, FontRenderer.class},
@@ -189,7 +189,7 @@ public class GuiScreenPatch {
         method.setCursor(node.getLast().getNext());
         args.forEach(method::visitInsn);
         method.<HoverTextPredicate>invoke((lines, mouseX, mouseY, fr) ->
-            ForgeHax.EVENT_BUS.post(new RenderTooltipEvent(cachedToolTip, lines, mouseX, mouseY, fr))
+            ForgeHax.EVENT_BUS.post(new RenderTooltipEvent(cachedToolTip != null ? cachedToolTip : ItemStack.EMPTY, lines, mouseX, mouseY, fr))
         );
         method.returnIf(true);
     }

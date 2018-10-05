@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods.services;
 
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.LivingUpdateEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -18,11 +19,10 @@ public class PigmenAngerCooldownService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
-    public void onUpdate(LivingEvent.LivingUpdateEvent event) {
-        if(event.getEntityLiving() instanceof EntityPigZombie) {
+    public void onUpdate(LivingUpdateEvent event) {
+        if(event.getEntity() instanceof EntityPigZombie) {
             // update pigmens anger level
-            EntityPigZombie pigZombie = (EntityPigZombie)event.getEntityLiving();
+            EntityPigZombie pigZombie = (EntityPigZombie)event.getEntity();
             if(pigZombie.isArmsRaised()) {
                 FastReflection.Fields.EntityPigZombie_angerLevel.set(pigZombie, 400);
             } else if(pigZombie.isAngry()) {

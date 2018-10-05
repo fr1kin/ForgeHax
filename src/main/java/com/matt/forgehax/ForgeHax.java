@@ -13,7 +13,7 @@ public class ForgeHax {
 	public static final String MOD_ID 			= "forgehax";
 	public static final String MOD_VERSION 		= ForgeHaxProperties.getVersion();
 
-    public static final EventBus EVENT_BUS = new ForgehaxEventBus();
+	public static final EventBus EVENT_BUS = new ForgehaxEventBus();
 
 	public static String getWelcomeMessage() {
 		StringBuilder builder = new StringBuilder();

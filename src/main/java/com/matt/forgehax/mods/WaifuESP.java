@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.asm.events.replacementhooks.RenderPlayerEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -17,7 +18,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -99,7 +99,6 @@ public class WaifuESP extends ToggleMod {
 
 
     @Subscribe
-    @SubscribeEvent
     public void onRenderPlayer(RenderPlayerEvent.Pre event) {
         if(noRenderPlayers.getAsBoolean() && !event.getEntity().equals(MC.player)) {
             event.setCanceled(true);
