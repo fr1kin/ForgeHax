@@ -23,7 +23,8 @@ public class AntiOverlayMod extends ToggleMod {
     /**
      * Disables water/lava fog
      */
-    @Subscribe
+    // TODO: implement event
+    /*@Subscribe
     @SubscribeEvent
     public void onFogRender(EntityViewRenderEvent.FogDensity event) {
         if(event.getState().getMaterial().equals(Material.WATER) ||
@@ -31,7 +32,7 @@ public class AntiOverlayMod extends ToggleMod {
             event.setDensity(0);
             event.setCanceled(true);
         }
-    }
+    }*/
 
     /**
      * Disables screen overlays

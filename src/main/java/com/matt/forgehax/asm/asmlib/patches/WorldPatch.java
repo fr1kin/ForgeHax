@@ -1,11 +1,17 @@
 package com.matt.forgehax.asm.asmlib.patches;
 
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.events.replacementhooks.PlaySoundAtEntityEvent;
 import com.matt.forgehax.asm.utils.ASMHelper;
+import net.futureclient.asm.transformer.AsmMethod;
 import net.futureclient.asm.transformer.annotation.Inject;
 import net.futureclient.asm.transformer.annotation.Transformer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
@@ -72,5 +78,25 @@ public class WorldPatch {
         list.add(label);
 
         method.instructions.insertBefore(node, list);
+    }
+
+    @Inject(name = "playSound", args = {
+        EntityPlayer.class, double.class, double.class, double.class,
+        SoundEvent.class, SoundCategory.class, float.class, float.class
+    })
+    public void playSoundHook(AsmMethod method) {
+        method.visitInsn(new VarInsnNode(ALOAD, 1)); // entity
+        method.visitInsn(new VarInsnNode(ALOAD, 7)); // SoundEvent name
+        method.visitInsn(new VarInsnNode(ALOAD, 8)); // category
+        method.visitInsn(new VarInsnNode(FLOAD, 9)); // volume
+        method.visitInsn(new VarInsnNode(FLOAD, 10)); // pitch
+        method.<PlaySoundPredicate>invoke((entity, name, category, volume, pitch) ->
+            ForgeHax.EVENT_BUS.post(new PlaySoundAtEntityEvent(entity, name, category, volume, pitch))
+        );
+        method.returnIf(true);
+    }
+
+    private interface PlaySoundPredicate {
+        boolean test(Entity entity, SoundEvent name, SoundCategory category, float volume, float pitch);
     }
 }

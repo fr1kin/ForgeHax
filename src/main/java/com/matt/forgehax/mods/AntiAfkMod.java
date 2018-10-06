@@ -1,7 +1,9 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.ForgeHaxHooks;
+import com.matt.forgehax.asm.events.replacementhooks.InputEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.Utils;
@@ -30,8 +32,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -140,20 +140,21 @@ public class AntiAfkMod extends ToggleMod {
                 isTaskRunning() ? (SimpleTimer.toFormattedTime(Math.max(runtime.get() - timer.getTimeElapsed(), 0))) : (SimpleTimer.toFormattedTime(Math.max(delay.get() - timer.getTimeElapsed(), 0))));
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onKeyboardInput(InputEvent.KeyInputEvent event) {
         reset();
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onMouseEvent(InputEvent.MouseInputEvent event) {
         reset();
     }
 
-    @SubscribeEvent
+    // TODO: implement event
+    /*@SubscribeEvent
     public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         reset();
-    }
+    }*/
 
     @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {

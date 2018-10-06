@@ -80,7 +80,7 @@ jar {
                 //'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
                 //'FMLCorePluginContainsFMLMod': 'true',
                 TweakClass: 'com.matt.forgehax.asm.tweaker.ForgehaxTweaker',
-                TweakOrder: '0'
+                TweakOrder: '1000'
 
         )
     }

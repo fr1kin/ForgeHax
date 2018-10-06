@@ -12,6 +12,6 @@ import org.apache.logging.log4j.Logger;
  */
 public interface Globals {
     Logger      LOGGER              = LogManager.getLogger("ForgeHax");
-    Minecraft   MC                  = FMLClientHandler.instance().getClient();
+    Minecraft   MC                  = Minecraft.getMinecraft();//FMLClientHandler.instance().getClient();
     Command     GLOBAL_COMMAND      = CommandGlobal.getInstance();
 }

@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.matt.forgehax.asm.events.replacementhooks.RenderNametagEvent;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -18,9 +19,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,14 +71,12 @@ public class ESP extends ToggleMod implements Fonts {
     }
 
     @Subscribe
-    @SubscribeEvent
-    public void onRenderPlayerNameTag(RenderLivingEvent.Specials.Pre event) {
+    public void onRenderPlayerNameTag(RenderNametagEvent event) {
         if(EntityUtils.isPlayer(event.getEntity()))
             event.setCanceled(true);
     }
 
     @Subscribe
-    @SubscribeEvent(priority = EventPriority.LOW)
     public void onRender2D(final Render2DEvent event) {
         getWorld().loadedEntityList.stream()
                 .filter(EntityUtils::isLiving)

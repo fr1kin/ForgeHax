@@ -1,10 +1,15 @@
 package com.matt.forgehax.asm.asmlib.patches;
 
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.events.replacementhooks.PlaySoundAtEntityEvent;
 import com.matt.forgehax.asm.utils.ASMHelper;
+import net.futureclient.asm.transformer.AsmMethod;
 import net.futureclient.asm.transformer.annotation.Inject;
 import net.futureclient.asm.transformer.annotation.Transformer;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
@@ -100,5 +105,21 @@ public class EntityPlayerSPPatch {
 
 
         main.instructions.insert(insnPre);
+    }
+
+    @Inject(name = "playSound", args = {SoundEvent.class, float.class, float.class})
+    public void playSoundHook(AsmMethod method) {
+        method.visitInsn(new VarInsnNode(ALOAD, 0)); // this
+        method.visitInsn(new VarInsnNode(ALOAD, 1)); // soundIn
+        method.visitInsn(new VarInsnNode(FLOAD, 2)); // volume
+        method.visitInsn(new VarInsnNode(FLOAD, 3)); // pitch
+        method.<PlaySoundPredicate>invoke((player, sound, volume, pitch) ->
+            ForgeHax.EVENT_BUS.post(new PlaySoundAtEntityEvent(player, sound, player.getSoundCategory(), volume, pitch))
+        );
+        method.returnIf(true);
+    }
+
+    private interface PlaySoundPredicate {
+        boolean test(EntityPlayerSP player, SoundEvent sound, float volume, float pitch);
     }
 }

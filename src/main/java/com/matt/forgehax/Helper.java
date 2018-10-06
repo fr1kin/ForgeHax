@@ -9,14 +9,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
@@ -81,7 +79,8 @@ public class Helper implements Globals {
     }
 
     public static NetworkManager getNetworkManager() {
-        return FMLClientHandler.instance().getClientToServerNetworkManager();
+        //return FMLClientHandler.instance().getClientToServerNetworkManager();
+        return MC.getConnection()!= null ? MC.getConnection().getNetworkManager() : null;
     }
 
     public static void printMessageNaked(String startWith, String message, Style firstStyle, Style secondStyle) {

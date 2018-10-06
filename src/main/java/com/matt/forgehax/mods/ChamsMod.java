@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.RenderLivingEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.Category;
@@ -8,8 +9,6 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 @RegisterMod
@@ -46,7 +45,6 @@ public class ChamsMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPreRenderLiving(RenderLivingEvent.Pre event) {
         GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
         GlStateManager.enablePolygonOffset();
@@ -54,7 +52,6 @@ public class ChamsMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPostRenderLiving(RenderLivingEvent.Post event) {
         GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
         GlStateManager.doPolygonOffset(1.0F, 1000000);

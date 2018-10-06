@@ -26,7 +26,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.nio.ByteOrder;
 import java.util.Collections;

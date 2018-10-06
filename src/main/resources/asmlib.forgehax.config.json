@@ -33,7 +33,8 @@
       "EntityLivingBasePatch",
       "ItemRendererPatch",
       "GuiIngamePatch",
-      "GuiIngameForgePatch"
+      "GuiIngameForgePatch",
+      "RenderLivingBasePatch"
     ]
   }
 }
