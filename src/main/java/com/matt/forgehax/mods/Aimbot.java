@@ -4,6 +4,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
+import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState;
 import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -12,29 +13,29 @@ import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.entity.PlayerUtils;
 import com.matt.forgehax.util.key.Bindings;
-import com.matt.forgehax.util.math.Angle;
-import com.matt.forgehax.util.math.ProjectileUtils;
-import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.math.AngleHelper;
+import com.matt.forgehax.util.math.AngleN;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.matt.forgehax.util.projectile.Projectile;
+import com.matt.forgehax.util.projectile.SimulationResult;
 import java.util.Collections;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 @RegisterMod
-public class AimbotMod extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
+public class Aimbot extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
   public final Setting<Boolean> silent =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
           .name("silent")
-          .description("Won't look at target when aiming")
+          .description("Wont look at target when aiming")
           .defaultTo(true)
           .build();
 
@@ -42,17 +43,8 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("autoattack")
+          .name("auto-attack")
           .description("Automatically attack when target found")
-          .defaultTo(true)
-          .build();
-
-  public final Setting<Boolean> projectile_auto_attack =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("projectile_auto_attack")
-          .description("Automatically attack when target found for projectile weapons")
           .defaultTo(true)
           .build();
 
@@ -60,7 +52,7 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("hold_target")
+          .name("hold-target")
           .description("Keep first caught target until it becomes no longer valid")
           .defaultTo(false)
           .build();
@@ -69,34 +61,16 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("vis_check")
+          .name("trace")
           .description("Check if the target is visible before acquiring")
           .defaultTo(false)
-          .build();
-
-  public final Setting<Boolean> projectile_aimbot =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("projectile_aimbot")
-          .description("Projectile aimbot")
-          .defaultTo(true)
-          .build();
-
-  public final Setting<Boolean> projectile_trace_check =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("projectile_trace_check")
-          .description("Check the trace of each target if holding a weapon that fires a projectile")
-          .defaultTo(true)
           .build();
 
   public final Setting<Boolean> target_players =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("target_players")
+          .name("target-players")
           .description("Target players")
           .defaultTo(true)
           .build();
@@ -105,7 +79,7 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("target_mobs_hostile")
+          .name("target-hostile-mobs")
           .description("Target hostile mobs")
           .defaultTo(true)
           .build();
@@ -114,7 +88,7 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("target_mobs_friendly")
+          .name("target-friendly-mobs")
           .description("Target friendly mobs")
           .defaultTo(false)
           .build();
@@ -123,7 +97,7 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("lag_compensation")
+          .name("lag-compensation")
           .description("Compensate for server lag")
           .defaultTo(true)
           .build();
@@ -148,15 +122,6 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
           .defaultTo(4.5D)
           .build();
 
-  public final Setting<Double> projectile_range =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("projectile_range")
-          .description("Projectile aimbot range")
-          .defaultTo(100D)
-          .build();
-
   public final Setting<Double> cooldown_percent =
       getCommandStub()
           .builders()
@@ -166,7 +131,54 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
           .defaultTo(100D)
           .build();
 
-  public AimbotMod() {
+  public final Setting<Boolean> projectile_aimbot =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("proj-aimbot")
+          .description("Projectile aimbot")
+          .defaultTo(true)
+          .build();
+
+  public final Setting<Boolean> projectile_auto_attack =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("proj-auto-attack")
+          .description("Automatically attack when target found for projectile weapons")
+          .defaultTo(true)
+          .build();
+
+  public final Setting<Boolean> projectile_trace_check =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("projectile-trace")
+          .description("Check the trace of each target if holding a weapon that fires a projectile")
+          .defaultTo(true)
+          .build();
+
+  public final Setting<Double> projectile_range =
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("projectile-range")
+          .description("Projectile aimbot range")
+          .defaultTo(100D)
+          .build();
+
+  public final Setting<Double> smooth =
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("smooth")
+          .description("Angle smoothing for bypassing anti-cheats")
+          .defaultTo(0.D)
+          .min(0.D)
+          .max(100.D)
+          .build();
+
+  public Aimbot() {
     super(Category.COMBAT, "Aimbot", false, "Automatically attack entities and players");
   }
 
@@ -182,8 +194,12 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
         && (auto_attack.get() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
   }
 
+  public Projectile getHeldProjectile() {
+    return Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItem(EnumHand.MAIN_HAND));
+  }
+
   public boolean isHoldingProjectileItem() {
-    return ProjectileUtils.isThrowable(MC.player.getHeldItemMainhand());
+    return !getHeldProjectile().isNull();
   }
 
   public boolean isProjectileAimbotActivated() {
@@ -192,8 +208,7 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
 
   public boolean isVisible(Entity target) {
     if (isProjectileAimbotActivated() && projectile_trace_check.get()) {
-      return ProjectileUtils.projectileTrajectoryHitsEntity(
-          target, EntityUtils.getEyePos(getLocalPlayer()), getAimPos(target), null);
+      return getHeldProjectile().canHitEntity(EntityUtils.getEyePos(getLocalPlayer()), target);
     } else return !vis_check.get() || getLocalPlayer().canEntityBeSeen(target);
   }
 
@@ -208,7 +223,7 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
 
   /** Check if the entity is a valid target to acquire */
   public boolean isValidTarget(
-      Entity entity, Vec3d entPos, Vec3d selfPos, Vec3d lookVec, Angle viewAngles) {
+      Entity entity, Vec3d entPos, Vec3d selfPos, Vec3d lookVec, AngleN viewAngles) {
     return EntityUtils.isLiving(entity)
         && EntityUtils.isAlive(entity)
         && !entity.equals(MC.player)
@@ -229,12 +244,12 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
     return dist <= 0 || fromPos.distanceTo(toPos) <= dist;
   }
 
-  public boolean isInFOVRange(Angle selfAngle, Vec3d diffPos) {
+  public boolean isInFOVRange(AngleN selfAngle, Vec3d diffPos) {
     double value = fov.get();
     if (value >= 180) {
       return true;
     } else {
-      Angle diff = VectorUtils.vectorAngle(diffPos);
+      AngleN diff = AngleHelper.getAngleFacingInDegrees(diffPos);
       double pitch = Math.abs(Utils.normalizeAngle(selfAngle.getPitch() - diff.getPitch()));
       double yaw = Math.abs(Utils.normalizeAngle(selfAngle.getYaw() - diff.getYaw()));
       return pitch <= value && yaw <= value;
@@ -242,7 +257,7 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
   }
 
   /** Finds entity closest to crosshair */
-  public Entity findTargetEntity(Vec3d selfPos, Vec3d selfLookVec, Angle viewAngles) {
+  public Entity findTargetEntity(Vec3d selfPos, Vec3d selfLookVec, AngleN viewAngles) {
     final World world = Minecraft.getMinecraft().world;
     final Vec3d selfLookVecNormal = selfLookVec.normalize();
     Entity target = null;
@@ -263,10 +278,17 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
         }
       }
     }
-
-    // System.out.printf("Took %d ms\n", System.currentTimeMillis() - start);
     LocalPlayerUtils.setTargetEntity(target);
     return target;
+  }
+
+  private float clampAngle(float from, float to, float min, float max) {
+    float normal = AngleHelper.normalizeInDegrees(to - from);
+    return 0.f; // AngleHelper.normalizeInDegrees()
+  }
+
+  private boolean setViewAngles(RotationState.Local state, AngleN angle) {
+    return false;
   }
 
   @Override
@@ -277,11 +299,6 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
   @Override
   public void onDisabled() {
     PositionRotationManager.getManager().unregister(this);
-
-    LocalPlayerUtils.setTargetEntity(null);
-    LocalPlayerUtils.setActiveFakeAngles(false);
-    LocalPlayerUtils.setProjectileTargetAcquired(false);
-    LocalPlayerUtils.setFakeViewAngles(null);
   }
 
   /*
@@ -336,7 +353,7 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
   }*/
 
   @Override
-  public void onLocalPlayerMovementUpdate(PositionRotationManager.RotationState state) {
+  public void onLocalPlayerMovementUpdate(RotationState.Local state) {
     EntityPlayer localPlayer = MC.player;
     Entity target = LocalPlayerUtils.getTargetEntity();
     // local player eye pos
@@ -344,7 +361,7 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
     // local player look vec
     Vec3d selfLookVec = localPlayer.getLookVec();
     // local player view angles
-    Angle viewAngles = VectorUtils.vectorAngle(selfLookVec);
+    AngleN viewAngles = AngleHelper.getAngleFacingInDegrees(selfLookVec);
     if (hold_target.get()) {
       if (target == null
           || !isValidTarget(
@@ -356,48 +373,31 @@ public class AimbotMod extends ToggleMod implements PositionRotationManager.Move
     }
     if (target != null) {
       if (!isHoldingProjectileItem()) {
-        Angle aim = Utils.getLookAtAngles(target);
-        state.setViewAngles((float) aim.getPitch(), (float) aim.getYaw(), silent.get());
+        AngleN aim = Utils.getLookAtAngles(target);
+        state.setViewAngles(aim.getPitch(), aim.getYaw(), silent.get());
 
         if (canAttack(localPlayer, target)) {
           final Entity t = target;
-          state.processAfter(
-              () -> {
+          state.invokeLater(
+              (rs) -> {
                 // attack entity
-                MC.playerController.attackEntity(MC.player, t);
+                MC.playerController.attackEntity(rs.getLocalPlayer(), t);
                 // swing hand
                 localPlayer.swingArm(EnumHand.MAIN_HAND);
               });
         }
       } else {
-        ItemStack holding = localPlayer.getHeldItemMainhand();
-
         // this will find the angle we need to shoot at
-        ProjectileUtils.ProjectileTraceResult result = new ProjectileUtils.ProjectileTraceResult();
-        boolean exists =
-            ProjectileUtils.projectileTrajectoryHitsEntity(
-                target, selfPos, getAimPos(target), result);
-        if (!exists || result.shootAngle == null) {
-          LocalPlayerUtils.setProjectileTargetAcquired(false);
-        } else {
-          // we have a projectile target
-          LocalPlayerUtils.setProjectileTargetAcquired(true);
-
-          // set view angles
-          state.setViewAngles(
-              (float) result.shootAngle.getPitch(),
-              (float) result.shootAngle.getYaw(),
-              silent.get());
-
-          // bow auto attack will release the use key when
-          // the force is greater than or equal to the max force
-          if (projectile_auto_attack.get()
-              && Bindings.use.getBinding().isKeyDown()
-              && ProjectileUtils.getForce(holding) >= result.maxForce) {
-            Bindings.use.setPressed(false);
-          }
-          return;
-        }
+        Projectile holding = getHeldProjectile();
+        SimulationResult result =
+            holding.getSimulatedTrajectoryFromEntity(
+                getLocalPlayer(),
+                viewAngles,
+                holding.getForce(
+                    getLocalPlayer().getHeldItemMainhand().getMaxItemUseDuration()
+                        - getLocalPlayer().getItemInUseCount()),
+                0);
+        // TODO: reimplement
       }
     }
     LocalPlayerUtils.setProjectileTargetAcquired(false);

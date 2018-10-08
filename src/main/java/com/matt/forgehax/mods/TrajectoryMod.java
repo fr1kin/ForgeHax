@@ -30,7 +30,7 @@ public class TrajectoryMod extends ToggleMod {
       SimulationResult result =
           projectile.getSimulatedTrajectoryFromEntity(
               getLocalPlayer(),
-              PositionRotationManager.getState().getActiveServerViewAngles(),
+              PositionRotationManager.getState().getRenderServerViewAngles(),
               projectile.getForce(
                   getLocalPlayer().getHeldItemMainhand().getMaxItemUseDuration()
                       - getLocalPlayer().getItemInUseCount()),

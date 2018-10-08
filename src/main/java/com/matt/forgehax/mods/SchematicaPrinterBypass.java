@@ -4,7 +4,7 @@ import static com.matt.forgehax.Helper.*;
 
 import com.matt.forgehax.asm.events.SchematicaPlaceBlockEvent;
 import com.matt.forgehax.util.Utils;
-import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.AngleN;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -26,13 +26,11 @@ public class SchematicaPrinterBypass extends ToggleMod {
 
   @SubscribeEvent
   public void onPrinterBlockPlace(SchematicaPlaceBlockEvent event) {
-    Angle lookAngle = Utils.getLookAtAngles(event.getVec());
+    AngleN lookAngle = Utils.getLookAtAngles(event.getVec());
     getNetworkManager()
         .sendPacket(
             new CPacketPlayer.Rotation(
-                (float) lookAngle.getYaw(),
-                (float) lookAngle.getPitch(),
-                getLocalPlayer().onGround));
+                lookAngle.getYaw(), lookAngle.getPitch(), getLocalPlayer().onGround));
     // getLocalPlayer().rotationYaw = getLocalPlayer().prevRotationYaw = (float)lookAngle.getYaw();
     // getLocalPlayer().rotationPitch = getLocalPlayer().prevRotationPitch =
     // (float)lookAngle.getPitch();

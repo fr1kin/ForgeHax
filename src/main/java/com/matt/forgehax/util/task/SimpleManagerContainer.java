@@ -1,4 +1,4 @@
-package com.matt.forgehax.mods.managers;
+package com.matt.forgehax.util.task;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.util.common.PriorityEnum;

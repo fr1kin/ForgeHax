@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.mods.managers.PositionRotationManager;
+import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.mod.Category;
@@ -58,10 +59,10 @@ public class YawLockMod extends ToggleMod
   }
 
   @Override
-  public void onLocalPlayerMovementUpdate(PositionRotationManager.RotationState state) {
+  public void onLocalPlayerMovementUpdate(RotationState.Local state) {
     double yaw = getYawDirection();
     if (!auto_angle.get()) yaw = custom_angle.get();
-    state.setViewAngles((float) state.getServerViewAngles().pitch(), (float) yaw);
+    state.setClientAngles((float) state.getServerAngles().getPitch(), (float) yaw);
     // disable after first set if set to do once
     if (isEnabled() && do_once.get()) disable();
   }

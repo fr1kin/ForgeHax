@@ -153,7 +153,7 @@ public enum Projectile implements IProjectile {
 
     Entity hitEntity = null;
 
-    double[] forward = angle.forward();
+    double[] forward = angle.getForwardVector();
     Vec3d v = new Vec3d(forward[0], forward[1], forward[2]).normalize().scale(force);
 
     double velocityX = v.x;
@@ -218,7 +218,7 @@ public enum Projectile implements IProjectile {
     Vec3d start = shooterPos.subtract(targetPos);
 
     double pitch;
-    double yaw = AngleHelper.getAngleFacingInRadians(targetPos.subtract(shooterPos)).yaw();
+    double yaw = AngleHelper.getAngleFacingInRadians(targetPos.subtract(shooterPos)).getYaw();
 
     // to find the pitch we use this equation
     // https://en.wikipedia.org/wiki/Trajectory_of_a_projectile#Angle_.7F.27.22.60UNIQ--postMath-00000010-QINU.60.22.27.7F_required_to_hit_coordinate_.28x.2Cy.29
@@ -243,7 +243,7 @@ public enum Projectile implements IProjectile {
     // use the lowest pitch
     pitch = Math.atan(Math.max(A, B));
 
-    return AngleN.radians(pitch, yaw).normalize();
+    return AngleN.radians((float) pitch, (float) yaw).normalize();
   }
 
   @Nullable
@@ -333,13 +333,14 @@ public enum Projectile implements IProjectile {
   private static Vec3d getShootPosFacing(Entity entity, AngleN angleFacing) {
     return getEntityShootPos(entity)
         .subtract(
-            Math.cos(angleFacing.toRadians().yaw() - AngleHelper.HALF_PI) * 0.16D,
+            Math.cos(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D,
             0.D,
-            Math.sin(angleFacing.toRadians().yaw() - AngleHelper.HALF_PI) * 0.16D);
+            Math.sin(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D);
   }
 
   private static AngleN getAngleFacing(AngleN angle) {
-    return AngleN.radians(-angle.toRadians().pitch(), angle.toRadians().yaw() + (Math.PI / 2.D));
+    return AngleN.radians(
+        -angle.inRadians().getPitch(), (float) (angle.inRadians().getYaw() + (Math.PI / 2.D)));
   }
 
   public static Projectile getProjectileByItem(Item item) {

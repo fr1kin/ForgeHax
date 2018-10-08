@@ -10,9 +10,7 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
-import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.key.Bindings;
-import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.AngleN;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -247,7 +245,7 @@ public class AntiAfkMod extends ToggleMod {
       @Override
       public void onTick() {
         Bindings.forward.setPressed(true);
-        LocalPlayerUtils.setViewAngles(0, angle);
+        // TODO: reimplement view angle setting
       }
 
       @Override
@@ -263,7 +261,7 @@ public class AntiAfkMod extends ToggleMod {
 
         double lastDistance = -1.D;
         for (double y : yaws) {
-          double[] cc = AngleN.degrees(0.f, y).forward();
+          double[] cc = AngleN.degrees(0.f, (float) y).getForwardVector();
           Vec3d target = eye.add(new Vec3d(cc[0], cc[1], cc[2]).normalize().scale(64));
 
           RayTraceResult result = getWorld().rayTraceBlocks(eye, target, false, true, false);
@@ -283,11 +281,9 @@ public class AntiAfkMod extends ToggleMod {
         getLocalPlayer().motionX = 0.D;
         getLocalPlayer().motionY = 0.D;
         getLocalPlayer().motionZ = 0.D;
-        MC.addScheduledTask(
-            () ->
-                getModManager()
-                    .get(SafeWalkMod.class)
-                    .ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled())); // wait
+        getModManager()
+            .get(SafeWalkMod.class)
+            .ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled());
       }
     },
     SPIN {
@@ -402,7 +398,7 @@ public class AntiAfkMod extends ToggleMod {
 
         BlockPos pos = getBlockBelow();
         Vec3d look = new Vec3d(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
-        Angle va = Utils.getLookAtAngles(look);
+        AngleN va = Utils.getLookAtAngles(look);
         setViewAngles(va.getPitch(), va.getYaw());
       }
 
@@ -458,7 +454,8 @@ public class AntiAfkMod extends ToggleMod {
           getNetworkManager().sendPacket(new CPacketPlayer.Rotation((float)p, (float)y, getLocalPlayer().onGround));
       else
           LocalPlayerUtils.setViewAngles(p, y);*/
-      LocalPlayerUtils.setViewAngles(p, y); // TODO
+
+      // TODO: view angle stuff
     }
 
     public static void setSilent(boolean silent) {

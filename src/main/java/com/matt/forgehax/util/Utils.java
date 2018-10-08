@@ -1,9 +1,11 @@
 package com.matt.forgehax.util;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
+
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.math.Angle;
-import com.matt.forgehax.util.math.VectorUtils;
+import com.matt.forgehax.util.math.AngleHelper;
+import com.matt.forgehax.util.math.AngleN;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,15 +83,15 @@ public class Utils implements Globals {
     return Math.max(min, Math.min(max, value));
   }
 
-  public static Angle getLookAtAngles(Vec3d startPos, Vec3d endPos) {
-    return VectorUtils.vectorAngle(endPos.subtract(startPos)).normalize();
+  public static AngleN getLookAtAngles(Vec3d start, Vec3d end) {
+    return AngleHelper.getAngleFacingInDegrees(end.subtract(start)).normalize();
   }
 
-  public static Angle getLookAtAngles(Vec3d endPos) {
-    return getLookAtAngles(EntityUtils.getEyePos(MC.player), endPos);
+  public static AngleN getLookAtAngles(Vec3d end) {
+    return getLookAtAngles(EntityUtils.getEyePos(getLocalPlayer()), end);
   }
 
-  public static Angle getLookAtAngles(Entity entity) {
+  public static AngleN getLookAtAngles(Entity entity) {
     return getLookAtAngles(EntityUtils.getOBBCenter(entity));
   }
 

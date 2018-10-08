@@ -3,19 +3,17 @@ package com.matt.forgehax.util.entity;
 import static com.matt.forgehax.Helper.*;
 
 import com.matt.forgehax.Globals;
-import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.mods.managers.PositionRotationManager;
+import com.matt.forgehax.util.math.AngleN;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.client.FMLClientHandler;
 
 /** Class for dealing with the local player only */
 public class LocalPlayerUtils implements Globals {
   private static boolean projectileTargetAcquired = false;
   private static boolean activeFakeAngles = false;
   private static Entity targetEntity = null;
-  private static Angle fakeViewAngles = null;
 
   /**
    * If the client should be sending fake angles to the server Will override any vanilla packets
@@ -44,29 +42,9 @@ public class LocalPlayerUtils implements Globals {
     LocalPlayerUtils.projectileTargetAcquired = projectileTargetAcquired;
   }
 
-  /** Sets the players real view angles */
-  public static void setViewAngles(Angle angles) {
-    setViewAngles(angles.getPitch(), angles.getYaw());
-  }
-
-  public static void setViewAngles(double p, double y) {
-    getLocalPlayer().rotationYaw = (float) y;
-    getLocalPlayer().rotationPitch = (float) p;
-  }
-
   /** Gets the players current view angles */
-  public static Angle getViewAngles() {
-    return new Angle(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
-  }
-
-  /** Sets the fake angles that will sent to the server */
-  public static void setFakeViewAngles(Angle fakeViewAngles) {
-    LocalPlayerUtils.fakeViewAngles = fakeViewAngles;
-  }
-
-  /** Gets the currently set fake angles */
-  public static Angle getFakeViewAngles() {
-    return fakeViewAngles;
+  public static AngleN getViewAngles() {
+    return PositionRotationManager.getState().getRenderClientViewAngles();
   }
 
   /*
@@ -97,22 +75,5 @@ public class LocalPlayerUtils implements Globals {
   /** Check if entity instance is our target */
   public static boolean isTargetEntity(Entity entity) {
     return targetEntity != null && targetEntity.equals(entity);
-  }
-
-  /** Sends a player rotation packet to the server */
-  private static Angle lastAngle = new Angle(0, 0, 0);
-
-  public static void sendRotatePacket(double pitch, double yaw) {
-    if (lastAngle.getPitch() != pitch || lastAngle.getYaw() != yaw) {
-      FMLClientHandler.instance()
-          .getClientToServerNetworkManager()
-          .sendPacket(new CPacketPlayer.Rotation((float) yaw, (float) pitch, MC.player.onGround));
-      lastAngle.setPitch(pitch);
-      lastAngle.setYaw(yaw);
-    }
-  }
-
-  public static void sendRotatePacket(Angle angle) {
-    sendRotatePacket(angle.getPitch(), angle.getYaw());
   }
 }

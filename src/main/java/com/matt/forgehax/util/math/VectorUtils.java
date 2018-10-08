@@ -88,17 +88,9 @@ public class VectorUtils implements Globals {
   }
 
   /** Convert a vector to a angle */
-  public static Angle vectorAngle(Vec3d vec3d) {
-    double pitch, yaw;
-    if (vec3d.x == 0 && vec3d.z == 0) {
-      yaw = 0.D;
-      pitch = 90.D;
-    } else {
-      yaw = Math.toDegrees(Math.atan2(vec3d.z, vec3d.x)) - 90.f;
-      double mag = Math.sqrt(vec3d.x * vec3d.x + vec3d.z * vec3d.z);
-      pitch = Math.toDegrees(-1 * Math.atan2(vec3d.y, mag));
-    }
-    return new Angle(pitch, yaw);
+  @Deprecated
+  public static Object vectorAngle(Vec3d vec3d) {
+    return null;
   }
 
   public static Vec3d multiplyBy(Vec3d vec1, Vec3d vec2) {
