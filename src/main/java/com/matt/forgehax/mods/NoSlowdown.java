@@ -8,7 +8,6 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSoulSand;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
@@ -35,7 +34,6 @@ public class NoSlowdown extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onDoApplyBlockMovement(DoBlockCollisionsEvent event) {
         if(event.getEntity().equals(getLocalPlayer())) {
             if(Block.getIdFromBlock(event.getState().getBlock()) == 88) { // soul sand

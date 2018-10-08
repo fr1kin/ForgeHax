@@ -1,11 +1,10 @@
 package com.matt.forgehax.mods.services;
 
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.InputEvent;
 import com.matt.forgehax.util.command.CommandStub;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 
 import static com.matt.forgehax.Helper.getGlobalCommand;
 
@@ -19,7 +18,6 @@ public class BindEventService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onKeyboardEvent(InputEvent.KeyInputEvent event) {
         getGlobalCommand().getChildrenDeep().stream()
                 .filter(command -> command instanceof CommandStub)

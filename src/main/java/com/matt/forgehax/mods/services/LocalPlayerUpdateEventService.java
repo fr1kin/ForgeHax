@@ -7,7 +7,7 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**

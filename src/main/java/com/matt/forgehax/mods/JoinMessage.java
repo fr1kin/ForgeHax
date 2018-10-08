@@ -25,7 +25,6 @@ import joptsimple.internal.Strings;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -144,7 +143,6 @@ public class JoinMessage extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPlayerChat(ChatMessageEvent event) {
         String[] args = event.getMessage().split(" ");
 
@@ -197,7 +195,6 @@ public class JoinMessage extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPlayerConnect(PlayerConnectEvent.Join event) {
         CustomMessageEntry entry = messages.get(event.getPlayerInfo().getId());
         if(entry != null) {

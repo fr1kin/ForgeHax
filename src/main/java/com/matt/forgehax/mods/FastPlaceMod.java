@@ -6,7 +6,6 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Created on 9/4/2016 by fr1kin
@@ -19,7 +18,6 @@ public class FastPlaceMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, 0);
     }

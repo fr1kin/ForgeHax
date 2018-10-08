@@ -10,8 +10,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketCustomPayload;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Scanner;
 import java.util.Set;

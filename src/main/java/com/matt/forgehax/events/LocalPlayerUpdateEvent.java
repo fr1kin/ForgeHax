@@ -1,9 +1,7 @@
 package com.matt.forgehax.events;
 
-import net.minecraft.client.entity.EntityPlayerSP;
+import com.matt.forgehax.asm.events.abstractevents.LivingEvent;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class LocalPlayerUpdateEvent extends LivingEvent {
     public LocalPlayerUpdateEvent(EntityLivingBase e) {

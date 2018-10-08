@@ -2,7 +2,7 @@ package com.matt.forgehax.asm.events;
 
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 /**
  * Created on 5/10/2017 by fr1kin

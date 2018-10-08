@@ -11,7 +11,6 @@ import com.matt.forgehax.util.key.KeyBindingHandler;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -49,7 +48,6 @@ public class AutoKey extends ToggleMod {
     private long lastTimeMillis;
 
     @Subscribe
-    @SubscribeEvent
     public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
         final int lastClick = (int)(System.currentTimeMillis() - lastTimeMillis);
         if (lastClick >= delay.get())

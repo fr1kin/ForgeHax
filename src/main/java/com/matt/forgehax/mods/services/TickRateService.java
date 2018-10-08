@@ -4,12 +4,11 @@ import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketTimeUpdate;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +48,6 @@ public class TickRateService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         timeLastTimeUpdate = -1;
         TICK_DATA.onWorldLoaded();

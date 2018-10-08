@@ -5,7 +5,6 @@ import com.matt.forgehax.asm.events.listeners.ListenerHook;
 import com.matt.forgehax.asm.utils.MultiBoolean;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.util.Immutables;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+//import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * Created on 2/11/2018 by fr1kin
@@ -69,10 +69,10 @@ public class HookReporter {
      * @return immutable list of forge events
      */
     @SuppressWarnings("unchecked")
-    public List<Class<? extends Event>> getForgeEventClasses() {
+    public List<Class<?/* extends Event*/>> getForgeEventClasses() {
         return eventClasses.stream()
-                .filter(Event.class::isAssignableFrom)
-                .map(clazz -> (Class<? extends Event>)clazz)
+                //.filter(Event.class::isAssignableFrom)
+                //.map(clazz -> (Class<? extends Event>)clazz)
                 .collect(Immutables.toImmutableList());
     }
 

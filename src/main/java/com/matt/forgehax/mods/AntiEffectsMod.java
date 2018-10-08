@@ -1,16 +1,14 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.LivingUpdateEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.MobEffects;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class AntiEffectsMod extends ToggleMod {
@@ -26,9 +24,8 @@ public class AntiEffectsMod extends ToggleMod {
 
 
     @Subscribe
-    @SubscribeEvent
-    public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
-        EntityLivingBase living = event.getEntityLiving();
+    public void onLivingUpdate(LivingUpdateEvent event) {
+        EntityLivingBase living = event.getEntity();
         if(living.equals(MC.player)) {
             living.setInvisible(false);
             living.removePotionEffect(MobEffects.NAUSEA);

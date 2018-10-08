@@ -68,11 +68,10 @@ public class AutoSprintMod extends ToggleMod {
      * Start sprinting every update tick
      */
     @Subscribe
-    @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
-        if(event.getEntityLiving().moveForward > 0 &&
-                !event.getEntityLiving().isCollidedHorizontally &&
-                !event.getEntityLiving().isSneaking()) {
+        if(event.getEntity().moveForward > 0 &&
+                !event.getEntity().isCollidedHorizontally &&
+                !event.getEntity().isSneaking()) {
             startSprinting();
         }
     }

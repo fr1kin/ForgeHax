@@ -1,15 +1,14 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.util.event.Cancelable;
+import com.matt.forgehax.util.event.Event;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * Created on 2/10/2018 by fr1kin
  */
-@Cancelable
-public class WorldCheckLightForEvent extends Event {
+public class WorldCheckLightForEvent extends Event implements Cancelable {
     private final EnumSkyBlock enumSkyBlock;
     private final BlockPos pos;
 

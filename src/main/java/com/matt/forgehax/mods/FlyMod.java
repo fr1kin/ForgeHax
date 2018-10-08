@@ -13,7 +13,6 @@ import net.minecraft.network.play.client.CPacketEntityAction.Action;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Objects;
 
@@ -37,7 +36,6 @@ public class FlyMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         try {
             double[] dir = moveLooking(0);

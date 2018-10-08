@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 /**
  * Created on 5/5/2017 by fr1kin

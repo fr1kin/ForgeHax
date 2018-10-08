@@ -15,7 +15,6 @@ import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.function.Predicate;
 
@@ -90,7 +89,6 @@ public class AutoCrystalMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onTick(LocalPlayerUpdateEvent event) {
         if (getWorld() != null && getLocalPlayer() != null) {
             // Short-circuit if the timer check will fail

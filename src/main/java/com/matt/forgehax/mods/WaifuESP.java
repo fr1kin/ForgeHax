@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.replacementhooks.RenderPlayerEvent;
+import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -17,9 +18,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -68,8 +66,7 @@ public class WaifuESP extends ToggleMod {
 
 
     @Subscribe
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onRenderGameOverlayEvent (RenderGameOverlayEvent.Text event) {
+    public void onRenderGameOverlayEvent(Render2DEvent event) {
         if (waifu == null) return;
 
         for (Entity entity : MC.world.loadedEntityList) {

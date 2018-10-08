@@ -17,7 +17,6 @@ import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
@@ -67,16 +66,16 @@ public class ScoreboardListenerService extends ServiceMod {
         }
     }
 
-    @SubscribeEvent
+    /*@SubscribeEvent
     public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
         ignore = false;
-    }
+    }*/
 
-    @Subscribe
+    /*@Subscribe
     @SubscribeEvent
     public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         ignore = false;
-    }
+    }*/
 
     @Subscribe
     public void onPacketIn(PacketEvent.Incoming.Pre event) {

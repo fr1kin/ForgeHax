@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.RenderBoatEvent;
+import com.matt.forgehax.asm.events.replacementhooks.ClientTickEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.command.Setting;
@@ -14,8 +15,6 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraft.util.MovementInput;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraft.entity.item.EntityBoat;
 
 import static com.matt.forgehax.Helper.*;
@@ -57,8 +56,7 @@ public class BoatFly extends ToggleMod {
         super(Category.MISC,"BoatFly", false, "Boathax");
     }
 
-    @Subscribe
-    @SubscribeEvent // disable gravity
+    @Subscribe// disable gravity
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         ForgeHaxHooks.isNoBoatGravityActivated = getRidingEntity() instanceof EntityBoat; // disable gravity if in boat
     }
@@ -79,7 +77,6 @@ public class BoatFly extends ToggleMod {
 
 
     @Subscribe
-    @SubscribeEvent
     public void onRenderBoat(RenderBoatEvent event) {
         if (EntityUtils.isDrivenByPlayer(event.getBoat()) && setYaw.getAsBoolean()) {
             float yaw = getLocalPlayer().rotationYaw;
@@ -90,8 +87,7 @@ public class BoatFly extends ToggleMod {
 
 
     @Subscribe
-    @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event) {
+    public void onClientTick(ClientTickEvent event) {
         //check if the player is really riding a entity
         if (MC.player != null && MC.player.getRidingEntity() != null) {
 

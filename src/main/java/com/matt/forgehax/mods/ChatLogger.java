@@ -61,7 +61,6 @@ public class ChatLogger extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onChat(ChatMessageEvent event) {
         if(event.isWhispering()) {
         }

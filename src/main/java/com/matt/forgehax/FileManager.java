@@ -1,7 +1,6 @@
 package com.matt.forgehax;
 
 import com.matt.forgehax.util.command.CommandHelper;
-import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -23,7 +22,6 @@ public class FileManager {
     private final File baseDirectory;
     private final File configDirectory;
     private final File cacheDirectory;
-    private final Configuration forgeConfiguration;
 
     private FileManager() {
         baseDirectory = new File(getWorkingDir(), "forgehax");
@@ -32,7 +30,6 @@ public class FileManager {
         configDirectory.mkdirs();
         cacheDirectory = getFileInBaseDirectory("cache");
         cacheDirectory.mkdir();
-        forgeConfiguration = new Configuration(getFileInConfigDirectory("settings.json"));
     }
 
     public File getBaseDirectory() {
@@ -47,9 +44,6 @@ public class FileManager {
         return cacheDirectory;
     }
 
-    public Configuration getForgeConfiguration() {
-        return forgeConfiguration;
-    }
 
     public File getFileInBaseDirectory(String... paths) {
         return new File(baseDirectory, CommandHelper.join(paths, File.separator));

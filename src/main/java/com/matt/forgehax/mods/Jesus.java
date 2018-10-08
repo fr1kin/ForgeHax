@@ -17,7 +17,6 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.*;
 import static com.matt.forgehax.util.entity.EntityUtils.isAboveWater;
@@ -34,7 +33,6 @@ public class Jesus extends ToggleMod {
     public Jesus() { super(Category.PLAYER, "Jesus", false, "Walk on water"); }
 
     @Subscribe
-    @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         if (!getModManager().get(FreecamMod.class).map(BaseMod::isEnabled).orElse(false)) {
             if (isInWater(getLocalPlayer()) && !getLocalPlayer().isSneaking()) {
@@ -47,7 +45,6 @@ public class Jesus extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
         if (getLocalPlayer() != null
                 && (event.getBlock() instanceof BlockLiquid)

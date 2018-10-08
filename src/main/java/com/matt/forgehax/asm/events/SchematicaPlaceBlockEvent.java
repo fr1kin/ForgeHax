@@ -1,15 +1,15 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.util.event.Cancelable;
+import com.matt.forgehax.util.event.Event;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * Created by Babbaj on 9/20/2017.
  */
-public class SchematicaPlaceBlockEvent extends Event {
+public class SchematicaPlaceBlockEvent extends Event implements Cancelable {
 
     private ItemStack item;
     private BlockPos pos;

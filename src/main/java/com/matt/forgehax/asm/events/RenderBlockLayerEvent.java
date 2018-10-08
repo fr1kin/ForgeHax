@@ -1,8 +1,8 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.util.event.Cancelable;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 public class RenderBlockLayerEvent extends Event {
     private final BlockRenderLayer renderLayer;
@@ -21,8 +21,7 @@ public class RenderBlockLayerEvent extends Event {
         return partialTicks;
     }
 
-    @Cancelable
-    public static class Pre extends RenderBlockLayerEvent {
+    public static class Pre extends RenderBlockLayerEvent implements Cancelable {
         public Pre(BlockRenderLayer renderLayer, double partialTicks) {
             super(renderLayer, partialTicks);
         }

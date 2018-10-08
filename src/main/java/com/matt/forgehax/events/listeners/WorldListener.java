@@ -1,5 +1,6 @@
 package com.matt.forgehax.events.listeners;
 
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.events.EntityAddedEvent;
 import com.matt.forgehax.events.EntityRemovedEvent;
 import net.minecraft.block.state.IBlockState;
@@ -10,7 +11,6 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 
 public class WorldListener implements IWorldEventListener {
     @Override
@@ -50,12 +50,12 @@ public class WorldListener implements IWorldEventListener {
 
     @Override
     public void onEntityAdded(Entity entityIn) {
-        MinecraftForge.EVENT_BUS.post(new EntityAddedEvent(entityIn));
+        ForgeHax.EVENT_BUS.post(new EntityAddedEvent(entityIn));
     }
 
     @Override
     public void onEntityRemoved(Entity entityIn) {
-        MinecraftForge.EVENT_BUS.post(new EntityRemovedEvent(entityIn));
+        ForgeHax.EVENT_BUS.post(new EntityRemovedEvent(entityIn));
     }
 
     @Override

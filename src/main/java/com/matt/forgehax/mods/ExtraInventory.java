@@ -2,6 +2,8 @@ package com.matt.forgehax.mods;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Queues;
+import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.GuiOpenEvent;
 import com.matt.forgehax.asm.utils.ReflectionHelper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
@@ -12,7 +14,6 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketClickWindow;
-import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -153,7 +154,7 @@ public class ExtraInventory extends ToggleMod {
         onDisabled();
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @Subscribe
     public void onGuiOpen(GuiOpenEvent event) {
         if(guiCloseGuard) {
             event.setCanceled(true);

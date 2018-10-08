@@ -6,7 +6,6 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.*;
 
@@ -24,7 +23,6 @@ public class NoclipMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         Entity local = getRidingOrPlayer();
         local.noClip = true;

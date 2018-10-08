@@ -1,13 +1,12 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.asm.events.abstractevents.EntityEvent;
+import com.matt.forgehax.util.event.Cancelable;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
-@Cancelable
-public class DoBlockCollisionsEvent extends EntityEvent {
+public class DoBlockCollisionsEvent extends EntityEvent implements Cancelable {
     private final BlockPos pos;
     private final IBlockState state;
 

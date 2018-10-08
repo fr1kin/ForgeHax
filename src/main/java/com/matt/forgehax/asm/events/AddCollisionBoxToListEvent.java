@@ -1,22 +1,20 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.util.event.Cancelable;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 import java.util.List;
 
 /**
  * Created on 4/9/2017 by fr1kin
  */
-@Cancelable
-public class AddCollisionBoxToListEvent extends Event {
+public class AddCollisionBoxToListEvent extends Event implements Cancelable {
     private final Block block;
     private final IBlockState state;
     private final World world;

@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.BaseMod;
@@ -14,9 +15,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketInput;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getModManager;
@@ -100,7 +98,6 @@ public class FreecamMod extends ToggleMod {
         }
     }
     @Subscribe
-    @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         MC.player.capabilities.isFlying = true;
         MC.player.capabilities.setFlySpeed(speed.getAsFloat());
@@ -129,7 +126,6 @@ public class FreecamMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onWorldLoad (WorldEvent.Load event) {
         posX = startPosX;
         posY = startPosY;

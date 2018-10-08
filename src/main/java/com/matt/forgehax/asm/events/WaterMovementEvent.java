@@ -1,12 +1,11 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.util.event.Cancelable;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
-@Cancelable
-public class WaterMovementEvent extends Event {
+public class WaterMovementEvent extends Event implements Cancelable {
     private Entity entity;
     private Vec3d movement;
 

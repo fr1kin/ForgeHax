@@ -10,7 +10,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.FoodStats;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
@@ -23,7 +22,6 @@ public class AutoEatMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         FoodStats foodStats = getLocalPlayer().getFoodStats();
         int foodSlot = -1;

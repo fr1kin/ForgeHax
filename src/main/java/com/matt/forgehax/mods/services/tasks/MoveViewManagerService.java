@@ -6,7 +6,6 @@ import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.task.Task;
 import com.matt.forgehax.util.task.TaskManager;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Created on 6/15/2017 by fr1kin
@@ -20,14 +19,12 @@ public class MoveViewManagerService extends ServiceMod {
     private Task.TaskProcessing processing = null;
 
     @Subscribe
-    @SubscribeEvent
     public void onMovementUpdatePre(LocalPlayerUpdateMovementEvent.Pre event) {
         processing = TaskManager.getTop(Task.Type.LOOK);
         if(processing != null) processing.preProcessing();
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onMovementUpdatePost(LocalPlayerUpdateMovementEvent.Post event) {
         if(processing != null) processing.postProcessing();
     }

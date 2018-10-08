@@ -4,7 +4,7 @@ import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.events.replacementhooks.ClientTickEvent;
 import com.matt.forgehax.asm.events.replacementhooks.GuiOpenEvent;
 import com.matt.forgehax.asm.events.replacementhooks.InputEvent;
-import com.matt.forgehax.asm.events.replacementhooks.WorldEvent;
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent.Unload;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.util.event.Event;
 import net.futureclient.asm.transformer.AsmMethod;
@@ -102,7 +102,7 @@ public class MinecraftPatch {
     public void loadWorldHook(AsmMethod method) {
         method.run(() -> {
             if (MC.world != null) {
-                ForgeHax.EVENT_BUS.post(new WorldEvent.UnLoad(MC.world));
+                ForgeHax.EVENT_BUS.post(new Unload(MC.world));
             }
         });
     }

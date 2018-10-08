@@ -1,9 +1,8 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.util.event.Event;
 import net.minecraft.client.renderer.chunk.SetVisibility;
 import net.minecraft.client.renderer.chunk.VisGraph;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class ComputeVisibilityEvent extends Event {
     private final VisGraph visGraph;

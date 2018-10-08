@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
 
-@Transformer(GuiUtils.class)
+@Transformer(value = GuiUtils.class, remap = false)
 public class Forge_GuiUtilsPatch {
 
     @Inject(name = "drawHoveringText", args = {ItemStack.class, List.class, int.class, int.class, int.class, int.class, int.class, FontRenderer.class},

@@ -3,12 +3,12 @@ package com.matt.forgehax;
 import com.matt.forgehax.util.event.EventBus;
 import com.matt.forgehax.util.event.ForgehaxEventBus;
 import com.matt.forgehax.util.mod.BaseMod;
-import net.minecraftforge.fml.common.Mod;
+//import net.minecraftforge.fml.common.Mod;
 
 import static com.matt.forgehax.Helper.getFileManager;
 import static com.matt.forgehax.Helper.getModManager;
 
-@Mod(modid = ForgeHax.MOD_ID, clientSideOnly = true)
+//@Mod(modid = ForgeHax.MOD_ID, clientSideOnly = true)
 public class ForgeHax {
 	public static final String MOD_ID 			= "forgehax";
 	public static final String MOD_VERSION 		= ForgeHaxProperties.getVersion();

@@ -86,10 +86,10 @@ public class WorldPatch {
     })
     public void playSoundHook(AsmMethod method) {
         method.visitInsn(new VarInsnNode(ALOAD, 1)); // entity
-        method.visitInsn(new VarInsnNode(ALOAD, 7)); // SoundEvent name
-        method.visitInsn(new VarInsnNode(ALOAD, 8)); // category
-        method.visitInsn(new VarInsnNode(FLOAD, 9)); // volume
-        method.visitInsn(new VarInsnNode(FLOAD, 10)); // pitch
+        method.visitInsn(new VarInsnNode(ALOAD, 8)); // SoundEvent name
+        method.visitInsn(new VarInsnNode(ALOAD, 9)); // category
+        method.visitInsn(new VarInsnNode(FLOAD, 10)); // volume
+        method.visitInsn(new VarInsnNode(FLOAD, 11)); // pitch
         method.<PlaySoundPredicate>invoke((entity, name, category, volume, pitch) ->
             ForgeHax.EVENT_BUS.post(new PlaySoundAtEntityEvent(entity, name, category, volume, pitch))
         );

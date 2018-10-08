@@ -31,7 +31,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -156,7 +155,7 @@ public class AntiAfkMod extends ToggleMod {
         reset();
     }*/
 
-    @SubscribeEvent
+    @Subscribe
     public void onUpdate(LocalPlayerUpdateEvent event) {
         if(!timer.isStarted())
             timer.start(); // start timer if it hasn't already

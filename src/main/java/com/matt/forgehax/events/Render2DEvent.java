@@ -2,7 +2,7 @@ package com.matt.forgehax.events;
 
 import com.matt.forgehax.util.draw.SurfaceBuilder;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 import static com.matt.forgehax.Globals.MC;
 

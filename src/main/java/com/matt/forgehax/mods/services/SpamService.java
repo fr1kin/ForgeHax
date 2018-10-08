@@ -9,7 +9,6 @@ import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.spam.SpamMessage;
 import joptsimple.internal.Strings;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 import java.util.Map;
@@ -78,7 +77,6 @@ public class SpamService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onTick(LocalPlayerUpdateEvent event) {
         if(!SENDING.isEmpty() && System.currentTimeMillis() > nextSendMs) {
             SENDING.stream()

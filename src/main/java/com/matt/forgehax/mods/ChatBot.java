@@ -24,7 +24,6 @@ import com.matt.forgehax.util.spam.SpamMessage;
 import com.matt.forgehax.util.spam.SpamTokens;
 import com.matt.forgehax.util.spam.SpamTrigger;
 import joptsimple.internal.Strings;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -251,7 +250,6 @@ public class ChatBot extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onTick(LocalPlayerUpdateEvent event) {
         if(SpamService.isEmpty() && !spams.isEmpty()) for(SpamEntry e : spams) {
             if (e.isEnabled()
@@ -270,7 +268,6 @@ public class ChatBot extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onChat(ChatMessageEvent event) {
         if(event.getSender().isLocalPlayer()) return;
 
@@ -315,7 +312,6 @@ public class ChatBot extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPlayerConnect(PlayerConnectEvent.Join event) {
         final String player = event.getProfile() != null ? event.getProfile().getName() : "null";
         spams.stream()
@@ -343,7 +339,6 @@ public class ChatBot extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
         final String player = event.getProfile() != null ? event.getProfile().getName() : "null";
         spams.stream()

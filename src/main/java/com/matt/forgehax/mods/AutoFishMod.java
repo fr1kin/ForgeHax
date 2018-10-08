@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.events.replacementhooks.InputEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
@@ -15,8 +16,6 @@ import net.minecraft.item.ItemFishingRod;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
@@ -85,7 +84,6 @@ public class AutoFishMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         EntityPlayer me = getLocalPlayer();
         ItemStack heldStack = me.getHeldItemMainhand();
@@ -120,7 +118,6 @@ public class AutoFishMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onMouseEvent(InputEvent.MouseInputEvent event) {
         if(MC.gameSettings.keyBindUseItem.isKeyDown() && ticksHookDeployed > 0) {
             ticksCastDelay = casting_delay.get();

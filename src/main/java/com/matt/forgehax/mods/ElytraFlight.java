@@ -8,7 +8,6 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -54,8 +53,7 @@ public class ElytraFlight extends ToggleMod {
 		}
 	}
 
-    @Subscribe
-    @SubscribeEvent
+	@Subscribe
 	@SideOnly(Side.CLIENT)
 	public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
 		// Enable our flight as soon as the player starts flying his elytra.

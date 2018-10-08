@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.common.ForgeModContainer;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.reloadChunks;
 
@@ -58,7 +57,6 @@ public class XrayMod extends ToggleMod {
     private boolean isInternalCall = false;
 
     @Subscribe
-    @SubscribeEvent
     public void onPreRenderBlockLayer(RenderBlockLayerEvent.Pre event) {
         if(!isInternalCall) {
             if (!event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
@@ -80,11 +78,9 @@ public class XrayMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPostRenderBlockLayer(RenderBlockLayerEvent.Post event) {}
 
     @Subscribe
-    @SubscribeEvent
     public void onRenderBlockInLayer(RenderBlockInLayerEvent event) {
         if(event.getCompareToLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
             event.setLayer(event.getCompareToLayer());

@@ -2,6 +2,7 @@ package com.matt.forgehax.mods.commands;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
+import com.google.common.eventbus.Subscribe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,6 +10,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.asm.events.replacementhooks.InputEvent;
 import com.matt.forgehax.mods.services.ChatCommandService;
 import com.matt.forgehax.util.command.*;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
@@ -17,10 +19,8 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import joptsimple.OptionParser;
 import joptsimple.OptionSpecBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.input.Keyboard;
 
@@ -47,7 +47,7 @@ public class MacroCommand extends CommandMod {
     // which command in the list of commands to execute next
     private final Map<MacroEntry, Integer> macroIndex = new HashMap<>();
 
-    @SubscribeEvent
+    @Subscribe
     public void onKeyboardEvent(InputEvent.KeyInputEvent event) {
         MACROS.stream()
                 .filter(macro -> !macro.isAnonymous())
@@ -231,7 +231,7 @@ public class MacroCommand extends CommandMod {
         // only done for named macros
         private void registerBind() {
             KeyBinding bind = new KeyBinding(name.get(), this.getKey(), "Macros");
-            ClientRegistry.registerKeyBinding(bind); // TODO: listen for key pressed for anonymous macros
+            registerKeyBinding(bind); // TODO: listen for key pressed for anonymous macros
             this.bind = bind;
         }
 
@@ -271,6 +271,11 @@ public class MacroCommand extends CommandMod {
         public String toString() {
             return name.orElse("");
         }
+    }
+
+    private static void registerKeyBinding(KeyBinding key)
+    {
+        MC.gameSettings.keyBindings = ArrayUtils.add(Minecraft.getMinecraft().gameSettings.keyBindings, key);
     }
 
     private static Iterator<String> stringIterator(JsonArray jsonArray) {

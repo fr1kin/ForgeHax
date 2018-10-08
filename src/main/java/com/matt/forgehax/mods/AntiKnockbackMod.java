@@ -13,7 +13,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class AntiKnockbackMod extends ToggleMod {
@@ -73,7 +72,6 @@ public class AntiKnockbackMod extends ToggleMod {
      * Stops velocity from water
      */
     @Subscribe
-    @SubscribeEvent
     public void onWaterMovementEvent(WaterMovementEvent event) {
         if(event.getEntity().equals(MC.player)) {
             Vec3d moveDir = event.getMoveDir().normalize();
@@ -88,7 +86,6 @@ public class AntiKnockbackMod extends ToggleMod {
      * Stops velocity from collision
      */
     @Subscribe
-    @SubscribeEvent
     public void onApplyCollisionMotion(ApplyCollisionMotionEvent event) {
         if(event.getEntity().equals(MC.player)) {
             event.getEntity().addVelocity(
@@ -101,7 +98,6 @@ public class AntiKnockbackMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPushOutOfBlocks (PushOutOfBlocksEvent event) {
         event.setCanceled(true);
     }

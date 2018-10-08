@@ -21,11 +21,11 @@ public class WorldEvent {
         public Load(World world) { super(world); }
     }
 
-    public static class UnLoad extends WorldEvent
+    public static class Unload extends WorldEvent
     {
-        public UnLoad(World world) { super(world); }
+        public Unload(World world) { super(world); }
 
         // TODO: fix verify class loading meme so this doesnt have to exist
-        public UnLoad(WorldClient world) { super(world); }
+        public Unload(WorldClient world) { super(world); }
     }
 }

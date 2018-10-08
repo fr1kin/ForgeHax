@@ -2,7 +2,7 @@ package com.matt.forgehax.events;
 
 import com.google.common.base.Strings;
 import com.matt.forgehax.util.entity.PlayerInfo;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 import javax.annotation.Nullable;
 

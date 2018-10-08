@@ -2,6 +2,8 @@ package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.asm.events.replacementhooks.GuiOpenEvent;
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -13,10 +15,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.io.IOException;
@@ -44,7 +42,6 @@ public class AutoReconnectMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onGuiOpened(GuiOpenEvent event) {
         if (!hasAutoLogged)
         if(event.getGui() instanceof GuiDisconnected &&
@@ -62,14 +59,12 @@ public class AutoReconnectMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         // we got on the server or stopped joining, now undo queue
         hasAutoLogged = false; // make mod work when you rejoin
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
         updateLastConnectedServer();
     }
@@ -116,7 +111,7 @@ public class AutoReconnectMod extends ToggleMod {
         private void reconnect() {
             ServerData data = getLastConnectedServerData();
             if(data != null) {
-                FMLClientHandler.instance().showGuiScreen(new GuiConnecting(parent, MC, data));
+                MC.displayGuiScreen(new GuiConnecting(parent, MC, data));
             }
         }
 

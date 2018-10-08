@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -9,7 +10,6 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
@@ -33,7 +33,7 @@ public class AutoTotemMod extends ToggleMod {
         return String.format(super.getDisplayText() + "[%d]", totemCount);
     }
 
-    @SubscribeEvent
+    @Subscribe
     public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
         if (!getOffhand().isEmpty()) return; // if there's an item in offhand slot
         if (MC.currentScreen != null) return; // if in inventory

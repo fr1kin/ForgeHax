@@ -11,8 +11,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.passive.AbstractHorse;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.getRidingEntity;
 

@@ -1,10 +1,9 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Cancelable;
+import com.matt.forgehax.util.event.Event;
 
-@Cancelable
-public class HurtCamEffectEvent extends Event {
+public class HurtCamEffectEvent extends Event implements Cancelable {
     private final float partialTicks;
 
     public HurtCamEffectEvent(float pt) {

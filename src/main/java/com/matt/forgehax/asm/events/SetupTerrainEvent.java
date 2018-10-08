@@ -1,7 +1,7 @@
 package com.matt.forgehax.asm.events;
 
 import net.minecraft.entity.Entity;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 public class SetupTerrainEvent extends Event {
     private final Entity renderEntity;

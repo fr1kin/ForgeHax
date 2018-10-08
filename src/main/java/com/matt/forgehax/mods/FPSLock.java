@@ -1,12 +1,12 @@
 package com.matt.forgehax.mods;
 
+import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.getWorld;
 
@@ -29,7 +29,7 @@ public class FPSLock extends ToggleMod {
         super(Category.MISC, "FPSLock", false, "Lock the fps to a lower-than-allowed value, and restore when disabled");
     }
 
-    @SubscribeEvent
+    @Subscribe
     void onTick(LocalPlayerUpdateEvent event) {
         if(getWorld() != null)
             MC.gameSettings.limitFramerate = fps.get();
@@ -37,7 +37,7 @@ public class FPSLock extends ToggleMod {
             MC.gameSettings.limitFramerate = menu_fps.get();
     }
 
-    @SubscribeEvent
+    @Subscribe
     void onWorldUnload(WorldEvent.Unload event) {
         MC.gameSettings.limitFramerate = menu_fps.get();
     }

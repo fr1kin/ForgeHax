@@ -6,8 +6,9 @@ import com.google.common.base.Strings;
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent.Unload;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
-import com.matt.forgehax.events.PlayerConnectEvent;
+import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -24,10 +25,7 @@ import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.*;
@@ -141,10 +139,8 @@ public class LogoutSpot extends ToggleMod {
     }*/
 
     @Subscribe
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
-        if (renderPosition.getAsBoolean() &&
-                event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
+    public void onRenderGameOverlayEvent(Render2DEvent event) {
+        if (renderPosition.getAsBoolean()) {
 
             logoutSpots.forEach(pos -> {
                 Vec3d topVec = new Vec3d((pos.pos[0].x + pos.pos[1].x) / 2, pos.pos[1].y, (pos.pos[0].z + pos.pos[1].z) / 2); // position where to place the text in the world
@@ -190,7 +186,6 @@ public class LogoutSpot extends ToggleMod {
 
 
     @Subscribe
-    @SubscribeEvent
     public void onPlayerUpdate(LocalPlayerUpdateEvent event) { // delete cloned player if they're too far
         logoutSpots.removeIf(pos -> {
             double distance = MC.player.getDistance((pos.pos[0].x+pos.pos[1].x)/2, pos.pos[0].y, (pos.pos[0].z+pos.pos[1].z)/2); // distance from player to entity
@@ -200,12 +195,10 @@ public class LogoutSpot extends ToggleMod {
 
 
     @Subscribe
-    @SubscribeEvent
-    public void onWorldUnload (WorldEvent.Unload event) {
+    public void onWorldUnload (Unload event) {
         logoutSpots.clear();
     }
     @Subscribe
-    @SubscribeEvent
     public void onWorldLoad (WorldEvent.Load event) {
         logoutSpots.clear();
     }

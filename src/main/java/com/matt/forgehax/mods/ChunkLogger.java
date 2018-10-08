@@ -16,8 +16,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 import java.util.Objects;
@@ -142,12 +140,12 @@ public class ChunkLogger extends ToggleMod {
         }
     }
 
-    @SubscribeEvent
+    /*@SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event) {
         if(chunks != null) {
 
         }
-    }
+    }*/
 
     @Subscribe
     public void onPacketInbound(PacketEvent.Incoming.Pre event) {

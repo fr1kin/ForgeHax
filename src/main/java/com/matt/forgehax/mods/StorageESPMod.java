@@ -15,7 +15,6 @@ import net.minecraft.entity.item.EntityMinecartChest;
 import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import static com.matt.forgehax.Helper.getWorld;

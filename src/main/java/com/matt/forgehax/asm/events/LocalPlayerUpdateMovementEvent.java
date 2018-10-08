@@ -1,6 +1,6 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 /**
  * Created on 6/15/2017 by fr1kin

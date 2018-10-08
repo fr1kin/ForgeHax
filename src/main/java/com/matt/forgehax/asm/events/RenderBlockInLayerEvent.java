@@ -1,10 +1,9 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.util.event.Event;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class RenderBlockInLayerEvent extends Event {
     private final Block block;

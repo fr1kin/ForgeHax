@@ -2,14 +2,13 @@ package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.events.replacementhooks.ClientTickEvent;
 import com.matt.forgehax.events.WorldChangeEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.server.SPacketChangeGameState;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import static com.matt.forgehax.Helper.getWorld;
 
@@ -69,14 +68,12 @@ public class NoWeather extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onWorldChange(WorldChangeEvent event) {
         saveState(event.getWorld());
     }
 
     @Subscribe
-    @SubscribeEvent
-    public void onWorldTick(TickEvent.ClientTickEvent event) {
+    public void onWorldTick(ClientTickEvent event) {
         disableRain();
     }
 

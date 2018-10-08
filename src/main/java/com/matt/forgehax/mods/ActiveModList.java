@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -9,8 +10,6 @@ import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,8 +85,8 @@ public class ActiveModList extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
-    public void onRenderScreen(RenderGameOverlayEvent.Text event) {
+    public void onRenderScreen(Render2DEvent event) {
+        System.out.println("Render2DEvent");
         int posX = 1;
         final AtomicInteger posY = new AtomicInteger(1);
         if(tps_meter.get()) {

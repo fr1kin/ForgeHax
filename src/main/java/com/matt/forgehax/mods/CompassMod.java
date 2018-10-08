@@ -10,7 +10,6 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -39,7 +38,6 @@ public class CompassMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onRender(Render2DEvent event) {
         final double centerX = event.getScreenWidth()/2;
         final double centerY = event.getScreenHeight()*0.8;

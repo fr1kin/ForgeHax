@@ -2,7 +2,7 @@ package com.matt.forgehax.asm.events;
 
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 /**
  * Created on 5/9/2017 by fr1kin

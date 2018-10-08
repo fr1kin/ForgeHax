@@ -2,7 +2,7 @@ package com.matt.forgehax.asm.events;
 
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 /**
  * Created on 5/11/2017 by fr1kin

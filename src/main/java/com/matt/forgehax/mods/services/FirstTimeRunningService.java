@@ -7,7 +7,6 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import joptsimple.internal.Strings;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +35,6 @@ public class FirstTimeRunningService extends ServiceMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         if(!Objects.equals(ForgeHax.MOD_VERSION, getOnceFileVersion())) {
             printMessageNaked(ForgeHax.getWelcomeMessage());

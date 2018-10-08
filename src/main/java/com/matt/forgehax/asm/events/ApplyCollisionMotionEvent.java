@@ -1,11 +1,10 @@
 package com.matt.forgehax.asm.events;
 
+import com.matt.forgehax.util.event.Cancelable;
+import com.matt.forgehax.util.event.Event;
 import net.minecraft.entity.Entity;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
-@Cancelable
-public class ApplyCollisionMotionEvent extends Event {
+public class ApplyCollisionMotionEvent extends Event implements Cancelable {
     private Entity entity;
     private Entity collidedWithEntity;
 

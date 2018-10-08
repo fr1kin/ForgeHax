@@ -11,7 +11,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 
@@ -34,9 +33,8 @@ public class StepMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-        EntityPlayer localPlayer = (EntityPlayer)event.getEntityLiving();
+        EntityPlayer localPlayer = MC.player;
         if(localPlayer.onGround) {
             localPlayer.stepHeight = 1.f;
         } else {

@@ -10,6 +10,7 @@ import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.blocks.BlockEntry;
@@ -43,9 +44,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
@@ -382,7 +380,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onWorldUnload(WorldEvent.Load event) {
         try {
             // shutdown vbos
@@ -393,7 +390,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onLoadRenderers(LoadRenderersEvent event) {
         try {
             // create new instances of everything
@@ -406,7 +402,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onWorldRendererDeallocated(WorldRendererDeallocatedEvent event) {
         if(uploaders != null) try {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
@@ -425,7 +420,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPreBuildChunk(BuildChunkEvent.Pre event) {
         if(uploaders != null) try {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
@@ -459,7 +453,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onPostBuildChunk(BuildChunkEvent.Post event) {
         if(uploaders != null) try {
             getCurrentRenderUploader(event.getRenderChunk()).ifPresent(uploader -> {
@@ -518,7 +511,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onChunkUploaded(ChunkUploadedEvent event) {
         if(uploaders != null) try {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> {
@@ -537,7 +529,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onChunkDeleted(DeleteGlResourcesEvent event) {
         if(uploaders != null) try {
             uploaders.get(event.getRenderChunk()).ifPresent(uploader -> MC.addScheduledTask(() -> {

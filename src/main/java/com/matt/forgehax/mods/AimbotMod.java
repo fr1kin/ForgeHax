@@ -32,8 +32,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Collections;
 
@@ -251,7 +249,6 @@ public class AimbotMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
         EntityPlayer localPlayer = MC.player;
         Entity target = LocalPlayerUtils.getTargetEntity();

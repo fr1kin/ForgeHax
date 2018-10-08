@@ -4,6 +4,7 @@ import static com.matt.forgehax.Helper.*;
 import static net.minecraft.util.math.RayTraceResult.Type;
 
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.asm.events.replacementhooks.ClientTickEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -16,8 +17,7 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+
 import static com.matt.forgehax.util.entity.EntityUtils.*;
 
 
@@ -43,8 +43,7 @@ public class AutoBucketFallMod extends ToggleMod {
     private ItemStack WATER_BUCKET = new ItemStack(Items.WATER_BUCKET);
 
     @Subscribe
-    @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event) {
+    public void onClientTick(ClientTickEvent event) {
         if (getLocalPlayer() == null
                 || getLocalPlayer().fallDistance < settingFallHeight.getAsDouble()
                 || !getLocalPlayer().inventory.hasItemStack(WATER_BUCKET)

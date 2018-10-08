@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Event;
 
 /**
  * Created on 5/5/2017 by fr1kin

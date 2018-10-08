@@ -1,20 +1,17 @@
 package com.matt.forgehax.asm;
 
-import com.matt.forgehax.asm.utils.ASMStackLogger;
-import com.matt.forgehax.asm.utils.environment.RuntimeState;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+//import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
-import java.util.Map;
 
 @Deprecated
-public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
+public class ForgeHaxCoreMod implements /*IFMLLoadingPlugin,*/ ASMCommon {
 
     static {
         //AsmLibApi.init();
         //AsmLibApi.registerConfig("asmlib.forgehax.config.json");
     }
 
-    @Override
+    /*@Override
     public String[] getASMTransformerClass() {
         return new String[0];//new String[] {ForgeHaxTransformer.class.getName()};
     }
@@ -50,5 +47,5 @@ public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
     @Override
     public String getAccessTransformerClass() {
         return null;
-    }
+    }*/
 }

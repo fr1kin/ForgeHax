@@ -40,12 +40,11 @@ public class YawLockMod extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
     public void onUpdate(LocalPlayerUpdateEvent event) {
         double yaw = getYawDirection();
         if(!auto_angle.get())
             yaw = custom_angle.get();
-        LocalPlayerUtils.setViewAngles(event.getEntityLiving().rotationPitch, yaw);
+        LocalPlayerUtils.setViewAngles(event.getEntity().rotationPitch, yaw);
         // disable after first set if set to do once
         if(isEnabled() && do_once.get())
             disable();

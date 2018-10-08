@@ -1,8 +1,7 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraft.entity.Entity;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import com.matt.forgehax.util.event.Cancelable;
+import com.matt.forgehax.util.event.Event;
 
 /**
  * Created by Babbaj on 8/4/2017.
@@ -10,7 +9,5 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  * Called every time the player updates
  * cancel to stop getting pushed out of blocks
  */
-@Cancelable
-public class PushOutOfBlocksEvent extends Event {
-
+public class PushOutOfBlocksEvent extends Event implements Cancelable {
 }
