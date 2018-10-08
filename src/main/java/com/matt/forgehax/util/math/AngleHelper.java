@@ -27,9 +27,9 @@ public class AngleHelper {
     return isAngleEqual(a1, a2, 1E-4);
   }
 
-  public static boolean isEqual(AngleN ang1, AngleN ang2) {
-    AngleN a1 = ang1.normalize();
-    AngleN a2 = ang2.same(a1).normalize();
+  public static boolean isEqual(Angle ang1, Angle ang2) {
+    Angle a1 = ang1.normalize();
+    Angle a2 = ang2.same(a1).normalize();
     return isAngleEqual(a1.getPitch(), a2.getPitch())
         && isAngleEqual(a1.getYaw(), a2.getYaw())
         && isAngleEqual(a1.getRoll(), a2.getRoll());
@@ -59,7 +59,7 @@ public class AngleHelper {
     return ang;
   }
 
-  public static AngleN getAngleFacingInRadians(Vec3d vector) {
+  public static Angle getAngleFacingInRadians(Vec3d vector) {
     double pitch, yaw;
     if (vector.x == 0 && vector.z == 0) {
       yaw = 0.D;
@@ -69,10 +69,10 @@ public class AngleHelper {
       double mag = Math.sqrt(vector.x * vector.x + vector.z * vector.z);
       pitch = -Math.atan2(vector.y, mag);
     }
-    return AngleN.radians((float) pitch, (float) yaw);
+    return Angle.radians((float) pitch, (float) yaw);
   }
 
-  public static AngleN getAngleFacingInDegrees(Vec3d vector) {
+  public static Angle getAngleFacingInDegrees(Vec3d vector) {
     return getAngleFacingInRadians(vector).inDegrees();
   }
 }

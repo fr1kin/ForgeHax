@@ -6,7 +6,7 @@ import static com.matt.forgehax.Helper.getWorld;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.math.AngleHelper;
-import com.matt.forgehax.util.math.AngleN;
+import com.matt.forgehax.util.math.Angle;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -148,7 +148,7 @@ public enum Projectile implements IProjectile {
 
   @Nullable
   public SimulationResult getSimulatedTrajectory(
-      Vec3d shootPos, AngleN angle, double force, int factor) throws IllegalArgumentException {
+      Vec3d shootPos, Angle angle, double force, int factor) throws IllegalArgumentException {
     if (isNull()) return null;
 
     Entity hitEntity = null;
@@ -207,13 +207,13 @@ public enum Projectile implements IProjectile {
 
   @Nullable
   public SimulationResult getSimulatedTrajectoryFromEntity(
-      Entity shooter, AngleN angle, double force, int factor) {
+      Entity shooter, Angle angle, double force, int factor) {
     angle = getAngleFacing(angle);
     return getSimulatedTrajectory(getShootPosFacing(shooter, angle), angle, force, factor);
   }
 
   @Nullable
-  public AngleN getEstimatedImpactAngleInRadians(Vec3d shooterPos, Vec3d targetPos, double force) {
+  public Angle getEstimatedImpactAngleInRadians(Vec3d shooterPos, Vec3d targetPos, double force) {
     if (isNull()) return null;
     Vec3d start = shooterPos.subtract(targetPos);
 
@@ -243,11 +243,11 @@ public enum Projectile implements IProjectile {
     // use the lowest pitch
     pitch = Math.atan(Math.max(A, B));
 
-    return AngleN.radians((float) pitch, (float) yaw).normalize();
+    return Angle.radians((float) pitch, (float) yaw).normalize();
   }
 
   @Nullable
-  public AngleN getEstimatedImpactAngleInRadiansFromEntity(
+  public Angle getEstimatedImpactAngleInRadiansFromEntity(
       Entity entity, Vec3d targetPos, double force) {
     return getEstimatedImpactAngleInRadians(getEntityShootPos(entity), targetPos, force);
   }
@@ -264,7 +264,7 @@ public enum Projectile implements IProjectile {
     // sequence and min value are same
     // im just abusing it so that I can get it to work with other projectile items
     for (double force = max; force >= min; force -= min) {
-      AngleN shootAngle = getEstimatedImpactAngleInRadians(shooterPos, targetPos, force);
+      Angle shootAngle = getEstimatedImpactAngleInRadians(shooterPos, targetPos, force);
       if (shootAngle == null) continue;
 
       SimulationResult result = getSimulatedTrajectory(shooterPos, shootAngle, force, -1);
@@ -330,7 +330,7 @@ public enum Projectile implements IProjectile {
     return EntityUtils.getEyePos(entity).subtract(0.D, SHOOT_POS_OFFSET, 0.D);
   }
 
-  private static Vec3d getShootPosFacing(Entity entity, AngleN angleFacing) {
+  private static Vec3d getShootPosFacing(Entity entity, Angle angleFacing) {
     return getEntityShootPos(entity)
         .subtract(
             Math.cos(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D,
@@ -338,8 +338,8 @@ public enum Projectile implements IProjectile {
             Math.sin(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D);
   }
 
-  private static AngleN getAngleFacing(AngleN angle) {
-    return AngleN.radians(
+  private static Angle getAngleFacing(Angle angle) {
+    return Angle.radians(
         -angle.inRadians().getPitch(), (float) (angle.inRadians().getYaw() + (Math.PI / 2.D)));
   }
 

@@ -11,7 +11,7 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.key.Bindings;
-import com.matt.forgehax.util.math.AngleN;
+import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -261,7 +261,7 @@ public class AntiAfkMod extends ToggleMod {
 
         double lastDistance = -1.D;
         for (double y : yaws) {
-          double[] cc = AngleN.degrees(0.f, (float) y).getForwardVector();
+          double[] cc = Angle.degrees(0.f, (float) y).getForwardVector();
           Vec3d target = eye.add(new Vec3d(cc[0], cc[1], cc[2]).normalize().scale(64));
 
           RayTraceResult result = getWorld().rayTraceBlocks(eye, target, false, true, false);
@@ -398,7 +398,7 @@ public class AntiAfkMod extends ToggleMod {
 
         BlockPos pos = getBlockBelow();
         Vec3d look = new Vec3d(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
-        AngleN va = Utils.getLookAtAngles(look);
+        Angle va = Utils.getLookAtAngles(look);
         setViewAngles(va.getPitch(), va.getYaw());
       }
 

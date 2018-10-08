@@ -4,51 +4,49 @@ import java.util.Objects;
 
 /**
  * Created on 6/21/2017 by fr1kin
- *
- * <p>TODO: replace Angle.java with this
  */
-public abstract class AngleN {
-  public static final AngleN ZERO = degrees(0.f, 0.f, 0.f);
+public abstract class Angle {
+  public static final Angle ZERO = degrees(0.f, 0.f, 0.f);
 
-  public static AngleN radians(float pitch, float yaw, float roll) {
+  public static Angle radians(float pitch, float yaw, float roll) {
     return new Radians(pitch, yaw, roll);
   }
 
-  public static AngleN radians(float pitch, float yaw) {
+  public static Angle radians(float pitch, float yaw) {
     return radians(pitch, yaw, 0.f);
   }
 
-  public static AngleN radians(double pitch, double yaw, double roll) {
+  public static Angle radians(double pitch, double yaw, double roll) {
     return radians(
         (float) AngleHelper.roundAngle(pitch),
         (float) AngleHelper.roundAngle(yaw),
         (float) AngleHelper.roundAngle(roll));
   }
 
-  public static AngleN radians(double pitch, double yaw) {
+  public static Angle radians(double pitch, double yaw) {
     return radians(pitch, yaw, 0.D);
   }
 
-  public static AngleN degrees(float pitch, float yaw, float roll) {
+  public static Angle degrees(float pitch, float yaw, float roll) {
     return new Degrees(pitch, yaw, roll);
   }
 
-  public static AngleN degrees(float pitch, float yaw) {
+  public static Angle degrees(float pitch, float yaw) {
     return degrees(pitch, yaw, 0.f);
   }
 
-  public static AngleN degrees(double pitch, double yaw, double roll) {
+  public static Angle degrees(double pitch, double yaw, double roll) {
     return degrees(
         (float) AngleHelper.roundAngle(pitch),
         (float) AngleHelper.roundAngle(yaw),
         (float) AngleHelper.roundAngle(roll));
   }
 
-  public static AngleN degrees(double pitch, double yaw) {
+  public static Angle degrees(double pitch, double yaw) {
     return degrees(pitch, yaw, 0.D);
   }
 
-  public static AngleN copy(AngleN ang) {
+  public static Angle copy(Angle ang) {
     return ang.newInstance(ang.getPitch(), ang.getYaw(), ang.getRoll());
   }
 
@@ -56,7 +54,7 @@ public abstract class AngleN {
   private final float yaw;
   private final float roll;
 
-  private AngleN(float pitch, float yaw, float roll) {
+  private Angle(float pitch, float yaw, float roll) {
     this.pitch = pitch;
     this.yaw = yaw;
     this.roll = roll;
@@ -74,15 +72,15 @@ public abstract class AngleN {
     return roll;
   }
 
-  public AngleN setPitch(float pitch) {
+  public Angle setPitch(float pitch) {
     return newInstance(pitch, getYaw(), getRoll());
   }
 
-  public AngleN setYaw(float yaw) {
+  public Angle setYaw(float yaw) {
     return newInstance(getPitch(), yaw, getRoll());
   }
 
-  public AngleN setRoll(float roll) {
+  public Angle setRoll(float roll) {
     return newInstance(getPitch(), getYaw(), roll);
   }
 
@@ -92,38 +90,38 @@ public abstract class AngleN {
     return !isInDegrees();
   }
 
-  public AngleN add(AngleN ang) {
+  public Angle add(Angle ang) {
     return newInstance(
         getPitch() + ang.same(this).getPitch(),
         getYaw() + ang.same(this).getYaw(),
         getRoll() + ang.same(this).getRoll());
   }
 
-  public AngleN add(float p, float y, float r) {
+  public Angle add(float p, float y, float r) {
     return add(newInstance(p, y, r));
   }
 
-  public AngleN add(float p, float y) {
+  public Angle add(float p, float y) {
     return add(p, y, 0.f);
   }
 
-  public AngleN sub(AngleN ang) {
+  public Angle sub(Angle ang) {
     return add(ang.scale(-1));
   }
 
-  public AngleN sub(float p, float y, float r) {
+  public Angle sub(float p, float y, float r) {
     return add(-p, -y, -r);
   }
 
-  public AngleN sub(float p, float y) {
+  public Angle sub(float p, float y) {
     return sub(p, y, 0.f);
   }
 
-  public AngleN scale(float factor) {
+  public Angle scale(float factor) {
     return newInstance(getPitch() * factor, getYaw() * factor, getRoll() * factor);
   }
 
-  public abstract AngleN normalize();
+  public abstract Angle normalize();
 
   public double[] getForwardVector() {
     // x = cos(yaw)cos(pitch)
@@ -144,24 +142,24 @@ public abstract class AngleN {
     return new float[] {getPitch(), getYaw(), getRoll()};
   }
 
-  public abstract AngleN inRadians();
+  public abstract Angle inRadians();
 
-  public abstract AngleN inDegrees();
+  public abstract Angle inDegrees();
 
-  protected AngleN same(AngleN other) {
+  protected Angle same(Angle other) {
     return other.isInDegrees() ? inDegrees() : inRadians();
   }
 
-  protected abstract AngleN newInstance(float pitch, float yaw, float roll);
+  protected abstract Angle newInstance(float pitch, float yaw, float roll);
 
   @Override
   public boolean equals(Object obj) {
-    return this == obj || (obj instanceof AngleN && AngleHelper.isEqual(this, (AngleN) obj));
+    return this == obj || (obj instanceof Angle && AngleHelper.isEqual(this, (Angle) obj));
   }
 
   @Override
   public int hashCode() {
-    AngleN a = normalize().inDegrees();
+    Angle a = normalize().inDegrees();
     return Objects.hash(a.getPitch(), a.getYaw(), a.getRoll());
   }
 
@@ -172,7 +170,7 @@ public abstract class AngleN {
         getPitch(), getYaw(), getRoll(), isInRadians() ? "rad" : "deg");
   }
 
-  static class Degrees extends AngleN {
+  static class Degrees extends Angle {
     private Radians radians = null;
 
     private Degrees(float pitch, float yaw, float roll) {
@@ -185,7 +183,7 @@ public abstract class AngleN {
     }
 
     @Override
-    public AngleN normalize() {
+    public Angle normalize() {
       return newInstance(
           AngleHelper.normalizeInDegrees(getPitch()),
           AngleHelper.normalizeInDegrees(getYaw()),
@@ -193,7 +191,7 @@ public abstract class AngleN {
     }
 
     @Override
-    public AngleN inRadians() {
+    public Angle inRadians() {
       return radians == null
           ? radians =
               (Radians)
@@ -205,17 +203,17 @@ public abstract class AngleN {
     }
 
     @Override
-    public AngleN inDegrees() {
+    public Angle inDegrees() {
       return this;
     }
 
     @Override
-    protected AngleN newInstance(float pitch, float yaw, float roll) {
+    protected Angle newInstance(float pitch, float yaw, float roll) {
       return new Degrees(pitch, yaw, roll);
     }
   }
 
-  static class Radians extends AngleN {
+  static class Radians extends Angle {
     private Degrees degrees = null;
 
     private Radians(float pitch, float yaw, float roll) {
@@ -228,7 +226,7 @@ public abstract class AngleN {
     }
 
     @Override
-    public AngleN normalize() {
+    public Angle normalize() {
       return newInstance(
           AngleHelper.normalizeInRadians(getPitch()),
           AngleHelper.normalizeInRadians(getYaw()),
@@ -236,12 +234,12 @@ public abstract class AngleN {
     }
 
     @Override
-    public AngleN inRadians() {
+    public Angle inRadians() {
       return this;
     }
 
     @Override
-    public AngleN inDegrees() {
+    public Angle inDegrees() {
       return degrees == null
           ? degrees =
               (Degrees)
@@ -253,7 +251,7 @@ public abstract class AngleN {
     }
 
     @Override
-    protected AngleN newInstance(float pitch, float yaw, float roll) {
+    protected Angle newInstance(float pitch, float yaw, float roll) {
       return new Radians(pitch, yaw, roll);
     }
   }

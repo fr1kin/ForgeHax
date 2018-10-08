@@ -4,7 +4,7 @@ import static com.matt.forgehax.Helper.*;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
-import com.matt.forgehax.util.math.AngleN;
+import com.matt.forgehax.util.math.Angle;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
@@ -43,7 +43,7 @@ public class LocalPlayerUtils implements Globals {
   }
 
   /** Gets the players current view angles */
-  public static AngleN getViewAngles() {
+  public static Angle getViewAngles() {
     return PositionRotationManager.getState().getRenderClientViewAngles();
   }
 

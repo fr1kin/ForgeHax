@@ -14,7 +14,7 @@ import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.entity.PlayerUtils;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.math.AngleHelper;
-import com.matt.forgehax.util.math.AngleN;
+import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -223,7 +223,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
 
   /** Check if the entity is a valid target to acquire */
   public boolean isValidTarget(
-      Entity entity, Vec3d entPos, Vec3d selfPos, Vec3d lookVec, AngleN viewAngles) {
+      Entity entity, Vec3d entPos, Vec3d selfPos, Vec3d lookVec, Angle viewAngles) {
     return EntityUtils.isLiving(entity)
         && EntityUtils.isAlive(entity)
         && !entity.equals(MC.player)
@@ -244,12 +244,12 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     return dist <= 0 || fromPos.distanceTo(toPos) <= dist;
   }
 
-  public boolean isInFOVRange(AngleN selfAngle, Vec3d diffPos) {
+  public boolean isInFOVRange(Angle selfAngle, Vec3d diffPos) {
     double value = fov.get();
     if (value >= 180) {
       return true;
     } else {
-      AngleN diff = AngleHelper.getAngleFacingInDegrees(diffPos);
+      Angle diff = AngleHelper.getAngleFacingInDegrees(diffPos);
       double pitch = Math.abs(Utils.normalizeAngle(selfAngle.getPitch() - diff.getPitch()));
       double yaw = Math.abs(Utils.normalizeAngle(selfAngle.getYaw() - diff.getYaw()));
       return pitch <= value && yaw <= value;
@@ -257,7 +257,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
 
   /** Finds entity closest to crosshair */
-  public Entity findTargetEntity(Vec3d selfPos, Vec3d selfLookVec, AngleN viewAngles) {
+  public Entity findTargetEntity(Vec3d selfPos, Vec3d selfLookVec, Angle viewAngles) {
     final World world = Minecraft.getMinecraft().world;
     final Vec3d selfLookVecNormal = selfLookVec.normalize();
     Entity target = null;
@@ -287,7 +287,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     return 0.f; // AngleHelper.normalizeInDegrees()
   }
 
-  private boolean setViewAngles(RotationState.Local state, AngleN angle) {
+  private boolean setViewAngles(RotationState.Local state, Angle angle) {
     return false;
   }
 
@@ -361,7 +361,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     // local player look vec
     Vec3d selfLookVec = localPlayer.getLookVec();
     // local player view angles
-    AngleN viewAngles = AngleHelper.getAngleFacingInDegrees(selfLookVec);
+    Angle viewAngles = AngleHelper.getAngleFacingInDegrees(selfLookVec);
     if (hold_target.get()) {
       if (target == null
           || !isValidTarget(
@@ -373,7 +373,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     }
     if (target != null) {
       if (!isHoldingProjectileItem()) {
-        AngleN aim = Utils.getLookAtAngles(target);
+        Angle aim = Utils.getLookAtAngles(target);
         state.setViewAngles(aim.getPitch(), aim.getYaw(), silent.get());
 
         if (canAttack(localPlayer, target)) {

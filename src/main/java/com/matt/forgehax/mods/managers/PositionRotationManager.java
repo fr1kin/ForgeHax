@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.LocalPlayerUpdateMovementEvent;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
-import com.matt.forgehax.util.math.AngleN;
+import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.task.SimpleManagerContainer;
@@ -44,11 +44,11 @@ public class PositionRotationManager extends ServiceMod {
   private TaskChain<MovementUpdateListener> stopTasks = TaskChain.empty();
   private MovementUpdateListener superiorListener = null;
 
-  private static AngleN getPlayerAngles(EntityPlayer player) {
-    return AngleN.degrees(player.rotationPitch, player.rotationYaw);
+  private static Angle getPlayerAngles(EntityPlayer player) {
+    return Angle.degrees(player.rotationPitch, player.rotationYaw);
   }
 
-  private static void setPlayerAngles(EntityPlayerSP player, AngleN angles) {
+  private static void setPlayerAngles(EntityPlayerSP player, Angle angles) {
     player.rotationPitch = (float) angles.getPitch();
     player.rotationYaw = (float) angles.getYaw();
   }
@@ -62,7 +62,7 @@ public class PositionRotationManager extends ServiceMod {
   @SubscribeEvent
   public void onMovementUpdatePre(LocalPlayerUpdateMovementEvent.Pre event) {
     // updated view angles
-    AngleN va = getPlayerAngles(event.getLocalPlayer());
+    Angle va = getPlayerAngles(event.getLocalPlayer());
 
     RotationState gs = new RotationState();
     gs.setServerAngles(va);
@@ -100,7 +100,7 @@ public class PositionRotationManager extends ServiceMod {
           continue;
         } else if (clientOnly) {
           // copy the data from this local state, the client shouldn't need the callbacks
-          AngleN cva = gs.getClientAngles();
+          Angle cva = gs.getClientAngles();
           gs.copyOf(ls);
           gs.setClientAngles(cva);
           gs.setListener(listener);
@@ -205,7 +205,7 @@ public class PositionRotationManager extends ServiceMod {
      *
      * @return angle in degrees
      */
-    AngleN getClientAngles();
+    Angle getClientAngles();
 
     /**
      * The server-sided view angles of the player (what the server thinks the players view angles
@@ -213,7 +213,7 @@ public class PositionRotationManager extends ServiceMod {
      *
      * @return angle in degrees
      */
-    AngleN getServerAngles();
+    Angle getServerAngles();
 
     /**
      * Will return the client-sided view angles or the immediate view angles if no task is currently
@@ -221,10 +221,10 @@ public class PositionRotationManager extends ServiceMod {
      *
      * @return angle in degrees
      */
-    default AngleN getRenderClientViewAngles() {
+    default Angle getRenderClientViewAngles() {
       return isActive()
           ? getClientAngles()
-          : AngleN.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
+          : Angle.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
     }
 
     /**
@@ -233,10 +233,10 @@ public class PositionRotationManager extends ServiceMod {
      *
      * @return angle in degrees
      */
-    default AngleN getRenderServerViewAngles() {
+    default Angle getRenderServerViewAngles() {
       return isActive()
           ? getServerAngles()
-          : AngleN.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
+          : Angle.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
     }
 
     /**
@@ -264,8 +264,8 @@ public class PositionRotationManager extends ServiceMod {
   }
 
   public static class RotationState implements ReadableRotationState {
-    private AngleN serverViewAngles = AngleN.ZERO;
-    private AngleN clientViewAngles = AngleN.ZERO;
+    private Angle serverViewAngles = Angle.ZERO;
+    private Angle clientViewAngles = Angle.ZERO;
 
     private Pair<MovementUpdateListener, ListenerCallback> activeListener = null;
 
@@ -281,33 +281,33 @@ public class PositionRotationManager extends ServiceMod {
       this.activeListener = other.activeListener;
     }
 
-    public AngleN getServerAngles() {
+    public Angle getServerAngles() {
       return serverViewAngles;
     }
 
-    public void setServerAngles(AngleN va) {
+    public void setServerAngles(Angle va) {
       Objects.requireNonNull(va);
       this.serverViewAngles = va;
     }
 
     public void setServerAngles(float pitch, float yaw) {
-      setServerAngles(AngleN.degrees(pitch, yaw));
+      setServerAngles(Angle.degrees(pitch, yaw));
     }
 
-    public AngleN getClientAngles() {
+    public Angle getClientAngles() {
       return clientViewAngles;
     }
 
-    public void setClientAngles(AngleN va) {
+    public void setClientAngles(Angle va) {
       Objects.requireNonNull(va);
       this.clientViewAngles = va;
     }
 
     public void setClientAngles(float pitch, float yaw) {
-      setClientAngles(AngleN.degrees(pitch, yaw));
+      setClientAngles(Angle.degrees(pitch, yaw));
     }
 
-    public void setViewAngles(AngleN va, boolean silent) {
+    public void setViewAngles(Angle va, boolean silent) {
       setServerAngles(va);
       if (!silent) setClientAngles(va);
     }
@@ -317,7 +317,7 @@ public class PositionRotationManager extends ServiceMod {
       if (!silent) setClientAngles(pitch, yaw);
     }
 
-    public void setViewAngles(AngleN va) {
+    public void setViewAngles(Angle va) {
       setViewAngles(va, false);
     }
 
@@ -325,7 +325,7 @@ public class PositionRotationManager extends ServiceMod {
       setViewAngles(pitch, yaw, false);
     }
 
-    public void setViewAnglesSilent(AngleN va) {
+    public void setViewAnglesSilent(Angle va) {
       setViewAngles(va, true);
     }
 
@@ -416,13 +416,13 @@ public class PositionRotationManager extends ServiceMod {
     private ReadableRotationState state =
         new ReadableRotationState() {
           @Override
-          public AngleN getClientAngles() {
-            return AngleN.ZERO;
+          public Angle getClientAngles() {
+            return Angle.ZERO;
           }
 
           @Override
-          public AngleN getServerAngles() {
-            return AngleN.ZERO;
+          public Angle getServerAngles() {
+            return Angle.ZERO;
           }
 
           @Override
@@ -442,12 +442,12 @@ public class PositionRotationManager extends ServiceMod {
     }
 
     @Override
-    public synchronized AngleN getClientAngles() {
+    public synchronized Angle getClientAngles() {
       return state.getClientAngles();
     }
 
     @Override
-    public synchronized AngleN getServerAngles() {
+    public synchronized Angle getServerAngles() {
       return state.getServerAngles();
     }
 
