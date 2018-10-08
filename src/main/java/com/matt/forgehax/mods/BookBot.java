@@ -14,6 +14,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import io.netty.buffer.Unpooled;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Scanner;
@@ -145,7 +146,7 @@ public class BookBot extends ToggleMod {
 
     String text;
     try {
-      text = new String(Files.readAllBytes(f.toPath()));
+      text = new String(Files.readAllBytes(f.toPath()), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException("Failed to read file");
     }
@@ -179,7 +180,7 @@ public class BookBot extends ToggleMod {
 
               if (writer == null) {
                 writer = loadFile();
-                data.write("BookBot file loaded successfully");
+                data.write(String.format("BookBot file \"%s\" loaded successfully", file.get()));
               }
 
               writer.setPage(page);
@@ -235,7 +236,7 @@ public class BookBot extends ToggleMod {
                 writer.stop();
                 writer = null;
                 writerThread = null;
-                data.write("Shuttingdown BookBot instance");
+                data.write("Shutting down BookBot instance");
               } else data.write("No writer present");
             })
         .build();
@@ -248,7 +249,7 @@ public class BookBot extends ToggleMod {
         .processor(
             data -> {
               writer = loadFile();
-              data.write("BookBot file loaded successfully");
+              data.write(String.format("BookBot file \"%s\"loaded successfully", file.get()));
             })
         .build();
 
