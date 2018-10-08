@@ -66,4 +66,12 @@ public class TestAngle {
     assertEquals(rad.inDegrees().hashCode(), deg.hashCode());
     assertEquals(rad.inDegrees().hashCode(), deg.inRadians().hashCode());
   }
+
+  @Test
+  public void TestEqualsNormalization() {
+    Angle deg1 = Angle.degrees(90, 45);
+    Angle deg2 = Angle.degrees(90 + 360, 45 + 360);
+
+    assertEquals(deg1, deg2);
+  }
 }
