@@ -13,7 +13,8 @@ public class AntiFogMod extends ToggleMod {
         super(Category.WORLD, "AntiFog", false, "Removes fog");
     }
 
-    @Subscribe
+    // TODO
+    /*@Subscribe
     @SubscribeEvent
     public void onFogDensity(EntityViewRenderEvent.FogDensity event) {
         event.setDensity(0);
@@ -26,5 +27,5 @@ public class AntiFogMod extends ToggleMod {
         event.setRed(55);
         event.setGreen(55);
         event.setBlue(55);
-    }
+    }*/
 }

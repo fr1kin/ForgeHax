@@ -1,11 +1,11 @@
 package com.matt.forgehax.util.entity;
 
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.math.Angle;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.client.FMLClientHandler;
 
 import javax.annotation.Nullable;
 import static com.matt.forgehax.Helper.*;
@@ -127,7 +127,7 @@ public class LocalPlayerUtils implements Globals {
     public static void sendRotatePacket(double pitch, double yaw) {
         if(lastAngle.getPitch() != pitch ||
                 lastAngle.getYaw() != yaw) {
-            FMLClientHandler.instance().getClientToServerNetworkManager().sendPacket(new CPacketPlayer.Rotation(
+            Helper.getNetworkManager().sendPacket(new CPacketPlayer.Rotation(
                     (float)yaw,
                     (float)pitch,
                     MC.player.onGround

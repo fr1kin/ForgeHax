@@ -5,8 +5,6 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Created on 6/14/2017 by fr1kin

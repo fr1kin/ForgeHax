@@ -15,7 +15,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.io.IOException;
 import java.util.List;
@@ -85,7 +84,7 @@ public class AutoReconnectMod extends ToggleMod {
             reconnectTime = System.currentTimeMillis() + (long)(delay * 1000);
             // set variable 'reason' to the previous classes value
             try {
-                ReflectionHelper.setPrivateValue(GuiDisconnected.class, this, reason, "reason", "field_146306_a", "a"); // TODO: Find obbed mapping name
+                FastReflection.Fields.GuiDisconnected_reason.set(this, reason);
             } catch (Exception e) {
                 Helper.printStackTrace(e);
             }

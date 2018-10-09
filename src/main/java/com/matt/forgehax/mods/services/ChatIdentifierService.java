@@ -13,7 +13,6 @@ import com.mojang.authlib.GameProfile;
 import joptsimple.internal.Strings;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.network.play.server.SPacketChat;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;

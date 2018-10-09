@@ -7,7 +7,6 @@ import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class YawLockMod extends ToggleMod {

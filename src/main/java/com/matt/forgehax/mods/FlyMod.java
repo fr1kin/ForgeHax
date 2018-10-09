@@ -4,6 +4,7 @@ package com.matt.forgehax.mods;
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -12,7 +13,6 @@ import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.util.Objects;
 
@@ -73,10 +73,10 @@ public class FlyMod extends ToggleMod {
     @Subscribe
     public void onOutgoingPacketSent(PacketEvent.Incoming.Pre event) {
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
-            SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();
+            SPacketPlayerPosLook packet = event.getPacket();
             try {
-                ObfuscationReflectionHelper.setPrivateValue(SPacketPlayerPosLook.class, packet, MC.player.rotationYaw, "yaw", "field_148936_d", "d");
-                ObfuscationReflectionHelper.setPrivateValue(SPacketPlayerPosLook.class, packet, MC.player.rotationPitch, "pitch", "field_148937_e", "e");
+                FastReflection.Fields.SPacketPlayer_yaw.set(packet, MC.player.rotationYaw);
+                FastReflection.Fields.SPacketPlayer_pitch.set(packet, MC.player.rotationPitch);
             } catch (Exception e) {}
         }
     }

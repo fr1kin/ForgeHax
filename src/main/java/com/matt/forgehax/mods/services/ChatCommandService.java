@@ -10,7 +10,6 @@ import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Created on 5/15/2017 by fr1kin

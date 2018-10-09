@@ -109,7 +109,6 @@ public class LogoutSpot extends ToggleMod {
     }
     
     /*@Subscribe
-    @SubscribeEvent
     public void onPlayerJoin(PlayerConnectEvent.Join event) {
         logoutSpots.removeIf(pos -> {
             if (pos.id.equals(event.getPlayerInfo().getId())) {

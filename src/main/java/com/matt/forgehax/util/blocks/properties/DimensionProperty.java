@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.matt.forgehax.ForgeHax;
 import net.minecraft.world.DimensionType;
 import net.minecraftforge.common.DimensionManager;
 
@@ -25,10 +26,10 @@ public class DimensionProperty implements IBlockProperty {
     }
 
     public boolean add(int id) {
-        try {
-            return add(DimensionManager.getProviderType(id));
-        } catch (Exception e) {
-            ; // will throw exception if id does not exist
+        DimensionType dim = getDimensionType(id);
+        if (dim != null) {
+            return add(dim);
+        } else {
             return false;
         }
     }
@@ -38,10 +39,11 @@ public class DimensionProperty implements IBlockProperty {
     }
 
     public boolean remove(int id) {
-        try {
-            return remove(DimensionManager.getProviderType(id));
-        } catch (Exception e) {
-            return false; // will throw exception if id does not exist
+        DimensionType dim = getDimensionType(id);
+        if (dim != null) {
+            return remove(dim);
+        } else {
+            return false;
         }
     }
 
@@ -49,9 +51,20 @@ public class DimensionProperty implements IBlockProperty {
         if(dimensions.isEmpty())
             return true; // true if none other
         else try {
-            return dimensions.contains(DimensionManager.getProviderType(id));
+            return dimensions.contains(getDimensionType(id));
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    private DimensionType getDimensionType(int id) {
+        try {
+            if (ForgeHax.isForge()) // get from forge
+                return DimensionManager.getProviderType(id);
+            else // vanilla
+                return DimensionType.getById(id);
+        } catch (Exception e) {
+            return null; // will throw exception if id does not exist
         }
     }
 

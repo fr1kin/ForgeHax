@@ -2,10 +2,9 @@ package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.events.ChatMessageEvent;
+import com.matt.forgehax.events.ServerConnectionEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -49,14 +48,12 @@ public class ChatLogger extends ToggleMod {
     }
 
     @Subscribe
-    @SubscribeEvent
-    public void onConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
+    public void onConnect(ServerConnectionEvent.Connect event) {
         getOrSetPublicLog(); // set public log file
     }
 
     @Subscribe
-    @SubscribeEvent
-    public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+    public void onDisconnect(ServerConnectionEvent.Disconnect event) {
         publicLog = null;
     }
 

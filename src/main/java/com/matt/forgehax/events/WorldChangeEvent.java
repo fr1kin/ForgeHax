@@ -1,7 +1,7 @@
 package com.matt.forgehax.events;
 
+import com.matt.forgehax.asm.events.replacementhooks.WorldEvent;
 import net.minecraft.world.World;
-import net.minecraftforge.event.world.WorldEvent;
 
 /**
  * Created on 5/29/2017 by fr1kin

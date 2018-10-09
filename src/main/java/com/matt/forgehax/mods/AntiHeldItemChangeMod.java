@@ -8,7 +8,6 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.server.SPacketSetSlot;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getNetworkManager;

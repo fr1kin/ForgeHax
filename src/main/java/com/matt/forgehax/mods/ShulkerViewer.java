@@ -2,6 +2,8 @@ package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.ForgeHax;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.replacementhooks.RenderTooltipEvent;
 import com.matt.forgehax.asm.events.replacementhooks.GuiOpenEvent;
 import com.matt.forgehax.mods.services.ChatCommandService;
@@ -32,7 +34,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.settings.IKeyConflictContext;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nonnull;
@@ -111,18 +112,20 @@ public class ShulkerViewer extends ToggleMod {
 
     public ShulkerViewer() {
         super(Category.RENDER, "ShulkerViewer", false, "View the contents of a shulker box.");
-        ClientRegistry.registerKeyBinding(lockDownKey);
-        lockDownKey.setKeyConflictContext(new IKeyConflictContext() {
-            @Override
-            public boolean isActive() {
-                return MC.currentScreen instanceof GuiContainer;
-            }
+        Helper.registerKeyBinding(lockDownKey);
+        if (ForgeHax.isForge()) { // key conflict is part of forge
+            lockDownKey.setKeyConflictContext(new IKeyConflictContext() {
+                @Override
+                public boolean isActive() {
+                    return MC.currentScreen instanceof GuiContainer;
+                }
 
-            @Override
-            public boolean conflicts(IKeyConflictContext other) {
-                return false; // this will never conflict as
-            }
-        });
+                @Override
+                public boolean conflicts(IKeyConflictContext other) {
+                    return false; // this will never conflict as
+                }
+            });
+        }
     }
 
     private boolean isLocked() {

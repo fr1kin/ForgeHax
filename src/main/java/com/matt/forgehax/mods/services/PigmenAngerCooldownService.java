@@ -6,8 +6,6 @@ import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.monster.EntityPigZombie;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Created on 6/14/2017 by fr1kin

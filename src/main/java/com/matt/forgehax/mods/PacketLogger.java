@@ -21,7 +21,6 @@ import joptsimple.internal.Strings;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.Packet;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

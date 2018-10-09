@@ -8,6 +8,7 @@ import net.futureclient.asm.transformer.AsmMethod;
 import net.futureclient.asm.transformer.annotation.Inject;
 import net.futureclient.asm.transformer.annotation.Transformer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.client.ForgeHooksClient;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
@@ -16,7 +17,7 @@ import java.util.Objects;
 import static com.matt.forgehax.Globals.MC;
 import static org.objectweb.asm.Opcodes.*;
 
-@Transformer(target = "net.minecraftforge.client.ForgeHooksClient")
+@Transformer(ForgeHooksClient.class)
 public class ForgeHooksClientPatch {
 
     @Inject(name = "drawScreen", args = {GuiScreen.class, int.class, int.class, float.class})

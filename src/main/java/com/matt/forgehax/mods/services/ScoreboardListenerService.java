@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
+import com.matt.forgehax.events.ServerConnectionEvent;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.PlayerInfo;
@@ -17,8 +18,6 @@ import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -66,16 +65,15 @@ public class ScoreboardListenerService extends ServiceMod {
         }
     }
 
-    /*@SubscribeEvent
-    public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
+    @Subscribe
+    public void onClientConnect(ServerConnectionEvent.Connect event) {
         ignore = false;
-    }*/
+    }
 
-    /*@Subscribe
-    @SubscribeEvent
-    public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+    @Subscribe
+    public void onClientDisconnect(ServerConnectionEvent.Disconnect event) {
         ignore = false;
-    }*/
+    }
 
     @Subscribe
     public void onPacketIn(PacketEvent.Incoming.Pre event) {

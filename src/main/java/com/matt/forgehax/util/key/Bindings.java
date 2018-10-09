@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static com.matt.forgehax.util.key.KeyBindingHandler.newKeyBindingHandler;
 import static java.util.stream.Collectors.toList;
 
 public class Bindings implements Globals {
@@ -24,18 +25,18 @@ public class Bindings implements Globals {
                 .orElse(null);
     }
 
-    public static final KeyBindingHandler forward = new KeyBindingHandler(MC.gameSettings.keyBindForward);
-    public static final KeyBindingHandler back = new KeyBindingHandler(MC.gameSettings.keyBindBack);
-    public static final KeyBindingHandler left = new KeyBindingHandler(MC.gameSettings.keyBindLeft);
-    public static final KeyBindingHandler right = new KeyBindingHandler(MC.gameSettings.keyBindRight);
+    public static final KeyBindingHandler forward = newKeyBindingHandler(MC.gameSettings.keyBindForward);
+    public static final KeyBindingHandler back = newKeyBindingHandler(MC.gameSettings.keyBindBack);
+    public static final KeyBindingHandler left = newKeyBindingHandler(MC.gameSettings.keyBindLeft);
+    public static final KeyBindingHandler right = newKeyBindingHandler(MC.gameSettings.keyBindRight);
 
-    public static final KeyBindingHandler jump = new KeyBindingHandler(MC.gameSettings.keyBindJump);
+    public static final KeyBindingHandler jump = newKeyBindingHandler(MC.gameSettings.keyBindJump);
 
-    public static final KeyBindingHandler sprint = new KeyBindingHandler(MC.gameSettings.keyBindSprint);
-    public static final KeyBindingHandler sneak = new KeyBindingHandler(MC.gameSettings.keyBindSneak);
+    public static final KeyBindingHandler sprint = newKeyBindingHandler(MC.gameSettings.keyBindSprint);
+    public static final KeyBindingHandler sneak = newKeyBindingHandler(MC.gameSettings.keyBindSneak);
 
-    public static final KeyBindingHandler attack = new KeyBindingHandler(MC.gameSettings.keyBindAttack);
-    public static final KeyBindingHandler use = new KeyBindingHandler(MC.gameSettings.keyBindUseItem);
+    public static final KeyBindingHandler attack = newKeyBindingHandler(MC.gameSettings.keyBindAttack);
+    public static final KeyBindingHandler use = newKeyBindingHandler(MC.gameSettings.keyBindUseItem);
 
 
 
@@ -47,7 +48,7 @@ public class Bindings implements Globals {
                 .filter(f -> f.getType() == KeyBinding.class)
                 .map(Bindings::getBinding)
                 .filter(Objects::nonNull)
-                .map(KeyBindingHandler::new)
+                .map(KeyBindingHandler::newKeyBindingHandler)
                 .collect(toList());
     }
     private static KeyBinding getBinding(Field field) {

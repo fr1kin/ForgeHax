@@ -67,8 +67,7 @@ public class MacroCommand extends CommandMod {
         MACROS.remove(macro);
 
         if (macro.name.isPresent()) {
-            MC.gameSettings.keyBindings = ArrayUtils.remove(MC.gameSettings.keyBindings,
-                    ArrayUtils.indexOf(MC.gameSettings.keyBindings, macro.getBind()));
+            Helper.registerKeyBinding(macro.getBind());
         }
         // remove the category if there are no named macros to prevent crash
         // TODO: fix crash when a category is empty

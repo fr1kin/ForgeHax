@@ -28,9 +28,6 @@ public class ForgehaxEventBus implements EventBus {
         if (event instanceof Event && event instanceof Cancelable) {
             return ((Event)event).isCanceled();
         }
-        if (event instanceof net.minecraftforge.fml.common.eventhandler.Event) {
-            return ((net.minecraftforge.fml.common.eventhandler.Event)event).isCanceled(); // TODO: remove this
-        }
         return false;
     }
 

@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.eventbus.Subscribe;
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.RenderBlockInLayerEvent;
 import com.matt.forgehax.asm.events.RenderBlockLayerEvent;
@@ -38,8 +39,10 @@ public class XrayMod extends ToggleMod {
 
     @Override
     public void onEnabled() {
-        previousForgeLightPipelineEnabled = ForgeModContainer.forgeLightPipelineEnabled;
-        ForgeModContainer.forgeLightPipelineEnabled = false;
+        if (ForgeHax.isForge()) {
+            previousForgeLightPipelineEnabled = ForgeModContainer.forgeLightPipelineEnabled;
+            ForgeModContainer.forgeLightPipelineEnabled = false;
+        }
         ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (this.opacity.getAsFloat() / 255.f);
         ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
         reloadChunks();
@@ -48,7 +51,7 @@ public class XrayMod extends ToggleMod {
 
     @Override
     public void onDisabled() {
-        ForgeModContainer.forgeLightPipelineEnabled = previousForgeLightPipelineEnabled;
+        if (ForgeHax.isForge()) ForgeModContainer.forgeLightPipelineEnabled = previousForgeLightPipelineEnabled;
         ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
         reloadChunks();
         ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("Xray");

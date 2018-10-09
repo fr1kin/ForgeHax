@@ -5,6 +5,7 @@ import com.google.common.collect.Queues;
 import com.google.common.eventbus.Subscribe;
 import com.matt.forgehax.asm.events.replacementhooks.GuiOpenEvent;
 import com.matt.forgehax.asm.utils.ReflectionHelper;
+import com.matt.forgehax.events.ServerConnectionEvent;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.mod.Category;
@@ -14,9 +15,6 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketClickWindow;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -149,8 +147,8 @@ public class ExtraInventory extends ToggleMod {
         });
     }
 
-    @SubscribeEvent
-    public void onDisconnectToServer(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+    @Subscribe
+    public void onDisconnectToServer(ServerConnectionEvent.Disconnect event) {
         onDisabled();
     }
 

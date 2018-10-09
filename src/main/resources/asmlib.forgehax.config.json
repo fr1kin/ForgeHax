@@ -34,7 +34,8 @@
       "ItemRendererPatch",
       "GuiIngamePatch",
       "GuiIngameForgePatch",
-      "RenderLivingBasePatch"
+      "RenderLivingBasePatch",
+      "NetHandlerPlayClientPatch"
     ]
   }
 }

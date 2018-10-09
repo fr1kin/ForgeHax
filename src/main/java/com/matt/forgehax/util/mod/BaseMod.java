@@ -131,7 +131,7 @@ public abstract class BaseMod implements Globals {
      */
     public final boolean register() {
         if(!registered) {
-            MinecraftForge.EVENT_BUS.register(this);
+            //MinecraftForge.EVENT_BUS.register(this);
             ForgeHax.EVENT_BUS.register(this);
             registered = true;
             return true;
@@ -143,7 +143,7 @@ public abstract class BaseMod implements Globals {
      */
     public final boolean unregister() {
         if(registered) {
-            MinecraftForge.EVENT_BUS.unregister(this);
+            //MinecraftForge.EVENT_BUS.unregister(this);
             ForgeHax.EVENT_BUS.unregister(this);
             registered = false;
             return true;

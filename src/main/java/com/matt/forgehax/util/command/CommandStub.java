@@ -3,13 +3,13 @@ package com.matt.forgehax.util.command;
 import com.google.common.base.Strings;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
 import com.matt.forgehax.util.key.IKeyBind;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nullable;
@@ -32,7 +32,7 @@ public class CommandStub extends Command implements IKeyBind, ISerializableJson 
         Integer keyCode =                               (Integer)                               data.getOrDefault(KEYBIND, -1);
         if(keyCode != -1) {
             bind = new KeyBinding(getAbsoluteName(), keyCode, "ForgeHax");
-            ClientRegistry.registerKeyBinding(bind);
+            Helper.registerKeyBinding(bind);
 
             Boolean genOptions =                        (Boolean)                               data.getOrDefault(KEYBIND_OPTIONS, true);
             if(genOptions) {

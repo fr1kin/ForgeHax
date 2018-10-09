@@ -39,13 +39,14 @@ public class AntiOverlayMod extends ToggleMod {
     @Subscribe
     public void onRenderBlockOverlay(RenderBlockOverlayEvent event) { event.setCanceled(true); }
 
-    @Subscribe
+    // TODO:
+    /*@Subscribe
     @SubscribeEvent
     public void onRenderGameOverlay(RenderGameOverlayEvent event) {
         if (event.getType().equals(RenderGameOverlayEvent.ElementType.HELMET) ||
                 event.getType().equals(RenderGameOverlayEvent.ElementType.PORTAL))
             event.setCanceled(true);
-    }
+    }*/
 
     @Subscribe
     public void onRender(RenderEvent event) {
