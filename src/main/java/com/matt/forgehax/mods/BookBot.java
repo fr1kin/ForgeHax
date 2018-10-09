@@ -72,7 +72,7 @@ public class BookBot extends ToggleMod {
           .<Long>newSettingBuilder()
           .name("sleep")
           .description("Sleep time in ms")
-          .defaultTo(10L)
+          .defaultTo(300L)
           .build();
 
   private Thread writerThread = null;
