@@ -4,8 +4,8 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.AngleHelper;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,6 +80,10 @@ public class Utils implements Globals {
   }
 
   public static double clamp(double value, double min, double max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  public static float clamp(float value, float min, float max) {
     return Math.max(min, Math.min(max, value));
   }
 

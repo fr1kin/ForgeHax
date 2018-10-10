@@ -3,7 +3,6 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -59,11 +58,10 @@ public class WaifuESP extends ToggleMod {
   }
 
   private boolean shouldDraw(EntityLivingBase entity) {
-    return LocalPlayerUtils.isTargetEntity(entity)
-        || (!entity.equals(MC.player)
-            && EntityUtils.isAlive(entity)
-            && EntityUtils.isValidEntity(entity)
-            && (EntityUtils.isPlayer(entity)));
+    return (!entity.equals(MC.player)
+        && EntityUtils.isAlive(entity)
+        && EntityUtils.isValidEntity(entity)
+        && (EntityUtils.isPlayer(entity)));
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)

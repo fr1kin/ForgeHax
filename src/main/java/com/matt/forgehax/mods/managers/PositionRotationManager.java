@@ -4,7 +4,10 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.LocalPlayerUpdateMovementEvent;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
+import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.task.SimpleManagerContainer;
@@ -12,10 +15,10 @@ import com.matt.forgehax.util.task.TaskChain;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import javafx.util.Pair;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /** Created on 6/15/2017 by fr1kin */
@@ -37,20 +40,29 @@ public class PositionRotationManager extends ServiceMod {
     super("PositionRotationManager");
   }
 
+  public final Setting<Double> smooth =
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("smooth")
+          .description("Angle smoothing for bypassing anti-cheats. Set to 0 to disable")
+          .defaultTo(45.D)
+          .min(0.D)
+          .max(180.D)
+          .build();
+
   private final RotationState gState = new RotationState();
   private TaskChain<Consumer<ReadableRotationState>> futureTasks = TaskChain.empty();
-
-  private boolean stopping = false;
-  private TaskChain<MovementUpdateListener> stopTasks = TaskChain.empty();
-  private MovementUpdateListener superiorListener = null;
 
   private static Angle getPlayerAngles(EntityPlayer player) {
     return Angle.degrees(player.rotationPitch, player.rotationYaw);
   }
 
   private static void setPlayerAngles(EntityPlayerSP player, Angle angles) {
-    player.rotationPitch = (float) angles.getPitch();
-    player.rotationYaw = (float) angles.getYaw();
+    Angle original = getPlayerAngles(player);
+    Angle diff = angles.normalize().sub(original.normalize());
+    player.rotationPitch = Utils.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
+    player.rotationYaw = original.getYaw() + diff.getYaw();
   }
 
   private static void setPlayerPosition(EntityPlayerSP player, Vec3d position) {
@@ -59,13 +71,42 @@ public class PositionRotationManager extends ServiceMod {
     player.posZ = position.z;
   }
 
+  private float clampAngle(float from, float to, float clamp) {
+    return AngleHelper.normalizeInDegrees(
+        from + Utils.clamp(AngleHelper.normalizeInDegrees(to - from), -clamp, clamp));
+  }
+
+  private Angle clampAngle(Angle from, Angle to, float clamp) {
+    return Angle.degrees(
+        clampAngle(from.getPitch(), to.getPitch(), clamp),
+        clampAngle(from.getYaw(), to.getYaw(), clamp));
+  }
+
+  private float getRotationCount(Angle from, Angle to, float clamp) {
+    Angle diff = to.sub(from).normalize();
+    float rp = (diff.getPitch() / clamp);
+    float ry = (diff.getYaw() / clamp);
+    return Math.max(Math.abs(rp), Math.abs(ry));
+  }
+
+  @SubscribeEvent
+  public void onWorldLoad(WorldEvent.Load event) {
+    gState.setInitialized(false);
+  }
+
   @SubscribeEvent
   public void onMovementUpdatePre(LocalPlayerUpdateMovementEvent.Pre event) {
     // updated view angles
     Angle va = getPlayerAngles(event.getLocalPlayer());
 
+    if (!gState.isInitialized()) {
+      gState.setServerAngles(va);
+      gState.setClientAngles(va);
+      gState.setInitialized(true);
+    }
+
     RotationState gs = new RotationState();
-    gs.setServerAngles(va);
+    gs.setServerAngles(gState.getServerAngles()); // use previous angles
     gs.setClientAngles(va);
 
     // boolean to check if any task has been processed
@@ -80,8 +121,8 @@ public class PositionRotationManager extends ServiceMod {
       ls = new Local(gs);
       listener.onLocalPlayerMovementUpdate(ls);
 
-      boolean clientCng = !gs.getClientAngles().equals(ls.getClientAngles());
-      boolean serverCng = !gs.getServerAngles().equals(ls.getServerAngles());
+      boolean clientCng = ls.isClientAnglesChanged();
+      boolean serverCng = ls.isServerAnglesChanged();
 
       if (ls.isCanceled()) {
         // cancel event, do not update any view angles
@@ -125,46 +166,42 @@ public class PositionRotationManager extends ServiceMod {
       }
     }
 
-    /* // may work on this later
-    MovementUpdateListener currentListener = gState.getListener();
-    MovementUpdateListener updateListener = gs.getListener();
-    if(currentListener != null && currentListener != updateListener) {
-      // listeners are changing, invoke the shutdown callback
-      superiorListener = updateListener;
-      stopTasks = Optional.ofNullable(gState.getListenerCallback())
-          .map(cb -> cb.onStopped(superiorListener))
-          .orElse(TaskChain.empty());
+    if (gs.getListener() == null && gState.getListener() == null) {
+      gs.setServerAngles(gs.getClientAngles());
+    } else if (gs.getListener() == null && gState.getListener() != null) {
+      getManager().finish(gState.getListener()); // finish the previous task
+      gs.setServerAngles(gs.getClientAngles());
+    } else if (gState.getListener() != gs.getListener()) {
+      getManager().begin(gs.getListener());
+    }
 
-      if(stopTasks.hasNext()) {
-        gs = new RotationState();
-        gs.setServerAngles(va);
-        gs.setClientAngles(va);
+    if (smooth.get() > 0.D) {
+      // the current angles the server thinks we are looking at
+      Angle start = gState.getServerAngles();
+      // the angles we want to look at
+      Angle dest = gs.getServerAngles();
 
-        ls = new Local(gs);
-        ls.setServerAngles(va);
-        ls.setClientAngles(va);
+      gs.setServerAngles(clampAngle(start, dest, smooth.getAsFloat()));
 
-        stopTasks.next().onLocalPlayerMovementUpdate(ls);
-
-        gs.copyOf(ls);
-      }
-
-      stopping = stopTasks.hasNext();
-    }*/
+      if (getRotationCount(start, dest, smooth.getAsFloat()) <= 1.f)
+        futureTasks = ls != null ? ls.getFutureTasks() : TaskChain.empty();
+      else futureTasks = TaskChain.empty();
+    } else {
+      // update the future tasks that are processed in the post movement update hook
+      futureTasks = ls != null ? ls.getFutureTasks() : TaskChain.empty();
+    }
 
     gState.copyOf(gs);
 
-    // update the future tasks that are processed in the post movement update hook
-    futureTasks = changed ? ls.getFutureTasks() : TaskChain.empty();
-
     // set the player angles to the server angles
-    setPlayerAngles(event.getLocalPlayer(), gState.getServerAngles());
+    setPlayerAngles(event.getLocalPlayer(), gState.getServerAngles().inDegrees().normalize());
   }
 
   @SubscribeEvent
   public void onMovementUpdatePost(LocalPlayerUpdateMovementEvent.Post event) {
     // reset angles if silent aiming is enabled
-    if (gState.isSilent()) setPlayerAngles(event.getLocalPlayer(), gState.getClientAngles());
+    if (gState.isSilent())
+      setPlayerAngles(event.getLocalPlayer(), gState.getClientAngles().inDegrees().normalize());
 
     // process all the tasks
     while (futureTasks.hasNext()) futureTasks.next().accept(gState);
@@ -172,9 +209,7 @@ public class PositionRotationManager extends ServiceMod {
     futureTasks = TaskChain.empty();
 
     // update the read-only state
-    synchronized (STATE) {
-      STATE.setCurrentState(gState);
-    }
+    STATE.setCurrentState(gState);
   }
 
   public interface MovementUpdateListener {
@@ -184,10 +219,6 @@ public class PositionRotationManager extends ServiceMod {
      * @param state read/write data for manipulating the players rotation.
      */
     void onLocalPlayerMovementUpdate(RotationState.Local state);
-  }
-
-  public interface ListenerCallback {
-    TaskChain<MovementUpdateListener> onStopped(MovementUpdateListener superior);
   }
 
   public interface ReadableRotationState {
@@ -264,10 +295,12 @@ public class PositionRotationManager extends ServiceMod {
   }
 
   public static class RotationState implements ReadableRotationState {
+    private boolean initialized = false;
+
     private Angle serverViewAngles = Angle.ZERO;
     private Angle clientViewAngles = Angle.ZERO;
 
-    private Pair<MovementUpdateListener, ListenerCallback> activeListener = null;
+    private MovementUpdateListener listener = null;
 
     private RotationState() {}
 
@@ -278,7 +311,15 @@ public class PositionRotationManager extends ServiceMod {
     private void copyOf(RotationState other) {
       this.serverViewAngles = other.serverViewAngles;
       this.clientViewAngles = other.clientViewAngles;
-      this.activeListener = other.activeListener;
+      this.listener = other.listener;
+    }
+
+    private boolean isInitialized() {
+      return initialized;
+    }
+
+    private void setInitialized(boolean initialized) {
+      this.initialized = initialized;
     }
 
     public Angle getServerAngles() {
@@ -287,7 +328,7 @@ public class PositionRotationManager extends ServiceMod {
 
     public void setServerAngles(Angle va) {
       Objects.requireNonNull(va);
-      this.serverViewAngles = va;
+      this.serverViewAngles = va.normalize();
     }
 
     public void setServerAngles(float pitch, float yaw) {
@@ -300,7 +341,7 @@ public class PositionRotationManager extends ServiceMod {
 
     public void setClientAngles(Angle va) {
       Objects.requireNonNull(va);
-      this.clientViewAngles = va;
+      this.clientViewAngles = va.normalize();
     }
 
     public void setClientAngles(float pitch, float yaw) {
@@ -338,27 +379,11 @@ public class PositionRotationManager extends ServiceMod {
     }
 
     public MovementUpdateListener getListener() {
-      return activeListener == null ? null : activeListener.getKey();
-    }
-
-    private ListenerCallback getListenerCallback() {
-      return activeListener == null ? null : activeListener.getValue();
-    }
-
-    private void setListener(MovementUpdateListener listener, ListenerCallback callback) {
-      this.activeListener = new Pair<>(listener, callback);
+      return listener;
     }
 
     private void setListener(MovementUpdateListener listener) {
-      setListener(listener, getListenerCallback());
-    }
-
-    public void setCallback(ListenerCallback callback) {
-      setListener(getListener(), callback);
-    }
-
-    private void unsetListener() {
-      setListener(null, null);
+      this.listener = listener;
     }
 
     protected TaskChain<Consumer<ReadableRotationState>> getFutureTasks() {
@@ -369,12 +394,26 @@ public class PositionRotationManager extends ServiceMod {
     public static class Local extends RotationState {
       private final List<Consumer<ReadableRotationState>> later = Lists.newArrayList();
 
+      private boolean serverAnglesChanged = false;
+      private boolean clientAnglesChanged = false;
       private boolean halted = false;
       private boolean canceled = false;
       private boolean clientSided = false;
 
       private Local(RotationState other) {
         super(other);
+      }
+
+      @Override
+      public void setServerAngles(Angle va) {
+        super.setServerAngles(va);
+        this.serverAnglesChanged = true;
+      }
+
+      @Override
+      public void setClientAngles(Angle va) {
+        super.setClientAngles(va);
+        this.clientAnglesChanged = true;
       }
 
       @Override
@@ -408,6 +447,14 @@ public class PositionRotationManager extends ServiceMod {
 
       public void setClientSided(boolean clientSided) {
         this.clientSided = clientSided;
+      }
+
+      public boolean isServerAnglesChanged() {
+        return serverAnglesChanged;
+      }
+
+      public boolean isClientAnglesChanged() {
+        return clientAnglesChanged;
       }
     }
   }

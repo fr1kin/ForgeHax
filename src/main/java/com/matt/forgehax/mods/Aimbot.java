@@ -1,8 +1,8 @@
 package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getWorld;
 
-import com.google.common.collect.Lists;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState;
 import com.matt.forgehax.mods.services.TickRateService;
@@ -10,26 +10,37 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.common.PriorityEnum;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.entity.LocalPlayerUtils;
-import com.matt.forgehax.util.entity.PlayerUtils;
 import com.matt.forgehax.util.key.Bindings;
-import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.projectile.Projectile;
-import com.matt.forgehax.util.projectile.SimulationResult;
-import java.util.Collections;
-import net.minecraft.client.Minecraft;
+import java.util.Comparator;
+import java.util.Optional;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 @RegisterMod
 public class Aimbot extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
+  private static Entity target = null;
+
+  public static void setTarget(Entity target) {
+    Aimbot.target = target;
+  }
+
+  public static Entity getTarget() {
+    return target;
+  }
+
+  enum Selector {
+    CROSSHAIR,
+    DISTANCE,
+  }
+
   public final Setting<Boolean> silent =
       getCommandStub()
           .builders()
@@ -167,15 +178,13 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(100D)
           .build();
 
-  public final Setting<Double> smooth =
+  public final Setting<Selector> selector =
       getCommandStub()
           .builders()
-          .<Double>newSettingBuilder()
-          .name("smooth")
-          .description("Angle smoothing for bypassing anti-cheats")
-          .defaultTo(0.D)
-          .min(0.D)
-          .max(100.D)
+          .<Selector>newSettingEnumBuilder()
+          .name("selector")
+          .description("The method used to select a target from a group")
+          .defaultTo(Selector.CROSSHAIR)
           .build();
 
   public Aimbot() {
@@ -188,107 +197,98 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     } else return 0.D;
   }
 
-  public boolean canAttack(EntityPlayer localPlayer, Entity target) {
+  private boolean canAttack(EntityPlayer localPlayer, Entity target) {
     return localPlayer.getCooledAttackStrength((float) getLagComp())
             >= (cooldown_percent.get() / 100.D)
         && (auto_attack.get() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
   }
 
-  public Projectile getHeldProjectile() {
+  private Projectile getHeldProjectile() {
     return Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItem(EnumHand.MAIN_HAND));
   }
 
-  public boolean isHoldingProjectileItem() {
+  private boolean isHoldingProjectileItem() {
     return !getHeldProjectile().isNull();
   }
 
-  public boolean isProjectileAimbotActivated() {
+  private boolean isProjectileAimbotActivated() {
     return projectile_aimbot.get() && isHoldingProjectileItem();
   }
 
-  public boolean isVisible(Entity target) {
+  private boolean isVisible(Entity target) {
     if (isProjectileAimbotActivated() && projectile_trace_check.get()) {
       return getHeldProjectile().canHitEntity(EntityUtils.getEyePos(getLocalPlayer()), target);
     } else return !vis_check.get() || getLocalPlayer().canEntityBeSeen(target);
   }
 
-  public Vec3d getAimPos(Entity entity) {
-    /*
-    Vec3d selfPos = getLocalPlayer().getPositionVector();
-    Vec3d tarPos = entity.getPositionVector();
-    Vec3d dir = tarPos.subtract(selfPos).normalize();
-    return tarPos.add(new Vec3d(dir.xCoord, 0, dir.zCoord).scale(3));*/
+  private Vec3d getAttackPosition(Entity entity) {
     return EntityUtils.getInterpolatedPos(entity, 1).addVector(0, entity.getEyeHeight() / 2, 0);
   }
 
   /** Check if the entity is a valid target to acquire */
-  public boolean isValidTarget(
-      Entity entity, Vec3d entPos, Vec3d selfPos, Vec3d lookVec, Angle viewAngles) {
-    return EntityUtils.isLiving(entity)
-        && EntityUtils.isAlive(entity)
-        && !entity.equals(MC.player)
-        && EntityUtils.isValidEntity(entity)
-        && ((EntityUtils.isPlayer(entity)
-                && target_players.get()
-                && !PlayerUtils.isFriend((EntityPlayer) entity))
-            || (EntityUtils.isHostileMob(entity) && target_mobs_hostile.get())
-            || (EntityUtils.isFriendlyMob(entity) && target_mobs_friendly.get()))
-        && isInRange(entPos, selfPos)
-        && isInFOVRange(viewAngles, entPos.subtract(selfPos))
-        && isVisible(entity);
+  private boolean filterTarget(Vec3d pos, Vec3d viewNormal, Angle angles, Entity entity) {
+    final Vec3d tpos = getAttackPosition(entity);
+    return Optional.of(entity)
+        .filter(EntityUtils::isLiving)
+        .filter(EntityUtils::isAlive)
+        .filter(EntityUtils::isValidEntity)
+        .filter(ent -> !ent.equals(getLocalPlayer()))
+        .filter(this::isFiltered)
+        .filter(ent -> isInRange(tpos, pos))
+        .filter(ent -> isInFov(angles, tpos.subtract(pos)))
+        .filter(this::isVisible)
+        .isPresent();
   }
 
-  /** Check if entity is in attack range */
-  public boolean isInRange(Vec3d fromPos, Vec3d toPos) {
+  private boolean isFiltered(Entity entity) {
+    switch (EntityUtils.getRelationship(entity)) {
+      case PLAYER:
+        return target_players.get();
+      case FRIENDLY:
+        return target_mobs_friendly.get();
+      case HOSTILE:
+      default:
+        return target_mobs_hostile.get();
+    }
+  }
+
+  private boolean isInRange(Vec3d from, Vec3d to) {
     double dist = isProjectileAimbotActivated() ? projectile_range.get() : range.get();
-    return dist <= 0 || fromPos.distanceTo(toPos) <= dist;
+    return dist <= 0 || from.distanceTo(to) <= dist;
   }
 
-  public boolean isInFOVRange(Angle selfAngle, Vec3d diffPos) {
-    double value = fov.get();
-    if (value >= 180) {
-      return true;
-    } else {
-      Angle diff = AngleHelper.getAngleFacingInDegrees(diffPos);
-      double pitch = Math.abs(Utils.normalizeAngle(selfAngle.getPitch() - diff.getPitch()));
-      double yaw = Math.abs(Utils.normalizeAngle(selfAngle.getYaw() - diff.getYaw()));
-      return pitch <= value && yaw <= value;
+  private boolean isInFov(Angle angle, Vec3d pos) {
+    double fov = this.fov.get();
+    if (fov >= 180) return true;
+    else {
+      Angle look = AngleHelper.getAngleFacingInDegrees(pos);
+      Angle diff = angle.sub(look.getPitch(), look.getYaw()).normalize();
+      return Math.abs(diff.getPitch()) <= fov && Math.abs(diff.getYaw()) <= fov;
     }
   }
 
-  /** Finds entity closest to crosshair */
-  public Entity findTargetEntity(Vec3d selfPos, Vec3d selfLookVec, Angle viewAngles) {
-    final World world = Minecraft.getMinecraft().world;
-    final Vec3d selfLookVecNormal = selfLookVec.normalize();
-    Entity target = null;
-    double shortestDistance = -1;
-    synchronized (world.loadedEntityList) {
-      for (Entity entity :
-          Collections.synchronizedList(Lists.newArrayList(world.loadedEntityList))) {
-        if (entity != null) {
-          Vec3d pos = EntityUtils.getOBBCenter(entity);
-          if (isValidTarget(entity, pos, selfPos, selfLookVec, viewAngles)) {
-            double distance =
-                pos.subtract(selfPos).normalize().subtract(selfLookVecNormal).lengthVector();
-            if (shortestDistance == -1 || distance < shortestDistance) {
-              target = entity;
-              shortestDistance = distance;
-            }
-          }
-        }
-      }
+  private double selecting(
+      final Vec3d pos, final Vec3d viewNormal, final Angle angles, final Entity entity) {
+    switch (selector.get()) {
+      case DISTANCE:
+        return getAttackPosition(entity).subtract(pos).lengthSquared();
+      case CROSSHAIR:
+      default:
+        return getAttackPosition(entity)
+            .subtract(pos)
+            .normalize()
+            .subtract(viewNormal)
+            .lengthSquared();
     }
-    LocalPlayerUtils.setTargetEntity(target);
-    return target;
   }
 
-  private float clampAngle(float from, float to, float min, float max) {
-    float normal = AngleHelper.normalizeInDegrees(to - from);
-    return 0.f; // AngleHelper.normalizeInDegrees()
-  }
-
-  private boolean setViewAngles(RotationState.Local state, Angle angle) {
-    return false;
+  private Entity findTarget(final Vec3d pos, final Vec3d viewNormal, final Angle angles) {
+    return getWorld()
+        .loadedEntityList
+        .stream()
+        .filter(entity -> filterTarget(pos, viewNormal, angles, entity))
+        .min(Comparator.comparingDouble(entity -> selecting(pos, viewNormal, angles, entity)))
+        .orElse(null);
   }
 
   @Override
@@ -301,105 +301,34 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     PositionRotationManager.getManager().unregister(this);
   }
 
-  /*
-  @SubscribeEvent(priority = EventPriority.HIGHEST)
-  public void onPacketSending(PacketEvent.Outgoing.Pre event) {
-      if(event.getPacket() instanceof CPacketPlayerDigging) {
-          // called when the bow release packet is sent by the client
-          // make sure the packet isn't being called inside this method
-          if(((CPacketPlayerDigging) event.getPacket()).getAction().equals(CPacketPlayerDigging.Action.RELEASE_USE_ITEM) &&
-                  LocalPlayerUtils.isProjectileTargetAcquired() &&
-                  !PacketHelper.isIgnored(event.getPacket())) {
-              // make sure the player is still holding a valid weapon
-              EntityPlayer localPlayer = MC.player;
-              ItemStack heldItem = localPlayer.getHeldItemMainhand();
-              if(heldItem != null &&
-                      ProjectileUtils.isBow(heldItem)) { // bow only
-                  // send server our new view angles
-                  LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getFakeViewAngles());
-                  // tell server we let go of bow
-                  Packet usePacket = new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN);
-                  // add to ignore list
-                  PacketHelper.ignore(usePacket);
-                  getNetworkManager().sendPacket(usePacket);
-                  // revert back to the old view angles
-                  LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
-                  // cancel this event (wont send the packet)
-                  event.setCanceled(true);
-              }
-          }
-      } else if(event.getPacket() instanceof CPacketPlayerTryUseItem &&
-              LocalPlayerUtils.isProjectileTargetAcquired() &&
-              !PacketHelper.isIgnored(event.getPacket()) &&
-              ((CPacketPlayerTryUseItem) event.getPacket()).getHand().equals(EnumHand.MAIN_HAND)) {
-          EntityPlayer localPlayer = MC.player;
-          ItemStack heldItem = localPlayer.getHeldItemMainhand();
-          if(heldItem != null &&
-                  ProjectileUtils.isThrowable(heldItem) &&
-                  !ProjectileUtils.isBow(heldItem)) {
-              // send server our new view angles
-              LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getFakeViewAngles());
-              // tell server we let go of bow
-              Packet usePacket = new CPacketPlayerTryUseItem(((CPacketPlayerTryUseItem) event.getPacket()).getHand());
-              // add to ignore list
-              PacketHelper.ignore(usePacket);
-              getNetworkManager().sendPacket(usePacket);
-              // revert back to the old view angles
-              LocalPlayerUtils.sendRotatePacket(LocalPlayerUtils.getViewAngles());
-              // cancel this event (wont send the packet)
-              event.setCanceled(true);
-          }
-      }
-  }*/
-
   @Override
   public void onLocalPlayerMovementUpdate(RotationState.Local state) {
-    EntityPlayer localPlayer = MC.player;
-    Entity target = LocalPlayerUtils.getTargetEntity();
-    // local player eye pos
-    Vec3d selfPos = EntityUtils.getEyePos(localPlayer);
-    // local player look vec
-    Vec3d selfLookVec = localPlayer.getLookVec();
-    // local player view angles
-    Angle viewAngles = AngleHelper.getAngleFacingInDegrees(selfLookVec);
-    if (hold_target.get()) {
-      if (target == null
-          || !isValidTarget(
-              target, EntityUtils.getOBBCenter(target), selfPos, selfLookVec, viewAngles)) {
-        target = findTargetEntity(selfPos, selfLookVec, viewAngles);
-      }
-    } else {
-      target = findTargetEntity(selfPos, selfLookVec, viewAngles);
-    }
-    if (target != null) {
-      if (!isHoldingProjectileItem()) {
-        Angle aim = Utils.getLookAtAngles(target);
-        state.setViewAngles(aim.getPitch(), aim.getYaw(), silent.get());
+    Vec3d pos = EntityUtils.getEyePos(getLocalPlayer());
+    Vec3d look = getLocalPlayer().getLookVec();
+    Angle angles = AngleHelper.getAngleFacingInDegrees(look);
 
-        if (canAttack(localPlayer, target)) {
-          final Entity t = target;
-          state.invokeLater(
-              (rs) -> {
-                // attack entity
-                MC.playerController.attackEntity(rs.getLocalPlayer(), t);
-                // swing hand
-                localPlayer.swingArm(EnumHand.MAIN_HAND);
-              });
-        }
-      } else {
-        // this will find the angle we need to shoot at
-        Projectile holding = getHeldProjectile();
-        SimulationResult result =
-            holding.getSimulatedTrajectoryFromEntity(
-                getLocalPlayer(),
-                viewAngles,
-                holding.getForce(
-                    getLocalPlayer().getHeldItemMainhand().getMaxItemUseDuration()
-                        - getLocalPlayer().getItemInUseCount()),
-                0);
-        // TODO: reimplement
-      }
+    Entity t = getTarget();
+    if (!hold_target.get()
+        || t == null
+        || !filterTarget(pos, look.normalize(), angles, getTarget()))
+      setTarget(t = findTarget(pos, look.normalize(), angles));
+
+    if (t == null) return;
+
+    final Entity tar = t;
+    Projectile projectile = getHeldProjectile();
+
+    if (projectile.isNull() || !projectile_aimbot.get()) {
+      // melee aimbot
+      Angle va = Utils.getLookAtAngles(t).normalize();
+      state.setViewAngles(va, silent.get());
+
+      if (canAttack(getLocalPlayer(), tar))
+        state.invokeLater(
+            rs -> {
+              MC.playerController.attackEntity(getLocalPlayer(), tar);
+              getLocalPlayer().swingArm(EnumHand.MAIN_HAND);
+            });
     }
-    LocalPlayerUtils.setProjectileTargetAcquired(false);
   }
 }

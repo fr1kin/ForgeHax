@@ -20,6 +20,7 @@ import joptsimple.internal.Strings;
 import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
+import net.minecraft.network.play.server.SPacketPlayerListItem.Action;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -96,6 +97,9 @@ public class ScoreboardListenerService extends ServiceMod {
   public void onScoreboardEvent(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketPlayerListItem) {
       final SPacketPlayerListItem packet = (SPacketPlayerListItem) event.getPacket();
+      if (!Action.ADD_PLAYER.equals(packet.getAction())
+          && !Action.REMOVE_PLAYER.equals(packet.getAction())) return;
+
       packet
           .getEntries()
           .stream()

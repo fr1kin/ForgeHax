@@ -183,9 +183,7 @@ public class EntityUtils implements Globals {
 
   /** Find the entities draw color */
   public static int getDrawColor(EntityLivingBase living) {
-    if (LocalPlayerUtils.isTargetEntity(living)) {
-      return Utils.Colors.WHITE;
-    } else if (isPlayer(living)) {
+    if (isPlayer(living)) {
       if (PlayerUtils.isFriend((EntityPlayer) living)) return Utils.Colors.GREEN;
       else return Utils.Colors.RED;
     } else if (isHostileMob(living)) {

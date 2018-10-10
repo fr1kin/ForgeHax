@@ -1,5 +1,6 @@
 package com.matt.forgehax.util.math;
 
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 /** Created on 6/21/2017 by fr1kin */
@@ -48,15 +49,18 @@ public class AngleHelper {
   }
 
   public static double normalizeInDegrees(double ang) {
-    while (ang >= 180.D) ang -= 360.D;
-    while (ang < -180.D) ang += 360.D;
-    return ang;
+    return MathHelper.wrapDegrees(ang);
   }
 
   public static float normalizeInDegrees(float ang) {
-    while (ang >= 180.f) ang -= 360.f;
-    while (ang < -180.f) ang += 360.f;
-    return ang;
+    return MathHelper.wrapDegrees(ang);
+  }
+
+  public static void main(String[] args) {
+    System.out.println(normalizeInDegrees(-180.f));
+    System.out.println(normalizeInDegrees(-181.f));
+    System.out.println(normalizeInDegrees(180.f));
+    System.out.println(normalizeInDegrees(181.f));
   }
 
   public static Angle getAngleFacingInRadians(Vec3d vector) {

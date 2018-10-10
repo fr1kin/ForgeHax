@@ -1,9 +1,15 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getWorld;
+
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState;
+import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
+import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -11,30 +17,21 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 @RegisterMod
 public class YawLockMod extends ToggleMod
     implements PositionRotationManager.MovementUpdateListener {
-  public final Setting<Boolean> do_once =
+  public final Setting<Boolean> auto =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("do_once")
-          .description("Will only fire update once")
-          .defaultTo(false)
-          .build();
-
-  public final Setting<Boolean> auto_angle =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("auto_angle")
+          .name("auto")
           .description("Automatically finds angle to snap to based on the direction you're facing")
           .defaultTo(true)
           .build();
 
-  public final Setting<Double> custom_angle =
+  public final Setting<Double> angle =
       getCommandStub()
           .builders()
           .<Double>newSettingBuilder()
-          .name("custom_angle")
-          .description("Custom angle to snap to")
+          .name("angle")
+          .description("Angle to snap too")
           .defaultTo(0.0D)
           .min(-180D)
           .max(180D)
@@ -44,8 +41,38 @@ public class YawLockMod extends ToggleMod
     super(Category.PLAYER, "YawLock", false, "Locks yaw to prevent moving into walls");
   }
 
-  public double getYawDirection() {
-    return (int) Math.round((LocalPlayerUtils.getViewAngles().getYaw() + 1.f) / 45.f) * 45.f;
+  private double getYawDirection() {
+    return (int) (Math.round((LocalPlayerUtils.getViewAngles().getYaw() + 1.f) / 45.f) * 45.f);
+  }
+
+  private Angle getSnapAngle() {
+    return Angle.degrees(
+        LocalPlayerUtils.getViewAngles().getPitch(), auto.get() ? getYawDirection() : angle.get());
+  }
+
+  @Override
+  protected void onLoad() {
+    getCommandStub()
+        .builders()
+        .newCommandBuilder()
+        .name("snap")
+        .description("Snap once to a certain direction")
+        .processor(
+            data -> {
+              if (getLocalPlayer() == null || getWorld() == null) return;
+
+              final double angle =
+                  data.getArgumentCount() == 0
+                      ? getYawDirection()
+                      : AngleHelper.normalizeInDegrees(
+                          SafeConverter.toDouble(data.getArgumentAsString(0)));
+
+              PositionRotationManager.getManager()
+                  .registerTemporary(
+                      state ->
+                          state.setViewAngles(
+                              Angle.degrees(state.getClientAngles().getPitch(), angle)));
+            });
   }
 
   @Override
@@ -60,10 +87,6 @@ public class YawLockMod extends ToggleMod
 
   @Override
   public void onLocalPlayerMovementUpdate(RotationState.Local state) {
-    double yaw = getYawDirection();
-    if (!auto_angle.get()) yaw = custom_angle.get();
-    state.setClientAngles((float) state.getServerAngles().getPitch(), (float) yaw);
-    // disable after first set if set to do once
-    if (isEnabled() && do_once.get()) disable();
+    state.setClientAngles(getSnapAngle());
   }
 }

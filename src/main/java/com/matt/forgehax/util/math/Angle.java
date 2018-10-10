@@ -2,9 +2,7 @@ package com.matt.forgehax.util.math;
 
 import java.util.Objects;
 
-/**
- * Created on 6/21/2017 by fr1kin
- */
+/** Created on 6/21/2017 by fr1kin */
 public abstract class Angle {
   public static final Angle ZERO = degrees(0.f, 0.f, 0.f);
 

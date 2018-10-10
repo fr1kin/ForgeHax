@@ -5,8 +5,8 @@ import static com.matt.forgehax.Helper.getWorld;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.math.AngleHelper;
 import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.AngleHelper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
