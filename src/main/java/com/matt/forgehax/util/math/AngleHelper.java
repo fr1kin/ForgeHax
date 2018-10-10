@@ -56,13 +56,6 @@ public class AngleHelper {
     return MathHelper.wrapDegrees(ang);
   }
 
-  public static void main(String[] args) {
-    System.out.println(normalizeInDegrees(-180.f));
-    System.out.println(normalizeInDegrees(-181.f));
-    System.out.println(normalizeInDegrees(180.f));
-    System.out.println(normalizeInDegrees(181.f));
-  }
-
   public static Angle getAngleFacingInRadians(Vec3d vector) {
     double pitch, yaw;
     if (vector.x == 0 && vector.z == 0) {
