@@ -39,7 +39,7 @@ public class PlayerInfoHelper implements Globals {
   }
 
   private static PlayerInfo register(String name) throws IOException {
-    if (name.length() > MAX_NAME_LENGTH) return null;
+    if (Strings.isNullOrEmpty(name) || name.length() > MAX_NAME_LENGTH) return null;
     PlayerInfo info = new PlayerInfo(name);
     NAME_TO_INFO.put(info.getName().toLowerCase(), info);
     UUID_TO_INFO.put(info.getId(), info);
