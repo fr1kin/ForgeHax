@@ -245,10 +245,13 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
       case PLAYER:
         return target_players.get();
       case FRIENDLY:
+      case NEUTRAL:
         return target_mobs_friendly.get();
       case HOSTILE:
-      default:
         return target_mobs_hostile.get();
+      case INVALID:
+      default:
+        return false;
     }
   }
 
