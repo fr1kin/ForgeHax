@@ -77,7 +77,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
 
     if (items.isNull()) return;
 
-    BlockPlacementInfo info = LocalPlayerUtils.getBlockPlacementInfo(below);
+    BlockPlacementInfo info = LocalPlayerUtils.getBlockUnderPlacementInfo(below);
 
     if (info == null) {
       info =
@@ -85,7 +85,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
               .stream()
               .map(below::offset)
               .filter(bp -> getWorld().getBlockState(bp).getMaterial().isReplaceable())
-              .map(LocalPlayerUtils::getBlockPlacementInfo)
+              .map(LocalPlayerUtils::getBlockUnderPlacementInfo)
               .filter(Objects::nonNull)
               .findFirst()
               .orElse(null);

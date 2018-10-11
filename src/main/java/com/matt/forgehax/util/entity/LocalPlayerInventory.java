@@ -38,7 +38,7 @@ public class LocalPlayerInventory {
   }
 
   public static List<InvItem> getHotbarInventory() {
-    return getMainInventory(0, 8);
+    return getMainInventory(0, 9);
   }
 
   public static InvItem getSelected() {

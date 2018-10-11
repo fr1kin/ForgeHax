@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.AngleHelper;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -164,7 +163,7 @@ public enum Projectile implements IProjectile {
 
     RayTraceResult trace;
 
-    List<Vec3d> points = factor < 0 ? Collections.emptyList() : Lists.newArrayList();
+    List<Vec3d> points = Lists.newArrayList();
     points.add(shootPos); // add the initial position
 
     Vec3d next = new Vec3d(shootPos.x, shootPos.y, shootPos.z);
