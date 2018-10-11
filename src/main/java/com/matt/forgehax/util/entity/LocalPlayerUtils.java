@@ -47,7 +47,8 @@ public class LocalPlayerUtils implements Globals {
     return getWorld().rayTraceBlocks(start, end, false, true, false);
   }
 
-  private static BlockPlacementInfo getBlockPlacementInfo(final BlockPos pos, Predicate<BlockPlacementInfo> filter) {
+  private static BlockPlacementInfo getBlockPlacementInfo(
+      final BlockPos pos, Predicate<BlockPlacementInfo> filter) {
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d normal = getServerViewAngles().getDirectionVector().normalize();
     return Arrays.stream(EnumFacing.values())
@@ -73,18 +74,21 @@ public class LocalPlayerUtils implements Globals {
 
   public static BlockPlacementInfo getBlockAroundPlacementInfo(final BlockPos pos) {
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
-    return getBlockPlacementInfo(pos, info -> {
-      RayTraceResult tr = trace(eyes, new Vec3d(info.getPos()).addVector(0.5D, 0.5D, 0.5D));
-      return tr != null
-          && info.getOppositeSide().equals(tr.sideHit)
-          && info.getPos().equals(tr.getBlockPos());
-    });
+    return getBlockPlacementInfo(
+        pos,
+        info -> {
+          RayTraceResult tr = trace(eyes, new Vec3d(info.getPos()).addVector(0.5D, 0.5D, 0.5D));
+          return tr != null
+              && info.getOppositeSide().equals(tr.sideHit)
+              && info.getPos().equals(tr.getBlockPos());
+        });
   }
 
   public static BlockPlacementInfo getBlockUnderPlacementInfo(final BlockPos pos) {
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d center = new Vec3d(pos).addVector(0.5D, 0.5D, 0.5D);
-    return getBlockPlacementInfo(pos, info -> eyes.squareDistanceTo(center) < eyes.squareDistanceTo(info.getCenteredPos()));
+    return getBlockPlacementInfo(
+        pos, info -> eyes.squareDistanceTo(center) < eyes.squareDistanceTo(info.getCenteredPos()));
   }
 
   public static class BlockPlacementInfo {
