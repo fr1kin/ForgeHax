@@ -72,7 +72,8 @@ public class YawLockMod extends ToggleMod
                       state ->
                           state.setViewAngles(
                               Angle.degrees(state.getClientAngles().getPitch(), angle)));
-            });
+            })
+        .build();
   }
 
   @Override
