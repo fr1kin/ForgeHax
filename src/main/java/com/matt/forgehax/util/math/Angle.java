@@ -1,6 +1,8 @@
 package com.matt.forgehax.util.math;
 
 import java.util.Objects;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
 /** Created on 6/21/2017 by fr1kin */
 public abstract class Angle {
@@ -134,6 +136,14 @@ public abstract class Angle {
       kps, // y
       kpc * kys // z
     };
+  }
+
+  public Vec3d getDirectionVector() {
+    float cy = MathHelper.cos(-inDegrees().getYaw() * 0.017453292F - (float) Math.PI);
+    float sy = MathHelper.sin(-inDegrees().getYaw() * 0.017453292F - (float) Math.PI);
+    float cp = -MathHelper.cos(-inDegrees().getPitch() * 0.017453292F);
+    float sp = MathHelper.sin(-inDegrees().getPitch() * 0.017453292F);
+    return new Vec3d((double) (sy * cp), (double) sp, (double) (cy * cp));
   }
 
   public float[] toArray() {

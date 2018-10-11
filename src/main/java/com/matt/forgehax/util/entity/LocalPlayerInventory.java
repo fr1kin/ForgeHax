@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class LocalPlayerInventory {
@@ -68,6 +69,10 @@ public class LocalPlayerInventory {
 
     public ItemStack getItemStack() {
       return itemStack;
+    }
+
+    public Item getItem() {
+      return itemStack.getItem();
     }
 
     public int getIndex() {

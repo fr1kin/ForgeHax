@@ -1,0 +1,117 @@
+package com.matt.forgehax.mods;
+
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
+import static com.matt.forgehax.Helper.getWorld;
+
+import com.matt.forgehax.asm.reflection.FastReflection.Fields;
+import com.matt.forgehax.mods.managers.PositionRotationManager;
+import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
+import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.common.PriorityEnum;
+import com.matt.forgehax.util.entity.LocalPlayerInventory;
+import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
+import com.matt.forgehax.util.entity.LocalPlayerUtils.BlockPlacementInfo;
+import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.mod.Category;
+import com.matt.forgehax.util.mod.ToggleMod;
+import com.matt.forgehax.util.mod.loader.RegisterMod;
+import java.util.EnumSet;
+import java.util.Objects;
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.network.play.client.CPacketAnimation;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+
+@RegisterMod
+public class Scaffold extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
+  private static final EnumSet<EnumFacing> NEIGHBORS =
+      EnumSet.of(EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.WEST);
+
+  private int tickCount = 0;
+  private boolean placing = false;
+  private Angle previousAngles = Angle.ZERO;
+
+  public Scaffold() {
+    super(Category.PLAYER, "Scaffold", false, "Place blocks under yourself");
+  }
+
+  @Override
+  protected void onEnabled() {
+    PositionRotationManager.getManager().register(this, PriorityEnum.HIGHEST);
+  }
+
+  @Override
+  protected void onDisabled() {
+    PositionRotationManager.getManager().unregister(this);
+  }
+
+  @Override
+  public void onLocalPlayerMovementUpdate(Local state) {
+    if (placing) ++tickCount;
+
+    if (LocalPlayerUtils.getVelocity().normalize().lengthVector() > 1.D && placing) {
+      state.setServerAngles(previousAngles);
+    } else {
+      placing = false;
+      tickCount = 0;
+    }
+
+    BlockPos below = new BlockPos(getLocalPlayer()).down();
+
+    if (!getWorld().getBlockState(below).getMaterial().isReplaceable()) return;
+
+    InvItem items =
+        LocalPlayerInventory.getHotbarInventory()
+            .stream()
+            .filter(InvItem::nonNull)
+            .filter(item -> item.getItem() instanceof ItemBlock)
+            .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isFullBlock())
+            .findFirst()
+            // .max(Comparator.comparingInt(item -> item.getItemStack().getCount()))
+            .orElse(InvItem.EMPTY);
+
+    if (items.isNull()) return;
+
+    BlockPlacementInfo info = LocalPlayerUtils.getBlockPlacementInfo(below);
+
+    if (info == null) {
+      info =
+          NEIGHBORS
+              .stream()
+              .map(below::offset)
+              .filter(bp -> getWorld().getBlockState(bp).getMaterial().isReplaceable())
+              .map(LocalPlayerUtils::getBlockPlacementInfo)
+              .filter(Objects::nonNull)
+              .findFirst()
+              .orElse(null);
+
+      if (info == null) return;
+    }
+
+    LocalPlayerInventory.setSelected(items);
+
+    Vec3d hit = info.getHitVec();
+    state.setServerAngles(previousAngles = Utils.getLookAtAngles(hit));
+
+    final BlockPlacementInfo blockInfo = info;
+    state.invokeLater(
+        rs -> {
+          MC.playerController.processRightClickBlock(
+              getLocalPlayer(),
+              getWorld(),
+              blockInfo.getPos(),
+              blockInfo.getOppositeSide(),
+              hit,
+              EnumHand.MAIN_HAND);
+          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+          Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
+          placing = true;
+          tickCount = 0;
+        });
+  }
+}
