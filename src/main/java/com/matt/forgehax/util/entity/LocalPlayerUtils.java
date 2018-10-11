@@ -28,14 +28,6 @@ public class LocalPlayerUtils implements Globals {
     return new Vec3d(getLocalPlayer().motionX, getLocalPlayer().motionY, getLocalPlayer().motionZ);
   }
 
-  private final Vec3d getVectorForRotation(float pitch, float yaw) {
-    float f = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
-    float f1 = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
-    float f2 = -MathHelper.cos(-pitch * 0.017453292F);
-    float f3 = MathHelper.sin(-pitch * 0.017453292F);
-    return new Vec3d((double) (f1 * f2), (double) f3, (double) (f * f2));
-  }
-
   public static BlockPlacementInfo getBlockPlacementInfo(final BlockPos pos) {
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d center = new Vec3d(pos).addVector(0.5D, 0.5D, 0.5D);
