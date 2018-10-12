@@ -3,6 +3,7 @@ package com.matt.forgehax.asm.asmlib.patches;
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.TypesMc;
 import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.InsnPattern;
 import net.futureclient.asm.transformer.annotation.Inject;
 import net.futureclient.asm.transformer.annotation.Transformer;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -22,13 +23,11 @@ public class RenderGlobalPatch {
     description = "At hook callback at end of method"
     )
     public void loadRenderers(MethodNode main) {
-        AbstractInsnNode node = ASMHelper.findPattern(main.instructions.getFirst(), new int[] {
-                PUTFIELD,
-                0x00, 0x00, 0x00,
-                RETURN
-        }, "x???x");
-
+        InsnPattern node = ASMHelper._findPattern(main.instructions.getFirst(), new int[] {
+                ALOAD, GETFIELD, IFNULL
+        }, "xxx"); // if (this.world != null)
         Objects.requireNonNull(node, "Find pattern failed for node");
+        final AbstractInsnNode injectionPoint = node.<JumpInsnNode>getLast().label;
 
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(ALOAD, 0));// push this
@@ -37,7 +36,7 @@ public class RenderGlobalPatch {
         insnList.add(ASMHelper.call(GETFIELD, TypesMc.Fields.RenderGlobal_renderDispatcher));
         insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLoadRenderers));
 
-        main.instructions.insert(node, insnList);
+        main.instructions.insert(injectionPoint, insnList);
     }
 
 

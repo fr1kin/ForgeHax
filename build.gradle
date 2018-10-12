@@ -25,6 +25,7 @@ repositories {
     mavenCentral()
 
     maven { url 'https://oss.sonatype.org/content/groups/public/' }
+    maven { url 'https://impactdevelopment.github.io/maven/' }
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -44,6 +45,7 @@ configurations.all {
 }
 
 asmlib {
+    retainAllMappings = true
     add sourceSets.main, 'asmlib.forgehax.mappings.json', ['asmlib.forgehax.config.json']
 }
 
@@ -58,18 +60,26 @@ minecraft {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
+
+    compile 'com.github.ImpactDevelopment:SimpleTweaker:1.1'
 }
 
 reobf {
     shadowJar {
-        mappingType = 'SEARGE'
+        mappingType = 'NOTCH'
         classpath = sourceSets.main.compileClasspath
+    }
+
+    jar {
+        mappingType = 'NOTCH'
     }
 }
 
 shadowJar {
     dependencies {
         include(dependency(files("$rootDir/libs/asmlib-0.1-SNAPSHOT.jar")))
+
+        include dependency('com.github.ImpactDevelopment:SimpleTweaker:1.1')
     }
 }
 

@@ -22,7 +22,7 @@ public class KeyBindingPatch {
                 ALOAD, GETFIELD, IFEQ
         }, "xxx");
 
-        Objects.requireNonNull(node, "Find pattern failed for getfield node");
+        Objects.requireNonNull(node, "Find pattern failed for getfield node, probably not forge");
 
         // Delete forge code
         AbstractInsnNode iteratorNode = node.getNext().getNext(); // set the iterator to the IFEQ instruction

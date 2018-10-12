@@ -2,6 +2,7 @@ package com.matt.forgehax.asm.utils.fasttype;
 
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.utils.name.NameBuilder;
+import net.futureclient.asm.obfuscation.ObfuscatedRemapper;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
@@ -85,7 +86,7 @@ public class FastTypeBuilder implements ASMCommon {
         Objects.requireNonNull(insideClass);
         Objects.requireNonNull(name);
         if(auto) {
-            String parentClassInternalName = Type.getType(insideClass).getInternalName();
+            String parentClassInternalName = getParentClassMcpName(Type.getType(insideClass).getInternalName());
             srgName = MAPPER.getSrgFieldName(parentClassInternalName, name);
             obfuscatedName = MAPPER.getObfFieldName(parentClassInternalName, name);
         }
@@ -98,7 +99,7 @@ public class FastTypeBuilder implements ASMCommon {
         Objects.requireNonNull(parameters);
         if(auto) {
             Objects.requireNonNull(returnType, "Return type required for auto assigning methods");
-            String parentClassInternalName = Type.getType(insideClass).getInternalName();
+            String parentClassInternalName = getParentClassMcpName(Type.getType(insideClass).getInternalName());
             // build method descriptor
             Type[] args = new Type[parameters.length];
             for (int i = 0; i < args.length; i++) args[i] = Type.getType(parameters[i]);
@@ -107,5 +108,12 @@ public class FastTypeBuilder implements ASMCommon {
             obfuscatedName = MAPPER.getObfMethodName(parentClassInternalName, name, descriptor);
         }
         return new FastMethod<V>(insideClass, NameBuilder.create(name, srgName, obfuscatedName), parameters);
+    }
+
+    // TODO: fix error spam in forge
+    private String getParentClassMcpName(String obf) {
+        String mcp = ObfuscatedRemapper.getInstance().getMcpClassName(obf);
+        if (mcp == null) mcp = obf;
+        return mcp;
     }
 }

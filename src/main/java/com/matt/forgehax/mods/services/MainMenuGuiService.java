@@ -2,10 +2,18 @@ package com.matt.forgehax.mods.services;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.matt.forgehax.ForgeHax;
+import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.events.replacementhooks.GuiScreenEvent;
+import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.asm.reflection.FastReflection.Fields;
+import com.matt.forgehax.asm.utils.environment.State;
+import com.matt.forgehax.asm.utils.fasttype.FastField;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import java.lang.reflect.Field;
+import net.futureclient.asm.obfuscation.ObfuscatedRemapper;
 import net.minecraft.client.gui.*;
 
 import static net.minecraft.util.text.TextFormatting.*;
@@ -32,12 +40,12 @@ public class MainMenuGuiService extends ServiceMod {
 
 
     @Subscribe
-    public void onGui(GuiScreenEvent.InitGuiEvent.Post event) {
+    public void onGui(GuiScreenEvent.InitGuiEvent.Post event) throws Exception {
         if (event.getGui() instanceof GuiMainMenu) {
             GuiMainMenu gui = (GuiMainMenu) event.getGui();
 
             event.getButtonList().stream()
-                    .skip(4) // skip first 4 button
+                    .skip(ForgeHax.isForge() ? 4 : 3) // skip first wide vanilla button
                     .forEach(button -> {
                         button.y += 24;
                     }); // lower the rest of the buttons to make room for ours

@@ -1,5 +1,7 @@
 package com.matt.forgehax.asm.events.replacementhooks;
 
+import static com.matt.forgehax.Globals.MC;
+
 import com.matt.forgehax.util.event.Cancelable;
 import com.matt.forgehax.util.event.Event;
 import net.minecraft.client.gui.GuiButton;
@@ -159,11 +161,11 @@ public class GuiScreenEvent extends Event {
         public BackgroundDrawnEvent(GuiScreen gui)
         {
             super(gui);
-            final ScaledResolution scaledresolution = new ScaledResolution(gui.mc);
+            final ScaledResolution scaledresolution = new ScaledResolution(MC);
             final int scaledWidth = scaledresolution.getScaledWidth();
             final int scaledHeight = scaledresolution.getScaledHeight();
-            this.mouseX = Mouse.getX() * scaledWidth / gui.mc.displayWidth;
-            this.mouseY = scaledHeight - Mouse.getY() * scaledHeight / gui.mc.displayHeight - 1;
+            this.mouseX = Mouse.getX() * scaledWidth / MC.displayWidth;
+            this.mouseY = scaledHeight - Mouse.getY() * scaledHeight / MC.displayHeight - 1;
         }
 
 

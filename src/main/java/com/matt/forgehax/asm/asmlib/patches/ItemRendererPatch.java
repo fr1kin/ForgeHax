@@ -47,9 +47,8 @@ public class ItemRendererPatch {
         method.setCursor(pattern.getFirst());
         method.visitInsn(new VarInsnNode(FLOAD, 1)); // partialTicks
         method.visitInsn(new VarInsnNode(ALOAD, 2)); // iblockstate
-        method.visitInsn(new VarInsnNode(ALOAD, 3)); // overlayPos
-        method.<BlockOverlayPredicate>invoke((partialTicks, iblockstate, overlayPos) ->
-                ForgeHax.EVENT_BUS.post(new RenderBlockOverlayEvent(RenderBlockOverlayEvent.OverlayType.BLOCK, partialTicks, iblockstate, overlayPos))
+        method.<BlockOverlayPredicate>invoke((partialTicks, iblockstate) ->
+            ForgeHax.EVENT_BUS.post(new RenderBlockOverlayEvent(RenderBlockOverlayEvent.OverlayType.BLOCK, partialTicks, iblockstate))
         );
         method.jumpIf(IFNE, pattern.getLast().getNext());
     }
@@ -59,7 +58,7 @@ public class ItemRendererPatch {
         method.setCursor(pattern.getFirst());
         method.visitInsn(new VarInsnNode(FLOAD, 1)); // partialTicks
         method.<FloatPredicate>invoke(partialTicks ->
-                ForgeHax.EVENT_BUS.post(new RenderBlockOverlayEvent(RenderBlockOverlayEvent.OverlayType.WATER, partialTicks, Blocks.WATER.getDefaultState(), null)
+            ForgeHax.EVENT_BUS.post(new RenderBlockOverlayEvent(RenderBlockOverlayEvent.OverlayType.WATER, partialTicks, Blocks.WATER.getDefaultState())
         ));
         method.jumpIf(IFNE, pattern.getLast().getNext());
     }
@@ -68,13 +67,13 @@ public class ItemRendererPatch {
         method.setCursor(pattern.getFirst());
         method.visitInsn(new VarInsnNode(FLOAD, 1)); // partialTicks
         method.<FloatPredicate>invoke(partialTicks ->
-                ForgeHax.EVENT_BUS.post(new RenderBlockOverlayEvent(RenderBlockOverlayEvent.OverlayType.FIRE, partialTicks, Blocks.FIRE.getDefaultState(), null)
+            ForgeHax.EVENT_BUS.post(new RenderBlockOverlayEvent(RenderBlockOverlayEvent.OverlayType.FIRE, partialTicks, Blocks.FIRE.getDefaultState())
         ));
         method.jumpIf(IFNE, pattern.getLast().getNext());
     }
 
     private interface BlockOverlayPredicate {
-        boolean test(float partialTicks, IBlockState iblockstate, BlockPos overlayPos);
+        boolean test(float partialTicks, IBlockState iblockstate);
     }
 
     private interface FloatPredicate {

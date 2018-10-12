@@ -1,5 +1,8 @@
 package com.matt.forgehax.asm.tweaker;
 
+import io.github.impactdevelopment.simpletweaker.SimpleTweaker;
+import java.util.ArrayList;
+import java.util.Objects;
 import net.futureclient.asm.AsmLibApi;
 import net.minecraft.launchwrapper.ITweaker;
 import net.minecraft.launchwrapper.LaunchClassLoader;
@@ -7,12 +10,7 @@ import net.minecraft.launchwrapper.LaunchClassLoader;
 import java.io.File;
 import java.util.List;
 
-public class ForgehaxTweaker implements ITweaker {
-
-    @Override
-    public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {
-
-    }
+public class ForgehaxTweaker extends SimpleTweaker {
 
     @Override
     public void injectIntoClassLoader(LaunchClassLoader classLoader) {
@@ -22,11 +20,7 @@ public class ForgehaxTweaker implements ITweaker {
 
     @Override
     public String getLaunchTarget() {
-        return null;
+        return "net.minecraft.client.main.Main";
     }
 
-    @Override
-    public String[] getLaunchArguments() {
-        return new String[0];
-    }
 }

@@ -1,6 +1,7 @@
 package com.matt.forgehax.asm;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.utils.asmtype.ASMClass;
 import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -234,7 +235,8 @@ public interface TypesMc {
 
     interface Fields {
         ASMField NetworkManager$4_val$inPacket = Classes.NetworkManager$4.childField()
-                .setName("val$inPacket")
+                .setName("val$inPacket") // forge
+                .setObfuscatedName(ForgeHax.isForge() ? "val$inPacket" : "c") // "c" in vanilla but always val$inPacket in forge
                 .setType(Classes.Packet)
                 .build();
 

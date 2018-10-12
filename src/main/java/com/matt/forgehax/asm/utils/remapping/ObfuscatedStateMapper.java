@@ -26,6 +26,12 @@ import java.util.function.Function;
  * Created on 1/12/2017 by fr1kin
  */
 public class ObfuscatedStateMapper implements ASMCommon, IStateMapper {
+
+    static {
+        if (true)
+        throw new Error("ObfuscatedStateMapper is deprecated");
+    }
+
     private static ObfuscatedStateMapper INSTANCE = null;
 
     public static ObfuscatedStateMapper getInstance() {

@@ -1,5 +1,6 @@
 package com.matt.forgehax.asm.utils.environment;
 
+import com.matt.forgehax.asm.utils.remapping.AsmlibStateMapper;
 import com.matt.forgehax.asm.utils.remapping.NonObfuscatedStateMapper;
 import com.matt.forgehax.asm.utils.remapping.ObfuscatedStateMapper;
 import net.futureclient.asm.obfuscation.MappingType;
@@ -74,6 +75,7 @@ public class RuntimeState {
     }
 
     public static IStateMapper getMapper() {
-        return remapper == null ? remapper = (isObfuscated() ? ObfuscatedStateMapper.getInstance() : NonObfuscatedStateMapper.getInstance()) : remapper;
+        return remapper == null ? remapper = (isObfuscated() ? /*ObfuscatedStateMapper.getInstance()*/ AsmlibStateMapper.getInstance()
+            : NonObfuscatedStateMapper.getInstance()) : remapper;
     }
 }

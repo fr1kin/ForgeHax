@@ -16,16 +16,13 @@ public class RenderBlockOverlayEvent extends Event implements Cancelable {
     private final float renderPartialTicks;
     private final OverlayType overlayType;
     private final IBlockState blockForOverlay;
-    private final BlockPos blockPos;
 
 
-    public RenderBlockOverlayEvent(OverlayType type, float renderPartialTicks, IBlockState block, BlockPos blockPos)
+    public RenderBlockOverlayEvent(OverlayType type, float renderPartialTicks, IBlockState block)
     {
         this.renderPartialTicks = renderPartialTicks;
         this.overlayType = type;
         this.blockForOverlay = block;
-        if (blockPos == null) blockPos = new BlockPos(MC.player);
-        this.blockPos = blockPos;
     }
 
 
@@ -38,5 +35,4 @@ public class RenderBlockOverlayEvent extends Event implements Cancelable {
      * If the overlay type is BLOCK, then this is the block which the overlay is getting it's icon from
      */
     public IBlockState getBlockForOverlay() { return blockForOverlay; }
-    public BlockPos getBlockPos() { return blockPos; }
 }

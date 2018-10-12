@@ -27,13 +27,13 @@
       "WorldPatch",
       "WorldClientPatch",
       "GuiScreenPatch",
-      "Forge_GuiUtilsPatch",
+
       "RenderPlayerPatch",
-      "ForgeHooksClientPatch",
-      "EntityLivingBasePatch",
+
+
       "ItemRendererPatch",
       "GuiIngamePatch",
-      "GuiIngameForgePatch",
+
       "RenderLivingBasePatch",
       "NetHandlerPlayClientPatch"
     ]

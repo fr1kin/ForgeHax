@@ -1,13 +1,18 @@
 package com.matt.forgehax.asm;
 
 import com.google.common.collect.Maps;
-//import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import com.matt.forgehax.asm.utils.ASMStackLogger;
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
 import java.util.Map;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
 
 //@IFMLLoadingPlugin.SortingIndex(value = 1001)
-public class ForgeHaxTransformer implements /*IClassTransformer,*/ ASMCommon {
+public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     private Map<String, ClassTransformer> transformingClasses = Maps.newHashMap();
 
     public ForgeHaxTransformer() {
@@ -40,7 +45,7 @@ public class ForgeHaxTransformer implements /*IClassTransformer,*/ ASMCommon {
         transformingClasses.put(transformer.getTransformingClassName(), transformer);
     }
 
-    /*@Override
+    @Override
     public byte[] transform(String name, String realName, byte[] bytes) {
         if (transformingClasses.containsKey(realName)) {
             ClassTransformer transformer = transformingClasses.get(realName);
@@ -66,5 +71,5 @@ public class ForgeHaxTransformer implements /*IClassTransformer,*/ ASMCommon {
             }
         }
         return bytes;
-    }*/
+    }
 }

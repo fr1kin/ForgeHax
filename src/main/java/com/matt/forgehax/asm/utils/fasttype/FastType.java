@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class FastType<T> {
     protected final Class<?> insideClass;
-    protected final IName<String> name;
+    public final IName<String> name;
 
     protected T type = null;
 

@@ -162,23 +162,28 @@ public class GuiScreenPatch {
     public static ItemStack cachedToolTip; //= ItemStack.EMPTY;
 
     // TODO: set local variables from event
-    @Inject(name = "drawHoveringText", args = {List.class, int.class, int.class, FontRenderer.class},
-            description = "Add hook for tool tip event")
+    // TODO: refactor
+    @Inject(name = "drawHoveringText", args = {List.class, int.class, int.class},
+        description = "Add hook for tool tip event")
     public void drawHoveringTextHook(AsmMethod method) {
+        drawHoveringTextHookForge(method);
+    }
+    @Inject(name = "drawHoveringText", args = {List.class, int.class, int.class, FontRenderer.class}, // forge method
+        description = "Add hook for tool tip event")
+    public void drawHoveringTextHookForge(AsmMethod method) {
         InsnPattern node = ASMHelper._findPattern(method.method.instructions.getFirst(), new int[] {
-                ALOAD, INVOKEINTERFACE, IFNE
+            ALOAD, INVOKEINTERFACE, IFNE
         }, "xxx");
         if (node == null) {
             System.out.println("Failed to find pattern for drawHoveringText, probably in forge environment");
             return;
         }
         doDrawHoveringTextHook(method, Arrays.asList(
-                new VarInsnNode(ALOAD, 1),
-                new VarInsnNode(ILOAD, 2),
-                new VarInsnNode(ILOAD, 3),
-                new VarInsnNode(ALOAD, 4)
+            new VarInsnNode(ALOAD, 1),
+            new VarInsnNode(ILOAD, 2),
+            new VarInsnNode(ILOAD, 3),
+            new VarInsnNode(ALOAD, 4)
         ));
-
     }
     public static void doDrawHoveringTextHook(AsmMethod method, List<VarInsnNode> args) {
         InsnPattern node = ASMHelper._findPattern(method.method.instructions.getFirst(), new int[] {

@@ -114,7 +114,7 @@ public class ShulkerViewer extends ToggleMod {
         super(Category.RENDER, "ShulkerViewer", false, "View the contents of a shulker box.");
         Helper.registerKeyBinding(lockDownKey);
         if (ForgeHax.isForge()) { // key conflict is part of forge
-            lockDownKey.setKeyConflictContext(new IKeyConflictContext() {
+            /*lockDownKey.setKeyConflictContext(new IKeyConflictContext() {
                 @Override
                 public boolean isActive() {
                     return MC.currentScreen instanceof GuiContainer;
@@ -124,7 +124,7 @@ public class ShulkerViewer extends ToggleMod {
                 public boolean conflicts(IKeyConflictContext other) {
                     return false; // this will never conflict as
                 }
-            });
+            });*/ // TODO: fix IKeyConflict attempting to get loaded
         }
     }
 
@@ -267,6 +267,7 @@ public class ShulkerViewer extends ToggleMod {
 
             if (!isLocked()) {
                 // show stats for the item being hovered over
+              // TODO: this is a forge only method, need to replace it
                 Slot slotUnder = gui.getSlotUnderMouse();
                 if(slotUnder == null || !slotUnder.getHasStack() || slotUnder.getStack().isEmpty() || !(slotUnder.getStack().getItem() instanceof ItemShulkerBox))
                     setInCache(CACHE_HOVERING_INDEX, null);

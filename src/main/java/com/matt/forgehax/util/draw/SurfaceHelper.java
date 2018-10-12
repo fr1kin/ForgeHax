@@ -2,6 +2,8 @@ package com.matt.forgehax.util.draw;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
+import java.nio.FloatBuffer;
+import javax.vecmath.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
@@ -19,12 +21,15 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
+import org.apache.commons.lang3.tuple.Pair;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
 
 import javax.annotation.Nullable;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
+import static org.lwjgl.opengl.GL11.glMultMatrix;
 
 /**
  * 2D rendering
@@ -292,7 +297,7 @@ public class SurfaceHelper implements Globals {
         else
             GlStateManager.disableLighting();
 
-        bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(bakedmodel, ItemCameraTransforms.TransformType.GUI, false);
+        bakedmodel = /*net.minecraftforge.client.ForgeHooksClient.*/handleCameraTransforms(bakedmodel, ItemCameraTransforms.TransformType.GUI, false);
         MC.getRenderItem().renderItem(stack, bakedmodel);
         GlStateManager.disableAlpha();
         GlStateManager.disableRescaleNormal();
@@ -396,5 +401,44 @@ public class SurfaceHelper implements Globals {
     }
     public static int getHeadHeight() {
         return getHeadWidth(1.f);
+    }
+
+    // copy/pasted from forge
+    private static IBakedModel handleCameraTransforms(IBakedModel model, ItemCameraTransforms.TransformType cameraTransformType, boolean leftHandHackery)
+    {
+        Pair<? extends IBakedModel, Matrix4f> pair = model.handlePerspective(cameraTransformType);
+
+        if (pair.getRight() != null)
+        {
+            Matrix4f matrix = new Matrix4f(pair.getRight());
+            if (leftHandHackery)
+            {
+                matrix.mul(flipX, matrix);
+                matrix.mul(matrix, flipX);
+            }
+            multiplyCurrentGlMatrix(matrix);
+        }
+        return pair.getLeft();
+    }
+
+    private static final Matrix4f flipX;
+    static {
+        flipX = new Matrix4f();
+        flipX.setIdentity();
+        flipX.m00 = -1;
+    }
+
+    private static final FloatBuffer matrixBuf = BufferUtils.createFloatBuffer(16);
+    private static void multiplyCurrentGlMatrix(Matrix4f matrix)
+    {
+        matrixBuf.clear();
+        float[] t = new float[4];
+        for(int i = 0; i < 4; i++)
+        {
+            matrix.getColumn(i, t);
+            matrixBuf.put(t);
+        }
+        matrixBuf.flip();
+        glMultMatrix(matrixBuf);
     }
 }

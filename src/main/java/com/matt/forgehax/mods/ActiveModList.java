@@ -86,7 +86,6 @@ public class ActiveModList extends ToggleMod {
 
     @Subscribe
     public void onRenderScreen(Render2DEvent event) {
-        System.out.println("Render2DEvent");
         int posX = 1;
         final AtomicInteger posY = new AtomicInteger(1);
         if(tps_meter.get()) {

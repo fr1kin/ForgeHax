@@ -6,6 +6,7 @@ import com.matt.forgehax.asm.events.replacementhooks.GuiOpenEvent;
 import com.matt.forgehax.asm.events.replacementhooks.InputEvent;
 import com.matt.forgehax.asm.events.replacementhooks.WorldEvent.Unload;
 import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.InsnPattern;
 import com.matt.forgehax.util.event.Event;
 import net.futureclient.asm.transformer.AsmMethod;
 import net.futureclient.asm.transformer.annotation.Inject;
@@ -45,12 +46,16 @@ public class MinecraftPatch {
     @Inject(name = "runTickMouse",
     description = "Add hook to for mouse input event")
     public void mouseHook(AsmMethod method) {
-        AbstractInsnNode node = ASMHelper.findPattern(method.method.instructions.getFirst(), new int[] {
-                LLOAD, LDC, LCMP, IFGT
-        }, "xxxx"); // if (j <= 200)
-        Objects.requireNonNull(node);
-        JumpInsnNode jump = (JumpInsnNode)node.getNext().getNext().getNext();
-        method.setCursor(jump.label);
+        InsnPattern node = ASMHelper._findPattern(method.method.instructions.getFirst(), new int[] {
+                0x00, 0x00, 0x00, INVOKESTATIC, IFEQ // label, linenumber, frame
+        }, "???xx"); // while (Mouse.next())
+        final LabelNode labelNode = node.getFirst();
+        final AbstractInsnNode lastGoto = method.stream()
+            .filter(insn -> insn.getOpcode() == GOTO && ((JumpInsnNode)insn).label == labelNode)
+            .reduce((a, b) -> b)
+            .orElseThrow(() -> new IllegalStateException("Failed to find last goto"));
+
+        method.setCursor(lastGoto); // end of the while loop
         method.run(() -> ForgeHax.EVENT_BUS.post(new InputEvent.MouseInputEvent()));
     }
 
@@ -80,11 +85,13 @@ public class MinecraftPatch {
     @Inject(name = "displayGuiScreen", args = {GuiScreen.class},
     description = "Add hook for when a gui is displayed")
     public void displayGuiHook(AsmMethod method) {
-        AbstractInsnNode node = ASMHelper.findPattern(method.method.instructions.getFirst(), new int[] {
-            ALOAD, GETFIELD, ASTORE
-        }, "xxx"); // GuiScreen old = this.currentScreen;
+        InsnPattern node = ASMHelper._findPattern(method.method.instructions.getFirst(), new int[] {
+            NEW, DUP, INVOKESPECIAL, ASTORE, GOTO
+        }, "xxxxx"); // guiScreenIn = new GuiMainMenu();
         Objects.requireNonNull(node);
-        method.setCursor(node);
+
+        final AbstractInsnNode injectionPoint = node.<JumpInsnNode>getLast().label.getNext();
+        method.setCursor(injectionPoint);
         method.visitInsn(new VarInsnNode(ALOAD, 1));
         method.<Function<GuiScreen, GuiOpenEvent>>invoke(newGui -> {
             GuiOpenEvent event = new GuiOpenEvent(newGui);
