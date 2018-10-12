@@ -52,6 +52,7 @@ public class Setting<E> extends Command implements ISerializableJson {
               Object arg = in.getArgument(0);
               if (arg != null) {
                 rawSet(String.valueOf(arg));
+                serialize();
                 in.markSuccess();
               } else in.markFailed();
             });
