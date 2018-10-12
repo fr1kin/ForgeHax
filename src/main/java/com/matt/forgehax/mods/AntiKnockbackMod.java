@@ -1,5 +1,8 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getWorld;
+
 import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.PushOutOfBlocksEvent;
@@ -9,6 +12,9 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.projectile.EntityFishHook;
+import net.minecraft.network.play.server.SPacketEntityStatus;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.util.math.Vec3d;
@@ -62,8 +68,7 @@ public class AntiKnockbackMod extends ToggleMod {
       FastReflection.Fields.SPacketExplosion_motionZ.set(
           packet,
           FastReflection.Fields.SPacketExplosion_motionZ.get(packet) * multiplier_z.getAsFloat());
-    }
-    if (event.getPacket() instanceof SPacketEntityVelocity) {
+    } else if (event.getPacket() instanceof SPacketEntityVelocity) {
       // for player knockback
       if (((SPacketEntityVelocity) event.getPacket()).getEntityID() == MC.player.getEntityId()) {
         double multiX = multiplier_x.getAsInteger();
@@ -82,6 +87,20 @@ public class AntiKnockbackMod extends ToggleMod {
           FastReflection.Fields.SPacketEntityVelocity_motionZ.set(
               packet,
               (int) (FastReflection.Fields.SPacketEntityVelocity_motionZ.get(packet) * multiZ));
+        }
+      }
+    } else if (event.getPacket() instanceof SPacketEntityStatus) {
+      // CREDITS TO 0x22
+      // fuck you popbob for making me need this
+
+      SPacketEntityStatus packet = (SPacketEntityStatus) event.getPacket();
+      if (packet.getOpCode() == 31) {
+        Entity offender = packet.getEntity(getWorld());
+
+        if (offender instanceof EntityFishHook) {
+          EntityFishHook hook = (EntityFishHook) offender;
+
+          if (getLocalPlayer().equals(hook.caughtEntity)) event.setCanceled(true);
         }
       }
     }
