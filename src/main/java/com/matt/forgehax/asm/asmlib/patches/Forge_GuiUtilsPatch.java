@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
 
-@Transformer(value = GuiUtils.class, remap = false)
+@Transformer(target = "net.minecraftforge.fml.client.config.GuiUtils", remap = false)
 public class Forge_GuiUtilsPatch {
 
     @Inject(name = "drawHoveringText", args = {ItemStack.class, List.class, int.class, int.class, int.class, int.class, int.class, FontRenderer.class},

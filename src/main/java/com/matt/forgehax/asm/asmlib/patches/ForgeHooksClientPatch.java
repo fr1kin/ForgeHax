@@ -17,7 +17,7 @@ import java.util.Objects;
 import static com.matt.forgehax.Globals.MC;
 import static org.objectweb.asm.Opcodes.*;
 
-@Transformer(ForgeHooksClient.class)
+@Transformer(target = "net.minecraftforge.client.ForgeHooksClient")
 public class ForgeHooksClientPatch {
 
     @Inject(name = "drawScreen", args = {GuiScreen.class, int.class, int.class, float.class})

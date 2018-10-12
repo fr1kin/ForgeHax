@@ -33,7 +33,10 @@ public class NetManagerPatch {
 
         final AbstractInsnNode pre = node.getFirst();
         LabelNode jumpTo = node.<JumpInsnNode>getLast().label;
-        final LabelNode post = (LabelNode)jumpTo.getPrevious().getPrevious(); // label before the goto
+        //final LabelNode post = (LabelNode)jumpTo.getPrevious().getPrevious(); // label before the goto
+        AbstractInsnNode post = jumpTo.getPrevious();
+        while (!(post instanceof LabelNode)) post = post.getPrevious();
+
 
         {
             main.setCursor(pre);
@@ -41,7 +44,7 @@ public class NetManagerPatch {
             main.<Predicate<Packet<?>>>invoke(packet ->
                 ForgeHax.EVENT_BUS.post(new PacketEvent.Outgoing.Pre(packet))
             );
-            main.visitInsn(new JumpInsnNode(IFNE, post));
+            main.visitInsn(new JumpInsnNode(IFNE, (LabelNode)post));
         }
         {
             main.setCursor(post.getNext()); // GOTO

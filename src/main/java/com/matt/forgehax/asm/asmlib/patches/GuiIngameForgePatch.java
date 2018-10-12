@@ -13,12 +13,16 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import static org.objectweb.asm.Opcodes.*;
 
-@Transformer(value = GuiIngameForge.class, remap = false)
+@Transformer(target = "net.minecraftforge.client.GuiIngameForge", remap = false)
 public class GuiIngameForgePatch {
 
   // This method overrides a vanilla method so it uses the obfuscated name.
   @Inject(target = "a(F)V")
   public void _overlayHook(AsmMethod method) {
+    overlayHook(method);
+  }
+  @Inject(target = "func_175180_a(F)V")
+  public void __overlayHook(AsmMethod method) {
     overlayHook(method);
   }
 
