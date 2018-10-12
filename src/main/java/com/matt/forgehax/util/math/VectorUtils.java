@@ -101,6 +101,10 @@ public class VectorUtils implements Globals {
     return new Vec3d(toCopy.x, toCopy.y, toCopy.z);
   }
 
+  public static double getCrosshairDistance(Vec3d eyes, Vec3d directionVec, Vec3d pos) {
+    return pos.subtract(eyes).normalize().subtract(directionVec).lengthSquared();
+  }
+
   @Deprecated
   public static class ScreenPos {
     public final int x;

@@ -5,12 +5,11 @@ import static com.matt.forgehax.Helper.getWorld;
 
 import com.matt.forgehax.asm.events.BlockControllerProcessEvent;
 import com.matt.forgehax.asm.events.LeftClickCounterUpdateEvent;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -48,17 +47,9 @@ public class AutoMine extends ToggleMod {
     switch (event.phase) {
       case START:
         {
-          RayTraceResult tr = MC.objectMouseOver;
+          RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
 
-          if (tr == null || tr.getBlockPos() == null) {
-            setPressed(false);
-            return;
-          }
-
-          IBlockState state = getWorld().getBlockState(tr.getBlockPos());
-
-          if (tr.typeOfHit != RayTraceResult.Type.BLOCK
-              || Material.AIR.equals(state.getMaterial())) {
+          if (tr == null) {
             setPressed(false);
             return;
           }

@@ -5,13 +5,14 @@ import static com.matt.forgehax.Helper.*;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.VectorUtils;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.function.Predicate;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
@@ -47,8 +48,7 @@ public class LocalPlayerUtils implements Globals {
     return getWorld().rayTraceBlocks(start, end, false, true, false);
   }
 
-  private static BlockPlacementInfo getBlockPlacementInfo(
-      final BlockPos pos, Predicate<BlockPlacementInfo> filter) {
+  public static BlockPlacementInfo getBlockPlacementInfo(final BlockPos pos) {
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d normal = getServerViewAngles().getDirectionVector().normalize();
     return Arrays.stream(EnumFacing.values())
@@ -58,37 +58,13 @@ public class LocalPlayerUtils implements Globals {
         .filter(
             info ->
                 eyes.squareDistanceTo(info.getHitVec())
-                    < MC.playerController.getBlockReachDistance()
-                        * MC.playerController.getBlockReachDistance())
-        .filter(filter)
+                    < getPlayerController().getBlockReachDistance()
+                        * getPlayerController().getBlockReachDistance())
+        .filter(info -> trace(eyes, info.getHitVec()) == null)
         .min(
             Comparator.comparingDouble(
-                info ->
-                    new Vec3d(info.getPos())
-                        .subtract(eyes)
-                        .normalize()
-                        .subtract(normal)
-                        .lengthSquared()))
+                info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
         .orElse(null);
-  }
-
-  public static BlockPlacementInfo getBlockAroundPlacementInfo(final BlockPos pos) {
-    final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
-    return getBlockPlacementInfo(
-        pos,
-        info -> {
-          RayTraceResult tr = trace(eyes, new Vec3d(info.getPos()).addVector(0.5D, 0.5D, 0.5D));
-          return tr != null
-              && info.getOppositeSide().equals(tr.sideHit)
-              && info.getPos().equals(tr.getBlockPos());
-        });
-  }
-
-  public static BlockPlacementInfo getBlockUnderPlacementInfo(final BlockPos pos) {
-    final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
-    final Vec3d center = new Vec3d(pos).addVector(0.5D, 0.5D, 0.5D);
-    return getBlockPlacementInfo(
-        pos, info -> eyes.squareDistanceTo(center) < eyes.squareDistanceTo(info.getCenteredPos()));
   }
 
   public static class BlockPlacementInfo {
@@ -113,11 +89,23 @@ public class LocalPlayerUtils implements Globals {
     }
 
     public Vec3d getHitVec() {
-      return getCenteredPos().add(new Vec3d(getOppositeSide().getDirectionVec()).scale(0.5D));
+      Vec3d obb = getOBBCenter();
+      return new Vec3d(getPos())
+          .add(obb)
+          .add(VectorUtils.multiplyBy(new Vec3d(getOppositeSide().getDirectionVec()), obb));
     }
 
     public Vec3d getCenteredPos() {
-      return new Vec3d(getPos()).addVector(0.5D, 0.5D, 0.5D);
+      return new Vec3d(getPos()).add(getOBBCenter());
+    }
+
+    private Vec3d getOBBCenter() {
+      IBlockState state = getBlockState();
+      AxisAlignedBB bb = state.getBoundingBox(getWorld(), getPos());
+      return new Vec3d(
+          bb.minX + ((bb.maxX - bb.minX) / 2.D),
+          bb.minY + ((bb.maxY - bb.minY) / 2.D),
+          bb.minZ + ((bb.maxZ - bb.minZ) / 2.D));
     }
 
     public IBlockState getBlockState() {

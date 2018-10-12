@@ -2,63 +2,64 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getNetworkManager;
+import static com.matt.forgehax.Helper.getPlayerController;
 import static com.matt.forgehax.Helper.getWorld;
-import static com.matt.forgehax.Helper.printMessage;
+import static com.matt.forgehax.Helper.printInform;
+import static com.matt.forgehax.Helper.printWarning;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.asm.reflection.FastReflection.Fields;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
+import com.matt.forgehax.util.BlockHelper;
+import com.matt.forgehax.util.BlockHelper.BlockInfo;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.command.Options;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.entity.LocalPlayerUtils.BlockPlacementInfo;
+import com.matt.forgehax.util.entry.FacingEntry;
+import com.matt.forgehax.util.key.BindingHelper;
 import com.matt.forgehax.util.math.Angle;
+import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.matt.forgehax.util.serialization.ISerializableJson;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+import org.apache.commons.lang3.StringUtils;
 
 @RegisterMod
 public class AutoPlace extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
-  private static final Map<Integer, String> MOUSE_CODES = Maps.newHashMap();
-
-  static {
-    MOUSE_CODES.put(-100, "MOUSE_LEFT");
-    MOUSE_CODES.put(-99, "MOUSE_RIGHT");
-    MOUSE_CODES.put(-98, "MOUSE_MIDDLE");
-  }
-
-  private static String getKeyCodeName(int code) {
-    if (MOUSE_CODES.get(code) != null) return MOUSE_CODES.get(code);
-    else if (code < 0) return Mouse.getButtonName(100 + code);
-    else return Keyboard.getKeyName(code);
-  }
-
   enum Stage {
     SELECT_BLOCKS,
     SELECT_REPLACEMENT,
@@ -66,61 +67,111 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     ;
   }
 
-  private final KeyBinding selection;
-  private final KeyBinding finished;
+  private final Options<FacingEntry> sides =
+      getCommandStub()
+          .builders()
+          .<FacingEntry>newOptionsBuilder()
+          .name("sides")
+          .description("Sides to place the blocks on")
+          .defaults(() -> Collections.singleton(new FacingEntry(EnumFacing.UP)))
+          .factory(FacingEntry::new)
+          .supplier(Lists::newCopyOnWriteArrayList)
+          .build();
 
-  private final List<BlockInfo> targeting = Lists.newArrayList();
-  private BlockInfo replacement = null;
+  private final Options<PlaceConfigEntry> config =
+      getCommandStub()
+          .builders()
+          .<PlaceConfigEntry>newOptionsBuilder()
+          .name("config")
+          .description("Saved selection configs")
+          .factory(PlaceConfigEntry::new)
+          .supplier(Lists::newCopyOnWriteArrayList)
+          .build();
 
-  private Stage stage = Stage.SELECT_BLOCKS;
-
-  private boolean once = false;
-  private boolean reset = false;
-
-  private final Setting<Integer> place_delay =
+  private final Setting<Integer> cooldown =
       getCommandStub()
           .builders()
           .<Integer>newSettingBuilder()
-          .name("place-delay")
+          .name("cooldown")
           .description("Block place delay to use after placing a block. Set to 0 to disable")
           .defaultTo(4)
           .min(0)
           .build();
 
+  private final Setting<Boolean> use =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("use")
+          .description("Will try to use the selected item on the target blocks instead of placing")
+          .defaultTo(false)
+          .build();
+
+  private final KeyBinding selection = new KeyBinding("AutoPlace Selection", -100, "ForgeHax");;
+  private final KeyBinding finished = new KeyBinding("AutoPlace Finished", -98, "ForgeHax");
+
+  private final AtomicBoolean selectionToggle = new AtomicBoolean(false);
+  private final AtomicBoolean finishedToggle = new AtomicBoolean(false);
+  private final AtomicBoolean printOnce = new AtomicBoolean(false);
+  private final AtomicBoolean reset = new AtomicBoolean(false);
+
+  private final List<BlockInfo> targets = Lists.newArrayList();
+  private ItemStack selectedItem = null;
+
+  private Runnable resetTask = null;
+
+  private Stage stage = Stage.SELECT_BLOCKS;
+
   public AutoPlace() {
     super(Category.PLAYER, "AutoPlace", false, "Automatically place blocks on top of other blocks");
 
-    IKeyConflictContext context =
-        new IKeyConflictContext() {
-          @Override
-          public boolean isActive() {
-            return false;
-          }
-
-          @Override
-          public boolean conflicts(IKeyConflictContext other) {
-            return false;
-          }
-        };
-
-    // https://minecraft.gamepedia.com/Key_codes#Mouse_codes
-    this.selection = new KeyBinding("AutoPlace Selection", context, -100, "ForgeHax");
-    this.finished = new KeyBinding("AutoPlace Finished", context, -98, "ForgeHax");
+    this.selection.setKeyConflictContext(BindingHelper.getEmptyKeyConflictContext());
+    this.finished.setKeyConflictContext(BindingHelper.getEmptyKeyConflictContext());
 
     ClientRegistry.registerKeyBinding(this.selection);
     ClientRegistry.registerKeyBinding(this.finished);
   }
 
-  private List<BlockPos> getBlocksInRadius(Vec3d pos, double radius) {
-    List<BlockPos> list = Lists.newArrayList();
-    for (double x = pos.x - radius; x <= pos.x + radius; ++x) {
-      for (double y = pos.y - radius; y <= pos.y + radius; ++y) {
-        for (double z = pos.z - radius; z <= pos.z + radius; ++z) {
-          list.add(new BlockPos((int) x, (int) y, (int) z));
-        }
+  private void reset() {
+    if (reset.compareAndSet(true, false)) {
+      targets.clear();
+      selectedItem = null;
+      stage = Stage.SELECT_BLOCKS;
+      printOnce.set(false);
+      if (resetTask != null) {
+        resetTask.run();
+        resetTask = null;
       }
+      printInform("AutoPlace data has been reset.");
     }
-    return list;
+  }
+
+  private boolean canRightClick(BlockInfo info) {
+    return use.get()
+        || sides
+            .stream()
+            .map(FacingEntry::getFacing)
+            .anyMatch(side -> BlockHelper.isBlockReplaceable(info.getPos().offset(side)));
+  }
+
+  private EnumFacing getBestFacingMatch(final String name) {
+    return Arrays.stream(EnumFacing.values())
+        .filter(side -> side.getName2().toLowerCase().contains(name.toLowerCase()))
+        .min(
+            Comparator.comparing(
+                e ->
+                    StringUtils.getLevenshteinDistance(
+                        e.getName2().toLowerCase(), name.toLowerCase())))
+        .orElseGet(
+            () -> {
+              EnumFacing[] values = EnumFacing.values();
+              try {
+                int index = Integer.valueOf(name);
+                return values[MathHelper.clamp(index, 0, values.length - 1)];
+              } catch (NumberFormatException e) {
+                return values[0];
+              }
+            });
   }
 
   @Override
@@ -130,7 +181,165 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .newCommandBuilder()
         .name("reset")
         .description("Reset to the setup process")
-        .processor(data -> reset = true)
+        .processor(
+            data -> {
+              reset.set(true);
+              if (getLocalPlayer() == null && getWorld() == null) reset();
+            })
+        .build();
+
+    sides
+        .builders()
+        .newCommandBuilder()
+        .name("add")
+        .description("Add side to the list")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              final String name = data.getArgumentAsString(0);
+              EnumFacing facing = getBestFacingMatch(name);
+
+              if (sides.get(facing) == null) {
+                sides.add(new FacingEntry(facing));
+                data.write("Added side " + facing.getName2());
+                data.markSuccess();
+                sides.serializeAll();
+              } else {
+                data.write(facing.getName2() + " already exists");
+                data.markFailed();
+              }
+            })
+        .build();
+
+    sides
+        .builders()
+        .newCommandBuilder()
+        .name("remove")
+        .description("Remove side from the list")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              final String name = data.getArgumentAsString(0);
+              EnumFacing facing = getBestFacingMatch(name);
+
+              if (sides.remove(new FacingEntry(facing))) {
+                data.write("Removed side " + facing.getName2());
+                data.markSuccess();
+                sides.serializeAll();
+              } else {
+                data.write(facing.getName2() + " doesn't exist");
+                data.markFailed();
+              }
+            })
+        .build();
+
+    sides
+        .builders()
+        .newCommandBuilder()
+        .name("list")
+        .description("List all the current added sides")
+        .processor(
+            data -> {
+              data.write(
+                  "Sides: "
+                      + sides
+                          .stream()
+                          .map(FacingEntry::getFacing)
+                          .map(EnumFacing::getName2)
+                          .collect(Collectors.joining(", ")));
+              data.markSuccess();
+            })
+        .build();
+
+    config
+        .builders()
+        .newCommandBuilder()
+        .name("save")
+        .description("Save current setup")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              String name = data.getArgumentAsString(0);
+
+              if (config.get(name) == null) {
+                PlaceConfigEntry entry = new PlaceConfigEntry(name);
+                entry.setSelection(selectedItem);
+                entry.setTargets(targets);
+                config.add(entry);
+                config.serializeAll();
+                data.write("Saved current config as " + name);
+                data.markSuccess();
+              } else {
+                data.write(name + " is already in use!");
+                data.markFailed();
+              }
+            })
+        .build();
+
+    config
+        .builders()
+        .newCommandBuilder()
+        .name("load")
+        .description("Load config")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              String name = data.getArgumentAsString(0);
+
+              PlaceConfigEntry entry = config.get(name);
+              if (entry != null) {
+                data.write(name + " loaded");
+                resetTask =
+                    () -> {
+                      this.targets.clear();
+                      this.targets.addAll(entry.getTargets());
+                      this.selectedItem = entry.getSelection();
+                      this.stage = Stage.READY;
+                    };
+                this.reset.set(true);
+              } else {
+                data.write(name + " doesn't exist!");
+                data.markFailed();
+              }
+            })
+        .build();
+
+    config
+        .builders()
+        .newCommandBuilder()
+        .name("delete")
+        .description("Delete a configuration")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              String name = data.getArgumentAsString(0);
+
+              if (config.remove(new PlaceConfigEntry(name))) {
+                config.serializeAll();
+                data.write("Deleted config " + name);
+                data.markSuccess();
+              } else {
+                data.write(name + " doesn't exist!");
+                data.markFailed();
+              }
+            })
+        .build();
+
+    config
+        .builders()
+        .newCommandBuilder()
+        .name("list")
+        .description("List all the current configs")
+        .processor(
+            data -> {
+              data.write(
+                  "Configs: "
+                      + config
+                          .stream()
+                          .map(PlaceConfigEntry::getName)
+                          .collect(Collectors.joining(", ")));
+              data.markSuccess();
+            })
         .build();
   }
 
@@ -142,124 +351,84 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   @Override
   protected void onDisabled() {
     PositionRotationManager.getManager().unregister(this);
+    printOnce.set(false);
   }
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (reset) {
-      targeting.clear();
-      replacement = null;
-      stage = Stage.SELECT_BLOCKS;
-      once = false;
-      reset = false;
-      printMessage("AutoPlace data has been reset.");
-    }
+    reset();
 
     switch (stage) {
       case READY:
         return;
       case SELECT_BLOCKS:
         {
-          if (!once) {
-            targeting.clear();
-            printMessage(
-                String.format(
-                    "Select blocks by pressing %s", getKeyCodeName(selection.getKeyCode())));
-            printMessage(
-                String.format(
-                    "Finish this stage by pressing %s", getKeyCodeName(finished.getKeyCode())));
-            once = true;
+          if (printOnce.compareAndSet(false, true)) {
+            targets.clear();
+            printInform("Select blocks by pressing %s", BindingHelper.getIndexName(selection));
+            printInform("Finish this stage by pressing %s", BindingHelper.getIndexName(finished));
           }
 
-          int time = Fields.Binding_pressTime.get(selection);
-          if (selection.isKeyDown() && time == 0) {
-            Fields.Binding_pressTime.set(selection, ++time);
+          if (selection.isKeyDown() && selectionToggle.compareAndSet(false, true)) {
             RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
             if (tr == null) return;
 
-            IBlockState state = getWorld().getBlockState(tr.getBlockPos());
-            BlockInfo info =
-                new BlockInfo(state.getBlock(), state.getBlock().getMetaFromState(state));
-
-            if (!targeting.contains(info)) {
-              printMessage(
-                  String.format(
-                      "Added block %s",
-                      new ItemStack(info.getBlock(), 1, info.getMetadata()).getDisplayName()));
-              targeting.add(info);
+            BlockInfo info = BlockHelper.newBlockInfo(tr.getBlockPos());
+            if (!targets.contains(info)) {
+              printInform("Added block %s", info.toString());
+              targets.add(info);
             } else {
-              printMessage(
-                  String.format(
-                      "Removed block %s",
-                      new ItemStack(info.getBlock(), 1, info.getMetadata()).getDisplayName()));
-              targeting.remove(info);
+              printInform("Removed block %s", info.toString());
+              targets.remove(info);
             }
           } else {
-            Fields.Binding_pressTime.set(selection, 0);
+            selectionToggle.set(false);
           }
 
-          time = Fields.Binding_pressTime.get(finished);
-          if (finished.isKeyDown() && time == 0) {
-            Fields.Binding_pressTime.set(finished, ++time);
-            if (targeting.isEmpty()) {
-              printMessage("No items have been selected yet!");
+          if (finished.isKeyDown() && finishedToggle.compareAndSet(false, true)) {
+            if (targets.isEmpty()) {
+              printWarning("No items have been selected yet!");
             } else {
               stage = Stage.SELECT_REPLACEMENT;
-              once = false;
+              printOnce.set(false);
             }
           } else {
-            Fields.Binding_pressTime.set(finished, 0);
+            finishedToggle.set(false);
           }
           break;
         }
       case SELECT_REPLACEMENT:
         {
-          if (!once) {
-            printMessage(
-                String.format(
-                    "Hover over the block in your hot bar you want to place and press %s to select",
-                    getKeyCodeName(selection.getKeyCode())));
-            once = true;
-          }
+          if (printOnce.compareAndSet(false, true))
+            printInform(
+                "Hover over the block in your hot bar you want to place and press %s to select",
+                BindingHelper.getIndexName(selection));
 
-          int time = Fields.Binding_pressTime.get(selection);
-          if (selection.isKeyDown() && time == 0) {
-            Fields.Binding_pressTime.set(selection, ++time);
-
+          if (selection.isKeyDown() && selectionToggle.compareAndSet(false, true)) {
             InvItem selected = LocalPlayerInventory.getSelected();
 
             if (selected.isNull()) {
-              printMessage("No item selected! Try again.");
+              printWarning("No item selected!");
               return;
             }
 
-            if (!(selected.getItem() instanceof ItemBlock)) {
-              printMessage("Selection must be a block type!");
-              return;
-            }
+            this.selectedItem =
+                new ItemStack(selected.getItem(), 1, selected.getItemStack().getMetadata());
 
-            replacement =
-                new BlockInfo(
-                    Block.getBlockFromItem(selected.getItem()),
-                    selected.getItemStack().getMetadata());
-            printMessage(
-                "Selected "
-                    + new ItemStack(replacement.getBlock(), 1, replacement.getMetadata())
-                        .getDisplayName());
-            printMessage(
-                String.format("Press %s to begin.", getKeyCodeName(finished.getKeyCode())));
+            printInform("Selected %s", this.selectedItem.getDisplayName());
+            printInform("Press %s to begin", BindingHelper.getIndexName(finished));
           } else {
-            Fields.Binding_pressTime.set(selection, 0);
+            selectionToggle.set(false);
           }
 
-          time = Fields.Binding_pressTime.get(finished);
-          if (finished.isKeyDown() && time == 0 && replacement != null) {
-            Fields.Binding_pressTime.set(finished, ++time);
+          if (finished.isKeyDown()
+              && selectedItem != null
+              && finishedToggle.compareAndSet(false, true)) {
             stage = Stage.READY;
-            printMessage("Block place process started.");
-            printMessage(String.format("Type '.%s reset' to restart the process.", getModName()));
+            printInform("Block place process started");
+            printInform("Type '.%s reset' to restart the process", getModName());
           } else {
-            Fields.Binding_pressTime.set(finished, 0);
+            finishedToggle.set(false);
           }
           break;
         }
@@ -269,44 +438,31 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   @Override
   public void onLocalPlayerMovementUpdate(Local state) {
     if (!Stage.READY.equals(stage)) return;
-
-    if (place_delay.get() != 0 && Fields.Minecraft_rightClickDelayTimer.get(MC) > 0) return;
+    if (cooldown.get() > 0 && Fields.Minecraft_rightClickDelayTimer.get(MC) > 0) return;
 
     InvItem items =
         LocalPlayerInventory.getHotbarInventory()
             .stream()
             .filter(InvItem::nonNull)
-            .filter(item -> item.getItem() instanceof ItemBlock)
-            .filter(
-                item ->
-                    Objects.equals(replacement.getBlock(), Block.getBlockFromItem(item.getItem())))
-            .filter(item -> replacement.getMetadata() == item.getItemStack().getMetadata())
+            .filter(inv -> inv.getItemStack().isItemEqual(selectedItem))
+            .filter(item -> item.getItemStack().getMetadata() == selectedItem.getMetadata())
             .findFirst()
             .orElse(InvItem.EMPTY);
 
     if (items.isNull()) return;
 
-    LocalPlayerInventory.setSelected(items);
-
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d dir = LocalPlayerUtils.getViewAngles().getDirectionVector();
 
     List<BlockInfo> blocks =
-        getBlocksInRadius(
-                getLocalPlayer().getPositionVector(), MC.playerController.getBlockReachDistance())
+        BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
             .stream()
-            .map(BlockInfo::new)
-            .filter(info -> targeting.stream().anyMatch(info::equals))
-            .filter(
-                info -> getWorld().getBlockState(info.getPos().up()).getMaterial().isReplaceable())
+            .map(BlockHelper::newBlockInfo)
+            .filter(info -> targets.stream().anyMatch(info::equals))
+            .filter(this::canRightClick)
             .sorted(
                 Comparator.comparingDouble(
-                    info ->
-                        new Vec3d(info.getPos())
-                            .subtract(eyes)
-                            .normalize()
-                            .subtract(dir)
-                            .lengthSquared()))
+                    info -> VectorUtils.getCrosshairDistance(eyes, dir, new Vec3d(info.getPos()))))
             .collect(Collectors.toList());
 
     if (blocks.isEmpty()) return;
@@ -317,7 +473,17 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     do {
       if (index >= blocks.size()) break;
 
-      info = LocalPlayerUtils.getBlockAroundPlacementInfo(blocks.get(index++).getPos().up());
+      final BlockInfo at = blocks.get(index++);
+      if (use.get()) info = LocalPlayerUtils.getBlockPlacementInfo(at.getPos());
+      else
+        info =
+            sides
+                .stream()
+                .map(FacingEntry::getFacing)
+                .map(side -> LocalPlayerUtils.getBlockPlacementInfo(at.getPos().offset(side)))
+                .filter(Objects::nonNull)
+                .findAny()
+                .orElse(null);
     } while (info == null);
 
     // if the block list is exhausted
@@ -330,60 +496,147 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     final BlockPlacementInfo blockInfo = info;
     state.invokeLater(
         rs -> {
-          MC.playerController.processRightClickBlock(
-              getLocalPlayer(),
-              getWorld(),
-              blockInfo.getPos(),
-              blockInfo.getOppositeSide(),
-              hit,
-              EnumHand.MAIN_HAND);
+          LocalPlayerInventory.setSelected(items);
+          getPlayerController()
+              .processRightClickBlock(
+                  getLocalPlayer(),
+                  getWorld(),
+                  blockInfo.getPos(),
+                  blockInfo.getOppositeSide(),
+                  hit,
+                  EnumHand.MAIN_HAND);
           getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
-          Fields.Minecraft_rightClickDelayTimer.set(MC, place_delay.get());
+          Fields.Minecraft_rightClickDelayTimer.set(MC, cooldown.get());
         });
   }
 
-  private static class BlockInfo {
-    private final Block block;
-    private final int metadata;
-    private final BlockPos pos;
+  private static class PlaceConfigEntry implements ISerializableJson {
+    private final String name;
 
-    public BlockInfo(Block block, int metadata) {
-      this.block = block;
-      this.metadata = metadata;
-      this.pos = BlockPos.ORIGIN;
+    private final List<BlockInfo> targets = Lists.newArrayList();
+    private ItemStack selection = ItemStack.EMPTY;
+
+    public PlaceConfigEntry(String name) {
+      Objects.requireNonNull(name);
+      this.name = name;
     }
 
-    public BlockInfo(BlockPos pos) {
-      IBlockState state = getWorld().getBlockState(pos);
-      this.block = state.getBlock();
-      this.metadata = this.block.getMetaFromState(state);
-      this.pos = pos;
+    public String getName() {
+      return name;
     }
 
-    public Block getBlock() {
-      return block;
+    public List<BlockInfo> getTargets() {
+      return Collections.unmodifiableList(targets);
     }
 
-    public int getMetadata() {
-      return metadata;
+    public ItemStack getSelection() {
+      return selection;
     }
 
-    public BlockPos getPos() {
-      return pos;
+    public void setTargets(Collection<BlockInfo> list) {
+      targets.addAll(list);
     }
 
-    public boolean isEqual(BlockPos pos) {
-      IBlockState state = getWorld().getBlockState(pos);
-      Block bl = state.getBlock();
-      return Objects.equals(getBlock(), bl) && getMetadata() == bl.getMetaFromState(state);
+    public void setSelection(ItemStack selection) {
+      this.selection = selection;
+    }
+
+    @Override
+    public void serialize(JsonWriter writer) throws IOException {
+      writer.beginObject();
+
+      writer.name("selection");
+      writer.beginObject();
+      {
+        writer.name("item");
+        writer.value(selection.getItem().getRegistryName().toString());
+
+        writer.name("metadata");
+        writer.value(selection.getMetadata());
+      }
+      writer.endObject();
+
+      writer.name("targets");
+      writer.beginArray();
+      {
+        for (BlockInfo info : targets) {
+          writer.beginObject();
+
+          writer.name("block");
+          writer.value(info.getBlock().getRegistryName().toString());
+
+          writer.name("metadata");
+          writer.value(info.getMetadata());
+
+          writer.endObject();
+        }
+      }
+      writer.endArray();
+
+      writer.endObject();
+    }
+
+    @Override
+    public void deserialize(JsonReader reader) throws IOException {
+      reader.beginObject();
+
+      while (reader.hasNext()) {
+        switch (reader.nextName()) {
+          case "selection":
+            {
+              reader.beginObject();
+
+              reader.nextName();
+              Item item = ItemSword.getByNameOrId(reader.nextString());
+
+              reader.nextName();
+              int meta = reader.nextInt();
+
+              selection = new ItemStack(MoreObjects.firstNonNull(item, Items.AIR), 1, meta);
+
+              reader.endObject();
+              break;
+            }
+          case "targets":
+            {
+              targets.clear();
+
+              reader.beginArray();
+
+              while (reader.hasNext()) {
+                reader.beginObject();
+
+                reader.nextName();
+                Block block = Block.getBlockFromName(reader.nextString());
+
+                reader.nextName();
+                int meta = reader.nextInt();
+
+                targets.add(BlockHelper.newBlockInfo(block, meta));
+
+                reader.endObject();
+              }
+
+              reader.endArray();
+              break;
+            }
+        }
+      }
+
+      reader.endObject();
     }
 
     @Override
     public boolean equals(Object obj) {
       return this == obj
-          || (obj instanceof BlockInfo
-              && getBlock().equals(((BlockInfo) obj).getBlock())
-              && getMetadata() == ((BlockInfo) obj).getMetadata());
+          || (obj instanceof PlaceConfigEntry
+              && getName().equalsIgnoreCase(((PlaceConfigEntry) obj).getName()))
+          || (obj instanceof String && getName().equalsIgnoreCase((String) obj));
+    }
+
+    @Override
+    public String toString() {
+      return name;
     }
   }
 }

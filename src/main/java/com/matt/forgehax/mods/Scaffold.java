@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getNetworkManager;
+import static com.matt.forgehax.Helper.getPlayerController;
 import static com.matt.forgehax.Helper.getWorld;
 
 import com.matt.forgehax.asm.reflection.FastReflection.Fields;
@@ -19,7 +20,6 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.EnumSet;
 import java.util.Objects;
-import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.util.EnumFacing;
@@ -70,14 +70,12 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
             .stream()
             .filter(InvItem::nonNull)
             .filter(item -> item.getItem() instanceof ItemBlock)
-            .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isFullBlock())
             .findFirst()
-            // .max(Comparator.comparingInt(item -> item.getItemStack().getCount()))
             .orElse(InvItem.EMPTY);
 
     if (items.isNull()) return;
 
-    BlockPlacementInfo info = LocalPlayerUtils.getBlockUnderPlacementInfo(below);
+    BlockPlacementInfo info = LocalPlayerUtils.getBlockPlacementInfo(below);
 
     if (info == null) {
       info =
@@ -85,7 +83,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
               .stream()
               .map(below::offset)
               .filter(bp -> getWorld().getBlockState(bp).getMaterial().isReplaceable())
-              .map(LocalPlayerUtils::getBlockUnderPlacementInfo)
+              .map(LocalPlayerUtils::getBlockPlacementInfo)
               .filter(Objects::nonNull)
               .findFirst()
               .orElse(null);
@@ -93,21 +91,21 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
       if (info == null) return;
     }
 
-    LocalPlayerInventory.setSelected(items);
-
     Vec3d hit = info.getHitVec();
     state.setServerAngles(previousAngles = Utils.getLookAtAngles(hit));
 
     final BlockPlacementInfo blockInfo = info;
     state.invokeLater(
         rs -> {
-          MC.playerController.processRightClickBlock(
-              getLocalPlayer(),
-              getWorld(),
-              blockInfo.getPos(),
-              blockInfo.getOppositeSide(),
-              hit,
-              EnumHand.MAIN_HAND);
+          LocalPlayerInventory.setSelected(items);
+          getPlayerController()
+              .processRightClickBlock(
+                  getLocalPlayer(),
+                  getWorld(),
+                  blockInfo.getPos(),
+                  blockInfo.getOppositeSide(),
+                  hit,
+                  EnumHand.MAIN_HAND);
           getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
           Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
           placing = true;
