@@ -967,6 +967,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
               break;
             }
           default:
+            reader.skipValue();
             break;
         }
       }
