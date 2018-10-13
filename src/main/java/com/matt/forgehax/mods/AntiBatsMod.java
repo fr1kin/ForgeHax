@@ -62,6 +62,10 @@ public class AntiBatsMod extends ToggleMod {
         || event.getSound().equals(SoundEvents.ENTITY_BAT_DEATH)
         || event.getSound().equals(SoundEvents.ENTITY_BAT_HURT)
         || event.getSound().equals(SoundEvents.ENTITY_BAT_LOOP)
-        || event.getSound().equals(SoundEvents.ENTITY_BAT_TAKEOFF)) event.setCanceled(true);
+        || event.getSound().equals(SoundEvents.ENTITY_BAT_TAKEOFF)) {
+      event.setVolume(0.f);
+      event.setPitch(0.f);
+      event.setCanceled(true);
+    }
   }
 }
