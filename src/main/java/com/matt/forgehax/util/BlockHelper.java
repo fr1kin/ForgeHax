@@ -9,7 +9,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
 public class BlockHelper {
@@ -41,6 +43,20 @@ public class BlockHelper {
 
   public static boolean isBlockReplaceable(BlockPos pos) {
     return getWorld().getBlockState(pos).getMaterial().isReplaceable();
+  }
+
+  public static boolean isTraceClear(Vec3d start, Vec3d end) {
+    RayTraceResult tr = getWorld().rayTraceBlocks(start, end, false, true, false);
+    return tr == null || new BlockPos(end).equals(new BlockPos(tr.hitVec));
+  }
+
+  public static Vec3d getOBBCenter(BlockPos pos) {
+    IBlockState state = getWorld().getBlockState(pos);
+    AxisAlignedBB bb = state.getBoundingBox(getWorld(), pos);
+    return new Vec3d(
+        bb.minX + ((bb.maxX - bb.minX) / 2.D),
+        bb.minY + ((bb.maxY - bb.minY) / 2.D),
+        bb.minZ + ((bb.maxZ - bb.minZ) / 2.D));
   }
 
   public static class BlockInfo {
@@ -90,7 +106,7 @@ public class BlockHelper {
 
     @Override
     public String toString() {
-      return asItemStack().getDisplayName();
+      return getBlock().getRegistryName().toString() + "{" + getMetadata() + "}";
     }
   }
 }

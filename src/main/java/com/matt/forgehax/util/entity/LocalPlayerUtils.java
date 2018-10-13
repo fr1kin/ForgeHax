@@ -4,6 +4,7 @@ import static com.matt.forgehax.Helper.*;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
+import com.matt.forgehax.util.BlockHelper;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.VectorUtils;
 import java.util.Arrays;
@@ -33,6 +34,14 @@ public class LocalPlayerUtils implements Globals {
     return new Vec3d(getLocalPlayer().motionX, getLocalPlayer().motionY, getLocalPlayer().motionZ);
   }
 
+  public static boolean isSneaking() {
+    return getLocalPlayer().movementInput != null && getLocalPlayer().movementInput.sneak;
+  }
+
+  public static void setSneaking(boolean sneak) {
+    if (getLocalPlayer().movementInput != null) getLocalPlayer().movementInput.sneak = sneak;
+  }
+
   public static RayTraceResult getMouseOverBlockTrace() {
     return Optional.ofNullable(MC.objectMouseOver)
         .filter(tr -> tr.getBlockPos() != null) // no its not intelliJ
@@ -44,8 +53,10 @@ public class LocalPlayerUtils implements Globals {
         .orElse(null);
   }
 
-  private static RayTraceResult trace(Vec3d start, Vec3d end) {
-    return getWorld().rayTraceBlocks(start, end, false, true, false);
+  public static boolean isInReach(Vec3d start, Vec3d end) {
+    return start.squareDistanceTo(end)
+        < getPlayerController().getBlockReachDistance()
+            * getPlayerController().getBlockReachDistance();
   }
 
   public static BlockPlacementInfo getBlockPlacementInfo(final BlockPos pos) {
@@ -55,12 +66,8 @@ public class LocalPlayerUtils implements Globals {
         .map(side -> new BlockPlacementInfo(pos.offset(side), side))
         .filter(
             info -> info.getBlockState().getBlock().canCollideCheck(info.getBlockState(), false))
-        .filter(
-            info ->
-                eyes.squareDistanceTo(info.getHitVec())
-                    < getPlayerController().getBlockReachDistance()
-                        * getPlayerController().getBlockReachDistance())
-        .filter(info -> trace(eyes, info.getHitVec()) == null)
+        .filter(info -> isInReach(eyes, info.getHitVec()))
+        .filter(info -> BlockHelper.isTraceClear(eyes, info.getHitVec()))
         .min(
             Comparator.comparingDouble(
                 info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
@@ -70,10 +77,17 @@ public class LocalPlayerUtils implements Globals {
   public static class BlockPlacementInfo {
     private final BlockPos pos;
     private final EnumFacing side;
+    private final Vec3d center;
+    private final Vec3d hitVec;
 
     public BlockPlacementInfo(BlockPos pos, EnumFacing side) {
       this.pos = pos;
       this.side = side;
+      Vec3d obb = getOBBCenter();
+      this.center = new Vec3d(pos).add(getOBBCenter());
+      this.hitVec =
+          this.center.add(
+              VectorUtils.multiplyBy(new Vec3d(getOppositeSide().getDirectionVec()), obb));
     }
 
     public BlockPos getPos() {
@@ -89,14 +103,11 @@ public class LocalPlayerUtils implements Globals {
     }
 
     public Vec3d getHitVec() {
-      Vec3d obb = getOBBCenter();
-      return new Vec3d(getPos())
-          .add(obb)
-          .add(VectorUtils.multiplyBy(new Vec3d(getOppositeSide().getDirectionVec()), obb));
+      return this.hitVec;
     }
 
     public Vec3d getCenteredPos() {
-      return new Vec3d(getPos()).add(getOBBCenter());
+      return center;
     }
 
     private Vec3d getOBBCenter() {
