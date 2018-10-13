@@ -139,12 +139,13 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           .name("render")
           .description("Show which blocks are currently visible and being targeted")
           .defaultTo(false)
-          .changed(cb -> {
-            if(cb.getTo()) {
-              this.renderingBlocks.clear();
-              this.currentRenderingTarget = null;
-            }
-          })
+          .changed(
+              cb -> {
+                if (cb.getTo()) {
+                  this.renderingBlocks.clear();
+                  this.currentRenderingTarget = null;
+                }
+              })
           .build();
 
   private final Set<BlockPos> renderingBlocks = Sets.newConcurrentHashSet();
