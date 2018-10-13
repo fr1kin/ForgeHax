@@ -1,3 +1,10 @@
+2.9.0
+    [fr1kin & Babbaj]
+        + Improved Aimbot
+        + Added AutoPlace
+        + Added ShulkerViewer
+        + A lot of changes
+
 2.8.0
     [fr1kin]
         + Removed JourneyMap lighting fix
