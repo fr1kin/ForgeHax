@@ -701,7 +701,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             .filter(this::isClickable)
             .sorted(
                 Comparator.comparingDouble(
-                    info -> VectorUtils.getCrosshairDistance(eyes, dir, new Vec3d(info.getPos()))))
+                    info -> VectorUtils.getCrosshairDistance(eyes, dir, BlockHelper.getOBBCenter(info.getPos()))))
             .collect(Collectors.toList());
 
     if (blocks.isEmpty()) return;
