@@ -296,7 +296,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
 
   @Override
   protected void onEnabled() {
-    PositionRotationManager.getManager().register(this, PriorityEnum.HIGH);
+    PositionRotationManager.getManager().register(this, PriorityEnum.HIGHEST);
   }
 
   @Override
