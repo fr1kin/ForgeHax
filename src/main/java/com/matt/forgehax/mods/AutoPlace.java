@@ -148,6 +148,15 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
               })
           .build();
 
+  private final Setting<Boolean> client_angles =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("client-angles")
+          .description("Sort the blocks to break by the clients angle instead of the servers")
+          .defaultTo(false)
+          .build();
+
   private final Set<BlockPos> renderingBlocks = Sets.newConcurrentHashSet();
   private BlockPos currentRenderingTarget = null;
 
@@ -704,8 +713,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
 
     if (items.isNull()) return;
 
-    final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
-    final Vec3d dir = LocalPlayerUtils.getViewAngles().getDirectionVector();
+    final Vec3d eyes = LocalPlayerUtils.getEyePos();
+    final Vec3d dir = client_angles.get() ? LocalPlayerUtils.getDirectionVector() : LocalPlayerUtils.getServerDirectionVector();
 
     List<UniqueBlock> blocks =
         BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
