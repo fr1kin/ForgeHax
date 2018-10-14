@@ -38,6 +38,14 @@ public class LocalPlayerUtils implements Globals {
     return EntityUtils.getEyePos(getLocalPlayer());
   }
 
+  public static Vec3d getDirectionVector() {
+    return getViewAngles().getDirectionVector().normalize();
+  }
+
+  public static Vec3d getServerDirectionVector() {
+    return getServerViewAngles().getDirectionVector().normalize();
+  }
+
   public static RayTraceResult getMouseOverBlockTrace() {
     return Optional.ofNullable(MC.objectMouseOver)
         .filter(tr -> tr.getBlockPos() != null) // no its not intelliJ
