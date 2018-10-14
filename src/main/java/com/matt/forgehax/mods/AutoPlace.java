@@ -21,6 +21,7 @@ import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
 import com.matt.forgehax.util.BlockHelper;
 import com.matt.forgehax.util.BlockHelper.BlockInfo;
+import com.matt.forgehax.util.BlockHelper.BlockTraceInfo;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Options;
@@ -29,7 +30,6 @@ import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
-import com.matt.forgehax.util.entity.LocalPlayerUtils.BlockPlacementInfo;
 import com.matt.forgehax.util.entry.FacingEntry;
 import com.matt.forgehax.util.key.BindingHelper;
 import com.matt.forgehax.util.math.Angle;
@@ -730,7 +730,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
 
     // find a block that can be placed
     int index = 0;
-    BlockPlacementInfo info = null;
+    BlockTraceInfo info = null;
     do {
       if (index >= blocks.size()) break;
 
@@ -740,7 +740,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             sides
                 .stream()
                 .map(FacingEntry::getFacing)
-                .map(side -> new BlockPlacementInfo(at.getPos(), side.getOpposite()))
+                .map(side -> BlockHelper.newBlockTrace(at.getPos(), side.getOpposite()))
                 .filter(i -> BlockHelper.isTraceClear(eyes, i.getHitVec(), i.getSide()))
                 .filter(i -> LocalPlayerUtils.isInReach(eyes, i.getHitVec()))
                 .min(
@@ -752,7 +752,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             sides
                 .stream()
                 .map(FacingEntry::getFacing)
-                .map(side -> LocalPlayerUtils.getBlockPlacementInfo(at.getPos().offset(side)))
+                .map(side -> BlockHelper.getBestBlockSide(at.getPos().offset(side)))
                 .filter(Objects::nonNull)
                 .findAny()
                 .orElse(null);
@@ -768,7 +768,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     Angle va = Utils.getLookAtAngles(hit);
     state.setServerAngles(va);
 
-    final BlockPlacementInfo blockInfo = info;
+    final BlockTraceInfo blockInfo = info;
     state.invokeLater(
         rs -> {
           LocalPlayerInventory.setSelected(items);

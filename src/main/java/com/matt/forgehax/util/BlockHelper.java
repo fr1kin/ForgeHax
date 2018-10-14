@@ -1,8 +1,15 @@
 package com.matt.forgehax.util;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.util.entity.LocalPlayerUtils.getServerViewAngles;
+import static com.matt.forgehax.util.entity.LocalPlayerUtils.isInReach;
 
 import com.google.common.collect.Lists;
+import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.math.VectorUtils;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import net.minecraft.block.Block;
@@ -28,6 +35,10 @@ public class BlockHelper {
     IBlockState state = getWorld().getBlockState(pos);
     Block block = state.getBlock();
     return newBlockInfo(block, block.getMetaFromState(state), pos);
+  }
+
+  public static BlockTraceInfo newBlockTrace(BlockPos pos, EnumFacing side) {
+    return new BlockTraceInfo(pos, side);
   }
 
   public static List<BlockPos> getBlocksInRadius(Vec3d pos, double radius) {
@@ -60,6 +71,62 @@ public class BlockHelper {
         bb.minZ + ((bb.maxZ - bb.minZ) / 2.D));
   }
 
+  public static BlockTraceInfo getBestBlockSide(final BlockPos pos) {
+    final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
+    final Vec3d normal = getServerViewAngles().getDirectionVector().normalize();
+    return Arrays.stream(EnumFacing.values())
+        .map(side -> new BlockTraceInfo(pos.offset(side), side))
+        .filter(
+            info -> info.getBlockState().getBlock().canCollideCheck(info.getBlockState(), false))
+        .filter(info -> isInReach(eyes, info.getHitVec()))
+        .filter(info -> BlockHelper.isTraceClear(eyes, info.getHitVec(), info.getSide()))
+        .min(
+            Comparator.comparingDouble(
+                info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
+        .orElse(null);
+  }
+
+  public static class BlockTraceInfo {
+    private final BlockPos pos;
+    private final EnumFacing side;
+    private final Vec3d center;
+    private final Vec3d hitVec;
+
+    private BlockTraceInfo(BlockPos pos, EnumFacing side) {
+      this.pos = pos;
+      this.side = side;
+      Vec3d obb = BlockHelper.getOBBCenter(pos);
+      this.center = new Vec3d(pos).add(obb);
+      this.hitVec =
+          this.center.add(
+              VectorUtils.multiplyBy(new Vec3d(getOppositeSide().getDirectionVec()), obb));
+    }
+
+    public BlockPos getPos() {
+      return pos;
+    }
+
+    public EnumFacing getSide() {
+      return side;
+    }
+
+    public EnumFacing getOppositeSide() {
+      return side.getOpposite();
+    }
+
+    public Vec3d getHitVec() {
+      return this.hitVec;
+    }
+
+    public Vec3d getCenteredPos() {
+      return center;
+    }
+
+    public IBlockState getBlockState() {
+      return getWorld().getBlockState(getPos());
+    }
+  }
+
   public static class BlockInfo {
     private final Block block;
     private final int metadata;
@@ -81,6 +148,10 @@ public class BlockHelper {
 
     public BlockPos getPos() {
       return pos;
+    }
+
+    public Vec3d getCenteredPos() {
+      return new Vec3d(getPos()).add(getOBBCenter(getPos()));
     }
 
     public ItemStack asItemStack() {
