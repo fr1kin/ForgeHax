@@ -42,6 +42,10 @@ public class LocalPlayerUtils implements Globals {
     if (getLocalPlayer().movementInput != null) getLocalPlayer().movementInput.sneak = sneak;
   }
 
+  public static Vec3d getEyePos() {
+    return EntityUtils.getEyePos(getLocalPlayer());
+  }
+
   public static RayTraceResult getMouseOverBlockTrace() {
     return Optional.ofNullable(MC.objectMouseOver)
         .filter(tr -> tr.getBlockPos() != null) // no its not intelliJ
