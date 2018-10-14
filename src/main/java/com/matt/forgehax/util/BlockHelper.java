@@ -6,6 +6,7 @@ import static com.matt.forgehax.util.entity.LocalPlayerUtils.isInReach;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.VectorUtils;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -107,6 +108,18 @@ public class BlockHelper {
     return Optional.of(newBlockTrace(pos, side))
         .filter(tr -> BlockHelper.isTraceClear(eyes, tr.getHitVec(), tr.getSide()))
         .filter(tr -> LocalPlayerUtils.isInReach(eyes, tr.getHitVec()))
+        .orElse(null);
+  }
+
+  private BlockTraceInfo getVisibleBlockSideTrace(BlockPos pos) {
+    final Vec3d eyes = LocalPlayerUtils.getEyePos();
+    final Vec3d normal = LocalPlayerUtils.getDirectionVector();
+    return Arrays.stream(EnumFacing.values())
+        .map(side -> BlockHelper.getBlockSideTrace(pos, side.getOpposite()))
+        .filter(Objects::nonNull)
+        .min(
+            Comparator.comparingDouble(
+                i -> VectorUtils.getCrosshairDistance(eyes, normal, i.getCenteredPos())))
         .orElse(null);
   }
 
