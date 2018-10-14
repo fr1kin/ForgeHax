@@ -752,7 +752,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             sides
                 .stream()
                 .map(FacingEntry::getFacing)
-                .map(side -> BlockHelper.getBestBlockSide(at.getPos().offset(side)))
+                .map(side -> BlockHelper.getPlaceableBlockSide(at.getPos().offset(side)))
                 .filter(Objects::nonNull)
                 .findAny()
                 .orElse(null);
