@@ -108,7 +108,7 @@ public class BlockHelper {
         .orElse(null);
   }
 
-  public BlockTraceInfo getVisibleBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
+  public static BlockTraceInfo getVisibleBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
     return Arrays.stream(EnumFacing.values())
         .map(side -> BlockHelper.getBlockSideTrace(eyes, pos, side.getOpposite()))
         .filter(Objects::nonNull)
