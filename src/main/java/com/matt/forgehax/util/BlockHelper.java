@@ -10,8 +10,10 @@ import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.math.VectorUtils;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -76,11 +78,11 @@ public class BlockHelper {
     return state.getBlock().canCollideCheck(state, false);
   }
 
-  public static BlockTraceInfo getBestBlockSide(final BlockPos pos) {
+  private static BlockTraceInfo getPlaceableBlockSide(Stream<EnumFacing> stream, final BlockPos pos) {
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d normal = getServerViewAngles().getDirectionVector().normalize();
-    return Arrays.stream(EnumFacing.values())
-        .map(side -> new BlockTraceInfo(pos.offset(side), side))
+    return stream
+        .map(side -> newBlockTrace(pos.offset(side), side))
         .filter(info -> isBlockPlaceable(info.getPos()))
         .filter(info -> isInReach(eyes, info.getHitVec()))
         .filter(info -> BlockHelper.isTraceClear(eyes, info.getHitVec(), info.getSide()))
@@ -88,6 +90,12 @@ public class BlockHelper {
             Comparator.comparingDouble(
                 info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
         .orElse(null);
+  }
+  public static BlockTraceInfo getPlaceableBlockSide(EnumSet<EnumFacing> sides, final BlockPos pos) {
+    return getPlaceableBlockSide(sides.stream(), pos);
+  }
+  public static BlockTraceInfo getPlaceableBlockSide(final BlockPos pos) {
+    return getPlaceableBlockSide(Stream.of(EnumFacing.values()), pos);
   }
 
   public static class BlockTraceInfo {
