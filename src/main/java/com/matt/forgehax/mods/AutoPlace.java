@@ -740,9 +740,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             sides
                 .stream()
                 .map(FacingEntry::getFacing)
-                .map(side -> BlockHelper.newBlockTrace(at.getPos(), side.getOpposite()))
-                .filter(i -> BlockHelper.isTraceClear(eyes, i.getHitVec(), i.getSide()))
-                .filter(i -> LocalPlayerUtils.isInReach(eyes, i.getHitVec()))
+                .map(side -> BlockHelper.getBlockSideTrace(at.getPos(), side.getOpposite()))
+                .filter(Objects::nonNull)
                 .min(
                     Comparator.comparingDouble(
                         i -> VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
@@ -752,7 +751,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             sides
                 .stream()
                 .map(FacingEntry::getFacing)
-                .map(side -> BlockHelper.getPlaceableBlockSide(at.getPos().offset(side)))
+                .map(side -> BlockHelper.getPlaceableBlockSideTrace(at.getPos().offset(side)))
                 .filter(Objects::nonNull)
                 .findAny()
                 .orElse(null);

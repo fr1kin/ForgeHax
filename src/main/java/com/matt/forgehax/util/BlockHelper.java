@@ -1,17 +1,16 @@
 package com.matt.forgehax.util;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
-import static com.matt.forgehax.util.entity.LocalPlayerUtils.getServerViewAngles;
 import static com.matt.forgehax.util.entity.LocalPlayerUtils.isInReach;
 
 import com.google.common.collect.Lists;
-import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.VectorUtils;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -79,10 +78,10 @@ public class BlockHelper {
     return state.getBlock().canCollideCheck(state, false);
   }
 
-  private static BlockTraceInfo getPlaceableBlockSide(
+  private static BlockTraceInfo getPlaceableBlockSideTrace(
       Stream<EnumFacing> stream, final BlockPos pos) {
-    final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
-    final Vec3d normal = getServerViewAngles().getDirectionVector().normalize();
+    final Vec3d eyes = LocalPlayerUtils.getEyePos();
+    final Vec3d normal = LocalPlayerUtils.getDirectionVector();
     return stream
         .map(side -> newBlockTrace(pos.offset(side), side))
         .filter(info -> isBlockPlaceable(info.getPos()))
@@ -94,13 +93,21 @@ public class BlockHelper {
         .orElse(null);
   }
 
-  public static BlockTraceInfo getPlaceableBlockSide(
+  public static BlockTraceInfo getPlaceableBlockSideTrace(
       EnumSet<EnumFacing> sides, final BlockPos pos) {
-    return getPlaceableBlockSide(sides.stream(), pos);
+    return getPlaceableBlockSideTrace(sides.stream(), pos);
   }
 
-  public static BlockTraceInfo getPlaceableBlockSide(final BlockPos pos) {
-    return getPlaceableBlockSide(Stream.of(EnumFacing.values()), pos);
+  public static BlockTraceInfo getPlaceableBlockSideTrace(final BlockPos pos) {
+    return getPlaceableBlockSideTrace(Stream.of(EnumFacing.values()), pos);
+  }
+
+  public static BlockTraceInfo getBlockSideTrace(BlockPos pos, EnumFacing side) {
+    final Vec3d eyes = LocalPlayerUtils.getEyePos();
+    return Optional.of(newBlockTrace(pos, side))
+        .filter(tr -> BlockHelper.isTraceClear(eyes, tr.getHitVec(), tr.getSide()))
+        .filter(tr -> LocalPlayerUtils.isInReach(eyes, tr.getHitVec()))
+        .orElse(null);
   }
 
   public static class BlockTraceInfo {
