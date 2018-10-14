@@ -1,10 +1,16 @@
 package com.matt.forgehax.asm.asmlib.patches;
 
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.events.replacementhooks.LivingUpdateEvent;
 import com.matt.forgehax.asm.utils.ASMHelper;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import net.futureclient.asm.transformer.AsmMethod;
 import net.futureclient.asm.transformer.annotation.Inject;
 import net.futureclient.asm.transformer.annotation.Transformer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import org.objectweb.asm.tree.*;
 
@@ -119,5 +125,20 @@ public class EntityPatch {
 
         main.instructions.insertBefore(postNode, endJump);
         main.instructions.insert(preNode, insnList);
+    }
+
+    @Inject(name = "onUpdate")
+    public void onUpdateHook(AsmMethod method) {
+        final AbstractInsnNode ret = ASMHelper.findPattern(method.method.instructions.getFirst(), new int[] {
+            RETURN
+        }, "x");
+
+        method.setCursor(ret);
+        method.visitInsn(new VarInsnNode(ALOAD, 0)); // this
+        method.<Consumer<Entity>>invoke(entity -> {
+            if (entity instanceof EntityLivingBase)
+                ForgeHax.EVENT_BUS.post(new LivingUpdateEvent((EntityLivingBase)entity));
+        });
+        //method.returnIf(true);
     }
 }

@@ -2,6 +2,7 @@ package com.matt.forgehax.asm.asmlib.patches;
 
 import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.asm.events.replacementhooks.LivingUpdateEvent;
+import java.util.function.Consumer;
 import net.futureclient.asm.transformer.AsmMethod;
 import net.futureclient.asm.transformer.annotation.Inject;
 import net.futureclient.asm.transformer.annotation.Transformer;
@@ -12,7 +13,8 @@ import java.util.function.Predicate;
 
 import static org.objectweb.asm.Opcodes.*;
 
-@Transformer(EntityLivingBase.class)
+//@Transformer(EntityLivingBase.class)
+// TODO: fix
 public class EntityLivingBasePatch {
 
     @Inject(name = "onUpdate")
