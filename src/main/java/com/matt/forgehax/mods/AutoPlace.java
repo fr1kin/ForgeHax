@@ -20,7 +20,7 @@ import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
 import com.matt.forgehax.util.BlockHelper;
-import com.matt.forgehax.util.BlockHelper.BlockInfo;
+import com.matt.forgehax.util.BlockHelper.UniqueBlock;
 import com.matt.forgehax.util.BlockHelper.BlockTraceInfo;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Colors;
@@ -159,7 +159,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   private final AtomicBoolean printToggle = new AtomicBoolean(false);
   private final AtomicBoolean resetToggle = new AtomicBoolean(false);
 
-  private final List<BlockInfo> targets = Lists.newArrayList();
+  private final List<UniqueBlock> targets = Lists.newArrayList();
 
   private ItemStack selectedItem = null;
 
@@ -191,13 +191,13 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     }
   }
 
-  private boolean isValidBlock(BlockInfo info) {
+  private boolean isValidBlock(UniqueBlock info) {
     return whitelist.get()
         ? targets.stream().anyMatch(info::equals)
         : targets.stream().noneMatch(info::equals);
   }
 
-  private boolean isClickable(BlockInfo info) {
+  private boolean isClickable(UniqueBlock info) {
     return sides
         .stream()
         .map(FacingEntry::getFacing)
@@ -239,7 +239,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           if ("targets".startsWith(filter))
             printInform(
                 "Targets: %s",
-                this.targets.stream().map(BlockInfo::toString).collect(Collectors.joining(", ")));
+                this.targets.stream().map(UniqueBlock::toString).collect(Collectors.joining(", ")));
 
           if ("sides".startsWith(filter))
             printInform(
@@ -582,7 +582,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
             if (tr == null) return;
 
-            BlockInfo info = BlockHelper.newBlockInfo(tr.getBlockPos());
+            UniqueBlock info = BlockHelper.newUniqueBlock(tr.getBlockPos());
 
             if (info.isInvalid()) {
               printWarning("Invalid block %s", info.toString());
@@ -707,10 +707,10 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d dir = LocalPlayerUtils.getViewAngles().getDirectionVector();
 
-    List<BlockInfo> blocks =
+    List<UniqueBlock> blocks =
         BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
             .stream()
-            .map(BlockHelper::newBlockInfo)
+            .map(BlockHelper::newUniqueBlock)
             .filter(this::isValidBlock)
             .filter(this::isClickable)
             .sorted(
@@ -725,7 +725,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     if (render.get()) {
       currentRenderingTarget = null;
       renderingBlocks.clear();
-      renderingBlocks.addAll(blocks.stream().map(BlockInfo::getPos).collect(Collectors.toSet()));
+      renderingBlocks.addAll(blocks.stream().map(UniqueBlock::getPos).collect(Collectors.toSet()));
     }
 
     // find a block that can be placed
@@ -734,7 +734,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     do {
       if (index >= blocks.size()) break;
 
-      final BlockInfo at = blocks.get(index++);
+      final UniqueBlock at = blocks.get(index++);
       if (use.get()) {
         info =
             sides
@@ -799,7 +799,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   private static class PlaceConfigEntry implements ISerializableJson {
     private final String name;
 
-    private final List<BlockInfo> targets = Lists.newArrayList();
+    private final List<UniqueBlock> targets = Lists.newArrayList();
     private final List<EnumFacing> sides = Lists.newArrayList();
     private ItemStack selection = ItemStack.EMPTY;
     private boolean use = false;
@@ -814,11 +814,11 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       return name;
     }
 
-    public List<BlockInfo> getTargets() {
+    public List<UniqueBlock> getTargets() {
       return Collections.unmodifiableList(targets);
     }
 
-    public void setTargets(Collection<BlockInfo> list) {
+    public void setTargets(Collection<UniqueBlock> list) {
       targets.clear();
       targets.addAll(
           list.stream()
@@ -880,7 +880,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       writer.name("targets");
       writer.beginArray();
       {
-        for (BlockInfo info : getTargets()) {
+        for (UniqueBlock info : getTargets()) {
           writer.beginObject();
 
           writer.name("block");
@@ -935,7 +935,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             {
               reader.beginArray();
 
-              List<BlockInfo> blocks = Lists.newArrayList();
+              List<UniqueBlock> blocks = Lists.newArrayList();
               while (reader.hasNext()) {
                 reader.beginObject();
 
@@ -947,7 +947,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                 reader.nextName();
                 int meta = reader.nextInt();
 
-                blocks.add(BlockHelper.newBlockInfo(block, meta));
+                blocks.add(BlockHelper.newUniqueBlock(block, meta));
 
                 reader.endObject();
               }

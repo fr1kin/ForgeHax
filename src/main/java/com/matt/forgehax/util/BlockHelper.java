@@ -23,18 +23,18 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
 public class BlockHelper {
-  public static BlockInfo newBlockInfo(Block block, int metadata, BlockPos pos) {
-    return new BlockInfo(block, metadata, pos);
+  public static UniqueBlock newUniqueBlock(Block block, int metadata, BlockPos pos) {
+    return new UniqueBlock(block, metadata, pos);
   }
 
-  public static BlockInfo newBlockInfo(Block block, int metadata) {
-    return newBlockInfo(block, metadata, BlockPos.ORIGIN);
+  public static UniqueBlock newUniqueBlock(Block block, int metadata) {
+    return newUniqueBlock(block, metadata, BlockPos.ORIGIN);
   }
 
-  public static BlockInfo newBlockInfo(BlockPos pos) {
+  public static UniqueBlock newUniqueBlock(BlockPos pos) {
     IBlockState state = getWorld().getBlockState(pos);
     Block block = state.getBlock();
-    return newBlockInfo(block, block.getMetaFromState(state), pos);
+    return newUniqueBlock(block, block.getMetaFromState(state), pos);
   }
 
   public static BlockTraceInfo newBlockTrace(BlockPos pos, EnumFacing side) {
@@ -127,12 +127,12 @@ public class BlockHelper {
     }
   }
 
-  public static class BlockInfo {
+  public static class UniqueBlock {
     private final Block block;
     private final int metadata;
     private final BlockPos pos;
 
-    private BlockInfo(Block block, int metadata, BlockPos pos) {
+    private UniqueBlock(Block block, int metadata, BlockPos pos) {
       this.block = block;
       this.metadata = metadata;
       this.pos = pos;
@@ -171,9 +171,9 @@ public class BlockHelper {
     @Override
     public boolean equals(Object obj) {
       return this == obj
-          || (obj instanceof BlockInfo
-              && getBlock().equals(((BlockInfo) obj).getBlock())
-              && getMetadata() == ((BlockInfo) obj).getMetadata());
+          || (obj instanceof UniqueBlock
+              && getBlock().equals(((UniqueBlock) obj).getBlock())
+              && getMetadata() == ((UniqueBlock) obj).getMetadata());
     }
 
     @Override
