@@ -294,7 +294,16 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
               final String name = data.getArgumentAsString(0);
               EnumFacing facing = getBestFacingMatch(name);
 
-              if (sides.get(facing) == null) {
+              if ("all".equalsIgnoreCase(name)) {
+                sides.addAll(
+                    Arrays.stream(EnumFacing.values())
+                        .map(FacingEntry::new)
+                        .filter(e -> !sides.contains(e))
+                        .collect(Collectors.toSet()));
+                data.write("Added all sides");
+                data.markSuccess();
+                sides.serializeAll();
+              } else if (sides.get(facing) == null) {
                 sides.add(new FacingEntry(facing));
                 data.write("Added side " + facing.getName2());
                 data.markSuccess();
@@ -317,7 +326,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
               final String name = data.getArgumentAsString(0);
               EnumFacing facing = getBestFacingMatch(name);
 
-              if (sides.remove(new FacingEntry(facing))) {
+              if ("all".equalsIgnoreCase(name)) {
+                sides.clear();
+                data.write("Removed all sides");
+                data.markSuccess();
+                sides.serializeAll();
+              } else if (sides.remove(new FacingEntry(facing))) {
                 data.write("Removed side " + facing.getName2());
                 data.markSuccess();
                 sides.serializeAll();
@@ -701,7 +715,9 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             .filter(this::isClickable)
             .sorted(
                 Comparator.comparingDouble(
-                    info -> VectorUtils.getCrosshairDistance(eyes, dir, BlockHelper.getOBBCenter(info.getPos()))))
+                    info ->
+                        VectorUtils.getCrosshairDistance(
+                            eyes, dir, BlockHelper.getOBBCenter(info.getPos()))))
             .collect(Collectors.toList());
 
     if (blocks.isEmpty()) return;
