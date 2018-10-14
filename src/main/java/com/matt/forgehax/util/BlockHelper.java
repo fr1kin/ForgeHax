@@ -54,6 +54,11 @@ public class BlockHelper {
     return list;
   }
 
+  public static float getBlockHardness(BlockPos pos) {
+    IBlockState state = getWorld().getBlockState(pos);
+    return state.getBlockHardness(getWorld(), pos);
+  }
+
   public static boolean isBlockReplaceable(BlockPos pos) {
     return getWorld().getBlockState(pos).getMaterial().isReplaceable();
   }

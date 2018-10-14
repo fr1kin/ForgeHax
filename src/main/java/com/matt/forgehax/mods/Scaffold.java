@@ -8,12 +8,14 @@ import static com.matt.forgehax.Helper.getWorld;
 import com.matt.forgehax.asm.reflection.FastReflection.Fields;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
+import com.matt.forgehax.util.BlockHelper;
+import com.matt.forgehax.util.BlockHelper.BlockTraceInfo;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.common.PriorityEnum;
+import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
-import com.matt.forgehax.util.entity.LocalPlayerUtils.BlockPlacementInfo;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -75,26 +77,29 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
 
     if (items.isNull()) return;
 
-    BlockPlacementInfo info = LocalPlayerUtils.getBlockPlacementInfo(below);
+    final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
+    final Vec3d dir = LocalPlayerUtils.getViewAngles().getDirectionVector();
 
-    if (info == null) {
-      info =
+    BlockTraceInfo trace = BlockHelper.getPlaceableBlockSideTrace(eyes, dir, below);
+
+    if (trace == null) {
+      trace =
           NEIGHBORS
               .stream()
               .map(below::offset)
-              .filter(bp -> getWorld().getBlockState(bp).getMaterial().isReplaceable())
-              .map(LocalPlayerUtils::getBlockPlacementInfo)
+              .filter(BlockHelper::isBlockReplaceable)
+              .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
               .filter(Objects::nonNull)
               .findFirst()
               .orElse(null);
 
-      if (info == null) return;
+      if (trace == null) return;
     }
 
-    Vec3d hit = info.getHitVec();
+    Vec3d hit = trace.getHitVec();
     state.setServerAngles(previousAngles = Utils.getLookAtAngles(hit));
 
-    final BlockPlacementInfo blockInfo = info;
+    final BlockTraceInfo tr = trace;
     state.invokeLater(
         rs -> {
           LocalPlayerInventory.setSelected(items);
@@ -102,8 +107,8 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
               .processRightClickBlock(
                   getLocalPlayer(),
                   getWorld(),
-                  blockInfo.getPos(),
-                  blockInfo.getOppositeSide(),
+                  tr.getPos(),
+                  tr.getOppositeSide(),
                   hit,
                   EnumHand.MAIN_HAND);
           getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
