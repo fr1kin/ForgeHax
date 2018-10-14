@@ -4,17 +4,9 @@ import static com.matt.forgehax.Helper.*;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
-import com.matt.forgehax.util.BlockHelper;
 import com.matt.forgehax.util.math.Angle;
-import com.matt.forgehax.util.math.VectorUtils;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Optional;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;

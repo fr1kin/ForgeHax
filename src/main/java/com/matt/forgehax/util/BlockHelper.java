@@ -8,7 +8,6 @@ import static com.matt.forgehax.util.entity.LocalPlayerUtils.isInReach;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.math.VectorUtils;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -61,7 +60,9 @@ public class BlockHelper {
 
   public static boolean isTraceClear(Vec3d start, Vec3d end, EnumFacing targetSide) {
     RayTraceResult tr = getWorld().rayTraceBlocks(start, end, false, true, false);
-    return tr == null || (new BlockPos(end).equals(new BlockPos(tr.hitVec)) && targetSide.getOpposite().equals(tr.sideHit));
+    return tr == null
+        || (new BlockPos(end).equals(new BlockPos(tr.hitVec))
+            && targetSide.getOpposite().equals(tr.sideHit));
   }
 
   public static Vec3d getOBBCenter(BlockPos pos) {
@@ -78,7 +79,8 @@ public class BlockHelper {
     return state.getBlock().canCollideCheck(state, false);
   }
 
-  private static BlockTraceInfo getPlaceableBlockSide(Stream<EnumFacing> stream, final BlockPos pos) {
+  private static BlockTraceInfo getPlaceableBlockSide(
+      Stream<EnumFacing> stream, final BlockPos pos) {
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d normal = getServerViewAngles().getDirectionVector().normalize();
     return stream
@@ -91,9 +93,12 @@ public class BlockHelper {
                 info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
         .orElse(null);
   }
-  public static BlockTraceInfo getPlaceableBlockSide(EnumSet<EnumFacing> sides, final BlockPos pos) {
+
+  public static BlockTraceInfo getPlaceableBlockSide(
+      EnumSet<EnumFacing> sides, final BlockPos pos) {
     return getPlaceableBlockSide(sides.stream(), pos);
   }
+
   public static BlockTraceInfo getPlaceableBlockSide(final BlockPos pos) {
     return getPlaceableBlockSide(Stream.of(EnumFacing.values()), pos);
   }
