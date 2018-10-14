@@ -741,7 +741,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                 .stream()
                 .map(FacingEntry::getFacing)
                 .map(side -> new BlockPlacementInfo(at.getPos(), side.getOpposite()))
-                .filter(i -> BlockHelper.isTraceClear(eyes, i.getHitVec()))
+                .filter(i -> BlockHelper.isTraceClear(eyes, i.getHitVec(), i.getSide()))
                 .filter(i -> LocalPlayerUtils.isInReach(eyes, i.getHitVec()))
                 .min(
                     Comparator.comparingDouble(

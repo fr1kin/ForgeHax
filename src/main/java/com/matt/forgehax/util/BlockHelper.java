@@ -9,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -45,9 +46,9 @@ public class BlockHelper {
     return getWorld().getBlockState(pos).getMaterial().isReplaceable();
   }
 
-  public static boolean isTraceClear(Vec3d start, Vec3d end) {
+  public static boolean isTraceClear(Vec3d start, Vec3d end, EnumFacing targetSide) {
     RayTraceResult tr = getWorld().rayTraceBlocks(start, end, false, true, false);
-    return tr == null || new BlockPos(end).equals(new BlockPos(tr.hitVec));
+    return tr == null || (new BlockPos(end).equals(new BlockPos(tr.hitVec)) && targetSide.getOpposite().equals(tr.sideHit));
   }
 
   public static Vec3d getOBBCenter(BlockPos pos) {

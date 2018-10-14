@@ -67,7 +67,7 @@ public class LocalPlayerUtils implements Globals {
         .filter(
             info -> info.getBlockState().getBlock().canCollideCheck(info.getBlockState(), false))
         .filter(info -> isInReach(eyes, info.getHitVec()))
-        .filter(info -> BlockHelper.isTraceClear(eyes, info.getHitVec()))
+        .filter(info -> BlockHelper.isTraceClear(eyes, info.getHitVec(), info.getSide()))
         .min(
             Comparator.comparingDouble(
                 info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
