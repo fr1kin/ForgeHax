@@ -714,7 +714,10 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     if (items.isNull()) return;
 
     final Vec3d eyes = LocalPlayerUtils.getEyePos();
-    final Vec3d dir = client_angles.get() ? LocalPlayerUtils.getDirectionVector() : LocalPlayerUtils.getServerDirectionVector();
+    final Vec3d dir =
+        client_angles.get()
+            ? LocalPlayerUtils.getDirectionVector()
+            : LocalPlayerUtils.getServerDirectionVector();
 
     List<UniqueBlock> blocks =
         BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
