@@ -71,13 +71,17 @@ public class BlockHelper {
         bb.minZ + ((bb.maxZ - bb.minZ) / 2.D));
   }
 
+  public static boolean isBlockPlaceable(BlockPos pos) {
+    IBlockState state = getWorld().getBlockState(pos);
+    return state.getBlock().canCollideCheck(state, false);
+  }
+
   public static BlockTraceInfo getBestBlockSide(final BlockPos pos) {
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d normal = getServerViewAngles().getDirectionVector().normalize();
     return Arrays.stream(EnumFacing.values())
         .map(side -> new BlockTraceInfo(pos.offset(side), side))
-        .filter(
-            info -> info.getBlockState().getBlock().canCollideCheck(info.getBlockState(), false))
+        .filter(info -> isBlockPlaceable(info.getPos()))
         .filter(info -> isInReach(eyes, info.getHitVec()))
         .filter(info -> BlockHelper.isTraceClear(eyes, info.getHitVec(), info.getSide()))
         .min(
