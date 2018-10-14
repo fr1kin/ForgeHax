@@ -26,6 +26,8 @@ import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
+import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -356,6 +358,22 @@ public interface FastReflection extends ASMCommon {
         FastTypeBuilder.create()
             .setInsideClass(KeyBinding.class)
             .setName("pressed")
+            .autoAssign()
+            .asField();
+
+    /** ItemSword */
+    FastField<Float> ItemSword_attackDamage =
+        FastTypeBuilder.create()
+            .setInsideClass(ItemSword.class)
+            .setName("attackDamage")
+            .autoAssign()
+            .asField();
+
+    /** ItemTool */
+    FastField<Float> ItemTool_damageVsEntity =
+        FastTypeBuilder.create()
+            .setInsideClass(ItemTool.class)
+            .setName("damageVsEntity")
             .autoAssign()
             .asField();
   }

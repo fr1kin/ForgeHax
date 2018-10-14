@@ -275,6 +275,12 @@ public interface TypesMc {
             .setClassName("net/minecraft/world/EnumSkyBlock")
             .autoAssign()
             .build();
+
+    ASMClass PlayerControllerMP =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/client/multiplayer/PlayerControllerMP")
+            .autoAssign()
+            .build();
   }
 
   interface Fields {
