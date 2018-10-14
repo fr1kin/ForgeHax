@@ -730,44 +730,45 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
 
     // find a block that can be placed
     int index = 0;
-    BlockTraceInfo info = null;
+    BlockTraceInfo trace = null;
     do {
       if (index >= blocks.size()) break;
 
       final UniqueBlock at = blocks.get(index++);
       if (use.get()) {
-        info =
+        trace =
             sides
                 .stream()
                 .map(FacingEntry::getFacing)
-                .map(side -> BlockHelper.getBlockSideTrace(at.getPos(), side.getOpposite()))
+                .map(side -> BlockHelper.getBlockSideTrace(eyes, at.getPos(), side.getOpposite()))
                 .filter(Objects::nonNull)
                 .min(
                     Comparator.comparingDouble(
                         i -> VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
                 .orElse(null);
       } else {
-        info =
+        trace =
             sides
                 .stream()
                 .map(FacingEntry::getFacing)
-                .map(side -> BlockHelper.getPlaceableBlockSideTrace(at.getPos().offset(side)))
+                .map(
+                    side ->
+                        BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().offset(side)))
                 .filter(Objects::nonNull)
                 .findAny()
                 .orElse(null);
       }
-    } while (info == null);
+    } while (trace == null);
 
     // if the block list is exhausted
-    if (info == null) return;
+    if (trace == null) return;
 
-    if (render.get()) currentRenderingTarget = info.getPos();
+    if (render.get()) currentRenderingTarget = trace.getPos();
 
-    Vec3d hit = info.getHitVec();
-    Angle va = Utils.getLookAtAngles(hit);
+    Angle va = Utils.getLookAtAngles(trace.getHitVec());
     state.setServerAngles(va);
 
-    final BlockTraceInfo blockInfo = info;
+    final BlockTraceInfo tr = trace;
     state.invokeLater(
         rs -> {
           LocalPlayerInventory.setSelected(items);
@@ -780,9 +781,9 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
               .processRightClickBlock(
                   getLocalPlayer(),
                   getWorld(),
-                  blockInfo.getPos(),
-                  blockInfo.getOppositeSide(),
-                  hit,
+                  tr.getPos(),
+                  tr.getOppositeSide(),
+                  tr.getHitVec(),
                   EnumHand.MAIN_HAND);
 
           LocalPlayerUtils.setSneaking(sneaking);

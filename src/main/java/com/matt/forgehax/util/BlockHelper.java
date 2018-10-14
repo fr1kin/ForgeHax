@@ -80,9 +80,7 @@ public class BlockHelper {
   }
 
   private static BlockTraceInfo getPlaceableBlockSideTrace(
-      Stream<EnumFacing> stream, final BlockPos pos) {
-    final Vec3d eyes = LocalPlayerUtils.getEyePos();
-    final Vec3d normal = LocalPlayerUtils.getDirectionVector();
+      Vec3d eyes, Vec3d normal, Stream<EnumFacing> stream, BlockPos pos) {
     return stream
         .map(side -> newBlockTrace(pos.offset(side), side))
         .filter(info -> isBlockPlaceable(info.getPos()))
@@ -95,27 +93,24 @@ public class BlockHelper {
   }
 
   public static BlockTraceInfo getPlaceableBlockSideTrace(
-      EnumSet<EnumFacing> sides, final BlockPos pos) {
-    return getPlaceableBlockSideTrace(sides.stream(), pos);
+      Vec3d eyes, Vec3d normal, EnumSet<EnumFacing> sides, BlockPos pos) {
+    return getPlaceableBlockSideTrace(eyes, normal, sides.stream(), pos);
   }
 
-  public static BlockTraceInfo getPlaceableBlockSideTrace(final BlockPos pos) {
-    return getPlaceableBlockSideTrace(Stream.of(EnumFacing.values()), pos);
+  public static BlockTraceInfo getPlaceableBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
+    return getPlaceableBlockSideTrace(eyes, normal, Stream.of(EnumFacing.values()), pos);
   }
 
-  public static BlockTraceInfo getBlockSideTrace(BlockPos pos, EnumFacing side) {
-    final Vec3d eyes = LocalPlayerUtils.getEyePos();
+  public static BlockTraceInfo getBlockSideTrace(Vec3d eyes, BlockPos pos, EnumFacing side) {
     return Optional.of(newBlockTrace(pos, side))
         .filter(tr -> BlockHelper.isTraceClear(eyes, tr.getHitVec(), tr.getSide()))
         .filter(tr -> LocalPlayerUtils.isInReach(eyes, tr.getHitVec()))
         .orElse(null);
   }
 
-  private BlockTraceInfo getVisibleBlockSideTrace(BlockPos pos) {
-    final Vec3d eyes = LocalPlayerUtils.getEyePos();
-    final Vec3d normal = LocalPlayerUtils.getDirectionVector();
+  private BlockTraceInfo getVisibleBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
     return Arrays.stream(EnumFacing.values())
-        .map(side -> BlockHelper.getBlockSideTrace(pos, side.getOpposite()))
+        .map(side -> BlockHelper.getBlockSideTrace(eyes, pos, side.getOpposite()))
         .filter(Objects::nonNull)
         .min(
             Comparator.comparingDouble(
