@@ -710,6 +710,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     List<UniqueBlock> blocks =
         BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
             .stream()
+            .filter(pos -> !getWorld().isAirBlock(pos))
             .map(BlockHelper::newUniqueBlock)
             .filter(this::isValidBlock)
             .filter(this::isClickable)
