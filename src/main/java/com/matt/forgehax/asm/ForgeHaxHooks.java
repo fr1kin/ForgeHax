@@ -2,6 +2,7 @@ package com.matt.forgehax.asm;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.matt.forgehax.asm.TypesMc.Methods;
 import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
@@ -15,6 +16,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.*;
@@ -25,6 +27,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -576,5 +579,47 @@ public class ForgeHaxHooks implements ASMCommon {
       MinecraftForge.EVENT_BUS.post(event);
       return event.isLeftClicked();
     } else return clicked;
+  }
+
+  /** onPlayerItemSync */
+  public static final HookReporter HOOK_onPlayerItemSync =
+      newHookReporter()
+          .hook("onPlayerItemSync")
+          .dependsOn(Methods.PlayerControllerMC_syncCurrentPlayItem)
+          .forgeEvent(PlayerSyncItemEvent.class)
+          .build();
+
+  public static void onPlayerItemSync(PlayerControllerMP playerControllerMP) {
+    if (HOOK_onPlayerItemSync.reportHook())
+      MinecraftForge.EVENT_BUS.post(new PlayerSyncItemEvent(playerControllerMP));
+  }
+
+  /** onPlayerBreakingBlock */
+  public static final HookReporter HOOK_onPlayerBreakingBlock =
+      newHookReporter()
+          .hook("onPlayerBreakingBlock")
+          .dependsOn(Methods.PlayerControllerMC_onPlayerDamageBlock)
+          .forgeEvent(PlayerDamageBlockEvent.class)
+          .build();
+
+  public static void onPlayerBreakingBlock(
+      PlayerControllerMP playerControllerMP, BlockPos pos, EnumFacing facing) {
+    if (HOOK_onPlayerBreakingBlock.reportHook())
+      MinecraftForge.EVENT_BUS.post(new PlayerDamageBlockEvent(playerControllerMP, pos, facing));
+  }
+
+  /** onPlayerAttackEntity */
+  public static final HookReporter HOOK_onPlayerAttackEntity =
+      newHookReporter()
+          .hook("onPlayerAttackEntity")
+          .dependsOn(Methods.PlayerControllerMC_attackEntity)
+          .forgeEvent(PlayerAttackEntityEvent.class)
+          .build();
+
+  public static void onPlayerAttackEntity(
+      PlayerControllerMP playerControllerMP, EntityPlayer attacker, Entity victim) {
+    if (HOOK_onPlayerAttackEntity.reportHook())
+      MinecraftForge.EVENT_BUS.post(
+          new PlayerAttackEntityEvent(playerControllerMP, attacker, victim));
   }
 }

@@ -1,5 +1,6 @@
 package com.matt.forgehax.asm;
 
+import com.matt.forgehax.asm.TypesMc.Classes;
 import com.matt.forgehax.asm.utils.asmtype.ASMClass;
 import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -379,6 +380,37 @@ public interface TypesHook {
             .beginParameters()
             .add(TypesMc.Classes.Minecraft)
             .add(boolean.class)
+            .finish()
+            .build();
+
+    ASMMethod ForgeHaxHooks_onPlayerItemSync =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("onPlayerItemSync")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(TypesMc.Classes.PlayerControllerMP)
+            .finish()
+            .build();
+
+    ASMMethod ForgeHaxHooks_onPlayerBreakingBlock =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("onPlayerBreakingBlock")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(TypesMc.Classes.PlayerControllerMP)
+            .add(TypesMc.Classes.BlockPos)
+            .add(TypesMc.Classes.EnumFacing)
+            .finish()
+            .build();
+
+    ASMMethod ForgeHaxHooks_onPlayerAttackEntity =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("onPlayerAttackEntity")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(TypesMc.Classes.PlayerControllerMP)
+            .add(TypesMc.Classes.EntityPlayer)
+            .add(TypesMc.Classes.Entity)
             .finish()
             .build();
   }

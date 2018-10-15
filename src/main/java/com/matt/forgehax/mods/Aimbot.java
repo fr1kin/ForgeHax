@@ -11,8 +11,6 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.common.PriorityEnum;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.entity.LocalPlayerInventory;
-import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.AngleHelper;
@@ -332,12 +330,8 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
       if (canAttack(getLocalPlayer(), tar))
         state.invokeLater(
             rs -> {
-              InvItem previous = AutoTool.getInstance().selectBestWeapon();
-
               getPlayerController().attackEntity(getLocalPlayer(), tar);
               getLocalPlayer().swingArm(EnumHand.MAIN_HAND);
-
-              LocalPlayerInventory.setSelected(previous);
             });
     }
   }

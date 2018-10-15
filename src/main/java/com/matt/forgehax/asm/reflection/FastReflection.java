@@ -376,6 +376,13 @@ public interface FastReflection extends ASMCommon {
             .setName("damageVsEntity")
             .autoAssign()
             .asField();
+
+    FastField<Float> ItemTool_attackSpeed =
+        FastTypeBuilder.create()
+            .setInsideClass(ItemTool.class)
+            .setName("attackSpeed")
+            .autoAssign()
+            .asField();
   }
 
   // ****************************************

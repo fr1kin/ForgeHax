@@ -21,8 +21,6 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.common.PriorityEnum;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.entity.LocalPlayerInventory;
-import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.key.BindingHelper;
 import com.matt.forgehax.util.math.Angle;
@@ -271,14 +269,10 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
     final BlockTraceInfo tr = trace;
     state.invokeLater(
         rs -> {
-          InvItem previous = AutoTool.getInstance().selectBestTool(tr.getPos());
-
           if (getPlayerController().onPlayerDamageBlock(tr.getPos(), tr.getOppositeSide())) {
             getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
             updateBlockBreaking(tr.getPos());
           } else resetBlockBreaking();
-
-          LocalPlayerInventory.setSelected(previous);
         });
   }
 }

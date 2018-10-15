@@ -192,6 +192,12 @@ public interface TypesMc {
             .autoAssign()
             .build();
 
+    ASMClass EntityPlayer =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/entity/player/EntityPlayer")
+            .autoAssign()
+            .build();
+
     ASMClass EntityPlayerSP =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/entity/EntityPlayerSP")
@@ -656,6 +662,32 @@ public interface TypesMc {
             .setReturnType(boolean.class)
             .emptyParameters()
             .autoAssign()
+            .build();
+
+    ASMMethod PlayerControllerMC_syncCurrentPlayItem =
+        Classes.PlayerControllerMP.childMethod()
+            .setName("syncCurrentPlayItem")
+            .setReturnType(void.class)
+            .emptyParameters()
+            .autoAssign()
+            .build();
+    ASMMethod PlayerControllerMC_attackEntity =
+        Classes.PlayerControllerMP.childMethod()
+            .setName("attackEntity")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(Classes.EntityPlayer)
+            .add(Classes.Entity)
+            .finish()
+            .build();
+    ASMMethod PlayerControllerMC_onPlayerDamageBlock =
+        Classes.PlayerControllerMP.childMethod()
+            .setName("onPlayerDamageBlock")
+            .setReturnType(boolean.class)
+            .beginParameters()
+            .add(Classes.BlockPos)
+            .add(Classes.EnumFacing)
+            .finish()
             .build();
   }
 }
