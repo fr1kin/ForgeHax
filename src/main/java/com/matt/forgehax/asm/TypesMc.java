@@ -679,6 +679,7 @@ public interface TypesMc {
             .add(Classes.EntityPlayer)
             .add(Classes.Entity)
             .finish()
+            .autoAssign()
             .build();
     ASMMethod PlayerControllerMC_onPlayerDamageBlock =
         Classes.PlayerControllerMP.childMethod()
@@ -688,6 +689,7 @@ public interface TypesMc {
             .add(Classes.BlockPos)
             .add(Classes.EnumFacing)
             .finish()
+            .autoAssign()
             .build();
   }
 }
