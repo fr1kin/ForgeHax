@@ -17,8 +17,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
-import net.minecraft.block.BlockGrass;
-import net.minecraft.block.BlockTallGrass;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -29,7 +27,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.init.Enchantments;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemSword;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -99,7 +96,8 @@ public class AutoTool extends ToggleMod {
   private boolean isDurabilityGood(InvItem item) {
     return durability_threshold.get() < 1
         || isInvincible(item)
-        || (item.getItemStack().getMaxDamage() - item.getItemStack().getItemDamage()) > durability_threshold.get();
+        || (item.getItemStack().getMaxDamage() - item.getItemStack().getItemDamage())
+            > durability_threshold.get();
   }
 
   private int closestInHotbar(InvItem item, InvItem current) {
@@ -110,7 +108,9 @@ public class AutoTool extends ToggleMod {
   private double getDigSpeed(InvItem item, IBlockState state, BlockPos pos) {
     double str = item.getItemStack().getStrVsBlock(state);
     int eff = getEnchantmentLevel(EFFICIENCY, item);
-    return state.getBlockHardness(getWorld(), pos) > 0.D ? Math.max(str + (str > 1.D ? (eff * eff + 1.D) : 0.D), 0.D) : 1.D;
+    return state.getBlockHardness(getWorld(), pos) > 0.D
+        ? Math.max(str + (str > 1.D ? (eff * eff + 1.D) : 0.D), 0.D)
+        : 1.D;
   }
 
   private double getAttackDamage(InvItem item) {
@@ -200,7 +200,8 @@ public class AutoTool extends ToggleMod {
       case START:
         {
           if (previousIndex != -1 && waiting.test(ticksSinceChanged) && revert_back.get()) {
-            if(lastSetIndex == LocalPlayerInventory.getSelected().getIndex()) LocalPlayerInventory.setSelected(previousIndex);
+            if (lastSetIndex == LocalPlayerInventory.getSelected().getIndex())
+              LocalPlayerInventory.setSelected(previousIndex);
             previousIndex = lastSetIndex = -1;
           }
           ++ticksSinceChanged;
