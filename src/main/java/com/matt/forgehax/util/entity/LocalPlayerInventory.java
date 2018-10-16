@@ -24,6 +24,10 @@ public class LocalPlayerInventory {
     return getLocalPlayer().openContainer;
   }
 
+  public static int getHotbarSize() {
+    return InventoryPlayer.getHotbarSize();
+  }
+
   public static List<InvItem> getMainInventory() {
     AtomicInteger next = new AtomicInteger(0);
     return getInventory()
@@ -38,7 +42,7 @@ public class LocalPlayerInventory {
   }
 
   public static List<InvItem> getHotbarInventory() {
-    return getMainInventory(0, 9);
+    return getMainInventory(0, getHotbarSize());
   }
 
   public static InvItem getSelected() {
