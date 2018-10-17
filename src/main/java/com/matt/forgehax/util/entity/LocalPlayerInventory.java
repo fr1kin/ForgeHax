@@ -2,9 +2,13 @@ package com.matt.forgehax.util.entity;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
+import com.google.common.base.Predicates;
+import com.matt.forgehax.mods.services.HotbarSelectionService;
+import com.matt.forgehax.mods.services.HotbarSelectionService.ResetFunction;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -49,15 +53,46 @@ public class LocalPlayerInventory {
     return getMainInventory().get(getInventory().currentItem);
   }
 
-  public static void setSelected(int index) {
-    if (index < 0 || index > 8)
-      throw new IndexOutOfBoundsException("Can only select index in hot bar (0-8)");
-
-    getInventory().currentItem = index;
+  public static ResetFunction setSelected(int index, boolean reset, Predicate<Long> condition) {
+    return HotbarSelectionService.getInstance().setSelected(index, reset, condition);
   }
 
-  public static void setSelected(InvItem invItem) {
-    setSelected(invItem.getIndex());
+  public static ResetFunction setSelected(InvItem inv, boolean reset, Predicate<Long> condition) {
+    return setSelected(inv.getIndex(), reset, condition);
+  }
+
+  public static ResetFunction setSelected(int index, Predicate<Long> condition) {
+    Objects.requireNonNull(condition);
+    return setSelected(index, true, condition);
+  }
+
+  public static ResetFunction setSelected(InvItem inv, Predicate<Long> condition) {
+    return setSelected(inv.getIndex(), condition);
+  }
+
+  public static ResetFunction setSelected(int index) {
+    return setSelected(index, Predicates.alwaysTrue());
+  }
+
+  public static ResetFunction setSelected(InvItem invItem) {
+    return setSelected(invItem.getIndex());
+  }
+
+  public static ResetFunction forceSelected(int index) {
+    return setSelected(index, false, null);
+  }
+
+  public static ResetFunction forceSelected(InvItem inv) {
+    return forceSelected(inv.getIndex());
+  }
+
+  public static void resetSelected() {
+    HotbarSelectionService.getInstance().resetSelected();
+  }
+
+  public static int getHotbarDistance(InvItem item) {
+    int max = LocalPlayerInventory.getHotbarSize() - 1;
+    return item.getIndex() > max ? 0 : max - Math.abs(getSelected().getIndex() - item.getIndex());
   }
 
   public static class InvItem implements Comparable<InvItem> {

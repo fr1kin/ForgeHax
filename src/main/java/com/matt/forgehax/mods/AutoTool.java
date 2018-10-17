@@ -11,6 +11,7 @@ import com.matt.forgehax.util.BlockHelper;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -29,7 +30,6 @@ import net.minecraft.init.Enchantments;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
 @RegisterMod
 public class AutoTool extends ToggleMod {
@@ -78,12 +78,6 @@ public class AutoTool extends ToggleMod {
           .max((int) Short.MAX_VALUE)
           .build();
 
-  private int previousIndex = -1;
-  private int lastSetIndex = -1;
-  private long ticksSinceChanged = 0;
-
-  private Predicate<Long> waiting = Predicates.alwaysTrue();
-
   public AutoTool() {
     super(Category.PLAYER, "AutoTool", false, "Automatically switch to the best tool");
     instance = this;
@@ -98,11 +92,6 @@ public class AutoTool extends ToggleMod {
         || isInvincible(item)
         || (item.getItemStack().getMaxDamage() - item.getItemStack().getItemDamage())
             > durability_threshold.get();
-  }
-
-  private int closestInHotbar(InvItem item, InvItem current) {
-    return (LocalPlayerInventory.getHotbarSize() - 1)
-        - Math.abs(current.getIndex() - item.getIndex());
   }
 
   private double getDigSpeed(InvItem item, IBlockState state, BlockPos pos) {
@@ -164,7 +153,7 @@ public class AutoTool extends ToggleMod {
         .max(
             Comparator.<InvItem>comparingDouble(item -> getDigSpeed(item, state, pos))
                 .thenComparing(this::isInvincible)
-                .thenComparing(item -> closestInHotbar(item, current)))
+                .thenComparing(LocalPlayerInventory::getHotbarDistance))
         .orElse(current);
   }
 
@@ -178,57 +167,30 @@ public class AutoTool extends ToggleMod {
                 .thenComparing(item -> getEnchantmentLevel(Enchantments.FIRE_ASPECT, item))
                 .thenComparing(item -> getEnchantmentLevel(Enchantments.SWEEPING, item))
                 .thenComparing(this::isInvincible)
-                .thenComparing(item -> closestInHotbar(item, current)))
+                .thenComparing(LocalPlayerInventory::getHotbarDistance))
         .orElse(current);
   }
 
-  public InvItem selectBestTool(BlockPos pos) {
-    InvItem previous = LocalPlayerInventory.getSelected();
-    if (isEnabled() && tools.get()) LocalPlayerInventory.setSelected(getBestTool(pos));
-    return previous;
+  public void selectBestTool(BlockPos pos) {
+    if (isEnabled() && tools.get())
+      LocalPlayerInventory.setSelected(getBestTool(pos), revert_back.get(), ticks -> ticks > 5);
   }
 
-  public InvItem selectBestWeapon(Entity target) {
-    InvItem previous = LocalPlayerInventory.getSelected();
-    if (isEnabled() && weapons.get()) LocalPlayerInventory.setSelected(getBestWeapon(target));
-    return previous;
-  }
-
-  @SubscribeEvent
-  public void onClientTick(ClientTickEvent event) {
-    switch (event.phase) {
-      case START:
-        {
-          if (previousIndex != -1 && waiting.test(ticksSinceChanged) && revert_back.get()) {
-            if (lastSetIndex == LocalPlayerInventory.getSelected().getIndex())
-              LocalPlayerInventory.setSelected(previousIndex);
-            previousIndex = lastSetIndex = -1;
-          }
-          ++ticksSinceChanged;
-          break;
-        }
-    }
+  public void selectBestWeapon(Entity target) {
+    if (isEnabled() && weapons.get())
+      LocalPlayerInventory.setSelected(
+          getBestWeapon(target),
+          revert_back.get(),
+          ticks -> getLocalPlayer().getCooledAttackStrength(0.f) >= 1.f && ticks > 30);
   }
 
   @SubscribeEvent
   public void onBlockBreak(PlayerDamageBlockEvent event) {
-    InvItem previous = selectBestTool(event.getPos());
-
-    if (previousIndex == -1) previousIndex = previous.getIndex();
-    lastSetIndex = LocalPlayerInventory.getSelected().getIndex();
-
-    ticksSinceChanged = 0;
-    waiting = ticks -> ticks > 5;
+    selectBestTool(event.getPos());
   }
 
   @SubscribeEvent
   public void onAttackEntity(PlayerAttackEntityEvent event) {
-    InvItem previous = selectBestWeapon(event.getVictim());
-
-    if (previousIndex == -1) previousIndex = previous.getIndex();
-    lastSetIndex = LocalPlayerInventory.getSelected().getIndex();
-
-    ticksSinceChanged = 0;
-    waiting = ticks -> getLocalPlayer().getCooledAttackStrength(0.f) >= 1.f && ticks > 30;
+    selectBestWeapon(event.getVictim());
   }
 }

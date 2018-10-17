@@ -8,6 +8,7 @@ import static com.matt.forgehax.Helper.getWorld;
 import com.matt.forgehax.asm.reflection.FastReflection.Fields;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
+import com.matt.forgehax.mods.services.HotbarSelectionService.ResetFunction;
 import com.matt.forgehax.util.BlockHelper;
 import com.matt.forgehax.util.BlockHelper.BlockTraceInfo;
 import com.matt.forgehax.util.Utils;
@@ -20,6 +21,7 @@ import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Objects;
 import net.minecraft.item.ItemBlock;
@@ -72,7 +74,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
             .stream()
             .filter(InvItem::nonNull)
             .filter(item -> item.getItem() instanceof ItemBlock)
-            .findFirst()
+            .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
             .orElse(InvItem.EMPTY);
 
     if (items.isNull()) return;
@@ -102,7 +104,8 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     final BlockTraceInfo tr = trace;
     state.invokeLater(
         rs -> {
-          LocalPlayerInventory.setSelected(items);
+          ResetFunction func = LocalPlayerInventory.setSelected(items);
+
           getPlayerController()
               .processRightClickBlock(
                   getLocalPlayer(),
@@ -111,6 +114,9 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
                   tr.getOppositeSide(),
                   hit,
                   EnumHand.MAIN_HAND);
+
+          func.revert();
+
           getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
           Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
           placing = true;
