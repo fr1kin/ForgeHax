@@ -2,7 +2,6 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getPlayerController;
 
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
@@ -126,7 +125,9 @@ public class AutoHotbarReplenish extends ToggleMod {
                                   inv.getItemStack()
                                       .isItemEqualIgnoreDurability(item.getItemStack())))
               .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
-              .map(item -> LocalPlayerInventory.newInvItem(item.getItemStack(), 36 + item.getIndex()))
+              .map(
+                  item ->
+                      LocalPlayerInventory.newInvItem(item.getItemStack(), 36 + item.getIndex()))
               .map(
                   item ->
                       TaskChain.<Supplier<Boolean>>builder()
