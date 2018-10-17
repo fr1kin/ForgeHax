@@ -14,7 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
@@ -41,7 +43,15 @@ public class LocalPlayerInventory {
     return getInventory()
         .mainInventory
         .stream()
-        .map(item -> new InvItem(item, next.getAndIncrement()))
+        .map(item -> new InvItem.Base(item, next.getAndIncrement()))
+        .collect(Collectors.toList());
+  }
+
+  public static List<InvItem> getMutatingInventory() {
+    return getContainer()
+        .inventorySlots
+        .stream()
+        .map(InvItem.Mutating::new)
         .collect(Collectors.toList());
   }
 
@@ -49,8 +59,24 @@ public class LocalPlayerInventory {
     return getMainInventory().subList(start, end);
   }
 
+  public static List<InvItem> getMutatingInventory(int start, int end) {
+    return getMutatingInventory().subList(start, end);
+  }
+
+  public static List<InvItem> getStorageInventory() {
+    return getMainInventory(9, 27);
+  }
+
+  public static List<InvItem> getMutatingStorageInventory() {
+    return getMutatingInventory(9, 36);
+  }
+
   public static List<InvItem> getHotbarInventory() {
     return getMainInventory(0, getHotbarSize());
+  }
+
+  public static List<InvItem> getMutatingHotbarInventory() {
+    return getMutatingInventory(27, 36);
   }
 
   public static InvItem getSelected() {
@@ -107,28 +133,38 @@ public class LocalPlayerInventory {
     return item.getIndex() > max ? 0 : max - Math.abs(getSelected().getIndex() - item.getIndex());
   }
 
-  public static class InvItem implements Comparable<InvItem> {
-    public static final InvItem EMPTY = new InvItem(ItemStack.EMPTY, -1);
+  public static InvItem newInvItem(ItemStack itemStack, int index) {
+    return new InvItem.Base(itemStack, index);
+  }
 
-    private final ItemStack itemStack;
-    private final int index;
+  public static InvItem newInvItem(Slot slot) {
+    return new InvItem.Mutating(slot);
+  }
 
-    public InvItem(ItemStack itemStack, int index) {
-      this.itemStack = itemStack;
-      this.index = index;
-    }
+  public abstract static class InvItem implements Comparable<InvItem> {
+    public static final InvItem EMPTY =
+        new InvItem() {
+          @Override
+          public ItemStack getItemStack() {
+            return ItemStack.EMPTY;
+          }
 
-    public ItemStack getItemStack() {
-      return itemStack;
-    }
+          @Override
+          public Item getItem() {
+            return Items.AIR;
+          }
 
-    public Item getItem() {
-      return itemStack.getItem();
-    }
+          @Override
+          public int getIndex() {
+            return -1;
+          }
+        };
 
-    public int getIndex() {
-      return index;
-    }
+    public abstract ItemStack getItemStack();
+
+    public abstract Item getItem();
+
+    public abstract int getIndex();
 
     public boolean isNull() {
       return ItemStack.EMPTY.equals(getItemStack());
@@ -148,12 +184,60 @@ public class LocalPlayerInventory {
 
     @Override
     public int hashCode() {
-      return Objects.hash(itemStack, index);
+      return Objects.hash(getItemStack(), getIndex());
     }
 
     @Override
     public int compareTo(InvItem o) {
       return Integer.compare(getIndex(), o.getIndex());
+    }
+
+    private static class Base extends InvItem {
+      private final ItemStack itemStack;
+      private final int index;
+
+      public Base(ItemStack itemStack, int index) {
+        this.itemStack = itemStack;
+        this.index = index;
+      }
+
+      @Override
+      public ItemStack getItemStack() {
+        return itemStack;
+      }
+
+      @Override
+      public Item getItem() {
+        return itemStack.getItem();
+      }
+
+      @Override
+      public int getIndex() {
+        return index;
+      }
+    }
+
+    private static class Mutating extends InvItem {
+      private final Slot slot;
+
+      public Mutating(Slot slot) {
+        this.slot = slot;
+      }
+
+      @Override
+      public ItemStack getItemStack() {
+        return slot.getStack();
+      }
+
+      @Override
+      public Item getItem() {
+        return slot.getStack().getItem();
+      }
+
+      @Override
+      public int getIndex() {
+        return slot.slotNumber;
+      }
     }
   }
 }

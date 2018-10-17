@@ -45,6 +45,10 @@ public interface TaskChain<E> extends Iterator<E> {
     return (TaskChain<T>) EMPTY;
   }
 
+  default boolean isEmpty() {
+    return !hasNext();
+  }
+
   class Builder<T> {
     private final Queue<T> queue = Queues.newArrayDeque();
 
@@ -55,6 +59,11 @@ public interface TaskChain<E> extends Iterator<E> {
 
     public Builder<T> addAll(Collection<T> tsks) {
       queue.addAll(tsks);
+      return this;
+    }
+
+    public Builder<T> collect(TaskChain<T> ts) {
+      while (ts.hasNext()) queue.add(ts.next());
       return this;
     }
 
