@@ -5,6 +5,7 @@ import static com.matt.forgehax.Helper.*;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.mods.services.HotbarSelectionService.ResetFunction;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -376,7 +377,9 @@ public class AntiAfkMod extends ToggleMod {
           if (!Blocks.REDSTONE_WIRE.canPlaceBlockAt(getWorld(), result.getBlockPos()))
             return; // can't place block
 
-          LocalPlayerInventory.setSelected(item);
+          ResetFunction func = LocalPlayerInventory.setSelected(item);
+          LocalPlayerInventory.syncSelected();
+
           getNetworkManager()
               .sendPacket(
                   new CPacketPlayerTryUseItemOnBlock(
@@ -387,6 +390,8 @@ public class AntiAfkMod extends ToggleMod {
                       (float) (result.hitVec.y - result.getBlockPos().getY()),
                       (float) (result.hitVec.z - result.getBlockPos().getZ())));
           swingHand();
+
+          func.revert();
         }
       }
 
