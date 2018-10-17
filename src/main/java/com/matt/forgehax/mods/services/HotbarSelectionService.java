@@ -11,7 +11,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.function.Predicate;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 @RegisterMod
 public class HotbarSelectionService extends ServiceMod {
@@ -56,7 +55,7 @@ public class HotbarSelectionService extends ServiceMod {
       ticksElapsed = 0;
 
       return () -> {
-        if(index == selected() && lastSetIndex == index) {
+        if (index == selected() && lastSetIndex == index) {
           select(orig);
           reset();
         }
@@ -87,7 +86,7 @@ public class HotbarSelectionService extends ServiceMod {
       case START:
         {
           if (originalIndex != -1 && resetCondition.test(ticksElapsed)) resetSelected();
-          if(ticksElapsed != -1) ++ticksElapsed;
+          if (ticksElapsed != -1) ++ticksElapsed;
           break;
         }
     }
