@@ -237,6 +237,13 @@ public interface FastReflection extends ASMCommon {
             .autoAssign()
             .asField();
 
+    FastField<Integer> PlayerControllerMP_currentPlayerItem =
+        FastTypeBuilder.create()
+            .setInsideClass(PlayerControllerMP.class)
+            .setName("currentPlayerItem")
+            .autoAssign()
+            .asField();
+
     /** SPacketEntityVelocity */
     FastField<Integer> SPacketEntityVelocity_motionX =
         FastTypeBuilder.create()

@@ -1,6 +1,9 @@
 package com.matt.forgehax.util.entity;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
+import static com.matt.forgehax.Helper.getPlayerController;
+import static com.matt.forgehax.asm.reflection.FastReflection.Fields.PlayerControllerMP_currentPlayerItem;
 
 import com.google.common.base.Predicates;
 import com.matt.forgehax.mods.services.HotbarSelectionService;
@@ -14,6 +17,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketHeldItemChange;
 
 public class LocalPlayerInventory {
   public static InventoryPlayer getInventory() {
@@ -88,6 +92,14 @@ public class LocalPlayerInventory {
 
   public static void resetSelected() {
     HotbarSelectionService.getInstance().resetSelected();
+  }
+
+  public static void syncSelected() {
+    int selected = getSelected().getIndex();
+    if (selected != PlayerControllerMP_currentPlayerItem.get(getPlayerController())) {
+      PlayerControllerMP_currentPlayerItem.set(getPlayerController(), selected);
+      getNetworkManager().sendPacket(new CPacketHeldItemChange(selected));
+    }
   }
 
   public static int getHotbarDistance(InvItem item) {
