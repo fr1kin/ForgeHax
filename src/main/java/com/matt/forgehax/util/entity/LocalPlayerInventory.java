@@ -167,7 +167,7 @@ public class LocalPlayerInventory {
     public abstract int getIndex();
 
     public boolean isNull() {
-      return ItemStack.EMPTY.equals(getItemStack());
+      return getItemStack().isEmpty();
     }
 
     public boolean nonNull() {

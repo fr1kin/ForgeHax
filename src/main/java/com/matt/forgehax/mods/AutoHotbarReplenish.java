@@ -80,17 +80,52 @@ public class AutoHotbarReplenish extends ToggleMod {
     else return item.getItemStack().getCount() > stack_threshold.get();
   }
 
-  private int getDamageOrCount(InvItem item) {
-    return isTool(item)
-        ? (item.getItemStack().getMaxDamage() - item.getItemStack().getItemDamage())
-        : item.getItemStack().getCount();
+  private boolean isItemsEqual(InvItem inv1, InvItem inv2) {
+    return inv1.getItemStack().isItemEqualIgnoreDurability(inv2.getItemStack());
   }
 
-  private boolean isValidSlot(InvItem item, InvItem inv) {
-    if (isTool(item)) return inv.isNull(); // find an empty slot
-    else
-      return item.getItemStack().isItemEqualIgnoreDurability(inv.getItemStack())
-          && item.getItemStack().getCount() < item.getItemStack().getMaxStackSize();
+  private boolean isStackBelowMax(InvItem inv) {
+    return inv.getItemStack().getCount() < inv.getItemStack().getMaxStackSize();
+  }
+
+  private int getDamageOrCount(InvItem item) {
+    return item.isNull()
+        ? 0
+        : isTool(item)
+            ? (item.getItemStack().getMaxDamage() - item.getItemStack().getItemDamage())
+            : item.getItemStack().getCount();
+  }
+
+  private boolean tryPlacingHeldItem() {
+    InvItem holding =
+        LocalPlayerInventory.newInvItem(LocalPlayerInventory.getInventory().getItemStack(), -999);
+
+    InvItem item;
+    if (isTool(holding)) {
+      item =
+          LocalPlayerInventory.getMutatingStorageInventory()
+              .stream()
+              .filter(InvItem::isNull)
+              .filter(this::isAboveThreshold)
+              .findAny()
+              .orElse(InvItem.EMPTY);
+    } else {
+      item =
+          LocalPlayerInventory.getMutatingStorageInventory()
+              .stream()
+              .filter(inv -> inv.isNull() || isItemsEqual(holding, inv))
+              .filter(inv -> inv.isNull() || isStackBelowMax(inv))
+              .max(Comparator.comparing(this::getDamageOrCount))
+              .orElse(InvItem.EMPTY);
+    }
+
+    if (item == InvItem.EMPTY) {
+      click(holding, 0, ClickType.PICKUP);
+      return true; // cannot find any slot
+    } else {
+      click(item, 0, ClickType.PICKUP);
+      return LocalPlayerInventory.getInventory().getItemStack().isEmpty();
+    }
   }
 
   @Override
@@ -129,11 +164,11 @@ public class AutoHotbarReplenish extends ToggleMod {
                   item ->
                       LocalPlayerInventory.newInvItem(item.getItemStack(), 36 + item.getIndex()))
               .map(
-                  item ->
+                  hotbarItem ->
                       TaskChain.<Supplier<Boolean>>builder()
                           .then(
                               () -> {
-                                verifyHotbar(item);
+                                verifyHotbar(hotbarItem);
                                 click(
                                     storage
                                         .stream()
@@ -142,7 +177,8 @@ public class AutoHotbarReplenish extends ToggleMod {
                                         .filter(inv -> !isTool(inv) || isAboveThreshold(inv))
                                         .filter(
                                             inv ->
-                                                item.getItemStack()
+                                                hotbarItem
+                                                    .getItemStack()
                                                     .isItemEqualIgnoreDurability(
                                                         inv.getItemStack()))
                                         .max(Comparator.comparingInt(this::getDamageOrCount))
@@ -153,34 +189,14 @@ public class AutoHotbarReplenish extends ToggleMod {
                               })
                           .then(
                               () -> {
-                                verifyHotbar(item);
-                                click(item, 0, ClickType.PICKUP);
+                                verifyHotbar(hotbarItem);
+                                click(hotbarItem, 0, ClickType.PICKUP);
                                 return true;
                               })
                           .then(
                               () -> {
-                                click(
-                                    storage
-                                        .stream()
-                                        .filter(inv -> isValidSlot(item, inv))
-                                        .min(Comparator.comparingInt(this::getDamageOrCount))
-                                        .orElseGet(
-                                            () ->
-                                                storage
-                                                    .stream()
-                                                    .filter(InvItem::isNull)
-                                                    .findAny()
-                                                    .orElseThrow(RuntimeException::new)),
-                                    0,
-                                    ClickType.PICKUP);
-
-                                ItemStack holding =
-                                    LocalPlayerInventory.getInventory().getItemStack();
-                                return holding.isEmpty()
-                                    || !item.getItemStack()
-                                        .isItemEqualIgnoreDurability(
-                                            holding); // continue until the hand is empty
-                              })
+                                throw new RuntimeException();
+                              }) // jump to the exception handler
                           .build())
               .orElse(TaskChain.empty());
     }
@@ -193,8 +209,8 @@ public class AutoHotbarReplenish extends ToggleMod {
         if (!next.get())
           tasks = TaskChain.<Supplier<Boolean>>builder().then(next).collect(tasks).build();
       } catch (Throwable t) {
-        tasks = TaskChain.empty();
-        t.printStackTrace();
+        if (!tryPlacingHeldItem()) tasks = TaskChain.singleton(this::tryPlacingHeldItem);
+        else tasks = TaskChain.empty();
       }
     }
   }
@@ -217,13 +233,16 @@ public class AutoHotbarReplenish extends ToggleMod {
                     .getNextTransactionID(LocalPlayerInventory.getInventory())));
   }
 
-  private static void click(InvItem item, int usedButtonIn, ClickType modeIn) {
+  private static ItemStack click(InvItem item, int usedButtonIn, ClickType modeIn) {
     if (item.getIndex() == -1) throw new IllegalArgumentException();
+    ItemStack ret;
     clickWindow(
         item.getIndex(),
         usedButtonIn,
         modeIn,
-        LocalPlayerInventory.getOpenContainer()
-            .slotClick(item.getIndex(), usedButtonIn, modeIn, getLocalPlayer()));
+        ret =
+            LocalPlayerInventory.getOpenContainer()
+                .slotClick(item.getIndex(), usedButtonIn, modeIn, getLocalPlayer()));
+    return ret;
   }
 }
