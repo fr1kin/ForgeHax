@@ -1,6 +1,12 @@
 package com.matt.forgehax.asm.utils;
 
+import com.matt.forgehax.asm.utils.environment.RuntimeState;
+import com.matt.forgehax.asm.utils.environment.State;
+import com.matt.forgehax.asm.utils.fasttype.FastMethod;
+import com.matt.forgehax.asm.utils.name.IName;
 import java.lang.reflect.*;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class ReflectionHelper {
@@ -61,5 +67,27 @@ public class ReflectionHelper {
     Field modifiers = Field.class.getDeclaredField("modifiers");
     makePublic(modifiers);
     modifiers.setInt(instance, instance.getModifiers() & Modifier.FINAL);
+  }
+
+  public static Class<?> getMethodDeclaringClass(FastMethod<?> method, Object instance) {
+    Objects.requireNonNull(instance);
+    IName<String> names = method.getName();
+    return Arrays.stream(State.values())
+        .sorted(Comparator.comparing(state -> RuntimeState.getState().equals(state)))
+        .map(names::getByState)
+        .filter(Objects::nonNull)
+        .map(
+            name -> {
+              try {
+                return instance.getClass().getDeclaredMethod(name, method.getParameters());
+              } catch (NoSuchMethodException e) {
+                return null;
+              }
+            })
+        .filter(Objects::nonNull)
+        .peek(ReflectionHelper::makePublic)
+        .findAny()
+        .map(Method::getDeclaringClass)
+        .orElse(null);
   }
 }

@@ -1,11 +1,14 @@
 package com.matt.forgehax.util;
 
 import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.asm.reflection.FastReflection.Methods.Block_onBlockActivated;
 import static com.matt.forgehax.util.entity.LocalPlayerUtils.isInReach;
 
 import com.google.common.collect.Lists;
+import com.matt.forgehax.asm.utils.ReflectionHelper;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.VectorUtils;
+import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -92,8 +95,9 @@ public class BlockHelper {
         .filter(info -> isInReach(eyes, info.getHitVec()))
         .filter(info -> BlockHelper.isTraceClear(eyes, info.getHitVec(), info.getSide()))
         .min(
-            Comparator.comparingDouble(
-                info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
+            Comparator.<BlockTraceInfo>comparingInt(info -> info.isSneakRequired() ? 1 : 0)
+                .thenComparing(
+                    info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
         .orElse(null);
   }
 
@@ -162,6 +166,10 @@ public class BlockHelper {
     public IBlockState getBlockState() {
       return getWorld().getBlockState(getPos());
     }
+
+    public boolean isSneakRequired() {
+      return BlockActivationChecker.isOverwritten(getBlockState().getBlock());
+    }
   }
 
   public static class UniqueBlock {
@@ -216,6 +224,19 @@ public class BlockHelper {
     @Override
     public String toString() {
       return getBlock().getRegistryName().toString() + "{" + getMetadata() + "}";
+    }
+  }
+
+  public static class BlockActivationChecker {
+    private static final Object2BooleanArrayMap<Class<?>> CACHE = new Object2BooleanArrayMap<>();
+
+    public static boolean isOverwritten(final Block instance) {
+      Objects.requireNonNull(instance);
+      return CACHE.computeIfAbsent(
+          instance.getClass(),
+          clazz ->
+              Block.class
+                  != ReflectionHelper.getMethodDeclaringClass(Block_onBlockActivated, instance));
     }
   }
 }

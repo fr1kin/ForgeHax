@@ -5,6 +5,7 @@ import static com.matt.forgehax.Helper.*;
 import com.google.common.base.Predicates;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
+import com.matt.forgehax.mods.services.SneakService;
 import com.matt.forgehax.util.math.Angle;
 import java.util.Optional;
 import net.minecraft.block.material.Material;
@@ -33,11 +34,18 @@ public class LocalPlayerUtils implements Globals {
   }
 
   public static boolean isSneaking() {
-    return getLocalPlayer().movementInput != null && getLocalPlayer().movementInput.sneak;
+    return getLocalPlayer().isSneaking();
   }
 
-  public static void setSneaking(boolean sneak) {
+  public static boolean setSneaking(boolean sneak) {
+    boolean old = isSneaking();
+    getLocalPlayer().setSneaking(sneak);
     if (getLocalPlayer().movementInput != null) getLocalPlayer().movementInput.sneak = sneak;
+    return old;
+  }
+
+  public static void setSneakingSuppression(boolean suppress) {
+    SneakService.getInstance().setSuppressing(suppress);
   }
 
   public static Vec3d getEyePos() {

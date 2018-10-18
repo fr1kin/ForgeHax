@@ -22,6 +22,7 @@ import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Loc
 import com.matt.forgehax.util.BlockHelper;
 import com.matt.forgehax.util.BlockHelper.BlockTraceInfo;
 import com.matt.forgehax.util.BlockHelper.UniqueBlock;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Options;
@@ -61,6 +62,8 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
+import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.network.play.client.CPacketEntityAction.Action;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -786,9 +789,15 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         rs -> {
           LocalPlayerInventory.setSelected(items);
 
-          // enable sneaking to prevent unwanted block interactions
-          boolean sneaking = LocalPlayerUtils.isSneaking();
-          LocalPlayerUtils.setSneaking(true);
+          boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
+          if (sneak) {
+            // send start sneaking packet
+            PacketHelper.ignoreAndSend(
+                new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
+
+            LocalPlayerUtils.setSneaking(true);
+            LocalPlayerUtils.setSneakingSuppression(true);
+          }
 
           getPlayerController()
               .processRightClickBlock(
@@ -799,7 +808,13 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                   tr.getHitVec(),
                   EnumHand.MAIN_HAND);
 
-          LocalPlayerUtils.setSneaking(sneaking);
+          if (sneak) {
+            LocalPlayerUtils.setSneaking(false);
+            LocalPlayerUtils.setSneakingSuppression(false);
+
+            getNetworkManager()
+                .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
+          }
 
           // stealth send swing packet
           getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));

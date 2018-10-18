@@ -6,6 +6,8 @@ import com.matt.forgehax.asm.utils.fasttype.FastMethod;
 import com.matt.forgehax.asm.utils.fasttype.FastTypeBuilder;
 import java.nio.FloatBuffer;
 import java.util.Map;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiDisconnected;
@@ -32,17 +34,22 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.client.CPacketCloseWindow;
+import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.tileentity.TileEntitySign;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Session;
 import net.minecraft.util.Timer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
 
 /** Created on 5/8/2017 by fr1kin */
 public interface FastReflection extends ASMCommon {
@@ -116,6 +123,14 @@ public interface FastReflection extends ASMCommon {
         FastTypeBuilder.create()
             .setInsideClass(CPacketCloseWindow.class)
             .setName("windowId")
+            .autoAssign()
+            .asField();
+
+    /** CPacketEntityAction */
+    FastField<Integer> CPacketEntityAction_entityID =
+        FastTypeBuilder.create()
+            .setInsideClass(CPacketEntityAction.class)
+            .setName("entityID")
             .autoAssign()
             .asField();
 
@@ -397,6 +412,25 @@ public interface FastReflection extends ASMCommon {
   // ****************************************
 
   interface Methods {
+    /** Block */
+    FastMethod<Boolean> Block_onBlockActivated =
+        FastTypeBuilder.create()
+            .setInsideClass(Block.class)
+            .setName("onBlockActivated")
+            .setParameters(
+                World.class,
+                BlockPos.class,
+                IBlockState.class,
+                EntityPlayer.class,
+                EnumHand.class,
+                EnumFacing.class,
+                float.class,
+                float.class,
+                float.class)
+            .setReturnType(boolean.class)
+            .autoAssign()
+            .asMethod();
+
     /** Entity */
     FastMethod<Boolean> Entity_getFlag =
         FastTypeBuilder.create()

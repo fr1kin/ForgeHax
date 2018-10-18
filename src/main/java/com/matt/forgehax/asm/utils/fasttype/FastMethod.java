@@ -17,6 +17,10 @@ public class FastMethod<V> extends FastType<Method> {
     this.parameters = Arrays.copyOf(parameters, parameters.length);
   }
 
+  public Class<?>[] getParameters() {
+    return parameters;
+  }
+
   public <E> V invoke(E instance, V defaultValue, Object... args) {
     try {
       if (attemptLookup()) return (V) type.invoke(instance, args);

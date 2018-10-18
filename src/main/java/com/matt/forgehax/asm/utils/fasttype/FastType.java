@@ -18,6 +18,14 @@ public abstract class FastType<T> {
     this.name = name;
   }
 
+  public Class<?> getInsideClass() {
+    return insideClass;
+  }
+
+  public IName<String> getName() {
+    return name;
+  }
+
   public boolean isError() {
     return printOnce.get();
   }

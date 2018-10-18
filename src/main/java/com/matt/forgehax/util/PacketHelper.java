@@ -1,5 +1,7 @@
 package com.matt.forgehax.util;
 
+import static com.matt.forgehax.Helper.getNetworkManager;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -22,6 +24,11 @@ public class PacketHelper {
 
   public static void ignore(Packet packet) {
     CACHE.put(packet, true);
+  }
+
+  public static void ignoreAndSend(Packet packet) {
+    ignore(packet);
+    getNetworkManager().sendPacket(packet);
   }
 
   public static boolean isIgnored(Packet packet) {

@@ -11,6 +11,7 @@ import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Loc
 import com.matt.forgehax.mods.services.HotbarSelectionService.ResetFunction;
 import com.matt.forgehax.util.BlockHelper;
 import com.matt.forgehax.util.BlockHelper.BlockTraceInfo;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.common.PriorityEnum;
 import com.matt.forgehax.util.entity.EntityUtils;
@@ -24,9 +25,12 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Optional;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.network.play.client.CPacketAnimation;
+import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.network.play.client.CPacketEntityAction.Action;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -84,21 +88,38 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d dir = LocalPlayerUtils.getViewAngles().getDirectionVector();
 
-    BlockTraceInfo trace = BlockHelper.getPlaceableBlockSideTrace(eyes, dir, below);
+    ItemBlock blockItem = (ItemBlock) items.getItem();
 
-    if (trace == null) {
-      trace =
-          NEIGHBORS
-              .stream()
-              .map(below::offset)
-              .filter(BlockHelper::isBlockReplaceable)
-              .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
-              .filter(Objects::nonNull)
-              .findFirst()
-              .orElse(null);
+    BlockTraceInfo trace =
+        Optional.ofNullable(BlockHelper.getPlaceableBlockSideTrace(eyes, dir, below))
+            .filter(
+                tr ->
+                    blockItem.canPlaceBlockOnSide(
+                        getWorld(),
+                        tr.getPos(),
+                        tr.getOppositeSide(),
+                        getLocalPlayer(),
+                        items.getItemStack()))
+            .orElseGet(
+                () ->
+                    NEIGHBORS
+                        .stream()
+                        .map(below::offset)
+                        .filter(BlockHelper::isBlockReplaceable)
+                        .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
+                        .filter(Objects::nonNull)
+                        .filter(
+                            tr ->
+                                blockItem.canPlaceBlockOnSide(
+                                    getWorld(),
+                                    tr.getPos(),
+                                    tr.getOppositeSide(),
+                                    getLocalPlayer(),
+                                    items.getItemStack()))
+                        .findFirst()
+                        .orElse(null));
 
-      if (trace == null) return;
-    }
+    if (trace == null) return;
 
     Vec3d hit = trace.getHitVec();
     state.setServerAngles(previousAngles = Utils.getLookAtAngles(hit));
@@ -108,6 +129,16 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
         rs -> {
           ResetFunction func = LocalPlayerInventory.setSelected(items);
 
+          boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
+          if (sneak) {
+            // send start sneaking packet
+            PacketHelper.ignoreAndSend(
+                new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
+
+            LocalPlayerUtils.setSneaking(true);
+            LocalPlayerUtils.setSneakingSuppression(true);
+          }
+
           getPlayerController()
               .processRightClickBlock(
                   getLocalPlayer(),
@@ -116,6 +147,14 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
                   tr.getOppositeSide(),
                   hit,
                   EnumHand.MAIN_HAND);
+
+          if (sneak) {
+            LocalPlayerUtils.setSneaking(false);
+            LocalPlayerUtils.setSneakingSuppression(false);
+
+            getNetworkManager()
+                .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
+          }
 
           func.revert();
 
