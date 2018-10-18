@@ -24,6 +24,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Objects;
+import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.util.EnumFacing;
@@ -74,6 +75,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
             .stream()
             .filter(InvItem::nonNull)
             .filter(item -> item.getItem() instanceof ItemBlock)
+            .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isFullBlock())
             .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
             .orElse(InvItem.EMPTY);
 
