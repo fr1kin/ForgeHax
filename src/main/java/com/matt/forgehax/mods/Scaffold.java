@@ -88,18 +88,9 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d dir = LocalPlayerUtils.getViewAngles().getDirectionVector();
 
-    ItemBlock blockItem = (ItemBlock) items.getItem();
-
     BlockTraceInfo trace =
         Optional.ofNullable(BlockHelper.getPlaceableBlockSideTrace(eyes, dir, below))
-            .filter(
-                tr ->
-                    blockItem.canPlaceBlockOnSide(
-                        getWorld(),
-                        tr.getPos(),
-                        tr.getOppositeSide(),
-                        getLocalPlayer(),
-                        items.getItemStack()))
+            .filter(tr -> tr.isPlaceable(items))
             .orElseGet(
                 () ->
                     NEIGHBORS
@@ -108,15 +99,8 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
                         .filter(BlockHelper::isBlockReplaceable)
                         .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
                         .filter(Objects::nonNull)
-                        .filter(
-                            tr ->
-                                blockItem.canPlaceBlockOnSide(
-                                    getWorld(),
-                                    tr.getPos(),
-                                    tr.getOppositeSide(),
-                                    getLocalPlayer(),
-                                    items.getItemStack()))
-                        .findFirst()
+                        .filter(tr -> tr.isPlaceable(items))
+                        .max(Comparator.comparing(BlockTraceInfo::isSneakRequired))
                         .orElse(null));
 
     if (trace == null) return;
@@ -148,6 +132,8 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
                   hit,
                   EnumHand.MAIN_HAND);
 
+          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+
           if (sneak) {
             LocalPlayerUtils.setSneaking(false);
             LocalPlayerUtils.setSneakingSuppression(false);
@@ -158,7 +144,6 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
 
           func.revert();
 
-          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
           Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
           placing = true;
           tickCount = 0;

@@ -1,11 +1,13 @@
 package com.matt.forgehax.util;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 import static com.matt.forgehax.asm.reflection.FastReflection.Methods.Block_onBlockActivated;
 import static com.matt.forgehax.util.entity.LocalPlayerUtils.isInReach;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.utils.ReflectionHelper;
+import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.VectorUtils;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
@@ -19,6 +21,7 @@ import java.util.stream.Stream;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -165,6 +168,14 @@ public class BlockHelper {
 
     public IBlockState getBlockState() {
       return getWorld().getBlockState(getPos());
+    }
+
+    public boolean isPlaceable(InvItem item) {
+      if (!(item.getItem() instanceof ItemBlock)) return true;
+
+      ItemBlock itemBlock = (ItemBlock) item.getItem();
+      return itemBlock.canPlaceBlockOnSide(
+          getWorld(), getPos(), getOppositeSide(), getLocalPlayer(), item.getItemStack());
     }
 
     public boolean isSneakRequired() {

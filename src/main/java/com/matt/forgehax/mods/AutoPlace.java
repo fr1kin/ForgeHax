@@ -19,6 +19,7 @@ import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
+import com.matt.forgehax.mods.services.HotbarSelectionService.ResetFunction;
 import com.matt.forgehax.util.BlockHelper;
 import com.matt.forgehax.util.BlockHelper.BlockTraceInfo;
 import com.matt.forgehax.util.BlockHelper.UniqueBlock;
@@ -758,9 +759,11 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                 .map(FacingEntry::getFacing)
                 .map(side -> BlockHelper.getBlockSideTrace(eyes, at.getPos(), side.getOpposite()))
                 .filter(Objects::nonNull)
-                .min(
-                    Comparator.comparingDouble(
-                        i -> VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
+                .filter(tr -> tr.isPlaceable(items))
+                .max(
+                    Comparator.comparing(BlockTraceInfo::isSneakRequired)
+                        .thenComparing(
+                            i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
                 .orElse(null);
       } else {
         trace =
@@ -771,7 +774,11 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                     side ->
                         BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().offset(side)))
                 .filter(Objects::nonNull)
-                .findAny()
+                .filter(tr -> tr.isPlaceable(items))
+                .max(
+                    Comparator.comparing(BlockTraceInfo::isSneakRequired)
+                        .thenComparing(
+                            i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
                 .orElse(null);
       }
     } while (trace == null);
@@ -787,7 +794,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     final BlockTraceInfo tr = trace;
     state.invokeLater(
         rs -> {
-          LocalPlayerInventory.setSelected(items);
+          ResetFunction func = LocalPlayerInventory.setSelected(items);
 
           boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
           if (sneak) {
@@ -795,8 +802,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             PacketHelper.ignoreAndSend(
                 new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
 
-            LocalPlayerUtils.setSneaking(true);
             LocalPlayerUtils.setSneakingSuppression(true);
+            LocalPlayerUtils.setSneaking(true);
           }
 
           getPlayerController()
@@ -808,6 +815,9 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                   tr.getHitVec(),
                   EnumHand.MAIN_HAND);
 
+          // stealth send swing packet
+          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+
           if (sneak) {
             LocalPlayerUtils.setSneaking(false);
             LocalPlayerUtils.setSneakingSuppression(false);
@@ -816,8 +826,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                 .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
           }
 
-          // stealth send swing packet
-          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+          func.revert();
 
           // set the block place delay
           Fields.Minecraft_rightClickDelayTimer.set(MC, cooldown.get());
