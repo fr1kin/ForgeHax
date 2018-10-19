@@ -12,7 +12,6 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.task.TaskChain;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Supplier;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketClickWindow;
@@ -44,7 +43,18 @@ public class AutoHotbarReplenish extends ToggleMod {
           .max((int) Short.MAX_VALUE)
           .build();
 
-  private TaskChain<Supplier<Boolean>> tasks = TaskChain.empty();
+  private final Setting<Integer> tick_delay =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("tick-delay")
+          .description(
+              "Number of ticks between each window click packet. 0 will have no limit and a negative value will send n packets per tick")
+          .defaultTo(1)
+          .build();
+
+  private TaskChain<Runnable> tasks = TaskChain.empty();
+  private long tickCount = 0;
 
   public AutoHotbarReplenish() {
     super(
@@ -54,83 +64,65 @@ public class AutoHotbarReplenish extends ToggleMod {
         "Will replenish tools or block stacks automatically");
   }
 
-  private boolean isTool(InvItem item) {
-    return item.getItemStack().isItemStackDamageable();
-  }
-
-  private boolean isStackable(InvItem item) {
-    return item.getItemStack().isStackable();
+  private boolean processing(int index) {
+    if (tick_delay.get() == 0) return true; // process all
+    else if (tick_delay.get() < 0)
+      return index < Math.abs(tick_delay.get()); // process n tasks per tick
+    else return index == 0 && tickCount % tick_delay.get() == 0;
   }
 
   private boolean isMonitoring(InvItem item) {
-    return isTool(item) || isStackable(item);
-  }
-
-  private void verifyHotbar(InvItem staticItem)
-      throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
-    InvItem current = LocalPlayerInventory.getHotbarInventory().get(staticItem.getIndex() - 36);
-    if (!staticItem.getItemStack().isItemEqualIgnoreDurability(current.getItemStack()))
-      throw new IllegalArgumentException();
+    return item.isItemDamageable() || item.isStackable();
   }
 
   private boolean isAboveThreshold(InvItem item) {
-    if (isTool(item))
-      return (item.getItemStack().getMaxDamage() - item.getItemStack().getItemDamage())
-          > durability_threshold.get();
-    else return item.getItemStack().getCount() > stack_threshold.get();
-  }
-
-  private boolean isItemsEqual(InvItem inv1, InvItem inv2) {
-    return inv1.getItemStack().isItemEqualIgnoreDurability(inv2.getItemStack());
-  }
-
-  private boolean isStackBelowMax(InvItem inv) {
-    return inv.getItemStack().getCount() < inv.getItemStack().getMaxStackSize();
+    return item.isItemDamageable()
+        ? item.getDamage() > durability_threshold.get()
+        : item.getStackCount() > stack_threshold.get();
   }
 
   private int getDamageOrCount(InvItem item) {
-    return item.isNull()
-        ? 0
-        : isTool(item)
-            ? (item.getItemStack().getMaxDamage() - item.getItemStack().getItemDamage())
-            : item.getItemStack().getCount();
+    return item.isNull() ? 0 : item.isItemDamageable() ? item.getDamage() : item.getStackCount();
   }
 
-  private boolean tryPlacingHeldItem() {
-    InvItem holding =
-        LocalPlayerInventory.newInvItem(LocalPlayerInventory.getInventory().getItemStack(), -999);
+  private void tryPlacingHeldItem() {
+    InvItem holding = LocalPlayerInventory.getMouseHeld();
+
+    if (holding.isEmpty()) // all is good
+    return;
 
     InvItem item;
-    if (isTool(holding)) {
+    if (holding.isDamageable()) {
       item =
-          LocalPlayerInventory.getMutatingStorageInventory()
+          LocalPlayerInventory.getSlotStorageInventory()
               .stream()
               .filter(InvItem::isNull)
-              .filter(this::isAboveThreshold)
               .findAny()
               .orElse(InvItem.EMPTY);
     } else {
       item =
-          LocalPlayerInventory.getMutatingStorageInventory()
+          LocalPlayerInventory.getSlotStorageInventory()
               .stream()
-              .filter(inv -> inv.isNull() || isItemsEqual(holding, inv))
-              .filter(inv -> inv.isNull() || isStackBelowMax(inv))
-              .max(Comparator.comparing(this::getDamageOrCount))
+              .filter(inv -> inv.isNull() || holding.isItemsEqual(inv))
+              .filter(inv -> inv.isNull() || !inv.isStackMaxed())
+              .max(Comparator.comparing(InvItem::getStackCount))
               .orElse(InvItem.EMPTY);
     }
 
-    if (item == InvItem.EMPTY) {
-      click(holding, 0, ClickType.PICKUP);
-      return true; // cannot find any slot
-    } else {
+    if (item == InvItem.EMPTY) click(holding, 0, ClickType.PICKUP);
+    else {
       click(item, 0, ClickType.PICKUP);
-      return LocalPlayerInventory.getInventory().getItemStack().isEmpty();
+      if (LocalPlayerInventory.getMouseHeld().nonEmpty()) throw new RuntimeException();
     }
   }
 
   @Override
   protected void onDisabled() {
-    MC.addScheduledTask(() -> tasks = TaskChain.empty());
+    MC.addScheduledTask(
+        () -> {
+          tasks = TaskChain.empty();
+          tickCount = 0;
+        });
   }
 
   @SubscribeEvent
@@ -141,7 +133,7 @@ public class AutoHotbarReplenish extends ToggleMod {
     if (MC.currentScreen != null) return;
 
     if (tasks.isEmpty()) {
-      final List<InvItem> storage = LocalPlayerInventory.getMutatingStorageInventory();
+      final List<InvItem> slots = LocalPlayerInventory.getSlotStorageInventory();
 
       tasks =
           LocalPlayerInventory.getHotbarInventory()
@@ -151,73 +143,67 @@ public class AutoHotbarReplenish extends ToggleMod {
               .filter(item -> !isAboveThreshold(item))
               .filter(
                   item ->
-                      storage
+                      slots
                           .stream()
                           .filter(this::isMonitoring)
-                          .filter(inv -> !isTool(inv) || isAboveThreshold(inv))
-                          .anyMatch(
-                              inv ->
-                                  inv.getItemStack()
-                                      .isItemEqualIgnoreDurability(item.getItemStack())))
+                          .filter(inv -> !inv.isItemDamageable() || isAboveThreshold(inv))
+                          .anyMatch(item::isItemsEqual))
               .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
               .map(
-                  item ->
-                      LocalPlayerInventory.newInvItem(item.getItemStack(), 36 + item.getIndex()))
-              .map(
                   hotbarItem ->
-                      TaskChain.<Supplier<Boolean>>builder()
+                      TaskChain.<Runnable>builder()
                           .then(
                               () -> {
+                                // pick up item
+
                                 verifyHotbar(hotbarItem);
                                 click(
-                                    storage
+                                    slots
                                         .stream()
                                         .filter(InvItem::nonNull)
                                         .filter(this::isMonitoring)
-                                        .filter(inv -> !isTool(inv) || isAboveThreshold(inv))
-                                        .filter(
-                                            inv ->
-                                                hotbarItem
-                                                    .getItemStack()
-                                                    .isItemEqualIgnoreDurability(
-                                                        inv.getItemStack()))
+                                        .filter(hotbarItem::isItemsEqual)
+                                        .filter(inv -> !inv.isDamageable() || isAboveThreshold(inv))
                                         .max(Comparator.comparingInt(this::getDamageOrCount))
                                         .orElseThrow(RuntimeException::new),
                                     0,
                                     ClickType.PICKUP);
-                                return true;
                               })
                           .then(
                               () -> {
+                                // place item into hotbar
+
                                 verifyHotbar(hotbarItem);
                                 click(hotbarItem, 0, ClickType.PICKUP);
-                                return true;
                               })
-                          .then(
-                              () -> {
-                                throw new RuntimeException();
-                              }) // jump to the exception handler
+                          .then(this::tryPlacingHeldItem)
                           .build())
               .orElse(TaskChain.empty());
     }
 
     // process the next click task
-    if (tasks.hasNext()) {
+    int n = 0;
+    while (processing(n++) && tasks.hasNext()) {
       try {
-        Supplier<Boolean> next = tasks.next();
-
-        if (!next.get())
-          tasks = TaskChain.<Supplier<Boolean>>builder().then(next).collect(tasks).build();
+        tasks.next().run();
       } catch (Throwable t) {
-        if (!tryPlacingHeldItem()) tasks = TaskChain.singleton(this::tryPlacingHeldItem);
-        else tasks = TaskChain.empty();
+        tasks = TaskChain.singleton(this::tryPlacingHeldItem);
       }
     }
+
+    ++tickCount;
   }
 
   //
   //
   //
+
+  private static void verifyHotbar(InvItem hotbarItem) {
+    InvItem current = LocalPlayerInventory.getHotbarInventory().get(hotbarItem.getIndex());
+    if (!hotbarItem.isItemsEqual(current)) throw new IllegalArgumentException();
+  }
+
+  private static void verifyHeldItem(InvItem staticItem) {}
 
   private static void clickWindow(
       int slotIdIn, int usedButtonIn, ClickType modeIn, ItemStack clickedItemIn) {
@@ -237,12 +223,12 @@ public class AutoHotbarReplenish extends ToggleMod {
     if (item.getIndex() == -1) throw new IllegalArgumentException();
     ItemStack ret;
     clickWindow(
-        item.getIndex(),
+        item.getSlotNumber(),
         usedButtonIn,
         modeIn,
         ret =
             LocalPlayerInventory.getOpenContainer()
-                .slotClick(item.getIndex(), usedButtonIn, modeIn, getLocalPlayer()));
+                .slotClick(item.getSlotNumber(), usedButtonIn, modeIn, getLocalPlayer()));
     return ret;
   }
 }

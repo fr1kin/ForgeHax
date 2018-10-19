@@ -8,6 +8,7 @@ import static com.matt.forgehax.asm.reflection.FastReflection.Fields.PlayerContr
 import com.google.common.base.Predicates;
 import com.matt.forgehax.mods.services.HotbarSelectionService;
 import com.matt.forgehax.mods.services.HotbarSelectionService.ResetFunction;
+import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem.SlotWrapper;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,11 +48,11 @@ public class LocalPlayerInventory {
         .collect(Collectors.toList());
   }
 
-  public static List<InvItem> getMutatingInventory() {
+  public static List<InvItem> getSlotInventory() {
     return getContainer()
         .inventorySlots
         .stream()
-        .map(InvItem.Mutating::new)
+        .map(SlotWrapper::new)
         .collect(Collectors.toList());
   }
 
@@ -59,24 +60,24 @@ public class LocalPlayerInventory {
     return getMainInventory().subList(start, end);
   }
 
-  public static List<InvItem> getMutatingInventory(int start, int end) {
-    return getMutatingInventory().subList(start, end);
+  public static List<InvItem> getSlotInventory(int start, int end) {
+    return getSlotInventory().subList(start, end);
   }
 
   public static List<InvItem> getStorageInventory() {
     return getMainInventory(9, 27);
   }
 
-  public static List<InvItem> getMutatingStorageInventory() {
-    return getMutatingInventory(9, 36);
+  public static List<InvItem> getSlotStorageInventory() {
+    return getSlotInventory(9, 36);
   }
 
   public static List<InvItem> getHotbarInventory() {
     return getMainInventory(0, getHotbarSize());
   }
 
-  public static List<InvItem> getMutatingHotbarInventory() {
-    return getMutatingInventory(27, 36);
+  public static InvItem getMouseHeld() {
+    return newInvItem(getInventory().getItemStack(), -999);
   }
 
   public static InvItem getSelected() {
@@ -138,7 +139,7 @@ public class LocalPlayerInventory {
   }
 
   public static InvItem newInvItem(Slot slot) {
-    return new InvItem.Mutating(slot);
+    return new SlotWrapper(slot);
   }
 
   public abstract static class InvItem implements Comparable<InvItem> {
@@ -162,9 +163,20 @@ public class LocalPlayerInventory {
 
     public abstract ItemStack getItemStack();
 
-    public abstract Item getItem();
+    public Item getItem() {
+      return getItemStack().getItem();
+    }
 
     public abstract int getIndex();
+
+    public int getSlotNumber() {
+      // TODO: make this work for all container types
+      // 9 = the crafting result, 4x crafting boxes, and 4
+      // 36 = main inventory size
+      int row = getIndex() / 9;
+      int idx = getIndex() % 9;
+      return 9 + 36 - ((row * 9) + (9 - idx));
+    }
 
     public boolean isNull() {
       return getItemStack().isEmpty();
@@ -172,6 +184,46 @@ public class LocalPlayerInventory {
 
     public boolean nonNull() {
       return !isNull();
+    }
+
+    public boolean isEmpty() {
+      return getItemStack().isEmpty();
+    }
+
+    public boolean nonEmpty() {
+      return !isEmpty();
+    }
+
+    public boolean isDamageable() {
+      return getItemStack().isItemStackDamageable();
+    }
+
+    public boolean isItemDamageable() {
+      return getItem().isDamageable();
+    }
+
+    public boolean isStackable() {
+      return getItemStack().isStackable();
+    }
+
+    public int getDamage() {
+      return isDamageable() ? (getItemStack().getMaxDamage() - getItemStack().getItemDamage()) : 0;
+    }
+
+    public int getStackCount() {
+      return getItemStack().getCount();
+    }
+
+    public int getMaxStackCount() {
+      return getItemStack().getMaxStackSize();
+    }
+
+    public boolean isStackMaxed() {
+      return getStackCount() >= getMaxStackCount();
+    }
+
+    public boolean isItemsEqual(InvItem other) {
+      return getItemStack().isItemEqualIgnoreDurability(other.getItemStack());
     }
 
     @Override
@@ -192,11 +244,11 @@ public class LocalPlayerInventory {
       return Integer.compare(getIndex(), o.getIndex());
     }
 
-    private static class Base extends InvItem {
+    protected static class Base extends InvItem {
       private final ItemStack itemStack;
       private final int index;
 
-      public Base(ItemStack itemStack, int index) {
+      protected Base(ItemStack itemStack, int index) {
         this.itemStack = itemStack;
         this.index = index;
       }
@@ -207,20 +259,15 @@ public class LocalPlayerInventory {
       }
 
       @Override
-      public Item getItem() {
-        return itemStack.getItem();
-      }
-
-      @Override
       public int getIndex() {
         return index;
       }
     }
 
-    private static class Mutating extends InvItem {
+    protected static class SlotWrapper extends InvItem {
       private final Slot slot;
 
-      public Mutating(Slot slot) {
+      protected SlotWrapper(Slot slot) {
         this.slot = slot;
       }
 
@@ -230,12 +277,14 @@ public class LocalPlayerInventory {
       }
 
       @Override
-      public Item getItem() {
-        return slot.getStack().getItem();
+      public int getIndex() {
+        int row = (getSlotNumber() / 9) - 1;
+        int idx = getSlotNumber() % 9;
+        return 36 - ((row * 9) + (idx + 1)); // inverse of what is done for ::getIndex()
       }
 
       @Override
-      public int getIndex() {
+      public int getSlotNumber() {
         return slot.slotNumber;
       }
     }
