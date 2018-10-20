@@ -750,8 +750,8 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                               entry -> {
                                 Entity e = o.getEntity();
                                 Vec3d rp =
-                                    EntityUtils.getInterpolatedAmount(
-                                        e, event.getPartialTicks()).subtract(event.getRenderPos());
+                                    EntityUtils.getInterpolatedAmount(e, event.getPartialTicks())
+                                        .subtract(event.getRenderPos());
                                 builder.setTranslation(rp.x, rp.y, rp.z);
                                 AxisAlignedBB bb = o.getBoundingBox();
                                 GeometryTessellator.drawLines(
