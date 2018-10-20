@@ -136,13 +136,13 @@ public class EntityUtils implements Globals {
   }
 
   /** Find the entities interpolated position */
-  public static Vec3d getInterpolatedPos(Entity entity, float ticks) {
+  public static Vec3d getInterpolatedPos(Entity entity, double ticks) {
     return new Vec3d(entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ)
         .add(getInterpolatedAmount(entity, ticks));
   }
 
   /** Find the entities interpolated eye position */
-  public static Vec3d getInterpolatedEyePos(Entity entity, float ticks) {
+  public static Vec3d getInterpolatedEyePos(Entity entity, double ticks) {
     return getInterpolatedPos(entity, ticks).addVector(0, entity.getEyeHeight(), 0);
   }
 

@@ -40,7 +40,7 @@ public class RenderEventService extends ServiceMod {
 
     Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
 
-    RenderEvent e = new RenderEvent(TESSELLATOR, renderPos);
+    RenderEvent e = new RenderEvent(TESSELLATOR, renderPos, event.getPartialTicks());
     e.resetTranslation();
     MinecraftForge.EVENT_BUS.post(e);
 

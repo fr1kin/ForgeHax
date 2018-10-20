@@ -721,6 +721,8 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         //
         //
 
+        final Vec3d renderViewPos = MC.getRenderViewEntity().getPositionVector();
+
         if (show_entities.get()) {
           // draw markers around entities that have blocks inside them
           GlStateManager.pushMatrix();
@@ -728,13 +730,8 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
           final GeometryTessellator tessellator = event.getTessellator();
           final BufferBuilder builder = tessellator.getBuffer();
 
-          final double partialTicks = MC.getRenderPartialTicks();
-
           tessellator.beginLines();
           tessellator.setTranslation(0, 0, 0);
-
-          GlStateManager.translate(0, 0, 0);
-          GlStateManager.translate(-renderingOffset.x, -renderingOffset.y, -renderingOffset.z);
 
           if (aa_enabled) GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
@@ -752,16 +749,10 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                           .ifPresent(
                               entry -> {
                                 Entity e = o.getEntity();
-                                builder.setTranslation(
-                                    e.posX
-                                        - e.lastTickPosX
-                                        + (e.posX - e.lastTickPosX) * partialTicks,
-                                    e.posY
-                                        - e.lastTickPosY
-                                        + (e.posY - e.lastTickPosY) * partialTicks,
-                                    e.posZ
-                                        - e.lastTickPosZ
-                                        + (e.posZ - e.lastTickPosZ) * partialTicks);
+                                Vec3d rp =
+                                    EntityUtils.getInterpolatedAmount(
+                                        e, event.getPartialTicks()).subtract(event.getRenderPos());
+                                builder.setTranslation(rp.x, rp.y, rp.z);
                                 AxisAlignedBB bb = o.getBoundingBox();
                                 GeometryTessellator.drawLines(
                                     builder,
@@ -789,9 +780,6 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
         if (debug_mode) {
           GlStateManager.pushMatrix();
 
-          GlStateManager.translate(0, 0, 0);
-          GlStateManager.translate(-renderingOffset.x, -renderingOffset.y, -renderingOffset.z);
-
           final GeometryTessellator tessellator = event.getTessellator();
           final BufferBuilder builder = tessellator.getBuffer();
 
@@ -799,7 +787,8 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
           chunks.forEach(
               pos -> {
-                builder.setTranslation(pos.getX(), pos.getY(), pos.getZ());
+                Vec3d rp = new Vec3d(pos).subtract(event.getRenderPos());
+                builder.setTranslation(rp.x, rp.y, rp.z);
 
                 GeometryTessellator.drawLines(
                     builder,

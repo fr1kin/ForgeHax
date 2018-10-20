@@ -28,7 +28,6 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Options;
 import com.matt.forgehax.util.command.Setting;
-import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -500,9 +499,6 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   public void onRender(RenderEvent event) {
     if (!render.get() || MC.getRenderViewEntity() == null) return;
 
-    Vec3d renderingOffset =
-        EntityUtils.getInterpolatedPos(MC.getRenderViewEntity(), MC.getRenderPartialTicks());
-
     GlStateManager.pushMatrix();
 
     GlStateManager.disableTexture2D();
@@ -515,19 +511,17 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     final GeometryTessellator tessellator = event.getTessellator();
     final BufferBuilder builder = tessellator.getBuffer();
 
-    final double partialTicks = MC.getRenderPartialTicks();
-
     tessellator.beginLines();
     tessellator.setTranslation(0, 0, 0);
-
-    GlStateManager.translate(0, 0, 0);
-    GlStateManager.translate(-renderingOffset.x, -renderingOffset.y, -renderingOffset.z);
 
     renderingBlocks.forEach(
         pos -> {
           IBlockState state = getWorld().getBlockState(pos);
           AxisAlignedBB bb = state.getBoundingBox(getWorld(), pos);
-          tessellator.setTranslation(pos.getX(), pos.getY(), pos.getZ());
+          tessellator.setTranslation(
+              (double) pos.getX() - event.getRenderPos().x,
+              (double) pos.getY() - event.getRenderPos().y,
+              (double) pos.getZ() - event.getRenderPos().z);
           GeometryTessellator.drawLines(
               builder,
               bb.minX,
@@ -541,17 +535,15 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         });
 
     // poz
-    BlockPos current;
-    try {
-      current = new BlockPos(this.currentRenderingTarget);
-    } catch (Throwable t) {
-      current = null;
-    }
+    final BlockPos current = this.currentRenderingTarget;
 
     if (current != null) {
       IBlockState state = getWorld().getBlockState(current);
       AxisAlignedBB bb = state.getBoundingBox(getWorld(), current);
-      tessellator.setTranslation(current.getX(), current.getY(), current.getZ());
+      tessellator.setTranslation(
+          (double) current.getX() - event.getRenderPos().x,
+          (double) current.getY() - event.getRenderPos().y,
+          (double) current.getZ() - event.getRenderPos().z);
       GeometryTessellator.drawLines(
           builder,
           bb.minX,

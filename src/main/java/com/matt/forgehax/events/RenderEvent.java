@@ -9,10 +9,12 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 public class RenderEvent extends Event {
   private final GeometryTessellator tessellator;
   private final Vec3d renderPos;
+  private final double partialTicks;
 
-  public RenderEvent(GeometryTessellator tessellator, Vec3d renderPos) {
+  public RenderEvent(GeometryTessellator tessellator, Vec3d renderPos, double partialTicks) {
     this.tessellator = tessellator;
     this.renderPos = renderPos;
+    this.partialTicks = partialTicks;
   }
 
   public GeometryTessellator getTessellator() {
@@ -33,5 +35,9 @@ public class RenderEvent extends Event {
 
   public void resetTranslation() {
     setTranslation(renderPos);
+  }
+
+  public double getPartialTicks() {
+    return partialTicks;
   }
 }
