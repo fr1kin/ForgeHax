@@ -46,6 +46,16 @@ public class BookBot extends ToggleMod {
           .name("name")
           .description("Name of the book, use {NUMBER} for the number")
           .defaultTo("Book #{NUMBER}")
+          .processor(
+              data -> {
+                String bname = data.getArgument(0);
+
+                if (bname != null && bname.length() > 32) {
+                  Helper.printWarning(
+                      "Final book names longer than 32 letters will cause crashes! Current length: %d",
+                      bname.length());
+                }
+              })
           .build();
 
   private final Setting<String> file =
@@ -249,7 +259,7 @@ public class BookBot extends ToggleMod {
         .processor(
             data -> {
               writer = loadFile();
-              data.write(String.format("BookBot file \"%s\"loaded successfully", file.get()));
+              data.write(String.format("BookBot file \"%s\" loaded successfully", file.get()));
             })
         .build();
 
