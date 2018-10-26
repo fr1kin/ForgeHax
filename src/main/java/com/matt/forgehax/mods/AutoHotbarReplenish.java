@@ -77,12 +77,12 @@ public class AutoHotbarReplenish extends ToggleMod {
 
   private boolean isAboveThreshold(InvItem item) {
     return item.isItemDamageable()
-        ? item.getDamage() > durability_threshold.get()
+        ? item.getDurability() > durability_threshold.get()
         : item.getStackCount() > stack_threshold.get();
   }
 
   private int getDamageOrCount(InvItem item) {
-    return item.isNull() ? 0 : item.isItemDamageable() ? item.getDamage() : item.getStackCount();
+    return item.isNull() ? 0 : item.isItemDamageable() ? item.getDurability() : item.getStackCount();
   }
 
   private void tryPlacingHeldItem() {

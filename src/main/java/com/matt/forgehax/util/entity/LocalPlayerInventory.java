@@ -16,10 +16,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketClickWindow;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 
 public class LocalPlayerInventory {
@@ -129,9 +131,39 @@ public class LocalPlayerInventory {
     }
   }
 
+  public static InvItem getOffhand() {
+    return newInvItem(getLocalPlayer().getHeldItemOffhand(), 36);
+  }
+
   public static int getHotbarDistance(InvItem item) {
     int max = LocalPlayerInventory.getHotbarSize() - 1;
     return item.getIndex() > max ? 0 : max - Math.abs(getSelected().getIndex() - item.getIndex());
+  }
+
+  public static void sendWindowClick(
+      int slotIdIn, int usedButtonIn, ClickType modeIn, ItemStack clickedItemIn) {
+    getNetworkManager()
+        .sendPacket(
+            new CPacketClickWindow(
+                0,
+                slotIdIn,
+                usedButtonIn,
+                modeIn,
+                clickedItemIn,
+                getOpenContainer().getNextTransactionID(getInventory())));
+  }
+
+  public static ItemStack sendWindowClick(InvItem item, int usedButtonIn, ClickType modeIn) {
+    if (item.getIndex() == -1) throw new IllegalArgumentException();
+    ItemStack ret;
+    sendWindowClick(
+        item.getSlotNumber(),
+        usedButtonIn,
+        modeIn,
+        ret =
+            getOpenContainer()
+                .slotClick(item.getSlotNumber(), usedButtonIn, modeIn, getLocalPlayer()));
+    return ret;
   }
 
   public static InvItem newInvItem(ItemStack itemStack, int index) {
@@ -170,12 +202,17 @@ public class LocalPlayerInventory {
     public abstract int getIndex();
 
     public int getSlotNumber() {
-      // TODO: make this work for all container types
-      // 9 = the crafting result, 4x crafting boxes, and 4
-      // 36 = main inventory size
-      int row = getIndex() / 9;
-      int idx = getIndex() % 9;
-      return 9 + 36 - ((row * 9) + (9 - idx));
+      switch (getIndex()) {
+        case 36:
+          return 45;
+        default:
+          // TODO: make this work for all container types
+          // 9 = the crafting result, 4x crafting boxes, and 4
+          // 36 = main inventory size
+          int row = getIndex() / 9;
+          int idx = getIndex() % 9;
+          return 9 + 36 - ((row * 9) + (9 - idx));
+      }
     }
 
     public boolean isNull() {
@@ -207,6 +244,10 @@ public class LocalPlayerInventory {
     }
 
     public int getDamage() {
+      return isDamageable() ? getItemStack().getItemDamage() : 0;
+    }
+
+    public int getDurability() {
       return isDamageable() ? (getItemStack().getMaxDamage() - getItemStack().getItemDamage()) : 0;
     }
 
