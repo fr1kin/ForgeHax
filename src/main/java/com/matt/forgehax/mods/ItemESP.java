@@ -52,6 +52,7 @@ public class ItemESP extends ToggleMod {
         .stream()
         .filter(EntityItem.class::isInstance)
         .map(EntityItem.class::cast)
+        .filter(entity -> entity.ticksExisted > 1)
         .forEach(
             entity -> {
               Vec3d bottomPos = EntityUtils.getInterpolatedPos(entity, event.getPartialTicks());
