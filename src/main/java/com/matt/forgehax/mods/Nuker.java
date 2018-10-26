@@ -28,14 +28,17 @@ import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.play.client.CPacketAnimation;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -112,6 +115,24 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
           .max(10.D)
           .build();
 
+  private final Setting<Boolean> filter_liquids =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("filter-liquids")
+          .description("Will not mine blocks that is a neighbors to a liquid block.")
+          .defaultTo(false)
+          .build();
+
+  private final Setting<Boolean> y_bias =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("y-bias")
+          .description("Will prefer higher blocks (good for mining sand).")
+          .defaultTo(false)
+          .build();
+
   public Nuker() {
     super(Category.PLAYER, "Nuker", false, "Mine blocks around yourself");
     this.bindSelect.setKeyConflictContext(BindingHelper.getEmptyKeyConflictContext());
@@ -133,6 +154,18 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
           && pos.z < width_upper.get()
           && pos.z > -width_lower.get();
     }
+  }
+
+  private boolean isNeighborsLiquid(UniqueBlock ub) {
+    return filter_liquids.get()
+        && Arrays.stream(EnumFacing.values())
+            .map(side -> ub.getPos().offset(side))
+            .map(pos -> getWorld().getBlockState(pos).getBlock())
+            .anyMatch(BlockLiquid.class::isInstance);
+  }
+
+  private double getHeightBias(UniqueBlock ub) {
+    return !y_bias.get() ? 0.D : -ub.getCenteredPos().y;
   }
 
   private float getBlockBreakAmount() {
@@ -226,6 +259,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
               .map(BlockHelper::newUniqueBlock)
               .filter(this::isTargeting)
               .filter(this::isInBoundary)
+              .filter(ub -> !isNeighborsLiquid(ub))
               .map(ub -> BlockHelper.getVisibleBlockSideTrace(eyes, dir, ub.getPos()))
               .orElse(null);
       if (trace == null) resetBlockBreaking();
@@ -239,9 +273,11 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
               .map(BlockHelper::newUniqueBlock)
               .filter(this::isTargeting)
               .filter(this::isInBoundary)
+              .filter(ub -> !isNeighborsLiquid(ub))
               .sorted(
-                  Comparator.comparingDouble(
-                      ub -> VectorUtils.getCrosshairDistance(eyes, dir, ub.getCenteredPos())))
+                  Comparator.comparingDouble(this::getHeightBias)
+                      .thenComparing(
+                          ub -> VectorUtils.getCrosshairDistance(eyes, dir, ub.getCenteredPos())))
               .collect(Collectors.toList());
 
       if (blocks.isEmpty()) {
