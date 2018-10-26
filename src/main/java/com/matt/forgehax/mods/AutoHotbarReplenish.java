@@ -82,7 +82,9 @@ public class AutoHotbarReplenish extends ToggleMod {
   }
 
   private int getDamageOrCount(InvItem item) {
-    return item.isNull() ? 0 : item.isItemDamageable() ? item.getDurability() : item.getStackCount();
+    return item.isNull()
+        ? 0
+        : item.isItemDamageable() ? item.getDurability() : item.getStackCount();
   }
 
   private void tryPlacingHeldItem() {
