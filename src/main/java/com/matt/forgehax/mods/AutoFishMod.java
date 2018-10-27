@@ -53,7 +53,7 @@ public class AutoFishMod extends ToggleMod {
           .name("fail_safe_time")
           .description(
               "Maximum amount of time (in ticks) allowed until the hook is pulled in (set to 0 to disable this feature)")
-          .defaultTo(0)
+          .defaultTo(600)
           .build();
 
   public AutoFishMod() {
