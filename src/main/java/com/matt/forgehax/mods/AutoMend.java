@@ -37,6 +37,8 @@ public class AutoMend extends ToggleMod {
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (!(LocalPlayerInventory.getOpenContainer() instanceof ContainerPlayer)) return;
 
+    InvItem current = LocalPlayerInventory.getSelected();
+
     Optional.of(LocalPlayerInventory.getOffhand())
         .filter(this::isMendable)
         .filter(item -> !isDamaged(item))
@@ -46,6 +48,7 @@ public class AutoMend extends ToggleMod {
                     .stream()
                     .filter(this::isMendable)
                     .filter(this::isDamaged)
+                    .filter(inv -> inv.getIndex() != current.getIndex())
                     .max(Comparator.comparingInt(InvItem::getDamage))
                     .ifPresent(
                         inv -> {

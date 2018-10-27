@@ -321,7 +321,7 @@ public class LocalPlayerInventory {
       public int getIndex() {
         int row = (getSlotNumber() / 9) - 1;
         int idx = getSlotNumber() % 9;
-        return 36 - ((row * 9) + (idx + 1)); // inverse of what is done for ::getIndex()
+        return 36 - ((row * 9) + (9 - idx)); // inverse of what is done for ::getIndex()
       }
 
       @Override
