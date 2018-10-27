@@ -11,6 +11,7 @@ import java.util.Optional;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Enchantments;
 import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.ContainerPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
@@ -34,7 +35,7 @@ public class AutoMend extends ToggleMod {
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (MC.currentScreen != null) return;
+    if (!(LocalPlayerInventory.getOpenContainer() instanceof ContainerPlayer)) return;
 
     Optional.of(LocalPlayerInventory.getOffhand())
         .filter(this::isMendable)
