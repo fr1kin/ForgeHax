@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods.commands;
 
 import static com.matt.forgehax.Helper.getGlobalCommand;
+import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getModManager;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -200,6 +201,22 @@ public class HelpCommand extends CommandMod {
               } else {
                 data.write("No players online.");
               }
+            })
+        .build();
+  }
+
+  @RegisterCommand
+  public Command respawn(CommandBuilders builder) {
+    return builder
+        .newCommandBuilder()
+        .name("respawn")
+        .description("Send respawn packet")
+        .processor(
+            data -> {
+              if (getLocalPlayer() != null) {
+                getLocalPlayer().respawnPlayer();
+                data.write("Respawn packet sent");
+              } else data.write("Failed to send respawn packet (player is null)");
             })
         .build();
   }
