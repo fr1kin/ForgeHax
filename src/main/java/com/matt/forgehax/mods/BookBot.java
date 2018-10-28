@@ -53,8 +53,8 @@ public class BookBot extends ToggleMod {
                 String str = cb.getTo().replaceAll(NUMBER_TOKEN, "XXX");
                 if (str.length() > 32)
                   printWarning(
-                      "Final book names longer than 32 letters will cause crashes! Current length: %d",
-                      str);
+                      "Final book names longer than 32 letters will cause crashes! Current length (assuming 3 digits): %d",
+                      str.length());
               })
           .build();
 
