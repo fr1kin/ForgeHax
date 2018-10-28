@@ -1,5 +1,6 @@
 package com.matt.forgehax.util.entity.mobtypes;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
@@ -9,20 +10,27 @@ public class MobTypeRegistry {
   public static final MobType HOSTILE = new HostileMob();
   public static final MobType FRIENDLY = new FriendlyMob();
 
-  private static final List<MobType> MOB_TYPES_SPECIAL = Lists.newCopyOnWriteArrayList();
+  private static final List<MobType> MOB_TYPES_SPECIAL = Lists.newArrayList();
+  private static List<MobType> readOnly = ImmutableList.of();
 
   public static void register(MobType type) {
-    MOB_TYPES_SPECIAL.add(type);
-    Collections.sort(MOB_TYPES_SPECIAL);
+    synchronized (MOB_TYPES_SPECIAL) {
+      MOB_TYPES_SPECIAL.add(type);
+      Collections.sort(MOB_TYPES_SPECIAL);
+      readOnly = ImmutableList.copyOf(MOB_TYPES_SPECIAL);
+    }
   }
 
   public static void unregister(MobType type) {
-    MOB_TYPES_SPECIAL.remove(type);
-    Collections.sort(MOB_TYPES_SPECIAL);
+    synchronized (MOB_TYPES_SPECIAL) {
+      MOB_TYPES_SPECIAL.remove(type);
+      Collections.sort(MOB_TYPES_SPECIAL);
+      readOnly = ImmutableList.copyOf(MOB_TYPES_SPECIAL);
+    }
   }
 
   public static List<MobType> getSortedSpecialMobTypes() {
-    return MOB_TYPES_SPECIAL;
+    return readOnly;
   }
 
   static {
