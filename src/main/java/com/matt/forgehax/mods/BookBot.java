@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getFileManager;
 import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.printWarning;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Helper;
@@ -46,6 +47,15 @@ public class BookBot extends ToggleMod {
           .name("name")
           .description("Name of the book, use {NUMBER} for the number")
           .defaultTo("Book #{NUMBER}")
+          .changed(
+              cb -> {
+                // 3 digits seems like a reasonable upper limit
+                String str = cb.getTo().replaceAll(NUMBER_TOKEN, "XXX");
+                if (str.length() > 32)
+                  printWarning(
+                      "Final book names longer than 32 letters will cause crashes! Current length: %d",
+                      str);
+              })
           .build();
 
   private final Setting<String> file =
@@ -249,7 +259,7 @@ public class BookBot extends ToggleMod {
         .processor(
             data -> {
               writer = loadFile();
-              data.write(String.format("BookBot file \"%s\"loaded successfully", file.get()));
+              data.write(String.format("BookBot file \"%s\" loaded successfully", file.get()));
             })
         .build();
 
