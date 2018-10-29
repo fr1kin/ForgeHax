@@ -47,7 +47,9 @@ public class YawLockMod extends ToggleMod
 
   private Angle getSnapAngle() {
     return Angle.degrees(
-        LocalPlayerUtils.getViewAngles().getPitch(), auto.get() ? getYawDirection() : angle.get());
+            LocalPlayerUtils.getViewAngles().getPitch(),
+            auto.get() ? getYawDirection() : angle.get())
+        .normalize();
   }
 
   @Override
