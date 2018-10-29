@@ -3,7 +3,6 @@ package com.matt.forgehax.asm.patches;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.RET;
 import static org.objectweb.asm.Opcodes.RETURN;
 
 import com.matt.forgehax.asm.TypesHook;
@@ -91,7 +90,8 @@ public class PlayerControllerMCPatch extends ClassTransformer {
 
     @Inject(description = "Add callback at top of method")
     public void inject(MethodNode node) {
-      AbstractInsnNode last = ASMHelper.findPattern(node.instructions.getFirst(), new int[] {RETURN}, "x");
+      AbstractInsnNode last =
+          ASMHelper.findPattern(node.instructions.getFirst(), new int[] {RETURN}, "x");
 
       Objects.requireNonNull(last, "Could not find RET opcode");
 
