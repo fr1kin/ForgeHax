@@ -413,5 +413,15 @@ public interface TypesHook {
             .add(TypesMc.Classes.Entity)
             .finish()
             .build();
+
+    ASMMethod ForgeHaxHooks_onPlayerStopUse =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("onPlayerStopUse")
+            .setReturnType(boolean.class)
+            .beginParameters()
+            .add(TypesMc.Classes.PlayerControllerMP)
+            .add(TypesMc.Classes.EntityPlayer)
+            .finish()
+            .build();
   }
 }

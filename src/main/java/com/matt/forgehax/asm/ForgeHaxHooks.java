@@ -622,4 +622,18 @@ public class ForgeHaxHooks implements ASMCommon {
       MinecraftForge.EVENT_BUS.post(
           new PlayerAttackEntityEvent(playerControllerMP, attacker, victim));
   }
+
+  /** onPlayerStopUse */
+  public static final HookReporter HOOK_onPlayerStopUse =
+      newHookReporter()
+          .hook("onPlayerStopUse")
+          .dependsOn(Methods.PlayerControllerMC_onStoppedUsingItem)
+          .forgeEvent(ItemStoppedUsedEvent.class)
+          .build();
+
+  public static boolean onPlayerStopUse(
+      PlayerControllerMP playerControllerMP, EntityPlayer player) {
+    return HOOK_onPlayerStopUse.reportHook()
+        && MinecraftForge.EVENT_BUS.post(new ItemStoppedUsedEvent(playerControllerMP, player));
+  }
 }

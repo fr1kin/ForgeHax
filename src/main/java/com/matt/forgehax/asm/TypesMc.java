@@ -691,5 +691,14 @@ public interface TypesMc {
             .finish()
             .autoAssign()
             .build();
+    ASMMethod PlayerControllerMC_onStoppedUsingItem =
+        Classes.PlayerControllerMP.childMethod()
+            .setName("onStoppedUsingItem")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(Classes.EntityPlayer)
+            .finish()
+            .autoAssign()
+            .build();
   }
 }
