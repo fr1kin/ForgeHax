@@ -5,7 +5,6 @@ import static com.matt.forgehax.Helper.getPlayerController;
 import static com.matt.forgehax.Helper.getWorld;
 
 import com.matt.forgehax.asm.events.ItemStoppedUsedEvent;
-import com.matt.forgehax.asm.events.LeftClickCounterUpdateEvent;
 import com.matt.forgehax.asm.reflection.FastReflection.Fields;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
