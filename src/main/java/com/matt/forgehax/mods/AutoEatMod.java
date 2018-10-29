@@ -111,12 +111,4 @@ public class AutoEatMod extends ToggleMod {
     if (isEating && getWorld() != null && getLocalPlayer() != null && event.getGui() != null)
       event.getGui().allowUserInput = true;
   }
-
-  @SubscribeEvent
-  public void onLeftClickCouterUpdate(LeftClickCounterUpdateEvent event) {
-    if (isEating) {
-      // prevent the leftClickCounter from changing
-      event.setCanceled(true);
-    }
-  }
 }
