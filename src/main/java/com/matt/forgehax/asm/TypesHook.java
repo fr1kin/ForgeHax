@@ -423,5 +423,17 @@ public interface TypesHook {
             .add(TypesMc.Classes.EntityPlayer)
             .finish()
             .build();
+
+    ASMMethod ForgeHaxHooks_onEntityBlockSlipApply =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("onEntityBlockSlipApply")
+            .setReturnType(float.class)
+            .beginParameters()
+            .add(float.class)
+            .add(TypesMc.Classes.EntityLivingBase)
+            .add(TypesMc.Classes.IBlockState)
+            .add(int.class)
+            .finish()
+            .build();
   }
 }

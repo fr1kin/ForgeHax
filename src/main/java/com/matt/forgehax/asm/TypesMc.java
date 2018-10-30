@@ -435,6 +435,18 @@ public interface TypesMc {
             .autoAssign()
             .build();
 
+    ASMMethod EntityLivingBase_travel =
+        Classes.EntityLivingBase.childMethod()
+            .setName("travel")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(float.class)
+            .add(float.class)
+            .add(float.class)
+            .finish()
+            .autoAssign()
+            .build();
+
     ASMMethod EntityRenderer_hurtCameraEffect =
         Classes.EntityRenderer.childMethod()
             .setName("hurtCameraEffect")

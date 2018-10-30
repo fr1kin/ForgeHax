@@ -4,6 +4,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 
 import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
+import com.matt.forgehax.asm.events.EntityBlockSlipApplyEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.events.PushOutOfBlocksEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
@@ -105,6 +106,15 @@ public class AntiKnockbackMod extends ToggleMod {
           .defaultTo(true)
           .build();
 
+  private final Setting<Boolean> slipping =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("slipping")
+          .description("Disable velocity from ice slipping")
+          .defaultTo(true)
+          .build();
+
   public AntiKnockbackMod() {
     super(Category.COMBAT, "AntiKnockback", false, "Removes knockback movement");
   }
@@ -198,12 +208,11 @@ public class AntiKnockbackMod extends ToggleMod {
   @SubscribeEvent
   public void onApplyCollisionMotion(ApplyCollisionMotionEvent event) {
     if (push.get() && getLocalPlayer() != null && getLocalPlayer().equals(event.getEntity())) {
-      event
-          .getEntity()
-          .addVelocity(
-              event.getMotionX() * multiplier_x.get(),
-              event.getMotionY() * multiplier_y.get(),
-              event.getMotionZ() * multiplier_z.get());
+      addEntityVelocity(
+          event.getEntity(),
+          VectorUtils.multiplyBy(
+              new Vec3d(event.getMotionX(), event.getMotionY(), event.getMotionZ()),
+              getMultiplier()));
       event.setCanceled(true);
     }
   }
@@ -211,5 +220,14 @@ public class AntiKnockbackMod extends ToggleMod {
   @SubscribeEvent
   public void onPushOutOfBlocks(PushOutOfBlocksEvent event) {
     if (blocks.get()) event.setCanceled(true);
+  }
+
+  @SubscribeEvent
+  public void onBlockSlip(EntityBlockSlipApplyEvent event) {
+    if (slipping.get()
+        && getLocalPlayer() != null
+        && getLocalPlayer().equals(event.getEntityLivingBase())) {
+      event.setSlipperiness(0.6f);
+    }
   }
 }

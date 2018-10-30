@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.TypesMc.Methods;
 import com.matt.forgehax.asm.events.*;
+import com.matt.forgehax.asm.events.EntityBlockSlipApplyEvent.Stage;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.utils.MultiBoolean;
@@ -635,5 +636,27 @@ public class ForgeHaxHooks implements ASMCommon {
       PlayerControllerMP playerControllerMP, EntityPlayer player) {
     return HOOK_onPlayerStopUse.reportHook()
         && MinecraftForge.EVENT_BUS.post(new ItemStoppedUsedEvent(playerControllerMP, player));
+  }
+
+  /** onPlayerStopUse */
+  public static final HookReporter HOOK_onEntityBlockSlipApply =
+      newHookReporter()
+          .hook("onEntityBlockSlipApply")
+          .dependsOn(Methods.PlayerControllerMC_onStoppedUsingItem)
+          .forgeEvent(EntityBlockSlipApplyEvent.class)
+          .build();
+
+  public static float onEntityBlockSlipApply(
+      float defaultSlipperiness,
+      EntityLivingBase entityLivingBase,
+      IBlockState blockStateUnder,
+      int stage) {
+    if (HOOK_onEntityBlockSlipApply.reportHook()) {
+      EntityBlockSlipApplyEvent event =
+          new EntityBlockSlipApplyEvent(
+              Stage.values()[stage], entityLivingBase, blockStateUnder, defaultSlipperiness);
+      MinecraftForge.EVENT_BUS.post(event);
+      return event.getSlipperiness();
+    } else return defaultSlipperiness;
   }
 }
