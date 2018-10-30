@@ -56,7 +56,9 @@ public class AntiKnockbackMod extends ToggleMod {
   /** Stops TNT and knockback velocity */
   @SubscribeEvent
   public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketExplosion) {
+    if(getLocalPlayer() == null)
+      return;
+    else if (event.getPacket() instanceof SPacketExplosion) {
       // for tnt knockback
       SPacketExplosion packet = (SPacketExplosion) event.getPacket();
       FastReflection.Fields.SPacketExplosion_motionX.set(
@@ -70,7 +72,7 @@ public class AntiKnockbackMod extends ToggleMod {
           FastReflection.Fields.SPacketExplosion_motionZ.get(packet) * multiplier_z.getAsFloat());
     } else if (event.getPacket() instanceof SPacketEntityVelocity) {
       // for player knockback
-      if (((SPacketEntityVelocity) event.getPacket()).getEntityID() == MC.player.getEntityId()) {
+      if (((SPacketEntityVelocity) event.getPacket()).getEntityID() == getLocalPlayer().getEntityId()) {
         double multiX = multiplier_x.getAsInteger();
         double multiY = multiplier_y.getAsInteger();
         double multiZ = multiplier_z.getAsInteger();
