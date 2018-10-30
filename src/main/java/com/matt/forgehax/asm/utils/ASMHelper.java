@@ -5,6 +5,7 @@ import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.objectweb.asm.tree.*;
 
 public class ASMHelper {
@@ -103,6 +104,29 @@ public class ASMHelper {
     return findPattern(start, pattern, mask.toCharArray());
   }
 
+  public static AbstractInsnNode findPattern(AbstractInsnNode start, int... opcodes) {
+    StringBuilder mask = new StringBuilder();
+    for (int op : opcodes) mask.append(op == MagicOpcodes.NONE ? '?' : 'x');
+    return findPattern(start, opcodes, mask.toString());
+  }
+
+  public static AbstractInsnNode findPattern(InsnList instructions, int... opcodes) {
+    return findPattern(instructions.getFirst(), opcodes);
+  }
+
+  public static AbstractInsnNode findPattern(MethodNode node, int... opcodes) {
+    return findPattern(node.instructions, opcodes);
+  }
+
+  @Nullable
+  public static AbstractInsnNode forward(AbstractInsnNode start, int n) {
+    AbstractInsnNode node = start;
+    for (int i = 0;
+        i < Math.abs(n) && node != null;
+        ++i, node = n > 0 ? node.getNext() : node.getPrevious()) ;
+    return node;
+  }
+
   public static AbstractInsnNode findStart(AbstractInsnNode start) {
     AbstractInsnNode next = start;
     do {
@@ -152,5 +176,9 @@ public class ASMHelper {
         field.getParentClass().getRuntimeInternalName(),
         field.getRuntimeName(),
         field.getRuntimeDescriptor());
+  }
+
+  public interface MagicOpcodes {
+    int NONE = -666;
   }
 }

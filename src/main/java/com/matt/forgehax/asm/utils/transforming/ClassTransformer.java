@@ -5,6 +5,7 @@ import static com.matt.forgehax.asm.utils.ASMStackLogger.printStackTrace;
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.TypesMc;
+import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.asmtype.ASMClass;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
@@ -14,10 +15,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public abstract class ClassTransformer implements ASMCommon, TypesMc {
+public abstract class ClassTransformer
+    implements ASMCommon, TypesMc, Opcodes, ASMHelper.MagicOpcodes {
   private final ASMClass transformingClass;
   private final List<MethodTransformer> methodTransformers = Lists.newArrayList();
 
