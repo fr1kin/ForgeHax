@@ -1,15 +1,20 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getWorld;
+
 import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
 import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
-import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.events.PlayerConnectEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
+import com.matt.forgehax.util.math.Plane;
 import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -19,7 +24,6 @@ import java.util.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -31,11 +35,7 @@ import org.lwjgl.opengl.GL11;
 
 @RegisterMod
 public class LogoutSpot extends ToggleMod {
-  public LogoutSpot() {
-    super(Category.RENDER, "LogoutSpot", false, "show where a player logs out");
-  }
-
-  public final Setting<Boolean> renderPosition =
+  private final Setting<Boolean> renderPosition =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -43,7 +43,7 @@ public class LogoutSpot extends ToggleMod {
           .description("Draw a box where the player logged out")
           .defaultTo(true)
           .build();
-  public final Setting<Integer> maxDistance =
+  private final Setting<Integer> maxDistance =
       getCommandStub()
           .builders()
           .<Integer>newSettingBuilder()
@@ -51,7 +51,7 @@ public class LogoutSpot extends ToggleMod {
           .description("Distance from box before deleting it")
           .defaultTo(50)
           .build();
-  public final Setting<Boolean> outputToChat =
+  private final Setting<Boolean> outputToChat =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -60,98 +60,43 @@ public class LogoutSpot extends ToggleMod {
           .defaultTo(true)
           .build();
 
-  private final Set<LogoutPos> logoutSpots = new HashSet<>();
+  private final Set<LogoutPos> logoutSpots = Sets.newHashSet();
 
-  // join/leave event does not work
+  public LogoutSpot() {
+    super(Category.RENDER, "LogoutSpot", false, "show where a player logs out");
+  }
+
+  @Override
+  public void onLoad() {
+    getCommandStub()
+        .builders()
+        .newCommandBuilder()
+        .name("clear")
+        .description("Clear cloned players")
+        .processor(data -> logoutSpots.clear())
+        .build();
+  }
+
   @SubscribeEvent
-  public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketPlayerListItem) {
-      SPacketPlayerListItem playerListPacket = (SPacketPlayerListItem) event.getPacket();
-      if (playerListPacket.getAction().equals(SPacketPlayerListItem.Action.REMOVE_PLAYER)
-          || playerListPacket.getAction().equals(SPacketPlayerListItem.Action.ADD_PLAYER)) {
-        try {
-          playerListPacket
-              .getEntries()
-              .stream()
-              .filter(Objects::nonNull)
-              .filter(
-                  data -> {
-                    String name = getNameFromComponent(data.getProfile());
-                    return !Strings.isNullOrEmpty(name) && !isLocalPlayer(name)
-                        || playerListPacket
-                            .getAction()
-                            .equals(SPacketPlayerListItem.Action.REMOVE_PLAYER);
-                  })
-              .forEach(
-                  data -> {
-                    final String name = getNameFromComponent(data.getProfile());
-                    final UUID id = data.getProfile().getId();
-                    switch (playerListPacket.getAction()) {
-                      case ADD_PLAYER:
-                        logoutSpots.removeIf(
-                            pos -> {
-                              if (pos.id.equals(id)) {
-                                if (outputToChat.getAsBoolean()) {
-                                  Helper.printMessage(name + " has joined!");
-                                }
-                                return true;
-                              }
-                              return false;
-                            });
-                        break;
+  public void onPlayerConnect(PlayerConnectEvent.Join event) {
+    if (logoutSpots.removeIf(lp -> lp.id.equals(event.getPlayerInfo().getId()))
+        && outputToChat.get())
+      Helper.printWarning("%s has joined!", event.getPlayerInfo().getName());
+  }
 
-                      case REMOVE_PLAYER: // if they leave and they are in the world save it
-                        EntityPlayer player = MC.world.getPlayerEntityByUUID(id);
-                        if (player != null) {
-                          AxisAlignedBB BB = player.getEntityBoundingBox();
-                          Vec3d[] pos = {
-                            new Vec3d(BB.minX, BB.minY, BB.minZ),
-                            new Vec3d(BB.maxX, BB.maxY, BB.maxZ)
-                          };
-                          logoutSpots.add(new LogoutPos(pos, id, player.getName()));
+  @SubscribeEvent
+  public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
+    EntityPlayer player = getWorld().getPlayerEntityByUUID(event.getPlayerInfo().getId());
+    if (player != null && getLocalPlayer() != null && !getLocalPlayer().equals(player)) {
+      AxisAlignedBB BB = player.getEntityBoundingBox();
+      Vec3d[] pos = {new Vec3d(BB.minX, BB.minY, BB.minZ), new Vec3d(BB.maxX, BB.maxY, BB.maxZ)};
+      logoutSpots.add(
+          new LogoutPos(pos, event.getPlayerInfo().getId(), event.getPlayerInfo().getName()));
 
-                          if (outputToChat.getAsBoolean()) {
-                            Helper.printMessage(name + " has disconnected!");
-                          }
-                        }
-                        break;
-                    }
-                  });
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
+      if (outputToChat.get())
+        Helper.printWarning("%s has disconnected!", event.getPlayerInfo().getName());
     }
   }
-
-  /*@SubscribeEvent
-  public void onPlayerJoin(PlayerConnectEvent.Join event) {
-      logoutSpots.removeIf(pos -> {
-          if (pos.id.equals(event.getPlayerInfo().getId())) {
-              if (outputToChat.getAsBoolean()) {
-                  Helper.printMessage(event.getPlayerInfo().getName() + " has joined!");
-              }
-              return true;
-          }
-          return false;
-      });
-  }
-
-  @SubscribeEvent
-  public void onPlayerLeave(PlayerConnectEvent.Leave event) {
-      UUID id = event.getPlayerInfo().getId();
-      EntityPlayer player = MC.world.getPlayerEntityByUUID(id);
-      if (player != null) {
-          AxisAlignedBB BB = player.getEntityBoundingBox();
-          Vec3d[] pos = {new Vec3d(BB.minX, BB.minY, BB.minZ), new Vec3d(BB.maxX, BB.maxY, BB.maxZ)};
-          logoutSpots.add(new LogoutPos(pos, id, player.getName()));
-
-          if (outputToChat.getAsBoolean()) {
-              Helper.printMessage(event.getPlayerInfo().getName() + " has disconnected!");
-          }
-      }
-
-  }*/
 
   @SubscribeEvent(priority = EventPriority.LOW)
   public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
@@ -166,21 +111,19 @@ public class LogoutSpot extends ToggleMod {
                     pos.pos[1].y,
                     (pos.pos[0].z + pos.pos[1].z)
                         / 2); // position where to place the text in the world
-            VectorUtils.ScreenPos textPos =
-                VectorUtils._toScreen(
-                    topVec.x, topVec.y, topVec.z); // where to place the text on the screen
+            Plane textPos = VectorUtils.toScreen(topVec);
             double distance =
                 MC.player.getDistance(
                     (pos.pos[0].x + pos.pos[1].x) / 2,
                     pos.pos[0].y,
                     (pos.pos[0].z + pos.pos[1].z) / 2); // distance from player to logout spot
-            if (textPos.isVisible) {
+            if (textPos.isVisible()) {
               String name = pos.name + String.format(" (%.1f)", distance);
               SurfaceHelper.drawTextShadow(
                   name,
-                  textPos.x - (SurfaceHelper.getTextWidth(name) / 2),
-                  textPos.y - (SurfaceHelper.getTextHeight() + 1),
-                  Utils.toRGBA(255, 0, 0, 0));
+                  (int)textPos.getX() - (SurfaceHelper.getTextWidth(name) / 2),
+                  (int)textPos.getY() - (SurfaceHelper.getTextHeight() + 1),
+                  Colors.RED.toBuffer());
             }
           });
     }
@@ -266,34 +209,5 @@ public class LogoutSpot extends ToggleMod {
     public int hashCode() {
       return id.hashCode();
     }
-  }
-
-  private float getLateralDistanceFromPlayer(Entity entityIn) {
-    float f = (float) (entityIn.posX - MC.player.posX);
-    float f2 = (float) (entityIn.posZ - MC.player.posZ);
-    return MathHelper.sqrt(f * f + f2 * f2);
-  }
-
-  private String getNameFromComponent(GameProfile profile) {
-    return Objects.nonNull(profile) ? profile.getName() : "";
-  }
-
-  private boolean isLocalPlayer(String username) {
-    return Objects.nonNull(MC.player)
-        && MC.player.getDisplayName().getUnformattedText().equals(username);
-  }
-
-  @Override
-  public void onLoad() {
-    getCommandStub()
-        .builders()
-        .newCommandBuilder()
-        .name("clear")
-        .description("Clear cloned players")
-        .processor(
-            data -> {
-              logoutSpots.clear();
-            })
-        .build();
   }
 }
