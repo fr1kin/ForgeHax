@@ -3,6 +3,7 @@ package com.matt.forgehax.util.command;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
+import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import java.io.IOException;
 import java.util.*;
@@ -43,6 +44,20 @@ public class Options<E extends ISerializableJson> extends Command
     } catch (Throwable t) {
       throw new CommandBuildException("Failed to build options", t);
     }
+  }
+
+  @Override
+  protected boolean preprocessor(String[] args) {
+    if (args.length > 0) {
+      String opt = args[0];
+      if (opt.matches("-r|--reset")) {
+        contents.clear();
+        contents.addAll(defaults);
+        ConsoleIO.write(getName() + " reset");
+        return false;
+      }
+    }
+    return true;
   }
 
   public Collection<E> contents() {

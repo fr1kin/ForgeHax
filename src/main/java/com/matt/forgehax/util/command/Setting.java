@@ -202,6 +202,19 @@ public class Setting<E> extends Command implements ISerializableJson {
   }
 
   @Override
+  protected boolean preprocessor(String[] args) {
+    if (args.length > 0) {
+      String opt = args[0];
+      if (opt.matches("-r|--reset")) {
+        reset();
+        serialize();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
   public void serialize(JsonWriter writer) throws IOException {
     writer.beginObject();
 

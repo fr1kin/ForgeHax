@@ -275,11 +275,18 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
     return false;
   }
 
+  protected boolean preprocessor(String[] args) {
+    return true;
+  }
+
   @SuppressWarnings("Duplicates")
   public void run(@Nonnull String[] args) throws CommandExecuteException, NullPointerException {
     if (!processChildren(args)) { // attempt to match child commands first
       OptionSet options;
       String[] required;
+
+      if (!preprocessor(args)) return;
+
       if (requiredArgs > 0) {
         if (args.length == 0) {
           ConsoleIO.write(getPrintText());
@@ -289,8 +296,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
         required =
             Arrays.copyOfRange(args, 0, requiredArgs); // do not pass through option processor
         String[] nargs;
-        if (args.length > requiredArgs)
-          nargs = Arrays.copyOfRange(args, requiredArgs, args.length);
+        if (args.length > requiredArgs) nargs = Arrays.copyOfRange(args, requiredArgs, args.length);
         else nargs = new String[0];
         options = parser.parse(nargs);
       } else {
