@@ -9,8 +9,8 @@ import com.google.common.collect.Sets;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
+import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.events.RenderEvent;
-import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
@@ -24,7 +24,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -32,35 +31,45 @@ import org.lwjgl.opengl.GL11;
 
 @RegisterMod
 public class LogoutSpot extends ToggleMod {
-  private final Setting<Boolean> renderPosition =
+  private final Setting<Boolean> render =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("RenderPosition")
+          .name("render")
           .description("Draw a box where the player logged out")
           .defaultTo(true)
           .build();
-  private final Setting<Integer> maxDistance =
+  private final Setting<Integer> max_distance =
       getCommandStub()
           .builders()
           .<Integer>newSettingBuilder()
-          .name("MaxDistance")
+          .name("max-distance")
           .description("Distance from box before deleting it")
-          .defaultTo(50)
+          .defaultTo(320)
           .build();
-  private final Setting<Boolean> outputToChat =
+  private final Setting<Boolean> print_message =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("OutputToChat")
-          .description("Print coords to chat")
+          .name("print-message")
+          .description("Print connect/disconnect messages in chat")
           .defaultTo(true)
           .build();
 
-  private final Set<LogoutPos> logoutSpots = Sets.newHashSet();
+  private final Set<LogoutPos> spots = Sets.newHashSet();
 
   public LogoutSpot() {
     super(Category.RENDER, "LogoutSpot", false, "show where a player logs out");
+  }
+
+  private void reset() {
+    synchronized (spots) {
+      spots.clear();
+    }
+  }
+
+  private void printWarning(String fmt, Object... args) {
+    if (print_message.get()) Helper.printWarning(fmt, args);
   }
 
   @Override
@@ -70,56 +79,56 @@ public class LogoutSpot extends ToggleMod {
         .newCommandBuilder()
         .name("clear")
         .description("Clear cloned players")
-        .processor(data -> logoutSpots.clear())
+        .processor(data -> reset())
         .build();
+  }
+
+  @Override
+  protected void onDisabled() {
+    reset();
   }
 
   @SubscribeEvent
   public void onPlayerConnect(PlayerConnectEvent.Join event) {
-    if (logoutSpots.removeIf(lp -> lp.id.equals(event.getPlayerInfo().getId()))
-        && outputToChat.get())
-      Helper.printWarning("%s has joined!", event.getPlayerInfo().getName());
+    synchronized (spots) {
+      if (spots.removeIf(spot -> spot.getId().equals(event.getPlayerInfo().getId())))
+        printWarning("%s has joined!", event.getPlayerInfo().getName());
+    }
   }
 
   @SubscribeEvent
   public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
     EntityPlayer player = getWorld().getPlayerEntityByUUID(event.getPlayerInfo().getId());
     if (player != null && getLocalPlayer() != null && !getLocalPlayer().equals(player)) {
-      AxisAlignedBB BB = player.getEntityBoundingBox();
-      Vec3d[] pos = {new Vec3d(BB.minX, BB.minY, BB.minZ), new Vec3d(BB.maxX, BB.maxY, BB.maxZ)};
-      logoutSpots.add(
-          new LogoutPos(pos, event.getPlayerInfo().getId(), event.getPlayerInfo().getName()));
-
-      if (outputToChat.get())
-        Helper.printWarning("%s has disconnected!", event.getPlayerInfo().getName());
+      AxisAlignedBB bb = player.getEntityBoundingBox();
+      synchronized (spots) {
+        if (spots.add(
+            new LogoutPos(
+                event.getPlayerInfo().getId(),
+                event.getPlayerInfo().getName(),
+                new Vec3d(bb.maxX, bb.maxY, bb.maxZ),
+                new Vec3d(bb.minX, bb.minY, bb.minZ))))
+          printWarning("%s has disconnected!", event.getPlayerInfo().getName());
+      }
     }
   }
 
   @SubscribeEvent(priority = EventPriority.LOW)
-  public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
-    if (renderPosition.getAsBoolean()
-        && event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
+  public void onRenderGameOverlayEvent(Render2DEvent event) {
+    if (!render.get()) return;
 
-      logoutSpots.forEach(
-          pos -> {
-            Vec3d topVec =
-                new Vec3d(
-                    (pos.pos[0].x + pos.pos[1].x) / 2,
-                    pos.pos[1].y,
-                    (pos.pos[0].z + pos.pos[1].z)
-                        / 2); // position where to place the text in the world
-            Plane textPos = VectorUtils.toScreen(topVec);
-            double distance =
-                MC.player.getDistance(
-                    (pos.pos[0].x + pos.pos[1].x) / 2,
-                    pos.pos[0].y,
-                    (pos.pos[0].z + pos.pos[1].z) / 2); // distance from player to logout spot
-            if (textPos.isVisible()) {
-              String name = pos.name + String.format(" (%.1f)", distance);
+    synchronized (spots) {
+      spots.forEach(
+          spot -> {
+            Vec3d top = spot.getTopVec();
+            Plane upper = VectorUtils.toScreen(top);
+            if (upper.isVisible()) {
+              double distance = getLocalPlayer().getPositionVector().distanceTo(top);
+              String name = String.format("%s (%.1f)", spot.getName(), distance);
               SurfaceHelper.drawTextShadow(
                   name,
-                  (int) textPos.getX() - (SurfaceHelper.getTextWidth(name) / 2),
-                  (int) textPos.getY() - (SurfaceHelper.getTextHeight() + 1),
+                  (int) upper.getX() - (SurfaceHelper.getTextWidth(name) / 2),
+                  (int) upper.getY() - (SurfaceHelper.getTextHeight() + 1),
                   Colors.RED.toBuffer());
             }
           });
@@ -127,84 +136,94 @@ public class LogoutSpot extends ToggleMod {
   }
 
   @SubscribeEvent
-  public void onRender(RenderEvent event) { // render box
-    if (renderPosition.getAsBoolean()) {
-      event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+  public void onRender(RenderEvent event) {
+    if (!render.get()) return;
 
-      logoutSpots.forEach(
-          position -> {
-            GeometryTessellator.drawQuads(
-                event.getBuffer(), // horizontal lines
-                position.pos[0].x,
-                position.pos[0].y,
-                position.pos[0].z,
-                position.pos[1].x,
-                position.pos[1].y,
-                position.pos[1].z,
-                GeometryMasks.Quad.ALL,
-                Utils.Colors.RED);
+    event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
-            GeometryTessellator.drawLines(
-                event.getBuffer(), // vertical lines
-                position.pos[0].x,
-                position.pos[0].y,
-                position.pos[0].z,
-                position.pos[1].x,
-                position.pos[1].y,
-                position.pos[1].z,
-                GeometryMasks.Quad.ALL,
-                Utils.Colors.RED);
-          });
-
-      event.getTessellator().draw();
+    synchronized (spots) {
+      spots.forEach(
+          spot ->
+              GeometryTessellator.drawLines(
+                  event.getBuffer(),
+                  spot.getMins().x,
+                  spot.getMins().y,
+                  spot.getMins().z,
+                  spot.getMaxs().x,
+                  spot.getMaxs().y,
+                  spot.getMaxs().z,
+                  GeometryMasks.Line.ALL,
+                  Colors.RED.toBuffer()));
     }
+
+    event.getTessellator().draw();
   }
 
   @SubscribeEvent
-  public void onPlayerUpdate(
-      LocalPlayerUpdateEvent event) { // delete cloned player if they're too far
-    logoutSpots.removeIf(
-        pos -> {
-          double distance =
-              MC.player.getDistance(
-                  (pos.pos[0].x + pos.pos[1].x) / 2,
-                  pos.pos[0].y,
-                  (pos.pos[0].z + pos.pos[1].z) / 2); // distance from player to entity
-          return distance >= maxDistance.getAsDouble() && distance > 0;
-        });
+  public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
+    if (max_distance.get() > 0) {
+      synchronized (spots) {
+        spots.removeIf(
+            pos ->
+                getLocalPlayer().getPositionVector().distanceTo(pos.getTopVec())
+                    > max_distance.getAsDouble());
+      }
+    }
   }
 
   @SubscribeEvent
   public void onWorldUnload(WorldEvent.Unload event) {
-    logoutSpots.clear();
+    reset();
   }
 
   @SubscribeEvent
   public void onWorldLoad(WorldEvent.Load event) {
-    logoutSpots.clear();
+    reset();
   }
 
-  private class LogoutPos { // keeps track of positions and uuid
-    final Vec3d[] pos;
+  private class LogoutPos {
     final UUID id;
     final String name;
+    final Vec3d maxs;
+    final Vec3d mins;
 
-    private LogoutPos(Vec3d[] position, UUID uuid, String name) {
-      this.pos = position;
+    private LogoutPos(UUID uuid, String name, Vec3d maxs, Vec3d mins) {
       this.id = uuid;
       this.name = name;
+      this.maxs = maxs;
+      this.mins = mins;
+    }
+
+    public UUID getId() {
+      return id;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public Vec3d getMaxs() {
+      return maxs;
+    }
+
+    public Vec3d getMins() {
+      return mins;
+    }
+
+    public Vec3d getTopVec() {
+      return new Vec3d(
+          (getMins().x + getMaxs().x) / 2.D, getMaxs().y, (getMins().z + getMaxs().z) / 2.D);
     }
 
     @Override
     public boolean equals(Object other) {
-      if (!(other instanceof LogoutPos)) return false;
-
-      return (other == this) || this.id.equals(((LogoutPos) other).id);
+      return this == other
+          || (other instanceof LogoutPos && getId().equals(((LogoutPos) other).getId()));
     }
 
     @Override
     public int hashCode() {
-      return id.hashCode();
+      return getId().hashCode();
     }
   }
 }
