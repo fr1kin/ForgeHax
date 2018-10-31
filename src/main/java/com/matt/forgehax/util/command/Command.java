@@ -290,7 +290,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
             Arrays.copyOfRange(args, 0, requiredArgs); // do not pass through option processor
         String[] nargs;
         if (args.length > requiredArgs)
-          nargs = Arrays.copyOfRange(args, requiredArgs + 1, args.length);
+          nargs = Arrays.copyOfRange(args, requiredArgs, args.length);
         else nargs = new String[0];
         options = parser.parse(nargs);
       } else {
