@@ -66,7 +66,9 @@ public class ChatIdentifierService extends ServiceMod {
   @SuppressWarnings("Duplicates")
   @SubscribeEvent
   public void onChatMessage(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketChat) {
+    if(getLocalPlayer() == null || getLocalPlayer().connection == null)
+      return;
+    else if (event.getPacket() instanceof SPacketChat) {
       SPacketChat packet = (SPacketChat) event.getPacket();
       String message = packet.getChatComponent().getUnformattedText();
       if (!Strings.isNullOrEmpty(message)) {
