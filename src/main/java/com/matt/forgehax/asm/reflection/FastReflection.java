@@ -27,6 +27,7 @@ import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
@@ -40,6 +41,7 @@ import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -403,6 +405,14 @@ public interface FastReflection extends ASMCommon {
         FastTypeBuilder.create()
             .setInsideClass(ItemTool.class)
             .setName("attackSpeed")
+            .autoAssign()
+            .asField();
+
+    /** ItemFood */
+    FastField<PotionEffect> ItemFood_potionId =
+        FastTypeBuilder.create()
+            .setInsideClass(ItemFood.class)
+            .setName("potionId")
             .autoAssign()
             .asField();
   }
