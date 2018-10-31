@@ -1,6 +1,7 @@
 package com.matt.forgehax.asm;
 
 import com.google.common.collect.Maps;
+import com.matt.forgehax.asm.TypesMc.Classes;
 import com.matt.forgehax.asm.patches.*;
 import com.matt.forgehax.asm.patches.special.*;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
@@ -62,8 +63,13 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
 
         transformer.transform(classNode);
 
-        ClassWriter classWriter =
-            new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter classWriter;
+        if (transformer.getTransformingClass() == Classes.Minecraft) // wtf
+        classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        else
+          classWriter =
+              new DepozzedClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+
         classNode.accept(classWriter);
 
         // let gc clean this up
@@ -81,5 +87,16 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
       }
     }
     return bytes;
+  }
+
+  private class DepozzedClassWriter extends ClassWriter {
+    public DepozzedClassWriter(int flags) {
+      super(flags);
+    }
+
+    @Override
+    protected String getCommonSuperClass(String type1, String type2) {
+      return "java/lang/Object"; // credits to popbob
+    }
   }
 }
