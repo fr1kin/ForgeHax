@@ -19,13 +19,10 @@ import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import com.mojang.authlib.GameProfile;
 import java.util.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -121,8 +118,8 @@ public class LogoutSpot extends ToggleMod {
               String name = pos.name + String.format(" (%.1f)", distance);
               SurfaceHelper.drawTextShadow(
                   name,
-                  (int)textPos.getX() - (SurfaceHelper.getTextWidth(name) / 2),
-                  (int)textPos.getY() - (SurfaceHelper.getTextHeight() + 1),
+                  (int) textPos.getX() - (SurfaceHelper.getTextWidth(name) / 2),
+                  (int) textPos.getY() - (SurfaceHelper.getTextHeight() + 1),
                   Colors.RED.toBuffer());
             }
           });
