@@ -408,6 +408,13 @@ public interface TypesMc {
             .emptyParameters()
             .autoAssign()
             .build();
+    ASMMethod EntityPlayerSP_onUpdate =
+        Classes.EntityPlayerSP.childMethod()
+            .setName("onUpdate")
+            .setReturnType(void.class)
+            .emptyParameters()
+            .autoAssign()
+            .build();
     ASMMethod EntityPlayerSP_onUpdateWalkingPlayer =
         Classes.EntityPlayerSP.childMethod()
             .setName("onUpdateWalkingPlayer")

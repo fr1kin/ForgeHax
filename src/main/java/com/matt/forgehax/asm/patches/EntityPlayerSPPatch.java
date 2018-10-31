@@ -48,20 +48,24 @@ public class EntityPlayerSPPatch extends ClassTransformer {
   }
 
   @RegisterMethodTransformer
-  private class OnUpdateWalkingPlayer extends MethodTransformer {
+  private class OnUpdate extends MethodTransformer {
     @Override
     public ASMMethod getMethod() {
-      return Methods.EntityPlayerSP_onUpdateWalkingPlayer;
+      return Methods.EntityPlayerSP_onUpdate;
     }
 
     @Inject(description = "Add hooks at top and bottom of method")
     public void inject(MethodNode main) {
-      AbstractInsnNode top = main.instructions.getFirst();
-      AbstractInsnNode bottom =
-          ASMHelper.findPattern(main.instructions.getFirst(), new int[] {RETURN}, "x");
+      AbstractInsnNode top =
+          ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, ALOAD, INVOKEVIRTUAL, IFEQ);
+      AbstractInsnNode afterRiding = ASMHelper.findPattern(main, GOTO);
+      AbstractInsnNode afterWalking =
+          ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, NONE, RETURN);
+      AbstractInsnNode ret = ASMHelper.findPattern(main, RETURN);
 
       Objects.requireNonNull(top, "Find pattern failed for top node");
-      Objects.requireNonNull(bottom, "Find pattern failed for bottom node");
+      Objects.requireNonNull(afterRiding, "Find pattern failed for afterRiding node");
+      Objects.requireNonNull(afterWalking, "Find pattern failed for afterWalking node");
 
       LabelNode jmp = new LabelNode();
 
@@ -71,14 +75,20 @@ public class EntityPlayerSPPatch extends ClassTransformer {
           ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPre));
       pre.add(new JumpInsnNode(IFNE, jmp));
 
-      InsnList post = new InsnList();
-      post.add(new VarInsnNode(ALOAD, 0));
-      post.add(
+      InsnList postRiding = new InsnList();
+      postRiding.add(new VarInsnNode(ALOAD, 0));
+      postRiding.add(
           ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
-      post.add(jmp);
 
-      main.instructions.insertBefore(top, pre);
-      main.instructions.insertBefore(bottom, post);
+      InsnList postWalking = new InsnList();
+      postWalking.add(new VarInsnNode(ALOAD, 0));
+      postWalking.add(
+          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
+
+      main.instructions.insert(top, pre);
+      main.instructions.insertBefore(afterRiding, postRiding);
+      main.instructions.insert(afterWalking, postWalking);
+      main.instructions.insertBefore(ret, jmp);
     }
   }
 
