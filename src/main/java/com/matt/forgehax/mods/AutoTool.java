@@ -91,6 +91,12 @@ public class AutoTool extends ToggleMod {
             > durability_threshold.get();
   }
 
+  private boolean isSilkTouchable(InvItem item, IBlockState state, BlockPos pos) {
+    return LocalPlayerInventory.getSelected().getIndex() == item.getIndex()
+        && getEnchantmentLevel(Enchantments.SILK_TOUCH, item) > 0
+        && state.getBlock().canSilkHarvest(getWorld(), pos, state, getLocalPlayer());
+  }
+
   private double getDigSpeed(InvItem item, IBlockState state, BlockPos pos) {
     double str = item.getItemStack().getStrVsBlock(state);
     int eff = getEnchantmentLevel(EFFICIENCY, item);
@@ -149,6 +155,7 @@ public class AutoTool extends ToggleMod {
         .filter(this::isDurabilityGood)
         .max(
             Comparator.<InvItem>comparingDouble(item -> getDigSpeed(item, state, pos))
+                .thenComparing(item -> isSilkTouchable(item, state, pos))
                 .thenComparing(this::isInvincible)
                 .thenComparing(LocalPlayerInventory::getHotbarDistance))
         .orElse(current);
