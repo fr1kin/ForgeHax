@@ -1,8 +1,7 @@
 package com.matt.forgehax.asm.utils;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
-
 import java.util.Objects;
+import org.objectweb.asm.tree.AbstractInsnNode;
 
 public class InsnPattern {
 
@@ -17,20 +16,20 @@ public class InsnPattern {
   }
 
   public <T extends AbstractInsnNode> T getFirst() {
-    return (T)this.first;
+    return (T) this.first;
   }
 
   public <T extends AbstractInsnNode> T getLast() {
-    return (T)this.last;
+    return (T) this.last;
   }
 
   public <T extends AbstractInsnNode> T getIndex(final int index) {
     AbstractInsnNode node = this.first;
     for (int i = 0; i < index; i++) {
       node = node.getNext();
-      //if (node == this.last && i < index)
+      // if (node == this.last && i < index)
       //    throw new ArrayIndexOutOfBoundsException(String.valueOf(index));
     }
-    return (T)node;
+    return (T) node;
   }
 }

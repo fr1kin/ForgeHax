@@ -61,23 +61,23 @@ public class ASMHelper {
    * @return top node of matching pattern or null if nothing is found
    */
   public static AbstractInsnNode findPattern(AbstractInsnNode start, int[] pattern, char[] mask) {
-    if (pattern.length != mask.length) throw new IllegalArgumentException("Mask must be same length as pattern");
-    return findPattern(start,
+    if (pattern.length != mask.length)
+      throw new IllegalArgumentException("Mask must be same length as pattern");
+    return findPattern(
+        start,
         pattern.length,
         (node) -> true,
         (found, next) -> mask[found] != 'x' || next.getOpcode() == pattern[found],
-        (first, last) -> first
-        );
+        (first, last) -> first);
   }
-
 
   public static <T> T findPattern(
       final AbstractInsnNode start,
       final int patternSize,
-      Predicate<AbstractInsnNode> isValidNode, // if this returns false then dont invoke the predicate and dont update found
+      Predicate<AbstractInsnNode>
+          isValidNode, // if this returns false then dont invoke the predicate and dont update found
       BiPredicate<Integer, AbstractInsnNode> nodePredicate,
-      BiFunction<AbstractInsnNode, AbstractInsnNode, T> outputFunction)
-  {
+      BiFunction<AbstractInsnNode, AbstractInsnNode, T> outputFunction) {
     if (start != null) {
       int found = 0;
       AbstractInsnNode next = start;

@@ -13,8 +13,8 @@ import org.objectweb.asm.tree.MethodNode;
 public class AsmPattern {
 
   // TODO: implement flags
-  public static final int IGNORE_FRAMES      = 1 << 0;
-  public static final int IGNORE_LABELS      = 1 << 1;
+  public static final int IGNORE_FRAMES = 1 << 0;
+  public static final int IGNORE_LABELS = 1 << 1;
   public static final int IGNORE_LINENUMBERS = 1 << 2;
   public static final int CODE_ONLY = IGNORE_FRAMES | IGNORE_LABELS | IGNORE_LINENUMBERS;
 
@@ -31,24 +31,24 @@ public class AsmPattern {
   }
 
   public InsnPattern test(AbstractInsnNode start) {
-    return ASMHelper.findPattern(start,
+    return ASMHelper.findPattern(
+        start,
         insnPredicates.size(),
         // isValidNode
-        (node) -> !testFlag(node, FrameNode.class,      IGNORE_FRAMES) &&
-                  !testFlag(node, LabelNode.class,      IGNORE_LABELS) &&
-                  !testFlag(node, LineNumberNode.class, IGNORE_LINENUMBERS),
+        (node) ->
+            !testFlag(node, FrameNode.class, IGNORE_FRAMES)
+                && !testFlag(node, LabelNode.class, IGNORE_LABELS)
+                && !testFlag(node, LineNumberNode.class, IGNORE_LINENUMBERS),
         // nodePredicate
         (found, node) -> insnPredicates.get(found).test(node),
-        InsnPattern::new
-        );
+        InsnPattern::new);
   }
 
   // returns true if the node is an instance of the given type and the given flag is present
-  private boolean testFlag(AbstractInsnNode node, Class<? extends AbstractInsnNode> type, int flag) {
+  private boolean testFlag(
+      AbstractInsnNode node, Class<? extends AbstractInsnNode> type, int flag) {
     return type.isInstance(node) && (this.flags & flag) != 0;
   }
-
-
 
   public static class Builder {
 
@@ -92,6 +92,5 @@ public class AsmPattern {
     public AsmPattern build() {
       return new AsmPattern(predicates, flags);
     }
-
   }
 }
