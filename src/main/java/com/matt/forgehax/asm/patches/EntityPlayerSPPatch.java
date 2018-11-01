@@ -1,9 +1,12 @@
 package com.matt.forgehax.asm.patches;
 
+import static com.matt.forgehax.asm.utils.AsmPattern.CODE_ONLY;
 import static org.objectweb.asm.Opcodes.*;
 
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
+import com.matt.forgehax.asm.utils.AsmPattern;
+import com.matt.forgehax.asm.utils.InsnPattern;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
 import com.matt.forgehax.asm.utils.transforming.Inject;
@@ -56,8 +59,13 @@ public class EntityPlayerSPPatch extends ClassTransformer {
 
     @Inject(description = "Add hooks at top and bottom of method")
     public void inject(MethodNode main) {
-      AbstractInsnNode top =
-          ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, ALOAD, INVOKEVIRTUAL, IFEQ);
+      //AbstractInsnNode top =
+      //    ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, ALOAD, INVOKEVIRTUAL, IFEQ);
+      AbstractInsnNode top = new AsmPattern.Builder(CODE_ONLY)
+          .opcodes(INVOKESPECIAL, ALOAD, INVOKEVIRTUAL, IFEQ)
+          .build()
+          .test(main).getFirst();
+
       AbstractInsnNode afterRiding = ASMHelper.findPattern(main, GOTO);
       AbstractInsnNode afterWalking =
           ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, NONE, RETURN);
