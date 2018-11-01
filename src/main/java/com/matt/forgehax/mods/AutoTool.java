@@ -87,8 +87,7 @@ public class AutoTool extends ToggleMod {
   private boolean isDurabilityGood(InvItem item) {
     return durability_threshold.get() < 1
         || isInvincible(item)
-        || (item.getItemStack().getMaxDamage() - item.getItemStack().getItemDamage())
-            > durability_threshold.get();
+        || item.getDurability() > durability_threshold.get();
   }
 
   private boolean isSilkTouchable(InvItem item, IBlockState state, BlockPos pos) {
