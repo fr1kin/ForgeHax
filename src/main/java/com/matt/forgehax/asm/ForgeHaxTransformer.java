@@ -13,7 +13,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
-@IFMLLoadingPlugin.SortingIndex(value = 1001)
+@IFMLLoadingPlugin.SortingIndex
 public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
   private Map<String, ClassTransformer> transformingClasses = Maps.newHashMap();
 
