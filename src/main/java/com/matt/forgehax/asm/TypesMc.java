@@ -228,6 +228,18 @@ public interface TypesMc {
             .autoAssign()
             .build();
 
+    ASMClass GuiScreen =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/client/gui/GuiScreen")
+            .autoAssign()
+            .build();
+
+    ASMClass GuiMainMenu =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/client/gui/GuiMainMenu")
+            .autoAssign()
+            .build();
+
     ASMClass GuiPlayerTabOverlay =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/gui/GuiPlayerTabOverlay")

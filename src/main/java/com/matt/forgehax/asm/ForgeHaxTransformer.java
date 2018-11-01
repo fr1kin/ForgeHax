@@ -63,12 +63,8 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
 
         transformer.transform(classNode);
 
-        ClassWriter classWriter;
-        if (transformer.getTransformingClass() == Classes.Minecraft) // wtf
-        classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-        else
-          classWriter =
-              new DepozzedClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter classWriter =
+            new DepozzedClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
         classNode.accept(classWriter);
 
@@ -90,13 +86,15 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
   }
 
   private class DepozzedClassWriter extends ClassWriter {
-    public DepozzedClassWriter(int flags) {
+    DepozzedClassWriter(int flags) {
       super(flags);
     }
 
     @Override
     protected String getCommonSuperClass(String type1, String type2) {
-      return "java/lang/Object"; // credits to popbob
+      if (type1.matches(Classes.GuiMainMenu.getRuntimeInternalName()))
+        return Classes.GuiScreen.getRuntimeInternalName(); // stupid edge case
+      else return "java/lang/Object"; // credits to popbob
     }
   }
 }
