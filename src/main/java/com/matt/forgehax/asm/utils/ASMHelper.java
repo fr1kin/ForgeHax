@@ -5,6 +5,9 @@ import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.objectweb.asm.tree.*;
 
@@ -58,46 +61,59 @@ public class ASMHelper {
    * @return top node of matching pattern or null if nothing is found
    */
   public static AbstractInsnNode findPattern(AbstractInsnNode start, int[] pattern, char[] mask) {
-    if (start != null && pattern.length == mask.length) {
+    if (pattern.length != mask.length) throw new IllegalArgumentException("Mask must be same length as pattern");
+    return findPattern(start,
+        pattern.length,
+        (node) -> true,
+        (found, next) -> mask[found] != 'x' || next.getOpcode() == pattern[found],
+        (first, last) -> first
+        );
+  }
+
+
+  public static <T> T findPattern(
+      final AbstractInsnNode start,
+      final int patternSize,
+      Predicate<AbstractInsnNode> isValidNode, // if this returns false then dont invoke the predicate and dont update found
+      BiPredicate<Integer, AbstractInsnNode> nodePredicate,
+      BiFunction<AbstractInsnNode, AbstractInsnNode, T> outputFunction)
+  {
+    if (start != null) {
       int found = 0;
       AbstractInsnNode next = start;
       do {
-        switch (mask[found]) {
-            // Analyze this node
-          case 'x':
-            {
-              // Check if node and pattern have same opcode
-              if (next.getOpcode() == pattern[found]) {
-                // Increment number of matched opcodes
-                found++;
-              } else {
-                // Go back to the starting node
-                for (int i = 1; i <= (found - 1); i++) {
-                  next = next.getPrevious();
-                }
-                // Reset the number of opcodes found
-                found = 0;
-              }
-              break;
-            }
-            // Skips over this node
-          default:
-          case '?':
+        // Check if node matches the predicate.
+        // If the node is not considered a "valid" node then we'll consider it to match the pattern
+        // but the predicate will not be invoked for it and found will not be incremented
+        final boolean validNode = isValidNode.test(next);
+        if (!validNode || nodePredicate.test(found, next)) {
+          if (validNode) {
+            // Increment number of matched opcodes
             found++;
-            break;
+          }
+        } else {
+          // Go back to the starting node
+          for (int i = 1; i <= (found - 1); i++) {
+            next = next.getPrevious();
+          }
+          // Reset the number of insns matched
+          found = 0;
         }
+
         // Check if found entire pattern
-        if (found >= mask.length) {
+        if (found >= patternSize) {
+          final AbstractInsnNode end = next;
           // Go back to top node
-          for (int i = 1; i <= (found - 1); i++) next = next.getPrevious();
-          return next;
+          for (int i = 1; i <= (found - 1); i++) {
+            next = next.getPrevious();
+          }
+          return outputFunction.apply(next, end);
         }
         next = next.getNext();
-      } while (next != null && found < mask.length);
+      } while (next != null);
     }
+    // failed to find pattern
     return null;
-    // throw new NoMatchingPatternException("Failed to match pattern '" +
-    // getPatternAsString(pattern, mask) + "'");
   }
 
   public static AbstractInsnNode findPattern(AbstractInsnNode start, int[] pattern, String mask) {
