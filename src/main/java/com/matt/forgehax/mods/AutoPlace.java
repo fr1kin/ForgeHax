@@ -276,7 +276,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             printInform("Whitelist: %s", Boolean.toString(whitelist.get()));
 
           if ("check_neighbors".startsWith(filter))
-            printInform("Use: %s", Boolean.toString(check_neighbors.get()));
+            printInform("Check Neighbors: %s", Boolean.toString(check_neighbors.get()));
         });
   }
 
@@ -755,7 +755,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       if (index >= blocks.size()) break;
 
       final UniqueBlock at = blocks.get(index++);
-      if (check_neighbors.get()) {
+      if (!check_neighbors.get()) {
         trace =
             sides
                 .stream()
