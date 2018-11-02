@@ -107,12 +107,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           .supplier(Lists::newCopyOnWriteArrayList)
           .build();
 
-  private final Setting<Boolean> use =
+  private final Setting<Boolean> check_neighbors =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("use")
-          .description("Will try to use the selected item on the target blocks instead of placing")
+          .name("check-neighbors")
+          .description("Will check the neighboring blocks to see if a block can be placed")
           .defaultTo(false)
           .build();
 
@@ -125,12 +125,22 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           .defaultTo(true)
           .build();
 
+  private final Setting<Boolean> silent =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("silent")
+          .description("Client angles don't change")
+          .defaultTo(true)
+          .build();
+
   private final Setting<Integer> cooldown =
       getCommandStub()
           .builders()
           .<Integer>newSettingBuilder()
           .name("cooldown")
-          .description("Block place delay to use after placing a block. Set to 0 to disable")
+          .description(
+              "Block place delay to check_neighbors after placing a block. Set to 0 to disable")
           .defaultTo(4)
           .min(0)
           .build();
@@ -265,7 +275,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           if ("whitelist".startsWith(filter))
             printInform("Whitelist: %s", Boolean.toString(whitelist.get()));
 
-          if ("use".startsWith(filter)) printInform("Use: %s", Boolean.toString(use.get()));
+          if ("check_neighbors".startsWith(filter))
+            printInform("Use: %s", Boolean.toString(check_neighbors.get()));
         });
   }
 
@@ -389,14 +400,14 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                 entry.setTargets(this.targets);
                 entry.setSelection(this.selectedItem);
                 entry.setWhitelist(this.whitelist.get());
-                entry.setUse(this.use.get());
+                entry.setUse(this.check_neighbors.get());
 
                 config.add(entry);
                 config.serializeAll();
                 data.write("Saved current config as " + name);
                 data.markSuccess();
               } else {
-                data.write(name + " is already in use!");
+                data.write(name + " is already in check_neighbors!");
                 data.markFailed();
               }
             })
@@ -431,7 +442,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                       this.selectedItem = entry.getSelection();
 
                       this.whitelist.set(entry.isWhitelist());
-                      this.use.set(entry.isUse());
+                      this.check_neighbors.set(entry.isUse());
 
                       this.stage = Stage.CONFIRM;
 
@@ -744,7 +755,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       if (index >= blocks.size()) break;
 
       final UniqueBlock at = blocks.get(index++);
-      if (use.get()) {
+      if (check_neighbors.get()) {
         trace =
             sides
                 .stream()
@@ -781,7 +792,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     if (render.get()) currentRenderingTarget = trace.getPos();
 
     Angle va = Utils.getLookAtAngles(trace.getHitVec());
-    state.setServerAngles(va);
+    state.setViewAngles(va, silent.get());
 
     final BlockTraceInfo tr = trace;
     state.invokeLater(
