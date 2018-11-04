@@ -1,12 +1,11 @@
 package com.matt.forgehax.asm;
 
-import com.google.common.collect.Maps;
 import com.matt.forgehax.asm.TypesMc.Classes;
 import com.matt.forgehax.asm.patches.*;
 import com.matt.forgehax.asm.patches.special.*;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
-import java.util.Map;
+import java.util.HashMap;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.objectweb.asm.ClassReader;
@@ -15,7 +14,7 @@ import org.objectweb.asm.tree.ClassNode;
 
 @IFMLLoadingPlugin.SortingIndex
 public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
-  private Map<String, ClassTransformer> transformingClasses = Maps.newHashMap();
+  private HashMap<String, ClassTransformer> transformingClasses = new HashMap<>();
 
   public ForgeHaxTransformer() {
     registerTransformer(new BlockPatch());
