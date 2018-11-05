@@ -3,9 +3,20 @@ package com.matt.forgehax.asm;
 import com.matt.forgehax.asm.TypesMc.Classes;
 import com.matt.forgehax.asm.patches.*;
 import com.matt.forgehax.asm.patches.special.*;
+import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
+import com.matt.forgehax.asm.utils.AsmPattern;
+import com.matt.forgehax.asm.utils.InsnPattern;
+import com.matt.forgehax.asm.utils.asmtype.ASMField;
+import com.matt.forgehax.asm.utils.asmtype.builders.ASMFieldBuilder;
+import com.matt.forgehax.asm.utils.asmtype.builders.ASMMethodBuilder;
+import com.matt.forgehax.asm.utils.asmtype.builders.ParameterBuilder;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOutboundInvoker;
+import io.netty.util.concurrent.GenericFutureListener;
 import java.util.HashMap;
+import java.util.Objects;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.objectweb.asm.ClassReader;
@@ -15,7 +26,9 @@ import org.objectweb.asm.tree.ClassNode;
 @IFMLLoadingPlugin.SortingIndex
 public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
   private HashMap<String, ClassTransformer> transformingClasses = new HashMap<>();
+  private int transformingLevel = 0;
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   public ForgeHaxTransformer() {
     registerTransformer(new BlockPatch());
     registerTransformer(new ChunkRenderContainerPatch());
@@ -43,6 +56,25 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     registerTransformer(new SchematicPrinterPatch());
 
     // special transformers
+
+    // stuff that needs to be pre-loaded
+    Objects.nonNull(TypesMc.Classes.class);
+    Objects.nonNull(TypesMc.Methods.class);
+    Objects.nonNull(TypesMc.Fields.class);
+    Objects.nonNull(TypesHook.Classes.class);
+    Objects.nonNull(TypesHook.Methods.class);
+    Objects.nonNull(TypesHook.Fields.class);
+    Objects.nonNull(ASMMethodBuilder.class);
+    Objects.nonNull(ASMFieldBuilder.class);
+    Objects.nonNull(ParameterBuilder.class);
+    Objects.nonNull(GenericFutureListener.class);
+    Objects.nonNull(ChannelHandlerContext.class);
+    Objects.nonNull(ChannelOutboundInvoker.class);
+    Objects.nonNull(ASMHelper.class);
+    Objects.nonNull(ASMField.class);
+    Objects.nonNull(AsmPattern.Builder.class);
+    Objects.nonNull(AsmPattern.class);
+    Objects.nonNull(InsnPattern.class);
   }
 
   private void registerTransformer(ClassTransformer transformer) {
@@ -51,6 +83,10 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
 
   @Override
   public byte[] transform(String name, String realName, byte[] bytes) {
+    if (transformingLevel > 0)
+      LOGGER.warn("Reentrant class loaded {} (level={})", realName, transformingLevel);
+
+    ++transformingLevel;
     if (transformingClasses.containsKey(realName)) {
       ClassTransformer transformer = transformingClasses.get(realName);
       try {
@@ -70,7 +106,7 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         // let gc clean this up
         transformingClasses.remove(realName);
 
-        return classWriter.toByteArray();
+        bytes = classWriter.toByteArray();
       } catch (Exception e) {
         LOGGER.error(
             e.getClass().getSimpleName()
@@ -81,6 +117,8 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         ASMStackLogger.printStackTrace(e);
       }
     }
+
+    --transformingLevel;
     return bytes;
   }
 
