@@ -63,7 +63,7 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         transformer.transform(classNode);
 
         ClassWriter classWriter =
-            new DepozzedClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+            new NoClassLoadingClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
         classNode.accept(classWriter);
 
@@ -84,8 +84,8 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     return bytes;
   }
 
-  private class DepozzedClassWriter extends ClassWriter {
-    DepozzedClassWriter(int flags) {
+  private class NoClassLoadingClassWriter extends ClassWriter {
+    NoClassLoadingClassWriter(int flags) {
       super(flags);
     }
 
