@@ -2,20 +2,27 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getModManager;
+import static com.matt.forgehax.Helper.getWorld;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
+import com.matt.forgehax.util.key.Bindings;
+import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketInput;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -31,76 +38,76 @@ public class FreecamMod extends ToggleMod {
           .defaultTo(0.05D)
           .build();
 
-  private double posX, posY, posZ;
-  private float pitch, yaw;
-  private double startPosX, startPosY, startPosZ;
-  private float startPitch, startYaw;
+  private Vec3d pos = Vec3d.ZERO;
+  private Angle angle = Angle.ZERO;
 
-  private EntityOtherPlayerMP clonedPlayer;
+  private boolean isRidingEntity;
+  private Entity ridingEntity;
+
+  private EntityOtherPlayerMP originalPlayer;
 
   public FreecamMod() {
     super(Category.PLAYER, "Freecam", false, "Freecam mode");
   }
 
-  private boolean isRidingEntity;
-  private Entity ridingEntity;
-
   @Override
   public void onEnabled() {
+    if (getLocalPlayer() == null || getWorld() == null) return;
 
-    if (MC.player != null) {
-      isRidingEntity = MC.player.getRidingEntity() != null;
+    if (isRidingEntity = getLocalPlayer().isRiding()) {
+      ridingEntity = getLocalPlayer().getRidingEntity();
+      getLocalPlayer().dismountRidingEntity();
+    } else pos = getLocalPlayer().getPositionVector();
 
-      if (MC.player.getRidingEntity() == null) {
-        posX = MC.player.posX;
-        posY = MC.player.posY;
-        posZ = MC.player.posZ;
-      } else {
-        ridingEntity = MC.player.getRidingEntity();
-        MC.player.dismountRidingEntity();
-      }
+    angle = LocalPlayerUtils.getViewAngles();
 
-      pitch = MC.player.rotationPitch;
-      yaw = MC.player.rotationYaw;
-
-      clonedPlayer = new EntityOtherPlayerMP(MC.world, MC.getSession().getProfile());
-      clonedPlayer.copyLocationAndAnglesFrom(MC.player);
-      clonedPlayer.rotationYawHead = MC.player.rotationYawHead;
-      MC.world.addEntityToWorld(-100, clonedPlayer);
-      MC.player.capabilities.isFlying = true;
-      MC.player.capabilities.setFlySpeed(speed.getAsFloat());
-      MC.player.noClip = true;
-    }
+    originalPlayer = new EntityOtherPlayerMP(getWorld(), MC.getSession().getProfile());
+    originalPlayer.copyLocationAndAnglesFrom(getLocalPlayer());
+    originalPlayer.rotationYawHead = getLocalPlayer().rotationYawHead;
+    originalPlayer.inventory = getLocalPlayer().inventory;
+    originalPlayer.inventoryContainer = getLocalPlayer().inventoryContainer;
+    getWorld().addEntityToWorld(-100, originalPlayer);
   }
 
   @Override
   public void onDisabled() {
-    EntityPlayer localPlayer = getLocalPlayer();
-    if (localPlayer != null) {
-      MC.player.setPositionAndRotation(posX, posY, posZ, yaw, pitch);
-      MC.world.removeEntityFromWorld(-100);
-      clonedPlayer = null;
-      posX = posY = posZ = 0.D;
-      pitch = yaw = 0.f;
-      getLocalPlayer().capabilities.isFlying =
-          getModManager().get(ElytraFlight.class).map(BaseMod::isEnabled).orElse(false);
-      MC.player.capabilities.setFlySpeed(0.05f);
-      MC.player.noClip = false;
-      MC.player.motionX = MC.player.motionY = MC.player.motionZ = 0.f;
+    if (getLocalPlayer() == null || originalPlayer == null) return;
 
-      if (isRidingEntity) {
-        MC.player.startRiding(ridingEntity, true);
-      }
+    getLocalPlayer().setPositionAndRotation(pos.x, pos.y, pos.z, angle.getYaw(), angle.getPitch());
+    getWorld().removeEntityFromWorld(-100);
+    originalPlayer = null;
+
+    getLocalPlayer().capabilities.isFlying =
+        getModManager().get(ElytraFlight.class).map(BaseMod::isEnabled).orElse(false);
+    getLocalPlayer().capabilities.setFlySpeed(0.05f);
+    getLocalPlayer().noClip = false;
+    getLocalPlayer().setVelocity(0, 0, 0);
+
+    if (isRidingEntity) {
+      getLocalPlayer().startRiding(ridingEntity, true);
+      ridingEntity = null;
     }
   }
 
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    MC.player.capabilities.isFlying = true;
-    MC.player.capabilities.setFlySpeed(speed.getAsFloat());
-    MC.player.noClip = true;
-    MC.player.onGround = false;
-    MC.player.fallDistance = 0;
+    if (getLocalPlayer() == null) return;
+
+    getLocalPlayer().capabilities.allowFlying = true;
+    getLocalPlayer().capabilities.isFlying = true;
+    getLocalPlayer().capabilities.setFlySpeed(speed.getAsFloat());
+    getLocalPlayer().noClip = true;
+    getLocalPlayer().onGround = false;
+    getLocalPlayer().fallDistance = 0;
+
+    if (!Bindings.forward.isPressed()
+        && !Bindings.back.isPressed()
+        && !Bindings.left.isPressed()
+        && !Bindings.right.isPressed()
+        && !Bindings.jump.isPressed()
+        && !Bindings.sneak.isPressed()) {
+      getLocalPlayer().setVelocity(0, 0, 0);
+    }
   }
 
   @SubscribeEvent
@@ -112,22 +119,47 @@ public class FreecamMod extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketReceived(PacketEvent.Incoming.Pre event) {
+    if (originalPlayer == null || getLocalPlayer() == null) return;
+
     if (event.getPacket() instanceof SPacketPlayerPosLook) {
       SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();
-      startPosX = packet.getX();
-      startPosY = packet.getY();
-      startPosZ = packet.getZ();
-      startPitch = packet.getPitch();
-      startYaw = packet.getYaw();
+      pos = new Vec3d(packet.getX(), packet.getY(), packet.getZ());
+      angle = Angle.degrees(packet.getPitch(), packet.getYaw());
+      event.setCanceled(true);
     }
   }
 
   @SubscribeEvent
   public void onWorldLoad(WorldEvent.Load event) {
-    posX = startPosX;
-    posY = startPosY;
-    posZ = startPosZ;
-    pitch = startPitch;
-    yaw = startYaw;
+    if (originalPlayer == null || getLocalPlayer() == null) return;
+
+    pos = getLocalPlayer().getPositionVector();
+    angle = LocalPlayerUtils.getViewAngles();
+  }
+
+  @SubscribeEvent
+  public void onEntityRender(RenderLivingEvent.Pre<?> event) {
+    if (originalPlayer != null
+        && getLocalPlayer() != null
+        && getLocalPlayer().equals(event.getEntity())) event.setCanceled(true);
+  }
+
+  @SubscribeEvent
+  public void onRenderTag(RenderLivingEvent.Specials.Pre event) {
+    if (originalPlayer != null
+        && getLocalPlayer() != null
+        && getLocalPlayer().equals(event.getEntity())) event.setCanceled(true);
+  }
+
+  private static class DummyPlayer extends EntityOtherPlayerMP {
+    public DummyPlayer(World worldIn, GameProfile gameProfileIn) {
+      super(worldIn, gameProfileIn);
+    }
+
+    @Override
+    public void onUpdate() {}
+
+    @Override
+    public void onLivingUpdate() {}
   }
 }
