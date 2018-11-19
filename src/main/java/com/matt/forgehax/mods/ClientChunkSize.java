@@ -4,7 +4,7 @@ import static com.matt.forgehax.Helper.getFileManager;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 
-import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.asm.reflection.FastReflection.Methods;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -33,26 +33,34 @@ public class ClientChunkSize extends ToggleMod {
 
   private boolean running = false;
   private long size = 0L;
-  private long compressedSize = 0L;
+  private long previousSize = 0L;
   private ChunkPos current = null;
 
   public ClientChunkSize() {
     super(Category.MISC, "ClientChunkSize", false, "Shows the client-side chunk size in bytes");
   }
 
-  private static String asString(long size) {
-    if (size < 0) return "<error>";
-
+  private static String toFormattedBytes(long size) {
     NumberFormat format = NumberFormat.getInstance();
     format.setGroupingUsed(true);
+    if (size < 1000) // less than 1KB
+    return format.format(size) + " B";
+    else if (size < 1000000) // less than 1MB
     return format.format((double) size / 1000.D) + " KB";
+    else return format.format((double) size / 1000000.D) + " MB";
+  }
+
+  private static String difference(long size) {
+    if (size == 0) return "+0 B";
+    if (size > 0) return "+" + toFormattedBytes(size);
+    else return "-" + toFormattedBytes(Math.abs(size));
   }
 
   @Override
   protected void onEnabled() {
     timer.reset();
     running = false;
-    size = compressedSize = 0L;
+    size = previousSize = 0L;
     current = null;
   }
 
@@ -60,7 +68,9 @@ public class ClientChunkSize extends ToggleMod {
   public String getDisplayText() {
     return super.getDisplayText()
         + " "
-        + String.format("[%s | compressed %s]", asString(size), asString(compressedSize));
+        + String.format(
+            "[%s | %s]",
+            size == -1 ? "<error>" : toFormattedBytes(size), difference(size - previousSize));
   }
 
   @SubscribeEvent
@@ -75,47 +85,50 @@ public class ClientChunkSize extends ToggleMod {
 
           ChunkPos pos = chunk.getPos();
           if (!pos.equals(current) || (timer.isStarted() && timer.hasTimeElapsed(1000L))) {
+            // chunk changed, don't show diff between different chunks
+            if (current != null && !pos.equals(current)) size = previousSize = 0L;
+
             current = pos;
-
-            // this probably needs to be done on the main thread since it loops over entities
-            final NBTTagCompound root = new NBTTagCompound();
-            NBTTagCompound level = new NBTTagCompound();
-            root.setTag("Level", level);
-            root.setInteger("DataVersion", 7777);
-
-            try {
-              AnvilChunkLoader loader = new AnvilChunkLoader(DUMMY, null);
-              FastReflection.Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
-                  loader, chunk, getWorld(), level);
-            } catch (Throwable t) {
-              size = compressedSize = -1L;
-              return; // couldn't save chunk
-            }
-
             running = true;
 
             // process size calculation on another thread
             Executors.defaultThreadFactory()
                 .newThread(
                     () -> {
-                      DataOutputStream uncompressed =
-                          new DataOutputStream(
-                              new BufferedOutputStream(new ByteArrayOutputStream(8096)));
-                      DataOutputStream compressed =
-                          new DataOutputStream(
-                              new BufferedOutputStream(
-                                  new DeflaterOutputStream(new ByteArrayOutputStream(8096))));
                       try {
-                        CompressedStreamTools.write(root, uncompressed);
-                        CompressedStreamTools.write(root, compressed);
-                        size = uncompressed.size();
-                        compressedSize = compressed.size();
-                      } catch (IOException e) {
-                        size = -1L;
-                        compressedSize = -1L;
-                      }
+                        final NBTTagCompound root = new NBTTagCompound();
+                        NBTTagCompound level = new NBTTagCompound();
+                        root.setTag("Level", level);
+                        root.setInteger("DataVersion", 1337);
 
-                      timer.start();
+                        try {
+                          // this should be done on the main mc thread but it works 99% of the
+                          // time outside it
+                          AnvilChunkLoader loader = new AnvilChunkLoader(DUMMY, null);
+                          Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
+                              loader, chunk, getWorld(), level);
+                        } catch (Throwable t) {
+                          size = -1L;
+                          previousSize = 0L;
+                          return; // couldn't save chunk
+                        }
+
+                        DataOutputStream compressed =
+                            new DataOutputStream(
+                                new BufferedOutputStream(
+                                    new DeflaterOutputStream(new ByteArrayOutputStream(8096))));
+                        try {
+                          CompressedStreamTools.write(root, compressed);
+                          previousSize = size;
+                          size = compressed.size();
+                        } catch (IOException e) {
+                          size = -1L;
+                          previousSize = 0L;
+                        }
+                      } finally {
+                        timer.start();
+                        running = false;
+                      }
                     })
                 .start();
           }
