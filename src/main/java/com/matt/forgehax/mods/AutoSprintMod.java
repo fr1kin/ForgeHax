@@ -35,7 +35,7 @@ public class AutoSprintMod extends ToggleMod {
   private void startSprinting() {
     switch (mode.get()) {
       case ALWAYS:
-        if (!getLocalPlayer().isCollidedHorizontally && !getLocalPlayer().isSprinting())
+        if (!getLocalPlayer().collidedHorizontally && !getLocalPlayer().isSprinting())
           getLocalPlayer().setSprinting(true);
         break;
       default:
@@ -67,7 +67,7 @@ public class AutoSprintMod extends ToggleMod {
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (event.getEntityLiving().moveForward > 0
-        && !event.getEntityLiving().isCollidedHorizontally
+        && !event.getEntityLiving().collidedHorizontally
         && !event.getEntityLiving().isSneaking()) {
       startSprinting();
     }

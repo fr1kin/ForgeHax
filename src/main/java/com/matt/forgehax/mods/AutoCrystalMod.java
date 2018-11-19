@@ -92,7 +92,7 @@ public class AutoCrystalMod extends ToggleMod {
   }
 
   private Predicate<Entity> playerWithinDistance(float dist) {
-    return k -> getLocalPlayer().getDistanceSqToEntity(k) < dist * dist;
+    return k -> getLocalPlayer().getDistanceSq(k) < dist * dist;
   }
 
   private boolean enemyWithinDistance(Entity e, float dist) {
@@ -103,7 +103,7 @@ public class AutoCrystalMod extends ToggleMod {
         .getEntitiesWithinAABB(EntityPlayer.class, bb)
         .stream()
         .filter(p -> !p.isEntityEqual(getLocalPlayer()))
-        .anyMatch(p -> e.getDistanceSqToEntity(p) < dist * dist);
+        .anyMatch(p -> e.getDistanceSq(p) < dist * dist);
   }
 
   @SubscribeEvent

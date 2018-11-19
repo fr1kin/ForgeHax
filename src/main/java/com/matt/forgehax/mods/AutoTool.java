@@ -97,7 +97,7 @@ public class AutoTool extends ToggleMod {
   }
 
   private double getDigSpeed(InvItem item, IBlockState state, BlockPos pos) {
-    double str = item.getItemStack().getStrVsBlock(state);
+    double str = item.getItemStack().getDestroySpeed(state);
     int eff = getEnchantmentLevel(EFFICIENCY, item);
     return state.getBlockHardness(getWorld(), pos) > 0.D
         ? Math.max(str + (str > 1.D ? (eff * eff + 1.D) : 0.D), 0.D)

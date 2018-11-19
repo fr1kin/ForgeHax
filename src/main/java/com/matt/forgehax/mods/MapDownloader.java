@@ -12,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import jline.internal.Nullable;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.item.ItemMap;
@@ -45,7 +44,7 @@ public class MapDownloader extends ToggleMod {
     }
   }
 
-  public void downloadMap(@Nullable String fileName, @Nullable Integer scaledRes) {
+  private void downloadMap(String fileName, Integer scaledRes) {
     if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof ItemMap))
       return;
 
