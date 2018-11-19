@@ -75,6 +75,7 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     Objects.nonNull(AsmPattern.Builder.class);
     Objects.nonNull(AsmPattern.class);
     Objects.nonNull(InsnPattern.class);
+    Objects.nonNull(ASMStackLogger.class);
   }
 
   private void registerTransformer(ClassTransformer transformer) {
