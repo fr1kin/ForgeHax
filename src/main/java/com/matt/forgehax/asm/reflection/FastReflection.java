@@ -13,6 +13,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiEditSign;
+import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -33,6 +34,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.client.CPacketCloseWindow;
 import net.minecraft.network.play.client.CPacketEntityAction;
@@ -52,6 +54,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.storage.AnvilChunkLoader;
 
 /** Created on 5/8/2017 by fr1kin */
 public interface FastReflection extends ASMCommon {
@@ -194,6 +198,14 @@ public interface FastReflection extends ASMCommon {
         FastTypeBuilder.create()
             .setInsideClass(EntityPlayerSP.class)
             .setName("horseJumpPower")
+            .autoAssign()
+            .asField();
+
+    /** GuiConnecting */
+    FastField<NetworkManager> GuiConnecting_networkManager =
+        FastTypeBuilder.create()
+            .setInsideClass(GuiConnecting.class)
+            .setName("networkManager")
             .autoAssign()
             .asField();
 
@@ -495,6 +507,16 @@ public interface FastReflection extends ASMCommon {
             .setInsideClass(KeyBinding.class)
             .setName("unpressKey")
             .setParameters()
+            .setReturnType(void.class)
+            .autoAssign()
+            .asMethod();
+
+    /** IChunkLoader */
+    FastMethod<AnvilChunkLoader> AnvilChunkLoader_writeChunkToNBT =
+        FastTypeBuilder.create()
+            .setInsideClass(AnvilChunkLoader.class)
+            .setName("writeChunkToNBT")
+            .setParameters(Chunk.class, World.class, NBTTagCompound.class)
             .setReturnType(void.class)
             .autoAssign()
             .asMethod();
