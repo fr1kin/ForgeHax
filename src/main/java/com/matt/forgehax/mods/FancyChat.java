@@ -134,7 +134,7 @@ public class FancyChat extends ToggleMod {
 
       Pattern commandPattern = Pattern.compile("/(.+?)\\s");
       Matcher commandMatcher = commandPattern.matcher(inputMessage);
-      String command = commandMatcher.find() ? commandMatcher.group() : null;
+      String command = commandMatcher.find() ? commandMatcher.group(1) : null;
 
       if (command == null) {
         message = inputMessage;
@@ -154,7 +154,7 @@ public class FancyChat extends ToggleMod {
 
         if (matcher.find()) {
           recipient = inputMessage.substring(matcher.start(), matcher.end()).trim();
-          message = inputMessage.substring(matcher.end() + 1);
+          message = inputMessage.substring(matcher.end());
           isPM = true;
         } else {
           isIgnore = true;
