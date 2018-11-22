@@ -23,10 +23,11 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
-@IFMLLoadingPlugin.SortingIndex
+@IFMLLoadingPlugin.SortingIndex(1001)
 public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
   private HashMap<String, ClassTransformer> transformingClasses = new HashMap<>();
   private int transformingLevel = 0;
+  private boolean loaded = false;
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
   public ForgeHaxTransformer() {
@@ -89,6 +90,18 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
 
     ++transformingLevel;
     if (transformingClasses.containsKey(realName)) {
+      if (!loaded) {
+        try {
+          Class.forName(
+              "com.matt.forgehax.asm.utils.ForceReEntrance"); // will trigger Mixin to flag this
+        } catch (ClassNotFoundException e) {
+          LOGGER.warn("Failed to find and load com.matt.forgehax.asm.utils.ForceReEntrance");
+          // ignore
+        } finally {
+          loaded = true;
+        }
+      }
+
       ClassTransformer transformer = transformingClasses.get(realName);
       try {
         LOGGER.info("Transforming class " + realName);
