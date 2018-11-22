@@ -44,9 +44,9 @@ public class InstantMessage extends ToggleMod {
                 new CPacketChatMessage(
                     message
                         .get()
-                        .replaceAll("\\{SRVNAME\\}", serverName)
-                        .replaceAll("\\{IP\\}", serverIP)
-                        .replaceAll("\\{NAME\\}", MC.getSession().getUsername())));
+                        .replace("{SRVNAME}", serverName)
+                        .replace("{IP}", serverIP)
+                        .replace("{NAME}", MC.getSession().getUsername())));
       } else getLog().warn("Did not send message as current screen is not GuiConnecting");
     }
   }
