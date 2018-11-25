@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import org.apache.logging.log4j.core.util.Booleans;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
