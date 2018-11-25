@@ -3,7 +3,7 @@ package com.matt.forgehax.mods.services;
 import static com.matt.forgehax.Helper.getModManager;
 import static com.matt.forgehax.Helper.printMessageNaked;
 
-import com.matt.forgehax.FileManager;
+import com.matt.forgehax.log.FileManager;
 import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.ServiceMod;

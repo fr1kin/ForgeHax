@@ -2,7 +2,7 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.util.ImageUtils.*;
 
-import com.matt.forgehax.FileManager;
+import com.matt.forgehax.log.FileManager;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.Category;

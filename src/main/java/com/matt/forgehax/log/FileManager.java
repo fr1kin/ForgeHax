@@ -1,4 +1,4 @@
-package com.matt.forgehax;
+package com.matt.forgehax.log;
 
 import com.matt.forgehax.util.command.CommandHelper;
 import java.io.File;
