@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getNetworkManager;
+import static com.matt.forgehax.Helper.printError;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -64,44 +66,44 @@ public class FancyChat extends ToggleMod {
   };
 
   // Uppercase Lookup for LEET
-  private static HashMap<Integer, String> LeetMap = new HashMap<>();
+  private static HashMap<Integer, char[]> LeetMap = new HashMap<>();
   // Custom probability for rarely used LEET replacements
   private static HashMap<Integer, Integer> LeetProbability = new HashMap<>();
 
   static {
-    LeetMap.put(65, "4");
-    LeetMap.put(69, "3");
-    LeetMap.put(73, "1");
+    LeetMap.put(65, "4".toCharArray());
+    LeetMap.put(69, "3".toCharArray());
+    LeetMap.put(73, "1".toCharArray());
     LeetProbability.put(73, 60);
-    LeetMap.put(76, "1");
-    LeetMap.put(79, "0");
-    LeetMap.put(83, "5");
-    LeetMap.put(84, "7");
-    LeetMap.put(77, "|\\/|");
+    LeetMap.put(76, "1".toCharArray());
+    LeetMap.put(79, "0".toCharArray());
+    LeetMap.put(83, "5".toCharArray());
+    LeetMap.put(84, "7".toCharArray());
+    LeetMap.put(77, "|\\/|".toCharArray());
     LeetProbability.put(77, 15);
-    LeetMap.put(78, "|\\|");
+    LeetMap.put(78, "|\\|".toCharArray());
     LeetProbability.put(78, 20);
-    LeetMap.put(66, "8");
-    LeetProbability.put(66, 70);
-    LeetMap.put(67, "k");
+    LeetMap.put(66, "8".toCharArray());
+    LeetProbability.put(66, 20);
+    LeetMap.put(67, "k".toCharArray());
     LeetProbability.put(67, 80);
-    LeetMap.put(68, "|)");
+    LeetMap.put(68, "|)".toCharArray());
     LeetProbability.put(68, 40);
-    LeetMap.put(71, "9");
-    LeetProbability.put(71, 70);
-    LeetMap.put(72, "|-|");
+    LeetMap.put(71, "9".toCharArray());
+    LeetProbability.put(71, 20);
+    LeetMap.put(72, "|-|".toCharArray());
     LeetProbability.put(72, 40);
-    LeetMap.put(75, "|<");
+    LeetMap.put(75, "|<".toCharArray());
     LeetProbability.put(75, 40);
-    LeetMap.put(80, "|2");
+    LeetMap.put(80, "|2".toCharArray());
     LeetProbability.put(80, 20);
-    LeetMap.put(85, "|_|");
+    LeetMap.put(85, "|_|".toCharArray());
     LeetProbability.put(85, 20);
-    LeetMap.put(86, "\\/");
+    LeetMap.put(86, "\\/".toCharArray());
     LeetProbability.put(86, 40);
-    LeetMap.put(87, "\\/\\/");
+    LeetMap.put(87, "\\/\\/".toCharArray());
     LeetProbability.put(87, 30);
-    LeetMap.put(88, "><");
+    LeetMap.put(88, "><".toCharArray());
     LeetProbability.put(88, 50);
   }
 
@@ -114,8 +116,91 @@ public class FancyChat extends ToggleMod {
           .defaultTo(MODE.FULL_WIDTH)
           .build();
 
+  private Pattern prefixPattern;
+  private final Setting<String> prefixRegexp =
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("prefix")
+          .description("Command prefixes (RegExp)")
+          .defaultTo("/|//|\\!")
+          .requiredArgs(1)
+          .processor(
+              data -> {
+                try {
+                  Pattern.compile(data.getArgument(0));
+                  data.markSuccess();
+                  compileMessagePatterns();
+                } catch (PatternSyntaxException e) {
+                  printError(
+                      String.format(
+                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
+                  data.markFailed();
+                }
+              })
+          .build();
+
+  private Pattern command0ArgPattern;
+  private final Setting<String> command0ArgRegexp =
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("command0Arg")
+          .description("Commands where all text may be changed (RegExp)")
+          .defaultTo("r|reply")
+          .requiredArgs(1)
+          .processor(
+              data -> {
+                try {
+                  Pattern.compile(data.getArgument(0));
+                  data.markSuccess();
+                  compileMessagePatterns();
+                } catch (PatternSyntaxException e) {
+                  printError(
+                      String.format(
+                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
+                  data.markFailed();
+                }
+              })
+          .build();
+
+  private Pattern command1ArgPattern;
+  private final Setting<String> command1ArgRegexp =
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("command1Arg")
+          .description("Commands where only the first argument may not be changed (RegExp)")
+          .defaultTo("pm|tell|msg|message|w|whisper|nick|mail")
+          .requiredArgs(1)
+          .processor(
+              data -> {
+                try {
+                  Pattern.compile(data.getArgument(0));
+                  data.markSuccess();
+                  compileMessagePatterns();
+                } catch (PatternSyntaxException e) {
+                  printError(
+                      String.format(
+                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
+                  data.markFailed();
+                }
+              })
+          .build();
+
   public FancyChat() {
     super(Category.MISC, "FancyChat", false, "meme text");
+  }
+
+  @Override
+  protected void onLoad() {
+    compileMessagePatterns();
+  }
+
+  private void compileMessagePatterns() {
+    prefixPattern = Pattern.compile("(^" + prefixRegexp.get() + ")(\\w+)");
+    command0ArgPattern = Pattern.compile("(" + command0ArgRegexp.get() + ")");
+    command1ArgPattern = Pattern.compile("(" + command1ArgRegexp.get() + ")");
   }
 
   @SubscribeEvent
@@ -123,115 +208,122 @@ public class FancyChat extends ToggleMod {
     if (event.getPacket() instanceof CPacketChatMessage
         && !PacketHelper.isIgnored(event.getPacket())) {
 
-      String inputMessage;
-      String message;
-      String recipient = "";
-      boolean isWhisper = false;
-      boolean isPM = false;
+      boolean is0Arg = false;
+      boolean is1Arg = false;
       boolean isIgnore = false;
 
-      inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
+      String prefix = "";
+      String command = "";
+      String message;
+      String arg1 = "";
 
-      Pattern commandPattern = Pattern.compile("/(.+?)\\s");
-      Matcher commandMatcher = commandPattern.matcher(inputMessage);
-      String command = commandMatcher.find() ? commandMatcher.group(1) : null;
+      String inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
 
-      if (command == null) {
-        message = inputMessage;
-      } else if (command.equals("r") || command.equals("reply")) {
-        message = inputMessage.substring(commandMatcher.end());
+      Matcher prefixMatcher = prefixPattern.matcher(inputMessage);
+      if (prefixMatcher.find()) {
+        prefix = prefixMatcher.group(1);
+        command = prefixMatcher.group(2);
 
-        isWhisper = true;
-      } else if (command.equals("pm")
-          || command.equals("tell")
-          || command.equals("msg")
-          || command.equals("message")
-          || command.equals("w")
-          || command.equals("whisper")) {
+        Matcher cmd0ArgMatcher = command0ArgPattern.matcher(command);
+        Matcher cmd1ArgMatcher = command1ArgPattern.matcher(command);
 
-        Pattern pattern = Pattern.compile("\\s\\w+\\s");
-        Matcher matcher = pattern.matcher(inputMessage);
+        // if command is found, make sure the match is not just a substring
+        if (cmd0ArgMatcher.find() && command.length() == cmd0ArgMatcher.group().length()) {
+          is0Arg = true;
+          message = inputMessage.substring(prefixMatcher.end());
 
-        if (matcher.find()) {
-          recipient = inputMessage.substring(matcher.start(), matcher.end()).trim();
-          message = inputMessage.substring(matcher.end());
-          isPM = true;
+        } else if (cmd1ArgMatcher.find() && command.length() == cmd1ArgMatcher.group().length()) {
+          is1Arg = true;
+          Matcher arg1Matcher = Pattern.compile(" .+? ").matcher(inputMessage);
+
+          if (arg1Matcher.find()) {
+            arg1 = inputMessage.substring(arg1Matcher.start(), arg1Matcher.end()).trim();
+            message = inputMessage.substring(arg1Matcher.end());
+          } else {
+            isIgnore = true;
+            message = inputMessage;
+          }
+
         } else {
-          isIgnore = true;
           message = inputMessage;
+          // Completely ignore all unknown commands
+          isIgnore = true;
         }
       } else {
         message = inputMessage;
-        // Completely ignore all unknown commands
-        isIgnore = true;
       }
 
-      String messageOut;
-      char[] messageArray;
+      if (!isIgnore) {
+        String messageOut = prettify(message);
 
-      switch (font.get()) {
-        case LEET:
-          message =
-              message
-                  .replaceAll("(?i)dude", "d00d")
-                  .replaceAll("(^|\\s)f", "$1ph")
-                  .replaceAll("(^|\\s)ph", "$1f");
+        if (is0Arg) messageOut = prefix + command + " " + messageOut;
+        else if (is1Arg) messageOut = prefix + command + " " + arg1 + " " + messageOut;
 
-          messageArray = message.toCharArray();
-          // match and replace the last S in a word
-          Matcher zMatcher = Pattern.compile("[^,. :!;?]+([sS])").matcher(message);
-
-          while (!zMatcher.hitEnd()) {
-            if (zMatcher.find()) {
-              if (zMatcher.group(1).equals("s")) {
-                messageArray[zMatcher.end() - 1] = 'z';
-              } else {
-                messageArray[zMatcher.end() - 1] = 'Z';
-              }
-            }
-          }
-
-          StringBuilder builder = new StringBuilder();
-          Random random = new Random();
-          for (char c : messageArray) {
-            int key = (int) Character.toUpperCase(c);
-            if (LeetMap.get(key) != null
-                && (LeetProbability.get(key) == null
-                    || LeetProbability.get(key) > random.nextInt(100))) {
-              builder.append(LeetMap.get(key));
-            } else {
-              builder.append(c);
-            }
-          }
-
-          messageOut = builder.toString();
-          break;
-
-        default:
-          messageArray = message.toCharArray();
-          int[] currentFont = FONT[font.get().ordinal()];
-          int i = 0;
-
-          for (char c : messageArray) {
-            int letterKey = alphabet.indexOf(c);
-            if (letterKey != -1 && (c != (char) 0x3E)) {
-              messageArray[i] = (char) currentFont[letterKey];
-            }
-            i++;
-          }
-          messageOut = new String(messageArray);
-      }
-
-      if (isWhisper) messageOut = "/" + command + " " + messageOut;
-      else if (isPM) messageOut = "/" + command + " " + recipient + " " + messageOut;
-      else if (isIgnore) messageOut = inputMessage;
-
-      if (getNetworkManager() != null) {
-        CPacketChatMessage packet = new CPacketChatMessage(messageOut);
-        PacketHelper.ignore(packet);
-        getNetworkManager().sendPacket(packet);
-        event.setCanceled(true);
+        if (getNetworkManager() != null) {
+          CPacketChatMessage packet = new CPacketChatMessage(messageOut);
+          PacketHelper.ignore(packet);
+          getNetworkManager().sendPacket(packet);
+          event.setCanceled(true);
+        }
       }
     }
+  }
+
+  public String prettify(String message) {
+    String messageOut;
+    char[] messageArray;
+
+    switch (font.get()) {
+      case LEET:
+        message = message.replaceAll("(?i)dude", "d00d").replaceAll("(^|\\s)ph", "$1f");
+
+        messageArray = message.toCharArray();
+        // match and replace the last only S in a word
+        Matcher zMatcher = Pattern.compile("(?<![sS])([sS])(?:[^\\w]|$)").matcher(message);
+
+        while (!zMatcher.hitEnd()) {
+          if (zMatcher.find()) {
+            if (zMatcher.group(1).equals("s")) {
+              messageArray[zMatcher.end(1) - 1] = 'z';
+            } else {
+              messageArray[zMatcher.end(1) - 1] = 'Z';
+            }
+          }
+        }
+
+        StringBuilder builder = new StringBuilder();
+        Random random = new Random();
+        for (char c : messageArray) {
+          int key = (int) Character.toUpperCase(c);
+          // half the probability for LEET
+          if (random.nextInt(2) == 0
+              && LeetMap.get(key) != null
+              && (LeetProbability.get(key) == null
+                  || LeetProbability.get(key) > random.nextInt(100))) {
+            builder.append(LeetMap.get(key));
+          } else {
+            builder.append(c);
+          }
+        }
+
+        messageOut = builder.toString();
+        break;
+
+      default:
+        messageArray = message.toCharArray();
+        int[] currentFont = FONT[font.get().ordinal()];
+        int i = 0;
+
+        for (char c : messageArray) {
+          int letterKey = alphabet.indexOf(c);
+          if (letterKey != -1 && (c != (char) 0x3E)) {
+            messageArray[i] = (char) currentFont[letterKey];
+          }
+          i++;
+        }
+        messageOut = new String(messageArray);
+    }
+
+    return messageOut;
   }
 }
