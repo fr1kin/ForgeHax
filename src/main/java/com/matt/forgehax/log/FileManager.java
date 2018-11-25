@@ -1,9 +1,13 @@
 package com.matt.forgehax.log;
 
-import com.matt.forgehax.util.command.CommandHelper;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import net.minecraftforge.common.config.Configuration;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Created on 5/30/2017 by fr1kin */
 public class FileManager {
@@ -13,46 +17,83 @@ public class FileManager {
     return INSTANCE;
   }
 
-  public static File getWorkingDir() {
-    return Paths.get("").toAbsolutePath().toFile();
+  private static String[] expandPath(String fullPath) {
+    return fullPath.split(":?\\\\\\\\|\\/");
   }
 
-  private final File baseDirectory;
-  private final File configDirectory;
-  private final File cacheDirectory;
-  private final Configuration forgeConfiguration;
+  private static Stream<String> expandPaths(String... paths) {
+    return Arrays.stream(paths).map(FileManager::expandPath).flatMap(Arrays::stream);
+  }
+
+  private static Path lookupPath(Path root, String... paths) {
+    return Paths.get(root.toString(), paths);
+  }
+
+  private static Path getRoot() {
+    return Paths.get("");
+  }
+
+  private static void createDirectory(Path dir) {
+    try {
+      if (!Files.isDirectory(dir)) {
+        if (Files.exists(dir)) Files.delete(dir); // delete if it exists but isn't a directory
+
+        Files.createDirectories(dir);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static Path getMkDirectory(Path parent, String... paths) {
+    if (paths.length < 1) return parent;
+
+    Path dir = lookupPath(parent, paths);
+    createDirectory(dir);
+    return dir;
+  }
+
+  private final Path base;
 
   private FileManager() {
-    baseDirectory = new File(getWorkingDir(), "forgehax");
-    baseDirectory.mkdirs();
-    configDirectory = getFileInBaseDirectory("config");
-    configDirectory.mkdirs();
-    cacheDirectory = getFileInBaseDirectory("cache");
-    cacheDirectory.mkdir();
-    forgeConfiguration = new Configuration(getFileInConfigDirectory("settings.json"));
+    base = getMkDirectory(getRoot(), "forgehax");
+    // create directories for these common
+    getMkDirectory(base, "config");
+    getMkDirectory(base, "cache");
   }
 
-  public File getBaseDirectory() {
-    return baseDirectory;
+  public Path getBasePath() {
+    return base;
   }
 
-  public File getConfigDirectory() {
-    return configDirectory;
+  public Path getBaseResolve(String... paths) {
+    String[] names = expandPaths(paths).toArray(String[]::new);
+    if (names.length < 1) throw new IllegalArgumentException("missing path");
+
+    return lookupPath(getBasePath(), names);
   }
 
-  public File getCacheDirectory() {
-    return cacheDirectory;
+  public Path getMkBaseResolve(String... paths) {
+    Path path = getBaseResolve(paths);
+    createDirectory(path.getParent());
+    return path;
   }
 
-  public Configuration getForgeConfiguration() {
-    return forgeConfiguration;
+  public Path getConfig() {
+    return getBasePath().resolve("config");
   }
 
-  public File getFileInBaseDirectory(String... paths) {
-    return new File(baseDirectory, CommandHelper.join(paths, File.separator));
+  public Path getCache() {
+    return getBasePath().resolve("cache");
   }
 
-  public File getFileInConfigDirectory(String... paths) {
-    return new File(configDirectory, CommandHelper.join(paths, File.separator));
+  public Path getMkBaseDirectory(String... names) {
+    return getMkDirectory(
+        getBasePath(), expandPaths(names).collect(Collectors.joining(File.separator)));
+  }
+
+  public Path getMkConfigDirectory(String... names) {
+    return getMkDirectory(
+        getConfig(), expandPaths(names).collect(Collectors.joining(File.separator)));
   }
 }

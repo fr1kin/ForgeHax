@@ -46,7 +46,7 @@ public class WaifuESP extends ToggleMod {
       "https://raw.githubusercontent.com/fr1kin/ForgeHax/master/src/main/resources/assets/minecraft/textures/forgehax/waifu1.png";
 
   private final File waifuCache =
-      new File(Helper.getFileManager().getCacheDirectory(), "waifu.png");
+      Helper.getFileManager().getBaseResolve("cache/waifu.png").toFile();
 
   private <T> BufferedImage getImage(T source, ThrowingFunction<T, BufferedImage> readFunction) {
     try {

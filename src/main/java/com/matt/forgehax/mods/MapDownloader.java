@@ -2,9 +2,9 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.util.ImageUtils.*;
 
-import com.matt.forgehax.log.FileManager;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.log.FileManager;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -31,7 +31,7 @@ public class MapDownloader extends ToggleMod {
   private void saveImage(String fileName, BufferedImage image) {
 
     if (outputDir == null) {
-      outputDir = new File(FileManager.getInstance().getBaseDirectory(), "maps");
+      outputDir = FileManager.getInstance().getBaseResolve("maps").toFile();
     }
     if (!outputDir.exists()) {
       outputDir.mkdir();

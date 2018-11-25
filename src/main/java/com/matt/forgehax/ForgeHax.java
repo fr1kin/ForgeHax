@@ -19,8 +19,7 @@ public class ForgeHax {
     // is updated or mods will not load anymore
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     getModManager().searchPackage("com.matt.forgehax.mods.*");
-    getModManager()
-        .searchPluginDirectory(getFileManager().getBaseDirectory().toPath().resolve("plugins"));
+    getModManager().searchPluginDirectory(getFileManager().getBaseResolve("plugins"));
   }
 
   public static String getWelcomeMessage() {

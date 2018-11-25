@@ -5,7 +5,6 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.printWarning;
 
 import com.google.common.collect.Lists;
-import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.console.ConsoleIO;
@@ -13,10 +12,10 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import io.netty.buffer.Unpooled;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Scanner;
 import java.util.function.Consumer;
@@ -148,23 +147,22 @@ public class BookBot extends ToggleMod {
   private BookWriter loadFile() throws RuntimeException {
     if (file.get().isEmpty()) throw new RuntimeException("No file name set");
 
-    File f = Helper.getFileManager().getFileInBaseDirectory(file.get());
+    Path data = getFileManager().getBaseResolve(file.get());
 
-    if (!f.exists()) throw new RuntimeException("File not found");
-
-    if (!f.isFile()) throw new RuntimeException("Not a file type");
+    if (!Files.exists(data)) throw new RuntimeException("File not found");
+    if (!Files.isRegularFile(data)) throw new RuntimeException("Not a file type");
 
     String text;
     try {
-      text = new String(Files.readAllBytes(f.toPath()), StandardCharsets.UTF_8);
+      text = new String(Files.readAllBytes(data), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException("Failed to read file");
     }
 
-    if (f.getName().endsWith(".txt") || f.getName().endsWith(".book")) {
-      return new BookWriter(
-          this, f.getName().endsWith(".txt") ? parseText(text, prettify.get()) : text);
-    } else throw new RuntimeException("File is not of a .txt or .book type");
+    String name = data.getFileName().toString();
+    if (name.endsWith(".txt") || name.endsWith(".book")) {
+      return new BookWriter(this, name.endsWith(".txt") ? parseText(text, prettify.get()) : text);
+    } else throw new RuntimeException("File is not a .txt or .book type");
   }
 
   @Override
@@ -282,9 +280,7 @@ public class BookBot extends ToggleMod {
 
               if (writer != null) {
                 try {
-                  Files.write(
-                      getFileManager().getFileInBaseDirectory(fname).toPath(),
-                      writer.contents.getBytes());
+                  Files.write(getFileManager().getBaseResolve(fname), writer.contents.getBytes());
                   data.write("Successfully saved book data");
                 } catch (IOException e) {
                   data.write("Failed to write file");

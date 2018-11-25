@@ -24,8 +24,8 @@ import com.matt.forgehax.util.spam.SpamEntry;
 import com.matt.forgehax.util.spam.SpamMessage;
 import com.matt.forgehax.util.spam.SpamTokens;
 import com.matt.forgehax.util.spam.SpamTrigger;
-import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Scanner;
 import joptsimple.internal.Strings;
@@ -143,13 +143,12 @@ public class ChatBot extends ToggleMod {
                 data.write("Added new entry \"" + name + "\"");
               }
 
-              File file = getFileManager().getFileInBaseDirectory(fileN);
-              if (file.exists()) {
+              Path file = getFileManager().getBaseResolve(fileN);
+              if (Files.exists(file)) {
                 if (fileN.endsWith(".json")) {
                   try {
                     JsonParser parser = new JsonParser();
-                    JsonElement element =
-                        parser.parse(new String(Files.readAllBytes(file.toPath())));
+                    JsonElement element = parser.parse(new String(Files.readAllBytes(file)));
                     if (element.isJsonArray()) {
                       JsonArray head = (JsonArray) element;
                       int count = 0;
@@ -212,15 +211,15 @@ public class ChatBot extends ToggleMod {
 
               if (!fileN.endsWith(".json") && !fileN.endsWith(".txt")) fileN += ".txt";
 
-              File file = getFileManager().getFileInBaseDirectory(fileN);
+              Path file = getFileManager().getBaseResolve(fileN);
 
               try {
-                if (file.getParentFile() != null) file.getParentFile().mkdirs();
+                if (!Files.isDirectory(file.getParent())) Files.createDirectories(file.getParent());
 
                 if (name.endsWith(".json")) {
                   final JsonArray head = new JsonArray();
                   entry.getMessages().forEach(str -> head.add(new JsonPrimitive(str)));
-                  Files.write(file.toPath(), GsonConstant.GSON_PRETTY.toJson(head).getBytes());
+                  Files.write(file, GsonConstant.GSON_PRETTY.toJson(head).getBytes());
                 } else {
                   final StringBuilder builder = new StringBuilder();
                   entry
@@ -230,7 +229,7 @@ public class ChatBot extends ToggleMod {
                             builder.append(str);
                             builder.append('\n');
                           });
-                  Files.write(file.toPath(), builder.toString().getBytes());
+                  Files.write(file, builder.toString().getBytes());
                 }
                 data.markSuccess();
               } catch (Throwable t) {
