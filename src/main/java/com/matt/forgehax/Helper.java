@@ -77,7 +77,8 @@ public class Helper implements Globals {
   public static World getWorld(TileEntity tileEntity) {
     return tileEntity.getWorld();
   }
-
+  
+  @Nullable
   public static NetworkManager getNetworkManager() {
     return FMLClientHandler.instance().getClientToServerNetworkManager();
   }
