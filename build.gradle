@@ -91,12 +91,7 @@ processResources
     //}
 }
 
-spotless {
-    java {
-        googleJavaFormat()
-        removeUnusedImports()
-    }
-}
+
 
 task setGameDir() {
     // Check if custom gamedir has been passed, if not use default ones per platform
