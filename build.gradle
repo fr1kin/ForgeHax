@@ -21,7 +21,6 @@ repositories {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: "com.diffplug.gradle.spotless"
 
 sourceCompatibility = targetCompatibility = '1.8'
 
@@ -90,7 +89,6 @@ processResources
         ]
     //}
 }
-
 
 
 task setGameDir() {
