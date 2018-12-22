@@ -1,6 +1,6 @@
 # ForgeHax
 [![Build Status](http://jenkins.daporkchop.net/job/Minecraft/job/ForgeHax/badge/icon)](http://jenkins.daporkchop.net/job/Minecraft/job/ForgeHax/)
-[![](https://img.shields.io/matrix/!RBkfmpSEFHJliToAea/nerdsin.space.svg?logo=matrix)](https://matrix.to/#/!RBkfmpSEFHJliToAea:nerdsin.space?via=nerdsin.space&via=matrix.org)
+[![](https://img.shields.io/matrix/forgehax%3Anerdsin.space.svg?logo=matrix)](https://matrix.to/#/!RBkfmpSEFHJliToAea:nerdsin.space?via=nerdsin.space&via=matrix.org)
 
 A Minecraft cheat that runs as a Forge mod
 
