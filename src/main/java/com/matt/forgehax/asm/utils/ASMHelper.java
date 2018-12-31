@@ -1,10 +1,10 @@
 package com.matt.forgehax.asm.utils;
 
+import static org.objectweb.asm.Opcodes.*;
+
 import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.objectweb.asm.tree.*;
-
-import static org.objectweb.asm.Opcodes.*;
 
 public class ASMHelper {
 
@@ -153,12 +151,12 @@ public class ASMHelper {
         field.getRuntimeDescriptor());
   }
 
-  public static int addNewLocalVariable(MethodNode method, String name, String desc, LabelNode start, LabelNode end) {
-    Optional<LocalVariableNode> lastVar = method.localVariables.stream()
-        .max(Comparator.comparingInt(var -> var.index));
-    final int newIndex = lastVar
-        .map(var -> var.desc.matches("[JD]") ? var.index + 2 : var.index + 1)
-        .orElse(0);
+  public static int addNewLocalVariable(
+      MethodNode method, String name, String desc, LabelNode start, LabelNode end) {
+    Optional<LocalVariableNode> lastVar =
+        method.localVariables.stream().max(Comparator.comparingInt(var -> var.index));
+    final int newIndex =
+        lastVar.map(var -> var.desc.matches("[JD]") ? var.index + 2 : var.index + 1).orElse(0);
 
     LocalVariableNode variable = new LocalVariableNode(name, desc, null, start, end, newIndex);
     method.localVariables.add(variable);
@@ -168,8 +166,7 @@ public class ASMHelper {
 
   // args should be type descriptors
   public static InsnList newInstance(String name, String[] argTypes, @Nullable InsnList args) {
-    final String desc = Stream.of(argTypes)
-        .collect(Collectors.joining("", "(", ")V"));
+    final String desc = Stream.of(argTypes).collect(Collectors.joining("", "(", ")V"));
     return newInstance(name, desc, args);
   }
 
