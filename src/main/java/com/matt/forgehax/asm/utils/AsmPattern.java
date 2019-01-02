@@ -8,11 +8,11 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 public class AsmPattern {
 
-  // TODO: implement flags
   public static final int IGNORE_FRAMES = 1 << 0;
   public static final int IGNORE_LABELS = 1 << 1;
   public static final int IGNORE_LINENUMBERS = 1 << 2;
@@ -64,10 +64,14 @@ public class AsmPattern {
     }
 
     public Builder opcodes(int... opcodes) {
-      for (int i : opcodes) {
-        opcode(i);
+      for (int o : opcodes) {
+        opcode(o);
       }
       return this;
+    }
+
+    public Builder invoke() {
+      return add(insn -> insn instanceof MethodInsnNode);
     }
 
     public Builder any() {
@@ -80,12 +84,12 @@ public class AsmPattern {
       return add(insn -> insn instanceof LabelNode);
     }
 
-    public Builder custom(Predicate<AbstractInsnNode> predicate) {
+    public <T extends AbstractInsnNode> Builder custom(Predicate<T> predicate) {
       return add(predicate);
     }
 
-    private Builder add(Predicate<AbstractInsnNode> predicate) {
-      predicates.add(predicate);
+    private Builder add(Predicate<? extends AbstractInsnNode> predicate) {
+      predicates.add((Predicate<AbstractInsnNode>) predicate);
       return this;
     }
 

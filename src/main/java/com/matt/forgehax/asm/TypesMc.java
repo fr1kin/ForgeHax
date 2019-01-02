@@ -581,6 +581,24 @@ public interface TypesMc {
             .finish()
             .autoAssign()
             .build();
+    ASMMethod RenderGlobal_drawBoundingBox =
+        Classes.RenderGlobal.childMethod()
+            .setName("drawBoundingBox")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(double.class)
+            .add(double.class)
+            .add(double.class)
+            .add(double.class)
+            .add(double.class)
+            .add(double.class)
+            .add(float.class)
+            .add(float.class)
+            .add(float.class)
+            .add(float.class)
+            .finish()
+            .autoAssign()
+            .build();
 
     ASMMethod BufferBuilder_putColorMultiplier =
         Classes.BufferBuilder.childMethod()

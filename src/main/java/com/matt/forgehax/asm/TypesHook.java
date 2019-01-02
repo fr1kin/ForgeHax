@@ -6,6 +6,7 @@ import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.asmtype.builders.ASMBuilders;
 import java.util.List;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 /** Created on 5/27/2017 by fr1kin */
 public interface TypesHook {
@@ -434,6 +435,31 @@ public interface TypesHook {
             .add(TypesMc.Classes.IBlockState)
             .add(int.class)
             .finish()
+            .build();
+
+    ASMMethod ForgeHaxHooks_fireEvent_v =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("fireEvent_v")
+            .setReturnType(void.class) // return nothing
+            .beginParameters()
+            .add(Event.class)
+            .finish()
+            .build();
+
+    ASMMethod ForgeHaxHooks_fireEvent_b =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("fireEvent_b")
+            .setReturnType(boolean.class) // return true if canceled
+            .beginParameters()
+            .add(Event.class)
+            .finish()
+            .build();
+
+    ASMMethod ForgeHaxHooks_onDrawBoundingBox_Post =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("onDrawBoundingBoxPost")
+            .setReturnType(void.class)
+            .emptyParameters()
             .build();
   }
 }

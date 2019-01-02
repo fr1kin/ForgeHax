@@ -151,6 +151,24 @@ public class ASMHelper {
         field.getRuntimeDescriptor());
   }
 
+  // scope is from first label to last label
+  public static int addNewLocalVariable(MethodNode method, String name, String desc) {
+    AsmPattern labelPattern = new AsmPattern.Builder(0).label().build();
+
+    final LabelNode start = labelPattern.test(method).getFirst();
+
+    // TODO: implement backwards pattern matching so this can be refactored
+    AbstractInsnNode iter = method.instructions.getFirst();
+    LabelNode end = null;
+    do {
+      if (iter instanceof LabelNode) end = (LabelNode) iter;
+      iter = iter.getNext();
+    } while (iter != null);
+    if (end == null) throw new IllegalArgumentException("Failed to find LabelNode");
+
+    return addNewLocalVariable(method, name, desc, start, end);
+  }
+
   public static int addNewLocalVariable(
       MethodNode method, String name, String desc, LabelNode start, LabelNode end) {
     Optional<LocalVariableNode> lastVar =
