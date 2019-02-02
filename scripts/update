@@ -25,6 +25,6 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         docker-compose \
             -f docker-compose.ci.yml \
             run --rm \
-            forgehax setupCiWorkspace --stacktrace
+            forgehax setupDecompWorkspace --stacktrace
     fi
 fi
