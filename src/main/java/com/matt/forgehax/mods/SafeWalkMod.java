@@ -57,7 +57,7 @@ public class SafeWalkMod extends ToggleMod {
   }
 
   private boolean isAbovePlayer(BlockPos pos) {
-    return pos.getY() > getLocalPlayer().posY;
+    return pos.getY() >= getLocalPlayer().posY;
   }
 
 
