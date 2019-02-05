@@ -21,7 +21,6 @@ repositories {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: "com.diffplug.gradle.spotless"
 
 sourceCompatibility = targetCompatibility = '1.8'
 
@@ -91,12 +90,6 @@ processResources
     //}
 }
 
-spotless {
-    java {
-        googleJavaFormat()
-        removeUnusedImports()
-    }
-}
 
 task setGameDir() {
     // Check if custom gamedir has been passed, if not use default ones per platform
