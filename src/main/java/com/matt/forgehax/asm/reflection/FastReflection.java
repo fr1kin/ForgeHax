@@ -56,6 +56,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 /** Created on 5/8/2017 by fr1kin */
 public interface FastReflection extends ASMCommon {
@@ -425,6 +426,14 @@ public interface FastReflection extends ASMCommon {
         FastTypeBuilder.create()
             .setInsideClass(ItemFood.class)
             .setName("potionId")
+            .autoAssign()
+            .asField();
+
+    /** Chunk */
+    FastField<ExtendedBlockStorage[]> Chunk_storageArrays =
+        FastTypeBuilder.create()
+            .setInsideClass(Chunk.class)
+            .setName("storageArrays")
             .autoAssign()
             .asField();
   }
