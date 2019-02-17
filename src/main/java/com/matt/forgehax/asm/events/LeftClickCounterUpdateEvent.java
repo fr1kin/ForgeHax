@@ -2,8 +2,8 @@ package com.matt.forgehax.asm.events;
 
 import com.matt.forgehax.asm.reflection.FastReflection;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 
 @Cancelable
 public class LeftClickCounterUpdateEvent extends Event {

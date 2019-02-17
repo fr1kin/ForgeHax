@@ -3,7 +3,8 @@ package com.matt.forgehax.events;
 import com.google.common.base.Strings;
 import com.matt.forgehax.util.entity.PlayerInfo;
 import javax.annotation.Nullable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+
+import net.minecraftforge.eventbus.api.Event;
 
 /** Created on 7/18/2017 by fr1kin */
 public class ChatMessageEvent extends Event {

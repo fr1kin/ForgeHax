@@ -2,15 +2,17 @@ package com.matt.forgehax.asm.events;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+//import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.common.eventhandler.Event;
+//import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.eventbus.api.Event;
 
 /** Created on 5/5/2017 by fr1kin */
+// i dont think this is used
+// TODO: fix
 public class BlockModelRenderEvent extends Event {
-  private final IBlockAccess blockAccess;
-  private final IBakedModel bakedModel;
+  //private final IBlockAccess blockAccess;
+  //private final IBakedModel bakedModel;
   private final IBlockState blockState;
   private final BlockPos blockPos;
   private final BufferBuilder buffer;
@@ -18,15 +20,15 @@ public class BlockModelRenderEvent extends Event {
   private final long rand;
 
   public BlockModelRenderEvent(
-      IBlockAccess worldIn,
-      IBakedModel modelIn,
+      //IBlockAccess worldIn,
+      //IBakedModel modelIn,
       IBlockState stateIn,
       BlockPos posIn,
       BufferBuilder buffer,
       boolean checkSides,
       long rand) {
-    this.blockAccess = worldIn;
-    this.bakedModel = modelIn;
+    //this.blockAccess = worldIn;
+    //this.bakedModel = modelIn;
     this.blockState = stateIn;
     this.blockPos = posIn;
     this.buffer = buffer;
@@ -34,13 +36,13 @@ public class BlockModelRenderEvent extends Event {
     this.rand = rand;
   }
 
-  public IBlockAccess getBlockAccess() {
+  /*public IBlockAccess getBlockAccess() {
     return blockAccess;
-  }
+  }*/
 
-  public IBakedModel getBakedModel() {
+  /*public IBakedModel getBakedModel() {
     return bakedModel;
-  }
+  }*/
 
   public IBlockState getBlockState() {
     return blockState;

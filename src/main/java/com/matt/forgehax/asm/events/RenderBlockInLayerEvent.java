@@ -3,7 +3,7 @@ package com.matt.forgehax.asm.events;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class RenderBlockInLayerEvent extends Event {
   private final Block block;

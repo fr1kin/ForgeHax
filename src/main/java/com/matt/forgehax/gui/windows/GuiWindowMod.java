@@ -3,7 +3,6 @@ package com.matt.forgehax.gui.windows;
 import static com.matt.forgehax.Globals.MC;
 import static com.matt.forgehax.Helper.getModManager;
 
-import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.gui.elements.GuiButton;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceHelper;
@@ -13,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 /** Created by Babbaj on 9/5/2017. */
@@ -64,10 +62,10 @@ public class GuiWindowMod extends GuiWindow {
         posX, windowY, width, height, Utils.toRGBA(130, 130, 130, 255), 80, 3);
     int buttonY = windowY - buttonListOffset + 2;
 
-    int scale = ClickGui.scaledRes.getScaleFactor();
+    int scale = MC.mainWindow.getScaleFactor(1);
 
     GL11.glPushMatrix();
-    int scissorY = MC.displayHeight - (scale * windowY + scale * height - 3);
+    int scissorY = MC.mainWindow.getHeight() - (scale * windowY + scale * height - 3);
     GL11.glScissor(scale * posX, scissorY, scale * width, scale * height - 8);
     GL11.glEnable(GL11.GL_SCISSOR_TEST);
     for (GuiButton button : buttonList) {
@@ -102,8 +100,9 @@ public class GuiWindowMod extends GuiWindow {
     }
   }
 
+  // TODO: update
   public void handleMouseInput() throws IOException {
-    int i = Mouse.getEventDWheel();
+    int i = 0;//Mouse.getEventDWheel();
 
     i = MathHelper.clamp(i, -1, 1);
     buttonListOffset -= i * 10;

@@ -2,17 +2,17 @@ package com.matt.forgehax.util.math;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
+//import org.lwjgl.util.vector.Matrix4f;
+//import org.lwjgl.util.vector.Vector4f;
 
+// TODO: update
 public class VectorUtils implements Globals {
   // Credits to Gregor and P47R1CK for the 3D vector transformation code
 
-  static Matrix4f modelMatrix = new Matrix4f();
+  /*static Matrix4f modelMatrix = new Matrix4f();
   static Matrix4f projectionMatrix = new Matrix4f();
 
   private static void VecTransformCoordinate(Vector4f vec, Matrix4f matrix) {
@@ -23,10 +23,10 @@ public class VectorUtils implements Globals {
     vec.y = (x * matrix.m01) + (y * matrix.m11) + (z * matrix.m21) + matrix.m31;
     vec.z = (x * matrix.m02) + (y * matrix.m12) + (z * matrix.m22) + matrix.m32;
     vec.w = (x * matrix.m03) + (y * matrix.m13) + (z * matrix.m23) + matrix.m33;
-  }
+  }*/
 
   /** Convert 3D coord into 2D coordinate projected onto the screen */
-  public static Plane toScreen(double x, double y, double z) {
+  /*public static Plane toScreen(double x, double y, double z) {
     Entity view = MC.getRenderViewEntity();
 
     if (view == null) return new Plane(0.D, 0.D, false);
@@ -57,16 +57,15 @@ public class VectorUtils implements Globals {
       pos.y *= invert;
     }
 
-    ScaledResolution res = new ScaledResolution(MC);
-    float halfWidth = (float) res.getScaledWidth() / 2.f;
-    float halfHeight = (float) res.getScaledHeight() / 2.f;
+    float halfWidth = (float) MC.mainWindow.getScaledWidth() / 2.f;
+    float halfHeight = (float) MC.mainWindow.getScaledHeight() / 2.f;
 
-    pos.x = halfWidth + (0.5f * pos.x * res.getScaledWidth() + 0.5f);
-    pos.y = halfHeight - (0.5f * pos.y * res.getScaledHeight() + 0.5f);
+    pos.x = halfWidth + (0.5f * pos.x * MC.mainWindow.getScaledWidth() + 0.5f);
+    pos.y = halfHeight - (0.5f * pos.y * MC.mainWindow.getScaledHeight() + 0.5f);
 
     boolean bVisible = true;
 
-    if (pos.x < 0 || pos.y < 0 || pos.x > res.getScaledWidth() || pos.y > res.getScaledHeight())
+    if (pos.x < 0 || pos.y < 0 || pos.x > MC.mainWindow.getScaledWidth() || pos.y > MC.mainWindow.getScaledHeight())
       bVisible = false;
 
     return new Plane(pos.x, pos.y, bVisible);
@@ -85,7 +84,7 @@ public class VectorUtils implements Globals {
   @Deprecated
   public static ScreenPos _toScreen(Vec3d vec3d) {
     return _toScreen(vec3d.x, vec3d.y, vec3d.z);
-  }
+  }*/
 
   /** Convert a vector to a angle */
   @Deprecated

@@ -2,7 +2,7 @@ package com.matt.forgehax.asm.events;
 
 import java.util.OptionalInt;
 import javax.annotation.Nullable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class RenderTabNameEvent extends Event {
 

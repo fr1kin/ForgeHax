@@ -3,7 +3,7 @@ package com.matt.forgehax;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.matt.forgehax.log.FileManager;
-import com.matt.forgehax.mods.services.MainMenuGuiService.CommandInputGui;
+//import com.matt.forgehax.mods.services.MainMenuGuiService.CommandInputGui;
 import com.matt.forgehax.util.command.CommandGlobal;
 import com.matt.forgehax.util.mod.loader.ModManager;
 import java.util.Optional;
@@ -21,7 +21,6 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
 
 /** Created on 4/25/2017 by fr1kin */
@@ -80,7 +79,7 @@ public class Helper implements Globals {
 
   @Nullable
   public static NetworkManager getNetworkManager() {
-    return FMLClientHandler.instance().getClientToServerNetworkManager();
+    return MC.getConnection()!=null ? MC.getConnection().getNetworkManager() : null;
   }
 
   public static PlayerControllerMP getPlayerController() {
@@ -114,9 +113,9 @@ public class Helper implements Globals {
   private static void outputMessage(String text) {
     if (getLocalPlayer() != null) {
       getLocalPlayer().sendMessage(new TextComponentString(text));
-    } else if (MC.currentScreen instanceof CommandInputGui) {
-      ((CommandInputGui) MC.currentScreen).print(text);
-    }
+    } //else if (MC.currentScreen instanceof CommandInputGui) {
+      //((CommandInputGui) MC.currentScreen).print(text);
+    //}
   }
 
   public static void printMessageNaked(String append, String message, Style style) {

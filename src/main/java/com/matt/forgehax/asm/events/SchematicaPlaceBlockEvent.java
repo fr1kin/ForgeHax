@@ -3,7 +3,7 @@ package com.matt.forgehax.asm.events;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /** Created by Babbaj on 9/20/2017. */
 public class SchematicaPlaceBlockEvent extends Event {

@@ -17,7 +17,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
-@IFMLLoadingPlugin.SortingIndex(1001)
 public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
   private HashMap<String, ClassTransformer> transformingClasses = new HashMap<>();
   private int transformingLevel = 0;

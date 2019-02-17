@@ -12,7 +12,6 @@ import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeRegistry;
 import java.util.List;
 import java.util.Objects;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -92,7 +91,7 @@ public class EntityUtils implements Globals {
   }
 
   public static boolean isAlive(Entity entity) {
-    return isLiving(entity) && !entity.isDead && ((EntityLivingBase) (entity)).getHealth() > 0;
+    return isLiving(entity) && entity.isAlive() && ((EntityLivingBase) (entity)).getHealth() > 0;
   }
 
   /** If the mob by default wont attack the player, but will if the player attacks it */
@@ -143,7 +142,7 @@ public class EntityUtils implements Globals {
 
   /** Find the entities interpolated eye position */
   public static Vec3d getInterpolatedEyePos(Entity entity, double ticks) {
-    return getInterpolatedPos(entity, ticks).addVector(0, entity.getEyeHeight(), 0);
+    return getInterpolatedPos(entity, ticks).add(0, entity.getEyeHeight(), 0);
   }
 
   /** Get entities eye position */
@@ -153,7 +152,7 @@ public class EntityUtils implements Globals {
 
   /** Find the center of the entities hit box */
   public static Vec3d getOBBCenter(Entity entity) {
-    AxisAlignedBB obb = entity.getEntityBoundingBox();
+    AxisAlignedBB obb = entity.getBoundingBox();
     return new Vec3d(
         (obb.maxX + obb.minX) / 2.D, (obb.maxY + obb.minY) / 2.D, (obb.maxZ + obb.minZ) / 2.D);
   }
@@ -169,12 +168,12 @@ public class EntityUtils implements Globals {
       if (filter.contains(ent)) continue;
 
       double distance = start.distanceTo(ent.getPositionVector());
-      RayTraceResult trace = ent.getEntityBoundingBox().calculateIntercept(start, end);
+      RayTraceResult trace = ent.getBoundingBox().calculateIntercept(start, end);
 
       if (trace != null && (hitDistance == -1 || distance < hitDistance)) {
         hitDistance = distance;
         result = trace;
-        result.entityHit = ent;
+        result.entity = ent;
       }
     }
 
@@ -219,7 +218,8 @@ public class EntityUtils implements Globals {
       for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
         BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
 
-        if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
+        // TODO: make sure this is correct
+        if (getWorld().getBlockState(pos).getFluidState().isSource()) return true;
       }
 
     return false;
@@ -234,7 +234,7 @@ public class EntityUtils implements Globals {
       for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
         BlockPos pos = new BlockPos(x, (int) y, z);
 
-        if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) return true;
+        if (getWorld().getBlockState(pos).getFluidState().isSource()) return true;
       }
 
     return false;

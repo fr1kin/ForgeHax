@@ -32,11 +32,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class ForgeHaxHooks implements ASMCommon {
   private static final List<HookReporter> ALL_REPORTERS = Lists.newArrayList();
@@ -552,18 +551,6 @@ public class ForgeHaxHooks implements ASMCommon {
       MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Post(localPlayer));
   }
 
-  /** onWorldCheckLightFor */
-  public static final HookReporter HOOK_onWorldCheckLightFor =
-      newHookReporter()
-          .hook("onWorldCheckLightFor")
-          .dependsOn(TypesMc.Methods.World_checkLightFor)
-          .forgeEvent(WorldCheckLightForEvent.class)
-          .build();
-
-  public static boolean onWorldCheckLightFor(EnumSkyBlock enumSkyBlock, BlockPos pos) {
-    return HOOK_onWorldCheckLightFor.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new WorldCheckLightForEvent(enumSkyBlock, pos));
-  }
 
   /** onLeftClickCounterSet */
   public static final HookReporter HOOK_onLeftClickCounterSet =

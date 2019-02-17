@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
-import org.lwjgl.input.Mouse;
 
 /** Created by Babbaj on 9/5/2017. */
 public class ClickGui extends GuiScreen implements Globals {
@@ -33,8 +31,6 @@ public class ClickGui extends GuiScreen implements Globals {
     windowList.add(miscWindow);
   }
 
-  public static ScaledResolution scaledRes = new ScaledResolution(MC);
-
   public int baseColor;
 
   private ClickGui() {
@@ -43,10 +39,10 @@ public class ClickGui extends GuiScreen implements Globals {
     // TODO: improve this a bit maybe
     for (int i = 0; i < windowList.size(); i++) {
       int x =
-          (i + 1) * scaledRes.getScaledWidth() / (windowList.size() + 1)
+          (i + 1) * MC.mainWindow.getScaledWidth() / (windowList.size() + 1)
               - windowList.get(i).width / 2
               - 10;
-      int y = scaledRes.getScaledHeight() / 15;
+      int y = MC.mainWindow.getScaledHeight() / 15;
       windowList.get(i).setPosition(x, y);
     }
   }
@@ -100,24 +96,25 @@ public class ClickGui extends GuiScreen implements Globals {
     super.mouseReleased(x, y, state);
   }
 
-  public void keyTyped(char typedChar, int keyCode) throws IOException {
+  // TODO: update
+  /*public void keyTyped(char typedChar, int keyCode) throws IOException {
     super.keyTyped(typedChar, keyCode);
     for (GuiWindow window : windowList) {
       window.keyTyped(typedChar, keyCode);
     }
-  }
+  }*/
 
-  public void handleMouseInput() throws IOException {
+  // TODO: update
+  /*public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
     // used for scrolling
-    super.handleMouseInput();
 
-    int scale = scaledRes.getScaleFactor();
+    int scale = MC.mainWindow.getScaleFactor();
     for (GuiWindow window : Lists.reverse(windowList)) {
       if (isMouseInWindow(
           Mouse.getEventX() / scale, (MC.displayHeight - Mouse.getEventY()) / scale, window)) {
-        window.handleMouseInput();
+        window.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
         break;
       }
     }
-  }
+  }*/
 }

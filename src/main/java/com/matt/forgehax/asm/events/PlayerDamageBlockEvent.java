@@ -3,7 +3,7 @@ package com.matt.forgehax.asm.events;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class PlayerDamageBlockEvent extends Event {
   private final PlayerControllerMP playerController;

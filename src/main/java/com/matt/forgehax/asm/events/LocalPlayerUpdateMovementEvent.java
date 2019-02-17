@@ -1,8 +1,8 @@
 package com.matt.forgehax.asm.events;
 
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 
 /** Created on 6/15/2017 by fr1kin */
 public class LocalPlayerUpdateMovementEvent extends Event {

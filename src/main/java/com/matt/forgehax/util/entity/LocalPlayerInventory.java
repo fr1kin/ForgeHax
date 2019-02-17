@@ -232,7 +232,7 @@ public class LocalPlayerInventory {
     }
 
     public boolean isDamageable() {
-      return getItemStack().isItemStackDamageable();
+      return getItemStack().isDamageable();
     }
 
     public boolean isItemDamageable() {
@@ -244,11 +244,11 @@ public class LocalPlayerInventory {
     }
 
     public int getDamage() {
-      return isDamageable() ? getItemStack().getItemDamage() : 0;
+      return isDamageable() ? getItemStack().getDamage() : 0;
     }
 
     public int getDurability() {
-      return isDamageable() ? (getItemStack().getMaxDamage() - getItemStack().getItemDamage()) : 0;
+      return isDamageable() ? (getItemStack().getMaxDamage() - getItemStack().getDamage()) : 0;
     }
 
     public int getStackCount() {

@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import net.minecraftforge.fml.common.eventhandler.Event;
+
+import net.minecraftforge.eventbus.api.Event;
 
 /** Created on 2/11/2018 by fr1kin */
 public class HookReporter {

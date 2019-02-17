@@ -2,11 +2,9 @@ package com.matt.forgehax.gui.windows;
 
 import static com.matt.forgehax.Globals.MC;
 
-import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import java.io.IOException;
-import net.minecraft.client.gui.ScaledResolution;
 
 /** Created by Babbaj on 9/5/2017. */
 public abstract class GuiWindow {
@@ -25,7 +23,7 @@ public abstract class GuiWindow {
 
   final int maxHeight =
       (int)
-          (ClickGui.scaledRes.getScaledHeight()
+          (MC.mainWindow.getScaledHeight()
               * 0.8); // a window can only take up 80% of the height of the window
   public int width, height; // width of the window
 
@@ -71,7 +69,6 @@ public abstract class GuiWindow {
   }
 
   public void drawWindow(int mouseX, int mouseY) {
-    ClickGui.scaledRes = new ScaledResolution(MC);
     if (dragging) {
       posX = mouseX - dragX;
       headerY = mouseY - dragY;

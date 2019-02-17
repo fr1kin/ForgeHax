@@ -4,7 +4,7 @@ import static com.matt.forgehax.Globals.MC;
 
 import com.matt.forgehax.util.draw.SurfaceBuilder;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /** Created on 9/2/2017 by fr1kin */
 public class Render2DEvent extends Event {

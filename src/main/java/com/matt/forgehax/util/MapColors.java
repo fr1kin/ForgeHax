@@ -1,16 +1,18 @@
 package com.matt.forgehax.util;
 
-import net.minecraft.block.material.MapColor;
+//import net.minecraft.block.material.MapColor;
 
 /** Created by Babbaj on 8/19/2017. */
+// TODO: fix
 public class MapColors {
 
   /** list of all possible colors used on maps, 4 for each base color */
-  private static final int[] COLOR_LIST;
+  private static final int[] COLOR_LIST = new int[0];
   /** list of base colors from {@link net.minecraft.block.material.MapColor} */
-  private static final int[] BASE_COLORS;
+  private static final int[] BASE_COLORS = new int[0];
 
-  static {
+  /*static {
+
     // find the length of array that contains non null map colors
     int baseColorsLength = 0;
     for (int i = MapColor.COLORS.length - 1; i >= 0; i--) {
@@ -40,7 +42,7 @@ public class MapColors {
       COLOR_LIST[i * 4 + 3] =
           Utils.toRGBA((rgb[0] * 135) / 255, (rgb[1] * 135) / 255, (rgb[2] * 135) / 255, 0);
     }
-  }
+  }*/
 
   public static int getColor(int index) {
     return COLOR_LIST[index];
