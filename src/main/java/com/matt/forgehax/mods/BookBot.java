@@ -12,10 +12,12 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import io.netty.buffer.Unpooled;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Scanner;
 import java.util.function.Consumer;
@@ -279,8 +281,11 @@ public class BookBot extends ToggleMod {
               if (!fname.endsWith(".book")) fname += ".book"; // append extension type
 
               if (writer != null) {
-                try {
-                  Files.write(getFileManager().getBaseResolve(fname), writer.contents.getBytes());
+                try(BufferedWriter out = Files.newBufferedWriter(
+                    getFileManager().getBaseResolve(fname),
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+                  out.write(writer.contents);
                   data.write("Successfully saved book data");
                 } catch (IOException e) {
                   data.write("Failed to write file");
