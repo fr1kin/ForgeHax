@@ -83,9 +83,13 @@ dependencies {
 
 jar {
     manifest {
-        attributes (
-                'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
-                'FMLCorePluginContainsFMLMod': 'true'
+        attributes(["Specification-Title": "forgehax",
+                    "Specification-Vendor": "nhackindustries",
+                    "Specification-Version": "666", 
+                    "Implementation-Title": project.name,
+                    "Implementation-Version": "${version}",
+                    "Implementation-Vendor" :"nhackindustries",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],
         )
     }
     exclude ('assets/minecraft/textures/forgehax/*')
