@@ -66,44 +66,44 @@ public class FancyChat extends ToggleMod {
   };
 
   // Uppercase Lookup for LEET
-  private static HashMap<Integer, char[]> LeetMap = new HashMap<>();
+  private static HashMap<Integer, String> LeetMap = new HashMap<>();
   // Custom probability for rarely used LEET replacements
   private static HashMap<Integer, Integer> LeetProbability = new HashMap<>();
 
   static {
-    LeetMap.put(65, "4".toCharArray());
-    LeetMap.put(69, "3".toCharArray());
-    LeetMap.put(73, "1".toCharArray());
+    LeetMap.put(65, "4");
+    LeetMap.put(69, "3");
+    LeetMap.put(73, "1");
     LeetProbability.put(73, 60);
-    LeetMap.put(76, "1".toCharArray());
-    LeetMap.put(79, "0".toCharArray());
-    LeetMap.put(83, "5".toCharArray());
-    LeetMap.put(84, "7".toCharArray());
-    LeetMap.put(77, "|\\/|".toCharArray());
+    LeetMap.put(76, "1");
+    LeetMap.put(79, "0");
+    LeetMap.put(83, "5");
+    LeetMap.put(84, "7");
+    LeetMap.put(77, "|\\/|");
     LeetProbability.put(77, 15);
-    LeetMap.put(78, "|\\|".toCharArray());
+    LeetMap.put(78, "|\\|");
     LeetProbability.put(78, 20);
-    LeetMap.put(66, "8".toCharArray());
+    LeetMap.put(66, "8");
     LeetProbability.put(66, 20);
-    LeetMap.put(67, "k".toCharArray());
+    LeetMap.put(67, "k");
     LeetProbability.put(67, 80);
-    LeetMap.put(68, "|)".toCharArray());
+    LeetMap.put(68, "|)");
     LeetProbability.put(68, 40);
-    LeetMap.put(71, "9".toCharArray());
+    LeetMap.put(71, "9");
     LeetProbability.put(71, 20);
-    LeetMap.put(72, "|-|".toCharArray());
+    LeetMap.put(72, "|-|");
     LeetProbability.put(72, 40);
-    LeetMap.put(75, "|<".toCharArray());
+    LeetMap.put(75, "|<");
     LeetProbability.put(75, 40);
-    LeetMap.put(80, "|2".toCharArray());
+    LeetMap.put(80, "|2");
     LeetProbability.put(80, 20);
-    LeetMap.put(85, "|_|".toCharArray());
+    LeetMap.put(85, "|_|");
     LeetProbability.put(85, 20);
-    LeetMap.put(86, "\\/".toCharArray());
+    LeetMap.put(86, "\\/");
     LeetProbability.put(86, 40);
-    LeetMap.put(87, "\\/\\/".toCharArray());
+    LeetMap.put(87, "\\/\\/");
     LeetProbability.put(87, 30);
-    LeetMap.put(88, "><".toCharArray());
+    LeetMap.put(88, "><");
     LeetProbability.put(88, 50);
   }
 
