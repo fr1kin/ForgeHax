@@ -36,6 +36,7 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class ForgeHaxHooks implements ASMCommon {
   private static final List<HookReporter> ALL_REPORTERS = Lists.newArrayList();
@@ -63,6 +64,20 @@ public class ForgeHaxHooks implements ASMCommon {
   public static boolean doIncreaseTabListSize = false;
 
   /** static hooks */
+
+  /** Convenient functions for firing events */
+  public static void fireEvent_v(Event event) {
+    MinecraftForge.EVENT_BUS.post(event);
+  }
+
+  public static boolean fireEvent_b(Event event) {
+    return MinecraftForge.EVENT_BUS.post(event);
+  }
+
+  /** onDrawBoundingBox */
+  public static void onDrawBoundingBoxPost() {
+    MinecraftForge.EVENT_BUS.post(new DrawBlockBoundingBoxEvent.Post());
+  }
 
   /** onPushOutOfBlocks */
   public static final HookReporter HOOK_onPushOutOfBlocks =

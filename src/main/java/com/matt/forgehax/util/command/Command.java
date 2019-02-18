@@ -14,7 +14,6 @@ import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.serialization.GsonConstant;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import com.matt.forgehax.util.serialization.ISerializer;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -31,8 +30,7 @@ import joptsimple.internal.Strings;
 
 /** Created on 5/14/2017 by fr1kin */
 public class Command implements Comparable<Command>, ISerializer, GsonConstant {
-  private static final File SETTINGS_DIR =
-      Helper.getFileManager().getFileInConfigDirectory("settings");
+  private static final Path SETTINGS_DIR = Helper.getFileManager().getMkConfigDirectory("settings");
 
   public static final String NAME = "Command.name";
   public static final String DESCRIPTION = "Command.description";
@@ -43,10 +41,6 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
   public static final String HELPAUTOGEN = "Command.helpAutoGen";
   public static final String CALLBACKS = "Command.callbacks";
   public static final String REQUIREDARGS = "Command.requiredArgs";
-
-  static {
-    SETTINGS_DIR.mkdirs();
-  }
 
   private final String name;
   private final String description;
@@ -320,7 +314,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
   }
 
   private Path getSettingsPath() {
-    return new File(SETTINGS_DIR, getAbsoluteName() + ".json").toPath();
+    return SETTINGS_DIR.resolve(getAbsoluteName() + ".json");
   }
 
   @Override

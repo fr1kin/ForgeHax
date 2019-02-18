@@ -11,8 +11,8 @@ public class PacketEvent extends Event {
     packet = packetIn;
   }
 
-  public Packet<?> getPacket() {
-    return packet;
+  public <T extends Packet<?>> T getPacket() {
+    return (T) packet;
   }
 
   public static class Outgoing extends PacketEvent {

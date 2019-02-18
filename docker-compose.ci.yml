@@ -1,0 +1,13 @@
+version: '2.3'
+services:
+    forgehax:
+        image: gradle:4.10.0-jdk8-slim
+        user: root
+        environment:
+          - GIT_COMMIT=${GIT_COMMIT:-latest}
+          - FORGEHAX_DEBUG=1
+        volumes:
+            - ./:/root
+            - ./.gradle:/root/.gradle
+        working_dir: /root
+        entrypoint: gradle

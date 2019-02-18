@@ -18,12 +18,12 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.serialization.GsonConstant;
 import io.netty.buffer.ByteBuf;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.annotation.Nonnull;
@@ -40,15 +40,10 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   private static final String DATE = new SimpleDateFormat("yyyy.MM.dd-HH.mm.ss").format(new Date());
   private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
-  private static final File INBOUND =
-      getFileManager().getFileInBaseDirectory("logs/packets/IN-" + DATE + ".log");
-  private static final File OUTBOUND =
-      getFileManager().getFileInBaseDirectory("logs/packets/OUT-" + DATE + ".log");
-
-  static {
-    INBOUND.getParentFile().mkdirs();
-    OUTBOUND.getParentFile().mkdirs();
-  }
+  private static final Path INBOUND =
+      getFileManager().getMkBaseResolve("logs/packets/IN-" + DATE + ".log");
+  private static final Path OUTBOUND =
+      getFileManager().getMkBaseResolve("logs/packets/OUT-" + DATE + ".log");
 
   private volatile FileOutputStream stream_packet_in = null;
   private volatile FileOutputStream stream_packet_out = null;
@@ -179,11 +174,11 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   @Override
   protected void onEnabled() {
     try {
-      if (!INBOUND.exists()) Files.createFile(INBOUND.toPath());
-      if (!OUTBOUND.exists()) Files.createFile(OUTBOUND.toPath());
+      if (!Files.exists(INBOUND)) Files.createFile(INBOUND);
+      if (!Files.exists(OUTBOUND)) Files.createFile(OUTBOUND);
 
-      stream_packet_in = new FileOutputStream(INBOUND, true);
-      stream_packet_out = new FileOutputStream(OUTBOUND, true);
+      stream_packet_in = new FileOutputStream(INBOUND.toFile(), true);
+      stream_packet_out = new FileOutputStream(OUTBOUND.toFile(), true);
     } catch (Throwable t) {
     }
   }

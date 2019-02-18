@@ -27,7 +27,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
 @RegisterMod
 public class ClientChunkSize extends ToggleMod {
-  private static final File DUMMY = new File(getFileManager().getBaseDirectory(), "dummy");
+  private static final File DUMMY = getFileManager().getBaseResolve("dummy").toFile();
 
   private final SimpleTimer timer = new SimpleTimer();
 
