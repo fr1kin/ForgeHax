@@ -20,7 +20,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 /** Created on 8/6/2017 by fr1kin */
@@ -140,13 +140,13 @@ public class Tracers extends ToggleMod implements Colors {
               Plane screenPos = VectorUtils.toScreen(entityPos);
 
               Color color = er.getColor().setAlpha(alpha.get());
-              GlStateManager.color(
+              GlStateManager.color4f(
                   color.getRedAsFloat(),
                   color.getGreenAsFloat(),
                   color.getBlueAsFloat(),
                   color.getAlphaAsFloat());
 
-              GlStateManager.translate(0, 0, er.getDepth());
+              GlStateManager.translated(0, 0, er.getDepth());
 
               if (dm.equals(Mode.BOTH) || dm.equals(Mode.ARROWS)) {
                 if (!screenPos.isVisible()) {
@@ -209,10 +209,10 @@ public class Tracers extends ToggleMod implements Colors {
 
                   GlStateManager.pushMatrix();
 
-                  GlStateManager.translate(x, y, 0);
-                  GlStateManager.rotate((float) ang, 0.f, 0.f, size / 2.f);
+                  GlStateManager.translated(x, y, 0);
+                  GlStateManager.rotatef((float) ang, 0.f, 0.f, size / 2.f);
 
-                  GlStateManager.color(
+                  GlStateManager.color4f(
                       color.getRedAsFloat(),
                       color.getGreenAsFloat(),
                       color.getBlueAsFloat(),

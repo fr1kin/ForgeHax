@@ -16,7 +16,7 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 /** Created by Babbaj on 9/4/2017. TODO: check all 4 collision box corners */
@@ -65,9 +65,8 @@ public class AutoBucketFallMod extends ToggleMod {
     RayTraceResult resultPre = MC.world.rayTraceBlocks(playerPos, rayTracePre, true);
 
     if (resultPre != null
-        && resultPre.typeOfHit.equals(Type.BLOCK)
-        && !(getWorld().getBlockState(resultPre.getBlockPos()).getBlock()
-            instanceof BlockLiquid)) { // set the pitch early to not get cucked by ncp
+        && resultPre.type.equals(Type.BLOCK)
+        && !(getWorld().getBlockState(resultPre.getBlockPos()).getFluidState().isSource())) { // set the pitch early to not get cucked by ncp
       getLocalPlayer().prevRotationPitch = 90f;
       getLocalPlayer().rotationPitch = 90f;
 
@@ -83,8 +82,8 @@ public class AutoBucketFallMod extends ToggleMod {
     }
 
     if (result != null
-        && result.typeOfHit.equals(Type.BLOCK)
-        && !(getWorld().getBlockState(result.getBlockPos()).getBlock() instanceof BlockLiquid)) {
+        && result.type.equals(Type.BLOCK)
+        && !(getWorld().getBlockState(result.getBlockPos()).getFluidState().isSource())) {
       getNetworkManager()
           .sendPacket(
               new CPacketPlayer.Rotation(

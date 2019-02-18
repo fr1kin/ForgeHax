@@ -25,8 +25,8 @@ import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.network.play.client.CPacketClickWindow;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 @RegisterMod

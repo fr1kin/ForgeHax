@@ -11,7 +11,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.network.login.server.SPacketLoginSuccess;
 import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class InstantMessage extends ToggleMod {

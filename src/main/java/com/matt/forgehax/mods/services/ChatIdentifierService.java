@@ -18,7 +18,7 @@ import joptsimple.internal.Strings;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /** Created on 7/18/2017 by fr1kin */
 @RegisterMod

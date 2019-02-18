@@ -31,7 +31,7 @@ import joptsimple.internal.Strings;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /** Created on 7/21/2017 by fr1kin */
 @RegisterMod

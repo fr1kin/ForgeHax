@@ -5,7 +5,7 @@ import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.gui.mc.MinecraftGuiProxy;
 import com.matt.forgehax.util.gui.test.GuiTestMain;
 import com.matt.forgehax.util.mod.CommandMod;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 /** Created on 9/12/2017 by fr1kin */
 // @RegisterMod
@@ -26,7 +26,7 @@ public class GuiCommand extends CommandMod {
         .newStubBuilder()
         .name("gui")
         .description("Forgehax gui")
-        .bind(Keyboard.KEY_INSERT)
+        .bind(GLFW.GLFW_KEY_INSERT)
         .kpressed(cb -> MC.displayGuiScreen(getGui()))
         .build();
   }

@@ -7,7 +7,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
 /** Created by Babbaj on 9/5/2017. */

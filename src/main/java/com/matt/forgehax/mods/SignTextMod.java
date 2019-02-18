@@ -11,7 +11,7 @@ import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.MouseEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
 /** Created by Babbaj on 9/16/2017. */

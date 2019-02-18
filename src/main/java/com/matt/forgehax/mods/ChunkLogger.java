@@ -22,7 +22,7 @@ import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /** Created on 10/12/2017 by fr1kin */
 @RegisterMod

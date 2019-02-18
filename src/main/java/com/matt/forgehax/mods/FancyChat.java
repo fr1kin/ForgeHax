@@ -11,7 +11,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 // made by BABBAJ
 

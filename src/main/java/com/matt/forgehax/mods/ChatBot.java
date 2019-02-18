@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Scanner;
 import joptsimple.internal.Strings;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class ChatBot extends ToggleMod {

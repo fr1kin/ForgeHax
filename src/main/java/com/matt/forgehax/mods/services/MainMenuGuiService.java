@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.gui.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
 /** Created by Babbaj on 4/10/2018. */

@@ -12,7 +12,7 @@ import java.nio.file.StandardOpenOption;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketCustomPayload;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /** Created on 6/1/2017 by fr1kin */
 @RegisterMod

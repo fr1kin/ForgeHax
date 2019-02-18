@@ -10,9 +10,7 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class ElytraFlight extends ToggleMod {
@@ -55,7 +53,7 @@ public class ElytraFlight extends ToggleMod {
     if (getLocalPlayer() != null) {
 
       // Disable creativeflight.
-      getLocalPlayer().capabilities.isFlying = false;
+      getLocalPlayer().abilities.isFlying = false;
 
       // Ensure the player starts flying again.
       getNetworkManager()
@@ -64,12 +62,11 @@ public class ElytraFlight extends ToggleMod {
   }
 
   @SubscribeEvent
-  @SideOnly(Side.CLIENT)
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     // Enable our flight as soon as the player starts flying his elytra.
     if (getLocalPlayer().isElytraFlying()) {
-      getLocalPlayer().capabilities.isFlying = true;
+      getLocalPlayer().abilities.isFlying = true;
     }
-    getLocalPlayer().capabilities.setFlySpeed(speed.getAsFloat());
+    getLocalPlayer().abilities.setFlySpeed(speed.getAsFloat());
   }
 }

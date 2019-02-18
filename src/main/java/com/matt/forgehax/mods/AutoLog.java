@@ -13,7 +13,7 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.init.Items;
 import net.minecraft.network.play.server.SPacketSpawnPlayer;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoLog extends ToggleMod {

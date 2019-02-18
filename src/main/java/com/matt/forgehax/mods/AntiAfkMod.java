@@ -30,11 +30,8 @@ import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.util.math.*;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
@@ -265,7 +262,7 @@ public class AntiAfkMod extends ToggleMod {
           double[] cc = Angle.degrees(0.f, (float) y).getForwardVector();
           Vec3d target = eye.add(new Vec3d(cc[0], cc[1], cc[2]).normalize().scale(64));
 
-          RayTraceResult result = getWorld().rayTraceBlocks(eye, target, false, true, false);
+          RayTraceResult result = getWorld().rayTraceBlocks(eye, target, RayTraceFluidMode.NEVER, true, false);
           double distance = result == null ? 64.D : eye.distanceTo(result.hitVec);
           if ((distance >= 1.D || lastDistance == -1.D)
               && (distance > lastDistance || Math.random() < 0.20D)) {
@@ -325,8 +322,8 @@ public class AntiAfkMod extends ToggleMod {
         return getWorld()
             .rayTraceBlocks(
                 eyes,
-                eyes.addVector(0, -MC.playerController.getBlockReachDistance(), 0),
-                false,
+                eyes.add(0, -MC.playerController.getBlockReachDistance(), 0),
+                RayTraceFluidMode.NEVER,
                 false,
                 false);
       }
