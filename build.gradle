@@ -9,8 +9,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.15.0"
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
 
@@ -20,7 +19,7 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/groups/public/' }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 
 sourceCompatibility = targetCompatibility = '1.8'
 
@@ -33,17 +32,52 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-minecraft {
+/*minecraft {
     version = project.property('forgehax.forge.version')
     runDir = "run"
 
     // channel_mapping
     mappings = project.property('forgehax.mcp.channel') + '_' + project.property('forgehax.mcp.mapping')
+}*/
+minecraft {
+    // the mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   snapshot are built nightly.
+    // stable_#            stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not always work.
+    // simply re-run your setup task after changing the mappings to update your workspace.
+    mappings channel: 'snapshot', version: '20180921-1.13'
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+    //accessTransformer = file('my_at.cfg')
+
+    // default run configurations.
+    // these can be tweaked, removed, or duplicated as needed.
+    runs {
+        client = {
+            // recommended logging data for a userdev environment
+            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // recommended logging level for the console
+            //properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
+        server = {
+            // recommended logging data for a userdev environment
+            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // recommended logging level for the console
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
+    }
 }
+
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
+
+    minecraft 'net.minecraftforge:forge:1.13.2-25.0.10'
 }
 
 
@@ -59,16 +93,17 @@ jar {
 
 processResources
 {
+    // TODO: update
     // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+    //inputs.property "version", project.version
+    //inputs.property "mcversion", project.minecraft.version
 
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
 
         // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        //expand 'version':project.version, 'mcversion':project.minecraft.version
     }
 
     // copy everything else, thats not the mcmod.info
@@ -105,7 +140,7 @@ task setGameDir() {
 }
 
 task copyJar(type: Copy, dependsOn: [setGameDir]) {
-    def gameDirectory = "$gameDir/mods/" + minecraft.version
+    def gameDirectory = "$gameDir/mods/" + "1.13.2"//minecraft.version
 
     // find previous jar (if it exists)
     def previousJars = fileTree(dir: gameDirectory).matching {
@@ -132,9 +167,9 @@ task copyJar(type: Copy, dependsOn: [setGameDir]) {
 
     // copy forgehax jar from libs to forge mod folder
     from jar
-    into "$gameDir/mods/" + minecraft.version
+    into "$gameDir/mods/" + "1.13.2"//minecraft.version
 }
 
 task publishToMavenLocal() {} // dummy
 
-build.finalizedBy copyJar
+//build.finalizedBy copyJar
