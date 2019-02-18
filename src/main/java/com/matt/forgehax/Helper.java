@@ -3,7 +3,7 @@ package com.matt.forgehax;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.matt.forgehax.log.FileManager;
-//import com.matt.forgehax.mods.services.MainMenuGuiService.CommandInputGui;
+import com.matt.forgehax.mods.services.MainMenuGuiService.CommandInputGui;
 import com.matt.forgehax.util.command.CommandGlobal;
 import com.matt.forgehax.util.mod.loader.ModManager;
 import java.util.Optional;
@@ -113,9 +113,9 @@ public class Helper implements Globals {
   private static void outputMessage(String text) {
     if (getLocalPlayer() != null) {
       getLocalPlayer().sendMessage(new TextComponentString(text));
-    } //else if (MC.currentScreen instanceof CommandInputGui) {
-      //((CommandInputGui) MC.currentScreen).print(text);
-    //}
+    } else if (MC.currentScreen instanceof CommandInputGui) {
+      ((CommandInputGui) MC.currentScreen).print(text);
+    }
   }
 
   public static void printMessageNaked(String append, String message, Style style) {
