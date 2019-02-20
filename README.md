@@ -1,6 +1,9 @@
 # ForgeHax
 [![Build Status](https://jenkins.nhackindustries.com/buildStatus/icon?job=ForgeHax/master)](https://jenkins.nhackindustries.com/job/ForgeHax/job/master)
 [![](https://img.shields.io/matrix/forgehax%3Anerdsin.space.svg?logo=matrix)](https://matrix.to/#/!RBkfmpSEFHJliToAea:nerdsin.space?via=nerdsin.space&via=matrix.org)
+<br>
+<a href="https://jenkins.nhackindustries.com/job/ForgeHax/job/master/lastSuccessfulBuild/artifact/build/libs/forgehax-1.12.2-2.9.0.jar"><img src="https://img.shields.io/badge/Download-Lastest%20Build-blue.svg?style=for-the-badge&logo=java" align="left" width="300" ></a>
+<br>
 
 A Minecraft cheat that runs as a Forge mod
 
