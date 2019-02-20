@@ -18,10 +18,14 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.serialization.GsonConstant;
 import io.netty.buffer.ByteBuf;
+
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -45,8 +49,8 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   private static final Path OUTBOUND =
       getFileManager().getMkBaseResolve("logs/packets/OUT-" + DATE + ".log");
 
-  private volatile FileOutputStream stream_packet_in = null;
-  private volatile FileOutputStream stream_packet_out = null;
+  private volatile BufferedWriter stream_packet_in = null;
+  private volatile BufferedWriter stream_packet_out = null;
 
   private final Setting<Boolean> blacklist_on =
       getCommandStub()
@@ -177,8 +181,10 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
       if (!Files.exists(INBOUND)) Files.createFile(INBOUND);
       if (!Files.exists(OUTBOUND)) Files.createFile(OUTBOUND);
 
-      stream_packet_in = new FileOutputStream(INBOUND.toFile(), true);
-      stream_packet_out = new FileOutputStream(OUTBOUND.toFile(), true);
+      stream_packet_in = new BufferedWriter(new OutputStreamWriter(
+        new FileOutputStream(INBOUND.toFile(), true), StandardCharsets.UTF_8));
+      stream_packet_out = new BufferedWriter(new OutputStreamWriter(
+        new FileOutputStream(OUTBOUND.toFile(), true), StandardCharsets.UTF_8));
     } catch (Throwable t) {
     }
   }
@@ -221,7 +227,7 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   //
   //
 
-  private static void logPacket(FileOutputStream stream, Packet<?> packet) {
+  private static void logPacket(BufferedWriter stream, Packet<?> packet) {
     if (stream == null || packet == null) return;
 
     try {
@@ -230,8 +236,10 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
                   "[%s][%s] %s\n",
                   TIME_FORMAT.format(new Date()),
                   packet.getClass().getSimpleName(),
-                  GSON_PRETTY.toJson(objectToElement(packet, true, null, Lists.newArrayList())))
-              .getBytes());
+                  GSON_PRETTY.toJson(objectToElement(packet, true, null, Lists.newArrayList()))
+          )
+      );
+      stream.flush();
     } catch (Throwable t) {
       t.printStackTrace();
     }
