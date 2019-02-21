@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class ActiveModList extends ToggleMod {
-  public final Setting<Boolean> tps_meter =
+  private final Setting<Boolean> tps_meter =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -26,7 +26,7 @@ public class ActiveModList extends ToggleMod {
           .defaultTo(true)
           .build();
 
-  public final Setting<Boolean> debug =
+  private final Setting<Boolean> debug =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -35,7 +35,7 @@ public class ActiveModList extends ToggleMod {
           .defaultTo(false)
           .build();
 
-  public final Setting<Integer> factor =
+  private final Setting<Integer> factor =
       getCommandStub()
           .builders()
           .<Integer>newSettingBuilder()
@@ -46,7 +46,16 @@ public class ActiveModList extends ToggleMod {
           .max(100)
           .build();
 
-  public final Setting<SortMode> sortMode =
+  private final Setting<Boolean> showLag =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("showLag")
+          .description("Shows lag time since last tick")
+          .defaultTo(true)
+          .build();
+
+  private final Setting<SortMode> sortMode =
       getCommandStub()
           .builders()
           .<SortMode>newSettingEnumBuilder()
@@ -92,6 +101,17 @@ public class ActiveModList extends ToggleMod {
         }
       }
     }
+
+    if (showLag.get()) {
+      long lastTickMs = TickRateService.getInstance().getLastTimeDiff();
+
+      if (lastTickMs < 1000) {
+        builder.append(", 0.0s");
+      } else {
+        builder.append(String.format(", %01.1fs", ((float) (lastTickMs - 1000)) / 1000));
+      }
+    }
+
     return builder.toString();
   }
 

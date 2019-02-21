@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getNetworkManager;
+import static com.matt.forgehax.Helper.printError;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
@@ -8,8 +9,11 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import java.util.HashMap;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -17,9 +21,14 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class FancyChat extends ToggleMod {
-  private static final String[] MODE = {
-    "FULL WIDTH", "CIRCLE", "(((PARENTHESES)))", "SMALL",
-  };
+  private enum MODE {
+    FULL_WIDTH,
+    CIRCLE,
+    PARENTHESES,
+    SMALL,
+    LEET
+  }
+
   private static final String alphabet =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   private static final int[][] FONT = {
@@ -31,7 +40,7 @@ public class FancyChat extends ToggleMod {
       0xFF53, 0xFF54, 0xFF55, 0xFF56, 0xFF57, 0xFF58, 0xFF59, 0xFF5A, 0xFF10, 0xFF11, 0xFF12,
       0xFF13, 0xFF14, 0xFF15, 0xFF16, 0xFF17, 0xFF18, 0xFF19
     },
-    {
+    { // Enclosed alphanumerics
       0x24B6, 0x24B7, 0x24B8, 0x24B9, 0x24BA, 0x24BB, 0x24BC, 0x24BD, 0x24BE, 0x24BF, 0x24C0,
       0x24C1, 0x24C2, 0x24C3, 0x24C4, 0x24C5, 0x24C6, 0x24C7, 0x24C8, 0x24C9, 0x24CA, 0x24CB,
       0x24CC, 0x24CD, 0x24CE, 0x24CF, 0x24D0, 0x24D1, 0x24D2, 0x24D3, 0x24D4, 0x24D5, 0x24D6,
@@ -39,13 +48,13 @@ public class FancyChat extends ToggleMod {
       0x24E2, 0x24E3, 0x24E4, 0x24E5, 0x24E6, 0x24E7, 0x24E8, 0x24E9, 0x24EA, 0x2460, 0x2461,
       0x2462, 0x2463, 0x2464, 0x2465, 0x2466, 0x2467, 0x2468
     },
-    {
+    { // Enclosed alphanumerics, no "zero"
       0x249C, 0x249D, 0x249E, 0x249F, 0x24A0, 0x24A1, 0x24A2, 0x24A3, 0x24A4, 0x24A5, 0x24A6,
       0x24A7, 0x24A8, 0x24A9, 0x24AA, 0x24AB, 0x24AC, 0x24AD, 0x24AE, 0x24AF, 0x24B0, 0x24B1,
       0x24B2, 0x24B3, 0x24B4, 0x24B5, 0x249C, 0x249D, 0x249E, 0x249F, 0x24A0, 0x24A1, 0x24A2,
       0x24A3, 0x24A4, 0x24A5, 0x24A6, 0x24A7, 0x24A8, 0x24A9, 0x24AA, 0x24AB, 0x24AC, 0x24AD,
-      0x24AE, 0x24AF, 0x24B0, 0x24B1, 0x24B2, 0x24B3, 0x24B4, 0x24B5, 0x30, 0x31, 0x32, 0x33, 0x34,
-      0x35, 0x36, 0x37, 0x38, 0x39
+      0x24AE, 0x24AF, 0x24B0, 0x24B1, 0x24B2, 0x24B3, 0x24B4, 0x24B5, 0x0030, 0x2474, 0x2475,
+      0x2476, 0x2477, 0x2478, 0x2479, 0x2480, 0x2481, 0x2482
     },
     {
       0x1D43, 0x1D47, 0x1D9C, 0x1D48, 0x1D49, 0x1DA0, 0x1D4D, 0x2B0, 0x1DA4, 0x2B2, 0x1D4F, 0x2E1,
@@ -56,26 +65,142 @@ public class FancyChat extends ToggleMod {
     }
   };
 
-  public final Setting<String> font =
+  // Uppercase Lookup for LEET
+  private static HashMap<Integer, String> LeetMap = new HashMap<>();
+  // Custom probability for rarely used LEET replacements
+  private static HashMap<Integer, Integer> LeetProbability = new HashMap<>();
+
+  static {
+    LeetMap.put(65, "4");
+    LeetMap.put(69, "3");
+    LeetMap.put(73, "1");
+    LeetProbability.put(73, 60);
+    LeetMap.put(76, "1");
+    LeetMap.put(79, "0");
+    LeetMap.put(83, "5");
+    LeetMap.put(84, "7");
+    LeetMap.put(77, "|\\/|");
+    LeetProbability.put(77, 15);
+    LeetMap.put(78, "|\\|");
+    LeetProbability.put(78, 20);
+    LeetMap.put(66, "8");
+    LeetProbability.put(66, 20);
+    LeetMap.put(67, "k");
+    LeetProbability.put(67, 80);
+    LeetMap.put(68, "|)");
+    LeetProbability.put(68, 40);
+    LeetMap.put(71, "9");
+    LeetProbability.put(71, 20);
+    LeetMap.put(72, "|-|");
+    LeetProbability.put(72, 40);
+    LeetMap.put(75, "|<");
+    LeetProbability.put(75, 40);
+    LeetMap.put(80, "|2");
+    LeetProbability.put(80, 20);
+    LeetMap.put(85, "|_|");
+    LeetProbability.put(85, 20);
+    LeetMap.put(86, "\\/");
+    LeetProbability.put(86, 40);
+    LeetMap.put(87, "\\/\\/");
+    LeetProbability.put(87, 30);
+    LeetMap.put(88, "><");
+    LeetProbability.put(88, 50);
+  }
+
+  private final Setting<MODE> font =
+      getCommandStub()
+          .builders()
+          .<MODE>newSettingEnumBuilder()
+          .name("font")
+          .description("Font to use")
+          .defaultTo(MODE.FULL_WIDTH)
+          .build();
+
+  private Pattern prefixPattern;
+  private final Setting<String> prefixRegexp =
       getCommandStub()
           .builders()
           .<String>newSettingBuilder()
-          .name("font")
-          .description("Font to use")
-          .defaultTo(MODE[0])
+          .name("prefix")
+          .description("Command prefixes (RegExp)")
+          .defaultTo("/|//|\\!")
+          .requiredArgs(1)
+          .processor(
+              data -> {
+                try {
+                  Pattern.compile(data.getArgument(0));
+                  data.markSuccess();
+                  compileMessagePatterns();
+                } catch (PatternSyntaxException e) {
+                  printError(
+                      String.format(
+                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
+                  data.markFailed();
+                }
+              })
           .build();
 
-  private String inputMessage = "";
-  private String message = "";
-  private String recipient = "";
-  private Boolean isWhisper = false;
-  private Boolean isPM = false;
-  private Boolean isIgnore = false;
-  private int fontMode;
-  // [0] = full width  [1] = circles  [2] = parentheses [3] = small
+  private Pattern command0ArgPattern;
+  private final Setting<String> command0ArgRegexp =
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("command0Arg")
+          .description("Commands where all text may be changed (RegExp)")
+          .defaultTo("r|reply")
+          .requiredArgs(1)
+          .processor(
+              data -> {
+                try {
+                  Pattern.compile(data.getArgument(0));
+                  data.markSuccess();
+                  compileMessagePatterns();
+                } catch (PatternSyntaxException e) {
+                  printError(
+                      String.format(
+                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
+                  data.markFailed();
+                }
+              })
+          .build();
+
+  private Pattern command1ArgPattern;
+  private final Setting<String> command1ArgRegexp =
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("command1Arg")
+          .description("Commands where only the first argument may not be changed (RegExp)")
+          .defaultTo("pm|tell|msg|message|w|whisper|nick|mail")
+          .requiredArgs(1)
+          .processor(
+              data -> {
+                try {
+                  Pattern.compile(data.getArgument(0));
+                  data.markSuccess();
+                  compileMessagePatterns();
+                } catch (PatternSyntaxException e) {
+                  printError(
+                      String.format(
+                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
+                  data.markFailed();
+                }
+              })
+          .build();
 
   public FancyChat() {
     super(Category.MISC, "FancyChat", false, "meme text");
+  }
+
+  @Override
+  protected void onLoad() {
+    compileMessagePatterns();
+  }
+
+  private void compileMessagePatterns() {
+    prefixPattern = Pattern.compile("(^" + prefixRegexp.get() + ")(\\w+)");
+    command0ArgPattern = Pattern.compile("(" + command0ArgRegexp.get() + ")");
+    command1ArgPattern = Pattern.compile("(" + command1ArgRegexp.get() + ")");
   }
 
   @SubscribeEvent
@@ -83,63 +208,122 @@ public class FancyChat extends ToggleMod {
     if (event.getPacket() instanceof CPacketChatMessage
         && !PacketHelper.isIgnored(event.getPacket())) {
 
-      inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
+      boolean is0Arg = false;
+      boolean is1Arg = false;
+      boolean isIgnore = false;
 
-      for (int i = 0; i < MODE.length; i++) {
-        if (font.get().toUpperCase().equals(MODE[i])) {
-          fontMode = i;
+      String prefix = "";
+      String command = "";
+      String message;
+      String arg1 = "";
+
+      String inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
+
+      Matcher prefixMatcher = prefixPattern.matcher(inputMessage);
+      if (prefixMatcher.find()) {
+        prefix = prefixMatcher.group(1);
+        command = prefixMatcher.group(2);
+
+        Matcher cmd0ArgMatcher = command0ArgPattern.matcher(command);
+        Matcher cmd1ArgMatcher = command1ArgPattern.matcher(command);
+
+        // if command is found, make sure the match is not just a substring
+        if (cmd0ArgMatcher.find() && command.length() == cmd0ArgMatcher.group().length()) {
+          is0Arg = true;
+          message = inputMessage.substring(prefixMatcher.end());
+
+        } else if (cmd1ArgMatcher.find() && command.length() == cmd1ArgMatcher.group().length()) {
+          is1Arg = true;
+          Matcher arg1Matcher = Pattern.compile(" .+? ").matcher(inputMessage);
+
+          if (arg1Matcher.find()) {
+            arg1 = inputMessage.substring(arg1Matcher.start(), arg1Matcher.end()).trim();
+            message = inputMessage.substring(arg1Matcher.end());
+          } else {
+            isIgnore = true;
+            message = inputMessage;
+          }
+
+        } else {
+          message = inputMessage;
+          // Completely ignore all unknown commands
+          isIgnore = true;
         }
-      }
-
-      if (inputMessage.startsWith("/r ")) {
-        message = inputMessage.substring(3);
-        isWhisper = true;
-        isPM = false;
-      } else if (inputMessage.startsWith("/pm ")) {
-        Pattern pattern = Pattern.compile("\\s\\w*\\s");
-        Matcher matcher = pattern.matcher(inputMessage);
-        if (matcher.find()) {
-          recipient = inputMessage.substring(matcher.start(), matcher.end()).trim();
-        }
-        message = inputMessage.replace("/pm " + recipient + " ", "");
-        isPM = true;
-        isWhisper = false;
-        isIgnore = false;
-
-      } else if (inputMessage.startsWith("/ignore")) {
-        isIgnore = true;
-        isWhisper = false;
-        isPM = false;
       } else {
         message = inputMessage;
-        isWhisper = false;
-        isPM = false;
-        isIgnore = false;
       }
 
-      char out[] = message.toCharArray();
+      if (!isIgnore) {
+        String messageOut = prettify(message);
 
-      for (int i = 0; i < message.toCharArray().length; i++) {
-        if (alphabet.indexOf(message.charAt(i)) != -1
-            && ((message.toCharArray()[i])
-                != (char)
-                    0x3E)) // indexOf returns -1 if character isnt found  -  check for meme arrow
-          //					if (FONT[fontMode].length < alphabet.indexOf(message.charAt(i)))
-          out[i] = (char) (FONT[fontMode][(alphabet.indexOf(message.charAt(i)))]);
-        else // use normal input character if font doesnt have it
-        out[i] = message.toCharArray()[i];
+        if (is0Arg) messageOut = prefix + command + " " + messageOut;
+        else if (is1Arg) messageOut = prefix + command + " " + arg1 + " " + messageOut;
+
+        if (getNetworkManager() != null) {
+          CPacketChatMessage packet = new CPacketChatMessage(messageOut);
+          PacketHelper.ignore(packet);
+          getNetworkManager().sendPacket(packet);
+          event.setCanceled(true);
+        }
       }
-
-      String messageOut = new String(out);
-
-      if (isWhisper) messageOut = "/r " + messageOut;
-      else if (isPM) messageOut = "/pm " + recipient + " " + messageOut;
-      else if (isIgnore) messageOut = inputMessage;
-
-      CPacketChatMessage packet = new CPacketChatMessage(messageOut);
-      PacketHelper.ignore(packet);
-      getNetworkManager().sendPacket(packet);
-      event.setCanceled(true);
     }
+  }
+
+  public String prettify(String message) {
+    String messageOut;
+    char[] messageArray;
+
+    switch (font.get()) {
+      case LEET:
+        message = message.replaceAll("(?i)dude", "d00d").replaceAll("(^|\\s)ph", "$1f");
+
+        messageArray = message.toCharArray();
+        // match and replace the last only S in a word
+        Matcher zMatcher = Pattern.compile("(?<![sS])([sS])(?:[^\\w]|$)").matcher(message);
+
+        while (!zMatcher.hitEnd()) {
+          if (zMatcher.find()) {
+            if (zMatcher.group(1).equals("s")) {
+              messageArray[zMatcher.end(1) - 1] = 'z';
+            } else {
+              messageArray[zMatcher.end(1) - 1] = 'Z';
+            }
+          }
+        }
+
+        StringBuilder builder = new StringBuilder();
+        Random random = new Random();
+        for (char c : messageArray) {
+          int key = (int) Character.toUpperCase(c);
+          // half the probability for LEET
+          if (random.nextInt(2) == 0
+              && LeetMap.get(key) != null
+              && (LeetProbability.get(key) == null
+                  || LeetProbability.get(key) > random.nextInt(100))) {
+            builder.append(LeetMap.get(key));
+          } else {
+            builder.append(c);
+          }
+        }
+
+        messageOut = builder.toString();
+        break;
+
+      default:
+        messageArray = message.toCharArray();
+        int[] currentFont = FONT[font.get().ordinal()];
+        int i = 0;
+
+        for (char c : messageArray) {
+          int letterKey = alphabet.indexOf(c);
+          if (letterKey != -1 && (c != (char) 0x3E)) {
+            messageArray[i] = (char) currentFont[letterKey];
+          }
+          i++;
+        }
+        messageOut = new String(messageArray);
+    }
+
+    return messageOut;
   }
 }
