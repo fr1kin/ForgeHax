@@ -87,7 +87,7 @@ public class BlockEntry implements ISerializableJson, Globals {
   public String getPrettyName() {
     return block != null
         ? ((block.getRegistryName() != null
-                ? block.getRegistryName().getResourcePath()
+                ? block.getRegistryName().getPath()
                 : block.toString())
             + (isMetadata() ? ":" + meta : Strings.EMPTY))
         : Strings.EMPTY;

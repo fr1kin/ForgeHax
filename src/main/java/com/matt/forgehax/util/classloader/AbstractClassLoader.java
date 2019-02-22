@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.minecraft.launchwrapper.Launch;
-import net.minecraft.launchwrapper.LaunchClassLoader;
+
+import net.minecraftforge.fml.loading.FMLLoader;
 
 /** Created on 2/13/2018 by fr1kin */
 public abstract class AbstractClassLoader<E> {
@@ -118,7 +118,8 @@ public abstract class AbstractClassLoader<E> {
   //
   //
 
-  public static LaunchClassLoader getFMLClassLoader() {
-    return Launch.classLoader;
+  public static ClassLoader getFMLClassLoader() {
+    return FMLLoader.getLaunchClassLoader();
+    //return Launch.classLoader;
   }
 }

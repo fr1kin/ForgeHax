@@ -90,10 +90,10 @@ public class MinecraftFontRenderer extends CFont {
 
     if (render) {
       GL11.glPushMatrix();
-      GlStateManager.scale(0.5D, 0.5D, 0.5D);
+      GlStateManager.scaled(0.5D, 0.5D, 0.5D);
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(770, 771);
-      GlStateManager.color(
+      GlStateManager.color4f(
           (color >> 16 & 0xFF) / 255.0F,
           (color >> 8 & 0xFF) / 255.0F,
           (color & 0xFF) / 255.0F,
@@ -136,7 +136,7 @@ public class MinecraftFontRenderer extends CFont {
             }
 
             int colorcode = this.colorCode[colorIndex];
-            GlStateManager.color(
+            GlStateManager.color4f(
                 (colorcode >> 16 & 0xFF) / 255.0F,
                 (colorcode >> 8 & 0xFF) / 255.0F,
                 (colorcode & 0xFF) / 255.0F,
@@ -181,7 +181,7 @@ public class MinecraftFontRenderer extends CFont {
             randomCase = false;
             underline = false;
             strikethrough = false;
-            GlStateManager.color(
+            GlStateManager.color4f(
                 (color >> 16 & 0xFF) / 255.0F,
                 (color >> 8 & 0xFF) / 255.0F,
                 (color & 0xFF) / 255.0F,

@@ -5,10 +5,11 @@ import static com.matt.forgehax.Helper.getModManager;
 
 import com.matt.forgehax.util.mod.BaseMod;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod(modid = ForgeHax.MOD_ID, clientSideOnly = true)
+@Mod(ForgeHax.MOD_ID)
 public class ForgeHax {
   public static final String MOD_ID = "forgehax";
   public static final String MOD_VERSION = ForgeHaxProperties.getVersion();
@@ -22,6 +23,11 @@ public class ForgeHax {
     getModManager().searchPluginDirectory(getFileManager().getBaseResolve("plugins"));
   }
 
+  public ForgeHax() {
+    FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
+    FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
+  }
+
   public static String getWelcomeMessage() {
     StringBuilder builder = new StringBuilder();
     builder.append("Running ForgeHax v");
@@ -31,33 +37,17 @@ public class ForgeHax {
     return builder.toString();
   }
 
-  @Mod.EventHandler
-  public void preInit(FMLPreInitializationEvent event) {
-    switch (event.getSide()) {
-      case CLIENT:
-        {
-          // ---- initialize mods ----//
-          getModManager().loadAll();
-        }
-      default:
-        break;
-    }
+  public void preInit(FMLCommonSetupEvent event) {
+    // ---- initialize mods ----//
+    getModManager().loadAll();
+
   }
 
-  @Mod.EventHandler
-  public void init(FMLInitializationEvent event) {
-    switch (event.getSide()) {
-      case CLIENT:
-        {
-          // add shutdown hook to serialize all binds
-          Runtime.getRuntime()
-              .addShutdownHook(new Thread(() -> getModManager().forEach(BaseMod::unload)));
-          // registerAll mod events
-          getModManager().forEach(BaseMod::load);
-          break;
-        }
-      default:
-        break;
-    }
+  public void init(FMLClientSetupEvent event) {
+    // add shutdown hook to serialize all binds
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> getModManager().forEach(BaseMod::unload)));
+    // registerAll mod events
+    getModManager().forEach(BaseMod::load);
+
   }
 }

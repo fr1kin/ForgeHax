@@ -6,7 +6,7 @@ import com.matt.forgehax.util.serialization.ISerializableJson;
 import java.io.IOException;
 import java.util.Objects;
 import javax.annotation.Nullable;
-import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 /** Created on 10/13/2017 by fr1kin */
 public class ClassEntry implements ISerializableJson {
@@ -32,7 +32,7 @@ public class ClassEntry implements ISerializableJson {
   public Class<?> getClassInstance() {
     if (clazz == null)
       try {
-        clazz = Class.forName(clazzName, true, Launch.classLoader);
+        clazz = Class.forName(clazzName, true, FMLLoader.getLaunchClassLoader());
       } catch (Throwable t) {
       }
     return clazz;

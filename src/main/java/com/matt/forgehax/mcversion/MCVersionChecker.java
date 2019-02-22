@@ -1,13 +1,14 @@
 package com.matt.forgehax.mcversion;
 
+import net.minecraftforge.versions.forge.ForgeVersion;
+
 import java.lang.reflect.AnnotatedElement;
 import java.util.Objects;
-import net.minecraftforge.common.ForgeVersion;
 
 /** Created on 5/29/2017 by fr1kin */
 public class MCVersionChecker {
   public static String getMcVersion() {
-    return ForgeVersion.mcVersion;
+    return ForgeVersion.getVersion();
   }
 
   private static boolean checkVersion(MCVersions mcVersions) {

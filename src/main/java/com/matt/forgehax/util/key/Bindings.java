@@ -7,21 +7,20 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
-import net.minecraft.client.settings.GameSettings;
+import java.util.Optional;
+
+import net.minecraft.client.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 
 public class Bindings implements Globals {
 
   public static final List<KeyBindingHandler> KEY_LIST = getAllKeys();
 
-  @Nullable
-  public static KeyBindingHandler getKey(String name) {
+  public static Optional<KeyBindingHandler> getKey(String name) {
     return Bindings.KEY_LIST
         .stream()
         .filter(k -> k.getBinding().getKeyDescription().toLowerCase().contains(name.toLowerCase()))
-        .findFirst()
-        .orElse(null);
+        .findFirst();
   }
 
   public static final KeyBindingHandler forward =
@@ -41,7 +40,6 @@ public class Bindings implements Globals {
   public static final KeyBindingHandler use = new KeyBindingHandler(MC.gameSettings.keyBindUseItem);
 
   // reflectively get KeyBindingHandlers from GameSettings
-  @Nullable
   private static List<KeyBindingHandler> getAllKeys() {
     Field[] fields = GameSettings.class.getFields();
     return Arrays.stream(fields)

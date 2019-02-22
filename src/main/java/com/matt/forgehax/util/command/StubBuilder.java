@@ -2,7 +2,8 @@ package com.matt.forgehax.util.command;
 
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import java.util.function.Consumer;
-import org.lwjgl.input.Keyboard;
+
+import org.lwjgl.glfw.GLFW;
 
 /** Created on 6/8/2017 by fr1kin */
 public class StubBuilder extends BaseCommandBuilder<StubBuilder, CommandStub> {
@@ -21,7 +22,7 @@ public class StubBuilder extends BaseCommandBuilder<StubBuilder, CommandStub> {
   }
 
   public StubBuilder bind() {
-    return bind(Keyboard.KEY_NONE);
+    return bind(GLFW.GLFW_KEY_UNKNOWN);
   }
 
   public StubBuilder nobind() {

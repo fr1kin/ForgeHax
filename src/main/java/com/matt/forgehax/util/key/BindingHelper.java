@@ -4,8 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+import org.apache.commons.lang3.NotImplementedException;
 
 public class BindingHelper {
   private static final Map<Integer, String> MOUSE_CODES = Maps.newHashMap();
@@ -28,14 +27,16 @@ public class BindingHelper {
     MOUSE_CODES.put(-98, "MOUSE_MIDDLE");
   }
 
+
   public static String getIndexName(int code) {
-    if (MOUSE_CODES.get(code) != null) return MOUSE_CODES.get(code);
+    throw new NotImplementedException("getIndexName");
+    /*if (MOUSE_CODES.get(code) != null) return MOUSE_CODES.get(code);
     else if (code < 0) return Mouse.getButtonName(100 + code);
-    else return Keyboard.getKeyName(code);
+    else return Keyboard.getKeyName(code);*/
   }
 
   public static String getIndexName(KeyBinding binding) {
-    return getIndexName(binding.getKeyCode());
+    return getIndexName(binding.getKey().getKeyCode());
   }
 
   public static IKeyConflictContext getEmptyKeyConflictContext() {

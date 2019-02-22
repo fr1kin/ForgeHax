@@ -9,7 +9,7 @@ import com.matt.forgehax.util.draw.SurfaceHelper;
 import java.io.IOException;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 /** Created by Babbaj on 9/15/2017. */
 public class GuiTextInput extends GuiElement {
@@ -33,28 +33,28 @@ public class GuiTextInput extends GuiElement {
   public void keyTyped(char typedChar, int keyCode) throws IOException {
     if (isActive) {
       switch (keyCode) {
-        case Keyboard.KEY_ESCAPE:
+        case GLFW.GLFW_KEY_ESCAPE:
           isActive = false;
           break;
 
-        case Keyboard.KEY_RETURN:
+        case GLFW.GLFW_KEY_ENTER:
           isActive = false;
           // setValue(input);
           MC.player.sendMessage(new TextComponentString(input.toString()));
           break;
 
-        case Keyboard.KEY_BACK:
+        case GLFW.GLFW_KEY_BACKSPACE:
           if (selectedIndex > -1) {
             input.deleteCharAt(selectedIndex);
             selectedIndex--;
           }
           break;
 
-        case Keyboard.KEY_LEFT:
+        case GLFW.GLFW_KEY_LEFT:
           selectedIndex--;
           break;
 
-        case Keyboard.KEY_RIGHT:
+        case GLFW.GLFW_KEY_RIGHT:
           selectedIndex++;
           break;
 

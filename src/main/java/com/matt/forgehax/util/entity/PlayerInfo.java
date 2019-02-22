@@ -139,7 +139,7 @@ public class PlayerInfo implements Globals, GsonConstant {
   }
 
   public boolean isLocalPlayer() {
-    return String.CASE_INSENSITIVE_ORDER.compare(getName(), getLocalPlayer().getName()) == 0;
+    return String.CASE_INSENSITIVE_ORDER.compare(getName(), getLocalPlayer().getGameProfile().getName()) == 0;
   }
 
   public boolean matches(UUID otherId) {

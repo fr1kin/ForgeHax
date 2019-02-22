@@ -7,13 +7,15 @@ import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
 import com.matt.forgehax.util.key.IKeyBind;
+import com.matt.forgehax.util.key.Keys;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import java.io.IOException;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 /** Created on 6/8/2017 by fr1kin */
 public class CommandStub extends Command implements IKeyBind, ISerializableJson {
@@ -41,8 +43,8 @@ public class CommandStub extends Command implements IKeyBind, ISerializableJson 
               if (dt.hasOption("bind")) {
                 String key = dt.getOptionAsString("bind").toUpperCase();
 
-                int kc = Keyboard.getKeyIndex(key);
-                if (Keyboard.getKeyIndex(key) == Keyboard.KEY_NONE)
+                int kc = Keys.getKeyByName(key);
+                if (kc == GLFW.GLFW_KEY_UNKNOWN)
                   throw new CommandExecuteException(
                       String.format("\"%s\" is not a valid key name", key));
 
@@ -78,7 +80,7 @@ public class CommandStub extends Command implements IKeyBind, ISerializableJson 
     writer.beginObject();
 
     writer.name("bind");
-    if (bind != null) writer.value(bind.getKeyCode());
+    if (bind != null) writer.value(bind.getKey().getKeyCode());
     else writer.value(-1);
 
     writer.endObject();
@@ -95,10 +97,11 @@ public class CommandStub extends Command implements IKeyBind, ISerializableJson 
     reader.endObject();
   }
 
+  // TODO: make sure this is correct
   @Override
   public void bind(int keyCode) {
     if (bind != null) {
-      bind.setKeyCode(keyCode);
+      bind.bind(InputMappings.Type.KEYSYM.getOrMakeInput(keyCode));
       KeyBinding.resetKeyBindingArrayAndHash();
     }
   }

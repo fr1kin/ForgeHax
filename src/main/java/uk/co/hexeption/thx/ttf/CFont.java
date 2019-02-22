@@ -21,8 +21,16 @@ as the name is changed.
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.NativeImage;
 import org.lwjgl.opengl.GL11;
+
+import javax.imageio.ImageIO;
 
 public class CFont {
   private float imgSize = 512;
@@ -46,7 +54,14 @@ public class CFont {
     BufferedImage img = generateFontImage(font, antiAlias, fractionalMetrics, chars);
 
     try {
-      return new DynamicTexture(img);
+      // TODO: make sure this is correct
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      ImageIO.write(img, "PNG", outputStream);
+      outputStream.flush();
+      ByteBuffer buffer = ByteBuffer.wrap(outputStream.toByteArray());
+
+      NativeImage nativeImage = NativeImage.read(buffer);
+      return new DynamicTexture(nativeImage);
     } catch (Exception e) {
       e.printStackTrace();
     }
