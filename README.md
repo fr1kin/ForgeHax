@@ -31,6 +31,8 @@ I recommend allocating more ram in both environments as the Markers mod requires
 
 ##### config.properties tokens are not applied
 
+Sometimes when building, the config.properties resource will not be tokenized. This will break the tweaker because it wont know what mapping version to use. This can be fixed by cleaning your gradle and IDE build output and running setupDecompWorkspace again.
+
 ## FAQ
 #### How do I install ForgeHax?
 
