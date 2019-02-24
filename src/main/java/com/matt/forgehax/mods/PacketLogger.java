@@ -29,10 +29,10 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.Packet;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 /** Created on 10/12/2017 by fr1kin */
 @RegisterMod
@@ -87,7 +87,7 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
                 throw new CommandExecuteException("Empty or null argument");
 
               Optional<Class<?>> match =
-                  getLoadedClasses(Launch.classLoader)
+                  getLoadedClasses(FMLLoader.getLaunchClassLoader())
                       .stream()
                       .filter(Packet.class::isAssignableFrom)
                       .filter(clazz -> clazz.getCanonicalName().toLowerCase().contains(className))
@@ -307,7 +307,7 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
       } else if (obj instanceof ByteBuf) {
         return new JsonPrimitive(((ByteBuf) obj).toString(Charset.defaultCharset()));
       } else if (obj instanceof ITextComponent) {
-        return new JsonPrimitive(((ITextComponent) obj).getUnformattedText());
+        return new JsonPrimitive(((ITextComponent) obj).getUnformattedComponentText());
       } else if (defaultToString(obj).equals(obj.toString())) { // not unique toString method
         // NOTE: make sure this is the last if statement
         return objectToElement(obj, true, null, dejaVu);

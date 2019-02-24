@@ -63,7 +63,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
   public void onLocalPlayerMovementUpdate(Local state) {
     if (placing) ++tickCount;
 
-    if (LocalPlayerUtils.getVelocity().normalize().lengthVector() > 1.D && placing) {
+    if (LocalPlayerUtils.getVelocity().normalize().length() > 1.D && placing) {
       state.setServerAngles(previousAngles);
     } else {
       placing = false;
@@ -79,7 +79,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
             .stream()
             .filter(InvItem::nonNull)
             .filter(item -> item.getItem() instanceof ItemBlock)
-            .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isFullBlock())
+            .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isFullCube())
             .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
             .orElse(InvItem.EMPTY);
 

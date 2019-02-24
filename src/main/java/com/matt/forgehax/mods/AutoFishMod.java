@@ -62,7 +62,7 @@ public class AutoFishMod extends ToggleMod {
 
   private boolean isCorrectSplashPacket(SPacketSoundEffect packet) {
     EntityPlayerSP me = getLocalPlayer();
-    return packet.getSound().equals(SoundEvents.ENTITY_BOBBER_SPLASH)
+    return packet.getSound().equals(SoundEvents.ENTITY_FISHING_BOBBER_SPLASH)
         && (me != null
             && me.fishEntity != null
             && (max_sound_distance.get() == 0

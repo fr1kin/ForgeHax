@@ -69,8 +69,8 @@ public class AutoKey extends ToggleMod {
         .processor(
             data -> {
               data.requiredArguments(2);
-              KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
-              if (key == null) {
+              Optional<KeyBindingHandler> key = Bindings.getKey(data.getArgumentAsString(0));
+              if (!key.isPresent()) {
                 Helper.printMessage("Unknown key: %s", data.getArgumentAsString(0));
                 return;
               }
@@ -85,7 +85,7 @@ public class AutoKey extends ToggleMod {
                             Helper.printMessage("Unknown mode, defaulting to tap");
                             return ClickMode.TAP;
                           });
-              activeKeys.put(key, clickMode);
+              activeKeys.put(key.get(), clickMode);
             })
         .build();
 
@@ -114,10 +114,10 @@ public class AutoKey extends ToggleMod {
         .processor(
             data -> {
               data.requiredArguments(1);
-              KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
-              ClickMode mode = activeKeys.remove(key);
+              Optional<KeyBindingHandler> key = Bindings.getKey(data.getArgumentAsString(0));
+              ClickMode mode = activeKeys.remove(key.orElse(null)); // 2 lazy to make this code not gay
               if (mode != null)
-                Helper.printMessage("Removed key: %s", key.getBinding().getKeyDescription());
+                Helper.printMessage("Removed key: %s", key.get().getBinding().getKeyDescription());
               else Helper.printMessage("Unknown key");
             })
         .build();

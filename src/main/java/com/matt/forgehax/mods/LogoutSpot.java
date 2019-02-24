@@ -100,7 +100,7 @@ public class LogoutSpot extends ToggleMod {
   public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
     EntityPlayer player = getWorld().getPlayerEntityByUUID(event.getPlayerInfo().getId());
     if (player != null && getLocalPlayer() != null && !getLocalPlayer().equals(player)) {
-      AxisAlignedBB bb = player.getEntityBoundingBox();
+      AxisAlignedBB bb = player.getBoundingBox();
       synchronized (spots) {
         if (spots.add(
             new LogoutPos(

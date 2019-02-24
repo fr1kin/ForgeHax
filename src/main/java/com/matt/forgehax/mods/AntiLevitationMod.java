@@ -7,6 +7,8 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /** Created on 11/28/2016 by fr1kin */
@@ -16,10 +18,12 @@ public class AntiLevitationMod extends ToggleMod {
     super(Category.PLAYER, "AntiLevitation", false, "No levitation");
   }
 
+  private static final Potion LEVITATION = IRegistry.field_212631_t.get(new ResourceLocation("levitation"));
+
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (getLocalPlayer().isPotionActive(Potion.getPotionFromResourceLocation("levitation"))) {
-      getLocalPlayer().removeActivePotionEffect(Potion.getPotionFromResourceLocation("levitation"));
+    if (getLocalPlayer().isPotionActive(LEVITATION)) {
+      getLocalPlayer().removeActivePotionEffect(LEVITATION);
     }
   }
 }

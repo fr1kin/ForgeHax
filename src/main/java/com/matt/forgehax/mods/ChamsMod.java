@@ -46,7 +46,7 @@ public class ChamsMod extends ToggleMod {
 
   public boolean shouldDraw(EntityLivingBase entity) {
     return !entity.equals(MC.player)
-        && !entity.isDead
+        && entity.isAlive()
         && ((mobs_hostile.get() && EntityUtils.isHostileMob(entity))
             || // check this first
             (players.get() && EntityUtils.isPlayer(entity))
@@ -57,13 +57,13 @@ public class ChamsMod extends ToggleMod {
   public void onPreRenderLiving(RenderLivingEvent.Pre event) {
     GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
     GlStateManager.enablePolygonOffset();
-    GlStateManager.doPolygonOffset(1.0F, -1000000);
+    GlStateManager.polygonOffset(1.0F, -1000000);
   }
 
   @SubscribeEvent
   public void onPostRenderLiving(RenderLivingEvent.Post event) {
     GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
-    GlStateManager.doPolygonOffset(1.0F, 1000000);
+    GlStateManager.polygonOffset(1.0F, 1000000);
     GlStateManager.disablePolygonOffset();
   }
 }

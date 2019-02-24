@@ -80,7 +80,7 @@ public class ClientChunkSize extends ToggleMod {
     switch (event.phase) {
       case END:
         {
-          Chunk chunk = getWorld().getChunkFromBlockCoords(getLocalPlayer().getPosition());
+          Chunk chunk = getWorld().getChunk(getLocalPlayer().getPosition());
           if (chunk.isEmpty()) return;
 
           ChunkPos pos = chunk.getPos();
@@ -99,7 +99,7 @@ public class ClientChunkSize extends ToggleMod {
                         final NBTTagCompound root = new NBTTagCompound();
                         NBTTagCompound level = new NBTTagCompound();
                         root.setTag("Level", level);
-                        root.setInteger("DataVersion", 1337);
+                        root.setInt("DataVersion", 1337);
 
                         try {
                           // this should be done on the main mc thread but it works 99% of the

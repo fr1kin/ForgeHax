@@ -32,7 +32,7 @@ public class TrajectoryMod extends ToggleMod {
               getLocalPlayer(),
               PositionRotationManager.getState().getRenderServerViewAngles(),
               projectile.getForce(
-                  getLocalPlayer().getHeldItemMainhand().getMaxItemUseDuration()
+                  getLocalPlayer().getHeldItemMainhand().getUseDuration()
                       - getLocalPlayer().getItemInUseCount()),
               0);
       if (result == null) return;
@@ -40,8 +40,8 @@ public class TrajectoryMod extends ToggleMod {
       if (result.getPathTraveled().size() > 1) {
         event.setTranslation(getLocalPlayer().getPositionVector());
 
-        GlStateManager.enableDepth();
-        GlStateManager.glLineWidth(2.0f);
+        GlStateManager.enableDepthTest();
+        GlStateManager.lineWidth(2.0f);
 
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
@@ -62,8 +62,8 @@ public class TrajectoryMod extends ToggleMod {
         event.getTessellator().draw();
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
 
-        GlStateManager.glLineWidth(1.0f);
-        GlStateManager.disableDepth();
+        GlStateManager.lineWidth(1.0f);
+        GlStateManager.disableDepthTest();
 
         event.resetTranslation();
       }

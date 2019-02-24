@@ -8,12 +8,12 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.RayTraceFluidMode;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -61,8 +61,8 @@ public class AutoBucketFallMod extends ToggleMod {
             playerPos.y - preHeight.getAsDouble(),
             playerPos.z); // find the ground before the player is ready to water bucket
 
-    RayTraceResult result = MC.world.rayTraceBlocks(playerPos, rayTraceBucket, true);
-    RayTraceResult resultPre = MC.world.rayTraceBlocks(playerPos, rayTracePre, true);
+    RayTraceResult result = MC.world.rayTraceBlocks(playerPos, rayTraceBucket, RayTraceFluidMode.ALWAYS);
+    RayTraceResult resultPre = MC.world.rayTraceBlocks(playerPos, rayTracePre, RayTraceFluidMode.ALWAYS);
 
     if (resultPre != null
         && resultPre.type.equals(Type.BLOCK)

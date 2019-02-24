@@ -49,10 +49,10 @@ public class HorseStats extends ToggleMod {
           FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getRidingEntity());
 
       ((EntityLivingBase) getRidingEntity())
-          .getEntityAttribute(jump_strength)
+          .getAttribute(jump_strength)
           .setBaseValue(jumpHeight.getAsDouble());
       ((EntityLivingBase) getRidingEntity())
-          .getEntityAttribute(movement_speed)
+          .getAttribute(movement_speed)
           .setBaseValue(speed.getAsDouble());
     }
   }

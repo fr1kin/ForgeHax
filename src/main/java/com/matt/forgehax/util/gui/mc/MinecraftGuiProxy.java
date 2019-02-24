@@ -33,7 +33,7 @@ public class MinecraftGuiProxy extends GuiScreen implements Globals {
     inputs.clear();
 
     ScaledResolution resolution = new ScaledResolution(MC);
-    element.init(resolution.getScaledWidth_double(), resolution.getScaledHeight_double());
+    element.init(MC.mainWindow.getScaledWidth(), resolution.getScaledHeight_double());
   }
 
   @Override

@@ -9,11 +9,12 @@ import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.item.EntityMinecartChest;
-import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -40,7 +41,7 @@ public class StorageESPMod extends ToggleMod {
   private int getEntityColor(Entity entity) {
     if (entity instanceof EntityMinecartChest) return Utils.Colors.ORANGE;
     else if (entity instanceof EntityItemFrame
-        && ((EntityItemFrame) entity).getDisplayedItem().getItem() instanceof ItemShulkerBox)
+        && Block.getBlockFromItem(((EntityItemFrame) entity).getDisplayedItem().getItem()) instanceof BlockShulkerBox)
       return Utils.Colors.YELLOW;
     else return -1;
   }

@@ -93,7 +93,7 @@ public class AutoTool extends ToggleMod {
   private boolean isSilkTouchable(InvItem item, IBlockState state, BlockPos pos) {
     return LocalPlayerInventory.getSelected().getIndex() == item.getIndex()
         && getEnchantmentLevel(Enchantments.SILK_TOUCH, item) > 0
-        && state.getBlock().canSilkHarvest(getWorld(), pos, state, getLocalPlayer());
+        && state.getBlock().canSilkHarvest(state, getWorld(), pos, getLocalPlayer());
   }
 
   private double getDigSpeed(InvItem item, IBlockState state, BlockPos pos) {

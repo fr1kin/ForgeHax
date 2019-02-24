@@ -54,9 +54,9 @@ public class FreecamMod extends ToggleMod {
   public void onEnabled() {
     if (getLocalPlayer() == null || getWorld() == null) return;
 
-    if (isRidingEntity = getLocalPlayer().isRiding()) {
+    if (isRidingEntity = getLocalPlayer().getRidingEntity() != null) {
       ridingEntity = getLocalPlayer().getRidingEntity();
-      getLocalPlayer().dismountRidingEntity();
+      getLocalPlayer().dismountEntity(getLocalPlayer().getRidingEntity());
     } else pos = getLocalPlayer().getPositionVector();
 
     angle = LocalPlayerUtils.getViewAngles();
@@ -77,9 +77,9 @@ public class FreecamMod extends ToggleMod {
     getWorld().removeEntityFromWorld(-100);
     originalPlayer = null;
 
-    getLocalPlayer().capabilities.isFlying =
+    getLocalPlayer().abilities.isFlying =
         getModManager().get(ElytraFlight.class).map(BaseMod::isEnabled).orElse(false);
-    getLocalPlayer().capabilities.setFlySpeed(0.05f);
+    getLocalPlayer().abilities.setFlySpeed(0.05f);
     getLocalPlayer().noClip = false;
     getLocalPlayer().setVelocity(0, 0, 0);
 
@@ -93,9 +93,9 @@ public class FreecamMod extends ToggleMod {
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (getLocalPlayer() == null) return;
 
-    getLocalPlayer().capabilities.allowFlying = true;
-    getLocalPlayer().capabilities.isFlying = true;
-    getLocalPlayer().capabilities.setFlySpeed(speed.getAsFloat());
+    getLocalPlayer().abilities.allowFlying = true;
+    getLocalPlayer().abilities.isFlying = true;
+    getLocalPlayer().abilities.setFlySpeed(speed.getAsFloat());
     getLocalPlayer().noClip = true;
     getLocalPlayer().onGround = false;
     getLocalPlayer().fallDistance = 0;
@@ -152,14 +152,17 @@ public class FreecamMod extends ToggleMod {
   }
 
   private static class DummyPlayer extends EntityOtherPlayerMP {
+    public DummyPlayer(World worldIn) {
+      super(worldIn, getLocalPlayer().getGameProfile());
+    }
     public DummyPlayer(World worldIn, GameProfile gameProfileIn) {
       super(worldIn, gameProfileIn);
     }
 
     @Override
-    public void onUpdate() {}
+    public void tick() {}
 
     @Override
-    public void onLivingUpdate() {}
+    public void livingTick() {}
   }
 }

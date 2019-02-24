@@ -33,7 +33,7 @@ public class GuiMove extends ToggleMod {
         || MC.currentScreen instanceof GuiContainer
         || MC.currentScreen instanceof GuiIngameMenu) {
       for (KeyBinding bind : keys) {
-        KeyBinding.setKeyBindState(bind.getKeyCode(), Keyboard.isKeyDown(bind.getKeyCode()));
+        KeyBinding.setKeyBindState(bind.getKey().getKeyCode(), Keyboard.isKeyDown(bind.getKeyCode()));
       }
     } else if (MC.currentScreen == null) {
       for (KeyBinding bind : keys) {

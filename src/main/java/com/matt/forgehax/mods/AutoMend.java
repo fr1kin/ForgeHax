@@ -30,7 +30,7 @@ public class AutoMend extends ToggleMod {
   }
 
   private boolean isDamaged(InvItem item) {
-    return item.getItemStack().isItemDamaged();
+    return item.getItemStack().isDamaged();
   }
 
   @SubscribeEvent

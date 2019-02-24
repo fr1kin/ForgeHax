@@ -138,10 +138,10 @@ public class AutoReconnectMod extends ToggleMod {
       int textHeight = multilineMessage.size() * fontRenderer.FONT_HEIGHT;
 
       if (getLastConnectedServerData() != null) {
-        buttonList.add(
+        buttons.add(
             reconnectButton =
                 new GuiButton(
-                    buttonList.size(),
+                        buttons.size(),
                     width / 2 - 100,
                     (height / 2 + textHeight / 2 + fontRenderer.FONT_HEIGHT) + 23,
                     getFormattedReconnectText()));

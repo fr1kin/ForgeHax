@@ -107,16 +107,14 @@ public class FlyMod extends ToggleMod {
             SPacketPlayerPosLook.class,
             packet,
             MC.player.rotationYaw,
-            "yaw",
-            "field_148936_d",
-            "d");
+            //"yaw",
+            "field_148936_d");
         ObfuscationReflectionHelper.setPrivateValue(
             SPacketPlayerPosLook.class,
             packet,
             MC.player.rotationPitch,
-            "pitch",
-            "field_148937_e",
-            "e");
+            //"pitch",
+            "field_148937_e");
       } catch (Exception e) {
       }
     }

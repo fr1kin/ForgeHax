@@ -16,21 +16,23 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.item.ItemFishFood;
 import net.minecraft.item.ItemFishFood.FishType;
 import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoEatMod extends ToggleMod {
-  private static final List<Potion> BAD_POTIONS =
-      Streams.stream(Potion.REGISTRY).filter(Potion::isBadEffect).collect(Collectors.toList());
+  private static final Set<Potion> BAD_POTIONS = IRegistry.field_212631_t.stream().filter(Potion::isBadEffect).collect(Collectors.toSet());
 
   enum Sorting {
     POINTS,
@@ -94,7 +96,7 @@ public class AutoEatMod extends ToggleMod {
     PotionEffect pe = Fields.ItemFood_potionId.get(inv.getItem());
     return pe == null || isFishFood(inv)
         ? !FishType.PUFFERFISH.equals(FishType.byItemStack(inv.getItemStack()))
-        : BAD_POTIONS.stream().filter(Potion::isBadEffect).noneMatch(pe.getPotion()::equals);
+        : !BAD_POTIONS.contains(pe.getPotion());
   }
 
   private int getHealAmount(InvItem inv) {
@@ -179,7 +181,7 @@ public class AutoEatMod extends ToggleMod {
   public void onStopUse(ItemStoppedUsedEvent event) {
     if (food != null && eating) {
       if (fail_safe_multiplier.get() == 0
-          || ticksElapsed < food.itemUseDuration * fail_safe_multiplier.get())
+          || ticksElapsed < food.getUseDuration(ItemStack.EMPTY/* unused */) * fail_safe_multiplier.get())
         event.setCanceled(true);
       else reset();
     }

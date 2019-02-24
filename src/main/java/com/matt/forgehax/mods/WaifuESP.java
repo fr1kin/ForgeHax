@@ -8,13 +8,17 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import javax.imageio.ImageIO;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
@@ -45,8 +49,7 @@ public class WaifuESP extends ToggleMod {
   private final String waifuUrl =
       "https://raw.githubusercontent.com/fr1kin/ForgeHax/master/src/main/resources/assets/minecraft/textures/forgehax/waifu1.png";
 
-  private final File waifuCache =
-      Helper.getFileManager().getBaseResolve("cache/waifu.png").toFile();
+  private final Path waifuCache = Helper.getFileManager().getBaseResolve("cache/waifu.png");
 
   private <T> BufferedImage getImage(T source, ThrowingFunction<T, BufferedImage> readFunction) {
     try {
@@ -86,9 +89,9 @@ public class WaifuESP extends ToggleMod {
           int y = top.y;
 
           // draw waifu
-          MC.renderEngine.bindTexture(waifu);
+          MC.textureManager.bindTexture(waifu);
 
-          GlStateManager.color(255, 255, 255);
+          GlStateManager.color3f(255, 255, 255);
           Gui.drawScaledCustomSizeModalRect(
               x, y, 0, 0, width, height, width, height, width, height);
         }
@@ -108,14 +111,17 @@ public class WaifuESP extends ToggleMod {
     MC.addScheduledTask(
         () -> {
           try {
-            BufferedImage image;
-            if (waifuCache.exists()) { // TODO: download async
+            //TODO: fix
+            /*BufferedImage image;
+            NativeImage _image;
+            //NativeImage.read(new BufferedInputStream(Files.newInputStream(waifuCache)));
+            if (Files.exists(waifuCache)) { // TODO: download async
               image = getImage(waifuCache, ImageIO::read); // from cache
             } else {
               image = getImage(new URL(waifuUrl), ImageIO::read); // from internet
               if (image != null) {
                 try {
-                  ImageIO.write(image, "png", waifuCache);
+                  ImageIO.write(image, "png", waifuCache.toFile());
                 } catch (IOException ex) {
                   ex.printStackTrace();
                 }
@@ -128,7 +134,7 @@ public class WaifuESP extends ToggleMod {
 
             DynamicTexture dynamicTexture = new DynamicTexture(image);
             dynamicTexture.loadTexture(MC.getResourceManager());
-            waifu = MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
+            waifu = MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);*/
           } catch (Exception e) {
             e.printStackTrace();
           }

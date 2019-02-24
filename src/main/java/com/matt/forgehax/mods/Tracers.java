@@ -105,7 +105,7 @@ public class Tracers extends ToggleMod implements Colors {
   @SubscribeEvent
   public void onDrawScreen(Render2DEvent event) {
     GlStateManager.enableBlend();
-    GlStateManager.tryBlendFuncSeparate(
+    GlStateManager.blendFuncSeparate(
         GlStateManager.SourceFactor.SRC_ALPHA,
         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
         GlStateManager.SourceFactor.ONE,
@@ -239,7 +239,7 @@ public class Tracers extends ToggleMod implements Colors {
                 GlStateManager.glEnd();
               }
 
-              GlStateManager.translate(0, 0, -er.getDepth());
+              GlStateManager.translatef(0, 0, -er.getDepth());
             });
 
     GlStateManager.enableTexture2D();
@@ -248,7 +248,7 @@ public class Tracers extends ToggleMod implements Colors {
     GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
     GL11.glDisable(GL11.GL_LINE_SMOOTH);
 
-    GlStateManager.color(1.f, 1.f, 1.f, 1.f);
+    GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
   }
 
   private class EntityRelations implements Comparable<EntityRelations> {

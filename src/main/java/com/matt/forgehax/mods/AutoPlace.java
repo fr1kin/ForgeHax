@@ -514,10 +514,10 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
 
     GlStateManager.disableTexture2D();
     GlStateManager.enableBlend();
-    GlStateManager.disableAlpha();
-    GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+    GlStateManager.disableAlphaTest();
+    GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
     GlStateManager.shadeModel(GL11.GL_SMOOTH);
-    GlStateManager.disableDepth();
+    GlStateManager.disableDepthTest();
 
     final GeometryTessellator tessellator = event.getTessellator();
     final BufferBuilder builder = tessellator.getBuffer();
@@ -572,9 +572,9 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
 
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GlStateManager.disableBlend();
-    GlStateManager.enableAlpha();
+    GlStateManager.enableAlphaTest();
     GlStateManager.enableTexture2D();
-    GlStateManager.enableDepth();
+    GlStateManager.enableDepthTest();
     GlStateManager.enableCull();
 
     GL11.glDisable(GL11.GL_LINE_SMOOTH);

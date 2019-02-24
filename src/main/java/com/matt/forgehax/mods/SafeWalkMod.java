@@ -68,8 +68,9 @@ public class SafeWalkMod extends ToggleMod {
     return false;
   }
 
+  // TODO: make sure this is correct
   private boolean hasCollisionBox(BlockPos pos) {
-    return MC.world.getBlockState(pos).getCollisionBoundingBox(MC.world, pos) != null;
+    return !MC.world.getBlockState(pos).getCollisionShape(MC.world, pos).isEmpty();
   }
 
   @Override

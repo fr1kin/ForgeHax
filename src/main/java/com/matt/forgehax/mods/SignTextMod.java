@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntitySign;
+import net.minecraft.util.math.RayTraceFluidMode;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.MouseEvent;
@@ -24,7 +25,7 @@ public class SignTextMod extends ToggleMod {
   @SubscribeEvent
   public void onInput(MouseEvent event) {
     if (event.getButton() == 2 && Mouse.getEventButtonState()) { // on middle click
-      RayTraceResult result = MC.player.rayTrace(999, 0);
+      RayTraceResult result = MC.player.rayTrace(999, 0, RayTraceFluidMode.NEVER);
       if (result == null) return;
       if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
         TileEntity tileEntity = MC.world.getTileEntity(result.getBlockPos());
@@ -35,7 +36,7 @@ public class SignTextMod extends ToggleMod {
           int signTextLength = 0;
           // find the first line from the bottom that isn't empty
           for (int i = 3; i >= 0; i--) {
-            if (!sign.signText[i].getUnformattedText().isEmpty()) {
+            if (!sign.signText[i].getUnformattedComponentText().isEmpty()) {
               signTextLength = i + 1;
               break;
             }

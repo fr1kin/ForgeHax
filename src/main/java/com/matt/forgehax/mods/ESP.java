@@ -120,7 +120,7 @@ public class ESP extends ToggleMod implements Fonts {
 
               Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
               Vec3d topPos =
-                  bottomPos.addVector(0.D, living.getRenderBoundingBox().maxY - living.posY, 0.D);
+                  bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.posY, 0.D);
 
               Plane top = VectorUtils.toScreen(topPos);
               Plane bot = VectorUtils.toScreen(bottomPos);
@@ -201,7 +201,7 @@ public class ESP extends ToggleMod implements Fonts {
           double botY,
           double width,
           double height) {
-        String text = living.getDisplayName().getUnformattedText();
+        String text = living.getDisplayName().getUnformattedComponentText();
 
         double x = topX - ((double) builder.getFontWidth(text) / 2.D);
         double y = topY - (double) builder.getFontHeight() - 1.D;

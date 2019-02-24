@@ -12,9 +12,11 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.Map;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.item.ItemMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
@@ -117,7 +119,7 @@ public class MapMod extends ToggleMod {
           MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);
 
           try {
-            BufferedImage image = getImageFromUrl(url);
+            NativeImage image = NativeImage.read(new URL(url).openStream());
 
             DynamicTexture dynamicTexture = new DynamicTexture(image);
             dynamicTexture.loadTexture(MC.getResourceManager());
@@ -129,7 +131,7 @@ public class MapMod extends ToggleMod {
                 mapTextureObjects
                     .keySet()
                     .stream()
-                    .filter(k -> k.getResourcePath().contains(heldMapData.mapName))
+                    .filter(k -> k.getPath().contains(heldMapData.getName()))
                     .findFirst()
                     .orElse(null);
 

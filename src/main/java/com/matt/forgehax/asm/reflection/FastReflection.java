@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
@@ -428,6 +429,14 @@ public interface FastReflection extends ASMCommon {
             .setName("storageArrays")
             .autoAssign()
             .asField();
+
+    /** NativeImage */
+    FastField<Long> NativeImage_imagePointer =
+            FastTypeBuilder.create()
+                    .setInsideClass(NativeImage.class)
+                    .setName("imagePointer")
+                    .autoAssign()
+                    .asField();
   }
 
   // ****************************************

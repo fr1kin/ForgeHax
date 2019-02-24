@@ -24,13 +24,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemRedstone;
+import net.minecraft.init.Items;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.*;
+import net.minecraft.world.World;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -170,6 +171,7 @@ public class AntiAfkMod extends ToggleMod {
 
   @SubscribeEvent
   public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+
     reset();
   }
 
@@ -340,6 +342,10 @@ public class AntiAfkMod extends ToggleMod {
                 : tr.getBlockPos());
       }
 
+      private boolean canPlaceRedstoneAt(World world, BlockPos pos) {
+        return Blocks.REDSTONE_WIRE.isValidPosition(Blocks.REDSTONE_WIRE.getDefaultState(), world, pos);
+      }
+
       boolean isPlaced() {
         return getWorld().getBlockState(getBlockBelow()).getBlock().equals(Blocks.REDSTONE_WIRE);
       }
@@ -361,7 +367,7 @@ public class AntiAfkMod extends ToggleMod {
           LocalPlayerInventory.InvItem item =
               LocalPlayerInventory.getHotbarInventory()
                   .stream()
-                  .filter(itm -> itm.getItemStack().getItem() instanceof ItemRedstone)
+                  .filter(itm -> itm.getItemStack().getItem() == Items.REDSTONE)
                   .findAny()
                   .orElse(LocalPlayerInventory.InvItem.EMPTY);
 
@@ -371,7 +377,7 @@ public class AntiAfkMod extends ToggleMod {
 
           if (result == null) return;
 
-          if (!Blocks.REDSTONE_WIRE.canPlaceBlockAt(getWorld(), result.getBlockPos()))
+          if (!Blocks.REDSTONE_WIRE.isValidPosition(Blocks.REDSTONE_WIRE.getDefaultState(), getWorld(), result.getBlockPos()))
             return; // can't place block
 
           ResetFunction func = LocalPlayerInventory.setSelected(item);
@@ -391,6 +397,7 @@ public class AntiAfkMod extends ToggleMod {
           func.revert();
         }
       }
+
 
       @Override
       public void onStart() {
@@ -413,8 +420,8 @@ public class AntiAfkMod extends ToggleMod {
       public boolean isRunnable() {
         return LocalPlayerInventory.getHotbarInventory()
                 .stream()
-                .anyMatch(item -> item.getItemStack().getItem() instanceof ItemRedstone)
-            && (Blocks.REDSTONE_WIRE.canPlaceBlockAt(getWorld(), getBlockBelow()) || isPlaced());
+                .anyMatch(item -> item.getItemStack().getItem() == Items.REDSTONE)
+            && (canPlaceRedstoneAt(getWorld(), getBlockBelow()) || isPlaced());
         // return false; // disabled until functional
       }
 

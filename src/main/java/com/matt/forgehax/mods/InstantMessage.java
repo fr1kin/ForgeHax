@@ -8,7 +8,7 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.multiplayer.GuiConnecting;
+import net.minecraft.client.gui.GuiConnecting;
 import net.minecraft.network.login.server.SPacketLoginSuccess;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

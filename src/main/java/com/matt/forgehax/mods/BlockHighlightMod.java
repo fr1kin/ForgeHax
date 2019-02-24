@@ -73,8 +73,8 @@ public class BlockHighlightMod extends ToggleMod {
 
   @SubscribeEvent
   public void onRenderBoxPre(DrawBlockBoundingBoxEvent.Pre event) {
-    GlStateManager.disableDepth();
-    GlStateManager.glLineWidth(width.get());
+    GlStateManager.disableDepthTest();
+    GlStateManager.lineWidth(width.get());
     event.alpha = toFloat(alpha.get());
     event.red = toFloat(red.get());
     event.green = toFloat(green.get());
@@ -83,6 +83,6 @@ public class BlockHighlightMod extends ToggleMod {
 
   @SubscribeEvent
   public void onRenderBoxPost(DrawBlockBoundingBoxEvent.Post event) {
-    GlStateManager.enableDepth();
+    GlStateManager.enableDepthTest();
   }
 }

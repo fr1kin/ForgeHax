@@ -394,7 +394,7 @@ public class BookBot extends ToggleMod {
 
       // copy pages into NBT
       for (int i = 0; i < MAX_PAGES && parser.hasNext(); i++) {
-        pages.appendTag(new NBTTagString(parser.next().trim()));
+        pages.add(new NBTTagString(parser.next().trim()));
         page++;
       }
 

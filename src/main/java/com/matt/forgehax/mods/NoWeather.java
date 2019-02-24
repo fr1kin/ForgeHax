@@ -66,7 +66,7 @@ public class NoWeather extends ToggleMod {
 
   @SubscribeEvent
   public void onWorldChange(WorldChangeEvent event) {
-    saveState(event.getWorld());
+    saveState(event.getWorld().getWorld());
   }
 
   @SubscribeEvent

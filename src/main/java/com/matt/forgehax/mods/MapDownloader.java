@@ -10,13 +10,17 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.item.ItemMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
+import org.lwjgl.system.MemoryUtil;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /** Created by Babbaj on 11/6/2017. */
 @RegisterMod
@@ -51,9 +55,9 @@ public class MapDownloader extends ToggleMod {
     ItemMap map = (ItemMap) MC.player.getHeldItemMainhand().getItem();
     MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);
 
-    if (fileName == null) fileName = heldMapData.mapName;
+    if (fileName == null) fileName = heldMapData.getName();
 
-    ResourceLocation location = findResourceLocation(heldMapData.mapName);
+    ResourceLocation location = findResourceLocation(heldMapData.getName());
     if (location == null) {
       Helper.printMessage("Failed to find ResourceLocation");
       return;
@@ -73,20 +77,22 @@ public class MapDownloader extends ToggleMod {
     return mapTextureObjects
         .keySet()
         .stream()
-        .filter(k -> k.getResourcePath().contains(name))
+        .filter(k -> k.getPath().contains(name))
         .findFirst()
         .orElse(null);
   }
 
   // TODO: generalize this
   private BufferedImage dynamicToImage(DynamicTexture texture) {
-    int[] data = texture.getTextureData();
-    if (data.length != 128 * 128) return null;
+    NativeImage nativeImage = texture.getTextureData();
+    long imagePtr = FastReflection.Fields.NativeImage_imagePointer.get(nativeImage);
+    ByteBuffer bytes = MemoryUtil.memByteBuffer(imagePtr, 128 * 128);
+    throw new NotImplementedException();
 
-    BufferedImage image = new BufferedImage(128, 128, 2);
+    /*BufferedImage image = new BufferedImage(128, 128, 2);
 
-    image.setRGB(0, 0, image.getWidth(), image.getHeight(), data, 0, 128);
-    return image;
+    image.setRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, 128);
+    return image;*/
   }
 
   @Override
