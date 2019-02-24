@@ -5,6 +5,9 @@ import com.matt.forgehax.asm.reflection.FastReflection;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
+
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector4f;
 //import org.lwjgl.util.vector.Matrix4f;
 //import org.lwjgl.util.vector.Vector4f;
 
@@ -40,10 +43,9 @@ public class VectorUtils implements Globals {
 
     Vector4f pos = new Vector4f(vecX, vecY, vecZ, 1.f);
 
-    modelMatrix.load(
-        FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
-    projectionMatrix.load(
-        FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().asReadOnlyBuffer());
+    modelMatrix.set(FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().array());
+
+    projectionMatrix.set(FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().array());
 
     VecTransformCoordinate(pos, modelMatrix);
     VecTransformCoordinate(pos, projectionMatrix);

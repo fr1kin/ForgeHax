@@ -8,15 +8,16 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.registry.IRegistry;
 
 public class EnchantmentUtils {
   public static List<EntityEnchantment> getEnchantments(NBTTagList tags) {
     if (tags == null) return null;
     List<EntityEnchantment> list = Lists.newArrayList();
-    for (int i = 0; i < tags.tagCount(); i++)
+    for (int i = 0; i < tags.size(); i++)
       list.add(
           new EntityEnchantment(
-              tags.getCompoundTagAt(i).getShort("id"), tags.getCompoundTagAt(i).getShort("lvl")));
+              tags.getCompound(i).getShort("id"), tags.getCompound(i).getShort("lvl")));
     return list;
   }
 
@@ -93,7 +94,7 @@ public class EnchantmentUtils {
     }
 
     public String getShortName() {
-      int id = Enchantment.getEnchantmentID(enchantment);
+      int id = IRegistry.field_212628_q.getId(enchantment);
       if (SHORT_ENCHANT_NAMES.containsKey(id)) {
         if (enchantment.getMaxLevel() <= 1) return SHORT_ENCHANT_NAMES.get(id);
         else return SHORT_ENCHANT_NAMES.get(id) + this.level;
@@ -101,7 +102,8 @@ public class EnchantmentUtils {
     }
 
     public String toString() {
-      return enchantment.getTranslatedName(level);
+      return enchantment.func_200305_d(level).getFormattedText();
+      //return enchantment.getTranslatedName(level);
     }
   }
 }

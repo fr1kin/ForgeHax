@@ -157,7 +157,7 @@ public class SurfaceBuilder {
   }
 
   public SurfaceBuilder width(double width) {
-    GlStateManager.glLineWidth((float) width);
+    GlStateManager.lineWidth((float) width);
     return this;
   }
 
@@ -197,9 +197,12 @@ public class SurfaceBuilder {
     else {
       // use default minecraft font
       GlStateManager.pushMatrix();
-      GlStateManager.translate(x, y, 0.D);
+      GlStateManager.translated(x, y, 0.D);
 
-      MC.fontRenderer.drawString(text, 0, 0, Utils.toRGBA(current().getColor4d()), shadow);
+      if (shadow)
+        MC.fontRenderer.drawStringWithShadow(text, 0, 0, Utils.toRGBA(current().getColor4d()));
+      else
+        MC.fontRenderer.drawString(text, 0, 0, Utils.toRGBA(current().getColor4d()));
 
       GlStateManager.popMatrix();
     }
@@ -220,10 +223,10 @@ public class SurfaceBuilder {
   }
 
   public SurfaceBuilder item(ItemStack stack, double x, double y) {
-    MC.getRenderItem().zLevel = 100.f;
+    MC.getItemRenderer().zLevel = 100.f;
     SurfaceHelper.renderItemAndEffectIntoGUI(
         getLocalPlayer(), stack, x, y, current().hasScale() ? current().getScale3d()[0] : 16.D);
-    MC.getRenderItem().zLevel = 0.f;
+    MC.getItemRenderer().zLevel = 0.f;
     return this;
   }
 
@@ -239,7 +242,7 @@ public class SurfaceBuilder {
   }
 
   public SurfaceBuilder head(ResourceLocation resource, double x, double y) {
-    MC.renderEngine.bindTexture(resource);
+    MC.getTextureManager().bindTexture(resource);
     double scale = current().hasScale() ? current().getScale3d()[0] : 12.D;
     SurfaceHelper.drawScaledCustomSizeModalRect(
         (x * (1 / scale)), (y * (1 / scale)), 8.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
@@ -300,7 +303,7 @@ public class SurfaceBuilder {
 
   public static void enableBlend() {
     GlStateManager.enableBlend();
-    GlStateManager.tryBlendFuncSeparate(
+    GlStateManager.blendFuncSeparate(
         GlStateManager.SourceFactor.SRC_ALPHA,
         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
         GlStateManager.SourceFactor.ONE,
@@ -312,11 +315,11 @@ public class SurfaceBuilder {
   }
 
   public static void enableFontRendering() {
-    GlStateManager.disableDepth();
+    GlStateManager.disableDepthTest();
   }
 
   public static void disableFontRendering() {
-    GlStateManager.enableDepth();
+    GlStateManager.enableDepthTest();
   }
 
   public static void enableItemRendering() {
@@ -329,11 +332,11 @@ public class SurfaceBuilder {
 
   public static void disableItemRendering() {
     GlStateManager.disableLighting();
-    GlStateManager.enableDepth();
+    GlStateManager.enableDepthTest();
   }
 
   public static void clearColor() {
-    GlStateManager.color(1.f, 1.f, 1.f, 1.f);
+    GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
   }
 
   private static class RenderSettings {

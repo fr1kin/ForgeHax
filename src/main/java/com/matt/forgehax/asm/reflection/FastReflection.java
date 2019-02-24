@@ -10,14 +10,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.GuiConnecting;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiEditSign;
-import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.KeyBinding;
@@ -32,7 +32,6 @@ import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -55,8 +54,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.storage.AnvilChunkLoader;
-import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 /** Created on 5/8/2017 by fr1kin */
 public interface FastReflection extends ASMCommon {
@@ -343,7 +342,7 @@ public interface FastReflection extends ASMCommon {
     /** EntityRenderer */
     FastField<ItemStack> EntityRenderer_itemActivationItem =
         FastTypeBuilder.create()
-            .setInsideClass(EntityRenderer.class)
+            .setInsideClass(GameRenderer.class)
             .setName("itemActivationItem")
             .autoAssign()
             .asField();
@@ -367,13 +366,6 @@ public interface FastReflection extends ASMCommon {
         FastTypeBuilder.create()
             .setInsideClass(GuiEditSign.class)
             .setName("tileSign")
-            .autoAssign()
-            .asField();
-    /** NBTTagCompound */
-    FastField<Map<String, NBTBase>> NBTTag_tagMap =
-        FastTypeBuilder.create()
-            .setInsideClass(NBTTagCompound.class)
-            .setName("tagMap")
             .autoAssign()
             .asField();
     /** Timer */
@@ -430,7 +422,7 @@ public interface FastReflection extends ASMCommon {
             .asField();
 
     /** Chunk */
-    FastField<ExtendedBlockStorage[]> Chunk_storageArrays =
+    FastField<ChunkSection[]> Chunk_storageArrays =
         FastTypeBuilder.create()
             .setInsideClass(Chunk.class)
             .setName("storageArrays")

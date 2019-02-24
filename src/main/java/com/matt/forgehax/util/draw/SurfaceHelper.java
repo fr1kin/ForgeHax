@@ -14,8 +14,8 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
@@ -35,7 +35,11 @@ public class SurfaceHelper implements Globals {
       int color,
       boolean shadow) {
     if (fontRenderer == null) {
-      MC.fontRenderer.drawString(text, Math.round(x), Math.round(y), color, shadow);
+      if (shadow)
+        MC.fontRenderer.drawStringWithShadow(text, Math.round(x), Math.round(y), color);
+      else
+        MC.fontRenderer.drawString(text, Math.round(x), Math.round(y), color);
+
     } else {
       fontRenderer.drawString(text, x, y, color, shadow);
     }
@@ -78,12 +82,12 @@ public class SurfaceHelper implements Globals {
 
     GlStateManager.enableBlend();
     GlStateManager.disableTexture2D();
-    GlStateManager.tryBlendFuncSeparate(
+    GlStateManager.blendFuncSeparate(
         GlStateManager.SourceFactor.SRC_ALPHA,
         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
         GlStateManager.SourceFactor.ONE,
         GlStateManager.DestFactor.ZERO);
-    GlStateManager.color(r, g, b, a);
+    GlStateManager.color4f(r, g, b, a);
 
     GL11.glLineWidth(width);
 
@@ -136,12 +140,12 @@ public class SurfaceHelper implements Globals {
 
     GlStateManager.enableBlend();
     GlStateManager.disableTexture2D();
-    GlStateManager.tryBlendFuncSeparate(
+    GlStateManager.blendFuncSeparate(
         GlStateManager.SourceFactor.SRC_ALPHA,
         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
         GlStateManager.SourceFactor.ONE,
         GlStateManager.DestFactor.ZERO);
-    GlStateManager.color(r, g, b, a);
+    GlStateManager.color4f(r, g, b, a);
 
     GL11.glLineWidth(width);
 
@@ -150,7 +154,7 @@ public class SurfaceHelper implements Globals {
     BufferBuilder.pos((double) x2, (double) y2, 0.0D).endVertex();
     tessellator.draw();
 
-    GlStateManager.color(1f, 1f, 1f);
+    GlStateManager.color3f(1f, 1f, 1f);
     GlStateManager.enableTexture2D();
     GlStateManager.disableBlend();
   }
@@ -171,11 +175,14 @@ public class SurfaceHelper implements Globals {
 
   public static void drawText(String msg, int x, int y, int color, double scale, boolean shadow) {
     GlStateManager.pushMatrix();
-    GlStateManager.disableDepth();
-    GlStateManager.scale(scale, scale, scale);
-    MC.fontRenderer.drawString(
-        msg, (int) (x * (1 / scale)), (int) (y * (1 / scale)), color, shadow);
-    GlStateManager.enableDepth();
+    GlStateManager.disableDepthTest();
+    GlStateManager.scaled(scale, scale, scale);
+    MC.fontRenderer.drawString(msg, (int) (x * (1 / scale)), (int) (y * (1 / scale)), color);
+    if (shadow)
+      MC.fontRenderer.drawStringWithShadow(msg, (int) (x * (1 / scale)), (int) (y * (1 / scale)), color);
+    else
+      MC.fontRenderer.drawString(msg, (int) (x * (1 / scale)), (int) (y * (1 / scale)), color);
+    GlStateManager.enableDepthTest();
     GlStateManager.popMatrix();
   }
 
@@ -204,11 +211,11 @@ public class SurfaceHelper implements Globals {
   }
 
   public static void drawItem(ItemStack item, int x, int y) {
-    MC.getRenderItem().renderItemAndEffectIntoGUI(item, x, y);
+    MC.getItemRenderer().renderItemAndEffectIntoGUI(item, x, y);
   }
 
   public static void drawItemOverlay(ItemStack stack, int x, int y) {
-    MC.getRenderItem().renderItemOverlayIntoGUI(MC.fontRenderer, stack, x, y, null);
+    MC.getItemRenderer().renderItemOverlayIntoGUI(MC.fontRenderer, stack, x, y, null);
   }
 
   public static void drawItem(ItemStack item, double x, double y) {
@@ -218,13 +225,13 @@ public class SurfaceHelper implements Globals {
     GlStateManager.enableRescaleNormal();
     GlStateManager.enableColorMaterial();
     GlStateManager.enableLighting();
-    MC.getRenderItem().zLevel = 100.f;
+    MC.getItemRenderer().zLevel = 100.f;
     renderItemAndEffectIntoGUI(getLocalPlayer(), item, x, y, 16.D);
-    MC.getRenderItem().zLevel = 0.f;
+    MC.getItemRenderer().zLevel = 0.f;
     GlStateManager.popMatrix();
     GlStateManager.disableLighting();
-    GlStateManager.enableDepth();
-    GlStateManager.color(1.f, 1.f, 1.f, 1.f);
+    GlStateManager.enableDepthTest();
+    GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
   }
 
   public static void drawItemWithOverlay(ItemStack item, double x, double y, double scale) {
@@ -234,14 +241,14 @@ public class SurfaceHelper implements Globals {
     GlStateManager.enableRescaleNormal();
     GlStateManager.enableColorMaterial();
     GlStateManager.enableLighting();
-    MC.getRenderItem().zLevel = 100.f;
+    MC.getItemRenderer().zLevel = 100.f;
     renderItemAndEffectIntoGUI(getLocalPlayer(), item, x, y, 16.D);
     renderItemOverlayIntoGUI(MC.fontRenderer, item, x, y, null, scale);
-    MC.getRenderItem().zLevel = 0.f;
+    MC.getItemRenderer().zLevel = 0.f;
     GlStateManager.popMatrix();
     GlStateManager.disableLighting();
-    GlStateManager.enableDepth();
-    GlStateManager.color(1.f, 1.f, 1.f, 1.f);
+    GlStateManager.enableDepthTest();
+    GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
   }
 
   public static void drawPotionEffect(PotionEffect potion, int x, int y) {
@@ -253,21 +260,21 @@ public class SurfaceHelper implements Globals {
     GlStateManager.enableColorMaterial();
     GlStateManager.enableLighting();
     GlStateManager.enableTexture2D();
-    GlStateManager.color(1.f, 1.f, 1.f, 1.f);
+    GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
     MC.getTextureManager().bindTexture(GuiContainer.INVENTORY_BACKGROUND);
     drawTexturedRect(x, y, index % 8 * 18, 198 + index / 8 * 18, 18, 18, 100);
     potion.getPotion().renderHUDEffect(x, y, potion, MC, 255);
     GlStateManager.disableLighting();
-    GlStateManager.enableDepth();
-    GlStateManager.color(1.f, 1.f, 1.f, 1.f);
+    GlStateManager.enableDepthTest();
+    GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
     GlStateManager.popMatrix();
   }
 
   public static void drawHead(ResourceLocation skinResource, double x, double y, float scale) {
     GlStateManager.pushMatrix();
-    MC.renderEngine.bindTexture(skinResource);
-    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.F);
-    GlStateManager.scale(scale, scale, scale);
+    MC.textureManager.bindTexture(skinResource);
+    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.F);
+    GlStateManager.scaled(scale, scale, scale);
     drawScaledCustomSizeModalRect(
         (x * (1 / scale)), (y * (1 / scale)), 8.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
     drawScaledCustomSizeModalRect(
@@ -278,37 +285,37 @@ public class SurfaceHelper implements Globals {
   protected static void renderItemAndEffectIntoGUI(
       @Nullable EntityLivingBase living, final ItemStack stack, double x, double y, double scale) {
     if (!stack.isEmpty()) {
-      MC.getRenderItem().zLevel += 50.f;
+      MC.getItemRenderer().zLevel += 50.f;
       try {
         renderItemModelIntoGUI(
-            stack, x, y, MC.getRenderItem().getItemModelWithOverrides(stack, null, living), scale);
+            stack, x, y, MC.getItemRenderer().getItemModelWithOverrides(stack, null, living), scale);
       } catch (Throwable t) {
         Helper.handleThrowable(t);
       } finally {
-        MC.getRenderItem().zLevel -= 50.f;
+        MC.getItemRenderer().zLevel -= 50.f;
       }
     }
   }
 
   private static void renderItemModelIntoGUI(
-      ItemStack stack, double x, double y, IBakedModel bakedmodel, double scale) {
+          ItemStack stack, double x, double y, IBakedModel bakedmodel, double scale) {
     GlStateManager.pushMatrix();
     MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
     MC.getTextureManager()
         .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
         .setBlurMipmap(false, false);
     GlStateManager.enableRescaleNormal();
-    GlStateManager.enableAlpha();
+    GlStateManager.enableAlphaTest();
     GlStateManager.alphaFunc(516, 0.1F);
     GlStateManager.enableBlend();
     GlStateManager.blendFunc(
         GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-    GlStateManager.translate(x, y, 100.0F + MC.getRenderItem().zLevel);
-    GlStateManager.translate(8.0F, 8.0F, 0.0F);
-    GlStateManager.scale(1.0F, -1.0F, 1.0F);
-    GlStateManager.scale(scale, scale, scale);
+    GlStateManager.translated(x, y, 100.0F + MC.getItemRenderer().zLevel);
+    GlStateManager.translatef(8.0F, 8.0F, 0.0F);
+    GlStateManager.scalef(1.0F, -1.0F, 1.0F);
+    GlStateManager.scaled(scale, scale, scale);
 
     if (bakedmodel.isGui3d()) GlStateManager.enableLighting();
     else GlStateManager.disableLighting();
@@ -316,8 +323,8 @@ public class SurfaceHelper implements Globals {
     bakedmodel =
         net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(
             bakedmodel, ItemCameraTransforms.TransformType.GUI, false);
-    MC.getRenderItem().renderItem(stack, bakedmodel);
-    GlStateManager.disableAlpha();
+    MC.getItemRenderer().renderItem(stack, bakedmodel);
+    GlStateManager.disableAlphaTest();
     GlStateManager.disableRescaleNormal();
     GlStateManager.disableLighting();
     GlStateManager.popMatrix();
@@ -338,7 +345,7 @@ public class SurfaceHelper implements Globals {
       if (stack.getCount() != 1 || text != null) {
         String s = text == null ? String.valueOf(stack.getCount()) : text;
         GlStateManager.disableLighting();
-        GlStateManager.disableDepth();
+        GlStateManager.disableDepthTest();
         GlStateManager.disableBlend();
         fr.drawStringWithShadow(
             s,
@@ -346,7 +353,7 @@ public class SurfaceHelper implements Globals {
             (float) (yPosition + 6 + 3),
             16777215);
         GlStateManager.enableLighting();
-        GlStateManager.enableDepth();
+        GlStateManager.enableDepthTest();
         // Fixes opaque cooldown overlay a bit lower
         // TODO: check if enabled blending still screws things up down the line.
         GlStateManager.enableBlend();
@@ -354,9 +361,9 @@ public class SurfaceHelper implements Globals {
 
       if (stack.getItem().showDurabilityBar(stack)) {
         GlStateManager.disableLighting();
-        GlStateManager.disableDepth();
+        GlStateManager.disableDepthTest();
         GlStateManager.disableTexture2D();
-        GlStateManager.disableAlpha();
+        GlStateManager.disableAlphaTest();
         GlStateManager.disableBlend();
         double health = stack.getItem().getDurabilityForDisplay(stack);
         int rgbfordisplay = stack.getItem().getRGBDurabilityForDisplay(stack);
@@ -373,28 +380,28 @@ public class SurfaceHelper implements Globals {
             j & 255,
             255);
         GlStateManager.enableBlend();
-        GlStateManager.enableAlpha();
+        GlStateManager.enableAlphaTest();
         GlStateManager.enableTexture2D();
         GlStateManager.enableLighting();
-        GlStateManager.enableDepth();
+        GlStateManager.enableDepthTest();
       }
 
-      EntityPlayerSP entityplayersp = Minecraft.getMinecraft().player;
+      EntityPlayerSP entityplayersp = Minecraft.getInstance().player;
       float f3 =
           entityplayersp == null
               ? 0.0F
               : entityplayersp
                   .getCooldownTracker()
-                  .getCooldown(stack.getItem(), Minecraft.getMinecraft().getRenderPartialTicks());
+                  .getCooldown(stack.getItem(), Minecraft.getInstance().getRenderPartialTicks());
 
       if (f3 > 0.0F) {
         GlStateManager.disableLighting();
-        GlStateManager.disableDepth();
+        GlStateManager.disableDepthTest();
         GlStateManager.disableTexture2D();
         draw(xPosition, yPosition + scale * (1.0F - f3), 16, scale * f3, 255, 255, 255, 127);
         GlStateManager.enableTexture2D();
         GlStateManager.enableLighting();
-        GlStateManager.enableDepth();
+        GlStateManager.enableDepthTest();
       }
     }
   }
