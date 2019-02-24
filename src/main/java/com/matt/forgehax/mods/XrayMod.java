@@ -68,21 +68,20 @@ public class XrayMod extends ToggleMod {
       } else if (event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
         isInternalCall = true;
         Entity renderEntity = MC.getRenderViewEntity();
-        GlStateManager.disableAlpha();
+        GlStateManager.disableAlphaTest();
+        MC.renderGlobal.renderBlockLayer(BlockRenderLayer.SOLID, event.getPartialTicks(), renderEntity);
+        GlStateManager.enableAlphaTest();
         MC.renderGlobal.renderBlockLayer(
-            BlockRenderLayer.SOLID, event.getPartialTicks(), 0, renderEntity);
-        GlStateManager.enableAlpha();
-        MC.renderGlobal.renderBlockLayer(
-            BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), 0, renderEntity);
+            BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), renderEntity);
         MC.getTextureManager()
             .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
             .setBlurMipmap(false, false);
         MC.renderGlobal.renderBlockLayer(
-            BlockRenderLayer.CUTOUT, event.getPartialTicks(), 0, renderEntity);
+            BlockRenderLayer.CUTOUT, event.getPartialTicks(), renderEntity);
         MC.getTextureManager()
             .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
             .restoreLastBlurMipmap();
-        GlStateManager.disableAlpha();
+        GlStateManager.disableAlphaTest();
         isInternalCall = false;
       }
     }

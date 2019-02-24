@@ -12,6 +12,7 @@ import com.matt.forgehax.Helper;
 import com.matt.forgehax.mods.services.ChatCommandService;
 import com.matt.forgehax.util.command.*;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
+import com.matt.forgehax.util.key.Keys;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.serialization.ISerializableJson;
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.apache.commons.lang3.ArrayUtils;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.input.Keyboard;
 
 // TODO: hold macros
@@ -78,7 +80,7 @@ public class MacroCommand extends CommandMod {
     // remove the category if there are no named macros to prevent crash
     // TODO: fix crash when a category is empty
     if (MACROS.stream().noneMatch(entry -> !entry.isAnonymous())) {
-      KeyBinding.getKeybinds().remove("Macros");
+      KeyBinding.getKeybinds().remove("Macros"); // KEYBIND_SET
     }
   }
 
@@ -103,14 +105,14 @@ public class MacroCommand extends CommandMod {
 
               if (data.hasOption("key")) {
                 // remove by key
-                final int key = Keyboard.getKeyIndex(data.getOptionAsString("key").toUpperCase());
+                final int key = Keys.getOptionalKeyByName(data.getOptionAsString("key")).orElse(GLFW.GLFW_KEY_UNKNOWN);//Keyboard.getKeyIndex(data.getOptionAsString("key").toUpperCase());
                 MACROS
                     .stream()
                     .filter(macro -> macro.getKey() == key)
                     .peek(
                         __ ->
                             Helper.printMessage(
-                                "Removing bind for key \"%s\"", Keyboard.getKeyName(key)))
+                                "Removing bind for key \"%s\"", Keys.getKeyName(key)))
                     .forEach(this::removeMacro);
               }
               if (data.hasOption("name")) {
@@ -177,7 +179,9 @@ public class MacroCommand extends CommandMod {
         .processor(
             data -> {
               data.requiredArguments(2);
-              final int key = Keyboard.getKeyIndex(data.getArgumentAsString(0).toUpperCase());
+              final String keyNameArg = data.getArgumentAsString(0);
+              final int key = Keys.getOptionalKeyByName(keyNameArg)
+                      .orElseThrow(() -> new IllegalArgumentException("Failed to find key for name \"" + keyNameArg + "\""));
 
               final List<ImmutableList<String>> commands =
                   data.arguments()
@@ -203,7 +207,7 @@ public class MacroCommand extends CommandMod {
 
               if (!macro.isAnonymous()) macro.registerBind();
 
-              Helper.printMessage("Successfully bound to %s", Keyboard.getKeyName(key));
+              Helper.printMessage("Successfully bound to %s", Keys.getKeyName(key).orElse("UNKNOWN"));
             })
         .build();
   }
@@ -218,7 +222,7 @@ public class MacroCommand extends CommandMod {
   public static class MacroEntry implements ISerializableJson {
 
     private Optional<String> name;
-    private int key = Keyboard.KEY_NONE;
+    private int key = GLFW.GLFW_KEY_UNKNOWN;
     private final List<ImmutableList<String>> commands = new ArrayList<>();
 
     @Nullable // null if this is an anonymous macro (ie !name.isPresent())
@@ -235,7 +239,7 @@ public class MacroCommand extends CommandMod {
     }
 
     public int getKey() {
-      return Optional.ofNullable(bind).map(KeyBinding::getKeyCode).orElse(this.key);
+      return Optional.ofNullable(bind).map(bind -> bind.getKey().getKeyCode()).orElse(this.key);
     }
 
     public Optional<String> getName() {

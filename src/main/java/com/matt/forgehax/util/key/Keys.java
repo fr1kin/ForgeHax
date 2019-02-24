@@ -18,9 +18,17 @@ public class Keys {
         return getOptionalKeyByName(name).orElse(GLFW.GLFW_KEY_UNKNOWN);
     }
 
+    public static Optional<String> getKeyName(int key) {
+        return GLFW_KEYS.entrySet().stream()
+                .filter(entry -> entry.getValue() == key)
+                .findFirst()
+                .map(Map.Entry::getKey)
+                .map(name -> name.replaceAll("GLFW_", ""));
+    }
+
     public static Optional<Integer> getOptionalKeyByName(String name) {
         return GLFW_KEYS.keySet().stream()
-                .filter(k -> k.contains(name))
+                .filter(k -> k.contains(name.toUpperCase()))
                 .findFirst()
                 .map(GLFW_KEYS::get);
     }

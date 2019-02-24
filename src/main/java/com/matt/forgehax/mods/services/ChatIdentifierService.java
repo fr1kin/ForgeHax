@@ -69,7 +69,7 @@ public class ChatIdentifierService extends ServiceMod {
     if (getLocalPlayer() == null || getLocalPlayer().connection == null) return;
     else if (event.getPacket() instanceof SPacketChat) {
       SPacketChat packet = (SPacketChat) event.getPacket();
-      String message = packet.getChatComponent().getUnformattedText();
+      String message = packet.getChatComponent().getUnformattedComponentText();
       if (!Strings.isNullOrEmpty(message)) {
         // normal public messages
         if (extract(
@@ -105,7 +105,7 @@ public class ChatIdentifierService extends ServiceMod {
                       // now get the local player
                       if (sender != null)
                         PlayerInfoHelper.registerWithCallback(
-                            getLocalPlayer().getName(),
+                            getLocalPlayer().getGameProfile().getName(),
                             new FutureCallback<PlayerInfo>() {
                               @Override
                               public void onSuccess(@Nullable PlayerInfo result) {
@@ -117,7 +117,7 @@ public class ChatIdentifierService extends ServiceMod {
                               @Override
                               public void onFailure(Throwable t) {
                                 PlayerInfoHelper.generateOfflineWithCallback(
-                                    getLocalPlayer().getName(), this);
+                                    getLocalPlayer().getGameProfile().getName(), this);
                               }
                             });
                     }
@@ -142,7 +142,7 @@ public class ChatIdentifierService extends ServiceMod {
                       // now get the local player
                       if (receiver != null)
                         PlayerInfoHelper.registerWithCallback(
-                            getLocalPlayer().getName(),
+                            getLocalPlayer().getGameProfile().getName(),
                             new FutureCallback<PlayerInfo>() {
                               @Override
                               public void onSuccess(@Nullable PlayerInfo sender) {
@@ -154,7 +154,7 @@ public class ChatIdentifierService extends ServiceMod {
                               @Override
                               public void onFailure(Throwable t) {
                                 PlayerInfoHelper.generateOfflineWithCallback(
-                                    getLocalPlayer().getName(), this);
+                                    getLocalPlayer().getGameProfile().getName(), this);
                               }
                             });
                     }

@@ -31,12 +31,12 @@ public class RenderEventService extends ServiceMod {
     GlStateManager.pushMatrix();
     GlStateManager.disableTexture2D();
     GlStateManager.enableBlend();
-    GlStateManager.disableAlpha();
-    GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+    GlStateManager.disableAlphaTest();
+    GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
     GlStateManager.shadeModel(GL11.GL_SMOOTH);
-    GlStateManager.disableDepth();
+    GlStateManager.disableDepthTest();
 
-    GlStateManager.glLineWidth(1.f);
+    GlStateManager.lineWidth(1.f);
 
     Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
 
@@ -44,13 +44,13 @@ public class RenderEventService extends ServiceMod {
     e.resetTranslation();
     MinecraftForge.EVENT_BUS.post(e);
 
-    GlStateManager.glLineWidth(1.f);
+    GlStateManager.lineWidth(1.f);
 
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GlStateManager.disableBlend();
-    GlStateManager.enableAlpha();
+    GlStateManager.enableAlphaTest();
     GlStateManager.enableTexture2D();
-    GlStateManager.enableDepth();
+    GlStateManager.enableDepthTest();
     GlStateManager.enableCull();
     GlStateManager.popMatrix();
   }
@@ -59,7 +59,7 @@ public class RenderEventService extends ServiceMod {
   public void onRenderGameOverlayEvent(final RenderGameOverlayEvent.Text event) {
     if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
       MinecraftForge.EVENT_BUS.post(new Render2DEvent(event.getPartialTicks()));
-      GlStateManager.color(1.f, 1.f, 1.f, 1.f); // reset color
+      GlStateManager.color4f(1.f, 1.f, 1.f, 1.f); // reset color
     }
   }
 }
