@@ -16,6 +16,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceFluidMode;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
@@ -170,13 +171,13 @@ public enum Projectile implements IProjectile {
     Vec3d previous = next;
 
     for (int index = points.size(), n = 0; index < MAX_ITERATIONS; index++) {
-      next = next.addVector(velocityX, velocityY, velocityZ);
+      next = next.add(velocityX, velocityY, velocityZ);
 
       AxisAlignedBB bb = getBoundBox(next);
       trace = rayTraceCheckEntityCollisions(previous, next, bb, velocityX, velocityY, velocityZ);
 
       if (trace != null) {
-        hitEntity = trace.entityHit;
+        hitEntity = trace.entity;
         distanceTraveledSq += previous.squareDistanceTo(trace.hitVec);
         // add final vector even if index % factor != 0
         points.add(trace.hitVec);
@@ -288,7 +289,7 @@ public enum Projectile implements IProjectile {
 
   private static RayTraceResult rayTraceCheckEntityCollisions(
       Vec3d start, Vec3d end, AxisAlignedBB bb, double motionX, double motionY, double motionZ) {
-    RayTraceResult trace = getWorld().rayTraceBlocks(start, end, false, true, false);
+    RayTraceResult trace = getWorld().rayTraceBlocks(start, end, RayTraceFluidMode.NEVER, true, false);
 
     if (trace != null) end = trace.hitVec;
 
@@ -305,7 +306,7 @@ public enum Projectile implements IProjectile {
     for (Entity entity : entities) {
       if (entity.canBeCollidedWith()) {
         float size = entity.getCollisionBorderSize();
-        AxisAlignedBB bbe = entity.getEntityBoundingBox().grow(size);
+        AxisAlignedBB bbe = entity.getBoundingBox().grow(size);
         RayTraceResult tr = bbe.calculateIntercept(start, end);
         if (tr != null) {
           double distance = start.squareDistanceTo(tr.hitVec);

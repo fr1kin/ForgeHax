@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods.services;
 
 import static net.minecraft.util.text.TextFormatting.*;
-import static org.lwjgl.input.Keyboard.*;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import com.matt.forgehax.util.Utils;
@@ -14,7 +13,7 @@ import net.minecraft.client.gui.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 /** Created by Babbaj on 4/10/2018. */
 @RegisterMod
@@ -134,26 +133,24 @@ public class MainMenuGuiService extends ServiceMod {
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
-      if (keyCode == KEY_ESCAPE) {
+      if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
         this.mc.displayGuiScreen(null);
-      } else if (keyCode != KEY_RETURN && keyCode != KEY_NUMPADENTER) {
-        if (keyCode == KEY_UP) // up arrow
+      } else if (keyCode != GLFW.GLFW_KEY_ENTER && keyCode != GLFW.GLFW_KEY_KP_ENTER) {
+        if (keyCode == GLFW.GLFW_KEY_UP) // up arrow
         {
           // older
           String sent = getSentHistory(-1);
           if (sent != null) inputField.setText(sent);
-        } else if (keyCode == KEY_DOWN) // down arrow
+        } else if (keyCode == GLFW.GLFW_KEY_DOWN) // down arrow
         {
           // newer
           String sent = getSentHistory(1);
           if (sent != null) inputField.setText(sent);
-        } else if (keyCode == KEY_PRIOR) {
-          // this.mc.ingameGUI.getChatGUI().scroll(this.mc.ingameGUI.getChatGUI().getLineCount() -
-          // 1);
-        } else if (keyCode == KEY_NEXT) {
-          // this.mc.ingameGUI.getChatGUI().scroll(-this.mc.ingameGUI.getChatGUI().getLineCount() +
-          // 1);
-        } else {
+        //} else if (keyCode == KEY_PRIOR) {
+          // this.mc.ingameGUI.getChatGUI().scroll(this.mc.ingameGUI.getChatGUI().getLineCount() - 1); // commented before 1.13 changes
+        //} else if (keyCode == KEY_NEXT) {
+          // this.mc.ingameGUI.getChatGUI().scroll(-this.mc.ingameGUI.getChatGUI().getLineCount() + 1);
+        //} else {
           this.inputField.textboxKeyTyped(typedChar, keyCode);
         }
       } else // on enter

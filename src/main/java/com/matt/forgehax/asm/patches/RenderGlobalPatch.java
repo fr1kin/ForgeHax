@@ -12,8 +12,9 @@ import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
+
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-import scala.tools.asm.Type;
 
 public class RenderGlobalPatch extends ClassTransformer {
   public RenderGlobalPatch() {

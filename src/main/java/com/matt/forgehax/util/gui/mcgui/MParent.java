@@ -86,7 +86,7 @@ public class MParent extends MBase implements IGuiParent {
       IGuiBase gui = children.get(i);
       if (gui.isVisible()) {
         GlStateManager.pushMatrix();
-        GlStateManager.translate(getX(), getY(), 0.D);
+        GlStateManager.translated(getX(), getY(), 0.D);
 
         gui.onRender(event);
 
