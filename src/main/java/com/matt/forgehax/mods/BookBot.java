@@ -29,6 +29,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
+import net.minecraft.network.play.client.CPacketEditBook;
 import net.minecraft.util.EnumHand;
 
 /** Created on 12/17/2017 by fr1kin */
@@ -399,18 +400,16 @@ public class BookBot extends ToggleMod {
       }
 
       // set our client side book
-      if (stack.hasTagCompound()) stack.getTagCompound().setTag("pages", pages);
+      if (stack.hasTag()) stack.getTag().setTag("pages", pages);
       else stack.setTagInfo("pages", pages);
 
       // publish the book
-      stack.setTagInfo("author", new NBTTagString(getLocalPlayer().getName()));
+      stack.setTagInfo("author", new NBTTagString(getLocalPlayer().getGameProfile().getName()));
       stack.setTagInfo(
           "title",
           new NBTTagString(parent.name.get().replaceAll(NUMBER_TOKEN, "" + getBook()).trim()));
 
-      PacketBuffer buff = new PacketBuffer(Unpooled.buffer());
-      buff.writeItemStack(stack);
-      MC.getConnection().sendPacket(new CPacketCustomPayload("MC|BSign", buff));
+      MC.getConnection().sendPacket(new CPacketEditBook(stack, true, EnumHand.MAIN_HAND));
     }
 
     @Override
