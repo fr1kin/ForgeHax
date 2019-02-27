@@ -3,6 +3,7 @@ package com.matt.forgehax.asm.events;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
 //import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.util.math.BlockPos;
 //import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.eventbus.api.Event;
@@ -11,8 +12,8 @@ import net.minecraftforge.eventbus.api.Event;
 // i dont think this is used
 // TODO: fix
 public class BlockModelRenderEvent extends Event {
-  //private final IBlockAccess blockAccess;
-  //private final IBakedModel bakedModel;
+  //private final IBlockAccess blockAccess; // world?
+  private final IBakedModel bakedModel;
   private final IBlockState blockState;
   private final BlockPos blockPos;
   private final BufferBuilder buffer;
@@ -21,14 +22,14 @@ public class BlockModelRenderEvent extends Event {
 
   public BlockModelRenderEvent(
       //IBlockAccess worldIn,
-      //IBakedModel modelIn,
+      IBakedModel modelIn,
       IBlockState stateIn,
       BlockPos posIn,
       BufferBuilder buffer,
       boolean checkSides,
       long rand) {
     //this.blockAccess = worldIn;
-    //this.bakedModel = modelIn;
+    this.bakedModel = modelIn;
     this.blockState = stateIn;
     this.blockPos = posIn;
     this.buffer = buffer;

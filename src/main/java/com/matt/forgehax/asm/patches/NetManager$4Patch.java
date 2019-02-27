@@ -1,7 +1,5 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -12,6 +10,7 @@ import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
 import org.objectweb.asm.tree.*;
 
+// TODO: this was changed to a lambda
 public class NetManager$4Patch extends ClassTransformer {
   public NetManager$4Patch() {
     super(Classes.NetworkManager$4);

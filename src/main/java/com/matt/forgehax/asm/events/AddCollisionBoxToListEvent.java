@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 /** Created on 4/9/2017 by fr1kin */
+// TODO: this doesnt exist anymore
 @Cancelable
 public class AddCollisionBoxToListEvent extends Event {
   private final Block block;

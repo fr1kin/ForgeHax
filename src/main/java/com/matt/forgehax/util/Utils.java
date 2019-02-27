@@ -118,10 +118,10 @@ public class Utils implements Globals {
 
   public static List<ItemStack> getShulkerContents(ItemStack stack) { // TODO: move somewhere else
     NonNullList<ItemStack> contents = NonNullList.withSize(27, ItemStack.EMPTY);
-    NBTTagCompound compound = stack.getTagCompound();
-    if (compound != null && compound.hasKey("BlockEntityTag", 10)) {
-      NBTTagCompound tags = compound.getCompoundTag("BlockEntityTag");
-      if (tags.hasKey("Items", 9)) {
+    NBTTagCompound compound = stack.getTag();
+    if (compound != null && compound.hasKey("BlockEntityTag")) {
+      NBTTagCompound tags = compound.getCompound("BlockEntityTag");
+      if (tags.hasKey("Items")) {
         // load in the items
         ItemStackHelper.loadAllItems(tags, contents);
       }

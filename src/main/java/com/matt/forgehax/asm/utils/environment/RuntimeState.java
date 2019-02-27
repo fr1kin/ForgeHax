@@ -1,7 +1,7 @@
 package com.matt.forgehax.asm.utils.environment;
 
-import com.matt.forgehax.asm.utils.remapping.NonObfuscatedStateMapper;
-import com.matt.forgehax.asm.utils.remapping.ObfuscatedStateMapper;
+//import com.matt.forgehax.asm.utils.remapping.NonObfuscatedStateMapper;
+//import com.matt.forgehax.asm.utils.remapping.ObfuscatedStateMapper;
 
 /** Created on 5/26/2017 by fr1kin */
 public class RuntimeState {
@@ -59,11 +59,12 @@ public class RuntimeState {
   }
 
   public static IStateMapper getMapper() {
-    return remapper == null
+    throw new UnsupportedOperationException("getMapper()");
+    /*return remapper == null
         ? remapper =
             (isObfuscated()
                 ? ObfuscatedStateMapper.getInstance()
                 : NonObfuscatedStateMapper.getInstance())
-        : remapper;
+        : remapper;*/
   }
 }

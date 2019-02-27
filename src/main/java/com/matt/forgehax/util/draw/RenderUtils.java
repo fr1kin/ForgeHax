@@ -40,11 +40,11 @@ public class RenderUtils implements Globals {
     GL11.glLineWidth(width);
 
     GlStateManager.pushMatrix();
-    GlStateManager.translate(startPos.x, startPos.y, startPos.z);
+    GlStateManager.translated(startPos.x, startPos.y, startPos.z);
     GlStateManager.disableTexture2D();
     GlStateManager.enableBlend();
-    GlStateManager.disableAlpha();
-    GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+    GlStateManager.disableAlphaTest();
+    GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
     GlStateManager.shadeModel(GL11.GL_SMOOTH);
 
     BufferBuilder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
@@ -56,9 +56,9 @@ public class RenderUtils implements Globals {
 
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GlStateManager.disableBlend();
-    GlStateManager.enableAlpha();
+    GlStateManager.enableAlphaTest();
     GlStateManager.enableTexture2D();
-    GlStateManager.enableDepth();
+    GlStateManager.enableDepthTest();
     GlStateManager.enableCull();
     GlStateManager.popMatrix();
   }
@@ -85,14 +85,14 @@ public class RenderUtils implements Globals {
     GlStateManager.pushMatrix();
     GlStateManager.disableTexture2D();
     GlStateManager.enableBlend();
-    GlStateManager.disableAlpha();
-    GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+    GlStateManager.disableAlphaTest();
+    GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
     GlStateManager.shadeModel(GL11.GL_SMOOTH);
-    GlStateManager.glLineWidth(width);
+    GlStateManager.lineWidth(width);
 
-    if (ignoreZ) GlStateManager.disableDepth();
+    if (ignoreZ) GlStateManager.disableDepthTest();
 
-    GlStateManager.color(r, g, b, a);
+    GlStateManager.color4f(r, g, b, a);
 
     // GlStateManager.translate(startPos.xCoord, startPos.yCoord, startPos.zCoord);
 
@@ -123,9 +123,9 @@ public class RenderUtils implements Globals {
 
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GlStateManager.disableBlend();
-    GlStateManager.enableAlpha();
+    GlStateManager.enableAlphaTest();
     GlStateManager.enableTexture2D();
-    GlStateManager.enableDepth();
+    GlStateManager.enableDepthTest();
     GlStateManager.enableCull();
     GlStateManager.popMatrix();
   }
