@@ -11,303 +11,250 @@ import java.util.List;
 
 /** Created on 5/27/2017 by fr1kin */
 public interface TypesMc {
+  // classes no longer have any obfuscated name
   interface Classes {
     ASMClass Packet =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/network/Packet")
-            .autoAssign()
             .build();
 
     ASMClass AxisAlignedBB =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/util/math/AxisAlignedBB")
-            .autoAssign()
             .build();
 
     ASMClass Material =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/block/material/Material")
-            .autoAssign()
             .build();
 
     ASMClass Entity =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/entity/Entity")
-            .autoAssign()
             .build();
 
     ASMClass EntityLivingBase =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/entity/EntityLivingBase")
-            .autoAssign()
             .build();
 
     ASMClass Vec3d =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/util/math/Vec3d")
-            .autoAssign()
             .build();
 
     ASMClass BlockRenderLayer =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/util/BlockRenderLayer")
-            .autoAssign()
             .build();
 
     ASMClass IBlockState =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/block/state/IBlockState")
-            .autoAssign()
             .build();
 
     ASMClass BlockPos =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/util/math/BlockPos")
-            .autoAssign()
             .build();
 
     ASMClass Block =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/block/Block")
-            .autoAssign()
             .build();
 
     ASMClass ICamera =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/culling/ICamera")
-            .autoAssign()
             .build();
 
     ASMClass VisGraph =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/chunk/VisGraph")
-            .autoAssign()
             .build();
 
     ASMClass SetVisibility =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/chunk/SetVisibility")
-            .autoAssign()
             .build();
 
     ASMClass Minecraft =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/Minecraft")
-            .autoAssign()
             .build();
 
     ASMClass NetworkManager$4 =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/network/NetworkManager$4")
-            .autoAssign()
             .build();
 
     ASMClass IBlockAccess =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/world/IBlockAccess")
-            .autoAssign()
             .build();
 
     ASMClass BufferBuilder =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/BufferBuilder")
-            .autoAssign()
             .build();
 
     ASMClass MoverType =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/entity/MoverType")
-            .autoAssign()
             .build();
 
     ASMClass WorldProvider =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/world/WorldProvider")
-            .autoAssign()
             .build();
 
     ASMClass World =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/world/World")
-            .autoAssign()
             .build();
 
     ASMClass IBakedModel =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/block/model/IBakedModel")
-            .autoAssign()
             .build();
 
     ASMClass CompiledChunk =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/chunk/CompiledChunk")
-            .autoAssign()
             .build();
 
     ASMClass RenderChunk =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/chunk/RenderChunk")
-            .autoAssign()
             .build();
 
     ASMClass ChunkCompileTaskGenerator =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator")
-            .autoAssign()
             .build();
 
     ASMClass ChunkCache =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/world/ChunkCache")
-            .autoAssign()
             .build();
 
     ASMClass ViewFrustum =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/ViewFrustum")
-            .autoAssign()
             .build();
 
     ASMClass ChunkRenderDispatcher =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/chunk/ChunkRenderDispatcher")
-            .autoAssign()
             .build();
 
     ASMClass RenderGlobal =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/RenderGlobal")
-            .autoAssign()
             .build();
 
     ASMClass ChunkRenderContainer =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/ChunkRenderContainer")
-            .autoAssign()
             .build();
 
     ASMClass ChunkRenderWorker =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/chunk/ChunkRenderWorker")
-            .autoAssign()
             .build();
 
     ASMClass EntityPlayer =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/entity/player/EntityPlayer")
-            .autoAssign()
             .build();
 
     ASMClass EntityPlayerSP =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/entity/EntityPlayerSP")
-            .autoAssign()
             .build();
 
     ASMClass EntityBoat =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/entity/item/EntityBoat")
-            .autoAssign()
             .build();
 
     ASMClass EntityRenderer =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/EntityRenderer")
-            .autoAssign()
             .build();
 
     ASMClass RenderBoat =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/entity/RenderBoat")
-            .autoAssign()
             .build();
 
     ASMClass NetworkManager =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/network/NetworkManager")
-            .autoAssign()
             .build();
 
     ASMClass GuiScreen =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/gui/GuiScreen")
-            .autoAssign()
             .build();
 
     ASMClass GuiMainMenu =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/gui/GuiMainMenu")
-            .autoAssign()
             .build();
 
     ASMClass GuiPlayerTabOverlay =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/gui/GuiPlayerTabOverlay")
-            .autoAssign()
             .build();
 
     ASMClass Scoreboard =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/scoreboard/Scoreboard")
-            .autoAssign()
             .build();
 
     ASMClass ScoreObjective =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/scoreboard/ScoreObjective")
-            .autoAssign()
             .build();
 
     ASMClass KeyBinding =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/settings/KeyBinding")
-            .autoAssign()
             .build();
 
     ASMClass WorldClient =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/multiplayer/WorldClient")
-            .autoAssign()
             .build();
 
     ASMClass ItemStack =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/item/ItemStack")
-            .autoAssign()
             .build();
 
     ASMClass EnumFacing =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/util/EnumFacing")
-            .autoAssign()
             .build();
 
     ASMClass EnumHand =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/util/EnumHand")
-            .autoAssign()
             .build();
 
     ASMClass EnumSkyBlock =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/world/EnumSkyBlock")
-            .autoAssign()
             .build();
 
     ASMClass PlayerControllerMP =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/multiplayer/PlayerControllerMP")
-            .autoAssign()
             .build();
   }
 
   interface Fields {
-    ASMField NetworkManager$4_val$inPacket =
-        Classes.NetworkManager$4.childField()
-            .setName("val$inPacket")
-            .setType(Classes.Packet)
-            .build();
-
     ASMField RenderGlobal_viewFrustum =
         Classes.RenderGlobal.childField()
             .setName("viewFrustum")
