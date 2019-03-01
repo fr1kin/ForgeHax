@@ -83,16 +83,6 @@ public interface TypesMc {
             .setClassName("net/minecraft/client/Minecraft")
             .build();
 
-    ASMClass NetworkManager$4 =
-        ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/network/NetworkManager$4")
-            .build();
-
-    ASMClass IBlockAccess =
-        ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/world/IBlockAccess")
-            .build();
-
     ASMClass BufferBuilder =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/BufferBuilder")
@@ -103,11 +93,6 @@ public interface TypesMc {
             .setClassName("net/minecraft/entity/MoverType")
             .build();
 
-    ASMClass WorldProvider =
-        ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/world/WorldProvider")
-            .build();
-
     ASMClass World =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/world/World")
@@ -115,7 +100,7 @@ public interface TypesMc {
 
     ASMClass IBakedModel =
         ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/client/renderer/block/model/IBakedModel")
+            .setClassName("net/minecraft/client/renderer/model/IBakedModel")
             .build();
 
     ASMClass CompiledChunk =
@@ -128,14 +113,10 @@ public interface TypesMc {
             .setClassName("net/minecraft/client/renderer/chunk/RenderChunk")
             .build();
 
+    // FIXME: this no longer exists
     ASMClass ChunkCompileTaskGenerator =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator")
-            .build();
-
-    ASMClass ChunkCache =
-        ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/world/ChunkCache")
             .build();
 
     ASMClass ViewFrustum =
@@ -148,6 +129,7 @@ public interface TypesMc {
             .setClassName("net/minecraft/client/renderer/chunk/ChunkRenderDispatcher")
             .build();
 
+    // FIXME: this no longer exists
     ASMClass RenderGlobal =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/RenderGlobal")
@@ -178,6 +160,7 @@ public interface TypesMc {
             .setClassName("net/minecraft/entity/item/EntityBoat")
             .build();
 
+    // FIXME: this no longer exists - net/minecraft/client/renderer/entity/Render ?
     ASMClass EntityRenderer =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/renderer/EntityRenderer")
@@ -241,11 +224,6 @@ public interface TypesMc {
     ASMClass EnumHand =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/util/EnumHand")
-            .build();
-
-    ASMClass EnumSkyBlock =
-        ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/world/EnumSkyBlock")
             .build();
 
     ASMClass PlayerControllerMP =
@@ -447,13 +425,6 @@ public interface TypesMc {
             .autoAssign()
             .build();
 
-    ASMMethod NetworkManager$4_run =
-        Classes.NetworkManager$4.childMethod()
-            .setName("run")
-            .setReturnType(void.class)
-            .emptyParameters()
-            .build(); // does not have an obfuscated or an srg name
-
     ASMMethod NetworkManager_dispatchPacket =
         Classes.NetworkManager.childMethod()
             .setName("dispatchPacket")
@@ -585,16 +556,6 @@ public interface TypesMc {
             .add(Classes.AxisAlignedBB)
             .add(Classes.Material)
             .add(Classes.Entity)
-            .finish()
-            .autoAssign()
-            .build();
-    ASMMethod World_checkLightFor =
-        Classes.World.childMethod()
-            .setName("checkLightFor")
-            .setReturnType(boolean.class)
-            .beginParameters()
-            .add(Classes.EnumSkyBlock)
-            .add(Classes.BlockPos)
             .finish()
             .autoAssign()
             .build();
