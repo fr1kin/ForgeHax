@@ -12,7 +12,7 @@ import org.objectweb.asm.Type;
 /** Created on 5/27/2017 by fr1kin */
 public class ASMFieldBuilder implements ASMCommon {
   private ASMClass parentClass = null;
-  private String name = null, srgName = null, obfuscatedName = null;
+  private String name = null, srgName = null;
   private IName<Type> type = null;
 
   private boolean auto = false;
@@ -46,11 +46,6 @@ public class ASMFieldBuilder implements ASMCommon {
     return this;
   }
 
-  public ASMFieldBuilder setObfuscatedName(String obfuscatedName) {
-    this.obfuscatedName = obfuscatedName;
-    return this;
-  }
-
   public ASMFieldBuilder setType(IName<Type> type) {
     this.type = type;
     return this;
@@ -73,20 +68,22 @@ public class ASMFieldBuilder implements ASMCommon {
     return setType(clazz.getAll());
   }
 
+  @Deprecated // TODO: implement
   public ASMFieldBuilder autoAssign() {
-    auto = true;
-    return this;
+    throw new UnsupportedOperationException("autoAssign");
+    //auto = true;
+    //return this;
   }
 
   private void attemptAutoAssign() {
-    setSrgName(MAPPER.getSrgFieldName(parentClass.getInternalName(), name));
-    setObfuscatedName(MAPPER.getObfFieldName(parentClass.getInternalName(), name));
+    throw new UnsupportedOperationException("autoAssign");
+    //setSrgName(MAPPER.getSrgFieldName(parentClass.getInternalName(), name));
   }
 
   public ASMField build() {
     Objects.requireNonNull(name, "Missing field name");
     Objects.requireNonNull(type, "Missing field type");
     if (auto) attemptAutoAssign();
-    return new ASMField(parentClass, NameBuilder.create(name, srgName, obfuscatedName), type);
+    return new ASMField(parentClass, NameBuilder.create(name, srgName), type);
   }
 }

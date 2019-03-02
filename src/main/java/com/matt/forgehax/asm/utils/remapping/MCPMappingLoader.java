@@ -8,6 +8,7 @@ import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
 
 /** Credits to bspkrs */
+@Deprecated
 public class MCPMappingLoader {
   private final File baseDir =
       new File(new File(System.getProperty("user.home")), ".cache/MCPMappingViewer");

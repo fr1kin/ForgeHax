@@ -13,40 +13,13 @@ public class NonObfuscatedStateMapper implements IStateMapper {
 
   @Nullable
   @Override
-  public String getObfClassName(String className) {
-    return null;
-  }
-
-  @Nullable
-  @Override
-  public String getMcpClassName(String className) {
-    return null;
-  }
-
-  @Nullable
-  @Override
-  public String getSrgMethodName(
-      String parentClassName, String methodName, String methodDescriptor) {
-    return ObfuscatedStateMapper.getInstance()
-        .getSrgMethodName(parentClassName, methodName, methodDescriptor);
-  }
-
-  @Nullable
-  @Override
-  public String getObfMethodName(
-      String parentClassName, String methodName, String methodDescriptor) {
-    return null;
+  public String getSrgMethodName(String parentClassName, String methodName, String methodDescriptor) {
+    throw new UnsupportedOperationException("attempted to get srg name in non srg environment");
   }
 
   @Nullable
   @Override
   public String getSrgFieldName(String parentClassName, String fieldName) {
-    return ObfuscatedStateMapper.getInstance().getSrgFieldName(parentClassName, fieldName);
-  }
-
-  @Nullable
-  @Override
-  public String getObfFieldName(String parentClassName, String fieldName) {
-    return null;
+    throw new UnsupportedOperationException("attempted to get srg name in non srg environment");
   }
 }

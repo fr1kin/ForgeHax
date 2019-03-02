@@ -9,9 +9,7 @@ import org.objectweb.asm.Type;
 
 /** Created on 5/27/2017 by fr1kin */
 public class ASMClassBuilder implements ASMCommon {
-  private Type name = null, srgName = null, obfuscatedName = null;
-
-  private boolean auto = false;
+  private Type name = null;
 
   protected ASMClassBuilder() {}
 
@@ -21,43 +19,16 @@ public class ASMClassBuilder implements ASMCommon {
   }
 
   public ASMClassBuilder setClassName(String internalClassName) {
-    return setClassName(
-        !Strings.isNullOrEmpty(internalClassName) ? Type.getObjectType(internalClassName) : null);
+    return setClassName(Type.getObjectType(internalClassName));
   }
 
   public ASMClassBuilder setClassName(Class<?> clazz) {
     return setClassName(Type.getType(clazz));
   }
 
-  public ASMClassBuilder setSrgClassName(String srgInternalClassName) {
-    srgName =
-        !Strings.isNullOrEmpty(srgInternalClassName)
-            ? Type.getObjectType(srgInternalClassName)
-            : null;
-    return this;
-  }
-
-  public ASMClassBuilder setObfuscatedClassName(String obfuscatedInternalClassName) {
-    obfuscatedName =
-        !Strings.isNullOrEmpty(obfuscatedInternalClassName)
-            ? Type.getObjectType(obfuscatedInternalClassName)
-            : null;
-    return this;
-  }
-
-  public ASMClassBuilder autoAssign() {
-    auto = true;
-    return this;
-  }
-
-  private void attemptAutoAssign() {
-    // srg name = mcp name (normal state) so no need to set it
-    setObfuscatedClassName(MAPPER.getObfClassName(name.getInternalName()));
-  }
 
   public ASMClass build() {
     Objects.requireNonNull(name, "Class name is missing");
-    if (auto) attemptAutoAssign();
-    return new ASMClass(NameBuilder.create(name, srgName, obfuscatedName));
+    return new ASMClass(NameBuilder.createSingleName(name));
   }
 }

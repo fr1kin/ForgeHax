@@ -25,13 +25,6 @@ public interface IASMType {
     return getDescriptorByState(State.SRG);
   }
 
-  default String getObfuscatedName() {
-    return getNameByState(State.OBFUSCATED);
-  }
-
-  default String getObfuscatedDescriptor() {
-    return getDescriptorByState(State.OBFUSCATED);
-  }
 
   default String getRuntimeName() {
     return getNameByState(RuntimeState.getState());

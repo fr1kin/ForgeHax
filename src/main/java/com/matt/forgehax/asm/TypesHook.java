@@ -282,7 +282,7 @@ public interface TypesHook {
             .setName("onWorldRendererDeallocated")
             .setReturnType(void.class)
             .beginParameters()
-            .add(TypesMc.Classes.ChunkCompileTaskGenerator)
+            .add(TypesMc.Classes.ChunkRenderTask)
             .finish()
             .build();
 

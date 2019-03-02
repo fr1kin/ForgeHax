@@ -7,12 +7,10 @@ import javax.annotation.Nullable;
 /** Created on 5/26/2017 by fr1kin */
 public class McMultiName<E> extends SingleName<E> {
   private final E srg;
-  private final E obf;
 
-  public McMultiName(@Nonnull E type, @Nullable E srg, @Nullable E obf) {
+  public McMultiName(@Nonnull E type, @Nullable E srg) {
     super(type);
     this.srg = srg;
-    this.obf = obf;
   }
 
   @Nullable
@@ -20,10 +18,6 @@ public class McMultiName<E> extends SingleName<E> {
     return srg;
   }
 
-  @Nullable
-  public E getObf() {
-    return obf;
-  }
 
   @Nullable
   @Override
@@ -31,8 +25,6 @@ public class McMultiName<E> extends SingleName<E> {
     switch (state) {
       case SRG:
         return srg;
-      case OBFUSCATED:
-        return obf;
       case NORMAL:
         return get();
       default:
@@ -42,6 +34,6 @@ public class McMultiName<E> extends SingleName<E> {
 
   @Override
   public int getStateCount() {
-    return super.getStateCount() + (srg != null ? 1 : 0) + (obf != null ? 1 : 0);
+    return super.getStateCount() + (srg != null ? 1 : 0);
   }
 }

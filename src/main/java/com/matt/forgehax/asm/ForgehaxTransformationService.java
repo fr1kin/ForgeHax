@@ -2,10 +2,10 @@ package com.matt.forgehax.asm;
 
 import com.matt.forgehax.asm.patches.NetManagerPatch;
 import com.matt.forgehax.asm.transformer.MethodTransformerWrapper;
-import cpw.mods.modlauncher.api.IEnvironment;
-import cpw.mods.modlauncher.api.ITransformationService;
-import cpw.mods.modlauncher.api.ITransformer;
-import cpw.mods.modlauncher.api.IncompatibleEnvironmentException;
+import com.matt.forgehax.asm.utils.environment.RuntimeState;
+import com.matt.forgehax.asm.utils.environment.State;
+import cpw.mods.modlauncher.Environment;
+import cpw.mods.modlauncher.api.*;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -21,6 +21,11 @@ public class ForgehaxTransformationService implements ITransformationService {
 
     @Override
     public void initialize(IEnvironment environment) {
+        final boolean isDev = environment.getProperty(Environment.Keys.VERSION.get())
+                .map(v -> v.equals("FMLDev"))
+                .orElseThrow(() -> new IllegalStateException("Failed to get forge version??"));
+        RuntimeState.initializeWithState(isDev ? State.NORMAL : State.SRG);
+
         System.out.println("Initialized ForgehaxASM");
     }
 

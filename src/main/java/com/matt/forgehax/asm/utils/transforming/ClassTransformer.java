@@ -56,8 +56,9 @@ public abstract class ClassTransformer
    *
    * @return the state the Minecraft class/method/field obfuscation
    */
+  @Deprecated
   public State getClassObfuscationState() {
-    return RuntimeState.getDefaultState();
+    return RuntimeState.getState();
   }
 
   public void registerMethodPatch(MethodTransformer transformer) {
@@ -73,7 +74,7 @@ public abstract class ClassTransformer
   }
 
   public final void transform(final ClassNode node) {
-    RuntimeState.setState(getClassObfuscationState());
+    //RuntimeState.setState(getClassObfuscationState());
     try {
       for (final MethodNode methodNode : node.methods)
         methodTransformers
@@ -116,7 +117,7 @@ public abstract class ClassTransformer
                               }
                             }));
     } finally {
-      RuntimeState.releaseState();
+      //RuntimeState.releaseState();
     }
   }
 }

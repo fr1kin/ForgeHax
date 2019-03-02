@@ -14,7 +14,7 @@ public class ASMMethodBuilder implements ASMCommon {
   private static final IName<Type>[] NO_PARAMETERS = new ParameterBuilder().asArray();
 
   private ASMClass parentClass = null;
-  private String name = null, srgName = null, obfuscatedName = null;
+  private String name = null, srgName = null;
   private IName<Type>[] parameterTypes = null;
   private IName<Type> returnType = null;
 
@@ -49,11 +49,6 @@ public class ASMMethodBuilder implements ASMCommon {
     return this;
   }
 
-  public ASMMethodBuilder setObfuscatedName(String obfuscatedName) {
-    this.obfuscatedName = obfuscatedName;
-    return this;
-  }
-
   public ASMMethodBuilder setParameterTypes(IName<Type>[] parameterTypes) {
     this.parameterTypes = parameterTypes;
     return this;
@@ -77,8 +72,7 @@ public class ASMMethodBuilder implements ASMCommon {
   }
 
   public ASMMethodBuilder setReturnType(String internalClassName) {
-    return setReturnType(
-        !Strings.isNullOrEmpty(internalClassName) ? Type.getObjectType(internalClassName) : null);
+    return setReturnType(Type.getObjectType(internalClassName));
   }
 
   public ASMMethodBuilder setReturnType(Class<?> clazz) {
@@ -89,9 +83,12 @@ public class ASMMethodBuilder implements ASMCommon {
     return setReturnType(clazz.getAll());
   }
 
+  // TODO: implement
+  @Deprecated // might be implemented later
   public ASMMethodBuilder autoAssign() {
-    auto = true;
-    return this;
+    throw new UnsupportedOperationException("autoAssign for method");
+    //auto = true;
+    //return this;
   }
 
   private void attemptAutoAssign() {
@@ -102,7 +99,6 @@ public class ASMMethodBuilder implements ASMCommon {
     String descriptor = Type.getMethodType(returnType.get(), normalParameters).getDescriptor();
 
     setSrgName(MAPPER.getSrgMethodName(parentClass.getInternalName(), name, descriptor));
-    setObfuscatedName(MAPPER.getObfMethodName(parentClass.getInternalName(), name, descriptor));
   }
 
   public ASMMethod build() {
@@ -113,6 +109,6 @@ public class ASMMethodBuilder implements ASMCommon {
     Objects.requireNonNull(returnType, "Missing method return type");
     if (auto) attemptAutoAssign();
     return new ASMMethod(
-        parentClass, NameBuilder.create(name, srgName, obfuscatedName), parameterTypes, returnType);
+        parentClass, NameBuilder.create(name, srgName), parameterTypes, returnType);
   }
 }

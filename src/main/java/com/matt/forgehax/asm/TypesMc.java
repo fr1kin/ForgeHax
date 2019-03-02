@@ -113,10 +113,9 @@ public interface TypesMc {
             .setClassName("net/minecraft/client/renderer/chunk/RenderChunk")
             .build();
 
-    // FIXME: this no longer exists
-    ASMClass ChunkCompileTaskGenerator =
+    ASMClass ChunkRenderTask =
         ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator")
+            .setClassName("net/minecraft/client/renderer/chunk/ChunkRenderTask")
             .build();
 
     ASMClass ViewFrustum =
@@ -129,10 +128,9 @@ public interface TypesMc {
             .setClassName("net/minecraft/client/renderer/chunk/ChunkRenderDispatcher")
             .build();
 
-    // FIXME: this no longer exists
-    ASMClass RenderGlobal =
+    ASMClass WorldRenderer =
         ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/client/renderer/RenderGlobal")
+            .setClassName("net/minecraft/client/renderer/WorldRenderer")
             .build();
 
     ASMClass ChunkRenderContainer =
@@ -160,10 +158,9 @@ public interface TypesMc {
             .setClassName("net/minecraft/entity/item/EntityBoat")
             .build();
 
-    // FIXME: this no longer exists - net/minecraft/client/renderer/entity/Render ?
-    ASMClass EntityRenderer =
+    ASMClass GameRenderer =
         ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/client/renderer/EntityRenderer")
+            .setClassName("net/minecraft/client/renderer/GameRenderer")
             .build();
 
     ASMClass RenderBoat =
@@ -233,14 +230,14 @@ public interface TypesMc {
   }
 
   interface Fields {
-    ASMField RenderGlobal_viewFrustum =
-        Classes.RenderGlobal.childField()
+    ASMField WorldRenderer_viewFrustum =
+        Classes.WorldRenderer.childField()
             .setName("viewFrustum")
             .setType(Classes.ViewFrustum)
             .autoAssign()
             .build();
-    ASMField RenderGlobal_renderDispatcher =
-        Classes.RenderGlobal.childField()
+    ASMField WorldRenderer_renderDispatcher =
+        Classes.WorldRenderer.childField()
             .setName("renderDispatcher")
             .setType(Classes.ChunkRenderDispatcher)
             .autoAssign()
@@ -258,6 +255,7 @@ public interface TypesMc {
             .finish()
             .autoAssign()
             .build();
+    // TODO: replaced with getCollisionShape
     ASMMethod Block_addCollisionBoxToList =
         Classes.Block.childMethod()
             .setName("addCollisionBoxToList")
@@ -304,7 +302,7 @@ public interface TypesMc {
             .setName("freeRenderBuilder")
             .setReturnType(void.class)
             .beginParameters()
-            .add(Classes.ChunkCompileTaskGenerator)
+            .add(Classes.ChunkRenderTask)
             .finish()
             .autoAssign()
             .build();
@@ -391,8 +389,8 @@ public interface TypesMc {
             .autoAssign()
             .build();
 
-    ASMMethod EntityRenderer_hurtCameraEffect =
-        Classes.EntityRenderer.childMethod()
+    ASMMethod GameRenderer_hurtCameraEffect =
+        Classes.GameRenderer.childMethod()
             .setName("hurtCameraEffect")
             .setReturnType(void.class)
             .beginParameters()
@@ -405,7 +403,9 @@ public interface TypesMc {
         Classes.Minecraft.childMethod()
             .setName("setIngameFocus")
             .setReturnType(void.class)
-            .emptyParameters()
+            .beginParameters()
+            .add(float.class)
+            .finish()
             .autoAssign()
             .build();
     ASMMethod Minecraft_runTick =
@@ -415,6 +415,7 @@ public interface TypesMc {
             .emptyParameters()
             .autoAssign()
             .build();
+
     ASMMethod Minecraft_sendClickBlockToController =
         Classes.Minecraft.childMethod()
             .setName("sendClickBlockToController")
@@ -438,13 +439,12 @@ public interface TypesMc {
     ASMMethod NetworkManager_channelRead0 =
         Classes.NetworkManager.childMethod()
             .setName("channelRead0")
-            .setObfuscatedName("a") // manually set because this isn't a vanilla method
             .setReturnType(void.class)
             .beginParameters()
             .add(ChannelHandlerContext.class)
             .add(Classes.Packet)
             .finish()
-            // .autoAssign()
+             //.autoAssign()
             .build();
 
     ASMMethod RenderChunk_rebuildChunk =
@@ -455,7 +455,7 @@ public interface TypesMc {
             .add(float.class)
             .add(float.class)
             .add(float.class)
-            .add(Classes.ChunkCompileTaskGenerator)
+            .add(Classes.ChunkRenderTask)
             .finish()
             .autoAssign()
             .build();
@@ -467,40 +467,39 @@ public interface TypesMc {
             .autoAssign()
             .build();
 
-    ASMMethod RenderGlobal_loadRenderers =
-        Classes.RenderGlobal.childMethod()
+    ASMMethod WorldRenderer_loadRenderers =
+        Classes.WorldRenderer.childMethod()
             .setName("loadRenderers")
             .setReturnType(void.class)
             .emptyParameters()
             .autoAssign()
             .build();
-    ASMMethod RenderGlobal_renderBlockLayer =
-        Classes.RenderGlobal.childMethod()
+    ASMMethod WorldRenderer_renderBlockLayer =
+        Classes.WorldRenderer.childMethod()
             .setName("renderBlockLayer")
             .setReturnType(int.class)
             .beginParameters()
             .add(Classes.BlockRenderLayer)
             .add(double.class)
-            .add(int.class)
             .add(Classes.Entity)
             .finish()
             .autoAssign()
             .build();
-    ASMMethod RenderGlobal_setupTerrain =
-        Classes.RenderGlobal.childMethod()
+    ASMMethod WorldRenderer_setupTerrain =
+        Classes.WorldRenderer.childMethod()
             .setName("setupTerrain")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.Entity)
-            .add(double.class)
+            .add(float.class)
             .add(Classes.ICamera)
             .add(int.class)
             .add(boolean.class)
             .finish()
             .autoAssign()
             .build();
-    ASMMethod RenderGlobal_drawBoundingBox =
-        Classes.RenderGlobal.childMethod()
+    ASMMethod WorldRenderer_drawBoundingBox =
+        Classes.WorldRenderer.childMethod()
             .setName("drawBoundingBox")
             .setReturnType(void.class)
             .beginParameters()
