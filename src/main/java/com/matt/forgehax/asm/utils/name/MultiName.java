@@ -5,10 +5,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /** Created on 5/26/2017 by fr1kin */
-public class McMultiName<E> extends SingleName<E> {
+public class MultiName<E> extends SingleName<E> {
   private final E srg;
 
-  public McMultiName(@Nonnull E type, @Nullable E srg) {
+  public MultiName(@Nonnull E type, @Nullable E srg) {
     super(type);
     this.srg = srg;
   }
