@@ -1,6 +1,5 @@
 package com.matt.forgehax.asm.utils;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -19,10 +18,10 @@ public class AsmPattern {
   public static final int CODE_ONLY = IGNORE_FRAMES | IGNORE_LABELS | IGNORE_LINENUMBERS;
 
   private final int flags;
-  private final ImmutableList<Predicate<AbstractInsnNode>> insnPredicates;
+  private final List<Predicate<AbstractInsnNode>> insnPredicates;
 
   private AsmPattern(List<Predicate<AbstractInsnNode>> predicates, int flags) {
-    this.insnPredicates = ImmutableList.copyOf(predicates);
+    this.insnPredicates = predicates;
     this.flags = flags;
   }
 

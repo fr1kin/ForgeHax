@@ -36,11 +36,7 @@ public class NetManagerPatch implements Opcodes {
     public static class DispatchPacket implements Transformer<MethodNode> {
         @Override
         public Set<Target> targets() {
-            return Collections.singleton(Target.targetMethod(
-                    "net/minecraft/network/NetworkManager",
-                    remapName("func_150732_b"),
-                    "(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V"
-            ));
+            return ASMHelper.getTargetSet(Methods.NetworkManager_dispatchPacket);
         }
 
         @Override
@@ -75,11 +71,7 @@ public class NetManagerPatch implements Opcodes {
     public static class FlushHook implements Transformer<MethodNode> {
         @Override
         public Set<Target> targets() {
-            return Collections.singleton(Target.targetMethod(
-                    "net/minecraft/network/NetworkManager",
-                    remapName("func_150732_b"),
-                    "(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V"
-            ));
+            return ASMHelper.getTargetSet(Methods.NetworkManager_lambda$dispatchPacket$4);
         }
 
         @Override
@@ -114,11 +106,7 @@ public class NetManagerPatch implements Opcodes {
     public static class ChannelRead0 implements Transformer<MethodNode> {
         @Override
         public Set<Target> targets() {
-            return Collections.singleton(Target.targetMethod(
-                    "net/minecraft/network/NetworkManager",
-                    "channelRead0",
-                    "(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/Packet;)V"
-            ));
+            return ASMHelper.getTargetSet(Methods.NetworkManager_channelRead0);
         }
 
         @Override

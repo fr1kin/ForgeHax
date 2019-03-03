@@ -14,12 +14,12 @@ public class NonObfuscatedStateMapper implements IStateMapper {
   @Nullable
   @Override
   public String getSrgMethodName(String parentClassName, String methodName, String methodDescriptor) {
-    throw new UnsupportedOperationException("attempted to get srg name in non srg environment");
+    throw new UnsupportedOperationException("Attempted to get srg name in non srg environment");
   }
 
   @Nullable
   @Override
   public String getSrgFieldName(String parentClassName, String fieldName) {
-    throw new UnsupportedOperationException("attempted to get srg name in non srg environment");
+    throw new UnsupportedOperationException("Attempted to get srg name in non srg environment");
   }
 }

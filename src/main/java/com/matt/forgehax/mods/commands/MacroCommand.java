@@ -9,6 +9,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.asm.events.temp.InputEvent;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.mods.services.ChatCommandService;
 import com.matt.forgehax.util.command.*;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
@@ -24,10 +26,8 @@ import joptsimple.OptionParser;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.input.Keyboard;
 
 // TODO: hold macros
 @RegisterMod
@@ -59,11 +59,12 @@ public class MacroCommand extends CommandMod {
         .forEach(this::executeMacro);
 
     // execute anonymous macros
-    if (Keyboard.getEventKeyState()) { // on press
+    //if (Keyboard.getEventKeyState()) { // on press
+    if (event.getAction() == GLFW.GLFW_PRESS) {
       MACROS
           .stream()
           .filter(MacroEntry::isAnonymous)
-          .filter(macro -> macro.getKey() == Keyboard.getEventKey())
+          .filter(macro -> macro.getKey() == event.getKey())
           .forEach(this::executeMacro);
     }
   }
@@ -80,7 +81,7 @@ public class MacroCommand extends CommandMod {
     // remove the category if there are no named macros to prevent crash
     // TODO: fix crash when a category is empty
     if (MACROS.stream().noneMatch(entry -> !entry.isAnonymous())) {
-      KeyBinding.getKeybinds().remove("Macros"); // KEYBIND_SET
+      FastReflection.Fields.Binding_KEYBIND_SET.get(null).remove("Macros");
     }
   }
 

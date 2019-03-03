@@ -1,6 +1,6 @@
 package com.matt.forgehax.asm;
 
-import com.matt.forgehax.asm.patches.NetManagerPatch;
+import com.matt.forgehax.asm.patches.*;
 import com.matt.forgehax.asm.transformer.MethodTransformerWrapper;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import com.matt.forgehax.asm.utils.environment.State;
@@ -37,10 +37,16 @@ public class ForgehaxTransformationService implements ITransformationService {
     @Nonnull
     @Override
     public List<ITransformer> transformers() {
+        // TODO: get these automatically
         return Arrays.asList(
-                new MethodTransformerWrapper(new NetManagerPatch.DispatchPacket()),
-                new MethodTransformerWrapper(new NetManagerPatch.FlushHook()),
-                new MethodTransformerWrapper(new NetManagerPatch.ChannelRead0())
+            new MethodTransformerWrapper(new NetManagerPatch.DispatchPacket()),
+            new MethodTransformerWrapper(new NetManagerPatch.FlushHook()),
+            new MethodTransformerWrapper(new NetManagerPatch.ChannelRead0()),
+            new MethodTransformerWrapper(new MinecraftPatch.RunTick()),
+            new MethodTransformerWrapper(new MinecraftPatch.SendClickBlockToController()),
+            new MethodTransformerWrapper(new KeyboardListenerPatch.OnKeyEvent()),
+            new MethodTransformerWrapper(new BlockPatch.GetCollisionShape()),
+            new MethodTransformerWrapper(new KeyBindingPatch.IsKeyDown())
         );
     }
 }

@@ -7,8 +7,8 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.input.Keyboard;
 
 /** Created by Babbaj on 9/5/2017. */
 @RegisterMod
@@ -33,12 +33,12 @@ public class GuiMove extends ToggleMod {
         || MC.currentScreen instanceof GuiContainer
         || MC.currentScreen instanceof GuiIngameMenu) {
       for (KeyBinding bind : keys) {
-        KeyBinding.setKeyBindState(bind.getKey().getKeyCode(), Keyboard.isKeyDown(bind.getKeyCode()));
+        KeyBinding.setKeyBindState(bind.getKey(), InputMappings.isKeyDown(bind.getKey().getKeyCode()));
       }
     } else if (MC.currentScreen == null) {
       for (KeyBinding bind : keys) {
-        if (!Keyboard.isKeyDown(bind.getKeyCode())) {
-          KeyBinding.setKeyBindState(bind.getKeyCode(), false);
+        if (!InputMappings.isKeyDown(bind.getKey().getKeyCode())) {
+          KeyBinding.setKeyBindState(bind.getKey(), false);
         }
       }
     }

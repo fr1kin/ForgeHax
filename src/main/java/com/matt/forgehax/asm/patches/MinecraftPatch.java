@@ -1,102 +1,67 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.TypesMc;
+import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
-import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
-import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
-import com.matt.forgehax.asm.utils.transforming.Inject;
-import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
-import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
-import java.util.Objects;
+import com.matt.forgehax.asm.utils.AsmPattern;
+import com.matt.forgehax.asm.utils.InsnPattern;
+import cpw.mods.modlauncher.api.ITransformer;
+import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import org.objectweb.asm.tree.*;
 
-public class MinecraftPatch extends ClassTransformer {
-  public MinecraftPatch() {
-    super(Classes.Minecraft);
-  }
+import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.Set;
 
-  @RegisterMethodTransformer
-  public class SetIngameFocus extends MethodTransformer {
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.Minecraft_setIngameFocus;
+
+public class MinecraftPatch {
+
+    // Add callback before setting leftclick timer
+    public static class RunTick implements Transformer<MethodNode> {
+        @Override
+        public Set<Target> targets() {
+            return ASMHelper.getTargetSet(Methods.Minecraft_runTick);
+        }
+
+        @Nonnull
+        @Override
+        public MethodNode transform(MethodNode method, ITransformerVotingContext context) {
+            InsnPattern node = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
+                .custom(insn -> insn.getOpcode() == SIPUSH && ((IntInsnNode)insn).operand == 10000)
+                .opcode(PUTFIELD)
+                .build().test(method);
+
+            Objects.requireNonNull(node, "Failed to find SIPUSH node");
+
+            InsnList list = new InsnList();
+            list.add(new VarInsnNode(ALOAD, 0));
+            list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
+
+            AbstractInsnNode first = node.getFirst();
+            method.instructions.insert(first, list);
+            return method;
+        }
     }
 
-    @Inject(description = "Add callback before setting leftclick timer")
-    public void inject(MethodNode method) {
-      AbstractInsnNode node =
-          ASMHelper.findPattern(
-              method.instructions.getFirst(),
-              new int[] {SIPUSH, PUTFIELD, 0, 0, 0, RETURN},
-              "xx???x");
-      Objects.requireNonNull(node, "Failed to find SIPUSH node");
+    // "Add hook to set left click"
+    public static class SendClickBlockToController implements Transformer<MethodNode> {
+        @Override
+        public Set<ITransformer.Target> targets() {
+            return ASMHelper.getTargetSet(Methods.Minecraft_sendClickBlockToController);
+        }
 
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
+        @Nonnull
+        @Override
+        public MethodNode transform(MethodNode method, ITransformerVotingContext context) {
+            InsnList list = new InsnList();
+            list.add(new VarInsnNode(ALOAD, 0));
+            list.add(new VarInsnNode(ILOAD, 1));
+            list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendClickBlockToController));
+            list.add(new VarInsnNode(ISTORE, 1));
 
-      method.instructions.insert(node, list);
+            method.instructions.insert(list);
+            return method;
+        }
     }
-  }
-
-  @RegisterMethodTransformer
-  public class RunTick extends MethodTransformer {
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.Minecraft_runTick;
-    }
-
-    @Inject(description = "Add callback before setting leftclick timer")
-    public void inject(MethodNode method) {
-      AbstractInsnNode node =
-          ASMHelper.findPattern(
-              method.instructions.getFirst(),
-              new int[] {
-                SIPUSH,
-                PUTFIELD,
-                0,
-                0,
-                0,
-                ALOAD,
-                GETFIELD,
-                IFNULL,
-                0,
-                0,
-                ALOAD,
-                GETFIELD,
-                INVOKEVIRTUAL
-              },
-              "xx???xxx??xxx");
-      Objects.requireNonNull(node, "Failed to find SIPUSH node");
-
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
-
-      method.instructions.insert(node, list);
-    }
-  }
-
-  @RegisterMethodTransformer
-  public class SendClickBlockToController extends MethodTransformer {
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.Minecraft_sendClickBlockToController;
-    }
-
-    @Inject(description = "Add hook to set left click")
-    public void inject(MethodNode method) {
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(new VarInsnNode(ILOAD, 1));
-      list.add(
-          ASMHelper.call(
-              INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendClickBlockToController));
-      list.add(new VarInsnNode(ISTORE, 1));
-
-      method.instructions.insert(list);
-    }
-  }
 }

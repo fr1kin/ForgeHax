@@ -192,22 +192,6 @@ public interface TypesHook {
             .finish()
             .build();
 
-    ASMMethod ForgeHaxHooks_onAddCollisionBoxToList =
-        Classes.ForgeHaxHooks.childMethod()
-            .setName("onAddCollisionBoxToList")
-            .setReturnType(boolean.class)
-            .beginParameters()
-            .add(TypesMc.Classes.Block)
-            .add(TypesMc.Classes.IBlockState)
-            .add(TypesMc.Classes.World)
-            .add(TypesMc.Classes.BlockPos)
-            .add(TypesMc.Classes.AxisAlignedBB)
-            .add(List.class)
-            .add(TypesMc.Classes.Entity)
-            .add(boolean.class)
-            .finish()
-            .build();
-
     ASMMethod ForgeHaxHooks_onBlockRenderInLoop =
         Classes.ForgeHaxHooks.childMethod()
             .setName("onBlockRenderInLoop")
@@ -450,6 +434,18 @@ public interface TypesHook {
             .setName("onDrawBoundingBoxPost")
             .setReturnType(void.class)
             .emptyParameters()
+            .build();
+
+    ASMMethod ForgeHaxHooks_onKeyEvent =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("onKeyEvent")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(int.class)
+            .add(int.class)
+            .add(int.class)
+            .add(int.class)
+            .finish()
             .build();
   }
 }

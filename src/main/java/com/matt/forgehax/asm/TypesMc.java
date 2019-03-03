@@ -227,24 +227,47 @@ public interface TypesMc {
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/client/multiplayer/PlayerControllerMP")
             .build();
+
+    ASMClass KeyboardListener =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/client/KeyboardListener")
+            .build();
+
+    ASMClass EnumConnectionState =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/network/EnumConnectionState")
+            .build();
+
+    ASMClass VoxelShape =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/util/math/shapes/VoxelShape")
+            .build();
+
+    ASMClass IBlockReader =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/world/IBlockReader")
+            .build();
   }
 
   interface Fields {
     ASMField WorldRenderer_viewFrustum =
         Classes.WorldRenderer.childField()
             .setName("viewFrustum")
+            .setSrgName("field_175008_n")
             .setType(Classes.ViewFrustum)
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMField WorldRenderer_renderDispatcher =
         Classes.WorldRenderer.childField()
             .setName("renderDispatcher")
+            .setSrgName("field_174995_M")
             .setType(Classes.ChunkRenderDispatcher)
-            .autoAssign()
+            //.autoAssign()
             .build();
   }
 
   interface Methods {
+    @Deprecated // doesnt seem to exist anymore
     ASMMethod Block_canRenderInLayer =
         Classes.Block.childMethod()
             .setName("canRenderInLayer")
@@ -253,9 +276,10 @@ public interface TypesMc {
             .add(Classes.IBlockState)
             .add(Classes.BlockRenderLayer)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     // TODO: replaced with getCollisionShape
+    @Deprecated
     ASMMethod Block_addCollisionBoxToList =
         Classes.Block.childMethod()
             .setName("addCollisionBoxToList")
@@ -269,23 +293,24 @@ public interface TypesMc {
             .add(Classes.Entity)
             .add(boolean.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod ChunkRenderContainer_addRenderChunk =
         Classes.ChunkRenderContainer.childMethod()
             .setName("addRenderChunk")
+            .setSrgName("func_178002_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.RenderChunk)
             .add(Classes.BlockRenderLayer)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
-
     ASMMethod ChunkRenderDispatcher_uploadChunk =
         Classes.ChunkRenderDispatcher.childMethod()
             .setName("uploadChunk")
+            .setSrgName("func_188245_a")
             .setReturnType(ListenableFuture.class)
             .beginParameters()
             .add(Classes.BlockRenderLayer)
@@ -294,31 +319,33 @@ public interface TypesMc {
             .add(Classes.CompiledChunk)
             .add(double.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
-
     ASMMethod ChunkRenderWorker_freeRenderBuilder =
         Classes.ChunkRenderWorker.childMethod()
             .setName("freeRenderBuilder")
+            .setSrgName("func_178473_b")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.ChunkRenderTask)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod Entity_applyEntityCollision =
         Classes.Entity.childMethod()
             .setName("applyEntityCollision")
+            .setSrgName("func_70108_f")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.Entity)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod Entity_move =
         Classes.Entity.childMethod()
             .setName("move")
+            .setSrgName("func_70091_d")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.MoverType)
@@ -326,119 +353,143 @@ public interface TypesMc {
             .add(double.class)
             .add(double.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod Entity_doBlockCollisions =
         Classes.Entity.childMethod()
             .setName("doBlockCollisions")
+            .setSrgName("func_145775_I")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod EntityPlayerSP_onLivingUpdate =
         Classes.EntityPlayerSP.childMethod()
             .setName("onLivingUpdate")
+            .setSrgName("func_70636_d")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod EntityPlayerSP_onUpdate =
         Classes.EntityPlayerSP.childMethod()
             .setName("onUpdate")
+            .setSrgName("func_70071_h_")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod EntityPlayerSP_onUpdateWalkingPlayer =
         Classes.EntityPlayerSP.childMethod()
             .setName("onUpdateWalkingPlayer")
+            .setSrgName("func_175161_p")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod EntityPlayerSP_pushOutOfBlocks =
         Classes.EntityPlayerSP.childMethod()
             .setName("pushOutOfBlocks")
+            .setSrgName("func_145771_j")
             .setReturnType(boolean.class)
             .beginParameters()
             .add(double.class)
             .add(double.class)
             .add(double.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
-
     ASMMethod EntityPlayerSP_isRowingBoat =
         Classes.EntityPlayerSP.childMethod()
             .setName("isRowingBoat")
+            .setSrgName("func_184838_M")
             .setReturnType(boolean.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod EntityLivingBase_travel =
         Classes.EntityLivingBase.childMethod()
             .setName("travel")
+            .setSrgName("func_191986_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(float.class)
             .add(float.class)
             .add(float.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod GameRenderer_hurtCameraEffect =
         Classes.GameRenderer.childMethod()
             .setName("hurtCameraEffect")
+            .setSrgName("func_78482_e")
             .setReturnType(void.class)
             .beginParameters()
             .add(float.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod Minecraft_setIngameFocus =
         Classes.Minecraft.childMethod()
             .setName("setIngameFocus")
+            .setSrgName("func_71381_h")
             .setReturnType(void.class)
             .beginParameters()
             .add(float.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod Minecraft_runTick =
         Classes.Minecraft.childMethod()
             .setName("runTick")
+            .setSrgName("func_71407_l")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
-
     ASMMethod Minecraft_sendClickBlockToController =
         Classes.Minecraft.childMethod()
             .setName("sendClickBlockToController")
+            .setSrgName("func_147115_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(boolean.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod NetworkManager_dispatchPacket =
         Classes.NetworkManager.childMethod()
             .setName("dispatchPacket")
+            .setSrgName("func_150732_b")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.Packet)
-            .add(GenericFutureListener[].class)
+            .add(GenericFutureListener.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
+            .build();
+    ASMMethod NetworkManager_lambda$dispatchPacket$4 =
+        Classes.NetworkManager.childMethod()
+            .setName("lambda$dispatchPacket$4")
+            .setSrgName("lambda$dispatchPacket$4")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(Classes.EnumConnectionState)
+            .add(Classes.EnumConnectionState)
+            .add(Classes.Packet)
+            .add(GenericFutureListener.class)
+            .finish()
+            //.autoAssign()
             .build();
     ASMMethod NetworkManager_channelRead0 =
         Classes.NetworkManager.childMethod()
             .setName("channelRead0")
+            .setSrgName("channelRead0")
             .setReturnType(void.class)
             .beginParameters()
             .add(ChannelHandlerContext.class)
@@ -450,6 +501,7 @@ public interface TypesMc {
     ASMMethod RenderChunk_rebuildChunk =
         Classes.RenderChunk.childMethod()
             .setName("rebuildChunk")
+            .setSrgName("func_178581_b")
             .setReturnType(void.class)
             .beginParameters()
             .add(float.class)
@@ -457,37 +509,41 @@ public interface TypesMc {
             .add(float.class)
             .add(Classes.ChunkRenderTask)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod RenderChunk_deleteGlResources =
         Classes.RenderChunk.childMethod()
             .setName("deleteGlResources")
+            .setSrgName("func_178566_a")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod WorldRenderer_loadRenderers =
         Classes.WorldRenderer.childMethod()
             .setName("loadRenderers")
+            .setSrgName("func_72712_a")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod WorldRenderer_renderBlockLayer =
         Classes.WorldRenderer.childMethod()
             .setName("renderBlockLayer")
+            .setSrgName("func_174977_a")
             .setReturnType(int.class)
             .beginParameters()
             .add(Classes.BlockRenderLayer)
             .add(double.class)
             .add(Classes.Entity)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod WorldRenderer_setupTerrain =
         Classes.WorldRenderer.childMethod()
             .setName("setupTerrain")
+            .setSrgName("func_174970_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.Entity)
@@ -496,11 +552,12 @@ public interface TypesMc {
             .add(int.class)
             .add(boolean.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod WorldRenderer_drawBoundingBox =
         Classes.WorldRenderer.childMethod()
             .setName("drawBoundingBox")
+            .setSrgName("func_189694_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(double.class)
@@ -514,12 +571,13 @@ public interface TypesMc {
             .add(float.class)
             .add(float.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod BufferBuilder_putColorMultiplier =
         Classes.BufferBuilder.childMethod()
             .setName("putColorMultiplier")
+            .setSrgName("func_178978_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(float.class)
@@ -527,67 +585,72 @@ public interface TypesMc {
             .add(float.class)
             .add(int.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod VisGraph_setOpaqueCube =
         Classes.VisGraph.childMethod()
             .setName("setOpaqueCube")
+            .setSrgName("func_178606_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.BlockPos)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod VisGraph_computeVisibility =
         Classes.VisGraph.childMethod()
             .setName("computeVisibility")
+            .setSrgName("func_178607_a")
             .setReturnType(Classes.SetVisibility)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod World_handleMaterialAcceleration =
         Classes.World.childMethod()
             .setName("handleMaterialAcceleration")
+            .setSrgName("func_72918_a")
             .setReturnType(boolean.class)
             .beginParameters()
             .add(Classes.AxisAlignedBB)
             .add(Classes.Material)
             .add(Classes.Entity)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod EntityBoat_updateMotion =
         Classes.EntityBoat.childMethod()
             .setName("updateMotion")
+            .setSrgName("func_184450_w")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
-
     ASMMethod EntityBoat_controlBoat =
         Classes.EntityBoat.childMethod()
             .setName("controlBoat")
+            .setSrgName("func_184443_x")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
-
     ASMMethod EntityBoat_applyYawToEntity =
         Classes.EntityBoat.childMethod()
             .setName("applyYawToEntity")
+            .setSrgName("func_184454_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.Entity)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod RenderBoat_doRender =
         Classes.RenderBoat.childMethod()
             .setName("doRender")
+            .setSrgName("func_76986_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.EntityBoat)
@@ -597,64 +660,98 @@ public interface TypesMc {
             .add(float.class)
             .add(float.class)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod PlayerTabOverlay_renderPlayerList =
         Classes.GuiPlayerTabOverlay.childMethod()
             .setName("renderPlayerlist")
+            .setSrgName("func_175249_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(int.class)
             .add(Classes.Scoreboard)
             .add(Classes.ScoreObjective)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod KeyBinding_isKeyDown =
         Classes.KeyBinding.childMethod()
             .setName("isKeyDown")
+            .setSrgName("func_151470_d")
             .setReturnType(boolean.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
 
     ASMMethod PlayerControllerMC_syncCurrentPlayItem =
         Classes.PlayerControllerMP.childMethod()
             .setName("syncCurrentPlayItem")
+            .setSrgName("func_78750_j")
             .setReturnType(void.class)
             .emptyParameters()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod PlayerControllerMC_attackEntity =
         Classes.PlayerControllerMP.childMethod()
             .setName("attackEntity")
+            .setSrgName("func_78764_a")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.EntityPlayer)
             .add(Classes.Entity)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod PlayerControllerMC_onPlayerDamageBlock =
         Classes.PlayerControllerMP.childMethod()
             .setName("onPlayerDamageBlock")
+            .setSrgName("func_180512_c")
             .setReturnType(boolean.class)
             .beginParameters()
             .add(Classes.BlockPos)
             .add(Classes.EnumFacing)
             .finish()
-            .autoAssign()
+            //.autoAssign()
             .build();
     ASMMethod PlayerControllerMC_onStoppedUsingItem =
         Classes.PlayerControllerMP.childMethod()
             .setName("onStoppedUsingItem")
+            .setSrgName("func_78766_c")
             .setReturnType(void.class)
             .beginParameters()
             .add(Classes.EntityPlayer)
             .finish()
-            .autoAssign()
+            //.autoAssign()
+            .build();
+
+    ASMMethod KeyboardListener_onKeyEvent =
+        Classes.KeyboardListener.childMethod()
+            .setName("onKeyEvent")
+            .setSrgName("func_197961_a")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(long.class)
+            .add(int.class)
+            .add(int.class)
+            .add(int.class)
+            .add(int.class)
+            .finish()
+            //.autoAssign()
+            .build();
+
+    ASMMethod Block_getCollisionShape =
+        Classes.Block.childMethod()
+            .setName("getCollisionShape")
+            .setSrgName("func_196268_f")
+            .setReturnType(Classes.VoxelShape)
+            .beginParameters()
+            .add(Classes.IBlockState)
+            .add(Classes.IBlockReader)
+            .add(Classes.BlockPos)
+            .finish()
+            //.autoAssign()
             .build();
   }
 }

@@ -7,12 +7,15 @@ import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.EntityBlockSlipApplyEvent.Stage;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
+import com.matt.forgehax.asm.events.temp.InputEvent;
 import com.matt.forgehax.asm.utils.MultiBoolean;
 import com.matt.forgehax.asm.utils.debug.HookReporter;
 import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import com.matt.forgehax.util.key.Keys;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -32,7 +35,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
+//import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
@@ -72,6 +76,13 @@ public class ForgeHaxHooks implements ASMCommon {
   public static boolean fireEvent_b(Event event) {
     return MinecraftForge.EVENT_BUS.post(event);
   }
+
+  // temporary until added to forge
+  public static void onKeyEvent(int key, int scanCode, int action, int modifiers) {
+    System.out.println(Keys.getKeyName(key).orElse("???"));
+    MinecraftForge.EVENT_BUS.post(new InputEvent.KeyInputEvent(key, scanCode, action, modifiers));
+  }
+
 
   /** onDrawBoundingBox */
   public static void onDrawBoundingBoxPost() {
@@ -124,7 +135,7 @@ public class ForgeHaxHooks implements ASMCommon {
   public static final HookReporter HOOK_onHurtcamEffect =
       newHookReporter()
           .hook("onHurtcamEffect")
-          .dependsOn(TypesMc.Methods.EntityRenderer_hurtCameraEffect)
+          .dependsOn(TypesMc.Methods.GameRenderer_hurtCameraEffect)
           .forgeEvent(HurtCamEffectEvent.class)
           .build();
 
@@ -138,13 +149,13 @@ public class ForgeHaxHooks implements ASMCommon {
       newHookReporter()
           .hook("onSendingPacket")
           .dependsOn(TypesMc.Methods.NetworkManager_dispatchPacket)
-          .dependsOn(TypesMc.Methods.NetworkManager$4_run)
+          .dependsOn(Methods.NetworkManager_lambda$dispatchPacket$4)
           .forgeEvent(PacketEvent.Outgoing.Pre.class)
           .build();
 
   public static boolean onSendingPacket(Packet<?> packet) {
-    return HOOK_onSendingPacket.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Pre(packet));
+    /*return HOOK_onSendingPacket.reportHook()
+        &&*/return MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Pre(packet));
   }
 
   /** onSentPacket */
@@ -152,12 +163,12 @@ public class ForgeHaxHooks implements ASMCommon {
       newHookReporter()
           .hook("onSentPacket")
           .dependsOn(TypesMc.Methods.NetworkManager_dispatchPacket)
-          .dependsOn(TypesMc.Methods.NetworkManager$4_run)
+          .dependsOn(TypesMc.Methods.NetworkManager_lambda$dispatchPacket$4)
           .forgeEvent(PacketEvent.Outgoing.Post.class)
           .build();
 
   public static void onSentPacket(Packet<?> packet) {
-    if (HOOK_onSentPacket.reportHook())
+    //if (HOOK_onSentPacket.reportHook())
       MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Post(packet));
   }
 
@@ -170,8 +181,8 @@ public class ForgeHaxHooks implements ASMCommon {
           .build();
 
   public static boolean onPreReceived(Packet<?> packet) {
-    return HOOK_onPreReceived.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Pre(packet));
+    /*return HOOK_onPreReceived.reportHook()
+        &&*/ return MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Pre(packet));
   }
 
   /** onPostReceived */
@@ -183,7 +194,7 @@ public class ForgeHaxHooks implements ASMCommon {
           .build();
 
   public static void onPostReceived(Packet<?> packet) {
-    if (HOOK_onPostReceived.reportHook())
+    //if (HOOK_onPostReceived.reportHook())
       MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Post(packet));
   }
 
@@ -249,7 +260,7 @@ public class ForgeHaxHooks implements ASMCommon {
   public static final HookReporter HOOK_onPreRenderBlockLayer =
       newHookReporter()
           .hook("onPreRenderBlockLayer")
-          .dependsOn(TypesMc.Methods.RenderGlobal_renderBlockLayer)
+          .dependsOn(TypesMc.Methods.WorldRenderer_renderBlockLayer)
           .forgeEvent(RenderBlockLayerEvent.Pre.class)
           .build();
 
@@ -262,7 +273,7 @@ public class ForgeHaxHooks implements ASMCommon {
   public static final HookReporter HOOK_onPostRenderBlockLayer =
       newHookReporter()
           .hook("onPostRenderBlockLayer")
-          .dependsOn(TypesMc.Methods.RenderGlobal_renderBlockLayer)
+          .dependsOn(TypesMc.Methods.WorldRenderer_renderBlockLayer)
           .forgeEvent(RenderBlockLayerEvent.Post.class)
           .build();
 
@@ -275,7 +286,7 @@ public class ForgeHaxHooks implements ASMCommon {
   public static final HookReporter HOOK_onSetupTerrain =
       newHookReporter()
           .hook("onSetupTerrain")
-          .dependsOn(TypesMc.Methods.RenderGlobal_setupTerrain)
+          .dependsOn(TypesMc.Methods.WorldRenderer_setupTerrain)
           .forgeEvent(SetupTerrainEvent.class)
           .build();
 
@@ -345,7 +356,7 @@ public class ForgeHaxHooks implements ASMCommon {
   }
 
   /** onRenderBlockInLayer */
-  public static final HookReporter HOOK_onRenderBlockInLayer =
+  /*public static final HookReporter HOOK_onRenderBlockInLayer =
       newHookReporter()
           .hook("onRenderBlockInLayer")
           .dependsOn(TypesMc.Methods.Block_canRenderInLayer)
@@ -360,7 +371,7 @@ public class ForgeHaxHooks implements ASMCommon {
       MinecraftForge.EVENT_BUS.post(event);
       return event.getLayer();
     } else return layer;
-  }
+  }*/
 
   /** onBlockRender */
   public static final HookReporter HOOK_onBlockRender =
@@ -372,32 +383,9 @@ public class ForgeHaxHooks implements ASMCommon {
 
   @Deprecated
   public static void onBlockRender(
-      BlockPos pos, IBlockState state, IBlockAccess access, BufferBuilder buffer) {
+          BlockPos pos, IBlockState state, IWorldReader access, BufferBuilder buffer) {
     if (HOOK_onBlockRender.reportHook())
       MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
-  }
-
-  /** onAddCollisionBoxToList */
-  public static final HookReporter HOOK_onAddCollisionBoxToList =
-      newHookReporter()
-          .hook("onAddCollisionBoxToList")
-          .dependsOn(TypesMc.Methods.Block_addCollisionBoxToList)
-          .forgeEvent(AddCollisionBoxToListEvent.class)
-          .build();
-
-  public static boolean onAddCollisionBoxToList(
-      Block block,
-      IBlockState state,
-      World worldIn,
-      BlockPos pos,
-      AxisAlignedBB entityBox,
-      List<AxisAlignedBB> collidingBoxes,
-      Entity entityIn,
-      boolean bool) {
-    return HOOK_onAddCollisionBoxToList.reportHook()
-        && MinecraftForge.EVENT_BUS.post(
-            new AddCollisionBoxToListEvent(
-                block, state, worldIn, pos, entityBox, collidingBoxes, entityIn, bool));
   }
 
   /** onBlockRenderInLoop */
@@ -486,7 +474,7 @@ public class ForgeHaxHooks implements ASMCommon {
   public static final HookReporter HOOK_onLoadRenderers =
       newHookReporter()
           .hook("onLoadRenderers")
-          .dependsOn(TypesMc.Methods.RenderGlobal_loadRenderers)
+          .dependsOn(TypesMc.Methods.WorldRenderer_loadRenderers)
           .forgeEvent(LoadRenderersEvent.class)
           .build();
 
@@ -497,7 +485,7 @@ public class ForgeHaxHooks implements ASMCommon {
   }
 
   /** onWorldRendererDeallocated */
-  public static final HookReporter HOOK_onWorldRendererDeallocated =
+  /*public static final HookReporter HOOK_onWorldRendererDeallocated =
       newHookReporter()
           .hook("onWorldRendererDeallocated")
           .dependsOn(TypesMc.Methods.ChunkRenderWorker_freeRenderBuilder)
@@ -508,13 +496,13 @@ public class ForgeHaxHooks implements ASMCommon {
     if (HOOK_onWorldRendererDeallocated.reportHook())
       MinecraftForge.EVENT_BUS.post(
           new WorldRendererDeallocatedEvent(generator, generator.getRenderChunk()));
-  }
+  }*/
 
   /** shouldDisableCaveCulling */
   public static final HookReporter HOOK_shouldDisableCaveCulling =
       newHookReporter()
           .hook("shouldDisableCaveCulling")
-          .dependsOn(TypesMc.Methods.RenderGlobal_setupTerrain)
+          .dependsOn(TypesMc.Methods.WorldRenderer_setupTerrain)
           .dependsOn(TypesMc.Methods.VisGraph_setOpaqueCube)
           .dependsOn(TypesMc.Methods.VisGraph_computeVisibility)
           .build();

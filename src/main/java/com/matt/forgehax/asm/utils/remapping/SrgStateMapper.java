@@ -14,12 +14,12 @@ public class SrgStateMapper implements IStateMapper {
     @Nullable
     @Override
     public String getSrgMethodName(String parentClassName, String methodName, String methodDescriptor) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Nullable
     @Override
     public String getSrgFieldName(String parentClassName, String fieldName) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("not implemented");
     }
 }

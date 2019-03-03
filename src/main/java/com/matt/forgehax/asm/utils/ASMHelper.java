@@ -2,20 +2,39 @@ package com.matt.forgehax.asm.utils;
 
 import static org.objectweb.asm.Opcodes.*;
 
+import com.matt.forgehax.asm.utils.asmtype.ASMClass;
 import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+
+import cpw.mods.modlauncher.api.ITransformer;
 import org.objectweb.asm.tree.*;
 
 public class ASMHelper {
+
+  public static Set<ITransformer.Target> getTargetSet(ASMMethod... methods) {
+    return Stream.of(methods)
+            .map(ASMHelper::getTarget)
+            .collect(Collectors.toSet());
+  }
+
+  public static ITransformer.Target getTarget(ASMMethod method) {
+    return ITransformer.Target.targetMethod(
+      method.getParentClass().getInternalName(), // TODO: parent class should be guaranteed to exist
+        method.getRuntimeName(),
+        method.getRuntimeDescriptor()
+    );
+  }
+
 
   /**
    * Finds a pattern of opcodes and returns the first node of the matched pattern if found
@@ -37,6 +56,7 @@ public class ASMHelper {
         (first, last) -> first);
   }
 
+  // TODO: This REALLY needs to be rewritten
   public static <T> T findPattern(
       final AbstractInsnNode start,
       final int patternSize,
@@ -180,6 +200,11 @@ public class ASMHelper {
     method.localVariables.add(variable);
 
     return newIndex;
+  }
+
+  public static InsnList newInstance(String name, ASMClass[] argTypes, @Nullable InsnList args) {
+    final String desc = Stream.of(argTypes).map(ASMClass::getName).collect(Collectors.joining("", "(", ")V"));
+    return newInstance(name, desc, args);
   }
 
   // args should be type descriptors

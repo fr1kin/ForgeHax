@@ -32,9 +32,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 @RegisterMod
 public class AntiAfkMod extends ToggleMod {
@@ -169,11 +169,16 @@ public class AntiAfkMod extends ToggleMod {
     reset();
   }
 
-  @SubscribeEvent
-  public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
 
+  @SubscribeEvent
+  public void onWorldChange(WorldEvent.Unload event) {
     reset();
   }
+  // TODO: fix
+  /*@SubscribeEvent
+  public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+    reset();
+  }*/
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {

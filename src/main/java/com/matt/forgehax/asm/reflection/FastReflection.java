@@ -8,6 +8,8 @@ import com.matt.forgehax.asm.utils.fasttype.builder.FastMethodBuilder;
 import com.matt.forgehax.asm.utils.fasttype.builder.FastTypeBuilder;
 import java.nio.FloatBuffer;
 import java.util.Map;
+import java.util.Set;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -430,7 +432,6 @@ public interface FastReflection extends ASMCommon {
             .setSrgName("field_151474_i")
             //.autoAssign()
             .build();
-
     FastField<Boolean> Binding_pressed =
         FastFieldBuilder.create()
             .setInsideClass(KeyBinding.class)
@@ -438,6 +439,13 @@ public interface FastReflection extends ASMCommon {
             .setSrgName("field_74513_e")
             //.autoAssign()
             .build();
+    FastField<Set<String>> Binding_KEYBIND_SET =
+            FastFieldBuilder.create()
+                    .setInsideClass(KeyBinding.class)
+                    .setName("KEYBIND_SET")
+                    .setSrgName("field_151473_c")
+                    //.autoAssign()
+                    .build();
 
     /** ItemSword */
     FastField<Float> ItemSword_attackDamage =
