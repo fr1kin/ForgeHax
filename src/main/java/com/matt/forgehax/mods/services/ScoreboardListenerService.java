@@ -23,7 +23,7 @@ import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraft.network.play.server.SPacketPlayerListItem.Action;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+//import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 /** Created on 7/18/2017 by fr1kin */
 @RegisterMod
@@ -70,7 +70,8 @@ public class ScoreboardListenerService extends ServiceMod {
     }
   }
 
-  @SubscribeEvent
+  // TODO: fix
+  /*@SubscribeEvent
   public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
     ignore = false;
   }
@@ -78,7 +79,7 @@ public class ScoreboardListenerService extends ServiceMod {
   @SubscribeEvent
   public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
     ignore = false;
-  }
+  }*/
 
   @SubscribeEvent
   public void onPacketIn(PacketEvent.Incoming.Pre event) {

@@ -9,7 +9,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import org.lwjgl.glfw.GLFW;
 
 /** Created by Babbaj on 9/10/2017. */
-@RegisterMod
+//@RegisterMod // TODO: fix gui (lol)
 public class GuiService extends ServiceMod {
   public GuiService() {
     super("GUI");

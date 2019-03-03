@@ -2,11 +2,15 @@ package com.matt.forgehax.asm.patches;
 
 import com.matt.forgehax.asm.TypesHook;
 //import com.matt.forgehax.asm.transformer.MethodTransformer;
+import com.matt.forgehax.asm.TypesMc;
+import com.matt.forgehax.asm.transformer.RegisterTransformer;
 import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.AsmPattern;
 import com.matt.forgehax.asm.utils.InsnPattern;
+import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
+import cpw.mods.modlauncher.api.TransformerVoteResult;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
@@ -33,6 +37,7 @@ public class NetManagerPatch implements Opcodes {
             .opcode(POP)
             .build(); // channelfuture.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
+    @RegisterTransformer
     public static class DispatchPacket implements Transformer<MethodNode> {
         @Override
         public Set<Target> targets() {
@@ -62,12 +67,12 @@ public class NetManagerPatch implements Opcodes {
             main.instructions.insertBefore(prePattern.getFirst(), insnPre);
             main.instructions.insert(postPattern.getLast(), insnPost);
 
-
             return main;
         }
 
     }
 
+    @RegisterTransformer
     public static class FlushHook implements Transformer<MethodNode> {
         @Override
         public Set<Target> targets() {
@@ -103,6 +108,7 @@ public class NetManagerPatch implements Opcodes {
 
     }
 
+    @RegisterTransformer
     public static class ChannelRead0 implements Transformer<MethodNode> {
         @Override
         public Set<Target> targets() {

@@ -11,6 +11,7 @@ import joptsimple.internal.Strings;
 import org.objectweb.asm.tree.MethodNode;
 
 /** Created on 5/2/2017 by fr1kin */
+@Deprecated
 public abstract class MethodTransformer implements ASMCommon {
   private final Collection<TaskElement> tasks = Queues.newPriorityQueue();
 

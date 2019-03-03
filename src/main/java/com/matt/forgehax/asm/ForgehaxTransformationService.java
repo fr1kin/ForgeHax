@@ -2,15 +2,24 @@ package com.matt.forgehax.asm;
 
 import com.matt.forgehax.asm.patches.*;
 import com.matt.forgehax.asm.transformer.MethodTransformerWrapper;
+import com.matt.forgehax.asm.transformer.RegisterTransformer;
+import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import com.matt.forgehax.asm.utils.environment.State;
+import cpw.mods.modlauncher.ClassTransformer;
 import cpw.mods.modlauncher.Environment;
 import cpw.mods.modlauncher.api.*;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Logger;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ForgehaxTransformationService implements ITransformationService {
     @Nonnull
@@ -37,16 +46,43 @@ public class ForgehaxTransformationService implements ITransformationService {
     @Nonnull
     @Override
     public List<ITransformer> transformers() {
-        // TODO: get these automatically
-        return Arrays.asList(
-            new MethodTransformerWrapper(new NetManagerPatch.DispatchPacket()),
-            new MethodTransformerWrapper(new NetManagerPatch.FlushHook()),
-            new MethodTransformerWrapper(new NetManagerPatch.ChannelRead0()),
-            new MethodTransformerWrapper(new MinecraftPatch.RunTick()),
-            new MethodTransformerWrapper(new MinecraftPatch.SendClickBlockToController()),
-            new MethodTransformerWrapper(new KeyboardListenerPatch.OnKeyEvent()),
-            new MethodTransformerWrapper(new BlockPatch.GetCollisionShape()),
-            new MethodTransformerWrapper(new KeyBindingPatch.IsKeyDown())
+        return getTransformersForClasses(
+            NetManagerPatch.class,
+            MinecraftPatch.class,
+            KeyboardListenerPatch.class,
+            BlockPatch.class,
+            KeyBindingPatch.class
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ITransformer> getTransformersForClasses(Class<?>... patches) {
+        return (List<ITransformer>)Stream.of(patches) // epic cast because compiler bug
+                .flatMap(clazz -> Stream.of(clazz.getDeclaredClasses()))
+                .filter(inner -> inner.isAnnotationPresent(RegisterTransformer.class))
+                .peek(inner -> {
+                    if (!hasNoArgConstructor(inner))
+                        throw new IllegalStateException(inner.getSimpleName() + " does not have a 0 arg constructor");
+                })
+                .map(inner -> Transformer.createWrapper((ITransformer)this.newInstance(inner), inner.getDeclaredAnnotation(RegisterTransformer.class)))
+                .collect(Collectors.toList());
+
+    }
+
+    private <T> T newInstance(Class<T> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (ReflectiveOperationException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private boolean hasNoArgConstructor(Class<?> clazz) {
+        try {
+            clazz.getDeclaredConstructor();
+            return true;
+        } catch (NoSuchMethodException ex) {
+            return false;
+        }
     }
 }

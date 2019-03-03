@@ -2,6 +2,7 @@ package com.matt.forgehax.asm.patches;
 
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.TypesMc;
+import com.matt.forgehax.asm.transformer.RegisterTransformer;
 import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.AsmPattern;
@@ -18,6 +19,7 @@ import java.util.Set;
 public class MinecraftPatch {
 
     // Add callback before setting leftclick timer
+    @RegisterTransformer
     public static class RunTick implements Transformer<MethodNode> {
         @Override
         public Set<Target> targets() {
@@ -45,6 +47,7 @@ public class MinecraftPatch {
     }
 
     // "Add hook to set left click"
+    @RegisterTransformer
     public static class SendClickBlockToController implements Transformer<MethodNode> {
         @Override
         public Set<ITransformer.Target> targets() {

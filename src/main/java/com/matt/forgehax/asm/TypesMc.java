@@ -6,7 +6,11 @@ import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.asmtype.builders.ASMBuilders;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import net.minecraft.network.EnumConnectionState;
+import net.minecraft.world.IBlockReader;
+
 import java.util.List;
 
 /** Created on 5/27/2017 by fr1kin */

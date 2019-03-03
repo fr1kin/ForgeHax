@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 /** Created on 5/2/2017 by fr1kin */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface RegisterMethodTransformer {
   String description() default "empty";
 }

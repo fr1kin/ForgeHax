@@ -1,5 +1,6 @@
 package com.matt.forgehax.asm.patches;
 
+import com.matt.forgehax.asm.transformer.RegisterTransformer;
 import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 public class KeyBindingPatch {
 
+    @RegisterTransformer
     public static class IsKeyDown implements Transformer<MethodNode> {
         @Override
         public Set<Target> targets() {

@@ -11,7 +11,8 @@ import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+// TODO: fix reflection
+//@RegisterMod
 public class SneakService extends ServiceMod {
   private static SneakService instance;
 
@@ -47,7 +48,7 @@ public class SneakService extends ServiceMod {
   @SubscribeEvent
   public void onPacketSend(PacketEvent.Outgoing.Pre event) {
     if (event.getPacket() instanceof CPacketEntityAction) {
-      CPacketEntityAction packet = (CPacketEntityAction) event.getPacket();
+      CPacketEntityAction packet = event.getPacket();
       int id = CPacketEntityAction_entityID.get(packet);
       if (getLocalPlayer().getEntityId() == id
           && (packet.getAction() == Action.START_SNEAKING

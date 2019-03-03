@@ -19,6 +19,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+@Deprecated
 public abstract class ClassTransformer
     implements ASMCommon, TypesMc, Opcodes, ASMHelper.MagicOpcodes {
   private final ASMClass transformingClass;
