@@ -8,8 +8,6 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.Display;
 
 @RegisterMod
 public class FPSLock extends ToggleMod {
@@ -51,8 +49,7 @@ public class FPSLock extends ToggleMod {
   }
 
   private int getFps() {
-    //GLFW.glfwSetWindowFocusCallback()
-    if (no_focus_fps.get() > 0 && !Display.isActive()) return no_focus_fps.get();
+    if (no_focus_fps.get() > 0 && !MC.isGameFocused()) return no_focus_fps.get();
     else if (getWorld() != null) return fps.get() > 0 ? fps.get() : MC.gameSettings.limitFramerate;
     else return menu_fps.get() > 0 ? menu_fps.get() : MC.gameSettings.limitFramerate;
   }

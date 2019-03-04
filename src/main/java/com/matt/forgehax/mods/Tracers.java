@@ -218,25 +218,25 @@ public class Tracers extends ToggleMod implements Colors {
                       color.getBlueAsFloat(),
                       color.getAlphaAsFloat());
 
-                  GlStateManager.glBegin(GL11.GL_TRIANGLES);
+                  GL11.glBegin(GL11.GL_TRIANGLES);
                   {
                     GL11.glVertex2d(0, 0);
                     GL11.glVertex2d(-size, -size);
                     GL11.glVertex2d(-size, size);
                   }
-                  GlStateManager.glEnd();
+                  GL11.glEnd();
 
                   GlStateManager.popMatrix();
                 }
               }
 
               if (dm.equals(Mode.BOTH) || dm.equals(Mode.LINES)) {
-                GlStateManager.glBegin(GL11.GL_LINES);
+                GL11.glBegin(GL11.GL_LINES);
                 {
                   GL11.glVertex2d(cx, cy);
                   GL11.glVertex2d(screenPos.getX(), screenPos.getY());
                 }
-                GlStateManager.glEnd();
+                GL11.glEnd();
               }
 
               GlStateManager.translatef(0, 0, -er.getDepth());

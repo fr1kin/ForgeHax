@@ -24,6 +24,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /** Created by Babbaj on 11/6/2017. */
 @RegisterMod
+// TODO: fix
 public class MapDownloader extends ToggleMod {
 
   private File outputDir;

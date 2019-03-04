@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.asm.events.temp.InputEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -11,9 +12,8 @@ import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.math.RayTraceFluidMode;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.input.Mouse;
+import org.lwjgl.glfw.GLFW;
 
 /** Created by Babbaj on 9/16/2017. */
 @RegisterMod
@@ -23,11 +23,12 @@ public class SignTextMod extends ToggleMod {
   }
 
   @SubscribeEvent
-  public void onInput(MouseEvent event) {
-    if (event.getButton() == 2 && Mouse.getEventButtonState()) { // on middle click
+  // TODO: mouse input hook
+  public void onInput(InputEvent.MouseInputEvent event) {
+    if (event.getButton() == 2 && event.getAction() == GLFW.GLFW_PRESS) { // on middle click
       RayTraceResult result = MC.player.rayTrace(999, 0, RayTraceFluidMode.NEVER);
       if (result == null) return;
-      if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
+      if (result.type == RayTraceResult.Type.BLOCK) {
         TileEntity tileEntity = MC.world.getTileEntity(result.getBlockPos());
 
         if (tileEntity instanceof TileEntitySign) {

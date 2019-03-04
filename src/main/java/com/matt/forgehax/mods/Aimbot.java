@@ -223,7 +223,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
 
   private Vec3d getAttackPosition(Entity entity) {
-    return EntityUtils.getInterpolatedPos(entity, 1).addVector(0, entity.getEyeHeight() / 2, 0);
+    return EntityUtils.getInterpolatedPos(entity, 1).add(0, entity.getEyeHeight() / 2, 0);
   }
 
   /** Check if the entity is a valid target to acquire */

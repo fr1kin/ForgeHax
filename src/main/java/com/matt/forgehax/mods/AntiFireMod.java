@@ -3,7 +3,6 @@ package com.matt.forgehax.mods;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.asm.events.AddCollisionBoxToListEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -29,6 +28,8 @@ public class AntiFireMod extends ToggleMod {
           .defaultTo(false)
           .build();
 
+  // TODO: fix
+  /*
   @SubscribeEvent
   public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
     if (!collisions.get()) return;
@@ -39,7 +40,7 @@ public class AntiFireMod extends ToggleMod {
         event.getCollidingBoxes().add(bb);
       }
     }
-  }
+  }*/
 
   private boolean isAbovePlayer(BlockPos pos) {
     return pos.getY() >= getLocalPlayer().posY;

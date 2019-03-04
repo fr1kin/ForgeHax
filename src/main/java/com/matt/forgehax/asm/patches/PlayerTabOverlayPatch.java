@@ -1,59 +1,51 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
-import com.matt.forgehax.asm.TypesHook.Methods;
 import com.matt.forgehax.asm.events.RenderTabNameEvent;
+import com.matt.forgehax.asm.transformer.RegisterTransformer;
+import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.AsmPattern;
 import com.matt.forgehax.asm.utils.InsnPattern;
-import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
-import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
-import com.matt.forgehax.asm.utils.transforming.Inject;
-import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
-import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
+import java.util.Set;
+
+import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-/** Created by Babbaj on 8/9/2017. thanks 086 :3 */
-public class PlayerTabOverlayPatch extends ClassTransformer {
-  public PlayerTabOverlayPatch() {
-    super(Classes.GuiPlayerTabOverlay);
-  }
+import javax.annotation.Nonnull;
 
-  @RegisterMethodTransformer
-  private class RenderPlayerlist_renderIcon extends MethodTransformer {
+/** Created by Babbaj on 8/9/2017. thanks 086 :3 */
+public class PlayerTabOverlayPatch  {
+
+  @RegisterTransformer
+  public static class RenderPlayerlist_renderIcon implements Transformer<MethodNode> {
+    @Nonnull
     @Override
-    public ASMMethod getMethod() {
-      return Methods.PlayerTabOverlay_renderPlayerList;
+    public Set<Target> targets() {
+      return ASMHelper.getTargetSet(Methods.PlayerTabOverlay_renderPlayerList);
     }
 
-    @Inject(description = "Add hook to increase the size of the tab list")
-    public void inject(MethodNode main) {
-      AbstractInsnNode subListNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {
-                ALOAD,
-                ICONST_0,
-                ALOAD,
-                INVOKEINTERFACE,
-                BIPUSH,
-                INVOKESTATIC,
-                INVOKEINTERFACE,
-                ASTORE
-              },
-              "xxxxxxxx");
+    @Nonnull
+    @Override
+    public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
+      InsnPattern node = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
+          .opcodes(
+              ALOAD,
+              ICONST_0,
+              ALOAD,
+              INVOKEINTERFACE,
+              BIPUSH,
+              INVOKESTATIC,
+              INVOKEINTERFACE,
+              ASTORE
+          )
+          .build().test(main);
 
-      AbstractInsnNode astoreNode = subListNode;
-      for (int i = 0; i < 7; i++) {
-        astoreNode = astoreNode.getNext();
-      }
+      Objects.requireNonNull(node, "Find pattern failed for node");
 
-      Objects.requireNonNull(subListNode, "Find pattern failed for subList");
-      Objects.requireNonNull(astoreNode, "Find pattern failed for subListPost");
+      Objects.requireNonNull(node, "Find pattern failed for subListPost");
 
       LabelNode jump = new LabelNode();
 
@@ -61,20 +53,23 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
       insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_doIncreaseTabListSize));
       insnList.add(new JumpInsnNode(IFNE, jump));
 
-      main.instructions.insertBefore(subListNode, insnList);
-      main.instructions.insert(astoreNode, jump);
+      main.instructions.insertBefore(node.getFirst(), insnList);
+      main.instructions.insert(node.getLast(), jump);
+      return main;
     }
   }
 
-  @RegisterMethodTransformer
-  private class RenderPlayerlist_renderName extends MethodTransformer {
+  @RegisterTransformer
+  public static class RenderPlayerList_renderName implements Transformer<MethodNode> {
+    @Nonnull
     @Override
-    public ASMMethod getMethod() {
-      return Methods.PlayerTabOverlay_renderPlayerList;
+    public Set<Target> targets() {
+      return ASMHelper.getTargetSet(Methods.PlayerTabOverlay_renderPlayerList);
     }
 
-    @Inject(description = "Add hook to change color of names in player list")
-    public void inject(MethodNode main) { // TODO: do this better
+    @Nonnull
+    @Override
+    public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
       final LabelNode eventVarStart =
           (LabelNode)
               new AsmPattern.Builder(AsmPattern.IGNORE_FRAMES | AsmPattern.IGNORE_LINENUMBERS)
@@ -129,6 +124,7 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
 
       replaceConstant(main, renderSpectator.getIndex(4), eventVar);
       replaceConstant(main, renderNormal.getIndex(4), eventVar);
+      return main;
     }
 
     // replace constant for color with event.getColor()
@@ -173,4 +169,6 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
       method.instructions.insert(location, list);
     }
   }
+
+
 }

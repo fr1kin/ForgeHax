@@ -51,7 +51,10 @@ public class ForgehaxTransformationService implements ITransformationService {
             MinecraftPatch.class,
             KeyboardListenerPatch.class,
             BlockPatch.class,
-            KeyBindingPatch.class
+            KeyBindingPatch.class,
+            BoatPatch.class,
+            RenderBoatPatch.class,
+            PlayerTabOverlayPatch.class
         );
     }
 
