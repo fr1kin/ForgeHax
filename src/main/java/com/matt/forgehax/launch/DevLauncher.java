@@ -29,7 +29,7 @@ public class DevLauncher {
     private static Logger LOGGER = LogManager.getLogger("ForgehaxLaunch");
 
 
-    public static void main(String... args) throws InterruptedException
+    public static void main(String[] args) throws InterruptedException
     {
         final String markerselection = System.getProperty("forge.logging.markers", "");
         Arrays.stream(markerselection.split(",")).forEach(marker-> {
@@ -48,7 +48,7 @@ public class DevLauncher {
             throw new IllegalArgumentException("Environment variable 'assetDirectory' must be set to a valid path.");
         }
         final Map<String, String> argMap = new LinkedHashMap<>(); // nicer to have args in the same order they're given
-        argMap.put("--assetsDir", assets);
+        argMap.put("assetsDir", assets);
         setDefaultArguments(argMap);
 
         final OptionParser optionparser = new OptionParser();
