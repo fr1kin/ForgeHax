@@ -62,7 +62,10 @@ public class DevLauncher {
 
         Map<String, String> inputArgMap = optionSet.asMap().entrySet().stream()
             .filter(entry -> entry.getKey() != usernameSpec && entry.getKey() != passwordSpec)
-            .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey().options().get(0), entry.getValue().get(0).toString())) // lol
+            .map(entry -> {
+                List<?> values = entry.getValue();
+                return new AbstractMap.SimpleEntry<>(entry.getKey().options().get(0), values.size() > 0 ? values.get(0).toString() : null); // lol
+            })
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         argMap.putAll(inputArgMap); // add our args to the argMap
@@ -75,7 +78,11 @@ public class DevLauncher {
 
     private static String[] getArgsFromMap(Map<String, String> argMap) {
         return argMap.entrySet().stream()
-            .flatMap(entry -> Stream.of("--" + entry.getKey(), entry.getValue()))
+            .flatMap(entry ->
+                entry.getValue() != null ?
+                    Stream.of("--" + entry.getKey(), entry.getValue()) :
+                    Stream.of("--" + entry.getKey())
+            )
             .toArray(String[]::new);
     }
 
