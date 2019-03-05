@@ -1,13 +1,16 @@
 package com.matt.forgehax.util.math;
 
 import com.matt.forgehax.Globals;
+import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.asm.reflection.FastReflectionSpecial;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector4f;
+import java.nio.FloatBuffer;
 //import org.lwjgl.util.vector.Matrix4f;
 //import org.lwjgl.util.vector.Vector4f;
 
@@ -43,9 +46,9 @@ public class VectorUtils implements Globals {
 
     Vector4f pos = new Vector4f(vecX, vecY, vecZ, 1.f);
 
-    modelMatrix.set(FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().array());
+    modelMatrix.set(bufferToArray(FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic()));
 
-    projectionMatrix.set(FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().array());
+    projectionMatrix.set(bufferToArray(ForgeHaxHooks.PROJECTION));
 
     VecTransformCoordinate(pos, modelMatrix);
     VecTransformCoordinate(pos, projectionMatrix);
@@ -71,6 +74,13 @@ public class VectorUtils implements Globals {
       bVisible = false;
 
     return new Plane(pos.x, pos.y, bVisible);
+  }
+
+  private static float[] bufferToArray(FloatBuffer buffer) {
+    float[] arr = new float[buffer.capacity()];
+    buffer.clear();
+    buffer.get(arr);
+    return arr;
   }
 
   public static Plane toScreen(Vec3d vec) {

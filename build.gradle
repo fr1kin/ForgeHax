@@ -61,14 +61,6 @@ minecraft {
             workingDirectory project.file('run').canonicalPath
             source sourceSets.main
         }
-        server = {
-            // recommended logging data for a userdev environment
-            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
-            // recommended logging level for the console
-            properties 'forge.logging.console.level': 'debug'
-            workingDirectory project.file('run').canonicalPath
-            source sourceSets.main
-        }
     }
 }
 
@@ -77,7 +69,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
 
-    minecraft 'net.minecraftforge:forge:1.13.2-25.0.10'
+    minecraft 'net.minecraftforge:forge:1.13.2-25.0.69'
 }
 
 

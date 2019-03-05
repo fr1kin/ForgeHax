@@ -49,24 +49,25 @@ public class CFont {
     tex = setupTexture(font, antiAlias, fractionalMetrics, this.charData);
   }
 
+  // TODO: optimize
   protected DynamicTexture setupTexture(
       Font font, boolean antiAlias, boolean fractionalMetrics, CharData[] chars) {
     BufferedImage img = generateFontImage(font, antiAlias, fractionalMetrics, chars);
 
     try {
-      // TODO: make sure this is correct
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       ImageIO.write(img, "PNG", outputStream);
       outputStream.flush();
-      ByteBuffer buffer = ByteBuffer.wrap(outputStream.toByteArray());
+      byte[] bytes = outputStream.toByteArray();
+      ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
+      buffer.put(bytes);
+      buffer.clear();
 
       NativeImage nativeImage = NativeImage.read(buffer);
       return new DynamicTexture(nativeImage);
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-
-    return null;
   }
 
   protected BufferedImage generateFontImage(

@@ -37,12 +37,11 @@ public class AutoTotemMod extends ToggleMod {
     if (!getOffhand().isEmpty()) return; // if there's an item in offhand slot
     if (MC.currentScreen != null) return; // if in inventory
 
-    findItem(Items.TOTEM_OF_UNDYING)
-        .ifPresent(
-            slot -> {
-              invPickup(slot);
-              invPickup(OFFHAND_SLOT);
-            });
+    findItem(Items.TOTEM_OF_UNDYING).ifPresent(
+        slot -> {
+          invPickup(slot);
+          invPickup(OFFHAND_SLOT);
+        });
   }
 
   private void invPickup(final int slot) {

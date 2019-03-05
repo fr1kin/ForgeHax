@@ -10,6 +10,9 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.Objects;
 
 /** Created on 11/28/2016 by fr1kin */
 @RegisterMod
@@ -18,7 +21,9 @@ public class AntiLevitationMod extends ToggleMod {
     super(Category.PLAYER, "AntiLevitation", false, "No levitation");
   }
 
-  private static final Potion LEVITATION = IRegistry.field_212631_t.get(new ResourceLocation("levitation"));
+  //private static final Potion LEVITATION = IRegistry.field_212631_t.get(new ResourceLocation("levitation"));
+  private static final Potion LEVITATION = Objects.requireNonNull(ForgeRegistries.POTIONS.getValue(new ResourceLocation("levitation")));
+
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {

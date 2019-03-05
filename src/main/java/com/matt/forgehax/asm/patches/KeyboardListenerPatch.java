@@ -25,7 +25,6 @@ public class KeyboardListenerPatch {
         @Nonnull
         @Override
         public MethodNode transform(MethodNode method, ITransformerVotingContext context) {
-            System.out.println("OnKeyEvent");
             InsnPattern branch = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
                 .opcodes(LLOAD, ALOAD, GETFIELD, GETFIELD, INVOKEVIRTUAL, LCMP, IFNE)
                 .build()
