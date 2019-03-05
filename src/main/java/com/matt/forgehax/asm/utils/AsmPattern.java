@@ -3,12 +3,10 @@ package com.matt.forgehax.asm.utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FrameNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+
+import com.matt.forgehax.asm.utils.asmtype.ASMField;
+import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
+import org.objectweb.asm.tree.*;
 
 public class AsmPattern {
 
@@ -81,6 +79,20 @@ public class AsmPattern {
       if ((flags & IGNORE_LABELS) != 0)
         throw new IllegalStateException("Attempting to find a label with flag IGNORE_LABELS");
       return add(insn -> insn instanceof LabelNode);
+    }
+
+    public Builder ASMType(int opcode, ASMField field) {
+      return this.custom(insn -> insn.getOpcode() == opcode &&
+              ((FieldInsnNode)insn).name.equals(field.getRuntimeName()) &&
+              ((FieldInsnNode)insn).desc.equals(field.getRuntimeDescriptor())
+        );
+    }
+
+    public Builder ASMType(int opcode, ASMMethod method) {
+      return this.custom(insn -> insn.getOpcode() == opcode &&
+            ((MethodInsnNode)insn).name.equals(method.getRuntimeName()) &&
+            ((MethodInsnNode)insn).desc.equals(method.getRuntimeDescriptor())
+        );
     }
 
     public <T extends AbstractInsnNode> Builder custom(Predicate<T> predicate) {

@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,17 +22,38 @@ import org.objectweb.asm.tree.*;
 
 public class ASMHelper {
 
+  public static Set<ITransformer.Target> getTargetSet(ASMClass... classes) {
+    return getTargetSet(ASMHelper::getTarget, classes);
+  }
+
   public static Set<ITransformer.Target> getTargetSet(ASMMethod... methods) {
-    return Stream.of(methods)
-            .map(ASMHelper::getTarget)
+    return getTargetSet(ASMHelper::getTarget, methods);
+  }
+
+  public static Set<ITransformer.Target> getTargetSet(ASMField... fields) {
+    return getTargetSet(ASMHelper::getTarget, fields);
+  }
+
+  public static <T> Set<ITransformer.Target> getTargetSet(Function<T, ITransformer.Target>  toTarget, T... members) {
+    return Stream.of(members)
+            .map(toTarget)
             .collect(Collectors.toSet());
   }
 
+  public static ITransformer.Target getTarget(ASMClass clazz) {
+    return ITransformer.Target.targetClass(clazz.getRuntimeInternalName());
+  }
   public static ITransformer.Target getTarget(ASMMethod method) {
     return ITransformer.Target.targetMethod(
-      method.getParentClass().getInternalName(), // TODO: parent class should be guaranteed to exist
+        method.getParentClass().getInternalName(), // TODO: parent class should be guaranteed to exist
         method.getRuntimeName(),
         method.getRuntimeDescriptor()
+    );
+  }
+  public static ITransformer.Target getTarget(ASMField field) {
+    return ITransformer.Target.targetField(
+        field.getParentClass().getInternalName(), // TODO: parent class should be guaranteed to exist
+        field.getRuntimeName()
     );
   }
 

@@ -76,15 +76,6 @@ public interface FastReflection extends ASMCommon {
             .setSrgName("field_178812_b")
             //.autoAssign()
             .build();
-
-    // TODO: this doesnt exist anymore
-    @Deprecated
-    FastField<FloatBuffer> ActiveRenderInfo_PROJECTION =
-        FastFieldBuilder.create()
-            .setInsideClass(ActiveRenderInfo.class)
-            .setName("PROJECTION")
-            //.autoAssign()
-            .build();
     FastField<Vec3d> ActiveRenderInfo_position =
         FastFieldBuilder.create()
             .setInsideClass(ActiveRenderInfo.class)

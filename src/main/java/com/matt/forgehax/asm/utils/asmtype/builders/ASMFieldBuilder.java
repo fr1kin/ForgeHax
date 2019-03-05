@@ -3,6 +3,7 @@ package com.matt.forgehax.asm.utils.asmtype.builders;
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.utils.asmtype.ASMClass;
 import com.matt.forgehax.asm.utils.asmtype.ASMField;
+import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import com.matt.forgehax.asm.utils.name.IName;
 import com.matt.forgehax.asm.utils.name.NameBuilder;
 import java.util.Objects;
@@ -83,7 +84,7 @@ public class ASMFieldBuilder implements ASMCommon {
   public ASMField build() {
     Objects.requireNonNull(name, "Missing field name");
     Objects.requireNonNull(type, "Missing field type");
-    if (auto) attemptAutoAssign();
+    if (auto && RuntimeState.isSrg()) attemptAutoAssign();
     return new ASMField(parentClass, NameBuilder.create(name, srgName), type);
   }
 }
