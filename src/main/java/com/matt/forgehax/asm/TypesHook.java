@@ -5,6 +5,8 @@ import com.matt.forgehax.asm.utils.asmtype.ASMClass;
 import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.asmtype.builders.ASMBuilders;
+
+import java.nio.FloatBuffer;
 import java.util.List;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -446,6 +448,13 @@ public interface TypesHook {
             .add(int.class)
             .add(int.class)
             .finish()
+            .build();
+
+    ASMMethod ForgeHaxHooks_setProjection =
+        Classes.ForgeHaxHooks.childMethod()
+            .setName("setProjection")
+            .setReturnType(void.class)
+            .emptyParameters()
             .build();
   }
 }

@@ -1,21 +1,14 @@
 package com.matt.forgehax.asm;
 
 import com.matt.forgehax.asm.patches.*;
-import com.matt.forgehax.asm.transformer.MethodTransformerWrapper;
 import com.matt.forgehax.asm.transformer.RegisterTransformer;
 import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import com.matt.forgehax.asm.utils.environment.State;
-import cpw.mods.modlauncher.ClassTransformer;
 import cpw.mods.modlauncher.Environment;
 import cpw.mods.modlauncher.api.*;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.Logger;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,7 +47,11 @@ public class ForgehaxTransformationService implements ITransformationService {
             KeyBindingPatch.class,
             BoatPatch.class,
             RenderBoatPatch.class,
-            PlayerTabOverlayPatch.class
+            PlayerTabOverlayPatch.class,
+            WorldRendererPatch.class,
+            VisGraphPatch.class,
+            BufferBuilderPatch.class,
+            ActiveRenderInfoPatch.class
         );
     }
 

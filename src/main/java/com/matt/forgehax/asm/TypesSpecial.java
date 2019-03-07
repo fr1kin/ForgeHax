@@ -1,8 +1,10 @@
 package com.matt.forgehax.asm;
 
 import com.matt.forgehax.asm.utils.asmtype.ASMClass;
+import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.asmtype.builders.ASMBuilders;
+
 
 /** Created on 5/29/2017 by fr1kin */
 public interface TypesSpecial {
@@ -13,7 +15,7 @@ public interface TypesSpecial {
             .build();
   }
 
-  interface Fields {}
+  interface Fields { }
 
   interface Methods {
     ASMMethod SchematicPrinter_placeBlock =

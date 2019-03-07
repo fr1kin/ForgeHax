@@ -251,6 +251,26 @@ public interface TypesMc {
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/world/IBlockReader")
             .build();
+
+    ASMClass RenderHelper =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/client/renderer/RenderHelper")
+            .build();
+
+    ASMClass ActiveRenderInfo =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/client/renderer/ActiveRenderInfo")
+            .build();
+
+    ASMClass GLAllocation =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/client/renderer/GLAllocation")
+            .build();
+
+    ASMClass RayTraceResult =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/util/math/RayTraceResult")
+            .build();
   }
 
   interface Fields {
@@ -267,6 +287,13 @@ public interface TypesMc {
             .setSrgName("field_174995_M")
             .setType(Classes.ChunkRenderDispatcher)
             //.autoAssign()
+            .build();
+
+    ASMField Minecraft_renderChunksMany =
+        Classes.Minecraft.childField()
+            .setName("renderChunksMany")
+            .setSrgName("field_175612_E")
+            .setType(boolean.class)
             .build();
   }
 
@@ -558,15 +585,26 @@ public interface TypesMc {
             .finish()
             //.autoAssign()
             .build();
-    ASMMethod WorldRenderer_drawBoundingBox =
+    ASMMethod WorldRenderer_drawSelectionBox =
         Classes.WorldRenderer.childMethod()
-            .setName("drawBoundingBox")
-            .setSrgName("func_189694_a")
+            .setName("drawSelectionBox")
+            .setSrgName("func_72731_b")
             .setReturnType(void.class)
             .beginParameters()
-            .add(double.class)
-            .add(double.class)
-            .add(double.class)
+            .add(Classes.EntityPlayer)
+            .add(Classes.RayTraceResult)
+            .add(int.class)
+            .add(float.class)
+            .finish()
+            //.autoAssign()
+            .build();
+    ASMMethod WorldRenderer_drawShape =
+        Classes.WorldRenderer.childMethod()
+            .setName("drawShape")
+            .setSrgName("func_195463_b")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(Classes.VoxelShape)
             .add(double.class)
             .add(double.class)
             .add(double.class)
@@ -754,6 +792,28 @@ public interface TypesMc {
             .add(Classes.IBlockState)
             .add(Classes.IBlockReader)
             .add(Classes.BlockPos)
+            .finish()
+            //.autoAssign()
+            .build();
+
+    ASMMethod RenderHelper_disableStandardItemLighting =
+        Classes.RenderHelper.childMethod()
+            .setName("disableStandardItemLighting")
+            .setSrgName("func_74518_a")
+            .setReturnType(void.class)
+            .emptyParameters()
+            //.autoAssign()
+            .build();
+
+    ASMMethod ActiveRenderInfo_updateRenderInfo =
+        Classes.ActiveRenderInfo.childMethod()
+            .setName("updateRenderInfo")
+            .setSrgName("updateRenderInfo")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(Classes.Entity)
+            .add(boolean.class)
+            .add(float.class)
             .finish()
             //.autoAssign()
             .build();

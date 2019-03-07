@@ -11,6 +11,7 @@ import com.matt.forgehax.asm.events.temp.InputEvent;
 import com.matt.forgehax.asm.utils.MultiBoolean;
 import com.matt.forgehax.asm.utils.debug.HookReporter;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GLAllocation;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.*;
 import net.minecraft.entity.Entity;
@@ -40,6 +43,7 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
+import org.lwjgl.opengl.GL11;
 
 public class ForgeHaxHooks implements ASMCommon {
   private static final List<HookReporter> ALL_REPORTERS = Lists.newArrayList();
@@ -53,6 +57,8 @@ public class ForgeHaxHooks implements ASMCommon {
         .parentClass(ForgeHaxHooks.class)
         .finalizeBy(ALL_REPORTERS::add);
   }
+
+  public static final FloatBuffer PROJECTION = GLAllocation.createDirectFloatBuffer(16);
 
   /** static fields */
   public static boolean isSafeWalkActivated = false;
@@ -83,6 +89,10 @@ public class ForgeHaxHooks implements ASMCommon {
     MinecraftForge.EVENT_BUS.post(new InputEvent.KeyInputEvent(key, scanCode, action, modifiers));
   }
 
+  public static void setProjection() {
+    PROJECTION.clear();
+    GlStateManager.getFloatv(GL11.GL_PROJECTION_MATRIX, PROJECTION);
+  }
 
   /** onDrawBoundingBox */
   public static void onDrawBoundingBoxPost() {

@@ -1,13 +1,14 @@
 package com.matt.forgehax.asm.patches;
 
 import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.events.DrawBlockBoundingBoxEvent;
 import com.matt.forgehax.asm.transformer.RegisterTransformer;
 import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.AsmPattern;
 import com.matt.forgehax.asm.utils.InsnPattern;
-import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import javax.annotation.Nonnull;
@@ -101,5 +102,63 @@ public class WorldRendererPatch {
 
             return main;
         }
+    }
+
+    @RegisterTransformer
+    public static class DrawBoundingBox implements Transformer<MethodNode> {
+        @Nonnull
+        @Override
+        public Set<Target> targets() {
+            return ASMHelper.getTargetSet(Methods.WorldRenderer_drawSelectionBox);
+        }
+
+        @Nonnull
+        @Override
+        public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
+            InsnPattern node = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
+                .opcodes(FCONST_0, FCONST_0, FCONST_0) // rgb
+                .opcode(LDC) // alpha
+                .ASMType(INVOKESTATIC, Methods.WorldRenderer_drawShape)
+                .build()
+                .test(main);
+            Objects.requireNonNull(node, "Failed to find drawShape");
+            final MethodInsnNode invokeInsn = node.getLast();
+
+            final int eventIndex = ASMHelper.addNewLocalVariable(main, "forgehax_event", Type.getDescriptor(DrawBlockBoundingBoxEvent.Pre.class));
+
+            {
+                InsnList alloc = new InsnList();
+                alloc.add(new TypeInsnNode(NEW, Type.getInternalName(DrawBlockBoundingBoxEvent.Pre.class)));
+                alloc.add(new InsnNode(DUP));
+                main.instructions.insertBefore(node.getFirst(), alloc); // event object allocated above color args
+            }
+
+
+            final InsnList pre = new InsnList();
+            pre.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(DrawBlockBoundingBoxEvent.Pre.class), "<init>", "(FFFF)V"));
+            pre.add(new VarInsnNode(ASTORE, eventIndex)); // colors have been yoinked
+            pre.add(new VarInsnNode(ALOAD, eventIndex));
+            pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_fireEvent_v));
+            pre.add(getColor("red", eventIndex));
+            pre.add(getColor("green", eventIndex));
+            pre.add(getColor("blue", eventIndex));
+            pre.add(getColor("alpha", eventIndex));
+
+            final InsnList post = new InsnList();
+            post.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onDrawBoundingBox_Post));
+
+            main.instructions.insertBefore(invokeInsn, pre);
+            main.instructions.insert(invokeInsn, post);
+
+            return main;
+        }
+
+        private InsnList getColor(String colorField, int eventIndex) {
+            InsnList out = new InsnList();
+            out.add(new VarInsnNode(ALOAD, eventIndex));
+            out.add(new FieldInsnNode(GETFIELD, Type.getInternalName(DrawBlockBoundingBoxEvent.Pre.class), colorField, "F"));
+            return out;
+        }
+
     }
 }
