@@ -7,7 +7,6 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Objects;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.DimensionManager;
 
@@ -21,9 +20,13 @@ public class DimensionProperty implements IBlockProperty {
     return type != null && dimensions.add(type);
   }
 
+  private static DimensionType getTypeFromId(int id) {
+    return DimensionManager.getRegistry().get(id);
+  }
+
   public boolean add(int id) {
     try {
-      return add(DimensionManager.getProviderType(id));
+      return add(getTypeFromId(id));
     } catch (Exception e) {; // will throw exception if id does not exist
       return false;
     }
@@ -35,7 +38,7 @@ public class DimensionProperty implements IBlockProperty {
 
   public boolean remove(int id) {
     try {
-      return remove(DimensionManager.getProviderType(id));
+      return remove(getTypeFromId(id));
     } catch (Exception e) {
       return false; // will throw exception if id does not exist
     }
@@ -45,7 +48,7 @@ public class DimensionProperty implements IBlockProperty {
     if (dimensions.isEmpty()) return true; // true if none other
     else
       try {
-        return dimensions.contains(DimensionManager.getProviderType(id));
+        return dimensions.contains(getTypeFromId(id));
       } catch (Exception e) {
         return false;
       }
@@ -55,7 +58,7 @@ public class DimensionProperty implements IBlockProperty {
   public void serialize(JsonWriter writer) throws IOException {
     writer.beginArray();
     for (DimensionType dimension : dimensions) {
-      writer.value(dimension.getName());
+      writer.value(dimension.getRegistryName().toString());
     }
     writer.endArray();
   }
@@ -65,11 +68,13 @@ public class DimensionProperty implements IBlockProperty {
     reader.beginArray();
     while (reader.hasNext() && reader.peek().equals(JsonToken.STRING)) {
       String dim = reader.nextString();
-      for (DimensionType type : DimensionType.values())
-        if (Objects.equals(type.getName(), dim)) {
+      for(Object o : DimensionManager.getRegistry()) {
+        DimensionType type = (DimensionType)o;
+        if(dim.equals(type.getRegistryName().toString())) {
           add(type);
           break;
         }
+      }
     }
   }
 
@@ -83,7 +88,7 @@ public class DimensionProperty implements IBlockProperty {
     final StringBuilder builder = new StringBuilder("{");
     Iterator<DimensionType> it = dimensions.iterator();
     while (it.hasNext()) {
-      String name = it.next().getName();
+      String name = it.next().getRegistryName().toString();
       builder.append(name);
       if (it.hasNext()) builder.append(", ");
     }
