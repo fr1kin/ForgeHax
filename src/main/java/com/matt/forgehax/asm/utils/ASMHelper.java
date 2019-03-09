@@ -78,7 +78,7 @@ public class ASMHelper {
         (first, last) -> first);
   }
 
-  // TODO: This REALLY needs to be rewritten
+  // TODO: This really needs to be rewritten
   public static <T> T findPattern(
       final AbstractInsnNode start,
       final int patternSize,
@@ -113,7 +113,9 @@ public class ASMHelper {
           final AbstractInsnNode end = next;
           // Go back to top node
           for (int i = 1; i <= (found - 1); i++) {
-            next = next.getPrevious();
+            do {
+                next = next.getPrevious();
+            } while (!isValidNode.test(next));
           }
           return outputFunction.apply(next, end);
         }
