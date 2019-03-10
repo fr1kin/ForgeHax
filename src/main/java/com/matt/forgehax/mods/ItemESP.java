@@ -71,8 +71,7 @@ public class ItemESP extends ToggleMod {
               GlStateManager.translated(top.getX() - (offX / 2.D), bot.getY(), 0);
 
               ItemStack stack = entity.getItem();
-              String text =
-                  stack.getDisplayName() + (stack.isStackable() ? (" x" + stack.getCount()) : "");
+              String text = stack.getDisplayName().getFormattedText() + (stack.isStackable() ? (" x" + stack.getCount()) : "");
 
               SurfaceHelper.drawTextShadow(
                   text,

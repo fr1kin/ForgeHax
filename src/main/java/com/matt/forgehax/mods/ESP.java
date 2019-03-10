@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -119,8 +120,7 @@ public class ESP extends ToggleMod implements Fonts {
               if (setting == null || DrawOptions.DISABLED.equals(setting.get())) return;
 
               Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
-              Vec3d topPos =
-                  bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.posY, 0.D);
+              Vec3d topPos = bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.posY, 0.D);
 
               Plane top = VectorUtils.toScreen(topPos);
               Plane bot = VectorUtils.toScreen(bottomPos);
@@ -201,7 +201,7 @@ public class ESP extends ToggleMod implements Fonts {
           double botY,
           double width,
           double height) {
-        String text = living.getDisplayName().getUnformattedComponentText();
+        String text =  living instanceof EntityPlayer ? ((EntityPlayer)living).getGameProfile().getName() : living.getDisplayName().getUnformattedComponentText();
 
         double x = topX - ((double) builder.getFontWidth(text) / 2.D);
         double y = topY - (double) builder.getFontHeight() - 1.D;
@@ -277,8 +277,7 @@ public class ESP extends ToggleMod implements Fonts {
 
       @Override
       public boolean valid(Setting<DrawOptions> setting) {
-        return DrawOptions.SIMPLE.compareTo(setting.get())
-            <= 0; // SIMPLE less than or equal to SETTING
+        return DrawOptions.SIMPLE.compareTo(setting.get()) <= 0; // SIMPLE less than or equal to SETTING
       }
     },
     ITEMS {

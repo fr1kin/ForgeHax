@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+import com.matt.forgehax.util.ImageUtils;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import org.lwjgl.opengl.GL11;
@@ -55,15 +56,7 @@ public class CFont {
     BufferedImage img = generateFontImage(font, antiAlias, fractionalMetrics, chars);
 
     try {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      ImageIO.write(img, "PNG", outputStream);
-      outputStream.flush();
-      byte[] bytes = outputStream.toByteArray();
-      ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
-      buffer.put(bytes);
-      buffer.clear();
-
-      NativeImage nativeImage = NativeImage.read(buffer);
+      NativeImage nativeImage = ImageUtils.toNativeImage(img);
       return new DynamicTexture(nativeImage);
     } catch (Exception e) {
       throw new RuntimeException(e);

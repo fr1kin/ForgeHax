@@ -9,8 +9,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.network.EnumConnectionState;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockReader;
 
+import java.nio.FloatBuffer;
 import java.util.List;
 
 /** Created on 5/27/2017 by fr1kin */
@@ -394,18 +396,34 @@ public interface TypesMc {
             .emptyParameters()
             //.autoAssign()
             .build();
+    ASMMethod Entity_isBeingRidden =
+        Classes.Entity.childMethod()
+            .setName("isBeingRidden")
+            .setSrgName("func_184207_aI")
+            .setReturnType(boolean.class)
+            .emptyParameters()
+            //.autoAssign()
+            .build();
+    ASMMethod Entity_isPassenger =
+        Classes.Entity.childMethod()
+            .setName("isPassenger")
+            .setSrgName("func_184218_aH")
+            .setReturnType(boolean.class)
+            .emptyParameters()
+            //.autoAssign()
+            .build();
 
-    ASMMethod EntityPlayerSP_onLivingUpdate =
+    ASMMethod EntityPlayerSP_livingTick =
         Classes.EntityPlayerSP.childMethod()
-            .setName("onLivingUpdate")
+            .setName("livingTick")
             .setSrgName("func_70636_d")
             .setReturnType(void.class)
             .emptyParameters()
             //.autoAssign()
             .build();
-    ASMMethod EntityPlayerSP_onUpdate =
+    ASMMethod EntityPlayerSP_tick =
         Classes.EntityPlayerSP.childMethod()
-            .setName("onUpdate")
+            .setName("tick")
             .setSrgName("func_70071_h_")
             .setReturnType(void.class)
             .emptyParameters()
@@ -435,6 +453,14 @@ public interface TypesMc {
         Classes.EntityPlayerSP.childMethod()
             .setName("isRowingBoat")
             .setSrgName("func_184838_M")
+            .setReturnType(boolean.class)
+            .emptyParameters()
+            //.autoAssign()
+            .build();
+    ASMMethod EntityPlayerSP_isHandActive =
+        Classes.EntityPlayerSP.childMethod()
+            .setName("isHandActive")
+            .setSrgName("func_184587_cr")
             .setReturnType(boolean.class)
             .emptyParameters()
             //.autoAssign()

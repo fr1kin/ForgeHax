@@ -1,158 +1,142 @@
 package com.matt.forgehax.asm.patches;
 
-import static com.matt.forgehax.asm.utils.AsmPattern.CODE_ONLY;
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.transformer.RegisterTransformer;
+import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.AsmPattern;
-import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
-import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
-import com.matt.forgehax.asm.utils.transforming.Inject;
-import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
-import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
-import java.util.Objects;
+import com.matt.forgehax.asm.utils.InsnPattern;
+import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import org.objectweb.asm.tree.*;
 
-/** Created on 11/13/2016 by fr1kin */
-public class EntityPlayerSPPatch extends ClassTransformer {
-  public EntityPlayerSPPatch() {
-    super(Classes.EntityPlayerSP);
-  }
+import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.Set;
 
-  @RegisterMethodTransformer
-  private class ApplyLivingUpdate extends MethodTransformer {
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.EntityPlayerSP_onLivingUpdate;
+import static com.matt.forgehax.asm.utils.ASMHelper.MagicOpcodes.*;
+
+public class EntityPlayerSPPatch {
+
+    @RegisterTransformer
+    public static class ApplyLivingUpdate implements Transformer<MethodNode> {
+        @Nonnull
+        @Override
+        public Set<Target> targets() {
+            return ASMHelper.getTargetSet(Methods.EntityPlayerSP_livingTick);
+        }
+
+        @Nonnull
+        @Override
+        public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
+            InsnPattern node = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
+                .opcodes(ALOAD)
+                .ASMType(INVOKEVIRTUAL, Methods.EntityPlayerSP_isHandActive) // if (this.isHandActive()
+                .opcodes(IFEQ)
+                .opcodes(ALOAD, INVOKEVIRTUAL, IFNE) // && !this.isPassenger()
+                .build().test(main);
+
+            final LabelNode jumpTo = node.<JumpInsnNode>getIndex(2).label;
+
+            InsnList insnList = new InsnList();
+            insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoSlowDownActivated));
+            insnList.add(new JumpInsnNode(IFNE, jumpTo));
+
+            main.instructions.insertBefore(node.getFirst(), insnList);
+
+            return main;
+        }
     }
 
-    @Inject(description = "Add hook to disable the use slowdown effect")
-    public void inject(MethodNode main) {
-      AbstractInsnNode applySlowdownSpeedNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {IFNE, 0x00, 0x00, ALOAD, GETFIELD, DUP, GETFIELD, LDC, FMUL, PUTFIELD},
-              "x??xxxxxxx");
+    @RegisterTransformer
+    public static class Tick implements Transformer<MethodNode> {
+        @Nonnull
+        @Override
+        public Set<Target> targets() {
+            return ASMHelper.getTargetSet(Methods.EntityPlayerSP_tick);
+        }
 
-      Objects.requireNonNull(
-          applySlowdownSpeedNode, "Find pattern failed for applySlowdownSpeedNode");
+        @Nonnull
+        @Override
+        public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
+            InsnPattern isPassengerNode = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
+                .opcode(ALOAD)
+                .ASMType(INVOKEVIRTUAL, Methods.Entity_isPassenger)
+                .opcode(IFEQ)
+                .build().test(main);
 
-      // get label it jumps to
-      LabelNode jumpTo = ((JumpInsnNode) applySlowdownSpeedNode).label;
+            InsnPattern onUpdateWalkingPlayerNode = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
+                .ASMType(INVOKESPECIAL, Methods.EntityPlayerSP_onUpdateWalkingPlayer)
+                .build().test(main);
 
-      InsnList insnList = new InsnList();
-      insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoSlowDownActivated));
-      insnList.add(new JumpInsnNode(IFNE, jumpTo));
+            LabelNode jump = isPassengerNode.<JumpInsnNode>getIndex(2).label;
 
-      main.instructions.insert(applySlowdownSpeedNode, insnList);
-    }
-  }
+            LabelNode eventJump = ((JumpInsnNode)jump.getPrevious()).label;
 
-  @RegisterMethodTransformer
-  private class OnUpdate extends MethodTransformer {
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.EntityPlayerSP_onUpdate;
-    }
+            InsnList eventPreList = new InsnList();
+            eventPreList.add(new VarInsnNode(ALOAD, 0)); // this
+            eventPreList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPre));
+            eventPreList.add(new JumpInsnNode(IFNE, eventJump));
 
-    @Inject(description = "Add hooks at top and bottom of method")
-    public void inject(MethodNode main) {
-      // AbstractInsnNode top =
-      //    ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, ALOAD, INVOKEVIRTUAL, IFEQ);
-      AbstractInsnNode top =
-          new AsmPattern.Builder(CODE_ONLY)
-              .opcodes(INVOKESPECIAL, ALOAD, INVOKEVIRTUAL, IFEQ)
-              .build()
-              .test(main)
-              .getFirst();
+            InsnList postRiding = new InsnList();
+            postRiding.add(new VarInsnNode(ALOAD, 0));
+            postRiding.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
 
-      AbstractInsnNode afterRiding = ASMHelper.findPattern(main, GOTO);
-      AbstractInsnNode afterWalking =
-          ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, NONE, RETURN);
-      AbstractInsnNode ret = ASMHelper.findPattern(main, RETURN);
+            InsnList postWalking = new InsnList();
+            postWalking.add(new VarInsnNode(ALOAD, 0));
+            postWalking.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
 
-      Objects.requireNonNull(top, "Find pattern failed for top node");
-      Objects.requireNonNull(afterRiding, "Find pattern failed for afterRiding node");
-      Objects.requireNonNull(afterWalking, "Find pattern failed for afterWalking node");
+            main.instructions.insertBefore(isPassengerNode.getFirst(), eventPreList);
+            main.instructions.insertBefore(jump.getPrevious(), postRiding);
+            main.instructions.insert(onUpdateWalkingPlayerNode.getLast(), postWalking);
 
-      LabelNode jmp = new LabelNode();
-
-      InsnList pre = new InsnList();
-      pre.add(new VarInsnNode(ALOAD, 0));
-      pre.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPre));
-      pre.add(new JumpInsnNode(IFNE, jmp));
-
-      InsnList postRiding = new InsnList();
-      postRiding.add(new VarInsnNode(ALOAD, 0));
-      postRiding.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
-
-      InsnList postWalking = new InsnList();
-      postWalking.add(new VarInsnNode(ALOAD, 0));
-      postWalking.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
-
-      main.instructions.insert(top, pre);
-      main.instructions.insertBefore(afterRiding, postRiding);
-      main.instructions.insert(afterWalking, postWalking);
-      main.instructions.insertBefore(ret, jmp);
-    }
-  }
-
-  @RegisterMethodTransformer
-  private class pushOutOfBlocks extends MethodTransformer {
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.EntityPlayerSP_pushOutOfBlocks;
+            return main;
+        }
     }
 
-    @Inject(description = "Add hook to disable pushing out of blocks")
-    public void inject(MethodNode main) {
-      AbstractInsnNode preNode = main.instructions.getFirst();
-      AbstractInsnNode postNode =
-          ASMHelper.findPattern(main.instructions.getFirst(), new int[] {ICONST_0, IRETURN}, "xx");
+    @RegisterTransformer
+    public static class PushOutOfBlocks implements Transformer<MethodNode> {
+        @Nonnull
+        @Override
+        public Set<Target> targets() {
+            return ASMHelper.getTargetSet(Methods.EntityPlayerSP_pushOutOfBlocks);
+        }
 
-      Objects.requireNonNull(preNode, "Find pattern failed for pre node");
-      Objects.requireNonNull(postNode, "Find pattern failed for post node");
+        @Nonnull
+        @Override
+        public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
 
-      LabelNode endJump = new LabelNode();
+            LabelNode jump = new LabelNode();
 
-      InsnList insnPre = new InsnList();
-      insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPushOutOfBlocks));
-      insnPre.add(new JumpInsnNode(IFNE, endJump));
+            InsnList list = new InsnList();
+            list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPushOutOfBlocks));
+            list.add(new JumpInsnNode(IFEQ, jump));
+            list.add(new InsnNode(ICONST_0));
+            list.add(new InsnNode(IRETURN));
+            list.add(jump);
 
-      main.instructions.insertBefore(preNode, insnPre);
-      main.instructions.insertBefore(postNode, endJump);
+            main.instructions.insert(list);
+
+            return main;
+        }
     }
-  }
 
-  @RegisterMethodTransformer
-  private class RowingBoat extends MethodTransformer {
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.EntityPlayerSP_isRowingBoat;
+    @RegisterTransformer
+    public static class RowingBoat implements Transformer<MethodNode> {
+        @Nonnull
+        @Override
+        public Set<Target> targets() {
+            return ASMHelper.getTargetSet(Methods.EntityPlayerSP_isRowingBoat);
+        }
+
+        @Nonnull
+        @Override
+        public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
+            InsnList list = new InsnList();
+            list.add(new InsnNode(ICONST_0));
+            list.add(new InsnNode(IRETURN));
+
+            main.instructions.insert(list);
+            return main;
+        }
     }
-
-    @Inject(description = "Add hook to override returned value of isRowingBoat")
-    public void inject(MethodNode main) {
-      AbstractInsnNode preNode = main.instructions.getFirst();
-
-      Objects.requireNonNull(preNode, "Find pattern failed for pre node");
-
-      LabelNode jump = new LabelNode();
-
-      InsnList insnPre = new InsnList();
-      // insnPre.add(ASMHelper.call(GETSTATIC,
-      // TypesHook.Fields.ForgeHaxHooks_isNotRowingBoatActivated));
-      // insnPre.add(new JumpInsnNode(IFEQ, jump));
-
-      insnPre.add(new InsnNode(ICONST_0));
-      insnPre.add(new InsnNode(IRETURN)); // return false
-      // insnPre.add(jump);
-
-      main.instructions.insert(insnPre);
-    }
-  }
 }

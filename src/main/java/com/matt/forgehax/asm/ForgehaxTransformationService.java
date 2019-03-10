@@ -10,6 +10,7 @@ import cpw.mods.modlauncher.api.*;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,7 +25,7 @@ public class ForgehaxTransformationService implements ITransformationService {
     @Override
     public void initialize(IEnvironment environment) {
         final boolean isDev = environment.getProperty(Environment.Keys.VERSION.get())
-                .map(v -> v.equals("FMLDev"))
+                .map(v -> v.equals("FMLDev") || v.equals("MOD_DEV"))
                 .orElseThrow(() -> new IllegalStateException("Failed to get forge version??"));
         RuntimeState.initializeWithState(isDev ? State.NORMAL : State.SRG);
 
@@ -51,7 +52,9 @@ public class ForgehaxTransformationService implements ITransformationService {
             WorldRendererPatch.class,
             VisGraphPatch.class,
             BufferBuilderPatch.class,
-            ActiveRenderInfoPatch.class
+            ActiveRenderInfoPatch.class,
+            EntityPatch.class,
+            EntityPlayerSPPatch.class
         );
     }
 
