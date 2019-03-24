@@ -54,7 +54,9 @@ public class ForgehaxTransformationService implements ITransformationService {
             BufferBuilderPatch.class,
             ActiveRenderInfoPatch.class,
             EntityPatch.class,
-            EntityPlayerSPPatch.class
+            EntityPlayerSPPatch.class,
+            GameRendererPatch.class,
+            EntityLivingBasePatch.class
         );
     }
 

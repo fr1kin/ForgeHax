@@ -273,6 +273,11 @@ public interface TypesMc {
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/util/math/RayTraceResult")
             .build();
+
+    ASMClass IWorldReader =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/world/IWorldReader")
+            .build();
   }
 
   interface Fields {
@@ -840,6 +845,20 @@ public interface TypesMc {
             .add(Classes.Entity)
             .add(boolean.class)
             .add(float.class)
+            .finish()
+            //.autoAssign()
+            .build();
+
+    // unsure of this
+    ASMMethod IBlockState_getSlipperiness =
+        Classes.IBlockState.childMethod()
+            .setName("getSlipperiness")
+            .setSrgName("getSlipperiness")
+            .setReturnType(float.class)
+            .beginParameters()
+            .add(Classes.IWorldReader)
+            .add(Classes.BlockPos)
+            .add(Classes.Entity)
             .finish()
             //.autoAssign()
             .build();
