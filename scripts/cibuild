@@ -23,6 +23,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     if [ "${1:-}" = "--help" ]; then
         usage
     else    
+        mkdir -p .gradle
         GIT_COMMIT="${GIT_COMMIT}" docker-compose \
             -f docker-compose.ci.yml \
             run --rm \
