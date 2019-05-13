@@ -100,14 +100,14 @@ public class FreecamMod extends ToggleMod {
     getLocalPlayer().onGround = false;
     getLocalPlayer().fallDistance = 0;
 
-    if (!Bindings.forward.isPressed()
+    /*if (!Bindings.forward.isPressed()
         && !Bindings.back.isPressed()
         && !Bindings.left.isPressed()
         && !Bindings.right.isPressed()
         && !Bindings.jump.isPressed()
         && !Bindings.sneak.isPressed()) {
       getLocalPlayer().setVelocity(0, 0, 0);
-    }
+    }*/
   }
 
   @SubscribeEvent

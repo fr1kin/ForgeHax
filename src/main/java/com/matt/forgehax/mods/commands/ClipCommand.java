@@ -51,13 +51,14 @@ public class ClipCommand extends CommandMod {
               try {
                 switch (data.getArgumentCount()) {
                   case 1:
-                    teleport(Double.parseDouble(data.getArgumentAsString(0)));
+                    teleport(Double.parseDouble(data.getArgumentAsString(0).replace('~', '-')));
                     break;
                   case 3:
                     teleport(
-                        Double.parseDouble(data.getArgumentAsString(0)),
-                        Double.parseDouble(data.getArgumentAsString(1)),
-                        Double.parseDouble(data.getArgumentAsString(2)));
+                        Double.parseDouble(data.getArgumentAsString(0).replace('~', '-')),
+                        Double.parseDouble(data.getArgumentAsString(1).replace('~', '-')),
+                        Double.parseDouble(data.getArgumentAsString(2).replace('~', '-'))
+                    );
                     break;
                   default:
                     Helper.printMessage("Invalid number of arguments: expected 1 or 3");

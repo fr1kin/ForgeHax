@@ -55,7 +55,7 @@ public class AutoLog extends ToggleMod {
           || (noTotem.getAsBoolean()
               && !((MC.player.getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING)
                   || MC.player.getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING))) {
-        AutoReconnectMod.hasAutoLogged = true;
+        //AutoReconnectMod.hasAutoLogged = true;
         getNetworkManager()
             .closeChannel(new TextComponentString("Health too low (" + health + ")"));
         disable();
@@ -67,7 +67,7 @@ public class AutoLog extends ToggleMod {
   public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketSpawnPlayer) {
       if (disconnectOnNewPlayer.getAsBoolean()) {
-        AutoReconnectMod.hasAutoLogged = true; // dont automatically reconnect
+        //AutoReconnectMod.hasAutoLogged = true; // dont automatically reconnect
         UUID id = ((SPacketSpawnPlayer) event.getPacket()).getUniqueId();
 
         NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(id);

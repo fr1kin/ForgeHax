@@ -6,7 +6,7 @@ import static net.minecraft.init.Enchantments.EFFICIENCY;
 
 import com.matt.forgehax.asm.events.PlayerAttackEntityEvent;
 import com.matt.forgehax.asm.events.PlayerDamageBlockEvent;
-import com.matt.forgehax.util.BlockHelper;
+//import com.matt.forgehax.util.BlockHelper;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
@@ -18,9 +18,9 @@ import java.util.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.init.Enchantments;
@@ -131,7 +131,7 @@ public class AutoTool extends ToggleMod {
             .filter(EntityLivingBase.class::isInstance)
             .map(EntityLivingBase.class::cast)
             .map(EntityLivingBase::getCreatureAttribute)
-            .orElse(EnumCreatureAttribute.UNDEFINED));
+            .orElse(CreatureAttribute.UNDEFINED));
   }
 
   private double calculateDPS(InvItem item, Entity target) {
@@ -146,7 +146,8 @@ public class AutoTool extends ToggleMod {
   private InvItem getBestTool(BlockPos pos) {
     InvItem current = LocalPlayerInventory.getSelected();
 
-    if (!BlockHelper.isBlockPlaceable(pos) || getWorld().isAirBlock(pos)) return current;
+    // TODO: fxix
+    if (/*!BlockHelper.isBlockPlaceable(pos) ||*/ getWorld().isAirBlock(pos)) return current;
 
     final IBlockState state = getWorld().getBlockState(pos);
     return LocalPlayerInventory.getHotbarInventory()

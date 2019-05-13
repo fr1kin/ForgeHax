@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.asm.events.temp.InputEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -12,6 +11,7 @@ import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.math.RayTraceFluidMode;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 

@@ -438,18 +438,6 @@ public interface TypesHook {
             .emptyParameters()
             .build();
 
-    ASMMethod ForgeHaxHooks_onKeyEvent =
-        Classes.ForgeHaxHooks.childMethod()
-            .setName("onKeyEvent")
-            .setReturnType(void.class)
-            .beginParameters()
-            .add(int.class)
-            .add(int.class)
-            .add(int.class)
-            .add(int.class)
-            .finish()
-            .build();
-
     ASMMethod ForgeHaxHooks_setProjection =
         Classes.ForgeHaxHooks.childMethod()
             .setName("setProjection")

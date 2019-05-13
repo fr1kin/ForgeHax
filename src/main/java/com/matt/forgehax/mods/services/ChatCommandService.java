@@ -48,6 +48,7 @@ public class ChatCommandService extends ServiceMod {
         String line = message.substring(1);
         handleCommand(line);
         event.setCanceled(true);
+
       }
     }
   }

@@ -77,8 +77,7 @@ public class MainMenuGuiService extends ServiceMod {
     @Override
     public void render(int mouseX, int mouseY, float partialTicks) {
       this.drawDefaultBackground();
-      drawRect(
-          2, this.height - 16, this.width - 104, this.height - 4, Integer.MIN_VALUE); // input field
+      drawRect(2, this.height - 16, this.width - 104, this.height - 4, Integer.MIN_VALUE); // input field
       drawRect(2, 2, this.width - 2, this.height - 38, 70 << 24); // messageHistory box
       this.inputField.drawTextField(mouseX, mouseY, partialTicks);
       this.drawHistory();
@@ -94,12 +93,9 @@ public class MainMenuGuiService extends ServiceMod {
       AtomicDouble offset = new AtomicDouble();
       messageHistory.stream()
           .limit(100)
-          .forEach(
-              str -> {
-                MC.fontRenderer.drawString(
-                    str, 5, (this.height - 50 - offset.intValue()), Utils.Colors.WHITE);
-                offset.addAndGet(10);
-              });
+          .forEach(str -> {
+            MC.fontRenderer.drawString(str, 5, (this.height - 50 - offset.intValue()), Utils.Colors.WHITE);offset.addAndGet(10);
+          });
     }
 
     @Override

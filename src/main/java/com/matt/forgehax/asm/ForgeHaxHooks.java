@@ -7,7 +7,6 @@ import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.EntityBlockSlipApplyEvent.Stage;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
-import com.matt.forgehax.asm.events.temp.InputEvent;
 import com.matt.forgehax.asm.utils.MultiBoolean;
 import com.matt.forgehax.asm.utils.debug.HookReporter;
 import java.nio.ByteOrder;
@@ -41,6 +40,7 @@ import net.minecraft.util.math.Vec3d;
 //import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 import org.lwjgl.opengl.GL11;
@@ -81,12 +81,6 @@ public class ForgeHaxHooks implements ASMCommon {
 
   public static boolean fireEvent_b(Event event) {
     return MinecraftForge.EVENT_BUS.post(event);
-  }
-
-  // temporary until added to forge
-  public static void onKeyEvent(int key, int scanCode, int action, int modifiers) {
-    System.out.println(Keys.getKeyName(key).orElse("???"));
-    MinecraftForge.EVENT_BUS.post(new InputEvent.KeyInputEvent(key, scanCode, action, modifiers));
   }
 
   public static void setProjection() {

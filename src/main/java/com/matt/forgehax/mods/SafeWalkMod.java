@@ -3,7 +3,6 @@ package com.matt.forgehax.mods;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
 import com.matt.forgehax.asm.ForgeHaxHooks;
-import com.matt.forgehax.asm.events.AddCollisionBoxToListEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.Category;
@@ -37,7 +36,7 @@ public class SafeWalkMod extends ToggleMod {
           .defaultTo(15)
           .build();
 
-  @SubscribeEvent
+  /*@SubscribeEvent
   public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
     if (!collisions.get()) return;
 
@@ -54,7 +53,7 @@ public class SafeWalkMod extends ToggleMod {
         }
       }
     }
-  }
+  }*/
 
   private boolean isAbovePlayer(BlockPos pos) {
     return pos.getY() >= getLocalPlayer().posY;

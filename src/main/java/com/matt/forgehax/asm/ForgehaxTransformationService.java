@@ -5,10 +5,15 @@ import com.matt.forgehax.asm.transformer.RegisterTransformer;
 import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import com.matt.forgehax.asm.utils.environment.State;
+import cpw.mods.modlauncher.ClassTransformer;
 import cpw.mods.modlauncher.Environment;
 import cpw.mods.modlauncher.api.*;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.core.Logger;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -33,8 +38,14 @@ public class ForgehaxTransformationService implements ITransformationService {
     }
 
     @Override
-    public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
+    public void beginScanning(IEnvironment environment) { }
 
+
+    @Override
+    public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
+        if (otherServices.stream().anyMatch(str -> str.toLowerCase().contains("mixin"))) {
+            System.out.println("(((mixin))) detected");
+        }
     }
 
     @Nonnull
@@ -43,7 +54,6 @@ public class ForgehaxTransformationService implements ITransformationService {
         return getTransformersForClasses(
             NetManagerPatch.class,
             MinecraftPatch.class,
-            KeyboardListenerPatch.class,
             BlockPatch.class,
             KeyBindingPatch.class,
             BoatPatch.class,

@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.common.ForgeModContainer;
+//import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
@@ -42,8 +42,8 @@ public class XrayMod extends ToggleMod {
 
   @Override
   public void onEnabled() {
-    previousForgeLightPipelineEnabled = ForgeModContainer.forgeLightPipelineEnabled;
-    ForgeModContainer.forgeLightPipelineEnabled = false;
+    //previousForgeLightPipelineEnabled = ForgeModContainer.forgeLightPipelineEnabled;
+    //ForgeModContainer.forgeLightPipelineEnabled = false;
     ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (this.opacity.getAsFloat() / 255.f);
     ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
     reloadChunks();
@@ -52,7 +52,7 @@ public class XrayMod extends ToggleMod {
 
   @Override
   public void onDisabled() {
-    ForgeModContainer.forgeLightPipelineEnabled = previousForgeLightPipelineEnabled;
+    //ForgeModContainer.forgeLightPipelineEnabled = previousForgeLightPipelineEnabled;
     ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
     reloadChunks();
     ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("Xray");

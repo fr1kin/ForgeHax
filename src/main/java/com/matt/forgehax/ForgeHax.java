@@ -24,6 +24,7 @@ public class ForgeHax {
   }
 
   public ForgeHax() {
+    System.out.println("Launching ForgeHax");
     FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
     FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
   }

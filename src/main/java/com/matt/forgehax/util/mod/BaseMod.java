@@ -123,7 +123,9 @@ public abstract class BaseMod implements Globals {
   /** Unregister event on forge bus */
   public final boolean unregister() {
     if (registered) {
-      MinecraftForge.EVENT_BUS.unregister(this);
+      synchronized (MinecraftForge.EVENT_BUS) { // synchronized doesnt work
+        MinecraftForge.EVENT_BUS.unregister(this);
+      }
       registered = false;
       return true;
     } else return false;

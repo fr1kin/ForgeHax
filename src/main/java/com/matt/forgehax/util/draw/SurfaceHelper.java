@@ -251,7 +251,7 @@ public class SurfaceHelper implements Globals {
     GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
   }
 
-  public static void drawPotionEffect(PotionEffect potion, int x, int y) {
+  public static void drawPotionEffect(PotionEffect potion, Gui gui, int x, int y) {
     int index = potion.getPotion().getStatusIconIndex();
     GlStateManager.pushMatrix();
     RenderHelper.enableGUIStandardItemLighting();
@@ -263,7 +263,8 @@ public class SurfaceHelper implements Globals {
     GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
     MC.getTextureManager().bindTexture(GuiContainer.INVENTORY_BACKGROUND);
     drawTexturedRect(x, y, index % 8 * 18, 198 + index / 8 * 18, 18, 18, 100);
-    potion.getPotion().renderHUDEffect(x, y, potion, MC, 255);
+    //potion.getPotion().renderHUDEffect(x, y, potion, MC, 255);
+    potion.getPotion().renderHUDEffect(potion, gui, x, y, 1.f, 255); // TODO: this might not be correct
     GlStateManager.disableLighting();
     GlStateManager.enableDepthTest();
     GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
