@@ -3,13 +3,11 @@ package com.matt.forgehax.util.classloader;
 import static com.matt.forgehax.util.FileHelper.*;
 
 import com.google.common.collect.Lists;
+import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.util.Streamables;
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLDecoder;
+import java.net.*;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +16,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+
+import net.minecraftforge.fml.loading.FMLLoader;
 import sun.net.www.protocol.file.FileURLConnection;
 
 public class ClassLoaderHelper {
@@ -177,6 +177,7 @@ public class ClassLoaderHelper {
    * @return list of all the classes found
    * @throws IOException
    */
+  // TODO: clean this up
   public static List<Path> getClassPathsInPackage(
       final ClassLoader classLoader, String packageDir, final boolean recursive)
       throws IOException {
@@ -185,44 +186,48 @@ public class ClassLoaderHelper {
 
     List<Path> results = Lists.newArrayList();
 
+    // package directory
     final String pkgdir = asFilePath(packageDir);
-    Enumeration<URL> inside = classLoader.getResources(pkgdir);
-    Streamables.enumerationStream(inside)
-        .forEach(
-            url -> {
-              URLConnection connection;
-              try {
-                connection = url.openConnection();
 
-                // get the path to the jar/folder containing the classes
-                String path =
-                    URLDecoder.decode(url.getPath(), "UTF-8")
-                        .replace('\\', '/'); // get path and covert backslashes to forward slashes
-                path =
-                    path.substring(
-                        path.indexOf('/') + 1,
-                        path.length()); // remove the initial '/' or 'file:/' appended to the path
+    final String forgehaxMainPath = ForgeHax.class.getName().replace('.', '/') + ".class";
+    final URL url = classLoader.getResource(forgehaxMainPath);
 
-                // the root directory to the jar/folder containing the classes
-                String rootDir = path.substring(0, path.indexOf(pkgdir));
-                // package directory
-                String packDir = path.substring(path.lastIndexOf(pkgdir), path.length());
+    try {
+      URLConnection connection = url.openConnection();
 
-                if (connection instanceof FileURLConnection) {
-                  final Path root = Paths.get(rootDir).normalize();
-                  getClassPathsInDirectory(path, recursive)
-                      .stream()
-                      .map(root::relativize)
-                      .forEach(results::add);
-                } else if (connection instanceof JarURLConnection) {
-                  results.addAll(
-                      getClassPathsInJar(
-                          ((JarURLConnection) connection).getJarFile(), packDir, recursive));
-                } else throw new UnknownConnectionType();
-              } catch (Exception e) {
-                throw new RuntimeException(e);
-              }
-            });
+
+      // get the path to the jar/folder containing the classes
+      String path = URLDecoder.decode(url.getPath(), "UTF-8")
+              .replace('\\', '/'); // get path and covert backslashes to forward slashes
+      path = path.substring(path.indexOf('/') + 1); // remove the initial '/' or 'file:/' appended to the path
+      path = path.substring(0, path.indexOf(forgehaxMainPath)); // remove com/matt/forgehax/Forgehax.class
+      path += pkgdir;
+
+
+      // the root directory to the jar/folder containing the classes
+      final String rootDir = path.substring(0, path.indexOf(pkgdir));
+
+      if (connection instanceof FileURLConnection) {
+        final Path root = Paths.get(rootDir).normalize();
+        System.out.println(root);
+        System.out.println(path);
+        getClassPathsInDirectory(path, recursive)
+                .stream()
+                .map(root::relativize)
+                .forEach(results::add);
+      } else if (connection instanceof JarURLConnection) {
+        results.addAll(getClassPathsInJar(((JarURLConnection) connection).getJarFile(), pkgdir, recursive));
+
+      } else if (connection.getClass().getName().contains("ModJarURLHandler$ModJarURLConnection")) { // TODO: handle this better
+        Path modPath = FMLLoader.getLoadingModList().getModFileById(connection.getURL().getHost()).getFile().getFilePath();
+        results.addAll(getClassPathsInJar(new JarFile(modPath.toFile()), pkgdir, recursive));
+
+      } else {
+        throw new UnknownConnectionType(connection.getClass());
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
 
     return results;
   }
@@ -254,5 +259,10 @@ public class ClassLoaderHelper {
         .collect(Collectors.toList());
   }
 
-  public static class UnknownConnectionType extends Exception {}
+  public static class UnknownConnectionType extends Exception {
+
+    public UnknownConnectionType(Class<? extends URLConnection> type) {
+      super(type.toString());
+    }
+  }
 }
