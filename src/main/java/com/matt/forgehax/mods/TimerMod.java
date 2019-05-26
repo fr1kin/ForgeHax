@@ -23,7 +23,9 @@ public class TimerMod extends ToggleMod {
           .description("how fast to make the game run")
           .defaultTo(1f)
           .min(0f)
-          .success(__ -> updateTimer())
+          .success(__ -> {
+              if (this.isEnabled()) updateTimer();
+          })
           .build();
 
   private final float DEFAULT_SPEED = 1000f / 20; // default speed - 50 ms
@@ -39,7 +41,7 @@ public class TimerMod extends ToggleMod {
   }
 
   private void updateTimer() {
-    if (this.isEnabled()) setSpeed(DEFAULT_SPEED / factor.getAsFloat());
+    setSpeed(DEFAULT_SPEED / factor.getAsFloat());
   }
 
   private void setSpeed(float value) {
