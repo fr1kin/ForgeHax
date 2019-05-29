@@ -6,6 +6,7 @@ import com.google.common.base.Predicates;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.services.SneakService;
+import com.matt.forgehax.util.Switch;
 import com.matt.forgehax.util.math.Angle;
 import java.util.Optional;
 import net.minecraft.block.material.Material;
@@ -134,5 +135,36 @@ public class LocalPlayerUtils implements Globals {
     return start.squareDistanceTo(end)
         < getPlayerController().getBlockReachDistance()
             * getPlayerController().getBlockReachDistance();
+  }
+
+  private static final Switch FLY_SWITCH = new Switch("PlayerFlying") {
+    private static final float DEFAULT_FLY_SPEED = 0.05f;
+
+    @Override
+    protected void onEnabled() {
+      MC.addScheduledTask(() -> {
+        if(getLocalPlayer() == null || getLocalPlayer().capabilities == null)
+          return;
+
+        getLocalPlayer().capabilities.allowFlying = true;
+        getLocalPlayer().capabilities.isFlying = true;
+      });
+    }
+
+    @Override
+    protected void onDisabled() {
+      MC.addScheduledTask(() -> {
+        if(getLocalPlayer() == null || getLocalPlayer().capabilities == null)
+          return;
+
+        getLocalPlayer().capabilities.allowFlying = false;
+        getLocalPlayer().capabilities.isFlying = false;
+        getLocalPlayer().capabilities.setFlySpeed(DEFAULT_FLY_SPEED);
+      });
+    }
+  };
+
+  public static Switch getFlySwitch() {
+    return FLY_SWITCH;
   }
 }

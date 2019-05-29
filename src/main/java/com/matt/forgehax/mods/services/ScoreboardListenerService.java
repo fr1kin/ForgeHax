@@ -42,7 +42,7 @@ public class ScoreboardListenerService extends ServiceMod {
           .<Integer>newSettingBuilder()
           .name("retries")
           .description("Number of times to attempt retries on failure")
-          .defaultTo(3)
+          .defaultTo(1)
           .build();
 
   private final SimpleTimer timer = new SimpleTimer();

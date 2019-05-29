@@ -4,9 +4,12 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getPlayerController;
 import static com.matt.forgehax.Helper.getWorld;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.Streams;
 import com.matt.forgehax.asm.events.ItemStoppedUsedEvent;
 import com.matt.forgehax.asm.reflection.FastReflection.Fields;
+import com.matt.forgehax.events.ForgeHaxEvent;
+import com.matt.forgehax.events.ForgeHaxEvent.Type;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
@@ -24,6 +27,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -53,25 +57,38 @@ public class AutoEatMod extends ToggleMod {
           .builders()
           .<Integer>newSettingBuilder()
           .name("fail-safe-multiplier")
-          .description(
-              "Will attempt to eat again after use ticks * multiplier has elapsed. Set to 0 to disable")
+          .description("Will attempt to eat again after use ticks * multiplier has elapsed. Set to 0 to disable")
           .defaultTo(10)
           .min(0)
           .max(20)
           .build();
 
+  private final Setting<Integer> select_wait =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("select-wait")
+          .description("Number of ticks to wait before starting to eat a food item after switching to it in the hotbar.")
+          .defaultTo(10)
+          .min(0)
+          .build();
+
   private ItemFood food = null;
   private boolean eating = false;
-  private int ticksElapsed = -1;
+  private int eatingTicks = -1;
+  private int selectedTicks = 0;
+  private int lastHotbarIndex = -1;
 
   public AutoEatMod() {
     super(Category.PLAYER, "AutoEat", false, "Auto eats when you get hungry");
   }
 
   private void reset() {
+    if(eatingTicks > 0) MC.addScheduledTask(() -> MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_STOP)));
     food = null;
     eating = false;
-    ticksElapsed = -1;
+    eatingTicks = -1;
+    selectedTicks = 0;
   }
 
   private boolean isFoodItem(InvItem inv) {
@@ -132,17 +149,24 @@ public class AutoEatMod extends ToggleMod {
     return getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv) < 20;
   }
 
+  private boolean checkFailsafe() {
+    return (fail_safe_multiplier.get() == 0 || eatingTicks < food.itemUseDuration * fail_safe_multiplier.get());
+  }
+
   @Override
   protected void onEnabled() {
-    food = null;
-    eating = false;
-    ticksElapsed = -1;
+    reset();
+    selectedTicks = 0;
+    lastHotbarIndex = -1;
   }
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (getLocalPlayer().isCreative()) return;
 
+    int currentSelected = LocalPlayerInventory.getSelected().getIndex();
+
+    boolean wasEating = eating;
     eating = false;
 
     LocalPlayerInventory.getHotbarInventory()
@@ -158,30 +182,45 @@ public class AutoEatMod extends ToggleMod {
             best -> {
               food = (ItemFood) best.getItem();
 
-              LocalPlayerInventory.setSelected(
-                  best,
-                  ticks ->
-                      !getLocalPlayer().isHandActive()
-                          || !LocalPlayerInventory.getSelected().equals(best));
-
-              Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
-              getPlayerController()
-                  .processRightClick(getLocalPlayer(), getWorld(), EnumHand.MAIN_HAND);
+              LocalPlayerInventory.setSelected(best, ticks -> !eating);
 
               eating = true;
-              ++ticksElapsed;
+
+              if(currentSelected != best.getIndex()) {
+                MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_SELECT_FOOD));
+                lastHotbarIndex = best.getIndex();
+                selectedTicks = 0;
+              }
+
+              if(selectedTicks > select_wait.get()) {
+                if(!wasEating) MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_START));
+
+                Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
+                getPlayerController().processRightClick(getLocalPlayer(), getWorld(), EnumHand.MAIN_HAND);
+
+                ++eatingTicks;
+              }
             });
 
-    if (!eating) reset();
+    if(lastHotbarIndex != -1) {
+      if(lastHotbarIndex == LocalPlayerInventory.getSelected().getIndex())
+        selectedTicks++;
+      else
+        selectedTicks = 0;
+    }
+
+    lastHotbarIndex = LocalPlayerInventory.getSelected().getIndex();
+
+    if (wasEating && !eating) reset();
   }
 
   @SubscribeEvent
   public void onStopUse(ItemStoppedUsedEvent event) {
-    if (food != null && eating) {
-      if (fail_safe_multiplier.get() == 0
-          || ticksElapsed < food.itemUseDuration * fail_safe_multiplier.get())
+    if (food != null && eating && eatingTicks > 0) {
+      if (checkFailsafe())
         event.setCanceled(true);
-      else reset();
+      else
+        reset();
     }
   }
 

@@ -6,6 +6,7 @@ import static com.matt.forgehax.Helper.getWorld;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.Switch.Handle;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.key.Bindings;
@@ -29,7 +30,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 /** Created on 9/3/2016 by fr1kin */
 @RegisterMod
 public class FreecamMod extends ToggleMod {
-  public final Setting<Double> speed =
+  private final Setting<Double> speed =
       getCommandStub()
           .builders()
           .<Double>newSettingBuilder()
@@ -37,6 +38,8 @@ public class FreecamMod extends ToggleMod {
           .description("Movement speed")
           .defaultTo(0.05D)
           .build();
+
+  private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getModName());
 
   private Vec3d pos = Vec3d.ZERO;
   private Angle angle = Angle.ZERO;
@@ -71,15 +74,14 @@ public class FreecamMod extends ToggleMod {
 
   @Override
   public void onDisabled() {
+    flying.disable();
+
     if (getLocalPlayer() == null || originalPlayer == null) return;
 
     getLocalPlayer().setPositionAndRotation(pos.x, pos.y, pos.z, angle.getYaw(), angle.getPitch());
     getWorld().removeEntityFromWorld(-100);
     originalPlayer = null;
 
-    getLocalPlayer().capabilities.isFlying =
-        getModManager().get(ElytraFlight.class).map(BaseMod::isEnabled).orElse(false);
-    getLocalPlayer().capabilities.setFlySpeed(0.05f);
     getLocalPlayer().noClip = false;
     getLocalPlayer().setVelocity(0, 0, 0);
 
@@ -93,8 +95,7 @@ public class FreecamMod extends ToggleMod {
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (getLocalPlayer() == null) return;
 
-    getLocalPlayer().capabilities.allowFlying = true;
-    getLocalPlayer().capabilities.isFlying = true;
+    flying.enable();
     getLocalPlayer().capabilities.setFlySpeed(speed.getAsFloat());
     getLocalPlayer().noClip = true;
     getLocalPlayer().onGround = false;
