@@ -64,7 +64,7 @@ public class BaritoneCompatibility extends ToggleMod {
     if(!once) {
       once = true;
       BlockPos pos = getLocalPlayer().getPosition();
-      if(pos.getX() == 0 && pos.getZ() == 0) {
+      if(pos.getX() != 0 && pos.getZ() != 0) {
         turnOn();
       }
     }
