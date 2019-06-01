@@ -12,6 +12,7 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -123,18 +124,30 @@ public class ActiveModList extends ToggleMod {
       SurfaceHelper.drawTextShadow(generateTickRateText(), posX, posY.get(), Utils.Colors.WHITE);
       posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
     }
-    getModManager()
-        .getMods()
-        .stream()
-        .filter(BaseMod::isEnabled)
-        .filter(mod -> !mod.isHidden())
-        .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
-        .sorted(sortMode.get().getComparator())
-        .forEach(
-            name -> {
-              SurfaceHelper.drawTextShadow(">" + name, posX, posY.get(), Utils.Colors.WHITE);
-              posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
-            });
+
+    if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
+      long enabledMods = getModManager()
+          .getMods()
+          .stream()
+          .filter(BaseMod::isEnabled)
+          .filter(mod -> !mod.isHidden())
+          .count();
+      SurfaceHelper.drawTextShadow(enabledMods + " mods enabled",
+          posX, posY.get(), Utils.Colors.WHITE);
+    } else {
+      getModManager()
+          .getMods()
+          .stream()
+          .filter(BaseMod::isEnabled)
+          .filter(mod -> !mod.isHidden())
+          .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
+          .sorted(sortMode.get().getComparator())
+          .forEach(
+              name -> {
+                SurfaceHelper.drawTextShadow(">" + name, posX, posY.get(), Utils.Colors.WHITE);
+                posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
+              });
+    }
     /*
     posY += (Render2DUtils.getTextHeight() + 1) * 2;
     Render2DUtils.drawTextShadow(String.format("Pitch: %.4f", MC.thePlayer.rotationPitch), posX, posY, Utils.toRGBA(255, 255, 255, 255));
