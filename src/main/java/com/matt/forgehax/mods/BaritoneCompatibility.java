@@ -19,7 +19,7 @@ public class BaritoneCompatibility extends ToggleMod {
           .builders()
           .<String>newSettingBuilder()
           .name("on-string")
-          .description("Message to disable baritone")
+          .description("Message to enable baritone")
           .defaultTo("#mine diamond_ore")
           .build();
 
@@ -28,7 +28,7 @@ public class BaritoneCompatibility extends ToggleMod {
           .builders()
           .<String>newSettingBuilder()
           .name("off-string")
-          .description("Message to start baritone again")
+          .description("Message to disable baritone")
           .defaultTo("#stop")
           .build();
 
