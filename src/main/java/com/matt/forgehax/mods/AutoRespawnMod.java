@@ -31,7 +31,7 @@ public class AutoRespawnMod extends ToggleMod {
         .build();
 
   private boolean isDead = false;
-  private long deadTicks = 0;
+  private int deadTicks = 0;
 
   @SubscribeEvent
   public void onClientTick(ClientTickEvent ev) {

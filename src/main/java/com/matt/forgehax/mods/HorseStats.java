@@ -50,7 +50,7 @@ public class HorseStats extends ToggleMod {
 
   @Override
   public void onDisabled() {
-    if (getRidingEntity() != null && getRidingEntity() instanceof AbstractHorse) {
+    if (getRidingEntity() instanceof AbstractHorse) {
       applyStats(jumpHeight.getDefault(), speed.getDefault());
     }
   }
