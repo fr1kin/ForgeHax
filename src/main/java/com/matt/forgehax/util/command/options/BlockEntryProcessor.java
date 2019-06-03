@@ -3,8 +3,6 @@ package com.matt.forgehax.util.command.options;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.Utils;
-import com.matt.forgehax.util.blocks.BlockEntry;
-import com.matt.forgehax.util.blocks.BlockOptionHelper;
 import com.matt.forgehax.util.blocks.properties.BoundProperty;
 import com.matt.forgehax.util.blocks.properties.ColorProperty;
 import com.matt.forgehax.util.command.ExecuteData;
@@ -12,7 +10,8 @@ import com.matt.forgehax.util.command.exception.CommandExecuteException;
 import java.util.Collection;
 
 /** Created on 6/6/2017 by fr1kin */
-public class BlockEntryProcessor {
+// TODO: Update BlockEntry and BlockOptionHelper
+/*public class BlockEntryProcessor {
   public static void buildCollection(ExecuteData data) {
     data.requiredArguments(1);
     data.requiresEntry("meta");
@@ -76,4 +75,4 @@ public class BlockEntryProcessor {
               });
     }
   }
-}
+}*/

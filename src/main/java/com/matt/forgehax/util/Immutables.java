@@ -97,7 +97,7 @@ public class Immutables {
 
     @Override
     public Set<Characteristics> characteristics() {
-      return EnumSet.of(Characteristics.IDENTITY_FINISH);
+      return Collections.emptySet();
     }
   }
 }

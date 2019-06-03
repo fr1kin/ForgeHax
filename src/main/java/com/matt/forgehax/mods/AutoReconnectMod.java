@@ -6,19 +6,16 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import java.io.IOException;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiConnecting;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 @RegisterMod
 public class AutoReconnectMod extends ToggleMod {
@@ -94,13 +91,7 @@ public class AutoReconnectMod extends ToggleMod {
       reconnectTime = System.currentTimeMillis() + (long) (delay * 1000);
       // set variable 'reason' to the previous classes value
       try {
-        ReflectionHelper.setPrivateValue(
-            GuiDisconnected.class,
-            this,
-            reason,
-            "reason",
-            "field_146306_a",
-            "a"); // TODO: Find obbed mapping name
+        FastReflection.Fields.GuiDisconnected_reason.set(this, reason);
       } catch (Exception e) {
         Helper.printStackTrace(e);
       }
@@ -126,7 +117,7 @@ public class AutoReconnectMod extends ToggleMod {
     private void reconnect() {
       ServerData data = getLastConnectedServerData();
       if (data != null) {
-        FMLClientHandler.instance().showGuiScreen(new GuiConnecting(parent, MC, data));
+        MC.displayGuiScreen(new GuiConnecting(parent, MC, data));
       }
     }
 
@@ -137,28 +128,26 @@ public class AutoReconnectMod extends ToggleMod {
           fontRenderer.listFormattedStringToWidth(message.getFormattedText(), width - 50);
       int textHeight = multilineMessage.size() * fontRenderer.FONT_HEIGHT;
 
-      if (getLastConnectedServerData() != null) {
-        buttons.add(
-            reconnectButton =
-                new GuiButton(
-                        buttons.size(),
-                    width / 2 - 100,
-                    (height / 2 + textHeight / 2 + fontRenderer.FONT_HEIGHT) + 23,
-                    getFormattedReconnectText()));
+      if (getLastConnectedServerData() != null) { // TODO: format better
+        buttons.add(reconnectButton =
+            new GuiButton(
+                buttons.size(),
+                width / 2 - 100,
+                (height / 2 + textHeight / 2 + fontRenderer.FONT_HEIGHT) + 23,
+                getFormattedReconnectText()
+            ) {
+              @Override
+              public void onClick(double mouseX, double mouseY) {
+                reconnect();
+              }
+            }
+        );
       }
     }
 
-    @Override
-    protected void actionPerformed(GuiButton button) throws IOException {
-      super.actionPerformed(button);
-      if (button.equals(reconnectButton)) {
-        reconnect();
-      }
-    }
 
     @Override
-    public void updateScreen() {
-      super.updateScreen();
+    public void tick() {
       if (reconnectButton != null) reconnectButton.displayString = getFormattedReconnectText();
       if (System.currentTimeMillis() >= reconnectTime) reconnect();
     }

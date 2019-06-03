@@ -13,6 +13,7 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
+@Deprecated
 public class NoFallMod extends ToggleMod {
   public NoFallMod() {
     super(Category.PLAYER, "NoFall", false, "Prevents fall damage from being taken");
@@ -25,7 +26,7 @@ public class NoFallMod extends ToggleMod {
     if (event.getPacket() instanceof CPacketPlayer
         && !(event.getPacket() instanceof CPacketPlayer.Rotation)
         && !PacketHelper.isIgnored(event.getPacket())) {
-      CPacketPlayer packetPlayer = (CPacketPlayer) event.getPacket();
+      CPacketPlayer packetPlayer = event.getPacket();
       if (FastReflection.Fields.CPacketPlayer_onGround.get(packetPlayer) && lastFallDistance >= 4) {
         CPacketPlayer packet =
             new CPacketPlayer.PositionRotation(

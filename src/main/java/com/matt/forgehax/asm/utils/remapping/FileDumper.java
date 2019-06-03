@@ -10,8 +10,9 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /** Created on 1/11/2017 by fr1kin */
+// TODO: delete
 public class FileDumper {
-  private static void dump(File dumpLocation, Consumer<PrintWriter> consumer) {
+  /*private static void dump(File dumpLocation, Consumer<PrintWriter> consumer) {
     PrintWriter writer = null;
     try {
       writer = new PrintWriter(dumpLocation, "UTF-8");
@@ -145,5 +146,5 @@ public class FileDumper {
         e.printStackTrace();
       }
     }
-  }
+  }*/
 }

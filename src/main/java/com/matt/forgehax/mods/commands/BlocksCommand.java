@@ -1,12 +1,13 @@
 package com.matt.forgehax.mods.commands;
 
-import com.matt.forgehax.util.blocks.BlockOptionHelper;
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.minecraft.block.Block;
+import net.minecraftforge.registries.ForgeRegistries;
 
 /** Created on 5/27/2017 by fr1kin */
 @RegisterMod
@@ -21,14 +22,26 @@ public class BlocksCommand extends CommandMod {
         .newCommandBuilder()
         .name("blocks")
         .description("Find block(s) with matching name")
+        .processor(data -> {
+          Helper.printMessage("Unsupported for 1.13");
+        })
+        .build();
+  }
+
+  // TODO: update
+  /*@RegisterCommand
+  public Command blocks(CommandBuilders builders) {
+    return builders
+        .newCommandBuilder()
+        .name("blocks")
+        .description("Find block(s) with matching name")
         .processor(
             data -> {
               data.requiredArguments(1);
               final String find = data.getArgumentAsString(0).toLowerCase();
               final StringBuilder builder = new StringBuilder("Search results:\n");
-              Block.REGISTRY.forEach(
+              ForgeRegistries.BLOCKS.forEach(
                   block -> {
-                    final int id = Block.getIdFromBlock(block);
                     final boolean resourceMatches =
                         block.getRegistryName() != null
                             && block.getRegistryName().toString().toLowerCase().contains(find);
@@ -65,5 +78,5 @@ public class BlocksCommand extends CommandMod {
               data.markSuccess();
             })
         .build();
-  }
+  }*/
 }
