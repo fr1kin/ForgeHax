@@ -1,53 +1,52 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.transformer.RegisterTransformer;
+import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
-import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
-import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
-import com.matt.forgehax.asm.utils.transforming.Inject;
-import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
-import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
-import java.util.Objects;
+import cpw.mods.modlauncher.api.ITransformerVotingContext;
+import net.minecraft.world.World;
 import org.objectweb.asm.tree.*;
 
-public class WorldPatch extends ClassTransformer {
-  public WorldPatch() {
-    super(Classes.World);
-  }
+import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.Set;
 
-  @RegisterMethodTransformer
-  private class HandleMaterialAcceleration extends MethodTransformer {
+public class WorldPatch {
+
+  //@RegisterTransformer // TODO: verify this
+  public static class OnStoppedUsingItem implements Transformer<MethodNode> {
+    @Nonnull
     @Override
-    public ASMMethod getMethod() {
-      return Methods.World_handleMaterialAcceleration;
+    public Set<Target> targets() {
+      return ASMHelper.getTargetSet(Methods.World_handleMaterialAcceleration);
     }
 
-    @Inject(description = "Add hook that allows water movement math to be skipped")
-    public void inject(MethodNode method) {
+    @Nonnull
+    @Override
+    public MethodNode transform(MethodNode method, ITransformerVotingContext context) {
       AbstractInsnNode preNode =
           ASMHelper.findPattern(
               method.instructions.getFirst(),
               new int[] {
-                ALOAD,
-                INVOKEVIRTUAL,
-                ASTORE,
-                0x00,
-                0x00,
-                LDC,
-                DSTORE,
-                0x00,
-                0x00,
-                ALOAD,
-                DUP,
-                GETFIELD,
-                ALOAD,
-                GETFIELD,
-                LDC,
-                DMUL,
-                DADD,
-                PUTFIELD
+                  ALOAD,
+                  INVOKEVIRTUAL,
+                  ASTORE,
+                  0x00,
+                  0x00,
+                  LDC,
+                  DSTORE,
+                  0x00,
+                  0x00,
+                  ALOAD,
+                  DUP,
+                  GETFIELD,
+                  ALOAD,
+                  GETFIELD,
+                  LDC,
+                  DMUL,
+                  DADD,
+                  PUTFIELD
               },
               "xxx??xx??xxxxxxxxx");
       AbstractInsnNode postNode =
@@ -66,34 +65,11 @@ public class WorldPatch extends ClassTransformer {
 
       method.instructions.insertBefore(preNode, insnPre);
       method.instructions.insertBefore(postNode, endJump);
+
+      return method;
     }
+
   }
 
-  @RegisterMethodTransformer
-  private class CheckLightFor extends MethodTransformer {
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.World_checkLightFor;
-    }
 
-    @Inject(description = "Add hook before everything")
-    public void inject(MethodNode method) {
-      AbstractInsnNode node = method.instructions.getFirst();
-
-      Objects.requireNonNull(node, "Failed to find node.");
-
-      LabelNode label = new LabelNode();
-
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 1)); // enum
-      list.add(new VarInsnNode(ALOAD, 2)); // blockpos
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onWorldCheckLightFor));
-      list.add(new JumpInsnNode(IFEQ, label));
-      list.add(new InsnNode(ICONST_0));
-      list.add(new InsnNode(IRETURN));
-      list.add(label);
-
-      method.instructions.insertBefore(node, list);
-    }
-  }
 }

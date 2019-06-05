@@ -66,13 +66,18 @@ public class ForgehaxTransformationService implements ITransformationService {
             EntityPatch.class,
             EntityPlayerSPPatch.class,
             GameRendererPatch.class,
-            EntityLivingBasePatch.class
+            EntityLivingBasePatch.class,
+            RenderChunkPatch.class,
+            PlayerControllerMPPatch.class,
+            WorldPatch.class,
+            ChunkRenderWorkerPatch.class,
+            ChunkRenderDispatcherPatch.class
         );
     }
 
     @SuppressWarnings("unchecked")
     private List<ITransformer> getTransformersForClasses(Class<?>... patches) {
-        return (List<ITransformer>)Stream.of(patches) // epic cast because compiler bug
+        return (List<ITransformer>)Stream.of(patches) // epic cast because compiler bug??
                 .flatMap(clazz -> Stream.of(clazz.getDeclaredClasses()))
                 .filter(inner -> inner.isAnnotationPresent(RegisterTransformer.class))
                 .peek(inner -> {

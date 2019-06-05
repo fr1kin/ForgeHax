@@ -1,32 +1,30 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.transformer.RegisterTransformer;
+import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
-import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
-import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
-import com.matt.forgehax.asm.utils.transforming.Inject;
-import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
-import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
-import java.util.Objects;
+import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import org.objectweb.asm.tree.*;
 
-/** Created on 5/5/2017 by fr1kin */
-public class RenderChunkPatch extends ClassTransformer {
-  public RenderChunkPatch() {
-    super(Classes.RenderChunk);
-  }
+import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.Set;
 
-  @RegisterMethodTransformer
-  private class RebuildChunk extends MethodTransformer {
+public class RenderChunkPatch {
+
+  //@RegisterTransformer // this probably wont work
+  public static class SetOpaqueCube implements Transformer<MethodNode> {
+    @Nonnull
     @Override
-    public ASMMethod getMethod() {
-      return Methods.RenderChunk_rebuildChunk;
+    public Set<Target> targets() {
+      return ASMHelper.getTargetSet(Methods.RenderChunk_rebuildChunk);
     }
 
-    @Inject(description = "Add hooks before and after blocks are added to the buffer")
-    public void inject(MethodNode main) {
+
+    @Nonnull
+    @Override
+    public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
       // searches for ++renderChunksUpdated;
       AbstractInsnNode top =
           ASMHelper.findPattern(
@@ -44,17 +42,17 @@ public class RenderChunkPatch extends ClassTransformer {
           ASMHelper.findPattern(
               top,
               new int[] {
-                ASTORE,
-                0x00,
-                0x00,
-                ALOAD,
-                INVOKEINTERFACE,
-                ASTORE,
-                0x00,
-                0x00,
-                ALOAD,
-                INVOKEINTERFACE,
-                IFEQ
+                  ASTORE,
+                  0x00,
+                  0x00,
+                  ALOAD,
+                  INVOKEINTERFACE,
+                  ASTORE,
+                  0x00,
+                  0x00,
+                  ALOAD,
+                  INVOKEINTERFACE,
+                  IFEQ
               },
               "x??xxx??xxx");
 
@@ -186,18 +184,25 @@ public class RenderChunkPatch extends ClassTransformer {
       post.add(jumpOver);
 
       main.instructions.insert(skipRenderingLabel, post);
+
+      return main;
     }
+
   }
 
-  @RegisterMethodTransformer
-  private class DeleteGlResources extends MethodTransformer {
+
+  @RegisterTransformer
+  public static class DeleteGlResources implements Transformer<MethodNode> {
+    @Nonnull
     @Override
-    public ASMMethod getMethod() {
-      return Methods.RenderChunk_deleteGlResources;
+    public Set<Target> targets() {
+      return ASMHelper.getTargetSet(Methods.RenderChunk_deleteGlResources);
     }
 
-    @Inject(description = "Add hook callback at top of method")
-    public void inject(MethodNode main) {
+
+    @Nonnull
+    @Override
+    public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
       AbstractInsnNode node = main.instructions.getFirst();
 
       Objects.requireNonNull(node, "Find pattern failed for node");
@@ -208,6 +213,9 @@ public class RenderChunkPatch extends ClassTransformer {
           ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onDeleteGlResources));
 
       main.instructions.insertBefore(node, insnList);
+
+      return main;
     }
+
   }
 }

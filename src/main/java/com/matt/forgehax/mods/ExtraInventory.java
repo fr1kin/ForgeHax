@@ -19,7 +19,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
@@ -27,7 +29,8 @@ import net.minecraft.network.play.client.CPacketClickWindow;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import org.lwjgl.glfw.GLFW;
+//import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 @RegisterMod
 public class ExtraInventory extends ToggleMod {
@@ -263,10 +266,10 @@ public class ExtraInventory extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  /*SubscribeEvent
   public void onDisconnectToServer(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
     onDisabled();
-  }
+  }*/
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onGuiOpen(GuiOpenEvent event) {
@@ -294,12 +297,15 @@ public class ExtraInventory extends ToggleMod {
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+    public boolean keyPressed(int key, int scancode, int modifiers)  {
       if (isEnabled()
-          && (keyCode == 1 || this.mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode))) {
+          && (key == GLFW.GLFW_KEY_ESCAPE || this.mc.gameSettings.keyBindInventory.isActiveAndMatches(InputMappings.getInputByCode(key, scancode)))) {
         guiNeedsClose.set(true);
         MC.displayGuiScreen(null);
-      } else super.keyTyped(typedChar, keyCode);
+        return true;
+      } else {
+        return false; // might not be right, see KeyboardListener:289
+      }
     }
 
     @Override
@@ -323,7 +329,7 @@ public class ExtraInventory extends ToggleMod {
         || item instanceof ItemFood
         || item instanceof ItemArrow
         || Items.TOTEM_OF_UNDYING.equals(item)) return 100 * stack.getCount(); // very important
-    else if (item instanceof ItemShulkerBox) {
+    else if (item instanceof ItemBlock && ((ItemBlock)item).getBlock() == Blocks.SHULKER_BOX) {
       return 5
           + (loopGuard
               ? 0

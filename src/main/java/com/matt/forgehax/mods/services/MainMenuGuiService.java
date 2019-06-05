@@ -99,7 +99,7 @@ public class MainMenuGuiService extends ServiceMod {
     }
 
     @Override
-    public boolean keyPressed(int key, int unknown_0, int unknown_1)  {
+    public boolean keyPressed(int key, int scancode, int modifiers)  {
       if (key == GLFW.GLFW_KEY_ESCAPE) {
         this.mc.displayGuiScreen(null);
       } else if (key != GLFW.GLFW_KEY_ENTER && key != GLFW.GLFW_KEY_KP_ENTER) {
@@ -117,7 +117,7 @@ public class MainMenuGuiService extends ServiceMod {
             // this.mc.ingameGUI.getChatGUI().scroll(-this.mc.ingameGUI.getChatGUI().getLineCount() + 1);
           //} else {
         }
-        this.inputField.keyPressed(key, unknown_0, unknown_1);
+        this.inputField.keyPressed(key, scancode, modifiers);
       } else { // on enter
         String str = this.inputField.getText().trim();
 

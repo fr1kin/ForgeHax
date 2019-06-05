@@ -19,7 +19,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 @SuppressWarnings("MethodCallSideOnly")
-public class FlyMod extends ToggleMod {
+public class FlyMod extends ToggleMod { // this mod is kind of gay and broken
 
   private boolean zoomies = true;
 

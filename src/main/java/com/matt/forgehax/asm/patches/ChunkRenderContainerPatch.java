@@ -3,6 +3,8 @@ package com.matt.forgehax.asm.patches;
 import static org.objectweb.asm.Opcodes.*;
 
 import com.matt.forgehax.asm.TypesHook;
+import com.matt.forgehax.asm.transformer.RegisterTransformer;
+import com.matt.forgehax.asm.transformer.Transformer;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
@@ -10,23 +12,26 @@ import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
+import java.util.Set;
+
+import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import org.objectweb.asm.tree.*;
 
-/** Created on 5/9/2017 by fr1kin */
-public class ChunkRenderContainerPatch extends ClassTransformer {
-  public ChunkRenderContainerPatch() {
-    super(Classes.ChunkRenderContainer);
-  }
+import javax.annotation.Nonnull;
 
-  @RegisterMethodTransformer
-  private class AddRenderChunk extends MethodTransformer {
+
+public class ChunkRenderContainerPatch {
+  @RegisterTransformer
+  public static class OnStoppedUsingItem implements Transformer<MethodNode> {
+    @Nonnull
     @Override
-    public ASMMethod getMethod() {
-      return Methods.ChunkRenderContainer_addRenderChunk;
+    public Set<Target> targets() {
+      return ASMHelper.getTargetSet(Methods.ChunkRenderContainer_addRenderChunk);
     }
 
-    @Inject
-    public void inject(MethodNode main) {
+    @Nonnull
+    @Override
+    public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
       AbstractInsnNode node = main.instructions.getFirst();
 
       Objects.requireNonNull(node, "Find pattern failed for node");
@@ -37,6 +42,10 @@ public class ChunkRenderContainerPatch extends ClassTransformer {
       insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onAddRenderChunk));
 
       main.instructions.insertBefore(node, insnList);
+
+      return main;
     }
+
   }
+
 }
