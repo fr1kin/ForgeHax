@@ -157,7 +157,7 @@ public class AutoEatMod extends ToggleMod {
   protected void onEnabled() {
     reset();
     selectedTicks = 0;
-    lastHotbarIndex = -1;
+    lastHotbarIndex = LocalPlayerInventory.getInventory() != null ? LocalPlayerInventory.getInventory().currentItem : -1;
   }
 
   @SubscribeEvent
@@ -185,6 +185,12 @@ public class AutoEatMod extends ToggleMod {
               LocalPlayerInventory.setSelected(best, ticks -> !eating);
 
               eating = true;
+
+              if(!checkFailsafe()) {
+                reset();
+                eating = true;
+                return;
+              }
 
               if(currentSelected != best.getIndex()) {
                 MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_SELECT_FOOD));
