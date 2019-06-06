@@ -12,7 +12,18 @@ import org.lwjgl.opengl.Display;
 
 @RegisterMod
 public class FPSLock extends ToggleMod {
-  private final Setting<Integer> fps =
+
+    private final Setting<Integer> defaultFps =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("default-fps")
+          .description("default FPS to revert to")
+          .defaultTo(MC.gameSettings.limitFramerate)
+          .min(1)
+          .build();
+
+    private final Setting<Integer> fps =
       getCommandStub()
           .builders()
           .<Integer>newSettingBuilder()
@@ -38,7 +49,7 @@ public class FPSLock extends ToggleMod {
           .name("no-focus-fps")
           .description("FPS when the game window doesn't have focus. Set to 0 to disable.")
           .min(0)
-          .defaultTo(1)
+          .defaultTo(3)
           .build();
 
   public FPSLock() {
@@ -51,13 +62,13 @@ public class FPSLock extends ToggleMod {
 
   private int getFps() {
     if (no_focus_fps.get() > 0 && !Display.isActive()) return no_focus_fps.get();
-    else if (getWorld() != null) return fps.get() > 0 ? fps.get() : MC.gameSettings.limitFramerate;
-    else return menu_fps.get() > 0 ? menu_fps.get() : MC.gameSettings.limitFramerate;
+    else if (MC.currentScreen != null) return menu_fps.get() > 0 ? menu_fps.get() : defaultFps.get();
+    else return fps.get() > 0 ? fps.get() : defaultFps.get();
   }
 
   @Override
   protected void onDisabled() {
-    MC.gameSettings.limitFramerate = 60;
+    MC.gameSettings.limitFramerate = defaultFps.get();
   }
 
   @SubscribeEvent
