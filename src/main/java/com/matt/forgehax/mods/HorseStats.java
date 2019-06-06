@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getRidingEntity;
 
 import com.matt.forgehax.asm.reflection.FastReflection;
@@ -21,7 +22,7 @@ public class HorseStats extends ToggleMod {
     super(Category.PLAYER, "HorseStats", false, "Change the stats of your horse");
   }
 
-  public final Setting<Double> jumpHeight =
+  private final Setting<Double> jumpHeight =
       getCommandStub()
           .builders()
           .<Double>newSettingBuilder()
@@ -29,7 +30,7 @@ public class HorseStats extends ToggleMod {
           .description("Modified horse jump height attribute. Default: 1")
           .defaultTo(1.0D)
           .build();
-  public final Setting<Double> speed =
+  private final Setting<Double> speed =
       getCommandStub()
           .builders()
           .<Double>newSettingBuilder()
@@ -38,22 +39,46 @@ public class HorseStats extends ToggleMod {
           .defaultTo(0.3375D)
           .build();
 
+  private final Setting<Double> multiplier =
+      getCommandStub()
+        .builders()
+        .<Double>newSettingBuilder()
+        .name("multiplier")
+        .description("multiplier while sprinting")
+        .defaultTo(1.0D)
+        .build();
+
+  @Override
+  public void onDisabled() {
+    if (getRidingEntity() instanceof AbstractHorse) {
+      applyStats(jumpHeight.getDefault(), speed.getDefault());
+    }
+  }
+
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
     if (EntityUtils.isDrivenByPlayer(event.getEntity())
         && getRidingEntity() instanceof AbstractHorse) {
 
-      final IAttribute jump_strength =
-          FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getRidingEntity());
-      final IAttribute movement_speed =
-          FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getRidingEntity());
-
-      ((EntityLivingBase) getRidingEntity())
-          .getEntityAttribute(jump_strength)
-          .setBaseValue(jumpHeight.getAsDouble());
-      ((EntityLivingBase) getRidingEntity())
-          .getEntityAttribute(movement_speed)
-          .setBaseValue(speed.getAsDouble());
+      double newSpeed = speed.getAsDouble();
+      if (getLocalPlayer().isSprinting()) {
+        newSpeed *= multiplier.getAsDouble();
+      }
+      applyStats(jumpHeight.getAsDouble(), newSpeed);
     }
+  }
+
+  private void applyStats(double newJump, double newSpeed) {
+    final IAttribute jump_strength =
+        FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getRidingEntity());
+    final IAttribute movement_speed =
+        FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getRidingEntity());
+
+    ((EntityLivingBase) getRidingEntity())
+        .getEntityAttribute(jump_strength)
+        .setBaseValue(newJump);
+    ((EntityLivingBase) getRidingEntity())
+        .getEntityAttribute(movement_speed)
+        .setBaseValue(newSpeed);
   }
 }
