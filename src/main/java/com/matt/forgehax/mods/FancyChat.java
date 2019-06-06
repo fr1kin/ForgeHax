@@ -11,6 +11,7 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -26,7 +27,9 @@ public class FancyChat extends ToggleMod {
     CIRCLE,
     PARENTHESES,
     SMALL,
-    LEET
+    LEET,
+    WAVE,
+    RANDOMCASE
   }
 
   private static final String alphabet =
@@ -269,61 +272,102 @@ public class FancyChat extends ToggleMod {
     }
   }
 
-  public String prettify(String message) {
-    String messageOut;
+  private String makeLeet(String message) {
     char[] messageArray;
 
-    switch (font.get()) {
-      case LEET:
-        message = message.replaceAll("(?i)dude", "d00d").replaceAll("(^|\\s)ph", "$1f");
+    message = message.replaceAll("(?i)dude", "d00d").replaceAll("(^|\\s)ph", "$1f");
 
-        messageArray = message.toCharArray();
-        // match and replace the last only S in a word
-        Matcher zMatcher = Pattern.compile("(?<![sS])([sS])(?:[^\\w]|$)").matcher(message);
+    messageArray = message.toCharArray();
+    // match and replace the last only S in a word
+    Matcher zMatcher = Pattern.compile("(?<![sS])([sS])(?:[^\\w]|$)").matcher(message);
 
-        while (!zMatcher.hitEnd()) {
-          if (zMatcher.find()) {
-            if (zMatcher.group(1).equals("s")) {
-              messageArray[zMatcher.end(1) - 1] = 'z';
-            } else {
-              messageArray[zMatcher.end(1) - 1] = 'Z';
-            }
-          }
+    while (!zMatcher.hitEnd()) {
+      if (zMatcher.find()) {
+        if (zMatcher.group(1).equals("s")) {
+          messageArray[zMatcher.end(1) - 1] = 'z';
+        } else {
+          messageArray[zMatcher.end(1) - 1] = 'Z';
         }
-
-        StringBuilder builder = new StringBuilder();
-        Random random = new Random();
-        for (char c : messageArray) {
-          int key = (int) Character.toUpperCase(c);
-          // half the probability for LEET
-          if (random.nextInt(2) == 0
-              && LeetMap.get(key) != null
-              && (LeetProbability.get(key) == null
-                  || LeetProbability.get(key) > random.nextInt(100))) {
-            builder.append(LeetMap.get(key));
-          } else {
-            builder.append(c);
-          }
-        }
-
-        messageOut = builder.toString();
-        break;
-
-      default:
-        messageArray = message.toCharArray();
-        int[] currentFont = FONT[font.get().ordinal()];
-        int i = 0;
-
-        for (char c : messageArray) {
-          int letterKey = alphabet.indexOf(c);
-          if (letterKey != -1 && (c != (char) 0x3E)) {
-            messageArray[i] = (char) currentFont[letterKey];
-          }
-          i++;
-        }
-        messageOut = new String(messageArray);
+      }
     }
 
-    return messageOut;
+    StringBuilder builder = new StringBuilder();
+    Random random = new Random();
+    for (char c : messageArray) {
+      int key = (int) Character.toUpperCase(c);
+      // half the probability for LEET
+      if (random.nextInt(2) == 0
+          && LeetMap.get(key) != null
+          && (LeetProbability.get(key) == null
+          || LeetProbability.get(key) > random.nextInt(100))) {
+        builder.append(LeetMap.get(key));
+      } else {
+        builder.append(c);
+      }
+    }
+
+    return builder.toString();
+  }
+
+  private String makeWave(String message) {
+    char[] messageArray = message.toCharArray();
+    ThreadLocalRandom rand = ThreadLocalRandom.current();
+    double span = rand.nextDouble(0.4D, 1.3D);
+    double xoff = rand.nextDouble(0, 32);
+    double yoff = rand.nextDouble(-0.4, 0.6);
+
+    for (int i = 0; i < messageArray.length; i++) {
+      if (waveCharIsUpper(i, span, xoff, yoff)) {
+        messageArray[i] = Character.toUpperCase(messageArray[i]);
+      }
+    }
+    return new String(messageArray);
+  }
+
+    private String randomCase(String message) {
+      char[] messageArray = message.toCharArray();
+      ThreadLocalRandom rand = ThreadLocalRandom.current();
+
+      for (int i = 0; i < messageArray.length; i++) {
+        if (rand.nextBoolean()) {
+          messageArray[i] = Character.toUpperCase(messageArray[i]);
+        } else {
+          messageArray[i] = Character.toLowerCase(messageArray[i]);
+        }
+      }
+      return new String(messageArray);
+    }
+
+  private boolean waveCharIsUpper(double x, double span, double xoff, double yoff) {
+    // defaults: span = 0.4, xoff=0, yoff=-0.5
+    return Math.sin(x*span + xoff)+yoff > 0;
+  }
+
+  private String changeAlphabet(String message, MODE fontType) {
+    char[] messageArray = message.toCharArray();
+    int[] currentFont = FONT[fontType.ordinal()];
+    int i = 0;
+
+    for (char c : messageArray) {
+      int letterKey = alphabet.indexOf(c);
+      if (letterKey != -1 && (c != (char) 0x3E)) {
+        messageArray[i] = (char) currentFont[letterKey];
+      }
+      i++;
+    }
+    return new String(messageArray);
+  }
+
+  public String prettify(String message) {
+    switch (font.get()) {
+      case LEET:
+        return makeLeet(message);
+      case WAVE:
+        return makeWave(message);
+      case RANDOMCASE:
+        return randomCase(message);
+      default:
+        return changeAlphabet(message, font.get());
+    }
   }
 }
