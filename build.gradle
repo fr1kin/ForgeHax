@@ -32,6 +32,28 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
+
+//
+// COREMOD
+//
+sourceSets {
+    coremod {
+        compileClasspath += main.compileClasspath + main.runtimeClasspath + main.output
+    }
+}
+
+artifacts {
+    final coremodJarTask = task("ForgehaxCoreMod", type: Jar) {
+        baseName = "ForgehaxCoreMod"
+        from sourceSets.coremod.output
+    }
+
+    archives coremodJarTask
+}
+//
+//
+//
+
 /*minecraft {
     version = project.property('forgehax.forge.version')
     runDir = "run"
@@ -85,6 +107,8 @@ jar {
         )
     }
     exclude ('assets/minecraft/textures/forgehax/*')
+
+    from sourceSets.coremod.output // coremod
 }
 
 processResources
