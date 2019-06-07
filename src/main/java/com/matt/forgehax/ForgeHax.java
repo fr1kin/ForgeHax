@@ -41,7 +41,6 @@ public class ForgeHax {
   public void preInit(FMLCommonSetupEvent event) {
     // ---- initialize mods ----//
     getModManager().loadAll();
-
   }
 
   public void init(FMLClientSetupEvent event) {
@@ -49,6 +48,5 @@ public class ForgeHax {
     Runtime.getRuntime().addShutdownHook(new Thread(() -> getModManager().forEach(BaseMod::unload)));
     // registerAll mod events
     getModManager().forEach(BaseMod::load);
-
   }
 }

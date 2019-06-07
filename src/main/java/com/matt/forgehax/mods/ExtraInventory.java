@@ -5,7 +5,7 @@ import static com.matt.forgehax.Helper.getNetworkManager;
 
 import com.google.common.base.MoreObjects;
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.asm.utils.ReflectionHelper;
+import com.matt.forgehax.asm.reflection.util.ReflectionHelper;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.Utils;
@@ -14,7 +14,7 @@ import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import java.io.IOException;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;

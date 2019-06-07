@@ -6,7 +6,7 @@ import static com.matt.forgehax.util.entity.LocalPlayerUtils.isInReach;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.asm.utils.ReflectionHelper;
+import com.matt.forgehax.asm.reflection.util.ReflectionHelper;
 import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.VectorUtils;
@@ -21,11 +21,9 @@ import java.util.stream.Stream;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.*;
-import org.apache.commons.lang3.NotImplementedException;
 
 public class BlockHelper {
   public static UniqueBlock newUniqueBlock(IBlockState blockState, BlockPos pos) {

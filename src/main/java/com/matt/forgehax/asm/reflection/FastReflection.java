@@ -1,11 +1,11 @@
 package com.matt.forgehax.asm.reflection;
 
 import com.matt.forgehax.asm.ASMCommon;
-import com.matt.forgehax.asm.utils.fasttype.FastField;
-import com.matt.forgehax.asm.utils.fasttype.FastMethod;
-import com.matt.forgehax.asm.utils.fasttype.builder.FastFieldBuilder;
-import com.matt.forgehax.asm.utils.fasttype.builder.FastMethodBuilder;
-import com.matt.forgehax.asm.utils.fasttype.builder.FastTypeBuilder;
+import com.matt.forgehax.asm.reflection.util.fasttype.FastField;
+import com.matt.forgehax.asm.reflection.util.fasttype.FastMethod;
+import com.matt.forgehax.asm.reflection.util.fasttype.builder.FastFieldBuilder;
+import com.matt.forgehax.asm.reflection.util.fasttype.builder.FastMethodBuilder;
+
 import java.nio.FloatBuffer;
 import java.util.Map;
 import java.util.Set;

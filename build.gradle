@@ -37,22 +37,21 @@ configurations.all {
 // COREMOD
 //
 sourceSets {
+    // classloader independent classes that need to be used by both the main and coremod sourcesets
+    shared {
+        compileClasspath += main.compileClasspath// + main.runtimeClasspath
+    }
+
     coremod {
-        compileClasspath += main.compileClasspath + main.runtimeClasspath + main.output
-    }
-}
-
-artifacts {
-    final coremodJarTask = task("ForgehaxCoreMod", type: Jar) {
-        baseName = "ForgehaxCoreMod"
-        from sourceSets.coremod.output
+        compileClasspath += main.compileClasspath// + main.runtimeClasspath
+        compileClasspath += shared.output
     }
 
-    archives coremodJarTask
+    main {
+        compileClasspath += shared.output   
+    }
+
 }
-//
-//
-//
 
 /*minecraft {
     version = project.property('forgehax.forge.version')
@@ -81,7 +80,7 @@ minecraft {
             // recommended logging level for the console
             //properties 'forge.logging.console.level': 'debug'
             workingDirectory project.file('run').canonicalPath
-            source sourceSets.main
+            sources sourceSets.main, sourceSets.coremod
         }
     }
 }
@@ -91,7 +90,11 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
 
-    minecraft 'net.minecraftforge:forge:1.13.2-25.0.207'
+    minecraft ('net.minecraftforge:forge:1.13.2-25.0.219') {
+        //exclude group: 'cpw.mods', module: 'modlauncher'
+    }
+
+    //implementation 'cpw.mods:modlauncher:2.0.+'
 }
 
 
@@ -108,7 +111,8 @@ jar {
     }
     exclude ('assets/minecraft/textures/forgehax/*')
 
-    from sourceSets.coremod.output // coremod
+    from sourceSets.coremod.output // add coremod to the jar
+    from sourceSets.shared.output
 }
 
 processResources
@@ -167,7 +171,7 @@ task copyJar(type: Copy, dependsOn: [setGameDir]) {
         include archivesBaseName + '*'
     }.files
 
-    // change file name
+    // change file com.matt.forgehax.asm.name
     if(previousJars) {
         // create .backups folder
         def backupDir = gameDirectory + '/.backups/'
