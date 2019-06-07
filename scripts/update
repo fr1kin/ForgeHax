@@ -21,10 +21,5 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
             -f docker-compose.ci.yml \
             run --rm \
             forgehax clean --stacktrace
-
-        docker-compose \
-            -f docker-compose.ci.yml \
-            run --rm \
-            forgehax
     fi
 fi
