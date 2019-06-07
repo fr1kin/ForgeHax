@@ -48,7 +48,7 @@ import javax.annotation.Nonnull;
 
 public class ChunkRenderWorkerPatch {
 
-  @RegisterTransformer
+  //@RegisterTransformer // TODO: fix?
   public static class FreeRenderBuilder implements Transformer<MethodNode> {
     @Nonnull
     @Override

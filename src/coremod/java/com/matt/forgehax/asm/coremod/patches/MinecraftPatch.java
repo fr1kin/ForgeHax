@@ -15,9 +15,57 @@ import org.objectweb.asm.tree.*;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
+
+import static com.matt.forgehax.asm.coremod.utils.AsmPattern.CODE_ONLY;
 
 
 public class MinecraftPatch {
+
+    @RegisterTransformer
+    public static class Init implements Transformer<MethodNode> {
+        @Override
+        public Set<ITransformer.Target> targets() {
+            return ASMHelper.getTargetSet(Methods.Minecraft_init);
+        }
+
+        @Nonnull
+        @Override
+        public MethodNode transform(MethodNode method, ITransformerVotingContext context) {
+            AsmPattern beginPattern = new AsmPattern.Builder(CODE_ONLY)
+                .custom(predMethodWithName(Classes.ClientModLoader.getInternalName(), "begin"))
+                .build();
+            AsmPattern endPattern = new AsmPattern.Builder(CODE_ONLY)
+                .custom(predMethodWithName(Classes.ClientModLoader.getInternalName(), "end"))
+                .build();
+
+            InsnPattern begin = beginPattern.test(method);
+            Objects.requireNonNull(begin, "no forge modloader begin??");
+            InsnPattern end = endPattern.test(method);
+            Objects.requireNonNull(end, "no forge modloader end??");
+
+            final String forgehaxMainClass = "com/matt/forgehax/ForgeHax";
+            InsnList beginHook = new InsnList();
+            beginHook.insert(new MethodInsnNode(INVOKESTATIC, forgehaxMainClass, "preInit", "()V", false));
+
+            InsnList endHook = new InsnList();
+            endHook.insert(new MethodInsnNode(INVOKESTATIC, forgehaxMainClass, "init", "()V", false));
+
+            method.instructions.insert(begin.getLast(), beginHook);
+            method.instructions.insert(end.getLast(), endHook);
+
+            return method;
+        }
+
+        // TODO: put this somewhere else
+        private Predicate<AbstractInsnNode> predMethodWithName(String owner, String name) {
+            return insn ->
+                insn instanceof MethodInsnNode &&
+                    ((MethodInsnNode)insn).owner.equals(owner) &&
+                    ((MethodInsnNode)insn).name.equals(name);
+        }
+    }
+
 
     // Add callback before setting leftclick timer
     @RegisterTransformer
@@ -30,7 +78,7 @@ public class MinecraftPatch {
         @Nonnull
         @Override
         public MethodNode transform(MethodNode method, ITransformerVotingContext context) {
-            InsnPattern node = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
+            InsnPattern node = new AsmPattern.Builder(CODE_ONLY)
                 .custom(insn -> insn.getOpcode() == Opcodes.SIPUSH && ((IntInsnNode)insn).operand == 10000)
                 .opcode(Opcodes.PUTFIELD)
                 .build().test(method);

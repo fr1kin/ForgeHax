@@ -278,6 +278,21 @@ public interface TypesMc {
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/world/IWorldReader")
             .build();
+
+    ASMClass ClientModLoader =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraftforge/fml/client/ClientModLoader")
+            .build();
+
+    ASMClass Session =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/util/Session")
+            .build();
+
+    ASMClass Session$Type  =
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/util/Session$Type")
+            .build();
   }
 
   interface Fields {
@@ -539,6 +554,14 @@ public interface TypesMc {
             .beginParameters()
             .add(boolean.class)
             .finish()
+            //.autoAssign()
+            .build();
+    ASMMethod Minecraft_init =
+        Classes.Minecraft.childMethod()
+            .setName("runTick")
+            .setSrgName("func_71384_a")
+            .setReturnType(void.class)
+            .emptyParameters()
             //.autoAssign()
             .build();
 
@@ -880,5 +903,6 @@ public interface TypesMc {
             .finish()
             //.autoAssign()
             .build();
+
   }
 }

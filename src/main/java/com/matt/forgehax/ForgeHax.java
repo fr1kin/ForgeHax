@@ -24,9 +24,9 @@ public class ForgeHax {
   }
 
   public ForgeHax() {
-    System.out.println("Launching ForgeHax");
-    FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
-    FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
+    //System.out.println("Launching ForgeHax");
+    //FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
+    //FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
   }
 
   public static String getWelcomeMessage() {
@@ -38,12 +38,25 @@ public class ForgeHax {
     return builder.toString();
   }
 
-  public void preInit(FMLCommonSetupEvent event) {
+  /*public void preInit(FMLCommonSetupEvent event) {
+    // ---- initialize mods ----//
+    getModManager().loadAll();
+  }*/
+
+  /*public void init(FMLClientSetupEvent event) {
+    // add shutdown hook to serialize all binds
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> getModManager().forEach(BaseMod::unload)));
+    // registerAll mod events
+    getModManager().forEach(BaseMod::load);
+  }*/
+
+
+  // to be called from asm
+  public static void preInit() {
     // ---- initialize mods ----//
     getModManager().loadAll();
   }
-
-  public void init(FMLClientSetupEvent event) {
+  public static void init() {
     // add shutdown hook to serialize all binds
     Runtime.getRuntime().addShutdownHook(new Thread(() -> getModManager().forEach(BaseMod::unload)));
     // registerAll mod events

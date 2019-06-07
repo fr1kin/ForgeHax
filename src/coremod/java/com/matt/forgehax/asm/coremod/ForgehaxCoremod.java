@@ -1,6 +1,8 @@
 package com.matt.forgehax.asm.coremod;
 
 import com.matt.forgehax.asm.coremod.patches.*;
+import com.matt.forgehax.asm.coremod.transformer.ClassTransformerWrapper;
+import com.matt.forgehax.asm.coremod.transformer.MethodTransformerWrapper;
 import com.matt.forgehax.asm.coremod.transformer.RegisterTransformer;
 import com.matt.forgehax.asm.coremod.transformer.Transformer;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
@@ -45,9 +47,8 @@ public class ForgehaxCoremod implements ITransformationService {
   @Nonnull
   @Override
   public List<ITransformer> transformers() {
-    return getTransformersForClasses(
-        //MainTransformer.class, // VERY IMPORTANT
-        ForgehaxURLInjector.class, // VERY IMPORTANT
+    List<ITransformer> transformers = getTransformersForClasses(
+        //ForgehaxURLInjector.class, // try using this if the other hack doesnt work
 
         NetManagerPatch.class,
         MinecraftPatch.class,
@@ -70,6 +71,9 @@ public class ForgehaxCoremod implements ITransformationService {
         ChunkRenderWorkerPatch.class,
         ChunkRenderDispatcherPatch.class
     );
+    transformers.add(new ClassTransformerWrapper(new ForgehaxInjectorTransformerHack()));
+
+    return transformers;
   }
 
   @SuppressWarnings("unchecked")

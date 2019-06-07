@@ -134,18 +134,20 @@ public class ForgeHaxHooks implements ASMCommon {
   public static int onPutColorMultiplier(float r, float g, float b, int buffer, boolean[] flag) {
     flag[0] = SHOULD_UPDATE_ALPHA;
 
-    if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-      int red = (int) ((float) (buffer & 255) * r);
-      int green = (int) ((float) (buffer >> 8 & 255) * g);
-      int blue = (int) ((float) (buffer >> 16 & 255) * b);
-      int alpha = (int) (((float) (buffer >> 24 & 255) * COLOR_MULTIPLIER_ALPHA));
-      buffer = alpha << 24 | blue << 16 | green << 8 | red;
-    } else {
-      int red = (int) ((float) (buffer >> 24 & 255) * r);
-      int green = (int) ((float) (buffer >> 16 & 255) * g);
-      int blue = (int) ((float) (buffer >> 8 & 255) * b);
-      int alpha = (int) (((float) (buffer & 255) * COLOR_MULTIPLIER_ALPHA));
-      buffer = red << 24 | green << 16 | blue << 8 | alpha;
+    if (SHOULD_UPDATE_ALPHA) {
+      if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+        int red = (int) ((float) (buffer & 255) * r);
+        int green = (int) ((float) (buffer >> 8 & 255) * g);
+        int blue = (int) ((float) (buffer >> 16 & 255) * b);
+        int alpha = (int) (((float) (buffer >> 24 & 255) * COLOR_MULTIPLIER_ALPHA));
+        buffer = alpha << 24 | blue << 16 | green << 8 | red;
+      } else {
+        int red = (int) ((float) (buffer >> 24 & 255) * r);
+        int green = (int) ((float) (buffer >> 16 & 255) * g);
+        int blue = (int) ((float) (buffer >> 8 & 255) * b);
+        int alpha = (int) (((float) (buffer & 255) * COLOR_MULTIPLIER_ALPHA));
+        buffer = red << 24 | green << 16 | blue << 8 | alpha;
+      }
     }
     return buffer;
   }
