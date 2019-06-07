@@ -171,10 +171,10 @@ task setGameDir() {
 }
 
 task copyJar(type: Copy, dependsOn: [setGameDir]) {
-    def gameDirectory = "$gameDir/mods/" + "1.13.2"//minecraft.version
+    final gameDirectory = "$gameDir/mods/"
 
     // find previous jar (if it exists)
-    def previousJars = fileTree(dir: gameDirectory).matching {
+    final previousJars = fileTree(dir: gameDirectory).matching {
         include archivesBaseName + '*'
     }.files
 
@@ -198,9 +198,9 @@ task copyJar(type: Copy, dependsOn: [setGameDir]) {
 
     // copy forgehax jar from libs to forge mod folder
     from jar
-    into "$gameDir/mods/" + "1.13.2"//minecraft.version
+    into gameDirectory
 }
 
 task publishToMavenLocal() {} // dummy
 
-//build.finalizedBy copyJar
+build.finalizedBy copyJar
