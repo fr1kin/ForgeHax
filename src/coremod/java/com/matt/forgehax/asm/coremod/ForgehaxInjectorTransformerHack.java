@@ -8,11 +8,11 @@ import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import org.objectweb.asm.tree.ClassNode;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -23,14 +23,32 @@ public class ForgehaxInjectorTransformerHack implements Transformer<ClassNode> {
   @Nonnull
   @Override
   public ClassNode transform(ClassNode input, ITransformerVotingContext context) {
+
     if (!injected.getAndSet(true)) {
-      injectForgehaxUrl("file:///C:\\Users\\babbaj\\AppData\\Roaming\\.minecraft\\mods\\forgehax-1.13.2-2.9.0.jar");
+      getJarURL().ifPresent(url -> injectForgehaxUrl(url));
     }
 
     return input;
   }
 
-  public static void injectForgehaxUrl(String url) {
+  Optional<URL> getJarURL() {
+    final String thisPath = this.getClass().getName().replace('.', '/') + ".class";
+    final URL url = this.getClass().getClassLoader().getResource(thisPath);
+
+    try {
+      URLConnection urlConnection = url.openConnection();
+      if (urlConnection instanceof JarURLConnection) {
+        return Optional.of(((JarURLConnection)urlConnection).getJarFileURL());
+      }
+
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+
+    return Optional.empty();
+  }
+
+  public static void injectForgehaxUrl(URL url) {
     try {
       Field f_classLoader = Launcher.class.getDeclaredField("classLoader");
       f_classLoader.setAccessible(true);
@@ -40,8 +58,8 @@ public class ForgehaxInjectorTransformerHack implements Transformer<ClassNode> {
       m_addUrl.setAccessible(true);
       URLClassLoader delegate = (URLClassLoader)f_delegatedClassLoader.get(f_classLoader.get(Launcher.INSTANCE));
 
-      m_addUrl.invoke(delegate, new URL(url));
-    } catch (ReflectiveOperationException | MalformedURLException ex) {
+      m_addUrl.invoke(delegate, url);
+    } catch (ReflectiveOperationException ex) {
       throw new RuntimeException("Failed to inject forgehax jar url ", ex);
     }
   }

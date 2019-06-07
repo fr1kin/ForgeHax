@@ -52,7 +52,7 @@ sourceSets {
 
         java {
             final unCompilables = ['AutoPlace', 'HookReporter', 'Jesus', 'Markers', 'Nuker', 'PayloadSpoofer', 'Scaffold', 'WorldRendererAllocatedEvent', 'WorldRendererDeallocatedEvent']
-            exclude({ file -> 
+            exclude({ file ->
                 unCompilables.any { filter -> file.getName() == filter + '.java'}
             })
         }
@@ -118,8 +118,10 @@ jar {
     }
     exclude ('assets/minecraft/textures/forgehax/*')
 
-    from sourceSets.coremod.output // add coremod to the jar
+    // add coremod and shared source sets to the jar
+    from sourceSets.coremod.output
     from sourceSets.shared.output
+    //from sourceSets.main.output // attempt
 }
 
 processResources
@@ -130,17 +132,18 @@ processResources
     //inputs.property "mcversion", project.minecraft.version
 
     // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
+    /*from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
 
         // replace version and mcversion
-        //expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'version':project.version, 'mcversion':project.minecraft.version
     }
 
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
-    }
+    }*/
+    println it
 
 
     // TODO: Filter images out properly
