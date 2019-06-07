@@ -209,8 +209,6 @@ public class ClassLoaderHelper {
 
       if (connection instanceof FileURLConnection) {
         final Path root = Paths.get(rootDir).normalize();
-        System.out.println(root);
-        System.out.println(path);
         getClassPathsInDirectory(path, recursive)
                 .stream()
                 .map(root::relativize)

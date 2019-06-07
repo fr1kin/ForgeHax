@@ -46,6 +46,9 @@ public class ForgehaxCoremod implements ITransformationService {
   @Override
   public List<ITransformer> transformers() {
     return getTransformersForClasses(
+        //MainTransformer.class, // VERY IMPORTANT
+        ForgehaxURLInjector.class, // VERY IMPORTANT
+
         NetManagerPatch.class,
         MinecraftPatch.class,
         BlockPatch.class,
@@ -75,7 +78,7 @@ public class ForgehaxCoremod implements ITransformationService {
         .flatMap(clazz -> Stream.of(clazz.getDeclaredClasses()))
         .filter(inner -> inner.isAnnotationPresent(RegisterTransformer.class))
         .peek(inner -> {
-          if (!hasNoArgConstructor(inner))
+          if (!hasNoArgConstructor(inner)) // TODO: check if class is static, most likely reason for this to happen
             throw new IllegalStateException(inner.getSimpleName() + " does not have a 0 arg constructor");
         })
         .map(inner -> Transformer.createWrapper((ITransformer)this.newInstance(inner), inner.getDeclaredAnnotation(RegisterTransformer.class)))

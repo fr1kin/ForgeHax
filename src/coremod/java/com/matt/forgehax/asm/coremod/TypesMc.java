@@ -14,6 +14,11 @@ import java.util.List;
 public interface TypesMc {
   // classes no longer have any obfuscated com.matt.forgehax.asm.name
   interface Classes {
+    /*ASMClass Main = // seems to be impossible to transform
+        ASMBuilders.newClassBuilder()
+            .setClassName("net/minecraft/client/main/Main")
+            .build();*/
+
     ASMClass Packet =
         ASMBuilders.newClassBuilder()
             .setClassName("net/minecraft/network/Packet")
@@ -300,6 +305,24 @@ public interface TypesMc {
   }
 
   interface Methods {
+    /*ASMMethod Main_main =
+        Classes.Main.childMethod()
+            .setName("main")
+            .setReturnType(void.class)
+            .beginParameters()
+            .add(String[].class)
+            .finish()
+            //.autoAssign()
+            .build();*/
+    ASMMethod Minecraft_run =
+        Classes.Minecraft.childMethod()
+            .setName("run")
+            .setSrgName("func_99999_d")
+            .setReturnType(void.class)
+            .emptyParameters()
+            //.autoAssign()
+            .build();
+
     @Deprecated // doesnt seem to exist anymore
     ASMMethod Block_canRenderInLayer =
         Classes.Block.childMethod()
