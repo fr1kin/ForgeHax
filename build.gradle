@@ -48,7 +48,14 @@ sourceSets {
     }
 
     main {
-        compileClasspath += shared.output   
+        compileClasspath += shared.output
+
+        java {
+            final unCompilables = ['AutoPlace', 'HookReporter', 'Jesus', 'Markers', 'Nuker', 'PayloadSpoofer', 'Scaffold', 'WorldRendererAllocatedEvent', 'WorldRendererDeallocatedEvent']
+            exclude({ file -> 
+                unCompilables.any { filter -> file.getName() == filter + '.java'}
+            })
+        }
     }
 
 }
