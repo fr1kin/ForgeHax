@@ -74,7 +74,7 @@ public class FileHelper {
   }
 
   public static String asFilePath(@Nullable String packagePath) {
-    return packagePath == null ? "" : packagePath.replace('.', '/');
+    return packagePath == null ? "" : packagePath.replace('.', File.separatorChar);
   }
 
   public static String getPackageFromFullPath(String file) {
