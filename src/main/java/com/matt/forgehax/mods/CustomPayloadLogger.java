@@ -6,6 +6,8 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -39,22 +41,24 @@ public class CustomPayloadLogger extends ToggleMod {
             input.getBytes(),
             StandardOpenOption.CREATE,
             StandardOpenOption.APPEND);
-      } catch (Exception e) {
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     } else if (packet instanceof CPacketCustomPayload) {
       CPacketCustomPayload payloadPacket = (CPacketCustomPayload) packet;
       String input =
           String.format(
               "%s=%s\n",
-              //payloadPacket.getChannelName(), payloadPacket.getBufferData().toString());
-              payloadPacket.getName(), new String(payloadPacket.getData().array()));
+              payloadPacket.getName(), payloadPacket.getData().toString()
+          );
       try {
         Files.write(
             CLIENT_PAYLOAD_LOG,
             input.getBytes(),
             StandardOpenOption.CREATE,
             StandardOpenOption.APPEND);
-      } catch (Exception e) {
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
   }
