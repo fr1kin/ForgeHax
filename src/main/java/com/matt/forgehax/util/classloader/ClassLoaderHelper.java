@@ -179,6 +179,7 @@ public class ClassLoaderHelper {
    * @throws IOException
    */
   // TODO: clean this up
+  // TODO: this really needs to be rewritten
   public static List<Path> getClassPathsInPackage(
       final ClassLoader classLoader, final String packageIn, final boolean recursive)
       throws IOException {
@@ -187,7 +188,8 @@ public class ClassLoaderHelper {
 
 
     // package directory
-    final String packageDir = asFilePath(packageIn);
+    final String jarPackageDir = asFilePath(packageIn, "/");
+    final String packageFileDir = asFilePath(packageIn, File.separator);
 
     final String forgehaxMainPath = ForgeHax.class.getName().replace('.', '/') + ".class";
     final URL url = classLoader.getResource(forgehaxMainPath);
@@ -201,11 +203,11 @@ public class ClassLoaderHelper {
 
         final Path jarPath = modFile.getFilePath();
         if (Files.isRegularFile(jarPath)) {
-          return getClassPathsInJar(new JarFile(jarPath.toFile()), packageDir, recursive);
+          return getClassPathsInJar(new JarFile(jarPath.toFile()), jarPackageDir, recursive);
         } else {
-          final Path buildPath = modFile.findResource(packageDir);
+          final Path buildPath = modFile.findResource(packageFileDir);
           // this is kind of gay but i guess that's just how it has to be
-          final Path buildRootPath = Paths.get(buildPath.toString().substring(0, buildPath.toString().indexOf(packageDir)));
+          final Path buildRootPath = Paths.get(buildPath.toString().substring(0, buildPath.toString().indexOf(packageFileDir)));
 
           return getClassPathsInDirectory(buildPath, recursive)
               .stream()
@@ -219,11 +221,11 @@ public class ClassLoaderHelper {
             .replace('\\', '/'); // get path and covert backslashes to forward slashes
         path = path.substring(path.indexOf('/') + 1); // remove the initial '/' or 'file:/' appended to the path
         path = path.substring(0, path.indexOf(forgehaxMainPath)); // remove com/matt/forgehax/Forgehax.class
-        path += packageDir;
+        path += jarPackageDir;
 
 
         // the root directory to the jar/folder containing the classes
-        final String rootDir = path.substring(0, path.indexOf(packageDir));
+        final String rootDir = path.substring(0, path.indexOf(jarPackageDir));
 
 
         if (connection instanceof FileURLConnection) { // FileURLConnection doesn't seem to be used
@@ -234,7 +236,7 @@ public class ClassLoaderHelper {
               .collect(Collectors.toList());
 
         } else if (connection instanceof JarURLConnection) {
-          return getClassPathsInJar(((JarURLConnection) connection).getJarFile(), packageDir, recursive);
+          return getClassPathsInJar(((JarURLConnection) connection).getJarFile(), jarPackageDir, recursive);
         }
 
       }

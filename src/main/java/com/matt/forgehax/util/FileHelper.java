@@ -73,8 +73,8 @@ public class FileHelper {
     return asPackagePath(path.toString());
   }
 
-  public static String asFilePath(@Nullable String packagePath) {
-    return packagePath == null ? "" : packagePath.replace('.', File.separatorChar);
+  public static String asFilePath(@Nullable String packagePath, String separator) {
+    return packagePath == null ? "" : packagePath.replace(".", separator);
   }
 
   public static String getPackageFromFullPath(String file) {
