@@ -37,6 +37,14 @@ public class TickRateService extends ServiceMod {
 
   private long timeLastTimeUpdate = -1;
 
+  public long getLastTimeDiff() {
+    if (timeLastTimeUpdate != -1) {
+      return System.currentTimeMillis() - timeLastTimeUpdate;
+    } else {
+      return 0;
+    }
+  }
+
   public TickRateService() {
     super("TickManager", "Records the average tick rate");
   }
@@ -50,10 +58,12 @@ public class TickRateService extends ServiceMod {
   @SubscribeEvent
   public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketTimeUpdate) {
+      long currentTimeMillis = System.currentTimeMillis();
       if (timeLastTimeUpdate != -1) {
-        TICK_DATA.onTimePacketIncoming(System.currentTimeMillis() - timeLastTimeUpdate);
+        TICK_DATA.onTimePacketIncoming(currentTimeMillis - timeLastTimeUpdate);
       }
-      timeLastTimeUpdate = System.currentTimeMillis();
+      timeLastTimeUpdate = currentTimeMillis;
+      INSTANCE.timeLastTimeUpdate = timeLastTimeUpdate;
     }
   }
 

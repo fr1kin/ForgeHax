@@ -17,7 +17,7 @@ public class ToggleMod extends BaseMod {
             .description("Enables the mod")
             .defaultTo(defaultValue)
             .changed(
-                cb -> {
+                cb -> { // value is set after callback is ran 🤡
                   // do not call anything that might infinitely call this callback
                   if (cb.getTo()) start();
                   else stop();

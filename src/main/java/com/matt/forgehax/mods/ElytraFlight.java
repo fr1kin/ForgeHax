@@ -4,7 +4,9 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getNetworkManager;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.Switch.Handle;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -32,6 +34,8 @@ public class ElytraFlight extends ToggleMod {
           .defaultTo(0.05D)
           .build();
 
+  private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getModName());
+
   public ElytraFlight() {
     super(Category.PLAYER, "ElytraFlight", false, "Elytra Flight");
   }
@@ -49,6 +53,7 @@ public class ElytraFlight extends ToggleMod {
 
   @Override
   public void onDisabled() {
+    flying.disable();
     // Are we still here?
     if (getLocalPlayer() != null) {
 
@@ -66,6 +71,7 @@ public class ElytraFlight extends ToggleMod {
     // Enable our flight as soon as the player starts flying his elytra.
     if (getLocalPlayer().isElytraFlying()) {
       getLocalPlayer().abilities.isFlying = true;
+      flying.enable();
     }
     getLocalPlayer().abilities.setFlySpeed(speed.getAsFloat());
   }

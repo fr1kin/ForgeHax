@@ -97,12 +97,11 @@ public class MacroCommand extends CommandMod {
         .description("Remove a macro (Usage: \".macros remove --name hack (and/or) --key f\") ")
         .options(MacroBuilders::keyOption)
         .options(MacroBuilders::nameOption)
-        .processor(
-            data -> {
-              if (!data.hasOption("key") && !data.hasOption("name")) {
-                // jopt doesn't seem to allow options to depend on each other
-                throw new CommandExecuteException("Missing required option(s) [k/key], [n/name]");
-              }
+        .processor(data -> {
+            if (!data.hasOption("key") && !data.hasOption("name")) {
+              // jopt doesn't seem to allow options to depend on each other
+              throw new CommandExecuteException("Missing required option(s) [k/key], [n/name]");
+            }
 
               if (data.hasOption("key")) {
                 // remove by key
@@ -127,6 +126,35 @@ public class MacroCommand extends CommandMod {
               }
             })
         .build();
+
+    MACROS
+        .builders()
+        .newCommandBuilder()
+        .name("list")
+        .description("List all the macros")
+        .options(MacroBuilders::fullOption)
+        .processor(data -> {
+          Helper.printMessage("Macros (%d):", MACROS.size());
+          for (MacroEntry macro : MACROS) {
+            data.write(macro.name.map(name -> '\"' + name + '\"').orElse("anonymous") + ": " + Keys.getKeyName(macro.key));
+            if (data.hasOption("full")) {
+              data.incrementIndent();
+                data.write(this.rawMacroString(macro));
+              data.decrementIndent();
+            }
+          }
+        })
+        .build();
+  }
+
+  // TODO: split into separate lines if too long
+  private String rawMacroString(MacroEntry macro) {
+    return macro.commands.stream()
+        .map(nested ->
+            nested.stream()
+              .collect(Collectors.joining(";", "(", ")"))
+        )
+        .collect(Collectors.joining(" "));
   }
 
   @Override
@@ -138,7 +166,7 @@ public class MacroCommand extends CommandMod {
   public Command executeMacro(CommandBuilders builder) {
     return builder
         .newCommandBuilder()
-        .name("macro")
+        .name("exec")
         .description("Execute a named macro")
         .requiredArgs(1)
         .processor(
@@ -149,10 +177,7 @@ public class MacroCommand extends CommandMod {
                       .stream()
                       .filter(entry -> entry.getName().map(name::equals).orElse(false))
                       .findFirst()
-                      .orElseThrow(
-                          () ->
-                              new CommandExecuteException(
-                                  String.format("Unknown macro: \"%s\"", name)));
+                      .orElseThrow(() -> new CommandExecuteException(String.format("Unknown macro: \"%s\"", name)));
 
               executeMacro(macro);
             })
@@ -198,12 +223,9 @@ public class MacroCommand extends CommandMod {
                   .stream()
                   .filter(m -> m.getName().isPresent() && m.getName().equals(macro.getName()))
                   .findFirst()
-                  .ifPresent(
-                      alreadyExists -> {
-                        throw new CommandExecuteException(
-                            String.format(
-                                "Command \"%s\" already exists!", alreadyExists.getName().get()));
-                      });
+                  .ifPresent(alreadyExists -> {
+                    throw new CommandExecuteException(String.format("Command \"%s\" already exists!", alreadyExists.getName().get()));
+                  });
               MACROS.add(macro);
 
               if (!macro.isAnonymous()) macro.registerBind();
@@ -214,10 +236,7 @@ public class MacroCommand extends CommandMod {
   }
 
   private ImmutableList<String> parseCommand(String input) {
-    return ImmutableList.copyOf(
-        Arrays.asList(
-            input.split(
-                ";"))); // TODO: don't split semicolons in quotes and allow escaped semicolons
+    return ImmutableList.copyOf(Arrays.asList(input.split(";"))); // TODO: don't split semicolons in quotes and allow escaped semicolons
   }
 
   public static class MacroEntry implements ISerializableJson {
@@ -313,6 +332,10 @@ public class MacroCommand extends CommandMod {
 
     static void keyOption(OptionParser parser) {
       parser.acceptsAll(Arrays.asList("key", "k"), "key").withRequiredArg();
+    }
+
+    static void fullOption(OptionParser parser) {
+      parser.accepts("full").withOptionalArg();
     }
 
     static void parseName(ExecuteData data) {

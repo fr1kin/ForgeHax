@@ -32,7 +32,7 @@ public class CustomPayloadLogger extends ToggleMod {
       String input =
           String.format(
               "%s=%s\n",
-              payloadPacket.getChannelName(), new String(payloadPacket.getBufferData().array()));
+              payloadPacket.getChannelName(), payloadPacket.getBufferData().toString());
       try {
         Files.write(
             SERVER_PAYLOAD_LOG,
@@ -46,6 +46,7 @@ public class CustomPayloadLogger extends ToggleMod {
       String input =
           String.format(
               "%s=%s\n",
+              //payloadPacket.getChannelName(), payloadPacket.getBufferData().toString());
               payloadPacket.getName(), new String(payloadPacket.getData().array()));
       try {
         Files.write(

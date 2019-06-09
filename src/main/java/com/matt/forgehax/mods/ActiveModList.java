@@ -12,12 +12,13 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class ActiveModList extends ToggleMod {
-  public final Setting<Boolean> tps_meter =
+  private final Setting<Boolean> tps_meter =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -26,7 +27,7 @@ public class ActiveModList extends ToggleMod {
           .defaultTo(true)
           .build();
 
-  public final Setting<Boolean> debug =
+  private final Setting<Boolean> debug =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -35,7 +36,7 @@ public class ActiveModList extends ToggleMod {
           .defaultTo(false)
           .build();
 
-  public final Setting<Integer> factor =
+  private final Setting<Integer> factor =
       getCommandStub()
           .builders()
           .<Integer>newSettingBuilder()
@@ -46,7 +47,16 @@ public class ActiveModList extends ToggleMod {
           .max(100)
           .build();
 
-  public final Setting<SortMode> sortMode =
+  private final Setting<Boolean> showLag =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("showLag")
+          .description("Shows lag time since last tick")
+          .defaultTo(true)
+          .build();
+
+  private final Setting<SortMode> sortMode =
       getCommandStub()
           .builders()
           .<SortMode>newSettingEnumBuilder()
@@ -92,6 +102,17 @@ public class ActiveModList extends ToggleMod {
         }
       }
     }
+
+    if (showLag.get()) {
+      long lastTickMs = TickRateService.getInstance().getLastTimeDiff();
+
+      if (lastTickMs < 1000) {
+        builder.append(", 0.0s");
+      } else {
+        builder.append(String.format(", %01.1fs", ((float) (lastTickMs - 1000)) / 1000));
+      }
+    }
+
     return builder.toString();
   }
 
@@ -103,18 +124,30 @@ public class ActiveModList extends ToggleMod {
       SurfaceHelper.drawTextShadow(generateTickRateText(), posX, posY.get(), Utils.Colors.WHITE);
       posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
     }
-    getModManager()
-        .getMods()
-        .stream()
-        .filter(BaseMod::isEnabled)
-        .filter(mod -> !mod.isHidden())
-        .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
-        .sorted(sortMode.get().getComparator())
-        .forEach(
-            name -> {
-              SurfaceHelper.drawTextShadow(">" + name, posX, posY.get(), Utils.Colors.WHITE);
-              posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
-            });
+
+    if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
+      long enabledMods = getModManager()
+          .getMods()
+          .stream()
+          .filter(BaseMod::isEnabled)
+          .filter(mod -> !mod.isHidden())
+          .count();
+      SurfaceHelper.drawTextShadow(enabledMods + " mods enabled",
+          posX, posY.get(), Utils.Colors.WHITE);
+    } else {
+      getModManager()
+          .getMods()
+          .stream()
+          .filter(BaseMod::isEnabled)
+          .filter(mod -> !mod.isHidden())
+          .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
+          .sorted(sortMode.get().getComparator())
+          .forEach(
+              name -> {
+                SurfaceHelper.drawTextShadow(">" + name, posX, posY.get(), Utils.Colors.WHITE);
+                posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
+              });
+    }
     /*
     posY += (Render2DUtils.getTextHeight() + 1) * 2;
     Render2DUtils.drawTextShadow(String.format("Pitch: %.4f", MC.thePlayer.rotationPitch), posX, posY, Utils.toRGBA(255, 255, 255, 255));

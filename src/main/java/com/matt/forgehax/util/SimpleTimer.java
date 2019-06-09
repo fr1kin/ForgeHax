@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 /** Created on 8/22/2017 by fr1kin */
 public class SimpleTimer {
@@ -82,6 +83,14 @@ public class SimpleTimer {
   }
 
   public String getFormattedTimeElapsed() {
-    return TIME_FORMATTER.format(new Date(getTimeElapsed()));
+    return formatInterval(Math.max(getTimeElapsed(), 0));
+  }
+
+  protected static String formatInterval(long delta) {
+    final long hr = TimeUnit.MILLISECONDS.toHours(delta);
+    final long min = TimeUnit.MILLISECONDS.toMinutes(delta - TimeUnit.HOURS.toMillis(hr));
+    final long sec = TimeUnit.MILLISECONDS.toSeconds(delta - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
+    final long ms = TimeUnit.MILLISECONDS.toMillis(delta - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
+    return String.format("%02d:%02d:%02d.%03d", hr, min, sec, ms);
   }
 }
