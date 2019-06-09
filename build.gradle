@@ -33,9 +33,6 @@ configurations.all {
 }
 
 
-//
-// COREMOD
-//
 sourceSets {
     // classloader independent classes that need to be used by both the main and coremod sourcesets
     shared {
@@ -58,7 +55,7 @@ sourceSets {
         }
     }
 
-    // contains all_sourcesets, run/debug config should use the classpath of this
+    // should contain everything, run config should use the classpath of this
     all_sourcesets {
         compileClasspath += main.runtimeClasspath + coremod.runtimeClasspath + shared.runtimeClasspath
     }
