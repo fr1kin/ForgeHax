@@ -31,6 +31,7 @@ public class ForgehaxInjectorTransformerHack implements Transformer<ClassNode> {
     return input;
   }
 
+  // this wont work if we are somehow loaded as a normal mod
   Optional<URL> getJarURL() {
     final String thisPath = this.getClass().getName().replace('.', '/') + ".class";
     final URL url = this.getClass().getClassLoader().getResource(thisPath);
@@ -60,7 +61,7 @@ public class ForgehaxInjectorTransformerHack implements Transformer<ClassNode> {
 
       m_addUrl.invoke(delegate, url);
     } catch (ReflectiveOperationException ex) {
-      throw new RuntimeException("Failed to inject forgehax jar url ", ex);
+      throw new RuntimeException("Failed to inject forgehax jar url", ex);
     }
   }
 

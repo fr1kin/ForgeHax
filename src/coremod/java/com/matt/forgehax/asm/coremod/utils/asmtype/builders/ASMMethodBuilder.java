@@ -103,7 +103,7 @@ public class ASMMethodBuilder implements ASMCommon {
 
   public ASMMethod build() {
     // parent class not required
-    Objects.requireNonNull(name, "Missing method com.matt.forgehax.asm.name");
+    Objects.requireNonNull(name, "Missing method name");
     Objects.requireNonNull(
         parameterTypes, "Missing method parameters (use emptyParameters() if none are present)");
     Objects.requireNonNull(returnType, "Missing method return type");

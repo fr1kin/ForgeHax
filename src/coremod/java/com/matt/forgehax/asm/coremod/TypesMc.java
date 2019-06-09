@@ -12,7 +12,7 @@ import java.util.List;
 
 /** Created on 5/27/2017 by fr1kin */
 public interface TypesMc {
-  // classes no longer have any obfuscated com.matt.forgehax.asm.name
+  // classes no longer have any obfuscated name
   interface Classes {
     /*ASMClass Main = // seems to be impossible to transform
         ASMBuilders.newClassBuilder()
@@ -558,7 +558,7 @@ public interface TypesMc {
             .build();
     ASMMethod Minecraft_init =
         Classes.Minecraft.childMethod()
-            .setName("runTick")
+            .setName("init")
             .setSrgName("func_71384_a")
             .setReturnType(void.class)
             .emptyParameters()

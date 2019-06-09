@@ -24,9 +24,9 @@ public class ASMClass implements IASMType {
   }
 
   /**
-   * The class com.matt.forgehax.asm.name for the class of the given state (packages separated by "." instead of "/")
+   * The class name for the class of the given state (packages separated by "." instead of "/")
    *
-   * @return internal class com.matt.forgehax.asm.name
+   * @return internal class name
    */
   @Override
   public String getNameByState(State state) {

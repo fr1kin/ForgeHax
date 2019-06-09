@@ -28,7 +28,7 @@ public class ASMClassBuilder implements ASMCommon {
 
 
   public ASMClass build() {
-    Objects.requireNonNull(name, "Class com.matt.forgehax.asm.name is missing");
+    Objects.requireNonNull(name, "Class name is missing");
     return new ASMClass(NameBuilder.createSingleName(name));
   }
 }

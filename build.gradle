@@ -58,6 +58,11 @@ sourceSets {
         }
     }
 
+    // contains all_sourcesets, run/debug config should use the classpath of this
+    all_sourcesets {
+        compileClasspath += main.runtimeClasspath + coremod.runtimeClasspath + shared.runtimeClasspath
+    }
+
 }
 
 /*minecraft {
@@ -87,7 +92,10 @@ minecraft {
             // recommended logging level for the console
             //properties 'forge.logging.console.level': 'debug'
             workingDirectory project.file('run').canonicalPath
-            sources sourceSets.main, sourceSets.coremod
+            // cant use sourceSets.all_sourcesets because needs to get the build directory path and it does not do that recursively
+            sources sourceSets.main, sourceSets.coremod, sourceSets.shared
+
+            setIdeaModule project.getName() + '_' + sourceSets.all_sourcesets.name
         }
     }
 }
@@ -121,7 +129,6 @@ jar {
     // add coremod and shared source sets to the jar
     from sourceSets.coremod.output
     from sourceSets.shared.output
-    //from sourceSets.main.output // attempt
 }
 
 processResources
@@ -143,7 +150,6 @@ processResources
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }*/
-    println it
 
 
     // TODO: Filter images out properly
@@ -181,7 +187,7 @@ task copyJar(type: Copy, dependsOn: [setGameDir]) {
         include archivesBaseName + '*'
     }.files
 
-    // change file com.matt.forgehax.asm.name
+    // change file name
     if(previousJars) {
         // create .backups folder
         def backupDir = gameDirectory + '/.backups/'

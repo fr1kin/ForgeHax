@@ -27,10 +27,10 @@ public class ASMMethod extends ASMClassChild {
   }
 
   /**
-   * The method type, specified by state, containing the method com.matt.forgehax.asm.name
+   * The method type, specified by state, containing the method name
    *
    * @param state state of the environment to get
-   * @return type containing method com.matt.forgehax.asm.name
+   * @return type containing method name
    */
   @Override
   public String getNameByState(State state) {

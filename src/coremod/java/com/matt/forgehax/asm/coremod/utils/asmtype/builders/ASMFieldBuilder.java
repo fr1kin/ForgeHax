@@ -78,11 +78,11 @@ public class ASMFieldBuilder implements ASMCommon {
 
   private void attemptAutoAssign() {
     throw new UnsupportedOperationException("autoAssign");
-    //setSrgName(MAPPER.getSrgFieldName(parentClass.getInternalName(), com.matt.forgehax.asm.name));
+    //setSrgName(MAPPER.getSrgFieldName(parentClass.getInternalName(), name));
   }
 
   public ASMField build() {
-    Objects.requireNonNull(name, "Missing field com.matt.forgehax.asm.name");
+    Objects.requireNonNull(name, "Missing field name");
     Objects.requireNonNull(type, "Missing field type");
     if (auto && RuntimeState.isSrg()) attemptAutoAssign();
     return new ASMField(parentClass, NameBuilder.create(name, srgName), type);

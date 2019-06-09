@@ -71,7 +71,7 @@ public class FileDumper {
               .sorted(Comparator.comparing(Map.Entry::getKey))
               .forEach(
                   entry -> {
-                    // class com.matt.forgehax.asm.name
+                    // class name
                     builder.append(entry.getKey());
                     builder.append("\n{\n");
                     entry

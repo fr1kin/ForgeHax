@@ -20,10 +20,10 @@ public class ASMField extends ASMClassChild {
   }
 
   /**
-   * The field type, specified by state, containing the field com.matt.forgehax.asm.name
+   * The field type, specified by state, containing the field name
    *
    * @param state state of the environment to get
-   * @return type containing field com.matt.forgehax.asm.name
+   * @return type containing field name
    */
   @Override
   public String getNameByState(State state) {
