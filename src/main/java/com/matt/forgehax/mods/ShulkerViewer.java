@@ -20,6 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -257,9 +258,8 @@ public class ShulkerViewer extends ToggleMod {
     }
   }
 
-  // TODO: make sure this works for all colors
   private boolean isShulkerBox(Item item) {
-    return item instanceof ItemBlock && ((ItemBlock)item).getBlock() == Blocks.SHULKER_BOX;
+    return item instanceof ItemBlock && ((ItemBlock)item).getBlock() instanceof BlockShulkerBox;
   }
 
   @SubscribeEvent
