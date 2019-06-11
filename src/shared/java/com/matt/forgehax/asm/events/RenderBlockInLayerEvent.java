@@ -1,18 +1,18 @@
 package com.matt.forgehax.asm.events;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.eventbus.api.Event;
 
 public class RenderBlockInLayerEvent extends Event {
   private final Block block;
-  private final IBlockState state;
+  private final BlockState state;
   private final BlockRenderLayer compareToLayer;
   private BlockRenderLayer layer;
 
   public RenderBlockInLayerEvent(
-      Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
+      Block block, BlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
     this.block = block;
     this.state = state;
     this.layer = layer;
@@ -35,7 +35,7 @@ public class RenderBlockInLayerEvent extends Event {
     return compareToLayer;
   }
 
-  public IBlockState getState() {
+  public BlockState getState() {
     return state;
   }
 }

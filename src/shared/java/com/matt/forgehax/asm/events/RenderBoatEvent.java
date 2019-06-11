@@ -1,6 +1,6 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.entity.item.BoatEntity;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -8,9 +8,9 @@ import net.minecraftforge.eventbus.api.Event;
 @Cancelable
 public class RenderBoatEvent extends Event {
   private float yaw;
-  private EntityBoat boat;
+  private BoatEntity boat;
 
-  public RenderBoatEvent(EntityBoat boatIn, float entityYaw) {
+  public RenderBoatEvent(BoatEntity boatIn, float entityYaw) {
     this.boat = boatIn;
     this.yaw = entityYaw;
   }
@@ -23,7 +23,7 @@ public class RenderBoatEvent extends Event {
     return this.yaw;
   }
 
-  public EntityBoat getBoat() {
+  public BoatEntity getBoat() {
     return this.boat;
   }
 }

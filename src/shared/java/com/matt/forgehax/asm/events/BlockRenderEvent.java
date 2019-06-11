@@ -1,6 +1,6 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldReader;
@@ -10,12 +10,12 @@ import net.minecraftforge.eventbus.api.Event;
 // TODOL make sure IWorldReader is correct
 public class BlockRenderEvent extends Event {
   private final BlockPos pos;
-  private final IBlockState state;
+  private final BlockState state;
   private final IWorldReader access;
   private final BufferBuilder buffer;
 
   public BlockRenderEvent(
-      BlockPos pos, IBlockState state, IWorldReader access, BufferBuilder buffer) {
+      BlockPos pos, BlockState state, IWorldReader access, BufferBuilder buffer) {
     this.pos = pos;
     this.state = state;
     this.access = access;
@@ -30,7 +30,7 @@ public class BlockRenderEvent extends Event {
     return access;
   }
 
-  public IBlockState getState() {
+  public BlockState getState() {
     return state;
   }
 

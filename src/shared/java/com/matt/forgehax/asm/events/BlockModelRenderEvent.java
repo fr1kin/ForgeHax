@@ -1,6 +1,6 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.BufferBuilder;
 //import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -14,7 +14,7 @@ import net.minecraftforge.eventbus.api.Event;
 public class BlockModelRenderEvent extends Event {
   //private final IBlockAccess blockAccess; // world?
   private final IBakedModel bakedModel;
-  private final IBlockState blockState;
+  private final BlockState blockState;
   private final BlockPos blockPos;
   private final BufferBuilder buffer;
   private final boolean checkSides;
@@ -23,7 +23,7 @@ public class BlockModelRenderEvent extends Event {
   public BlockModelRenderEvent(
       //IBlockAccess worldIn,
       IBakedModel modelIn,
-      IBlockState stateIn,
+      BlockState stateIn,
       BlockPos posIn,
       BufferBuilder buffer,
       boolean checkSides,
@@ -45,7 +45,7 @@ public class BlockModelRenderEvent extends Event {
     return bakedModel;
   }*/
 
-  public IBlockState getBlockState() {
+  public BlockState getBlockState() {
     return blockState;
   }
 

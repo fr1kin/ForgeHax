@@ -1,7 +1,7 @@
 package com.matt.forgehax.asm.events;
 
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.ChunkRender;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.Event;
@@ -14,14 +14,14 @@ public class PrePostBlockModelRenderEvent extends Event {
     ;
   }
 
-  private final RenderChunk renderChunk;
+  private final ChunkRender renderChunk;
   private final BufferBuilder buffer;
   private final Vec3d pos;
 
   private final State state;
 
   public PrePostBlockModelRenderEvent(
-      RenderChunk renderChunk, BufferBuilder BufferBuilder, State state, Vec3d pos) {
+      ChunkRender renderChunk, BufferBuilder BufferBuilder, State state, Vec3d pos) {
     this.renderChunk = renderChunk;
     this.buffer = BufferBuilder;
     this.state = state;
@@ -29,12 +29,12 @@ public class PrePostBlockModelRenderEvent extends Event {
   }
 
   public PrePostBlockModelRenderEvent(
-      RenderChunk renderChunk, BufferBuilder BufferBuilder, State state, BlockPos pos) {
+      ChunkRender renderChunk, BufferBuilder BufferBuilder, State state, BlockPos pos) {
     this(renderChunk, BufferBuilder, state, new Vec3d(pos.getX(), pos.getY(), pos.getZ()));
   }
 
   public PrePostBlockModelRenderEvent(
-      RenderChunk renderChunk,
+      ChunkRender renderChunk,
       BufferBuilder BufferBuilder,
       State state,
       float x,
@@ -43,7 +43,7 @@ public class PrePostBlockModelRenderEvent extends Event {
     this(renderChunk, BufferBuilder, state, new Vec3d(x, y, z));
   }
 
-  public RenderChunk getRenderChunk() {
+  public ChunkRender getRenderChunk() {
     return renderChunk;
   }
 

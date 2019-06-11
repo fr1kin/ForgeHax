@@ -1,27 +1,27 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.eventbus.api.Event;
 
 public class PlayerAttackEntityEvent extends Event {
-  private final PlayerControllerMP playerController;
-  private final EntityPlayer attacker;
+  private final PlayerController playerController;
+  private final PlayerEntity attacker;
   private final Entity victim;
 
   public PlayerAttackEntityEvent(
-      PlayerControllerMP playerController, EntityPlayer attacker, Entity victim) {
+      PlayerController playerController, PlayerEntity attacker, Entity victim) {
     this.playerController = playerController;
     this.attacker = attacker;
     this.victim = victim;
   }
 
-  public PlayerControllerMP getPlayerController() {
+  public PlayerController getPlayerController() {
     return playerController;
   }
 
-  public EntityPlayer getAttacker() {
+  public PlayerEntity getAttacker() {
     return attacker;
   }
 

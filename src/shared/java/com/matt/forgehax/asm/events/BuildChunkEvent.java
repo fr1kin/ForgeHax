@@ -1,28 +1,28 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.ChunkRender;
 import net.minecraftforge.eventbus.api.Event;
 
 /** Created on 5/8/2017 by fr1kin */
 public class BuildChunkEvent extends Event {
-  private final RenderChunk renderChunk;
+  private final ChunkRender renderChunk;
 
-  public BuildChunkEvent(RenderChunk renderChunk) {
+  public BuildChunkEvent(ChunkRender renderChunk) {
     this.renderChunk = renderChunk;
   }
 
-  public RenderChunk getRenderChunk() {
+  public ChunkRender getRenderChunk() {
     return renderChunk;
   }
 
   public static class Pre extends BuildChunkEvent {
-    public Pre(RenderChunk renderChunk) {
+    public Pre(ChunkRender renderChunk) {
       super(renderChunk);
     }
   }
 
   public static class Post extends BuildChunkEvent {
-    public Post(RenderChunk renderChunk) {
+    public Post(ChunkRender renderChunk) {
       super(renderChunk);
     }
   }

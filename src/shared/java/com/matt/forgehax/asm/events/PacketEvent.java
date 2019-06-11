@@ -1,53 +1,53 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraft.network.Packet;
+import net.minecraft.network.IPacket;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 public class PacketEvent extends Event {
-  private final Packet<?> packet;
+  private final IPacket<?> packet;
 
-  public PacketEvent(Packet<?> packetIn) {
+  public PacketEvent(IPacket<?> packetIn) {
     packet = packetIn;
   }
 
-  public <T extends Packet<?>> T getPacket() {
+  public <T extends IPacket<?>> T getPacket() {
     return (T) packet;
   }
 
   public static class Outgoing extends PacketEvent {
-    public Outgoing(Packet<?> packetIn) {
+    public Outgoing(IPacket<?> packetIn) {
       super(packetIn);
     }
 
     @Cancelable
     public static class Pre extends Outgoing {
-      public Pre(Packet<?> packetIn) {
+      public Pre(IPacket<?> packetIn) {
         super(packetIn);
       }
     }
 
     public static class Post extends Outgoing {
-      public Post(Packet<?> packetIn) {
+      public Post(IPacket<?> packetIn) {
         super(packetIn);
       }
     }
   }
 
   public static class Incoming extends PacketEvent {
-    public Incoming(Packet<?> packetIn) {
+    public Incoming(IPacket<?> packetIn) {
       super(packetIn);
     }
 
     @Cancelable
     public static class Pre extends Incoming {
-      public Pre(Packet<?> packetIn) {
+      public Pre(IPacket<?> packetIn) {
         super(packetIn);
       }
     }
 
     public static class Post extends Incoming {
-      public Post(Packet<?> packetIn) {
+      public Post(IPacket<?> packetIn) {
         super(packetIn);
       }
     }
