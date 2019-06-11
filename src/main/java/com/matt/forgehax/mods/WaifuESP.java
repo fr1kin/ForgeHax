@@ -103,7 +103,7 @@ public class WaifuESP extends ToggleMod {
 
     @Override
     public void onLoad() { // lol
-        MC.addScheduledTask(() -> {
+        MC.execute(() -> {
             this.waifu = Optional.of(waifuCache)
                 .map(cache -> {
                     try {

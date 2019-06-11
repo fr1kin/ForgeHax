@@ -14,9 +14,12 @@ import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.play.client.CMoveVehiclePacket;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketVehicleMove;
+import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.Vec3d;
 
 /** Created by Babbaj on 4/12/2018. */
@@ -31,12 +34,12 @@ public class ClipCommand extends CommandMod {
   private void setPosition(double x, double y, double z) {
     final Entity local = Helper.getRidingOrPlayer();
     local.setPositionAndUpdate(x, y, z);
-    if (local instanceof EntityPlayerSP) {
+    if (local instanceof ClientPlayerEntity) {
       getNetworkManager()
           .sendPacket(
-              new CPacketPlayer.Position(local.posX, local.posY, local.posZ, MC.player.onGround));
+              new CPlayerPacket.PositionPacket(local.posX, local.posY, local.posZ, MC.player.onGround));
     } else {
-      getNetworkManager().sendPacket(new CPacketVehicleMove(local));
+      getNetworkManager().sendPacket(new CMoveVehiclePacket(local));
     }
   }
 
@@ -59,7 +62,7 @@ public class ClipCommand extends CommandMod {
                 switch (data.getArgumentCount()) {
                   case 1: {
                     final double y = Double.parseDouble(data.getArgumentAsString(0));
-                    MC.addScheduledTask(() -> {
+                    MC.execute(() -> {
                       if (getWorld() == null || getLocalPlayer() == null)
                         return;
 
@@ -75,7 +78,7 @@ public class ClipCommand extends CommandMod {
                     final double x = Double.parseDouble(data.getArgumentAsString(0));
                     final double y = Double.parseDouble(data.getArgumentAsString(1));
                     final double z = Double.parseDouble(data.getArgumentAsString(2));
-                    MC.addScheduledTask(() -> {
+                    MC.execute(() -> {
                       if (getWorld() == null || getLocalPlayer() == null)
                         return;
 
@@ -109,7 +112,7 @@ public class ClipCommand extends CommandMod {
             return;
           }
           final double y = SafeConverter.toDouble(data.getArgumentAsString(0));
-          MC.addScheduledTask(() -> offsetY(y));
+          MC.execute(() -> offsetY(y));
         })
         .build();
   }
@@ -126,7 +129,7 @@ public class ClipCommand extends CommandMod {
             return;
           }
           final double units = SafeConverter.toDouble(data.getArgumentAsString(0));
-          MC.addScheduledTask(() -> {
+          MC.execute(() -> {
             Vec3d dir = getLocalPlayer().getLookVec().normalize();
             setPosition(getLocalPlayer().posX + (dir.x * units), getLocalPlayer().posY, getLocalPlayer().posZ + (dir.z * units));
           });

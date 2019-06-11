@@ -43,7 +43,7 @@ public class ElytraFlight extends ToggleMod {
   @Override
   protected void onEnabled() {
     if (fly_on_enable.get())
-      MC.addScheduledTask(
+      MC.execute(
           () -> {
             if (getLocalPlayer() != null && !getLocalPlayer().isElytraFlying())
               getNetworkManager()

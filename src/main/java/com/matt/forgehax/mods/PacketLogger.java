@@ -33,7 +33,7 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
-import net.minecraft.network.Packet;
+import net.minecraft.network.IPacket;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -93,7 +93,7 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
               Optional<Class<?>> match =
                   getLoadedClasses(FMLLoader.getLaunchClassLoader())
                       .stream()
-                      .filter(Packet.class::isAssignableFrom)
+                      .filter(IPacket.class::isAssignableFrom)
                       .filter(clazz -> clazz.getCanonicalName().toLowerCase().contains(className))
                       .sorted(
                           (o1, o2) ->
@@ -227,7 +227,7 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   //
   //
 
-  private static void logPacket(BufferedWriter stream, Packet<?> packet) {
+  private static void logPacket(BufferedWriter stream, IPacket<?> packet) {
     if (stream == null || packet == null) return;
 
     try {

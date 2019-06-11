@@ -461,14 +461,14 @@ public class BookBot extends ToggleMod {
 
           // open the book gui screen
           this.status = Status.OPENING_BOOK;
-          MC.addScheduledTask(() -> getLocalPlayer().openBook(item, EnumHand.MAIN_HAND));
+          MC.execute(() -> getLocalPlayer().openBook(item, EnumHand.MAIN_HAND));
 
           // wait for gui to open
           while (!(MC.currentScreen instanceof GuiScreenBook)) sleep();
 
           // send book to server
           this.status = Status.WRITING_BOOK;
-          MC.addScheduledTask(
+          MC.execute(
               () -> {
                 sendBook(item);
                 MC.displayGuiScreen(null);

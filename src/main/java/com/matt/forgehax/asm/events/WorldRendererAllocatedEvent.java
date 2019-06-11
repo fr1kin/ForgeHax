@@ -1,24 +1,24 @@
 package com.matt.forgehax.asm.events;
 
-import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.ChunkRender;
+import net.minecraft.client.renderer.chunk.ChunkRenderTask;
 import net.minecraftforge.eventbus.api.Event;
 
 /** Created on 5/11/2017 by fr1kin */
 public class WorldRendererAllocatedEvent extends Event {
-  private final ChunkCompileTaskGenerator generator;
-  private final RenderChunk renderChunk;
+  private final ChunkRenderTask generator;
+  private final ChunkRender renderChunk;
 
-  public WorldRendererAllocatedEvent(ChunkCompileTaskGenerator generator, RenderChunk renderChunk) {
+  public WorldRendererAllocatedEvent(ChunkRenderTask generator, ChunkRender renderChunk) {
     this.generator = generator;
     this.renderChunk = renderChunk;
   }
 
-  public ChunkCompileTaskGenerator getGenerator() {
+  public ChunkRenderTask getGenerator() {
     return generator;
   }
 
-  public RenderChunk getRenderChunk() {
+  public ChunkRender getRenderChunk() {
     return renderChunk;
   }
 }

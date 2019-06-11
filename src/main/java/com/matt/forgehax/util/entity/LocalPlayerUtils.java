@@ -12,7 +12,7 @@ import java.util.Optional;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.RayTraceResult.Type;
 
@@ -28,7 +28,7 @@ public class LocalPlayerUtils implements Globals {
   }
 
   public static Vec3d getVelocity() {
-    return new Vec3d(getLocalPlayer().motionX, getLocalPlayer().motionY, getLocalPlayer().motionZ);
+    return getLocalPlayer().getMotion();
   }
 
   public static boolean isSneaking() {
@@ -62,14 +62,11 @@ public class LocalPlayerUtils implements Globals {
     return MC.objectMouseOver;
   }
 
-  public static RayTraceResult getMouseOverBlockTrace() {
+  public static BlockRayTraceResult getMouseOverBlockTrace() {
     return Optional.ofNullable(MC.objectMouseOver)
-        .filter(tr -> tr.getBlockPos() != null) // no its not intelliJ
-        .filter(
-            tr ->
-                Type.BLOCK.equals(tr.type)
-                    || !Material.AIR.equals(
-                        getWorld().getBlockState(tr.getBlockPos()).getMaterial()))
+        .filter(tr -> tr.getType() == Type.BLOCK)
+        .map(tr -> (BlockRayTraceResult)tr)
+        .filter(tr -> tr.getPos() != null) // no its not intelliJ
         .orElse(null);
   }
 
@@ -122,7 +119,7 @@ public class LocalPlayerUtils implements Globals {
     }
 
     if (hitEntity != null && reach > 3.D && eyes.distanceTo(hitEntityVec) > 3.D)
-      return new RayTraceResult(Type.MISS, hitEntityVec, EnumFacing.UP, new BlockPos(hitEntityVec));
+      return new RayTraceResult(Type.MISS, hitEntityVec, Direction.UP, new BlockPos(hitEntityVec));
     else if (hitEntity != null && trace == null && hitDistance < reachAttack)
       return new RayTraceResult(hitEntity, hitEntityVec);
     else return trace;
@@ -139,7 +136,7 @@ public class LocalPlayerUtils implements Globals {
 
     @Override
     protected void onEnabled() {
-      MC.addScheduledTask(() -> {
+      MC.execute(() -> {
         if(getLocalPlayer() == null || getLocalPlayer().abilities == null)
           return;
 
@@ -150,7 +147,7 @@ public class LocalPlayerUtils implements Globals {
 
     @Override
     protected void onDisabled() {
-      MC.addScheduledTask(() -> {
+      MC.execute(() -> {
         if(getLocalPlayer() == null || getLocalPlayer().abilities == null)
           return;
 

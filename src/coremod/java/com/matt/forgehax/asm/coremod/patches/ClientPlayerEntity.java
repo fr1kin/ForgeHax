@@ -14,16 +14,15 @@ import org.objectweb.asm.tree.*;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-import static com.matt.forgehax.asm.coremod.utils.ASMHelper.MagicOpcodes.*;
 
-public class EntityPlayerSPPatch {
+public class ClientPlayerEntity {
 
     @RegisterTransformer
     public static class ApplyLivingUpdate implements Transformer<MethodNode> {
         @Nonnull
         @Override
         public Set<ITransformer.Target> targets() {
-            return ASMHelper.getTargetSet(Methods.EntityPlayerSP_livingTick);
+            return ASMHelper.getTargetSet(Methods.ClientPlayerEntity_livingTick);
         }
 
         @Nonnull
@@ -31,7 +30,7 @@ public class EntityPlayerSPPatch {
         public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
             InsnPattern node = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
                 .opcodes(Opcodes.ALOAD)
-                .ASMType(Opcodes.INVOKEVIRTUAL, Methods.EntityPlayerSP_isHandActive) // if (this.isHandActive()
+                .ASMType(Opcodes.INVOKEVIRTUAL, Methods.ClientPlayerEntity_isHandActive) // if (this.isHandActive()
                 .opcodes(Opcodes.IFEQ)
                 .opcodes(Opcodes.ALOAD, Opcodes.INVOKEVIRTUAL, Opcodes.IFNE) // && !this.isPassenger()
                 .build().test(main);
@@ -53,7 +52,7 @@ public class EntityPlayerSPPatch {
         @Nonnull
         @Override
         public Set<ITransformer.Target> targets() {
-            return ASMHelper.getTargetSet(Methods.EntityPlayerSP_tick);
+            return ASMHelper.getTargetSet(Methods.ClientPlayerEntity_tick);
         }
 
         @Nonnull
@@ -66,7 +65,7 @@ public class EntityPlayerSPPatch {
                 .build().test(main);
 
             InsnPattern onUpdateWalkingPlayerNode = new AsmPattern.Builder(AsmPattern.CODE_ONLY)
-                .ASMType(Opcodes.INVOKESPECIAL, Methods.EntityPlayerSP_onUpdateWalkingPlayer)
+                .ASMType(Opcodes.INVOKESPECIAL, Methods.ClientPlayerEntity_onUpdateWalkingPlayer)
                 .build().test(main);
 
             LabelNode jump = isPassengerNode.<JumpInsnNode>getIndex(2).label;
@@ -94,39 +93,14 @@ public class EntityPlayerSPPatch {
         }
     }
 
-    @RegisterTransformer
-    public static class PushOutOfBlocks implements Transformer<MethodNode> {
-        @Nonnull
-        @Override
-        public Set<ITransformer.Target> targets() {
-            return ASMHelper.getTargetSet(Methods.EntityPlayerSP_pushOutOfBlocks);
-        }
 
-        @Nonnull
-        @Override
-        public MethodNode transform(MethodNode main, ITransformerVotingContext context) {
-
-            LabelNode jump = new LabelNode();
-
-            InsnList list = new InsnList();
-            list.add(ASMHelper.call(Opcodes.INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPushOutOfBlocks));
-            list.add(new JumpInsnNode(Opcodes.IFEQ, jump));
-            list.add(new InsnNode(Opcodes.ICONST_0));
-            list.add(new InsnNode(Opcodes.IRETURN));
-            list.add(jump);
-
-            main.instructions.insert(list);
-
-            return main;
-        }
-    }
 
     @RegisterTransformer
     public static class RowingBoat implements Transformer<MethodNode> {
         @Nonnull
         @Override
         public Set<ITransformer.Target> targets() {
-            return ASMHelper.getTargetSet(Methods.EntityPlayerSP_isRowingBoat);
+            return ASMHelper.getTargetSet(Methods.ClientPlayerEntity_isRowingBoat);
         }
 
         @Nonnull

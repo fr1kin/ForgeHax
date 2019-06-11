@@ -87,7 +87,7 @@ public class AutoEatMod extends ToggleMod {
   }
 
   private void reset() {
-    if(eatingTicks > 0) MC.addScheduledTask(() -> MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_STOP)));
+    if(eatingTicks > 0) MC.execute(() -> MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_STOP)));
     food = null;
     eating = false;
     eatingTicks = 0;

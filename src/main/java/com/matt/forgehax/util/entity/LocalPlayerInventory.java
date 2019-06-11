@@ -14,23 +14,23 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketClickWindow;
-import net.minecraft.network.play.client.CPacketHeldItemChange;
+import net.minecraft.item.Items;
+import net.minecraft.network.play.client.CClickWindowPacket;
+import net.minecraft.network.play.client.CHeldItemChangePacket;
 
 public class LocalPlayerInventory {
-  public static InventoryPlayer getInventory() {
+  public static PlayerInventory getInventory() {
     return getLocalPlayer().inventory;
   }
 
   public static Container getContainer() {
-    return getLocalPlayer().inventoryContainer;
+    return getLocalPlayer().container;
   }
 
   public static Container getOpenContainer() {
@@ -38,7 +38,7 @@ public class LocalPlayerInventory {
   }
 
   public static int getHotbarSize() {
-    return InventoryPlayer.getHotbarSize();
+    return PlayerInventory.getHotbarSize();
   }
 
   public static List<InvItem> getMainInventory() {
@@ -127,7 +127,7 @@ public class LocalPlayerInventory {
     int selected = getSelected().getIndex();
     if (selected != PlayerControllerMP_currentPlayerItem.get(getPlayerController())) {
       PlayerControllerMP_currentPlayerItem.set(getPlayerController(), selected);
-      getNetworkManager().sendPacket(new CPacketHeldItemChange(selected));
+      getNetworkManager().sendPacket(new CHeldItemChangePacket(selected));
     }
   }
 
@@ -144,7 +144,7 @@ public class LocalPlayerInventory {
       int slotIdIn, int usedButtonIn, ClickType modeIn, ItemStack clickedItemIn) {
     getNetworkManager()
         .sendPacket(
-            new CPacketClickWindow(
+            new CClickWindowPacket(
                 0,
                 slotIdIn,
                 usedButtonIn,

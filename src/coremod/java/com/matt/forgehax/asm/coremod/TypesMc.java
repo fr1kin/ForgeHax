@@ -154,9 +154,9 @@ public interface TypesMc {
             .setClassName("net/minecraft/entity/player/EntityPlayer")
             .build();
 
-    ASMClass EntityPlayerSP =
+    ASMClass ClientPlayerEntity =
         ASMBuilders.newClassBuilder()
-            .setClassName("net/minecraft/client/entity/EntityPlayerSP")
+            .setClassName("net/minecraft/client/entity/player/ClientPlayerEntity")
             .build();
 
     ASMClass EntityBoat =
@@ -451,32 +451,32 @@ public interface TypesMc {
             //.autoAssign()
             .build();
 
-    ASMMethod EntityPlayerSP_livingTick =
-        Classes.EntityPlayerSP.childMethod()
+    ASMMethod ClientPlayerEntity_livingTick =
+        Classes.ClientPlayerEntity.childMethod()
             .setName("livingTick")
             .setSrgName("func_70636_d")
             .setReturnType(void.class)
             .emptyParameters()
             //.autoAssign()
             .build();
-    ASMMethod EntityPlayerSP_tick =
-        Classes.EntityPlayerSP.childMethod()
+    ASMMethod ClientPlayerEntity_tick =
+        Classes.ClientPlayerEntity.childMethod()
             .setName("tick")
             .setSrgName("func_70071_h_")
             .setReturnType(void.class)
             .emptyParameters()
             //.autoAssign()
             .build();
-    ASMMethod EntityPlayerSP_onUpdateWalkingPlayer =
-        Classes.EntityPlayerSP.childMethod()
+    ASMMethod ClientPlayerEntity_onUpdateWalkingPlayer =
+        Classes.ClientPlayerEntity.childMethod()
             .setName("onUpdateWalkingPlayer")
             .setSrgName("func_175161_p")
             .setReturnType(void.class)
             .emptyParameters()
             //.autoAssign()
             .build();
-    ASMMethod EntityPlayerSP_pushOutOfBlocks =
-        Classes.EntityPlayerSP.childMethod()
+    ASMMethod ClientPlayerEntity_pushOutOfBlocks =
+        Classes.ClientPlayerEntity.childMethod()
             .setName("pushOutOfBlocks")
             .setSrgName("func_145771_j")
             .setReturnType(boolean.class)
@@ -487,16 +487,16 @@ public interface TypesMc {
             .finish()
             //.autoAssign()
             .build();
-    ASMMethod EntityPlayerSP_isRowingBoat =
-        Classes.EntityPlayerSP.childMethod()
+    ASMMethod ClientPlayerEntity_isRowingBoat =
+        Classes.ClientPlayerEntity.childMethod()
             .setName("isRowingBoat")
             .setSrgName("func_184838_M")
             .setReturnType(boolean.class)
             .emptyParameters()
             //.autoAssign()
             .build();
-    ASMMethod EntityPlayerSP_isHandActive =
-        Classes.EntityPlayerSP.childMethod()
+    ASMMethod ClientPlayerEntity_isHandActive =
+        Classes.ClientPlayerEntity.childMethod()
             .setName("isHandActive")
             .setSrgName("func_184587_cr")
             .setReturnType(boolean.class)

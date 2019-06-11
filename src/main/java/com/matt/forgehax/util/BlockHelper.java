@@ -22,7 +22,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.*;
 
 public class BlockHelper {
@@ -39,7 +39,7 @@ public class BlockHelper {
     return newUniqueBlock(state, pos);
   }
 
-  public static BlockTraceInfo newBlockTrace(BlockPos pos, EnumFacing side) {
+  public static BlockTraceInfo newBlockTrace(BlockPos pos, Direction side) {
     return new BlockTraceInfo(pos, side);
   }
 
@@ -64,7 +64,7 @@ public class BlockHelper {
     return getWorld().getBlockState(pos).getMaterial().isReplaceable();
   }
 
-  public static boolean isTraceClear(Vec3d start, Vec3d end, EnumFacing targetSide) {
+  public static boolean isTraceClear(Vec3d start, Vec3d end, Direction targetSide) {
     RayTraceResult tr = getWorld().rayTraceBlocks(start, end, RayTraceFluidMode.NEVER, true, false);
     return tr == null
         || (new BlockPos(end).equals(new BlockPos(tr.hitVec))
@@ -88,7 +88,7 @@ public class BlockHelper {
   }
 
   private static BlockTraceInfo getPlaceableBlockSideTrace(
-      Vec3d eyes, Vec3d normal, Stream<EnumFacing> stream, BlockPos pos) {
+      Vec3d eyes, Vec3d normal, Stream<Direction> stream, BlockPos pos) {
     return stream
         .map(side -> newBlockTrace(pos.offset(side), side))
         .filter(info -> isBlockPlaceable(info.getPos()))
@@ -102,15 +102,15 @@ public class BlockHelper {
   }
 
   public static BlockTraceInfo getPlaceableBlockSideTrace(
-      Vec3d eyes, Vec3d normal, EnumSet<EnumFacing> sides, BlockPos pos) {
+      Vec3d eyes, Vec3d normal, EnumSet<Direction> sides, BlockPos pos) {
     return getPlaceableBlockSideTrace(eyes, normal, sides.stream(), pos);
   }
 
   public static BlockTraceInfo getPlaceableBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
-    return getPlaceableBlockSideTrace(eyes, normal, Stream.of(EnumFacing.values()), pos);
+    return getPlaceableBlockSideTrace(eyes, normal, Stream.of(Direction.values()), pos);
   }
 
-  public static BlockTraceInfo getBlockSideTrace(Vec3d eyes, BlockPos pos, EnumFacing side) {
+  public static BlockTraceInfo getBlockSideTrace(Vec3d eyes, BlockPos pos, Direction side) {
     return Optional.of(newBlockTrace(pos, side))
         .filter(tr -> BlockHelper.isTraceClear(eyes, tr.getHitVec(), tr.getSide()))
         .filter(tr -> LocalPlayerUtils.isInReach(eyes, tr.getHitVec()))
@@ -118,7 +118,7 @@ public class BlockHelper {
   }
 
   public static BlockTraceInfo getVisibleBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
-    return Arrays.stream(EnumFacing.values())
+    return Arrays.stream(Direction.values())
         .map(side -> BlockHelper.getBlockSideTrace(eyes, pos, side.getOpposite()))
         .filter(Objects::nonNull)
         .min(
@@ -129,11 +129,11 @@ public class BlockHelper {
 
   public static class BlockTraceInfo {
     private final BlockPos pos;
-    private final EnumFacing side;
+    private final Direction side;
     private final Vec3d center;
     private final Vec3d hitVec;
 
-    private BlockTraceInfo(BlockPos pos, EnumFacing side) {
+    private BlockTraceInfo(BlockPos pos, Direction side) {
       this.pos = pos;
       this.side = side;
       Vec3d obb = BlockHelper.getOBBCenter(pos);
@@ -147,11 +147,11 @@ public class BlockHelper {
       return pos;
     }
 
-    public EnumFacing getSide() {
+    public Direction getSide() {
       return side;
     }
 
-    public EnumFacing getOppositeSide() {
+    public Direction getOppositeSide() {
       return side.getOpposite();
     }
 

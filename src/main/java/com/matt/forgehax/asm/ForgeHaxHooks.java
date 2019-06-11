@@ -23,11 +23,11 @@ import net.minecraft.client.renderer.chunk.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.Packet;
+import net.minecraft.network.IPacket;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 //import net.minecraft.world.IBlockAccess;
@@ -97,22 +97,22 @@ public class ForgeHaxHooks implements ASMCommon {
 
   /** onSendingPacket */
 
-  public static boolean onSendingPacket(Packet<?> packet) {
+  public static boolean onSendingPacket(IPacket<?> packet) {
     return MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Pre(packet));
   }
 
   /** onSentPacket */
-  public static void onSentPacket(Packet<?> packet) {
+  public static void onSentPacket(IPacket<?> packet) {
     MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Post(packet));
   }
 
   /** onPreReceived */
-  public static boolean onPreReceived(Packet<?> packet) {
+  public static boolean onPreReceived(IPacket<?> packet) {
     return MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Pre(packet));
   }
 
   /** onPostReceived */
-  public static void onPostReceived(Packet<?> packet) {
+  public static void onPostReceived(IPacket<?> packet) {
     MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Post(packet));
   }
 
@@ -185,7 +185,7 @@ public class ForgeHaxHooks implements ASMCommon {
   public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = Sets.newHashSet();
 
   public static boolean isBlockFiltered(Entity entity, IBlockState state) {
-    return entity instanceof EntityPlayer
+    return entity instanceof PlayerEntity
         && LIST_BLOCK_FILTER.contains(state.getBlock().getClass());
   }
 
@@ -221,35 +221,35 @@ public class ForgeHaxHooks implements ASMCommon {
 
   /** onBlockRenderInLoop */
   public static void onBlockRenderInLoop(
-      RenderChunk renderChunk, Block block, IBlockState state, BlockPos pos) {
+      ChunkRender renderChunk, Block block, IBlockState state, BlockPos pos) {
     // faster hook
     for (BlockModelRenderListener listener : Listeners.BLOCK_MODEL_RENDER_LISTENER.getAll())
       listener.onBlockRenderInLoop(renderChunk, block, state, pos);
   }
 
   /** onPreBuildChunk */
-  public static void onPreBuildChunk(RenderChunk renderChunk) {
+  public static void onPreBuildChunk(ChunkRender renderChunk) {
     MinecraftForge.EVENT_BUS.post(new BuildChunkEvent.Pre(renderChunk));
   }
 
   /** onPostBuildChunk */
-  public static void onPostBuildChunk(RenderChunk renderChunk) {
+  public static void onPostBuildChunk(ChunkRender renderChunk) {
     // i couldn't place a post block render hook within the if label so I have to do this
     MinecraftForge.EVENT_BUS.post(new BuildChunkEvent.Post(renderChunk));
   }
 
   /** onDeleteGlResources */
-  public static void onDeleteGlResources(RenderChunk renderChunk) {
+  public static void onDeleteGlResources(ChunkRender renderChunk) {
     MinecraftForge.EVENT_BUS.post(new DeleteGlResourcesEvent(renderChunk));
   }
 
   /** onAddRenderChunk */
-  public static void onAddRenderChunk(RenderChunk renderChunk, BlockRenderLayer layer) {
+  public static void onAddRenderChunk(ChunkRender renderChunk, BlockRenderLayer layer) {
     MinecraftForge.EVENT_BUS.post(new AddRenderChunkEvent(renderChunk, layer));
   }
 
   /** onChunkUploaded */
-  public static void onChunkUploaded(RenderChunk chunk, BufferBuilder buffer) {
+  public static void onChunkUploaded(ChunkRender chunk, BufferBuilder buffer) {
     MinecraftForge.EVENT_BUS.post(new ChunkUploadedEvent(chunk, buffer));
   }
 
@@ -310,18 +310,18 @@ public class ForgeHaxHooks implements ASMCommon {
   }
 
   /** onPlayerBreakingBlock */
-  public static void onPlayerBreakingBlock(PlayerControllerMP playerControllerMP, BlockPos pos, EnumFacing facing) {
+  public static void onPlayerBreakingBlock(PlayerControllerMP playerControllerMP, BlockPos pos, Direction facing) {
     MinecraftForge.EVENT_BUS.post(new PlayerDamageBlockEvent(playerControllerMP, pos, facing));
   }
 
   /** onPlayerAttackEntity */
-  public static void onPlayerAttackEntity(PlayerControllerMP playerControllerMP, EntityPlayer attacker, Entity victim) {
+  public static void onPlayerAttackEntity(PlayerControllerMP playerControllerMP, PlayerEntity attacker, Entity victim) {
     MinecraftForge.EVENT_BUS.post(new PlayerAttackEntityEvent(playerControllerMP, attacker, victim));
   }
 
   /** onPlayerStopUse */
   public static boolean onPlayerStopUse(
-      PlayerControllerMP playerControllerMP, EntityPlayer player) {
+      PlayerControllerMP playerControllerMP, PlayerEntity player) {
     return MinecraftForge.EVENT_BUS.post(new ItemStoppedUsedEvent(playerControllerMP, player));
   }
 

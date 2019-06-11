@@ -64,7 +64,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -102,7 +102,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           .<FacingEntry>newOptionsBuilder()
           .name("sides")
           .description("Sides to place the blocks on")
-          .defaults(() -> Collections.singleton(new FacingEntry(EnumFacing.UP)))
+          .defaults(() -> Collections.singleton(new FacingEntry(Direction.UP)))
           .factory(FacingEntry::new)
           .supplier(Lists::newCopyOnWriteArrayList)
           .build();
@@ -226,8 +226,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .anyMatch(side -> BlockHelper.isBlockReplaceable(info.getPos().offset(side)));
   }
 
-  private EnumFacing getBestFacingMatch(final String input) {
-    return Arrays.stream(EnumFacing.values())
+  private Direction getBestFacingMatch(final String input) {
+    return Arrays.stream(Direction.values())
         .filter(side -> side.getName2().toLowerCase().contains(input.toLowerCase()))
         .min(
             Comparator.comparing(
@@ -237,7 +237,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                     .thenComparing(n -> n.startsWith(input))))
         .orElseGet(
             () -> {
-              EnumFacing[] values = EnumFacing.values();
+              Direction[] values = Direction.values();
               try {
                 int index = Integer.valueOf(input);
                 return values[MathHelper.clamp(index, 0, values.length - 1)];
@@ -248,7 +248,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   }
 
   private void showInfo(String filter) {
-    MC.addScheduledTask(
+    MC.execute(
         () -> {
           if ("selected".startsWith(filter))
             printInform(
@@ -269,7 +269,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                 this.sides
                     .stream()
                     .map(FacingEntry::getFacing)
-                    .map(EnumFacing::getName2)
+                    .map(Direction::getName2)
                     .collect(Collectors.joining(", ")));
 
           if ("whitelist".startsWith(filter))
@@ -315,11 +315,11 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .processor(
             data -> {
               final String name = data.getArgumentAsString(0);
-              EnumFacing facing = getBestFacingMatch(name);
+              Direction facing = getBestFacingMatch(name);
 
               if ("all".equalsIgnoreCase(name)) {
                 sides.addAll(
-                    Arrays.stream(EnumFacing.values())
+                    Arrays.stream(Direction.values())
                         .map(FacingEntry::new)
                         .filter(e -> !sides.contains(e))
                         .collect(Collectors.toSet()));
@@ -347,7 +347,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .processor(
             data -> {
               final String name = data.getArgumentAsString(0);
-              EnumFacing facing = getBestFacingMatch(name);
+              Direction facing = getBestFacingMatch(name);
 
               if ("all".equalsIgnoreCase(name)) {
                 sides.clear();
@@ -377,7 +377,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
                       + sides
                           .stream()
                           .map(FacingEntry::getFacing)
-                          .map(EnumFacing::getName2)
+                          .map(Direction::getName2)
                           .collect(Collectors.joining(", ")));
               data.markSuccess();
             })
@@ -840,7 +840,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     private final String name;
 
     private final List<UniqueBlock> targets = Lists.newArrayList();
-    private final List<EnumFacing> sides = Lists.newArrayList();
+    private final List<Direction> sides = Lists.newArrayList();
     private ItemStack selection = ItemStack.EMPTY;
     private boolean use = false;
     private boolean whitelist = true;
@@ -866,11 +866,11 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
               .collect(Collectors.toSet())); // collect to set to eliminate duplicates
     }
 
-    public List<EnumFacing> getSides() {
+    public List<Direction> getSides() {
       return Collections.unmodifiableList(sides);
     }
 
-    public void setSides(Collection<EnumFacing> list) {
+    public void setSides(Collection<Direction> list) {
       sides.clear();
       sides.addAll(Sets.newLinkedHashSet(list)); // copy to set to eliminate duplicates
     }
@@ -943,7 +943,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       writer.name("sides");
       writer.beginArray();
       {
-        for (EnumFacing side : getSides()) writer.value(side.getName2());
+        for (Direction side : getSides()) writer.value(side.getName2());
       }
       writer.endArray();
 
@@ -1010,12 +1010,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             {
               reader.beginArray();
 
-              List<EnumFacing> sides = Lists.newArrayList();
+              List<Direction> sides = Lists.newArrayList();
               while (reader.hasNext()) {
                 sides.add(
                     Optional.ofNullable(reader.nextString())
-                        .map(EnumFacing::byName)
-                        .orElse(EnumFacing.UP));
+                        .map(Direction::byName)
+                        .orElse(Direction.UP));
               }
               setSides(sides);
 

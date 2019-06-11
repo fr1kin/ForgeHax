@@ -113,7 +113,7 @@ public class MapMod extends ToggleMod {
     if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof ItemMap))
       return;
 
-    MC.addScheduledTask(
+    MC.execute(
         () -> { // allows DynamicTexture to work
           ItemMap map = (ItemMap) MC.player.getHeldItemMainhand().getItem();
           MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);

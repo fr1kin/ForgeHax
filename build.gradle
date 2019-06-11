@@ -75,7 +75,7 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'snapshot', version: '20180921-1.13'
+    mappings channel: 'snapshot', version: '20190608-1.14.2'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
     //accessTransformer = file('my_at.cfg')
@@ -102,7 +102,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
 
-    minecraft ('net.minecraftforge:forge:1.13.2-25.0.219') {
+    minecraft ('net.minecraftforge:forge:1.14.2-26.0.15') {
         //exclude group: 'cpw.mods', module: 'modlauncher'
     }
 
@@ -160,6 +160,14 @@ processResources
                 "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
         ]
     //}
+}
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xmaxerrs" << "100000"
+        }
+    }
 }
 
 

@@ -15,13 +15,13 @@ import java.util.Objects;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityIronGolem;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.passive.EntityWolf;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
@@ -72,7 +72,7 @@ public class EntityUtils implements Globals {
 
   /** If the entity is a player */
   public static boolean isPlayer(Entity entity) {
-    return entity instanceof EntityPlayer;
+    return entity instanceof PlayerEntity;
   }
 
   public static boolean isLocalPlayer(Entity entity) {
@@ -103,9 +103,9 @@ public class EntityUtils implements Globals {
 
   /** If the mob is friendly (not aggressive) */
   public static boolean isFriendlyMob(Entity entity) {
-    return (entity.isCreatureType(EnumCreatureType.CREATURE, false)
+    return (entity.isCreatureType(EntityClassification.CREATURE, false)
             && !EntityUtils.isNeutralMob(entity))
-        || (entity.isCreatureType(EnumCreatureType.AMBIENT, false) && !isBatsDisabled)
+        || (entity.isCreatureType(EntityClassification.AMBIENT, false) && !isBatsDisabled)
         || entity instanceof EntityVillager
         || entity instanceof EntityIronGolem
         || (isNeutralMob(entity) && !EntityUtils.isMobAggressive(entity));
@@ -113,7 +113,7 @@ public class EntityUtils implements Globals {
 
   /** If the mob is hostile */
   public static boolean isHostileMob(Entity entity) {
-    return (entity.isCreatureType(EnumCreatureType.MONSTER, false)
+    return (entity.isCreatureType(EntityClassification.MONSTER, false)
             && !EntityUtils.isNeutralMob(entity))
         || EntityUtils.isMobAggressive(entity);
   }
@@ -183,7 +183,7 @@ public class EntityUtils implements Globals {
   /** Find the entities draw color */
   public static int getDrawColor(EntityLivingBase living) {
     if (isPlayer(living)) {
-      if (PlayerUtils.isFriend((EntityPlayer) living)) return Utils.Colors.GREEN;
+      if (PlayerUtils.isFriend((PlayerEntity) living)) return Utils.Colors.GREEN;
       else return Utils.Colors.RED;
     } else if (isHostileMob(living)) {
       return Utils.Colors.ORANGE;
@@ -238,5 +238,9 @@ public class EntityUtils implements Globals {
       }
 
     return false;
+  }
+
+  public static boolean isEntityClassification(Entity entity, EntityClassification classification) {
+    return entity.getClassification(false) == classification;
   }
 }

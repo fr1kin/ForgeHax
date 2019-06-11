@@ -21,7 +21,7 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.world.WorldEvent;
@@ -100,7 +100,7 @@ public class LogoutSpot extends ToggleMod {
   public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
     if (getWorld() == null) return;
 
-    EntityPlayer player = getWorld().getPlayerEntityByUUID(event.getPlayerInfo().getId());
+    PlayerEntity player = getWorld().getPlayerEntityByUUID(event.getPlayerInfo().getId());
     if (player != null && getLocalPlayer() != null && !getLocalPlayer().equals(player)) {
       AxisAlignedBB bb = player.getBoundingBox();
       synchronized (spots) {

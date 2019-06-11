@@ -12,6 +12,7 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.play.client.CMoveVehiclePacket;
 import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -46,7 +47,7 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("remount")
         .description("Remount entity")
-        .processor(data -> MC.addScheduledTask(() -> {
+        .processor(data -> MC.execute(() -> {
           if(!isEnabled()) {
             printWarning("Mod not enabled");
             return;
@@ -73,7 +74,7 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("dismount")
         .description("Dismount entity")
-        .processor(data -> MC.addScheduledTask(() -> {
+        .processor(data -> MC.execute(() -> {
           if(!isEnabled()) {
             printWarning("Mod not enabled");
             return;
@@ -106,7 +107,7 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("force-update")
         .description("Force dismount entity")
-        .processor(data -> MC.addScheduledTask(() -> {
+        .processor(data -> MC.execute(() -> {
           if(!isEnabled()) {
             printWarning("Mod not enabled");
             return;
@@ -131,7 +132,7 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("reset")
         .description("Reset the currently stored riding entity")
-        .processor(data -> MC.addScheduledTask(() -> {
+        .processor(data -> MC.execute(() -> {
           this.dismountedEntity = null;
           this.forceUpdate = false;
           printInform("Saved riding entity reset");
@@ -149,7 +150,7 @@ public class RiderDesync extends ToggleMod {
 
     if(forceUpdate && dismountedEntity != null) {
       dismountedEntity.setPosition(getLocalPlayer().posX, getLocalPlayer().posY, getLocalPlayer().posZ);
-      getNetworkManager().sendPacket(new CPacketVehicleMove(dismountedEntity));
+      getNetworkManager().sendPacket(new CMoveVehiclePacket(dismountedEntity));
     }
   }
 

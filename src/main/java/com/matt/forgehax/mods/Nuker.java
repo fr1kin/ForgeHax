@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -158,7 +158,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
 
   private boolean isNeighborsLiquid(UniqueBlock ub) {
     return filter_liquids.get()
-        && Arrays.stream(EnumFacing.values())
+        && Arrays.stream(Direction.values())
             .map(side -> ub.getPos().offset(side))
             .map(pos -> getWorld().getBlockState(pos).getBlock())
             .anyMatch(BlockLiquid.class::isInstance);

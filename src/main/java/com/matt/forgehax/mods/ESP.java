@@ -23,7 +23,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -201,7 +201,7 @@ public class ESP extends ToggleMod implements Fonts {
           double botY,
           double width,
           double height) {
-        String text =  living instanceof EntityPlayer ? ((EntityPlayer)living).getGameProfile().getName() : living.getDisplayName().getUnformattedComponentText();
+        String text =  living instanceof PlayerEntity ? ((PlayerEntity)living).getGameProfile().getName() : living.getDisplayName().getUnformattedComponentText();
 
         double x = topX - ((double) builder.getFontWidth(text) / 2.D);
         double y = topY - (double) builder.getFontHeight() - 1.D;

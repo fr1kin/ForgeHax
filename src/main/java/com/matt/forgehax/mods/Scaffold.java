@@ -31,15 +31,15 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 @RegisterMod
 public class Scaffold extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
-  private static final EnumSet<EnumFacing> NEIGHBORS =
-      EnumSet.of(EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.WEST);
+  private static final EnumSet<Direction> NEIGHBORS =
+      EnumSet.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
 
   private int tickCount = 0;
   private boolean placing = false;

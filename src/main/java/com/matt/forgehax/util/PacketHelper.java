@@ -7,31 +7,31 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import net.minecraft.network.Packet;
+import net.minecraft.network.IPacket;
 
 /** Created on 8/4/2017 by fr1kin */
 public class PacketHelper {
-  private static final LoadingCache<Packet, Boolean> CACHE =
+  private static final LoadingCache<IPacket, Boolean> CACHE =
       CacheBuilder.newBuilder()
           .expireAfterWrite(15L, TimeUnit.SECONDS)
           .build(
-              new CacheLoader<Packet, Boolean>() {
+              new CacheLoader<IPacket, Boolean>() {
                 @Override
-                public Boolean load(Packet key) throws Exception {
+                public Boolean load(IPacket key) throws Exception {
                   return false;
                 }
               });
 
-  public static void ignore(Packet packet) {
+  public static void ignore(IPacket packet) {
     CACHE.put(packet, true);
   }
 
-  public static void ignoreAndSend(Packet packet) {
+  public static void ignoreAndSend(IPacket packet) {
     ignore(packet);
     getNetworkManager().sendPacket(packet);
   }
 
-  public static boolean isIgnored(Packet packet) {
+  public static boolean isIgnored(IPacket packet) {
     try {
       return CACHE.get(packet);
     } catch (ExecutionException e) {
@@ -39,7 +39,7 @@ public class PacketHelper {
     }
   }
 
-  public static void remove(Packet packet) {
+  public static void remove(IPacket packet) {
     CACHE.invalidate(packet);
   }
 }

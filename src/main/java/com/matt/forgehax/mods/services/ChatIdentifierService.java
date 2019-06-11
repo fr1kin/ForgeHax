@@ -71,7 +71,7 @@ public class ChatIdentifierService extends ServiceMod {
       SPacketChat packet = (SPacketChat) event.getPacket();
       String message = packet.getChatComponent().getUnformattedComponentText();
       if (!Strings.isNullOrEmpty(message)) {
-        MC.addScheduledTask(() -> {
+        MC.execute(() -> {
           // normal public messages
           if (extract(
               message,

@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import net.minecraft.network.Packet;
+import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,7 +28,7 @@ public class CustomPayloadLogger extends ToggleMod {
     super(Category.MISC, "PayloadLogger", false, "Logs custom payloads");
   }
 
-  private void log(Packet packet) {
+  private void log(IPacket packet) {
     if (packet instanceof SPacketCustomPayload) {
       SPacketCustomPayload payloadPacket = (SPacketCustomPayload) packet;
       String input =

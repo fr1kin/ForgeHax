@@ -42,7 +42,7 @@ public class FirstTimeRunningService extends ServiceMod {
       } catch (IOException e) {
       }
     }
-    MC.addScheduledTask(() -> { // epic hack
+    MC.execute(() -> { // epic hack
       getModManager().unload(this);
     });
   }

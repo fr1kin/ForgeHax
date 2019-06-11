@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -54,7 +54,7 @@ public class PositionRotationManager extends ServiceMod {
   private final RotationState gState = new RotationState();
   private TaskChain<Consumer<ReadableRotationState>> futureTasks = TaskChain.empty();
 
-  private static Angle getPlayerAngles(EntityPlayer player) {
+  private static Angle getPlayerAngles(PlayerEntity player) {
     return Angle.degrees(player.rotationPitch, player.rotationYaw);
   }
 

@@ -6,7 +6,6 @@ import static com.matt.forgehax.Helper.getWorld;
 import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
 import com.matt.forgehax.asm.events.EntityBlockSlipApplyEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.asm.events.PushOutOfBlocksEvent;
 import com.matt.forgehax.asm.events.WaterMovementEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
@@ -15,12 +14,13 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.projectile.EntityFishHook;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.SPacketEntityStatus;
-import net.minecraft.network.play.server.SPacketEntityVelocity;
-import net.minecraft.network.play.server.SPacketExplosion;
+import net.minecraft.entity.projectile.FishingBobberEntity;
+import net.minecraft.network.IPacket;
+import net.minecraft.network.play.server.SEntityStatusPacket;
+import net.minecraft.network.play.server.SEntityVelocityPacket;
+import net.minecraft.network.play.server.SExplosionPacket;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.event.PlayerSPPushOutOfBlocksEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
@@ -123,13 +123,13 @@ public class AntiKnockbackMod extends ToggleMod {
     return new Vec3d(multiplier_x.get(), multiplier_y.get(), multiplier_z.get());
   }
 
-  private Vec3d getPacketMotion(Packet<?> packet) {
-    if (packet instanceof SPacketExplosion)
+  private Vec3d getPacketMotion(IPacket<?> packet) {
+    if (packet instanceof SExplosionPacket)
       return new Vec3d(
           FastReflection.Fields.SPacketExplosion_motionX.get(packet),
           FastReflection.Fields.SPacketExplosion_motionY.get(packet),
           FastReflection.Fields.SPacketExplosion_motionZ.get(packet));
-    else if (packet instanceof SPacketEntityVelocity)
+    else if (packet instanceof SEntityVelocityPacket)
       return new Vec3d(
           FastReflection.Fields.SPacketEntityVelocity_motionX.get(packet),
           FastReflection.Fields.SPacketEntityVelocity_motionY.get(packet),
@@ -137,12 +137,12 @@ public class AntiKnockbackMod extends ToggleMod {
     else throw new IllegalArgumentException();
   }
 
-  private void setPacketMotion(Packet<?> packet, Vec3d in) {
-    if (packet instanceof SPacketExplosion) {
+  private void setPacketMotion(IPacket<?> packet, Vec3d in) {
+    if (packet instanceof SExplosionPacket) {
       FastReflection.Fields.SPacketExplosion_motionX.set(packet, (float) in.x);
       FastReflection.Fields.SPacketExplosion_motionY.set(packet, (float) in.y);
       FastReflection.Fields.SPacketExplosion_motionZ.set(packet, (float) in.z);
-    } else if (packet instanceof SPacketEntityVelocity) {
+    } else if (packet instanceof SEntityVelocityPacket) {
       FastReflection.Fields.SPacketEntityVelocity_motionX.set(packet, (int) Math.round(in.x));
       FastReflection.Fields.SPacketEntityVelocity_motionY.set(packet, (int) Math.round(in.y));
       FastReflection.Fields.SPacketEntityVelocity_motionZ.set(packet, (int) Math.round(in.z));
@@ -150,21 +150,19 @@ public class AntiKnockbackMod extends ToggleMod {
   }
 
   private void addEntityVelocity(Entity in, Vec3d velocity) {
-    in.motionX += velocity.x;
-    in.motionY += velocity.y;
-    in.motionZ += velocity.z;
+    in.setMotion(in.getMotion().add(velocity.x, velocity.y, velocity.z));
   }
 
   /** Stops TNT and knockback velocity */
   @SubscribeEvent
   public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
     if (getLocalPlayer() == null || getWorld() == null) return;
-    else if (explosions.get() && event.getPacket() instanceof SPacketExplosion) {
+    else if (explosions.get() && event.getPacket() instanceof SExplosionPacket) {
       Vec3d multiplier = getMultiplier();
       Vec3d motion = getPacketMotion(event.getPacket());
       setPacketMotion(event.getPacket(), VectorUtils.multiplyBy(motion, multiplier));
-    } else if (velocity.get() && event.getPacket() instanceof SPacketEntityVelocity) {
-      if (((SPacketEntityVelocity) event.getPacket()).getEntityID()
+    } else if (velocity.get() && event.getPacket() instanceof SEntityVelocityPacket) {
+      if (((SEntityVelocityPacket) event.getPacket()).getEntityID()
           == getLocalPlayer().getEntityId()) {
         Vec3d multiplier = getMultiplier();
         if (multiplier.lengthSquared() > 0.D)
@@ -173,16 +171,17 @@ public class AntiKnockbackMod extends ToggleMod {
               VectorUtils.multiplyBy(getPacketMotion(event.getPacket()), multiplier));
         else event.setCanceled(true);
       }
-    } else if (fishhook.get() && event.getPacket() instanceof SPacketEntityStatus) {
+    } else if (fishhook.get() && event.getPacket() instanceof SEntityStatusPacket) {
       // CREDITS TO 0x22
       // fuck you popbob for making me need this
-      SPacketEntityStatus packet = (SPacketEntityStatus) event.getPacket();
+      SEntityStatusPacket packet = (SEntityStatusPacket) event.getPacket();
       switch (packet.getOpCode()) {
         case 31:
           {
             Entity offender = packet.getEntity(getWorld());
-            if (offender instanceof EntityFishHook) {
-              EntityFishHook hook = (EntityFishHook) offender;
+
+            if (offender instanceof FishingBobberEntity) {
+              FishingBobberEntity hook = (FishingBobberEntity) offender;
               if (getLocalPlayer().equals(hook.caughtEntity)) event.setCanceled(true);
             }
             break;
@@ -218,7 +217,7 @@ public class AntiKnockbackMod extends ToggleMod {
   }
 
   @SubscribeEvent
-  public void onPushOutOfBlocks(PushOutOfBlocksEvent event) {
+  public void onPushOutOfBlocks(PlayerSPPushOutOfBlocksEvent event) {
     if (blocks.get()) event.setCanceled(true);
   }
 

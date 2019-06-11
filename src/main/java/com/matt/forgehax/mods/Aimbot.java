@@ -21,7 +21,7 @@ import com.matt.forgehax.util.projectile.Projectile;
 import java.util.Comparator;
 import java.util.Optional;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 
@@ -198,7 +198,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     } else return 0.D;
   }
 
-  private boolean canAttack(EntityPlayer localPlayer, Entity target) {
+  private boolean canAttack(PlayerEntity localPlayer, Entity target) {
     return localPlayer.getCooledAttackStrength((float) getLagComp())
             >= (cooldown_percent.get() / 100.D)
         && (auto_attack.get() || Bindings.attack.getBinding().isKeyDown()); // need to work on this

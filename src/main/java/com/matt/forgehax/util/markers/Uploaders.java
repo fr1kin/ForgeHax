@@ -7,11 +7,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.chunk.CompiledChunk;
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.ChunkRender;
 
 /** Created on 1/18/2018 by fr1kin */
 public class Uploaders<E extends Tessellator> {
-  private final Map<RenderChunk, RenderUploader<E>> uploaders = Maps.newConcurrentMap();
+  private final Map<ChunkRender, RenderUploader<E>> uploaders = Maps.newConcurrentMap();
   private final UploaderSupplier<E> supplier;
 
   private final TessellatorCache<E> cache;
@@ -24,11 +24,11 @@ public class Uploaders<E extends Tessellator> {
   }
 
   /**
-   * Register RenderChunk and create new RenderUploader instance for it
+   * Register ChunkRender and create new RenderUploader instance for it
    *
    * @param renderChunk
    */
-  public void register(RenderChunk renderChunk) {
+  public void register(ChunkRender renderChunk) {
     RenderUploader<E> uploader = uploaders.get(renderChunk);
     // if a key for this object already exists, notify the shutdown hook and remove the old entry
     if (uploader != null && shutdownTask != null) shutdownTask.accept(uploader);
@@ -36,11 +36,11 @@ public class Uploaders<E extends Tessellator> {
   }
 
   /**
-   * Unregister RenderChunk
+   * Unregister ChunkRender
    *
    * @param renderChunk
    */
-  public void unregister(RenderChunk renderChunk) {
+  public void unregister(ChunkRender renderChunk) {
     RenderUploader<E> uploader = uploaders.get(renderChunk);
     // if a key for this object already exists, notify the shutdown hook and remove the old entry
     if (uploader != null && shutdownTask != null) {
@@ -54,12 +54,12 @@ public class Uploaders<E extends Tessellator> {
     forEach((k, v) -> unregister(k));
   }
 
-  public Optional<RenderUploader<E>> get(RenderChunk renderChunk) {
+  public Optional<RenderUploader<E>> get(ChunkRender renderChunk) {
     return Optional.ofNullable(uploaders.get(renderChunk));
   }
 
   /**
-   * Current size of the RenderChunk map
+   * Current size of the ChunkRender map
    *
    * @return
    */
@@ -67,12 +67,12 @@ public class Uploaders<E extends Tessellator> {
     return uploaders.size();
   }
 
-  public void computeIfPresent(RenderChunk renderChunk, final Consumer<RenderUploader<E>> task) {
+  public void computeIfPresent(ChunkRender renderChunk, final Consumer<RenderUploader<E>> task) {
     RenderUploader<E> uploader = uploaders.get(renderChunk);
     if (uploader != null) task.accept(uploader);
   }
 
-  public void forEach(BiConsumer<RenderChunk, RenderUploader<E>> action) {
+  public void forEach(BiConsumer<ChunkRender, RenderUploader<E>> action) {
     uploaders.forEach(action);
   }
 
@@ -89,7 +89,7 @@ public class Uploaders<E extends Tessellator> {
     return cache;
   }
 
-  public static boolean isDummy(RenderChunk chunk) {
+  public static boolean isDummy(ChunkRender chunk) {
     return chunk != null && chunk.getCompiledChunk() == CompiledChunk.DUMMY;
   }
 

@@ -32,7 +32,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.passive.AbstractHorse;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -49,7 +49,7 @@ import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntitySign;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Session;
@@ -191,10 +191,10 @@ public interface FastReflection extends ASMCommon {
             //.autoAssign()
             .build();
 
-    /** EntityPlayer */
+    /** PlayerEntity */
     FastField<Boolean> EntityPlayer_sleeping =
         FastFieldBuilder.create()
-            .setInsideClass(EntityPlayer.class)
+            .setInsideClass(PlayerEntity.class)
             .setName("sleeping")
             .setSrgName("field_71083_bS")
             //.autoAssign()
@@ -202,7 +202,7 @@ public interface FastReflection extends ASMCommon {
 
     FastField<Integer> EntityPlayer_sleepTimer =
         FastFieldBuilder.create()
-            .setInsideClass(EntityPlayer.class)
+            .setInsideClass(PlayerEntity.class)
             .setName("sleepTimer")
             .setSrgName("field_71076_b")
             //.autoAssign()
@@ -507,9 +507,9 @@ public interface FastReflection extends ASMCommon {
                 World.class,
                 BlockPos.class,
                 IBlockState.class,
-                EntityPlayer.class,
+                PlayerEntity.class,
                 EnumHand.class,
-                EnumFacing.class,
+                Direction.class,
                 float.class,
                 float.class,
                 float.class)

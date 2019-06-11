@@ -7,11 +7,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.registry.IRegistry;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.registry.Registry;
 
 public class EnchantmentUtils {
-  public static List<EntityEnchantment> getEnchantments(NBTTagList tags) {
+  public static List<EntityEnchantment> getEnchantments(ListNBT tags) {
     if (tags == null) return null;
     List<EntityEnchantment> list = Lists.newArrayList();
     for (int i = 0; i < tags.size(); i++)
@@ -21,7 +21,7 @@ public class EnchantmentUtils {
     return list;
   }
 
-  public static List<EntityEnchantment> getEnchantmentsSorted(NBTTagList tags) {
+  public static List<EntityEnchantment> getEnchantmentsSorted(ListNBT tags) {
     List<EntityEnchantment> list = getEnchantments(tags);
     if (list != null) Collections.sort(list, new EnchantSort());
     return list;
@@ -94,7 +94,7 @@ public class EnchantmentUtils {
     }
 
     public String getShortName() {
-      int id = IRegistry.field_212628_q.getId(enchantment);
+      int id = Registry.field_212628_q.getId(enchantment);
       if (SHORT_ENCHANT_NAMES.containsKey(id)) {
         if (enchantment.getMaxLevel() <= 1) return SHORT_ENCHANT_NAMES.get(id);
         else return SHORT_ENCHANT_NAMES.get(id) + this.level;
@@ -102,8 +102,7 @@ public class EnchantmentUtils {
     }
 
     public String toString() {
-      return enchantment.func_200305_d(level).getFormattedText();
-      //return enchantment.getTranslatedName(level);
+      return enchantment.getDisplayName(level).getFormattedText();
     }
   }
 }

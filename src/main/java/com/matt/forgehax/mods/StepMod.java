@@ -11,8 +11,8 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.List;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.Packet;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -33,7 +33,7 @@ public class StepMod extends ToggleMod {
 
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    EntityPlayer localPlayer = (EntityPlayer) event.getEntityLiving();
+    PlayerEntity localPlayer = (PlayerEntity) event.getEntityLiving();
     if (localPlayer.onGround) {
       localPlayer.stepHeight = 1.f;
     } else {
@@ -53,7 +53,7 @@ public class StepMod extends ToggleMod {
         // y difference must be positive
         // greater than 1, but less than 1.5
         if (diffY > DEFAULT_STEP_HEIGHT && diffY <= 1.2491870787) {
-          List<Packet> sendList = Lists.newArrayList();
+          List<IPacket> sendList = Lists.newArrayList();
           // if this is true, this must be a step
           // now to send additional packets to get around NCP
           double x = previousPositionPacket.getX(0.D);
@@ -67,7 +67,7 @@ public class StepMod extends ToggleMod {
                   packetPlayer.getY(0.f),
                   packetPlayer.getZ(0.f),
                   packetPlayer.isOnGround()));
-          for (Packet toSend : sendList) {
+          for (IPacket toSend : sendList) {
             PacketHelper.ignore(toSend);
             getNetworkManager().sendPacket(toSend);
           }

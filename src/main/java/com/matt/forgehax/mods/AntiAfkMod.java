@@ -28,7 +28,7 @@ import net.minecraft.init.Items;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
@@ -364,7 +364,7 @@ public class AntiAfkMod extends ToggleMod {
                     new CPacketPlayerDigging(
                         CPacketPlayerDigging.Action.START_DESTROY_BLOCK,
                         getBlockBelow(),
-                        EnumFacing.UP));
+                        Direction.UP));
             swingHand();
             return;
           }
@@ -392,7 +392,7 @@ public class AntiAfkMod extends ToggleMod {
               .sendPacket(
                   new CPacketPlayerTryUseItemOnBlock(
                       result.getBlockPos(),
-                      EnumFacing.UP,
+                      Direction.UP,
                       EnumHand.MAIN_HAND,
                       (float) (result.hitVec.x - result.getBlockPos().getX()),
                       (float) (result.hitVec.y - result.getBlockPos().getY()),

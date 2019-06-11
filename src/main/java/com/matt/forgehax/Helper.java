@@ -11,12 +11,16 @@ import java.util.Scanner;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -45,7 +49,7 @@ public class Helper implements Globals {
     return LOGGER;
   }
 
-  public static EntityPlayerSP getLocalPlayer() {
+  public static ClientPlayerEntity getLocalPlayer() {
     return MC.player;
   }
 
@@ -66,7 +70,7 @@ public class Helper implements Globals {
   }
 
   @Nullable
-  public static WorldClient getWorld() {
+  public static ClientWorld getWorld() {
     return MC.world;
   }
 
@@ -83,8 +87,8 @@ public class Helper implements Globals {
     return MC.getConnection()!=null ? MC.getConnection().getNetworkManager() : null;
   }
 
-  public static PlayerControllerMP getPlayerController() {
-    return MC.playerController;
+  public static PlayerController getPlayerController() {
+    return MC.field_71442_b;
   }
 
   public static void printMessageNaked(
@@ -103,8 +107,8 @@ public class Helper implements Globals {
           s2 = cpy;
         }
       } else {
-        TextComponentString string =
-            new TextComponentString(startWith + message.replaceAll("\r", ""));
+        StringTextComponent string =
+            new StringTextComponent(startWith + message.replaceAll("\r", ""));
         string.setStyle(firstStyle);
         outputMessage(string.getFormattedText());
       }
@@ -113,9 +117,9 @@ public class Helper implements Globals {
   // private function that is ultimately used to output the message
   private static void outputMessage(String text) {
     if (getLocalPlayer() != null) {
-      getLocalPlayer().sendMessage(new TextComponentString(text));
-    } else if (MC.currentScreen instanceof CommandInputGui) {
-      ((CommandInputGui) MC.currentScreen).print(text);
+      getLocalPlayer().sendMessage(new StringTextComponent(text));
+    } else if (MC.field_71462_r instanceof CommandInputGui) {
+      ((CommandInputGui) MC.field_71462_r).print(text);
     }
   }
 
@@ -193,7 +197,7 @@ public class Helper implements Globals {
   public static void reloadChunks() {
     // credits to 0x22
     if (getWorld() != null && getLocalPlayer() != null)
-      MC.addScheduledTask(
+      MC.execute(
           () -> {
             int x = (int) getLocalPlayer().posX;
             int y = (int) getLocalPlayer().posY;
@@ -207,7 +211,7 @@ public class Helper implements Globals {
   }
 
   public static void reloadChunksHard() {
-    MC.addScheduledTask(
+    MC.execute(
         () -> {
           if (getWorld() != null && getLocalPlayer() != null) MC.renderGlobal.loadRenderers();
         });

@@ -11,7 +11,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.function.Predicate;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumHand;
@@ -100,7 +100,7 @@ public class AutoCrystalMod extends ToggleMod {
     AxisAlignedBB bb =
         new AxisAlignedBB(e.getPositionVector().subtract(delta), e.getPositionVector().add(delta));
     return getWorld()
-        .getEntitiesWithinAABB(EntityPlayer.class, bb)
+        .getEntitiesWithinAABB(PlayerEntity.class, bb)
         .stream()
         .filter(p -> !p.isEntityEqual(getLocalPlayer()))
         .anyMatch(p -> e.getDistanceSq(p) < dist * dist);

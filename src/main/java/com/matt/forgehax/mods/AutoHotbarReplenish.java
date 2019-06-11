@@ -120,7 +120,7 @@ public class AutoHotbarReplenish extends ToggleMod {
 
   @Override
   protected void onDisabled() {
-    MC.addScheduledTask(
+    MC.execute(
         () -> {
           tasks = TaskChain.empty();
           tickCount = 0;

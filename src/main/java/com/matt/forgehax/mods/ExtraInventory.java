@@ -218,7 +218,7 @@ public class ExtraInventory extends ToggleMod {
 
   @Override
   protected void onDisabled() {
-    MC.addScheduledTask(
+    MC.execute(
         () -> {
           closeGui();
           reset();

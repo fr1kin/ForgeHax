@@ -10,7 +10,7 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemFishingRod;
 import net.minecraft.item.ItemStack;
@@ -93,7 +93,7 @@ public class AutoFishMod extends ToggleMod {
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    EntityPlayer me = getLocalPlayer();
+    PlayerEntity me = getLocalPlayer();
     ItemStack heldStack = me.getHeldItemMainhand();
 
     // update tick delay if hook is deployed

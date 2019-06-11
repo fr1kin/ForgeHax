@@ -5,7 +5,7 @@ import com.matt.forgehax.asm.reflection.FastReflection;
 import java.util.concurrent.locks.ReentrantLock;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.ChunkRender;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -126,7 +126,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
    */
   public boolean upload() throws UploaderException {
     if (getTessellator() == null) return false; // no tessellator
-    if (!MC.isCallingFromMinecraftThread())
+    if (!MC.isOnExecutionThread())
       throw new UploaderException("Not calling from main Minecraft thread");
     // if(isTessellatorDrawing()) throw new UploaderException("Tried to upload VBO while tessellator
     // is still drawing");
@@ -159,7 +159,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
    */
   public void unload() throws UploaderException {
     if (!isUploaded()) return;
-    if (!MC.isCallingFromMinecraftThread())
+    if (!MC.isOnExecutionThread())
       throw new UploaderException("Not calling from main Minecraft thread");
 
     try {
@@ -210,8 +210,8 @@ public class RenderUploader<E extends Tessellator> implements Globals {
     renderCount = 0;
   }
 
-  public void setRegion(RenderChunk chunk) {
-    region = new BlockPos(chunk.getPosition()); // copy because RenderChunk.position is mutable
+  public void setRegion(ChunkRender chunk) {
+    region = new BlockPos(chunk.getPosition()); // copy because ChunkRender.position is mutable
   }
 
   public void resetRegion() {
@@ -222,7 +222,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
     return region;
   }
 
-  public boolean isCorrectRegion(RenderChunk chunk) {
+  public boolean isCorrectRegion(ChunkRender chunk) {
     return region != null && region.equals(chunk.getPosition());
   }
 

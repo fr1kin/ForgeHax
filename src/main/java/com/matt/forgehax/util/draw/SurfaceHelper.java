@@ -5,22 +5,24 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
 import javax.annotation.Nullable;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.PotionEffect;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
@@ -57,7 +59,7 @@ public class SurfaceHelper implements Globals {
 
   public static void drawRect(int x, int y, int w, int h, int color) {
     GL11.glLineWidth(1.0f);
-    Gui.drawRect(x, y, x + w, y + h, color);
+    AbstractGui.fill(x, y, x + w, y + h, color); // 1.14: drawRect renamed to fill
   }
 
   public static void drawOutlinedRect(int x, int y, int w, int h, int color) {
@@ -81,7 +83,7 @@ public class SurfaceHelper implements Globals {
     BufferBuilder BufferBuilder = tessellator.getBuffer();
 
     GlStateManager.enableBlend();
-    GlStateManager.disableTexture2D();
+    GlStateManager.disableTexture();
     GlStateManager.blendFuncSeparate(
         GlStateManager.SourceFactor.SRC_ALPHA,
         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -98,7 +100,7 @@ public class SurfaceHelper implements Globals {
     BufferBuilder.pos((double) x + w, (double) y, 0.0D).endVertex();
     tessellator.draw();
 
-    GlStateManager.enableTexture2D();
+    GlStateManager.enableTexture();
     GlStateManager.disableBlend();
   }
 
@@ -139,7 +141,7 @@ public class SurfaceHelper implements Globals {
     BufferBuilder BufferBuilder = tessellator.getBuffer();
 
     GlStateManager.enableBlend();
-    GlStateManager.disableTexture2D();
+    GlStateManager.disableTexture();
     GlStateManager.blendFuncSeparate(
         GlStateManager.SourceFactor.SRC_ALPHA,
         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -155,7 +157,7 @@ public class SurfaceHelper implements Globals {
     tessellator.draw();
 
     GlStateManager.color3f(1f, 1f, 1f);
-    GlStateManager.enableTexture2D();
+    GlStateManager.enableTexture();
     GlStateManager.disableBlend();
   }
 
@@ -251,24 +253,25 @@ public class SurfaceHelper implements Globals {
     GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
   }
 
-  public static void drawPotionEffect(PotionEffect potion, Gui gui, int x, int y) {
-    int index = potion.getPotion().getStatusIconIndex();
+  public static void drawPotionEffect(EffectInstance potion, Screen gui, int x, int y) throws UnsupportedOperationException{
+    throw new UnsupportedOperationException("drawPotionEffect");
+    /*int index = potion.getPotion().getStatusIconIndex(); // 1.14: index replaced with Comparable
     GlStateManager.pushMatrix();
     RenderHelper.enableGUIStandardItemLighting();
     GlStateManager.disableLighting();
     GlStateManager.enableRescaleNormal();
     GlStateManager.enableColorMaterial();
     GlStateManager.enableLighting();
-    GlStateManager.enableTexture2D();
+    GlStateManager.enableTexture();
     GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
-    MC.getTextureManager().bindTexture(GuiContainer.INVENTORY_BACKGROUND);
+    MC.getTextureManager().bindTexture(ContainerScreen.INVENTORY_BACKGROUND);
     drawTexturedRect(x, y, index % 8 * 18, 198 + index / 8 * 18, 18, 18, 100);
     //potion.getPotion().renderHUDEffect(x, y, potion, MC, 255);
     potion.getPotion().renderHUDEffect(potion, gui, x, y, 1.f, 255); // TODO: this might not be correct
     GlStateManager.disableLighting();
     GlStateManager.enableDepthTest();
     GlStateManager.color4f(1.f, 1.f, 1.f, 1.f);
-    GlStateManager.popMatrix();
+    GlStateManager.popMatrix();*/
   }
 
   public static void drawHead(ResourceLocation skinResource, double x, double y, float scale) {
@@ -284,7 +287,7 @@ public class SurfaceHelper implements Globals {
   }
 
   protected static void renderItemAndEffectIntoGUI(
-      @Nullable EntityLivingBase living, final ItemStack stack, double x, double y, double scale) {
+      @Nullable LivingEntity living, final ItemStack stack, double x, double y, double scale) {
     if (!stack.isEmpty()) {
       MC.getItemRenderer().zLevel += 50.f;
       try {
@@ -301,9 +304,9 @@ public class SurfaceHelper implements Globals {
   private static void renderItemModelIntoGUI(
           ItemStack stack, double x, double y, IBakedModel bakedmodel, double scale) {
     GlStateManager.pushMatrix();
-    MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+    MC.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
     MC.getTextureManager()
-        .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+        .getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
         .setBlurMipmap(false, false);
     GlStateManager.enableRescaleNormal();
     GlStateManager.enableAlphaTest();
@@ -329,8 +332,8 @@ public class SurfaceHelper implements Globals {
     GlStateManager.disableRescaleNormal();
     GlStateManager.disableLighting();
     GlStateManager.popMatrix();
-    MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-    MC.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+    MC.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+    MC.getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
   }
 
   protected static void renderItemOverlayIntoGUI(
@@ -363,7 +366,7 @@ public class SurfaceHelper implements Globals {
       if (stack.getItem().showDurabilityBar(stack)) {
         GlStateManager.disableLighting();
         GlStateManager.disableDepthTest();
-        GlStateManager.disableTexture2D();
+        GlStateManager.disableTexture();
         GlStateManager.disableAlphaTest();
         GlStateManager.disableBlend();
         double health = stack.getItem().getDurabilityForDisplay(stack);
@@ -382,12 +385,12 @@ public class SurfaceHelper implements Globals {
             255);
         GlStateManager.enableBlend();
         GlStateManager.enableAlphaTest();
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
         GlStateManager.enableLighting();
         GlStateManager.enableDepthTest();
       }
 
-      EntityPlayerSP entityplayersp = Minecraft.getInstance().player;
+      ClientPlayerEntity entityplayersp = Minecraft.getInstance().player;
       float f3 =
           entityplayersp == null
               ? 0.0F
@@ -398,9 +401,9 @@ public class SurfaceHelper implements Globals {
       if (f3 > 0.0F) {
         GlStateManager.disableLighting();
         GlStateManager.disableDepthTest();
-        GlStateManager.disableTexture2D();
+        GlStateManager.disableTexture();
         draw(xPosition, yPosition + scale * (1.0F - f3), 16, scale * f3, 255, 255, 255, 127);
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
         GlStateManager.enableLighting();
         GlStateManager.enableDepthTest();
       }

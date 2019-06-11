@@ -12,8 +12,8 @@ import java.util.regex.Pattern;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.Packet;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.IPacket;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.Vec3d;
 
@@ -21,7 +21,7 @@ public class Utils implements Globals {
 
   /** Use PacketHelper class now */
   @Deprecated
-  public static final List<Packet> OUTGOING_PACKET_IGNORE_LIST = Collections.emptyList();
+  public static final List<IPacket> OUTGOING_PACKET_IGNORE_LIST = Collections.emptyList();
 
   @Deprecated
   public static int toRGBA(int r, int g, int b, int a) {
@@ -118,10 +118,10 @@ public class Utils implements Globals {
 
   public static List<ItemStack> getShulkerContents(ItemStack stack) { // TODO: move somewhere else
     NonNullList<ItemStack> contents = NonNullList.withSize(27, ItemStack.EMPTY);
-    NBTTagCompound compound = stack.getTag();
-    if (compound != null && compound.hasKey("BlockEntityTag")) {
-      NBTTagCompound tags = compound.getCompound("BlockEntityTag");
-      if (tags.hasKey("Items")) {
+    CompoundNBT compound = stack.getTag();
+    if (compound != null && compound.contains("BlockEntityTag")) {
+      CompoundNBT tags = compound.getCompound("BlockEntityTag");
+      if (tags.contains("Items")) {
         // load in the items
         ItemStackHelper.loadAllItems(tags, contents);
       }

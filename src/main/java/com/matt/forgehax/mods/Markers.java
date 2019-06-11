@@ -37,7 +37,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.ChunkRender;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItemFrame;
@@ -346,7 +346,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                   VERTEX_BUFFER_COUNT, () -> new GeometryTessellator(VERTEX_BUFFER_SIZE)));
       uploaders.onShutdown(
           uploader ->
-              MC.addScheduledTask(
+              MC.execute(
                   () -> {
                     uploader.nullifyCurrentThread(); // this will stop anything currently running
 
@@ -385,7 +385,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
   /** Improve speed by looking up in smaller map */
   private Optional<RenderUploader<GeometryTessellator>> getCurrentRenderUploader(
-      RenderChunk optional) {
+      ChunkRender optional) {
     if (uploaders == null) return Optional.empty();
     RenderUploader<GeometryTessellator> ru = localUploader.get();
     return ru == null ? uploaders.get(optional) : Optional.of(ru);
@@ -442,7 +442,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
       // create new instances of everything
       vboStartup();
       // allocate all space needed
-      for (RenderChunk renderChunk : event.getViewFrustum().renderChunks)
+      for (ChunkRender renderChunk : event.getViewFrustum().renderChunks)
         uploaders.register(renderChunk);
     } catch (Throwable t) {
       handleException(t);
@@ -544,7 +544,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
   @Override
   public void onBlockRenderInLoop(
-      final RenderChunk renderChunk,
+      final ChunkRender renderChunk,
       final Block block,
       final IBlockState state,
       final BlockPos pos) {
@@ -617,7 +617,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
             .get(event.getRenderChunk())
             .ifPresent(
                 uploader ->
-                    MC.addScheduledTask(
+                    MC.execute(
                         () -> {
                           try {
                             uploader.unload();
@@ -821,7 +821,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
       }
   }
 
-  private static void handleException(RenderChunk renderChunk, Throwable t) {
+  private static void handleException(ChunkRender renderChunk, Throwable t) {
     // throwable.printStackTrace();
     Helper.getLog().error(t.toString());
     t.printStackTrace();
