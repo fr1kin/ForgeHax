@@ -42,7 +42,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     DISTANCE,
   }
 
-  public final Setting<Boolean> silent =
+  private final Setting<Boolean> silent =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -51,7 +51,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(true)
           .build();
 
-  public final Setting<Boolean> auto_attack =
+  private final Setting<Boolean> auto_attack =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -60,7 +60,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(true)
           .build();
 
-  public final Setting<Boolean> hold_target =
+  private final Setting<Boolean> hold_target =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -69,7 +69,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(false)
           .build();
 
-  public final Setting<Boolean> vis_check =
+  private final Setting<Boolean> vis_check =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -78,7 +78,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(false)
           .build();
 
-  public final Setting<Boolean> target_players =
+  private final Setting<Boolean> target_players =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -87,7 +87,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(true)
           .build();
 
-  public final Setting<Boolean> target_mobs_hostile =
+  private final Setting<Boolean> target_mobs_hostile =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -96,7 +96,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(true)
           .build();
 
-  public final Setting<Boolean> target_mobs_friendly =
+  private final Setting<Boolean> target_mobs_friendly =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -105,7 +105,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(false)
           .build();
 
-  public final Setting<Boolean> lag_compensation =
+  private final Setting<Boolean> lag_compensation =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -114,7 +114,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(true)
           .build();
 
-  public final Setting<Integer> fov =
+  private final Setting<Integer> fov =
       getCommandStub()
           .builders()
           .<Integer>newSettingBuilder()
@@ -125,7 +125,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .max(180)
           .build();
 
-  public final Setting<Double> range =
+  private final Setting<Double> range =
       getCommandStub()
           .builders()
           .<Double>newSettingBuilder()
@@ -134,16 +134,17 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(4.5D)
           .build();
 
-  public final Setting<Double> cooldown_percent =
+  private final Setting<Float> cooldown_percent =
       getCommandStub()
           .builders()
-          .<Double>newSettingBuilder()
+          .<Float>newSettingBuilder()
           .name("cooldown_percent")
           .description("Minimum cooldown percent for next strike")
-          .defaultTo(100D)
+          .defaultTo(100F)
+          .min(0F)
           .build();
 
-  public final Setting<Boolean> projectile_aimbot =
+  private final Setting<Boolean> projectile_aimbot =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -152,7 +153,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(true)
           .build();
 
-  public final Setting<Boolean> projectile_auto_attack =
+  private final Setting<Boolean> projectile_auto_attack =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -161,7 +162,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(true)
           .build();
 
-  public final Setting<Boolean> projectile_trace_check =
+  private final Setting<Boolean> projectile_trace_check =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -170,7 +171,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(true)
           .build();
 
-  public final Setting<Double> projectile_range =
+  private final Setting<Double> projectile_range =
       getCommandStub()
           .builders()
           .<Double>newSettingBuilder()
@@ -179,7 +180,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .defaultTo(100D)
           .build();
 
-  public final Setting<Selector> selector =
+  private final Setting<Selector> selector =
       getCommandStub()
           .builders()
           .<Selector>newSettingEnumBuilder()
@@ -199,8 +200,10 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
 
   private boolean canAttack(EntityPlayer localPlayer, Entity target) {
-    return localPlayer.getCooledAttackStrength((float) getLagComp())
-            >= (cooldown_percent.get() / 100.D)
+    final float cdRatio = cooldown_percent.get() / 100F;
+    final float cdOffset = cdRatio <= 1F ? 0F : -(localPlayer.getCooldownPeriod()*(cdRatio-1F));
+    return localPlayer.getCooledAttackStrength((float) getLagComp() + cdOffset)
+            >= (Math.min(1F, cdRatio))
         && (auto_attack.get() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
   }
 
