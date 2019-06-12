@@ -3,7 +3,7 @@ package com.matt.forgehax.mods.services;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.entity.monster.EntityPigZombie;
+import net.minecraft.entity.monster.ZombiePigmanEntity;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -16,9 +16,9 @@ public class PigmenAngerCooldownService extends ServiceMod {
 
   @SubscribeEvent
   public void onUpdate(LivingEvent.LivingUpdateEvent event) {
-    if (event.getEntityLiving() instanceof EntityPigZombie) {
+    if (event.getEntityLiving() instanceof ZombiePigmanEntity) {
       // update pigmens anger level
-      EntityPigZombie pigZombie = (EntityPigZombie) event.getEntityLiving();
+      ZombiePigmanEntity pigZombie = (ZombiePigmanEntity) event.getEntityLiving();
       if (pigZombie.isArmsRaised()) {
         FastReflection.Fields.EntityPigZombie_angerLevel.set(pigZombie, 400);
       } else if (pigZombie.isAngry()) {

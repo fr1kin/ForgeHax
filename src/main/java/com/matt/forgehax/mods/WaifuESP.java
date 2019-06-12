@@ -16,14 +16,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.TextureUtil;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.MissingTextureSprite;
 import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -55,7 +55,7 @@ public class WaifuESP extends ToggleMod {
 
     private final Path waifuCache = Helper.getFileManager().getBaseResolve("cache/waifu.png");
 
-    private boolean shouldDraw(EntityLivingBase entity) {
+    private boolean shouldDraw(LivingEntity entity) {
         return (!entity.equals(MC.player)
             && EntityUtils.isAlive(entity)
             && EntityUtils.isValidEntity(entity)
@@ -66,9 +66,9 @@ public class WaifuESP extends ToggleMod {
     public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
         if (waifu == null) return;
 
-        for (Entity entity : MC.world.loadedEntityList) {
-            if (EntityUtils.isLiving(entity) && shouldDraw((EntityLivingBase) entity)) {
-                EntityLivingBase living = (EntityLivingBase) (entity);
+        for (Entity entity : MC.world.func_217416_b()) {
+            if (EntityUtils.isLiving(entity) && shouldDraw((LivingEntity) entity)) {
+                LivingEntity living = (LivingEntity) (entity);
                 Vec3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
                 Vec3d topVec =
                     bottomVec.add(new Vec3d(0, (entity.getRenderBoundingBox().maxY - entity.posY), 0));
@@ -87,7 +87,7 @@ public class WaifuESP extends ToggleMod {
                     MC.textureManager.bindTexture(waifu);
 
                     GlStateManager.color3f(255, 255, 255);
-                    Gui.drawScaledCustomSizeModalRect(
+                    AbstractGui.blit( // 1.14: drawScaledCustomSizeModalRect renamed to blit
                         x, y, 0, 0, width, height, width, height, width, height);
                 }
             }
@@ -118,7 +118,7 @@ public class WaifuESP extends ToggleMod {
                 .map(stream -> {
                     ByteBuffer byteBuffer = null;
                     try {
-                        byteBuffer = TextureUtil.readToNativeBuffer(stream);
+                        byteBuffer = TextureUtil.readResource(stream);
                         if (!Files.exists(waifuCache)) {
                             byteBuffer.rewind();
                             saveWaifuToCache(byteBuffer);

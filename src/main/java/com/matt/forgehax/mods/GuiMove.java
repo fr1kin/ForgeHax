@@ -5,7 +5,11 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.screen.IngameMenuScreen;
+import net.minecraft.client.gui.screen.OptionsScreen;
+import net.minecraft.client.gui.screen.OptionsSoundsScreen;
+import net.minecraft.client.gui.screen.VideoSettingsScreen;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,17 +31,17 @@ public class GuiMove extends ToggleMod {
       MC.gameSettings.keyBindJump,
       MC.gameSettings.keyBindSprint
     };
-    if (MC.currentScreen instanceof GuiOptions
-        || MC.currentScreen instanceof GuiVideoSettings
-        || MC.currentScreen instanceof GuiScreenOptionsSounds
-        || MC.currentScreen instanceof GuiContainer
-        || MC.currentScreen instanceof GuiIngameMenu) {
+    if (MC.field_71462_r instanceof OptionsScreen
+        || MC.field_71462_r instanceof VideoSettingsScreen
+        || MC.field_71462_r instanceof OptionsSoundsScreen
+        || MC.field_71462_r instanceof ContainerScreen
+        || MC.field_71462_r instanceof IngameMenuScreen) {
       for (KeyBinding bind : keys) {
-        KeyBinding.setKeyBindState(bind.getKey(), InputMappings.isKeyDown(bind.getKey().getKeyCode()));
+        KeyBinding.setKeyBindState(bind.getKey(), InputMappings.func_216506_a(MC.mainWindow.getHandle(), bind.getKey().getKeyCode()));
       }
-    } else if (MC.currentScreen == null) {
+    } else if (MC.field_71462_r == null) {
       for (KeyBinding bind : keys) {
-        if (!InputMappings.isKeyDown(bind.getKey().getKeyCode())) {
+        if (!InputMappings.func_216506_a(MC.mainWindow.getHandle(), bind.getKey().getKeyCode())) {
           KeyBinding.setKeyBindState(bind.getKey(), false);
         }
       }

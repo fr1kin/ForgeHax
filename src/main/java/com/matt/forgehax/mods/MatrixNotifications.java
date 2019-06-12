@@ -35,8 +35,9 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import net.minecraft.client.gui.GuiDisconnected;
-import net.minecraft.network.play.server.SPacketChat;
+
+import net.minecraft.client.gui.screen.DisconnectedScreen;
+import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
@@ -295,7 +296,7 @@ public class MatrixNotifications extends ToggleMod {
 
   @SubscribeEvent
   public void onGuiOpened(GuiOpenEvent event) {
-    if(event.getGui() instanceof GuiDisconnected && joined) {
+    if(event.getGui() instanceof DisconnectedScreen && joined) {
       joined = false;
 
       if(on_disconnected.get()) {
@@ -312,8 +313,8 @@ public class MatrixNotifications extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketRecieve(PacketEvent.Incoming.Pre event) {
-    if(event.getPacket() instanceof SPacketChat) {
-      SPacketChat packet = event.getPacket();
+    if(event.getPacket() instanceof SChatPacket) {
+      SChatPacket packet = event.getPacket();
       if (packet.getType() == ChatType.SYSTEM) {
         ITextComponent comp = packet.getChatComponent();
         if (comp.getSiblings().size() >= 2) {

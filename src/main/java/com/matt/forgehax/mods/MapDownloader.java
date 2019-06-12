@@ -16,7 +16,7 @@ import javax.imageio.ImageIO;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.item.ItemMap;
+import net.minecraft.item.MapItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
 import org.lwjgl.system.MemoryUtil;
@@ -50,10 +50,10 @@ public class MapDownloader extends ToggleMod {
   }
 
   private void downloadMap(String fileName, Integer scaledRes) {
-    if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof ItemMap))
+    if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof MapItem))
       return;
 
-    ItemMap map = (ItemMap) MC.player.getHeldItemMainhand().getItem();
+    MapItem map = (MapItem) MC.player.getHeldItemMainhand().getItem();
     MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);
 
     if (fileName == null) fileName = heldMapData.getName();

@@ -10,10 +10,11 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Objects;
-import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketEntityAction.Action;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.server.SPacketPlayerPosLook;
+
+import net.minecraft.network.play.client.CEntityActionPacket;
+import net.minecraft.network.play.client.CPlayerPacket;
+import net.minecraft.network.play.server.SPlayerPositionLookPacket;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -44,21 +45,20 @@ public class FlyMod extends ToggleMod { // this mod is kind of gay and broken
               || MC.gameSettings.keyBindRight.isKeyDown()
               || MC.gameSettings.keyBindBack.isKeyDown())
           && !MC.gameSettings.keyBindJump.isKeyDown()) {
-        MC.player.motionX = xDir * 0.26;
-        MC.player.motionZ = zDir * 0.26;
+        MC.player.setMotion(new Vec3d(xDir * 0.26, MC.player.getMotion().y, zDir * 0.26));
       }
-      double posX = MC.player.posX + MC.player.motionX;
+      double posX = MC.player.posX + MC.player.getMotion().x;
       double posY =
           MC.player.posY
               + (MC.gameSettings.keyBindJump.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001)
               - (MC.gameSettings.keyBindSneak.isKeyDown()
                   ? (zoomies ? 0.0625 : 0.0624)
                   : 0.00000002);
-      double posZ = MC.player.posZ + MC.player.motionX;
+      double posZ = MC.player.posZ + MC.player.getMotion().x;
       getNetworkManager()
           .sendPacket(
-              new CPacketPlayer.PositionRotation(
-                  MC.player.posX + MC.player.motionX,
+              new CPlayerPacket.PositionRotationPacket(
+                  MC.player.posX + MC.player.getMotion().x,
                   MC.player.posY
                       + (MC.gameSettings.keyBindJump.isKeyDown()
                           ? (zoomies ? 0.0625 : 0.0624)
@@ -66,27 +66,25 @@ public class FlyMod extends ToggleMod { // this mod is kind of gay and broken
                       - (MC.gameSettings.keyBindSneak.isKeyDown()
                           ? (zoomies ? 0.0625 : 0.0624)
                           : 0.00000002),
-                  MC.player.posZ + MC.player.motionZ,
+                  MC.player.posZ + MC.player.getMotion().z,
                   MC.player.rotationYaw,
                   MC.player.rotationPitch,
                   false));
       getNetworkManager()
           .sendPacket(
-              new CPacketPlayer.PositionRotation(
-                  MC.player.posX + MC.player.motionX,
+              new CPlayerPacket.PositionRotationPacket(
+                  MC.player.posX + MC.player.getMotion().x,
                   1337 + MC.player.posY,
-                  MC.player.posZ + MC.player.motionZ,
+                  MC.player.posZ + MC.player.getMotion().z,
                   MC.player.rotationYaw,
                   MC.player.rotationPitch,
                   true));
-      getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
+      getNetworkManager().sendPacket(new CEntityActionPacket(MC.player, CEntityActionPacket.Action.START_FALL_FLYING));
       MC.player.setPosition(posX, posY, posZ);
 
       zoomies = !zoomies;
 
-      MC.player.motionX = 0;
-      MC.player.motionY = 0;
-      MC.player.motionZ = 0;
+      MC.player.setMotion(Vec3d.ZERO);
 
       MC.player.noClip = true;
     } catch (Exception e) {
@@ -100,22 +98,23 @@ public class FlyMod extends ToggleMod { // this mod is kind of gay and broken
 
   @SubscribeEvent
   public void onOutgoingPacketSent(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketPlayerPosLook) {
-      SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();
+    if (event.getPacket() instanceof SPlayerPositionLookPacket) {
+      SPlayerPositionLookPacket packet = event.getPacket();
       try {
         ObfuscationReflectionHelper.setPrivateValue(
-            SPacketPlayerPosLook.class,
+            SPlayerPositionLookPacket.class,
             packet,
             MC.player.rotationYaw,
             //"yaw",
             "field_148936_d");
         ObfuscationReflectionHelper.setPrivateValue(
-            SPacketPlayerPosLook.class,
+            SPlayerPositionLookPacket.class,
             packet,
             MC.player.rotationPitch,
             //"pitch",
             "field_148937_e");
       } catch (Exception e) {
+        e.printStackTrace();
       }
     }
   }

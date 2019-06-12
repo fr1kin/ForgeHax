@@ -8,7 +8,7 @@ import com.matt.forgehax.util.command.exception.CommandExecuteException;
 import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.network.play.client.CPacketChatMessage;
+import net.minecraft.network.play.client.CChatMessagePacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /** Created on 5/15/2017 by fr1kin */
@@ -41,8 +41,8 @@ public class ChatCommandService extends ServiceMod {
 
   @SubscribeEvent
   public void onSendPacket(PacketEvent.Outgoing.Pre event) {
-    if (event.getPacket() instanceof CPacketChatMessage) {
-      String message = ((CPacketChatMessage) event.getPacket()).getMessage();
+    if (event.getPacket() instanceof CChatMessagePacket) {
+      String message = ((CChatMessagePacket) event.getPacket()).getMessage();
       if (message.startsWith(activationCharacter.getAsString()) && message.length() > 1) {
         // cut out the . from the message
         String line = message.substring(1);

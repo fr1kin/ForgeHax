@@ -58,7 +58,7 @@ public class ElytraFlight extends ToggleMod {
     if (getLocalPlayer() != null) {
 
       // Disable creativeflight.
-      getLocalPlayer().abilities.isFlying = false;
+      getLocalPlayer().playerAbilities.isFlying = false;
 
       // Ensure the player starts flying again.
       getNetworkManager()
@@ -70,9 +70,9 @@ public class ElytraFlight extends ToggleMod {
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     // Enable our flight as soon as the player starts flying his elytra.
     if (getLocalPlayer().isElytraFlying()) {
-      getLocalPlayer().abilities.isFlying = true;
+      getLocalPlayer().playerAbilities.isFlying = true;
       flying.enable();
     }
-    getLocalPlayer().abilities.setFlySpeed(speed.getAsFloat());
+    getLocalPlayer().playerAbilities.setFlySpeed(speed.getAsFloat());
   }
 }

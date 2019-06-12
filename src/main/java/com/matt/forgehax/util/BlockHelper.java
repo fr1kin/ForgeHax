@@ -19,23 +19,23 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.*;
 
 public class BlockHelper {
-  public static UniqueBlock newUniqueBlock(IBlockState blockState, BlockPos pos) {
+  public static UniqueBlock newUniqueBlock(BlockState blockState, BlockPos pos) {
     return new UniqueBlock(blockState, pos);
   }
 
-  public static UniqueBlock newUniqueBlock(IBlockState blockState) {
-    return newUniqueBlock(blockState, BlockPos.ORIGIN);
+  public static UniqueBlock newUniqueBlock(BlockState blockState) {
+    return newUniqueBlock(blockState, BlockPos.ZERO);
   }
 
   public static UniqueBlock newUniqueBlock(BlockPos pos) {
-    IBlockState state = getWorld().getBlockState(pos);
+    BlockState state = getWorld().getBlockState(pos);
     return newUniqueBlock(state, pos);
   }
 
@@ -56,7 +56,7 @@ public class BlockHelper {
   }
 
   public static float getBlockHardness(BlockPos pos) {
-    IBlockState state = getWorld().getBlockState(pos);
+    BlockState state = getWorld().getBlockState(pos);
     return state.getBlockHardness(getWorld(), pos);
   }
 
@@ -65,14 +65,16 @@ public class BlockHelper {
   }
 
   public static boolean isTraceClear(Vec3d start, Vec3d end, Direction targetSide) {
-    RayTraceResult tr = getWorld().rayTraceBlocks(start, end, RayTraceFluidMode.NEVER, true, false);
+
+    //RayTraceResult tr = getWorld().rayTraceBlocks(start, end, RayTraceFluidMode.NEVER, true, false);
+    RayTraceResult tr = getWorld().func_217299_a(new RayTraceContext(start, end, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE));
     return tr == null
-        || (new BlockPos(end).equals(new BlockPos(tr.hitVec))
+        || (new BlockPos(end).equals(new BlockPos(tr.getHitVec()))
             && targetSide.getOpposite().equals(tr.sideHit));
   }
 
   public static Vec3d getOBBCenter(BlockPos pos) {
-    IBlockState state = getWorld().getBlockState(pos);
+    BlockState state = getWorld().getBlockState(pos);
     // TODO: make sure we get the right shape
     AxisAlignedBB bb = state.getShape(Helper.getWorld(), pos).getBoundingBox();
     //AxisAlignedBB bb = state.getBoundingBox(getWorld(), pos);
@@ -83,7 +85,7 @@ public class BlockHelper {
   }
 
   public static boolean isBlockPlaceable(BlockPos pos) {
-    IBlockState state = getWorld().getBlockState(pos);
+    BlockState state = getWorld().getBlockState(pos);
     return state.getBlock().isCollidable(state);
   }
 
@@ -163,7 +165,7 @@ public class BlockHelper {
       return center;
     }
 
-    public IBlockState getBlockState() {
+    public BlockState getBlockState() {
       return getWorld().getBlockState(getPos());
     }
 
@@ -183,10 +185,10 @@ public class BlockHelper {
   }
 
   public static class UniqueBlock {
-    private final IBlockState blockState;
+    private final BlockState blockState;
     private final BlockPos pos;
 
-    private UniqueBlock(IBlockState block, BlockPos pos) {
+    private UniqueBlock(BlockState block, BlockPos pos) {
       this.blockState = block;
       this.pos = pos;
     }
@@ -212,7 +214,7 @@ public class BlockHelper {
     }
 
     public boolean isEqual(BlockPos pos) {
-      IBlockState state = getWorld().getBlockState(pos);
+      BlockState state = getWorld().getBlockState(pos);
       return Objects.equals(state, this.blockState);
     }
 

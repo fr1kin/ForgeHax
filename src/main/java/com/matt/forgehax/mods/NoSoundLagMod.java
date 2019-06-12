@@ -5,9 +5,9 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.network.play.server.SPacketSoundEffect;
+import net.minecraft.network.play.server.SPlaySoundEffectPacket;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Set;
@@ -31,8 +31,8 @@ public class NoSoundLagMod extends ToggleMod {
 
     @SubscribeEvent
     public void onPacketReceived(PacketEvent.Incoming.Pre event) {
-        if (event.getPacket() instanceof SPacketSoundEffect) {
-            SPacketSoundEffect packet = event.getPacket();
+        if (event.getPacket() instanceof SPlaySoundEffectPacket) {
+            SPlaySoundEffectPacket packet = event.getPacket();
             if (BLACKLIST.contains(packet.getSound())) {
                 event.setCanceled(true);
             }

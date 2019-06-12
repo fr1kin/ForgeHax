@@ -137,23 +137,23 @@ public class LocalPlayerUtils implements Globals {
     @Override
     protected void onEnabled() {
       MC.execute(() -> {
-        if(getLocalPlayer() == null || getLocalPlayer().abilities == null)
+        if(getLocalPlayer() == null || getLocalPlayer().playerAbilities == null)
           return;
 
-        getLocalPlayer().abilities.allowFlying = true;
-        getLocalPlayer().abilities.isFlying = true;
+        getLocalPlayer().playerAbilities.allowFlying = true;
+        getLocalPlayer().playerAbilities.isFlying = true;
       });
     }
 
     @Override
     protected void onDisabled() {
       MC.execute(() -> {
-        if(getLocalPlayer() == null || getLocalPlayer().abilities == null)
+        if(getLocalPlayer() == null || getLocalPlayer().playerAbilities == null)
           return;
 
-        getLocalPlayer().abilities.allowFlying = false;
-        getLocalPlayer().abilities.isFlying = false;
-        getLocalPlayer().abilities.setFlySpeed(DEFAULT_FLY_SPEED);
+        getLocalPlayer().playerAbilities.allowFlying = false;
+        getLocalPlayer().playerAbilities.isFlying = false;
+        getLocalPlayer().playerAbilities.setFlySpeed(DEFAULT_FLY_SPEED);
       });
     }
   };

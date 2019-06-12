@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getWorld;
 
+import com.google.common.collect.Streams;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
@@ -12,8 +13,8 @@ import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.item.EntityItem;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -42,16 +43,14 @@ public class ItemESP extends ToggleMod {
         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
         GlStateManager.SourceFactor.ONE,
         GlStateManager.DestFactor.ZERO);
-    GlStateManager.enableTexture2D();
+    GlStateManager.enableTexture();
     GlStateManager.disableDepthTest();
 
     final double scale = this.scale.get() == 0 ? 1.D : this.scale.get();
 
-    getWorld()
-        .loadedEntityList
-        .stream()
-        .filter(EntityItem.class::isInstance)
-        .map(EntityItem.class::cast)
+    Streams.stream(getWorld().func_217416_b())
+        .filter(ItemEntity.class::isInstance)
+        .map(ItemEntity.class::cast)
         .filter(entity -> entity.ticksExisted > 1)
         .forEach(
             entity -> {

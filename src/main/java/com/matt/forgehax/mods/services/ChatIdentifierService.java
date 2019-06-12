@@ -15,8 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.network.play.server.SPacketChat;
+import net.minecraft.client.network.play.NetworkPlayerInfo;
+import net.minecraft.network.play.server.SChatPacket;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -49,7 +49,7 @@ public class ChatIdentifierService extends ServiceMod {
         final String messageSender = matcher.group(1);
         final String messageOnly = matcher.group(2);
         if (!Strings.isNullOrEmpty(messageSender)) {
-          for (NetworkPlayerInfo data : getLocalPlayer().connection.getPlayerInfoMap()) {
+          for (NetworkPlayerInfo data : getLocalPlayer().field_71174_a.getPlayerInfoMap()) {
             if (String.CASE_INSENSITIVE_ORDER.compare(
                     messageSender, data.getGameProfile().getName())
                 == 0) {
@@ -66,9 +66,9 @@ public class ChatIdentifierService extends ServiceMod {
   @SuppressWarnings("Duplicates")
   @SubscribeEvent
   public void onChatMessage(PacketEvent.Incoming.Pre event) {
-    if (getLocalPlayer() == null || getLocalPlayer().connection == null) return;
-    else if (event.getPacket() instanceof SPacketChat) {
-      SPacketChat packet = (SPacketChat) event.getPacket();
+    if (getLocalPlayer() == null || getLocalPlayer().field_71174_a == null) return;
+    else if (event.getPacket() instanceof SChatPacket) {
+      SChatPacket packet = event.getPacket();
       String message = packet.getChatComponent().getUnformattedComponentText();
       if (!Strings.isNullOrEmpty(message)) {
         MC.execute(() -> {

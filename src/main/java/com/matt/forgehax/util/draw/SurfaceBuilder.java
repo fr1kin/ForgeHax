@@ -6,7 +6,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 import com.matt.forgehax.util.Utils;
 import java.util.Stack;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;

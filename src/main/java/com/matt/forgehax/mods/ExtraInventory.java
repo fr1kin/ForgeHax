@@ -18,18 +18,24 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import net.minecraft.client.gui.inventory.GuiInventory;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.*;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.*;
-import net.minecraft.network.play.client.CPacketClickWindow;
+import net.minecraft.network.play.client.CClickWindowPacket;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
+
+import javax.annotation.Nullable;
 //import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 @RegisterMod
@@ -58,7 +64,7 @@ public class ExtraInventory extends ToggleMod {
 
   private TaskChain nextClickTask = null;
 
-  private GuiInventory openedGui = null;
+  private InventoryScreen openedGui = null;
   private AtomicBoolean guiNeedsClose = new AtomicBoolean(false);
   private boolean guiCloseGuard = false;
 
@@ -72,7 +78,7 @@ public class ExtraInventory extends ToggleMod {
         "Allows one to carry up to 5 extra items in their inventory");
   }
 
-  private GuiInventory createGuiWrapper(GuiInventory gui) {
+  private InventoryScreen createGuiWrapper(InventoryScreen gui) {
     try {
       GuiInventoryWrapper wrapper = new GuiInventoryWrapper();
       ReflectionHelper.copyOf(gui, wrapper); // copy all fields from the provided gui to the wrapper
@@ -187,11 +193,22 @@ public class ExtraInventory extends ToggleMod {
         .stream()
         .max(Comparator.comparingInt(ExtraInventory::getItemValue))
         .map(item -> LocalPlayerInventory.getInventory().getSlotFor(item))
-        .map(
-            index ->
-                getCurrentContainer()
-                    .getSlotFromInventory(LocalPlayerInventory.getInventory(), index))
+        .map(index -> getSlotFromInventory(getCurrentContainer(), LocalPlayerInventory.getInventory(), index))
         .orElse(null);
+  }
+
+  // removed in 1.14, hopefully this still works
+  @Nullable
+  private Slot getSlotFromInventory(Container container, IInventory inv, int slotIn) {
+    for(int i = 0; i < container.inventorySlots.size(); ++i) {
+      Slot slot = container.inventorySlots.get(i);
+      //if (slot.isHere(inv, slotIn)) {
+      if (inv == slot.inventory && slotIn == slot.slotNumber) {
+        return slot;
+      }
+    }
+
+    return null;
   }
 
   private void closeGui() {
@@ -200,7 +217,7 @@ public class ExtraInventory extends ToggleMod {
         guiCloseGuard = true;
         getLocalPlayer().closeScreen();
         if (openedGui != null) {
-          openedGui.onGuiClosed();
+          openedGui.onClose();
           openedGui = null;
         }
         guiCloseGuard = false;
@@ -230,7 +247,7 @@ public class ExtraInventory extends ToggleMod {
     if (auto_store.get() && (!clickTimer.isStarted() || clickTimer.hasTimeElapsed(delay.get()))) {
       // start a click task if one should be
       if (nextClickTask == null) {
-        InventoryPlayer inventory = LocalPlayerInventory.getInventory();
+        PlayerInventory inventory = LocalPlayerInventory.getInventory();
         // check if inventory is full
         if (inventory.getFirstEmptyStack() == -1) { // TODO: check only top part of inventory
           // find available slot
@@ -242,7 +259,7 @@ public class ExtraInventory extends ToggleMod {
               // open and close the gui to create open instance
 
               if (openedGui == null) {
-                MC.displayGuiScreen(new GuiInventory(getLocalPlayer()));
+                MC.displayGuiScreen(new InventoryScreen(getLocalPlayer()));
                 MC.displayGuiScreen(null);
               }
 
@@ -276,9 +293,9 @@ public class ExtraInventory extends ToggleMod {
     if (guiCloseGuard) {
       // do not close the gui when this mod executes closeWindow()
       event.setCanceled(true);
-    } else if (event.getGui() instanceof GuiInventory) {
+    } else if (event.getGui() instanceof InventoryScreen) {
       // create a wrapper and replace the gui
-      event.setGui(openedGui = createGuiWrapper((GuiInventory) event.getGui()));
+      event.setGui(openedGui = createGuiWrapper((InventoryScreen) event.getGui()));
       // server doesn't need to be informed the gui has been closed
       guiNeedsClose.set(false);
     }
@@ -286,10 +303,10 @@ public class ExtraInventory extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketSent(PacketEvent.Outgoing.Pre event) {
-    if (event.getPacket() instanceof CPacketClickWindow) clickTimer.start();
+    if (event.getPacket() instanceof CClickWindowPacket) clickTimer.start();
   }
 
-  class GuiInventoryWrapper extends GuiInventory {
+  class GuiInventoryWrapper extends InventoryScreen {
     GuiInventoryWrapper() {
       super(
           getLocalPlayer()); // provide anything that doesn't cause a nullpointer exception, will be
@@ -299,7 +316,7 @@ public class ExtraInventory extends ToggleMod {
     @Override
     public boolean keyPressed(int key, int scancode, int modifiers)  {
       if (isEnabled()
-          && (key == GLFW.GLFW_KEY_ESCAPE || this.mc.gameSettings.keyBindInventory.isActiveAndMatches(InputMappings.getInputByCode(key, scancode)))) {
+          && (key == GLFW.GLFW_KEY_ESCAPE || this.minecraft.gameSettings.keyBindInventory.isActiveAndMatches(InputMappings.getInputByCode(key, scancode)))) {
         guiNeedsClose.set(true);
         MC.displayGuiScreen(null);
         return true;
@@ -309,27 +326,27 @@ public class ExtraInventory extends ToggleMod {
     }
 
     @Override
-    public void onGuiClosed() {
-      if (guiCloseGuard || !isEnabled()) super.onGuiClosed();
+    public void onClose() {
+      if (guiCloseGuard || !isEnabled()) super.onClose();
     }
   }
 
   private static List<ItemStack> getMainInventory() {
     List<ItemStack> inventory = LocalPlayerInventory.getInventory().mainInventory;
-    return inventory.subList(InventoryPlayer.getHotbarSize(), inventory.size());
+    return inventory.subList(PlayerInventory.getHotbarSize(), inventory.size());
   }
 
   private static int getItemValue(ItemStack stack, boolean loopGuard) {
     Item item = stack.getItem();
     if (stack.isEmpty()) return 0;
-    else if (item instanceof ItemArmor
-        || item instanceof ItemPickaxe
-        || item instanceof ItemAxe
-        || item instanceof ItemSword
-        || item instanceof ItemFood
-        || item instanceof ItemArrow
+    else if (item instanceof ArmorItem
+        || item instanceof PickaxeItem
+        || item instanceof AxeItem
+        || item instanceof SwordItem
+        || item.func_219971_r() // isFood()
+        || item instanceof ArrowItem
         || Items.TOTEM_OF_UNDYING.equals(item)) return 100 * stack.getCount(); // very important
-    else if (item instanceof ItemBlock && ((ItemBlock)item).getBlock() == Blocks.SHULKER_BOX) {
+    else if (item instanceof BlockItem && ((BlockItem)item).getBlock() == Blocks.SHULKER_BOX) {
       return 5
           + (loopGuard
               ? 0
@@ -355,15 +372,15 @@ public class ExtraInventory extends ToggleMod {
         LocalPlayerInventory.getOpenContainer(), LocalPlayerInventory.getContainer());
   }
 
-  private static Optional<ContainerPlayer> getPlayerContainer() {
+  private static Optional<PlayerContainer> getPlayerContainer() {
     return Optional.ofNullable(getCurrentContainer())
-        .filter(ContainerPlayer.class::isInstance)
-        .map(ContainerPlayer.class::cast);
+        .filter(PlayerContainer.class::isInstance)
+        .map(PlayerContainer.class::cast);
   }
 
-  private static CPacketClickWindow newClickPacket(
+  private static CClickWindowPacket newClickPacket(
       int slotIdIn, int usedButtonIn, ClickType modeIn, ItemStack clickedItemIn) {
-    return new CPacketClickWindow(
+    return new CClickWindowPacket(
         GUI_INVENTORY_ID,
         slotIdIn,
         usedButtonIn,

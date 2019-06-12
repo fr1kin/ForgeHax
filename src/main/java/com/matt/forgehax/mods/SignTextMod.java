@@ -6,9 +6,10 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
+
+import net.minecraft.tileentity.SignTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntitySign;
-import net.minecraft.util.math.RayTraceFluidMode;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.InputEvent;
@@ -26,13 +27,15 @@ public class SignTextMod extends ToggleMod {
   // TODO: mouse input hook
   public void onInput(InputEvent.MouseInputEvent event) {
     if (event.getButton() == 2 && event.getAction() == GLFW.GLFW_PRESS) { // on middle click
-      RayTraceResult result = MC.player.rayTrace(999, 0, RayTraceFluidMode.NEVER);
+      RayTraceResult result = MC.player.func_213324_a(999, 0, true);
       if (result == null) return;
-      if (result.type == RayTraceResult.Type.BLOCK) {
-        TileEntity tileEntity = MC.world.getTileEntity(result.getBlockPos());
+      if (result.getType() == RayTraceResult.Type.BLOCK) {
+        BlockRayTraceResult blockResult = (BlockRayTraceResult)result;
 
-        if (tileEntity instanceof TileEntitySign) {
-          TileEntitySign sign = (TileEntitySign) tileEntity;
+        TileEntity tileEntity = MC.world.getTileEntity(blockResult.getPos());
+
+        if (tileEntity instanceof SignTileEntity) {
+          SignTileEntity sign = (SignTileEntity) tileEntity;
 
           int signTextLength = 0;
           // find the first line from the bottom that isn't empty

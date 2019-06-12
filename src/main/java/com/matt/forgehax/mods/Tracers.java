@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 
+import com.google.common.collect.Streams;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.color.Colors;
@@ -16,9 +17,10 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Objects;
-import net.minecraft.client.renderer.GlStateManager;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -110,7 +112,7 @@ public class Tracers extends ToggleMod implements Colors {
         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
         GlStateManager.SourceFactor.ONE,
         GlStateManager.DestFactor.ZERO);
-    GlStateManager.disableTexture2D();
+    GlStateManager.disableTexture();
 
     if (antialias.get()) {
       GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
@@ -122,11 +124,9 @@ public class Tracers extends ToggleMod implements Colors {
     final double cx = event.getScreenWidth() / 2.f;
     final double cy = event.getScreenHeight() / 2.f;
 
-    getWorld()
-        .loadedEntityList
-        .stream()
+    Streams.stream(getWorld().func_217416_b())
         .filter(entity -> !Objects.equals(entity, getLocalPlayer()))
-        .filter(entity -> entity instanceof EntityLivingBase)
+        .filter(entity -> entity instanceof LivingEntity)
         .map(EntityRelations::new)
         .filter(er -> !er.getRelationship().equals(MobTypeEnum.INVALID))
         .filter(EntityRelations::isOptionEnabled)
@@ -242,7 +242,7 @@ public class Tracers extends ToggleMod implements Colors {
               GlStateManager.translatef(0, 0, -er.getDepth());
             });
 
-    GlStateManager.enableTexture2D();
+    GlStateManager.enableTexture();
     GlStateManager.disableBlend();
 
     GL11.glDisable(GL11.GL_POLYGON_SMOOTH);

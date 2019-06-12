@@ -17,10 +17,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
-import net.minecraft.network.play.server.SPacketChunkData;
-import net.minecraft.network.play.server.SPacketCustomPayload;
-import net.minecraft.network.play.server.SPacketPlayerListItem;
-import net.minecraft.network.play.server.SPacketPlayerListItem.Action;
+import net.minecraft.network.play.server.SChunkDataPacket;
+import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
+import net.minecraft.network.play.server.SPlayerListItemPacket.Action;
+import net.minecraft.network.play.server.SPlayerListItemPacket;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 //import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -54,7 +54,7 @@ public class ScoreboardListenerService extends ServiceMod {
   }
 
   private void fireEvents(
-      SPacketPlayerListItem.Action action, PlayerInfo info, GameProfile profile) {
+      SPlayerListItemPacket.Action action, PlayerInfo info, GameProfile profile) {
     if (ignore || info == null) return;
     switch (action) {
       case ADD_PLAYER:
@@ -85,10 +85,10 @@ public class ScoreboardListenerService extends ServiceMod {
   public void onPacketIn(PacketEvent.Incoming.Pre event) {
     if (ignore && timer.isStarted() && timer.hasTimeElapsed(wait.get())) ignore = false;
 
-    if (!ignore && event.getPacket() instanceof SPacketCustomPayload) {
+    if (!ignore && event.getPacket() instanceof SCustomPayloadPlayPacket) {
       ignore = true;
       timer.start();
-    } else if (ignore && event.getPacket() instanceof SPacketChunkData) {
+    } else if (ignore && event.getPacket() instanceof SChunkDataPacket) {
       ignore = false;
       timer.reset();
     }
@@ -96,8 +96,8 @@ public class ScoreboardListenerService extends ServiceMod {
 
   @SubscribeEvent
   public void onScoreboardEvent(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketPlayerListItem) {
-      final SPacketPlayerListItem packet = (SPacketPlayerListItem) event.getPacket();
+    if (event.getPacket() instanceof SPlayerListItemPacket) {
+      final SPlayerListItemPacket packet = event.getPacket();
       if (!Action.ADD_PLAYER.equals(packet.getAction())
           && !Action.REMOVE_PLAYER.equals(packet.getAction())) return;
 

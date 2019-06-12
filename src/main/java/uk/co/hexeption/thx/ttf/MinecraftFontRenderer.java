@@ -21,7 +21,7 @@ as the name is changed.
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import org.lwjgl.opengl.GL11;
 

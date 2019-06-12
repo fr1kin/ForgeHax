@@ -9,9 +9,9 @@ import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.passive.AbstractHorse;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -50,7 +50,7 @@ public class HorseStats extends ToggleMod {
 
   @Override
   public void onDisabled() {
-    if (getRidingEntity() instanceof AbstractHorse) {
+    if (getRidingEntity() instanceof AbstractHorseEntity) {
       applyStats(jumpHeight.getDefault(), speed.getDefault());
     }
   }
@@ -58,7 +58,7 @@ public class HorseStats extends ToggleMod {
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
     if (EntityUtils.isDrivenByPlayer(event.getEntity())
-        && getRidingEntity() instanceof AbstractHorse) {
+        && getRidingEntity() instanceof AbstractHorseEntity) {
 
       double newSpeed = speed.getAsDouble();
       if (getLocalPlayer().isSprinting()) {
@@ -74,10 +74,10 @@ public class HorseStats extends ToggleMod {
     final IAttribute movement_speed =
         FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getRidingEntity());
 
-      ((EntityLivingBase) getRidingEntity())
+      ((LivingEntity) getRidingEntity())
           .getAttribute(jump_strength)
           .setBaseValue(newJump);
-      ((EntityLivingBase) getRidingEntity())
+      ((LivingEntity) getRidingEntity())
           .getAttribute(movement_speed)
           .setBaseValue(newSpeed);
   }

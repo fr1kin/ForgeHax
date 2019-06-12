@@ -20,23 +20,23 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.BlockShulkerBox;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.MainWindow;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
@@ -140,7 +140,7 @@ public class ShulkerViewer extends ToggleMod {
         new IKeyConflictContext() {
           @Override
           public boolean isActive() {
-            return MC.currentScreen instanceof GuiContainer;
+            return MC.field_71462_r instanceof ContainerScreen;
           }
 
           @Override
@@ -259,12 +259,12 @@ public class ShulkerViewer extends ToggleMod {
   }
 
   private boolean isShulkerBox(Item item) {
-    return item instanceof ItemBlock && ((ItemBlock)item).getBlock() instanceof BlockShulkerBox;
+    return item instanceof BlockItem && ((BlockItem)item).getBlock() instanceof ShulkerBoxBlock;
   }
 
   @SubscribeEvent
   public void onPreTooptipRender(RenderTooltipEvent.Pre event) {
-    if (!(MC.currentScreen instanceof GuiContainer) || isModGeneratedToolTip) return;
+    if (!(MC.field_71462_r instanceof ContainerScreen) || isModGeneratedToolTip) return;
 
     if (isMouseInShulkerGui) {
       // do not render tool tips that are inside the region of our shulker gui
@@ -280,11 +280,11 @@ public class ShulkerViewer extends ToggleMod {
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onRender(GuiScreenEvent.DrawScreenEvent.Post event) {
-    if (!(MC.currentScreen instanceof GuiContainer)) return;
+    if (!(MC.field_71462_r instanceof ContainerScreen)) return;
 
     cacheLock.lock();
     try {
-      GuiContainer gui = (GuiContainer) event.getGui();
+      ContainerScreen gui = (ContainerScreen)event.getGui();
 
       if (!isLocked()) {
         // show stats for the item being hovered over
@@ -379,19 +379,19 @@ public class ShulkerViewer extends ToggleMod {
     GlStateManager.color4f(1.f, 1.f, 1.f, 1.0f);
   }
 
-  class GuiShulkerViewer extends GuiContainer implements Comparable<GuiShulkerViewer> {
+  class GuiShulkerViewer extends ContainerScreen<ShulkerContainer> implements Comparable<GuiShulkerViewer> {
     private final ItemStack parentShulker;
     private final int priority;
 
     public int posX = 0;
     public int posY = 0;
 
-    public GuiShulkerViewer(Container inventorySlotsIn, ItemStack parentShulker, int priority) {
-      super(inventorySlotsIn);
+    public GuiShulkerViewer(ShulkerContainer inventorySlotsIn, ItemStack parentShulker, int priority) {
+      super(inventorySlotsIn, MC.player.inventory, new StringTextComponent("GuiShulkerViewer"));
       this.parentShulker = parentShulker;
       this.priority = priority;
-      this.mc = MC;
-      this.fontRenderer = MC.fontRenderer;
+      this.minecraft = MC;
+      this.font = MC.fontRenderer;
       this.width = MC.mainWindow.getWidth();
       this.height = MC.mainWindow.getHeight();
       this.xSize = 176;
@@ -425,7 +425,7 @@ public class ShulkerViewer extends ToggleMod {
       int x = posX;
       int y = posY;
 
-      GlStateManager.enableTexture2D();
+      GlStateManager.enableTexture();
       GlStateManager.disableLighting();
       GlStateManager.color4f(
           1.f,
@@ -466,7 +466,7 @@ public class ShulkerViewer extends ToggleMod {
       int rx = x + 8;
       int ry = y - 1;
 
-      for (Slot slot : inventorySlots.inventorySlots) {
+      for (Slot slot : field_147002_h.inventorySlots) {
         if (slot.getHasStack()) {
           int px = rx + slot.xPos;
           int py = ry + slot.yPos;
@@ -485,7 +485,7 @@ public class ShulkerViewer extends ToggleMod {
         GlStateManager.disableLighting();
         GlStateManager.disableDepthTest();
         GlStateManager.colorMask(true, true, true, false);
-        this.drawGradientRect(
+        this.fillGradient(
             rx + hoveringOver.xPos,
             ry + hoveringOver.yPos,
             rx + hoveringOver.xPos + 16,
@@ -498,7 +498,7 @@ public class ShulkerViewer extends ToggleMod {
         GlStateManager.color4f(1.f, 1.f, 1.f, 1.0f);
         GlStateManager.pushMatrix();
         isModGeneratedToolTip = true;
-        renderToolTip(hoveringOver.getStack(), mouseX + 8, mouseY + 8);
+        renderTooltip(hoveringOver.getStack(), mouseX + 8, mouseY + 8);
         isModGeneratedToolTip = false;
         GlStateManager.popMatrix();
         GlStateManager.enableDepthTest();
@@ -521,7 +521,13 @@ public class ShulkerViewer extends ToggleMod {
   }
 
   static class ShulkerContainer extends Container {
+    ShulkerContainer(@Nullable ContainerType<?> type, int id) {
+      super(type, id);
+    }
+
+
     public ShulkerContainer(ShulkerInventory inventory, int size) {
+      super(ContainerType.field_221526_t, 666);
       for (int i = 0; i < size; ++i) {
         int x = i % 9 * 18;
         int y = ((i / 9 + 1) * 18) + 1;
@@ -578,7 +584,8 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void markDirty() {}
+    public void markDirty() {
+    }
 
     @Override
     public boolean isUsableByPlayer(PlayerEntity player) {
@@ -586,50 +593,22 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void openInventory(PlayerEntity player) {}
+    public void openInventory(PlayerEntity player) {
+    }
 
     @Override
-    public void closeInventory(PlayerEntity player) {}
+    public void closeInventory(PlayerEntity player) {
+    }
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
       return index > 0 && index < contents.size() && contents.get(index).equals(stack);
     }
 
+
     @Override
-    public int getField(int id) {
-      return 0;
+    public void clear() {
     }
 
-    @Override
-    public void setField(int id, int value) {}
-
-    @Override
-    public int getFieldCount() {
-      return 0;
-    }
-
-    @Override
-    public void clear() {}
-
-    @Override
-    public ITextComponent getName() {
-      return new TextComponentString("");
-    }
-
-    @Override
-    public boolean hasCustomName() {
-      return false;
-    }
-
-    @Override
-    public ITextComponent getDisplayName() {
-      return new TextComponentString("");
-    }
-
-    @Override
-    public ITextComponent getCustomName() {
-      return null;
-    }
   }
 }

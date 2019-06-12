@@ -7,8 +7,7 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketEntityAction.Action;
+import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 // TODO: fix reflection
@@ -47,14 +46,14 @@ public class SneakService extends ServiceMod {
 
   @SubscribeEvent
   public void onPacketSend(PacketEvent.Outgoing.Pre event) {
-    if (event.getPacket() instanceof CPacketEntityAction) {
-      CPacketEntityAction packet = event.getPacket();
+    if (event.getPacket() instanceof CEntityActionPacket) {
+      CEntityActionPacket packet = event.getPacket();
       int id = CPacketEntityAction_entityID.get(packet);
       if (getLocalPlayer().getEntityId() == id
-          && (packet.getAction() == Action.START_SNEAKING
-              || packet.getAction() == Action.STOP_SNEAKING)
+          && (packet.getAction() == CEntityActionPacket.Action.START_SNEAKING
+              || packet.getAction() == CEntityActionPacket.Action.STOP_SNEAKING)
           && !PacketHelper.isIgnored(packet)) {
-        sneakingClient = packet.getAction() == Action.START_SNEAKING;
+        sneakingClient = packet.getAction() == CEntityActionPacket.Action.START_SNEAKING;
         if (isSuppressing()) event.setCanceled(true);
         else sneakingServer = sneakingClient;
       }

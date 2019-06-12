@@ -10,11 +10,11 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockShulkerBox;
+import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItemFrame;
-import net.minecraft.entity.item.EntityMinecartChest;
+import net.minecraft.entity.item.ItemFrameEntity;
+import net.minecraft.entity.item.minecart.ChestMinecartEntity;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,19 +29,19 @@ public class StorageESPMod extends ToggleMod {
   }
 
   private int getTileEntityColor(TileEntity tileEntity) {
-    if (tileEntity instanceof TileEntityChest
-        || tileEntity instanceof TileEntityDispenser
-        || tileEntity instanceof TileEntityShulkerBox) return Utils.Colors.ORANGE;
-    else if (tileEntity instanceof TileEntityEnderChest) return Utils.Colors.PURPLE;
-    else if (tileEntity instanceof TileEntityFurnace) return Utils.Colors.GRAY;
-    else if (tileEntity instanceof TileEntityHopper) return Utils.Colors.DARK_RED;
+    if (tileEntity instanceof ChestTileEntity
+        || tileEntity instanceof DispenserTileEntity
+        || tileEntity instanceof ShulkerBoxTileEntity) return Utils.Colors.ORANGE;
+    else if (tileEntity instanceof EnderChestTileEntity) return Utils.Colors.PURPLE;
+    else if (tileEntity instanceof FurnaceTileEntity) return Utils.Colors.GRAY;
+    else if (tileEntity instanceof HopperTileEntity) return Utils.Colors.DARK_RED;
     else return -1;
   }
 
   private int getEntityColor(Entity entity) {
-    if (entity instanceof EntityMinecartChest) return Utils.Colors.ORANGE;
-    else if (entity instanceof EntityItemFrame
-        && Block.getBlockFromItem(((EntityItemFrame) entity).getDisplayedItem().getItem()) instanceof BlockShulkerBox)
+    if (entity instanceof ChestMinecartEntity) return Utils.Colors.ORANGE;
+    else if (entity instanceof ItemFrameEntity
+        && Block.getBlockFromItem(((ItemFrameEntity) entity).getDisplayedItem().getItem()) instanceof ShulkerBoxBlock)
       return Utils.Colors.YELLOW;
     else return -1;
   }
@@ -58,13 +58,13 @@ public class StorageESPMod extends ToggleMod {
         GeometryTessellator.drawCuboid(event.getBuffer(), pos, GeometryMasks.Line.ALL, color);
     }
 
-    for (Entity entity : getWorld().loadedEntityList) {
+    for (Entity entity : getWorld().func_217416_b()) {
       BlockPos pos = entity.getPosition();
       int color = getEntityColor(entity);
       if (color != -1)
         GeometryTessellator.drawCuboid(
             event.getBuffer(),
-            entity instanceof EntityItemFrame ? pos.add(0, -1, 0) : pos,
+            entity instanceof ItemFrameEntity ? pos.add(0, -1, 0) : pos,
             GeometryMasks.Line.ALL,
             color);
     }

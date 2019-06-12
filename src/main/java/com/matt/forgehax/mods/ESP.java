@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 
+import com.google.common.collect.Streams;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.Utils;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
@@ -87,16 +88,14 @@ public class ESP extends ToggleMod implements Fonts {
 
   @SubscribeEvent(priority = EventPriority.LOW)
   public void onRender2D(final Render2DEvent event) {
-    getWorld()
-        .loadedEntityList
-        .stream()
+    Streams.stream(getWorld().func_217416_b())
         .filter(EntityUtils::isLiving)
         .filter(
             entity ->
                 !Objects.equals(getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
         .filter(EntityUtils::isAlive)
         .filter(EntityUtils::isValidEntity)
-        .map(entity -> (EntityLivingBase) entity)
+        .map(entity -> (LivingEntity) entity)
         .forEach(
             living -> {
               final Setting<DrawOptions> setting;
@@ -172,7 +171,7 @@ public class ESP extends ToggleMod implements Fonts {
      */
     double draw(
         SurfaceBuilder builder,
-        EntityLivingBase living,
+        LivingEntity living,
         double topX,
         double topY,
         double botX,
@@ -194,7 +193,7 @@ public class ESP extends ToggleMod implements Fonts {
       @Override
       public double draw(
           SurfaceBuilder builder,
-          EntityLivingBase living,
+          LivingEntity living,
           double topX,
           double topY,
           double botX,
@@ -233,7 +232,7 @@ public class ESP extends ToggleMod implements Fonts {
       @Override
       public double draw(
           SurfaceBuilder builder,
-          EntityLivingBase living,
+          LivingEntity living,
           double topX,
           double topY,
           double botX,
@@ -284,7 +283,7 @@ public class ESP extends ToggleMod implements Fonts {
       @Override
       public double draw(
           SurfaceBuilder builder,
-          EntityLivingBase living,
+          LivingEntity living,
           double topX,
           double topY,
           double botX,

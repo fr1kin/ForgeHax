@@ -4,8 +4,8 @@ import static com.matt.forgehax.Helper.*;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.entity.EntityUtils;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
@@ -41,7 +41,7 @@ public class RenderUtils implements Globals {
 
     GlStateManager.pushMatrix();
     GlStateManager.translated(startPos.x, startPos.y, startPos.z);
-    GlStateManager.disableTexture2D();
+    GlStateManager.disableTexture();
     GlStateManager.enableBlend();
     GlStateManager.disableAlphaTest();
     GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
@@ -57,7 +57,7 @@ public class RenderUtils implements Globals {
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GlStateManager.disableBlend();
     GlStateManager.enableAlphaTest();
-    GlStateManager.enableTexture2D();
+    GlStateManager.enableTexture();
     GlStateManager.enableDepthTest();
     GlStateManager.enableCull();
     GlStateManager.popMatrix();
@@ -83,7 +83,7 @@ public class RenderUtils implements Globals {
     float a = (float) (color >> 24 & 255) / 255.0F;
 
     GlStateManager.pushMatrix();
-    GlStateManager.disableTexture2D();
+    GlStateManager.disableTexture();
     GlStateManager.enableBlend();
     GlStateManager.disableAlphaTest();
     GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
@@ -124,7 +124,7 @@ public class RenderUtils implements Globals {
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GlStateManager.disableBlend();
     GlStateManager.enableAlphaTest();
-    GlStateManager.enableTexture2D();
+    GlStateManager.enableTexture();
     GlStateManager.enableDepthTest();
     GlStateManager.enableCull();
     GlStateManager.popMatrix();

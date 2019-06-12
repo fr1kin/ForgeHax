@@ -10,14 +10,13 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Map;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.item.ItemMap;
+import net.minecraft.item.MapItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
 
@@ -69,7 +68,7 @@ public class MapMod extends ToggleMod {
   }
 
   private void updateHeldMap(String url) {
-    if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof ItemMap))
+    if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof MapItem))
       return;
 
     BufferedImage image = getImageFromUrl(url);
@@ -102,7 +101,7 @@ public class MapMod extends ToggleMod {
       // doing [j][i]
     }
 
-    ItemMap map = (ItemMap) MC.player.getHeldItemMainhand().getItem();
+    MapItem map = (MapItem) MC.player.getHeldItemMainhand().getItem();
 
     MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);
 
@@ -110,12 +109,12 @@ public class MapMod extends ToggleMod {
   }
 
   private void updateHeldMapTexture(String url) {
-    if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof ItemMap))
+    if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof MapItem))
       return;
 
     MC.execute(
         () -> { // allows DynamicTexture to work
-          ItemMap map = (ItemMap) MC.player.getHeldItemMainhand().getItem();
+          MapItem map = (MapItem) MC.player.getHeldItemMainhand().getItem();
           MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);
 
           try {

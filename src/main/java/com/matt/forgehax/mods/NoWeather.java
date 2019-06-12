@@ -7,7 +7,7 @@ import com.matt.forgehax.events.WorldChangeEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.network.play.server.SPacketChangeGameState;
+import net.minecraft.network.play.server.SChangeGameStatePacket;
 import net.minecraft.world.World;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -76,9 +76,9 @@ public class NoWeather extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketChangeGameState) {
-      int state = ((SPacketChangeGameState) event.getPacket()).getGameState();
-      float strength = ((SPacketChangeGameState) event.getPacket()).getValue();
+    if (event.getPacket() instanceof SChangeGameStatePacket) {
+      int state = ((SChangeGameStatePacket) event.getPacket()).getGameState();
+      float strength = ((SChangeGameStatePacket) event.getPacket()).getValue();
       boolean isRainState = false;
       switch (state) {
         case 1:

@@ -8,7 +8,8 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import net.minecraft.network.play.server.SPacketTimeUpdate;
+
+import net.minecraft.network.play.server.SUpdateTimePacket;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -57,7 +58,7 @@ public class TickRateService extends ServiceMod {
 
   @SubscribeEvent
   public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketTimeUpdate) {
+    if (event.getPacket() instanceof SUpdateTimePacket) {
       long currentTimeMillis = System.currentTimeMillis();
       if (timeLastTimeUpdate != -1) {
         TICK_DATA.onTimePacketIncoming(currentTimeMillis - timeLastTimeUpdate);

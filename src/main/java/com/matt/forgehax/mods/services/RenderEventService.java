@@ -8,7 +8,7 @@ import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -29,7 +29,7 @@ public class RenderEventService extends ServiceMod {
   @SubscribeEvent
   public void onRenderWorld(RenderWorldLastEvent event) {
     GlStateManager.pushMatrix();
-    GlStateManager.disableTexture2D();
+    GlStateManager.disableTexture();
     GlStateManager.enableBlend();
     GlStateManager.disableAlphaTest();
     GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
@@ -49,7 +49,7 @@ public class RenderEventService extends ServiceMod {
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GlStateManager.disableBlend();
     GlStateManager.enableAlphaTest();
-    GlStateManager.enableTexture2D();
+    GlStateManager.enableTexture();
     GlStateManager.enableDepthTest();
     GlStateManager.enableCull();
     GlStateManager.popMatrix();

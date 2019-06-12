@@ -7,9 +7,8 @@ import com.matt.forgehax.asm.events.DoBlockCollisionsEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockSoulSand;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.SoulSandBlock;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
@@ -22,7 +21,7 @@ public class NoSlowdown extends ToggleMod {
   public void onEnabled() {
     ForgeHaxHooks.isNoSlowDownActivated = true;
     try {
-      ForgeHaxHooks.LIST_BLOCK_FILTER.add(BlockSoulSand.class);
+      ForgeHaxHooks.LIST_BLOCK_FILTER.add(SoulSandBlock.class);
     } catch (Exception e) {
     }
   }
@@ -31,7 +30,7 @@ public class NoSlowdown extends ToggleMod {
   public void onDisabled() {
     ForgeHaxHooks.isNoSlowDownActivated = false;
     try {
-      ForgeHaxHooks.LIST_BLOCK_FILTER.remove(BlockSoulSand.class);
+      ForgeHaxHooks.LIST_BLOCK_FILTER.remove(SoulSandBlock.class);
     } catch (Exception e) {
     }
   }

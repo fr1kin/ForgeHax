@@ -9,8 +9,8 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureMap;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockRenderLayer;
 //import net.minecraftforge.common.ForgeModContainer;
@@ -69,17 +69,17 @@ public class XrayMod extends ToggleMod {
         isInternalCall = true;
         Entity renderEntity = MC.getRenderViewEntity();
         GlStateManager.disableAlphaTest();
-        MC.renderGlobal.renderBlockLayer(BlockRenderLayer.SOLID, event.getPartialTicks(), renderEntity);
+        MC.worldRenderer.renderBlockLayer(BlockRenderLayer.SOLID, event.getPartialTicks(), renderEntity);
         GlStateManager.enableAlphaTest();
-        MC.renderGlobal.renderBlockLayer(
+        MC.worldRenderer.renderBlockLayer(
             BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), renderEntity);
         MC.getTextureManager()
-            .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            .getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
             .setBlurMipmap(false, false);
-        MC.renderGlobal.renderBlockLayer(
+        MC.worldRenderer.renderBlockLayer(
             BlockRenderLayer.CUTOUT, event.getPartialTicks(), renderEntity);
         MC.getTextureManager()
-            .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            .getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
             .restoreLastBlurMipmap();
         GlStateManager.disableAlphaTest();
         isInternalCall = false;

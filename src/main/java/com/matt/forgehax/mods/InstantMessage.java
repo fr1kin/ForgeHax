@@ -8,10 +8,10 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.gui.GuiConnecting;
+import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.network.login.server.SPacketLoginSuccess;
-import net.minecraft.network.play.client.CPacketChatMessage;
+import net.minecraft.network.login.server.SLoginSuccessPacket;
+import net.minecraft.network.play.client.CChatMessagePacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
@@ -31,17 +31,17 @@ public class InstantMessage extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketIn(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketLoginSuccess) {
+    if (event.getPacket() instanceof SLoginSuccessPacket) {
 
-      if (MC.currentScreen instanceof GuiConnecting) {
+      if (MC.field_71462_r instanceof ConnectingScreen) {
 
         ServerData serverData = MC.getCurrentServerData();
         String serverName = serverData != null ? serverData.serverName : "Unknown";
         String serverIP = serverData != null ? serverData.serverIP : "";
 
-        GuiConnecting_networkManager.get(MC.currentScreen)
+        GuiConnecting_networkManager.get(MC.field_71462_r)
             .sendPacket(
-                new CPacketChatMessage(
+                new CChatMessagePacket(
                     message
                         .get()
                         .replace("{SRVNAME}", serverName)

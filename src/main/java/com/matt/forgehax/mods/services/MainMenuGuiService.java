@@ -8,8 +8,13 @@ import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.*;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
@@ -25,35 +30,32 @@ public class MainMenuGuiService extends ServiceMod {
 
   @SubscribeEvent
   public void onGui(GuiScreenEvent.InitGuiEvent.Post event) {
-    if (event.getGui() instanceof GuiMainMenu) {
-      GuiMainMenu gui = (GuiMainMenu) event.getGui();
+    if (event.getGui() instanceof MainMenuScreen) {
+      MainMenuScreen gui = (MainMenuScreen) event.getGui();
 
-      final GuiButton newButton = new GuiButton(
-          666,
+      final Button newButton = new Button(
           gui.width / 2 - 100,
           gui.height / 4 + 48 + (24 * 3), // put button in 4th row
-          "Command Input") {
-        @Override
-        public void onClick(double mouseX, double mouseY) {
-          MC.displayGuiScreen(new CommandInputGui());
-        }
-      };
+          200, 20,
+          "Command Input",
+          (thisButton) -> MC.displayGuiScreen(new CommandInputGui(new StringTextComponent("CommandInputGui"))));
 
-      event.getButtonList()
+
+      event.getWidgetList()
           .stream()
           .skip(4) // skip first 4 button
           .forEach(button -> {
             button.y += 24;
           }); // lower the rest of the buttons to make room for ours
 
-      event.addButton(newButton);
+      event.addWidget(newButton);
     }
   }
 
 
-  public class CommandInputGui extends GuiScreen {
+  public class CommandInputGui extends Screen {
 
-    GuiTextField inputField;
+    TextFieldWidget inputField;
     Deque<String> messageHistory = new LinkedList<>();
 
     // ordered from oldest to newest
@@ -61,14 +63,18 @@ public class MainMenuGuiService extends ServiceMod {
     int sentHistoryCursor = 0;
     String historyBuffer = "";
 
+    CommandInputGui(ITextComponent title) {
+      super(title);
+    }
+
     @Override
-    public void initGui() {
+    public void init() {
       //Keyboard.enableRepeatEvents(true);
       this.inputField =
-          new GuiTextField(0, this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
+          new TextFieldWidget(this.font, 4, this.height - 12, this.width - 4, 12, ""/*message*/);
       inputField.setMaxStringLength(Integer.MAX_VALUE);
       this.inputField.setEnableBackgroundDrawing(false);
-      this.inputField.setFocused(true);
+      this.inputField.setFocused2(true);
       this.inputField.setCanLoseFocus(false);
 
       //this.buttonList.add(modeButton = new GuiButton(0, this.width - 100 - 2, this.height - 20 - 2, 100, 20, mode.getName()));
@@ -76,10 +82,11 @@ public class MainMenuGuiService extends ServiceMod {
 
     @Override
     public void render(int mouseX, int mouseY, float partialTicks) {
-      this.drawDefaultBackground();
-      drawRect(2, this.height - 16, this.width - 104, this.height - 4, Integer.MIN_VALUE); // input field
-      drawRect(2, 2, this.width - 2, this.height - 38, 70 << 24); // messageHistory box
-      this.inputField.drawTextField(mouseX, mouseY, partialTicks);
+      this.renderBackground();
+      // drawRect
+      fill(2, this.height - 16, this.width - 104, this.height - 4, Integer.MIN_VALUE); // input field
+      fill(2, 2, this.width - 2, this.height - 38, 70 << 24); // messageHistory box
+      this.inputField.render(mouseX, mouseY, partialTicks);
       this.drawHistory();
       super.render(mouseX, mouseY, partialTicks);
     }
@@ -101,7 +108,7 @@ public class MainMenuGuiService extends ServiceMod {
     @Override
     public boolean keyPressed(int key, int scancode, int modifiers)  {
       if (key == GLFW.GLFW_KEY_ESCAPE) {
-        this.mc.displayGuiScreen(null);
+        this.minecraft.displayGuiScreen(null);
       } else if (key != GLFW.GLFW_KEY_ENTER && key != GLFW.GLFW_KEY_KP_ENTER) {
         if (key == GLFW.GLFW_KEY_UP) { // up arrow
           // older

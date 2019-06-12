@@ -13,7 +13,6 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CMoveVehiclePacket;
-import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -64,7 +63,7 @@ public class RiderDesync extends ToggleMod {
           }
 
           dismountedEntity.remove(false);
-          getWorld().spawnEntity(dismountedEntity);
+          getWorld().func_217411_a(dismountedEntity.getEntityId(), dismountedEntity);
           getLocalPlayer().startRiding(dismountedEntity);
 
           printInform("Remounted entity " + dismountedEntity.getName());
@@ -94,7 +93,7 @@ public class RiderDesync extends ToggleMod {
 
           dismountedEntity = mounted;
           getLocalPlayer().dismountEntity(mounted);
-          getWorld().removeEntity(mounted);
+          getWorld().removeEntityFromWorld(mounted.getEntityId());
 
           if(auto_update.get()) {
             forceUpdate = true;

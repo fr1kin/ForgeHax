@@ -13,7 +13,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.List;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.IPacket;
-import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
@@ -41,13 +41,13 @@ public class StepMod extends ToggleMod {
     }
   }
 
-  private CPacketPlayer previousPositionPacket = null;
+  private CPlayerPacket previousPositionPacket = null;
 
   @SubscribeEvent
   public void onPacketSending(PacketEvent.Outgoing.Pre event) {
-    if (event.getPacket() instanceof CPacketPlayer.Position
-        || event.getPacket() instanceof CPacketPlayer.PositionRotation) {
-      CPacketPlayer packetPlayer = (CPacketPlayer) event.getPacket();
+    if (event.getPacket() instanceof CPlayerPacket.PositionPacket
+        || event.getPacket() instanceof CPlayerPacket.PositionRotationPacket) {
+      CPlayerPacket packetPlayer = event.getPacket();
       if (previousPositionPacket != null && !PacketHelper.isIgnored(event.getPacket())) {
         double diffY = packetPlayer.getY(0.f) - previousPositionPacket.getY(0.f);
         // y difference must be positive
@@ -59,10 +59,10 @@ public class StepMod extends ToggleMod {
           double x = previousPositionPacket.getX(0.D);
           double y = previousPositionPacket.getY(0.D);
           double z = previousPositionPacket.getZ(0.D);
-          sendList.add(new CPacketPlayer.Position(x, y + 0.4199999869D, z, true));
-          sendList.add(new CPacketPlayer.Position(x, y + 0.7531999805D, z, true));
+          sendList.add(new CPlayerPacket.PositionPacket(x, y + 0.4199999869D, z, true));
+          sendList.add(new CPlayerPacket.PositionPacket(x, y + 0.7531999805D, z, true));
           sendList.add(
-              new CPacketPlayer.Position(
+              new CPlayerPacket.PositionPacket(
                   packetPlayer.getX(0.f),
                   packetPlayer.getY(0.f),
                   packetPlayer.getZ(0.f),
@@ -74,7 +74,7 @@ public class StepMod extends ToggleMod {
           event.setCanceled(true);
         }
       }
-      previousPositionPacket = (CPacketPlayer) event.getPacket();
+      previousPositionPacket = event.getPacket();
     }
   }
 }

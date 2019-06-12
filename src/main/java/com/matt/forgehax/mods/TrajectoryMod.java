@@ -10,7 +10,8 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.projectile.Projectile;
 import com.matt.forgehax.util.projectile.SimulationResult;
 import java.util.Iterator;
-import net.minecraft.client.renderer.GlStateManager;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
