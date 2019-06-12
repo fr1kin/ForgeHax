@@ -78,7 +78,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
             .stream()
             .filter(InvItem::nonNull)
             .filter(item -> item.getItem() instanceof BlockItem)
-            //.filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isSolid()) // 1.14: changed isFullCube to isSolid, might not be good enough
+            //.filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isSolid()) // 1.14: changed isFullCube to isSolid, probably not be good enough
             .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
             .orElse(InvItem.EMPTY);
 

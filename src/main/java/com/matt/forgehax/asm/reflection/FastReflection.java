@@ -18,6 +18,8 @@ import net.minecraft.client.gui.GuiConnecting;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiEditSign;
+import net.minecraft.client.gui.screen.DisconnectedScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -227,9 +229,9 @@ public interface FastReflection extends ASMCommon {
             .build();
 
     /** GuiDisconnected */
-    FastField<GuiScreen> GuiDisconnected_parentScreen =
+    FastField<Screen> GuiDisconnected_parentScreen =
         FastFieldBuilder.create()
-            .setInsideClass(GuiDisconnected.class)
+            .setInsideClass(DisconnectedScreen.class)
             .setName("parentScreen")
             .setSrgName("field_146307_h")
             //.autoAssign()

@@ -9,9 +9,9 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.Optional;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.init.Enchantments;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.ContainerPlayer;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
@@ -35,7 +35,7 @@ public class AutoMend extends ToggleMod {
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (!(LocalPlayerInventory.getOpenContainer() instanceof ContainerPlayer)) return;
+    if (!(LocalPlayerInventory.getOpenContainer() instanceof PlayerContainer)) return;
 
     InvItem current = LocalPlayerInventory.getSelected();
 

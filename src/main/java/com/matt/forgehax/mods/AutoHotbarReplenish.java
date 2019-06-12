@@ -12,9 +12,9 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.task.TaskChain;
 import java.util.Comparator;
 import java.util.List;
-import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketClickWindow;
+import net.minecraft.network.play.client.CClickWindowPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -132,7 +132,7 @@ public class AutoHotbarReplenish extends ToggleMod {
     if (!Phase.START.equals(event.phase) || getLocalPlayer() == null) return;
 
     // only process when a gui isn't opened by the player
-    if (MC.currentScreen != null) return;
+    if (MC.field_71462_r != null) return;
 
     if (tasks.isEmpty()) {
       final List<InvItem> slots = LocalPlayerInventory.getSlotStorageInventory();
@@ -211,7 +211,7 @@ public class AutoHotbarReplenish extends ToggleMod {
       int slotIdIn, int usedButtonIn, ClickType modeIn, ItemStack clickedItemIn) {
     getNetworkManager()
         .sendPacket(
-            new CPacketClickWindow(
+            new CClickWindowPacket(
                 0,
                 slotIdIn,
                 usedButtonIn,

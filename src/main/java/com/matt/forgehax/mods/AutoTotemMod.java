@@ -6,11 +6,12 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.EntityEquipmentSlot;
+
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
@@ -26,7 +27,7 @@ public class AutoTotemMod extends ToggleMod {
   public String getDisplayText() {
     final long totemCount =
         IntStream.rangeClosed(9, 45) // include offhand slot
-            .mapToObj(i -> MC.player.inventoryContainer.getSlot(i).getStack().getItem())
+            .mapToObj(i -> MC.player.container.getSlot(i).getStack().getItem())
             .filter(stack -> stack == Items.TOTEM_OF_UNDYING)
             .count();
     return String.format(super.getDisplayText() + "[%d]", totemCount);
@@ -35,7 +36,7 @@ public class AutoTotemMod extends ToggleMod {
   @SubscribeEvent
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (!getOffhand().isEmpty()) return; // if there's an item in offhand slot
-    if (MC.currentScreen != null) return; // if in inventory
+    if (MC.field_71462_r != null) return; // if in inventory
 
     findItem(Items.TOTEM_OF_UNDYING).ifPresent(
         slot -> {
@@ -45,18 +46,18 @@ public class AutoTotemMod extends ToggleMod {
   }
 
   private void invPickup(final int slot) {
-    MC.playerController.windowClick(0, slot, 0, ClickType.PICKUP, MC.player);
+    MC.field_71442_b.windowClick(0, slot, 0, ClickType.PICKUP, MC.player);
   }
 
   private OptionalInt findItem(final Item ofType) {
     for (int i = 9; i <= 44; i++) {
-      if (MC.player.inventoryContainer.getSlot(i).getStack().getItem() == ofType)
+      if (MC.player.container.getSlot(i).getStack().getItem() == ofType)
         return OptionalInt.of(i);
     }
     return OptionalInt.empty();
   }
 
   private ItemStack getOffhand() {
-    return MC.player.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND);
+    return MC.player.getItemStackFromSlot(EquipmentSlotType.OFFHAND);
   }
 }

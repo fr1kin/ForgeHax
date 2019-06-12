@@ -9,10 +9,11 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.UUID;
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.init.Items;
-import net.minecraft.network.play.server.SPacketSpawnPlayer;
-import net.minecraft.util.text.TextComponentString;
+
+import net.minecraft.client.network.play.NetworkPlayerInfo;
+import net.minecraft.item.Items;
+import net.minecraft.network.play.server.SSpawnPlayerPacket;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
@@ -57,7 +58,7 @@ public class AutoLog extends ToggleMod {
                   || MC.player.getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING))) {
         //AutoReconnectMod.hasAutoLogged = true;
         getNetworkManager()
-            .closeChannel(new TextComponentString("Health too low (" + health + ")"));
+            .closeChannel(new StringTextComponent("Health too low (" + health + ")"));
         disable();
       }
     }
@@ -65,16 +66,16 @@ public class AutoLog extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketSpawnPlayer) {
+    if (event.getPacket() instanceof SSpawnPlayerPacket) {
       if (disconnectOnNewPlayer.getAsBoolean()) {
         //AutoReconnectMod.hasAutoLogged = true; // dont automatically reconnect
-        UUID id = ((SPacketSpawnPlayer) event.getPacket()).getUniqueId();
+        UUID id = ((SSpawnPlayerPacket) event.getPacket()).getUniqueId();
 
         NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(id);
         String name = info != null ? info.getGameProfile().getName() : "(Failed) " + id.toString();
 
         getNetworkManager()
-            .closeChannel(new TextComponentString(name + " entered render distance"));
+            .closeChannel(new StringTextComponent(name + " entered render distance"));
         disable();
       }
     }

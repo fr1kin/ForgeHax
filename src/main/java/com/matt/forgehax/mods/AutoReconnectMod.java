@@ -6,16 +6,17 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import java.util.List;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiConnecting;
-import net.minecraft.client.gui.GuiDisconnected;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.ConnectingScreen;
+import net.minecraft.client.gui.screen.DisconnectedScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.List;
 
 @RegisterMod
 public class AutoReconnectMod extends ToggleMod {
@@ -45,10 +46,10 @@ public class AutoReconnectMod extends ToggleMod {
   @SubscribeEvent
   public void onGuiOpened(GuiOpenEvent event) {
     if (!hasAutoLogged)
-      if (event.getGui() instanceof GuiDisconnected
+      if (event.getGui() instanceof DisconnectedScreen
           && !(event.getGui() instanceof GuiDisconnectedOverride)) {
         updateLastConnectedServer();
-        GuiDisconnected disconnected = (GuiDisconnected) event.getGui();
+        DisconnectedScreen disconnected = (DisconnectedScreen) event.getGui();
         event.setGui(
             new GuiDisconnectedOverride(
                 FastReflection.Fields.GuiDisconnected_parentScreen.get(disconnected),
@@ -70,17 +71,17 @@ public class AutoReconnectMod extends ToggleMod {
     updateLastConnectedServer();
   }
 
-  public static class GuiDisconnectedOverride extends GuiDisconnected {
-    private GuiScreen parent;
+  public static class GuiDisconnectedOverride extends DisconnectedScreen {
+    private Screen parent;
     private ITextComponent message;
 
     // delay * 1000 = seconds to miliseconds
     private long reconnectTime;
 
-    private GuiButton reconnectButton = null;
+    private Button reconnectButton = null;
 
     public GuiDisconnectedOverride(
-        GuiScreen screen,
+        Screen screen,
         String reasonLocalizationKey,
         ITextComponent chatComp,
         String reason,
@@ -117,30 +118,25 @@ public class AutoReconnectMod extends ToggleMod {
     private void reconnect() {
       ServerData data = getLastConnectedServerData();
       if (data != null) {
-        MC.displayGuiScreen(new GuiConnecting(parent, MC, data));
+        MC.displayGuiScreen(new ConnectingScreen(parent, MC, data));
       }
     }
 
     @Override
-    public void initGui() {
-      super.initGui();
+    public void init() {
+      super.init();
       List<String> multilineMessage =
-          fontRenderer.listFormattedStringToWidth(message.getFormattedText(), width - 50);
-      int textHeight = multilineMessage.size() * fontRenderer.FONT_HEIGHT;
+          font.listFormattedStringToWidth(message.getFormattedText(), width - 50);
+      int textHeight = multilineMessage.size() * font.FONT_HEIGHT;
 
       if (getLastConnectedServerData() != null) { // TODO: format better
         buttons.add(reconnectButton =
-            new GuiButton(
-                buttons.size(),
+            new Button(
                 width / 2 - 100,
-                (height / 2 + textHeight / 2 + fontRenderer.FONT_HEIGHT) + 23,
-                getFormattedReconnectText()
-            ) {
-              @Override
-              public void onClick(double mouseX, double mouseY) {
-                reconnect();
-              }
-            }
+                (height / 2 + textHeight / 2 + font.FONT_HEIGHT) + 23,
+                20, 200,
+                getFormattedReconnectText(),
+                (button) -> reconnect())
         );
       }
     }
@@ -148,7 +144,7 @@ public class AutoReconnectMod extends ToggleMod {
 
     @Override
     public void tick() {
-      if (reconnectButton != null) reconnectButton.displayString = getFormattedReconnectText();
+      if (reconnectButton != null) reconnectButton.setMessage(getFormattedReconnectText());
       if (System.currentTimeMillis() >= reconnectTime) reconnect();
     }
   }

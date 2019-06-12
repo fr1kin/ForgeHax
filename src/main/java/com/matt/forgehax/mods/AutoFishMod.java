@@ -9,12 +9,12 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemFishingRod;
+import net.minecraft.item.FishingRodItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketSoundEffect;
+import net.minecraft.network.play.server.SPlaySoundEffectPacket;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -60,14 +60,14 @@ public class AutoFishMod extends ToggleMod {
     super(Category.PLAYER, "AutoFish", false, "Auto fish");
   }
 
-  private boolean isCorrectSplashPacket(SPacketSoundEffect packet) {
-    EntityPlayerSP me = getLocalPlayer();
+  private boolean isCorrectSplashPacket(SPlaySoundEffectPacket packet) {
+    ClientPlayerEntity me = getLocalPlayer();
     return packet.getSound().equals(SoundEvents.ENTITY_FISHING_BOBBER_SPLASH)
         && (me != null
-            && me.fishEntity != null
+            && me.fishingBobber != null
             && (max_sound_distance.get() == 0
                 || // disables this check
-                (me.fishEntity
+                (me.fishingBobber
                         .getPositionVector()
                         .distanceTo(new Vec3d(packet.getX(), packet.getY(), packet.getZ()))
                     <= max_sound_distance.get())));
@@ -104,12 +104,12 @@ public class AutoFishMod extends ToggleMod {
     // check if player is holding a fishing rod
     if (heldStack != null
         && // item not null (shouldn't be, but I am being safe)
-        heldStack.getItem() instanceof ItemFishingRod // item being held is a fishing rod
+        heldStack.getItem() instanceof FishingRodItem // item being held is a fishing rod
     ) {
       if (!previouslyHadRodEquipped) {
         ticksCastDelay = casting_delay.get();
         previouslyHadRodEquipped = true;
-      } else if (me.fishEntity == null) { // no hook is deployed
+      } else if (me.fishingBobber == null) { // no hook is deployed
         // cast hook
         rightClick();
       } else { // hook is deployed and rod was not previously equipped
@@ -133,8 +133,8 @@ public class AutoFishMod extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketSoundEffect) {
-      SPacketSoundEffect packet = (SPacketSoundEffect) event.getPacket();
+    if (event.getPacket() instanceof SPlaySoundEffectPacket) {
+      SPlaySoundEffectPacket packet = event.getPacket();
       if (isCorrectSplashPacket(packet)) {
         rightClick();
       }
