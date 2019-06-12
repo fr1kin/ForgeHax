@@ -10,8 +10,7 @@ import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketEntityAction.Action;
+import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
@@ -47,7 +46,7 @@ public class ElytraFlight extends ToggleMod {
           () -> {
             if (getLocalPlayer() != null && !getLocalPlayer().isElytraFlying())
               getNetworkManager()
-                  .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
+                  .sendPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
           });
   }
 
@@ -62,7 +61,7 @@ public class ElytraFlight extends ToggleMod {
 
       // Ensure the player starts flying again.
       getNetworkManager()
-          .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
+          .sendPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
     }
   }
 

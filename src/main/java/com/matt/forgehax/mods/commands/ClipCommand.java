@@ -13,12 +13,9 @@ import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CMoveVehiclePacket;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.Vec3d;
 
@@ -36,8 +33,8 @@ public class ClipCommand extends CommandMod {
     local.setPositionAndUpdate(x, y, z);
     if (local instanceof ClientPlayerEntity) {
       getNetworkManager()
-          .sendPacket(
-              new CPlayerPacket.PositionPacket(local.posX, local.posY, local.posZ, MC.player.onGround));
+          .sendPacket(new CPlayerPacket.PositionPacket(local.posX, local.posY, local.posZ, MC.player.onGround));
+
     } else {
       getNetworkManager().sendPacket(new CMoveVehiclePacket(local));
     }

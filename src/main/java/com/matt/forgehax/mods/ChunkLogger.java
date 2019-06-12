@@ -18,7 +18,8 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import net.minecraft.network.play.server.SPacketChunkData;
+
+import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraftforge.event.world.ChunkEvent;
@@ -106,7 +107,7 @@ public class ChunkLogger extends ToggleMod {
 
   private Queue<ChunkData> chunks = null;
 
-  void addChunk(SPacketChunkData packet) {
+  void addChunk(SChunkDataPacket packet) {
     if (chunks != null) {
       chunkLock.lock();
       try {
@@ -156,8 +157,8 @@ public class ChunkLogger extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketInbound(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketChunkData) {
-      SPacketChunkData packet = (SPacketChunkData) event.getPacket();
+    if (event.getPacket() instanceof SChunkDataPacket) {
+      SChunkDataPacket packet = event.getPacket();
       addChunk(packet);
     }
   }
@@ -227,7 +228,7 @@ public class ChunkLogger extends ToggleMod {
     int blockCount = 0;
     int previousBlockCount;
 
-    ChunkData(SPacketChunkData packet) {
+    ChunkData(SChunkDataPacket packet) {
       pos = new ChunkPos(packet.getChunkX(), packet.getChunkZ());
       bbox =
           new AxisAlignedBB(pos.getXStart(), 0, pos.getZStart(), pos.getXEnd(), 255, pos.getZEnd());
@@ -235,7 +236,7 @@ public class ChunkLogger extends ToggleMod {
       update(packet);
     }
 
-    void update(SPacketChunkData packet) {
+    void update(SChunkDataPacket packet) {
       updatedIsFullChunk = packet.isFullChunk();
       if (!updatedIsFullChunk) isNewByFullChunk = true;
 

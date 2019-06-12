@@ -16,6 +16,7 @@ import java.util.Map;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.NativeImage;
+import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.MapItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
@@ -101,9 +102,8 @@ public class MapMod extends ToggleMod {
       // doing [j][i]
     }
 
-    MapItem map = (MapItem) MC.player.getHeldItemMainhand().getItem();
 
-    MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);
+    MapData heldMapData = FilledMapItem.getMapData(MC.player.getHeldItemMainhand().getStack(), MC.world);
 
     heldMapData.colors = convertedMapColors; // set the colors of the map to the colors of the image
   }
@@ -114,8 +114,7 @@ public class MapMod extends ToggleMod {
 
     MC.execute(
         () -> { // allows DynamicTexture to work
-          MapItem map = (MapItem) MC.player.getHeldItemMainhand().getItem();
-          MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);
+          MapData heldMapData = FilledMapItem.getMapData(MC.player.getHeldItemMainhand().getStack(), MC.world);
 
           try {
             NativeImage image = NativeImage.read(new URL(url).openStream());

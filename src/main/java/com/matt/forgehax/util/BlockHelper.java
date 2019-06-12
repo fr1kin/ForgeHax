@@ -145,6 +145,10 @@ public class BlockHelper {
               VectorUtils.multiplyBy(new Vec3d(getOppositeSide().getDirectionVec()), obb));
     }
 
+    public BlockRayTraceResult toRayTraceResult() {
+      return new BlockRayTraceResult(hitVec, side, pos, false/*?*/);
+    }
+
     public BlockPos getPos() {
       return pos;
     }

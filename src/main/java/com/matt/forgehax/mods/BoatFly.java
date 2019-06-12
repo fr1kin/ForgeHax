@@ -10,8 +10,9 @@ import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.util.MovementInput;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -69,7 +70,7 @@ public class BoatFly extends ToggleMod {
   @SubscribeEvent // disable gravity
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     ForgeHaxHooks.isNoBoatGravityActivated =
-        getRidingEntity() instanceof EntityBoat; // disable gravity if in boat
+        getRidingEntity() instanceof BoatEntity; // disable gravity if in boat
   }
 
   @Override
@@ -103,15 +104,16 @@ public class BoatFly extends ToggleMod {
       ForgeHaxHooks.isNoBoatGravityActivated = noGravity.getAsBoolean();
       ForgeHaxHooks.isBoatSetYawActivated = setYaw.getAsBoolean();
 
+      final Vec3d old =  MC.player.getRidingEntity().getMotion();
       if (MC.gameSettings.keyBindJump.isKeyDown()) {
         // trick the riding entity to think its onground
         MC.player.getRidingEntity().onGround = false;
 
         // teleport up
-        MC.player.getRidingEntity().motionY = MC.gameSettings.keyBindSprint.isKeyDown() ? 5 : 1.5;
+        MC.player.getRidingEntity().setMotion(old.x, MC.gameSettings.keyBindSprint.isKeyDown() ? 5 : 1.5, old.z);
+
       } else {
-        MC.player.getRidingEntity().motionY =
-            MC.gameSettings.keyBindSprint.isKeyDown() ? -1.0 : -speedY.getAsDouble();
+        MC.player.getRidingEntity().setMotion(old.x, MC.gameSettings.keyBindSprint.isKeyDown() ? -1.0 : -speedY.getAsDouble(), old.z);
       }
 
       /*if ((MC.player.posY <= maintainY.getAsDouble()-5D) && (MC.player.posY > maintainY.getAsDouble()-10D) && maintainY.getAsDouble() != 0D)
@@ -128,9 +130,9 @@ public class BoatFly extends ToggleMod {
       double strafe = movementInput.moveStrafe;
       float yaw = MC.player.rotationYaw;
 
+      Vec3d old = MC.player.getRidingEntity().getMotion();
       if ((forward == 0.0D) && (strafe == 0.0D)) {
-        MC.player.getRidingEntity().motionX = (0.0D);
-        MC.player.getRidingEntity().motionZ = (0.0D);
+        MC.player.getRidingEntity().setMotion(0, old.y, 0);
       } else {
         if (forward != 0.0D) {
           if (strafe > 0.0D) yaw += (forward > 0.0D ? -45 : 45);
@@ -141,12 +143,16 @@ public class BoatFly extends ToggleMod {
           if (forward > 0.0D) forward = 1.0D;
           else if (forward < 0.0D) forward = -1.0D;
         }
-        MC.player.getRidingEntity().motionX =
+        MC.player.getRidingEntity().setMotion(
             (forward * speed * Math.cos(Math.toRadians(yaw + 90.0F))
-                + strafe * speed * Math.sin(Math.toRadians(yaw + 90.0F)));
-        MC.player.getRidingEntity().motionZ =
+                + strafe * speed * Math.sin(Math.toRadians(yaw + 90.0F))),
+
+            old.y,
+
             (forward * speed * Math.sin(Math.toRadians(yaw + 90.0F))
-                - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0F)));
+                - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0F)))
+        );
+
       }
     }
   }

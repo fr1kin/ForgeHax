@@ -27,12 +27,11 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.block.Block;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketEntityAction.Action;
+import net.minecraft.item.BlockItem;
+import net.minecraft.network.play.client.CAnimateHandPacket;
+import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.util.Direction;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -78,8 +77,8 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
         LocalPlayerInventory.getHotbarInventory()
             .stream()
             .filter(InvItem::nonNull)
-            .filter(item -> item.getItem() instanceof ItemBlock)
-            .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isFullCube())
+            .filter(item -> item.getItem() instanceof BlockItem)
+            //.filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isSolid()) // 1.14: changed isFullCube to isSolid, might not be good enough
             .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
             .orElse(InvItem.EMPTY);
 
@@ -117,29 +116,28 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
           if (sneak) {
             // send start sneaking packet
             PacketHelper.ignoreAndSend(
-                new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
+                new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_SNEAKING));
 
             LocalPlayerUtils.setSneaking(true);
             LocalPlayerUtils.setSneakingSuppression(true);
           }
 
           getPlayerController()
-              .processRightClickBlock(
+              .func_217292_a(
                   getLocalPlayer(),
                   getWorld(),
-                  tr.getPos(),
-                  tr.getOppositeSide(),
-                  hit,
-                  EnumHand.MAIN_HAND);
+                  Hand.MAIN_HAND,
+                  trace.toRayTraceResult()
+              );
 
-          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+          getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
 
           if (sneak) {
             LocalPlayerUtils.setSneaking(false);
             LocalPlayerUtils.setSneakingSuppression(false);
 
             getNetworkManager()
-                .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
+                .sendPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.STOP_SNEAKING));
           }
 
           func.revert();

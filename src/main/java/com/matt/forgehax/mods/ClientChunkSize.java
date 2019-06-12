@@ -17,11 +17,12 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.concurrent.Executors;
 import java.util.zip.DeflaterOutputStream;
+
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+import net.minecraft.world.chunk.storage.ChunkLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
@@ -96,15 +97,15 @@ public class ClientChunkSize extends ToggleMod {
                 .newThread(
                     () -> {
                       try {
-                        final NBTTagCompound root = new NBTTagCompound();
-                        NBTTagCompound level = new NBTTagCompound();
-                        root.setTag("Level", level);
-                        root.setInt("DataVersion", 1337);
+                        final CompoundNBT root = new CompoundNBT();
+                        CompoundNBT level = new CompoundNBT();
+                        root.put("Level", level);
+                        root.putInt("DataVersion", 1337);
 
                         try {
                           // this should be done on the main mc thread but it works 99% of the
                           // time outside it
-                          AnvilChunkLoader loader = new AnvilChunkLoader(DUMMY, null);
+                          ChunkLoader loader = new ChunkLoader(DUMMY, null);
                           Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
                               loader, chunk, getWorld(), level);
                         } catch (Throwable t) {

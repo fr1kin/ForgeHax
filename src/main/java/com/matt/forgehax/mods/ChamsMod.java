@@ -6,7 +6,7 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -44,7 +44,7 @@ public class ChamsMod extends ToggleMod {
     super(Category.RENDER, "Chams", false, "Render living models behind walls");
   }
 
-  public boolean shouldDraw(EntityLivingBase entity) {
+  public boolean shouldDraw(LivingEntity entity) {
     return !entity.equals(MC.player)
         && entity.isAlive()
         && ((mobs_hostile.get() && EntityUtils.isHostileMob(entity))

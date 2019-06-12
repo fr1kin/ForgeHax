@@ -12,8 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import net.minecraft.network.IPacket;
-import net.minecraft.network.play.client.CPacketCustomPayload;
-import net.minecraft.network.play.server.SPacketCustomPayload;
+import net.minecraft.network.play.client.CCustomPayloadPacket;
+import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /** Created on 6/1/2017 by fr1kin */
@@ -29,8 +29,8 @@ public class CustomPayloadLogger extends ToggleMod {
   }
 
   private void log(IPacket packet) {
-    if (packet instanceof SPacketCustomPayload) {
-      SPacketCustomPayload payloadPacket = (SPacketCustomPayload) packet;
+    if (packet instanceof SCustomPayloadPlayPacket) {
+      SCustomPayloadPlayPacket payloadPacket = (SCustomPayloadPlayPacket) packet;
       String input =
           String.format(
               "%s=%s\n",
@@ -44,8 +44,8 @@ public class CustomPayloadLogger extends ToggleMod {
       } catch (IOException e) {
         e.printStackTrace();
       }
-    } else if (packet instanceof CPacketCustomPayload) {
-      CPacketCustomPayload payloadPacket = (CPacketCustomPayload) packet;
+    } else if (packet instanceof CCustomPayloadPacket) {
+      CCustomPayloadPacket payloadPacket = (CCustomPayloadPacket) packet;
       String input =
           String.format(
               "%s=%s\n",

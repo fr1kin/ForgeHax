@@ -21,16 +21,15 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Scanner;
 import java.util.function.Consumer;
-import net.minecraft.client.gui.GuiScreenBook;
-import net.minecraft.entity.player.InventoryPlayer;
+
+import net.minecraft.client.gui.screen.EditBookScreen;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemWritableBook;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.CPacketCustomPayload;
-import net.minecraft.network.play.client.CPacketEditBook;
-import net.minecraft.util.EnumHand;
+import net.minecraft.item.WritableBookItem;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
+import net.minecraft.network.play.client.CEditBookPacket;
+import net.minecraft.util.Hand;
 
 /** Created on 12/17/2017 by fr1kin */
 @RegisterMod
@@ -391,25 +390,25 @@ public class BookBot extends ToggleMod {
     }
 
     private void sendBook(ItemStack stack) {
-      NBTTagList pages = new NBTTagList(); // page tag list
+      ListNBT pages = new ListNBT(); // page tag list
 
       // copy pages into NBT
       for (int i = 0; i < MAX_PAGES && parser.hasNext(); i++) {
-        pages.add(new NBTTagString(parser.next().trim()));
+        pages.add(new StringNBT(parser.next().trim()));
         page++;
       }
 
       // set our client side book
-      if (stack.hasTag()) stack.getTag().setTag("pages", pages);
+      if (stack.hasTag()) stack.getTag().put("pages", pages);
       else stack.setTagInfo("pages", pages);
 
       // publish the book
-      stack.setTagInfo("author", new NBTTagString(getLocalPlayer().getGameProfile().getName()));
+      stack.setTagInfo("author", new StringNBT(getLocalPlayer().getGameProfile().getName()));
       stack.setTagInfo(
           "title",
-          new NBTTagString(parent.name.get().replaceAll(NUMBER_TOKEN, "" + getBook()).trim()));
+          new StringNBT(parent.name.get().replaceAll(NUMBER_TOKEN, "" + getBook()).trim()));
 
-      MC.getConnection().sendPacket(new CPacketEditBook(stack, true, EnumHand.MAIN_HAND));
+      MC.getConnection().sendPacket(new CEditBookPacket(stack, true, Hand.MAIN_HAND));
     }
 
     @Override
@@ -425,7 +424,7 @@ public class BookBot extends ToggleMod {
           sleep();
 
           // wait for screen
-          if (MC.currentScreen != null) {
+          if (MC.field_71462_r != null) {
             this.status = Status.AWAITING_GUI_CLOSE;
             continue;
           }
@@ -433,11 +432,11 @@ public class BookBot extends ToggleMod {
           // search for empty book
           int slot = -1;
           ItemStack selected = null;
-          for (int i = 0; i < InventoryPlayer.getHotbarSize(); i++) {
+          for (int i = 0; i < PlayerInventory.getHotbarSize(); i++) {
             ItemStack stack = getLocalPlayer().inventory.getStackInSlot(i);
             if (stack != null
                 && !stack.equals(ItemStack.EMPTY)
-                && stack.getItem() instanceof ItemWritableBook) {
+                && stack.getItem() instanceof WritableBookItem) {
               slot = i;
               selected = stack;
               break;
@@ -461,10 +460,10 @@ public class BookBot extends ToggleMod {
 
           // open the book gui screen
           this.status = Status.OPENING_BOOK;
-          MC.execute(() -> getLocalPlayer().openBook(item, EnumHand.MAIN_HAND));
+          MC.execute(() -> getLocalPlayer().openBook(item, Hand.MAIN_HAND));
 
           // wait for gui to open
-          while (!(MC.currentScreen instanceof GuiScreenBook)) sleep();
+          while (!(MC.field_71462_r instanceof EditBookScreen)) sleep();
 
           // send book to server
           this.status = Status.WRITING_BOOK;
@@ -475,7 +474,7 @@ public class BookBot extends ToggleMod {
               });
 
           // wait for screen to close
-          while (MC.currentScreen != null) sleep();
+          while (MC.field_71462_r != null) sleep();
         }
       } catch (Throwable t) {
         this.status = Status.ERROR;
