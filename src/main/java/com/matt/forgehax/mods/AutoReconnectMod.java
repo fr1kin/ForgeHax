@@ -55,7 +55,7 @@ public class AutoReconnectMod extends ToggleMod {
                 FastReflection.Fields.GuiDisconnected_parentScreen.get(disconnected),
                 "connect.failed",
                 FastReflection.Fields.GuiDisconnected_message.get(disconnected),
-                FastReflection.Fields.GuiDisconnected_reason.get(disconnected),
+                disconnected.getTitle(), // changed to title
                 delay.get()));
       }
   }
@@ -84,18 +84,12 @@ public class AutoReconnectMod extends ToggleMod {
         Screen screen,
         String reasonLocalizationKey,
         ITextComponent chatComp,
-        String reason,
+        ITextComponent reason,
         double delay) {
       super(screen, reasonLocalizationKey, chatComp);
       parent = screen;
       message = chatComp;
       reconnectTime = System.currentTimeMillis() + (long) (delay * 1000);
-      // set variable 'reason' to the previous classes value
-      try {
-        FastReflection.Fields.GuiDisconnected_reason.set(this, reason);
-      } catch (Exception e) {
-        Helper.printStackTrace(e);
-      }
       // parse server return text and find queue pos
     }
 

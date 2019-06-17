@@ -106,8 +106,8 @@ public class ClientChunkSize extends ToggleMod {
                           // this should be done on the main mc thread but it works 99% of the
                           // time outside it
                           ChunkLoader loader = new ChunkLoader(DUMMY, null);
-                          Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
-                              loader, chunk, getWorld(), level);
+                          Methods.ChunkLoader_writeChunk.invoke(
+                              loader, chunk.getPos(), level);
                         } catch (Throwable t) {
                           size = -1L;
                           previousSize = 0L;

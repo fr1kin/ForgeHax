@@ -9,8 +9,8 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.EntityBat;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.passive.BatEntity;
+import net.minecraft.util.SoundEvents;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -26,7 +26,7 @@ public class AntiBatsMod extends ToggleMod {
 
         @Override
         public boolean isMobType(Entity entity) {
-          return entity instanceof EntityBat;
+          return entity instanceof BatEntity;
         }
 
         @Override
@@ -52,8 +52,8 @@ public class AntiBatsMod extends ToggleMod {
   }
 
   @SubscribeEvent
-  public void onRenderLiving(RenderLivingEvent.Pre<?> event) {
-    if (event.getEntity() instanceof EntityBat) event.setCanceled(true);
+  public void onRenderLiving(RenderLivingEvent.Pre<BatEntity, ?> event) {
+    if (event.getEntity() instanceof BatEntity) event.setCanceled(true);
   }
 
   @SubscribeEvent

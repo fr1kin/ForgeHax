@@ -11,18 +11,18 @@ import java.nio.FloatBuffer;
 import java.util.Set;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GLAllocation;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.*;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.IPacket;
@@ -39,6 +39,7 @@ import org.lwjgl.opengl.GL11;
 public class ForgeHaxHooks implements ASMCommon {
 
   public static final FloatBuffer PROJECTION = GLAllocation.createDirectFloatBuffer(16);
+  public static final FloatBuffer MODELVIEW = GLAllocation.createDirectFloatBuffer(16);
 
   /** static fields */
   public static boolean isSafeWalkActivated = false;
@@ -65,7 +66,9 @@ public class ForgeHaxHooks implements ASMCommon {
 
   public static void setProjection() {
     PROJECTION.clear();
-    GlStateManager.getFloatv(GL11.GL_PROJECTION_MATRIX, PROJECTION);
+    MODELVIEW.clear();
+    GlStateManager.getMatrix(GL11.GL_PROJECTION_MATRIX, PROJECTION);
+    GlStateManager.getMatrix(GL11.GL_MODELVIEW_MATRIX, MODELVIEW);
   }
 
   /** onDrawBoundingBox */
@@ -74,12 +77,8 @@ public class ForgeHaxHooks implements ASMCommon {
   }
 
 
-  public static boolean onPushOutOfBlocks() {
-    return MinecraftForge.EVENT_BUS.post(new PushOutOfBlocksEvent());
-  }
-
   /** onRenderBoat */
-  public static float onRenderBoat(EntityBoat boat, float entityYaw) {
+  public static float onRenderBoat(BoatEntity boat, float entityYaw) {
     RenderBoatEvent event = new RenderBoatEvent(boat, entityYaw);
     MinecraftForge.EVENT_BUS.post(event);
     return event.getYaw();
@@ -177,21 +176,21 @@ public class ForgeHaxHooks implements ASMCommon {
 
   /** onDoBlockCollisions */
   @Deprecated
-  public static boolean onDoBlockCollisions(Entity entity, BlockPos pos, IBlockState state) {
+  public static boolean onDoBlockCollisions(Entity entity, BlockPos pos, BlockState state) {
     return MinecraftForge.EVENT_BUS.post(new DoBlockCollisionsEvent(entity, pos, state));
   }
 
   /** isBlockFiltered */
   public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = Sets.newHashSet();
 
-  public static boolean isBlockFiltered(Entity entity, IBlockState state) {
+  public static boolean isBlockFiltered(Entity entity, BlockState state) {
     return entity instanceof PlayerEntity
         && LIST_BLOCK_FILTER.contains(state.getBlock().getClass());
   }
 
   /** onApplyClimbableBlockMovement */
   @Deprecated
-  public static boolean onApplyClimbableBlockMovement(EntityLivingBase livingBase) {
+  public static boolean onApplyClimbableBlockMovement(LivingEntity livingBase) {
     return MinecraftForge.EVENT_BUS.post(new ApplyClimbableBlockMovement(livingBase));
   }
 
@@ -215,13 +214,13 @@ public class ForgeHaxHooks implements ASMCommon {
 
   /** onBlockRender */
   @Deprecated
-  public static void onBlockRender(BlockPos pos, IBlockState state, IWorldReader access, BufferBuilder buffer) {
+  public static void onBlockRender(BlockPos pos, BlockState state, IWorldReader access, BufferBuilder buffer) {
       MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
   }
 
   /** onBlockRenderInLoop */
   public static void onBlockRenderInLoop(
-      ChunkRender renderChunk, Block block, IBlockState state, BlockPos pos) {
+      ChunkRender renderChunk, Block block, BlockState state, BlockPos pos) {
     // faster hook
     for (BlockModelRenderListener listener : Listeners.BLOCK_MODEL_RENDER_LISTENER.getAll())
       listener.onBlockRenderInLoop(renderChunk, block, state, pos);
@@ -281,12 +280,12 @@ public class ForgeHaxHooks implements ASMCommon {
   }
 
   /** onUpdateWalkingPlayerPre */
-  public static boolean onUpdateWalkingPlayerPre(EntityPlayerSP localPlayer) {
+  public static boolean onUpdateWalkingPlayerPre(ClientPlayerEntity localPlayer) {
     return MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Pre(localPlayer));
   }
 
   /** onUpdateWalkingPlayerPost */
-  public static void onUpdateWalkingPlayerPost(EntityPlayerSP localPlayer) {
+  public static void onUpdateWalkingPlayerPost(ClientPlayerEntity localPlayer) {
     MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Post(localPlayer));
   }
 
@@ -305,31 +304,31 @@ public class ForgeHaxHooks implements ASMCommon {
   }
 
   /** onPlayerItemSync */
-  public static void onPlayerItemSync(PlayerControllerMP playerControllerMP) {
+  public static void onPlayerItemSync(PlayerController playerControllerMP) {
     MinecraftForge.EVENT_BUS.post(new PlayerSyncItemEvent(playerControllerMP));
   }
 
   /** onPlayerBreakingBlock */
-  public static void onPlayerBreakingBlock(PlayerControllerMP playerControllerMP, BlockPos pos, Direction facing) {
+  public static void onPlayerBreakingBlock(PlayerController playerControllerMP, BlockPos pos, Direction facing) {
     MinecraftForge.EVENT_BUS.post(new PlayerDamageBlockEvent(playerControllerMP, pos, facing));
   }
 
   /** onPlayerAttackEntity */
-  public static void onPlayerAttackEntity(PlayerControllerMP playerControllerMP, PlayerEntity attacker, Entity victim) {
+  public static void onPlayerAttackEntity(PlayerController playerControllerMP, PlayerEntity attacker, Entity victim) {
     MinecraftForge.EVENT_BUS.post(new PlayerAttackEntityEvent(playerControllerMP, attacker, victim));
   }
 
   /** onPlayerStopUse */
   public static boolean onPlayerStopUse(
-      PlayerControllerMP playerControllerMP, PlayerEntity player) {
+      PlayerController playerControllerMP, PlayerEntity player) {
     return MinecraftForge.EVENT_BUS.post(new ItemStoppedUsedEvent(playerControllerMP, player));
   }
 
   /** onPlayerStopUse */
   public static float onEntityBlockSlipApply(
       float defaultSlipperiness,
-      EntityLivingBase entityLivingBase,
-      IBlockState blockStateUnder,
+      LivingEntity entityLivingBase,
+      BlockState blockStateUnder,
       int stage)
   {
 

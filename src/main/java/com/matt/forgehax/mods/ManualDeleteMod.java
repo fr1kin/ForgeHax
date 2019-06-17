@@ -6,6 +6,7 @@ import static com.matt.forgehax.Helper.getWorld;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -26,10 +27,9 @@ public class ManualDeleteMod extends ToggleMod {
     if (event.getButton() == 2 && event.getAction() == GLFW.GLFW_PRESS) { // on middle click
       RayTraceResult aim = MC.objectMouseOver;
       if (aim == null) return;
-      if (aim.type == RayTraceResult.Type.ENTITY) {
-        if (aim.entity != null) {
-          MC.world.removeEntity(aim.entity);
-        }
+      if (aim.getType() == RayTraceResult.Type.ENTITY) {
+        EntityRayTraceResult entityAim = (EntityRayTraceResult) aim;
+        MC.world.removeEntityFromWorld(entityAim.getEntity().getEntityId());
       }
     }
   }

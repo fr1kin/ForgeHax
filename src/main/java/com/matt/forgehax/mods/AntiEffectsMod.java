@@ -5,8 +5,8 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.MobEffects;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.potion.Effects;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -27,12 +27,12 @@ public class AntiEffectsMod extends ToggleMod {
 
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
-    EntityLivingBase living = event.getEntityLiving();
+    LivingEntity living = event.getEntityLiving();
     if (living.equals(MC.player)) {
       living.setInvisible(false);
-      living.removePotionEffect(MobEffects.NAUSEA);
-      living.removePotionEffect(MobEffects.INVISIBILITY);
-      living.removePotionEffect(MobEffects.BLINDNESS);
+      living.removePotionEffect(Effects.field_76431_k); // nausea
+      living.removePotionEffect(Effects.field_76441_p); // invisibility
+      living.removePotionEffect(Effects.field_76440_q); // blindness
       // removes particle effect
       FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(living);
     } else if (no_particles.get()) {

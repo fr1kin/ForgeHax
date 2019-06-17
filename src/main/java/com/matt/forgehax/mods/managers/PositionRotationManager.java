@@ -15,7 +15,8 @@ import com.matt.forgehax.util.task.TaskChain;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import net.minecraft.client.entity.EntityPlayerSP;
+
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.world.WorldEvent;
@@ -58,14 +59,14 @@ public class PositionRotationManager extends ServiceMod {
     return Angle.degrees(player.rotationPitch, player.rotationYaw);
   }
 
-  private static void setPlayerAngles(EntityPlayerSP player, Angle angles) {
+  private static void setPlayerAngles(ClientPlayerEntity player, Angle angles) {
     Angle original = getPlayerAngles(player);
     Angle diff = angles.normalize().sub(original.normalize());
     player.rotationPitch = Utils.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
     player.rotationYaw = original.getYaw() + diff.getYaw();
   }
 
-  private static void setPlayerPosition(EntityPlayerSP player, Vec3d position) {
+  private static void setPlayerPosition(ClientPlayerEntity player, Vec3d position) {
     player.posX = position.x;
     player.posY = position.y;
     player.posZ = position.z;
@@ -227,7 +228,7 @@ public class PositionRotationManager extends ServiceMod {
      *
      * @return local player instance. null if not in a world
      */
-    default EntityPlayerSP getLocalPlayer() {
+    default ClientPlayerEntity getLocalPlayer() {
       return Helper.getLocalPlayer();
     }
 

@@ -23,13 +23,14 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.network.play.client.CPacketPlayerDigging;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.item.Items;
+import net.minecraft.network.play.client.CAnimateHandPacket;
+import net.minecraft.network.play.client.CPlayerDiggingPacket;
+import net.minecraft.network.play.client.CPlayerTryUseItemOnBlockPacket;
 import net.minecraft.util.Direction;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.InputEvent;
@@ -283,9 +284,7 @@ public class AntiAfkMod extends ToggleMod {
       public void onStop() {
         Bindings.forward.setPressed(false);
         Bindings.forward.unbind();
-        getLocalPlayer().motionX = 0.D;
-        getLocalPlayer().motionY = 0.D;
-        getLocalPlayer().motionZ = 0.D;
+        getLocalPlayer().setMotion(Vec3d.ZERO);
         getModManager()
             .get(SafeWalkMod.class)
             .ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled());
@@ -329,7 +328,7 @@ public class AntiAfkMod extends ToggleMod {
         return getWorld()
             .rayTraceBlocks(
                 eyes,
-                eyes.add(0, -MC.playerController.getBlockReachDistance(), 0),
+                eyes.add(0, -MC.field_71442_b.getBlockReachDistance(), 0),
                 RayTraceFluidMode.NEVER,
                 false,
                 false);
@@ -338,7 +337,7 @@ public class AntiAfkMod extends ToggleMod {
       BlockPos getBlockBelow() {
         RayTraceResult tr = getTraceBelow();
         return tr == null
-            ? BlockPos.ORIGIN
+            ? BlockPos.ZERO
             : (getWorld()
                     .getBlockState(tr.getBlockPos().add(0, 1, 0))
                     .getBlock()
@@ -361,8 +360,8 @@ public class AntiAfkMod extends ToggleMod {
           if (isPlaced()) {
             getNetworkManager()
                 .sendPacket(
-                    new CPacketPlayerDigging(
-                        CPacketPlayerDigging.Action.START_DESTROY_BLOCK,
+                    new CPlayerDiggingPacket(
+                        CPlayerDiggingPacket.Action.START_DESTROY_BLOCK,
                         getBlockBelow(),
                         Direction.UP));
             swingHand();
@@ -390,10 +389,10 @@ public class AntiAfkMod extends ToggleMod {
 
           getNetworkManager()
               .sendPacket(
-                  new CPacketPlayerTryUseItemOnBlock(
+                  new CPlayerTryUseItemOnBlockPacket(
                       result.getBlockPos(),
                       Direction.UP,
-                      EnumHand.MAIN_HAND,
+                      Hand.MAIN_HAND,
                       (float) (result.hitVec.x - result.getBlockPos().getX()),
                       (float) (result.hitVec.y - result.getBlockPos().getY()),
                       (float) (result.hitVec.z - result.getBlockPos().getZ())));
@@ -458,8 +457,8 @@ public class AntiAfkMod extends ToggleMod {
     static boolean silent = false;
 
     static void swingHand() {
-      if (silent) getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
-      else getLocalPlayer().swingArm(EnumHand.MAIN_HAND);
+      if (silent) getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+      else getLocalPlayer().swingArm(Hand.MAIN_HAND);
     }
 
     static void setViewAngles(double p, double y) {

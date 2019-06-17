@@ -296,7 +296,7 @@ public interface TypesHook {
             .setName("onUpdateWalkingPlayerPre")
             .setReturnType(boolean.class)
             .beginParameters()
-            .add(TypesMc.Classes.EntityPlayerSP)
+            .add(TypesMc.Classes.ClientPlayerEntity)
             .finish()
             .build();
 
@@ -305,7 +305,7 @@ public interface TypesHook {
             .setName("onUpdateWalkingPlayerPost")
             .setReturnType(void.class)
             .beginParameters()
-            .add(TypesMc.Classes.EntityPlayerSP)
+            .add(TypesMc.Classes.ClientPlayerEntity)
             .finish()
             .build();
 

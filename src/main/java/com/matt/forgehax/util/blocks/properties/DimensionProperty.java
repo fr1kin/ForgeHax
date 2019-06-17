@@ -21,7 +21,7 @@ public class DimensionProperty implements IBlockProperty {
   }
 
   private static DimensionType getTypeFromId(int id) {
-    return DimensionManager.getRegistry().get(id);
+    return DimensionType.getById(id);
   }
 
   public boolean add(int id) {

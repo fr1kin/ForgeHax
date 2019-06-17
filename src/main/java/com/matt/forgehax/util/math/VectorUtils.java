@@ -37,8 +37,12 @@ public class VectorUtils implements Globals {
 
     if (view == null) return new Plane(0.D, 0.D, false);
 
-    Vec3d camPos = FastReflection.Fields.ActiveRenderInfo_position.getStatic();
-    Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
+    final ActiveRenderInfo renderInfo = MC.gameRenderer.func_215316_n();
+    final Vec3d camPos = renderInfo.func_216785_c();
+
+    // field_216792_d = camera pos
+    //Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
+    Vec3d eyePos = projectViewFromEntity(renderInfo, view, MC.getRenderPartialTicks()); // 1.14, hopefully this is correct
 
     float vecX = (float) ((camPos.x + eyePos.x) - (float) x);
     float vecY = (float) ((camPos.y + eyePos.y) - (float) y);
@@ -46,8 +50,7 @@ public class VectorUtils implements Globals {
 
     Vector4f pos = new Vector4f(vecX, vecY, vecZ, 1.f);
 
-    modelMatrix.set(bufferToArray(FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic()));
-
+    modelMatrix.set(bufferToArray(ForgeHaxHooks.MODELVIEW));
     projectionMatrix.set(bufferToArray(ForgeHaxHooks.PROJECTION));
 
     VecTransformCoordinate(pos, modelMatrix);
@@ -81,6 +84,18 @@ public class VectorUtils implements Globals {
     buffer.clear();
     buffer.get(arr);
     return arr;
+  }
+
+  private static Vec3d projectViewFromEntity(ActiveRenderInfo renderInfo, Entity entityIn, double partialTicks)
+  {
+    double d0 = entityIn.prevPosX + (entityIn.posX - entityIn.prevPosX) * partialTicks;
+    double d1 = entityIn.prevPosY + (entityIn.posY - entityIn.prevPosY) * partialTicks;
+    double d2 = entityIn.prevPosZ + (entityIn.posZ - entityIn.prevPosZ) * partialTicks;
+    Vec3d cameraPos = renderInfo.func_216785_c();
+    double d3 = d0 + cameraPos.x;
+    double d4 = d1 + cameraPos.y;
+    double d5 = d2 + cameraPos.z;
+    return new Vec3d(d3, d4, d5);
   }
 
   public static Plane toScreen(Vec3d vec) {

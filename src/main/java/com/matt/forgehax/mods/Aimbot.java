@@ -4,6 +4,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getPlayerController;
 import static com.matt.forgehax.Helper.getWorld;
 
+import com.google.common.collect.Streams;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState;
 import com.matt.forgehax.mods.services.TickRateService;
@@ -22,7 +23,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 
 @RegisterMod
@@ -205,7 +206,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
 
   private Projectile getHeldProjectile() {
-    return Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItem(EnumHand.MAIN_HAND));
+    return Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItem(Hand.MAIN_HAND));
   }
 
   private boolean isHoldingProjectileItem() {
@@ -287,9 +288,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
 
   private Entity findTarget(final Vec3d pos, final Vec3d viewNormal, final Angle angles) {
-    return getWorld()
-        .loadedEntityList
-        .stream()
+    return Streams.stream(getWorld().func_217416_b())
         .filter(entity -> filterTarget(pos, viewNormal, angles, entity))
         .min(Comparator.comparingDouble(entity -> selecting(pos, viewNormal, angles, entity)))
         .orElse(null);
@@ -331,7 +330,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
         state.invokeLater(
             rs -> {
               getPlayerController().attackEntity(getLocalPlayer(), tar);
-              getLocalPlayer().swingArm(EnumHand.MAIN_HAND);
+              getLocalPlayer().swingArm(Hand.MAIN_HAND);
             });
     }
   }

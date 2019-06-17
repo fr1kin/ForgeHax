@@ -67,7 +67,7 @@ public class AutoMine extends ToggleMod {
   public void onGuiOpened(GuiOpenEvent event) {
     // process keys and mouse input even if this gui is open
     if (getWorld() != null && getLocalPlayer() != null && event.getGui() != null)
-      event.getGui().allowUserInput = true;
+      event.getGui().passEvents = true; // 1.14: changed allowUserInput to passEvents
   }
 
   @SubscribeEvent

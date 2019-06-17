@@ -12,7 +12,10 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
-import net.minecraft.client.gui.GuiChat;
+import java.util.stream.Stream;
+
+import net.minecraft.client.gui.NewChatGui;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -125,21 +128,17 @@ public class ActiveModList extends ToggleMod {
       posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
     }
 
-    if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
-      long enabledMods = getModManager()
-          .getMods()
-          .stream()
-          .filter(BaseMod::isEnabled)
-          .filter(mod -> !mod.isHidden())
-          .count();
-      SurfaceHelper.drawTextShadow(enabledMods + " mods enabled",
-          posX, posY.get(), Utils.Colors.WHITE);
+    final Stream<BaseMod> stream = getModManager()
+        .getMods()
+        .stream()
+        .filter(BaseMod::isEnabled)
+        .filter(mod -> !mod.isHidden());
+
+    if (MC.field_71462_r instanceof ChatScreen || MC.gameSettings.showDebugInfo) {
+      long enabledMods = stream.count();
+      SurfaceHelper.drawTextShadow(enabledMods + " mods enabled", posX, posY.get(), Utils.Colors.WHITE);
     } else {
-      getModManager()
-          .getMods()
-          .stream()
-          .filter(BaseMod::isEnabled)
-          .filter(mod -> !mod.isHidden())
+      stream
           .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
           .sorted(sortMode.get().getComparator())
           .forEach(

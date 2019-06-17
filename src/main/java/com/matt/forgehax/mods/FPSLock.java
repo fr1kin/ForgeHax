@@ -61,7 +61,7 @@ public class FPSLock extends ToggleMod {
 
   private int getFps() {
     if (no_focus_fps.get() > 0 && !MC.isGameFocused()) return no_focus_fps.get();
-    else if (MC.currentScreen != null) return menu_fps.get() > 0 ? menu_fps.get() : defaultFps.get();
+    else if (MC.field_71462_r != null) return menu_fps.get() > 0 ? menu_fps.get() : defaultFps.get();
     else return fps.get() > 0 ? fps.get() : defaultFps.get();
   }
 

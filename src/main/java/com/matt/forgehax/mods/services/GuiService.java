@@ -1,7 +1,7 @@
 package com.matt.forgehax.mods.services;
 
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.gui.ClickGui;
+//import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.util.command.StubBuilder;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.mod.ServiceMod;
@@ -18,7 +18,7 @@ public class GuiService extends ServiceMod {
   @Override
   public void onBindPressed(CallbackData cb) {
     if (Helper.getLocalPlayer() != null) {
-      MC.displayGuiScreen(ClickGui.getInstance());
+      //MC.displayGuiScreen(ClickGui.getInstance());
     }
   }
 

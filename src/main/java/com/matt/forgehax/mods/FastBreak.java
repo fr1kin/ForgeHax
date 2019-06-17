@@ -15,7 +15,7 @@ public class FastBreak extends ToggleMod {
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (MC.playerController != null)
-      FastReflection.Fields.PlayerControllerMP_blockHitDelay.set(MC.playerController, 0);
+    if (MC.field_71442_b != null)
+      FastReflection.Fields.PlayerControllerMP_blockHitDelay.set(MC.field_71442_b, 0);
   }
 }

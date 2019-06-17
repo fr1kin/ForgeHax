@@ -5,6 +5,7 @@ import static com.matt.forgehax.Helper.reloadChunks;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.RenderBlockInLayerEvent;
 import com.matt.forgehax.asm.events.RenderBlockLayerEvent;
+import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -61,23 +62,22 @@ public class XrayMod extends ToggleMod {
   private boolean isInternalCall = false;
 
   @SubscribeEvent
+  // broken in 1.13, renderBlockLayer also changed in 1.14
   public void onPreRenderBlockLayer(RenderBlockLayerEvent.Pre event) {
     if (!isInternalCall) {
       if (!event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
         event.setCanceled(true);
       } else if (event.getRenderLayer().equals(BlockRenderLayer.TRANSLUCENT)) {
         isInternalCall = true;
-        Entity renderEntity = MC.getRenderViewEntity();
+        //Entity renderEntity = MC.getRenderViewEntity();
         GlStateManager.disableAlphaTest();
-        MC.worldRenderer.renderBlockLayer(BlockRenderLayer.SOLID, event.getPartialTicks(), renderEntity);
+        renderBlockLayer(BlockRenderLayer.SOLID);
         GlStateManager.enableAlphaTest();
-        MC.worldRenderer.renderBlockLayer(
-            BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), renderEntity);
+        renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED);
         MC.getTextureManager()
             .getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
             .setBlurMipmap(false, false);
-        MC.worldRenderer.renderBlockLayer(
-            BlockRenderLayer.CUTOUT, event.getPartialTicks(), renderEntity);
+        renderBlockLayer(BlockRenderLayer.CUTOUT);
         MC.getTextureManager()
             .getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
             .restoreLastBlurMipmap();
@@ -85,6 +85,10 @@ public class XrayMod extends ToggleMod {
         isInternalCall = false;
       }
     }
+  }
+
+  private void renderBlockLayer(BlockRenderLayer renderLayer) {
+    FastReflection.Methods.WorldRenderer_renderBlockLayer.invoke(MC.worldRenderer, renderLayer);
   }
 
   @SubscribeEvent

@@ -9,12 +9,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.serialization.GsonConstant;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import javax.net.ssl.HttpsURLConnection;
-import net.minecraft.client.entity.EntityPlayerSP;
 
 /** Created on 7/22/2017 by fr1kin */
 public class PlayerInfo implements Globals, GsonConstant {
@@ -33,7 +34,7 @@ public class PlayerInfo implements Globals, GsonConstant {
     Objects.requireNonNull(id);
     this.id = id;
     this.names = ImmutableList.copyOf(lookupNames(id));
-    this.offlineId = EntityPlayerSP.getOfflineUUID(getName());
+    this.offlineId = ClientPlayerEntity.getOfflineUUID(getName());
     this.isOfflinePlayer = false;
   }
 
@@ -52,12 +53,12 @@ public class PlayerInfo implements Globals, GsonConstant {
 
     this.id = uuid;
     this.names = ImmutableList.copyOf(lookupNames(uuid));
-    this.offlineId = EntityPlayerSP.getOfflineUUID(name);
+    this.offlineId = ClientPlayerEntity.getOfflineUUID(name);
     this.isOfflinePlayer = false;
   }
 
   public PlayerInfo(String name, boolean dummy) {
-    this.id = EntityPlayerSP.getOfflineUUID(name);
+    this.id = ClientPlayerEntity.getOfflineUUID(name);
     this.names = Collections.singletonList(new Name(name));
     this.offlineId = this.id;
     this.isOfflinePlayer = true;

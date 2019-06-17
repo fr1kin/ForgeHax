@@ -6,8 +6,9 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.block.material.Material;
-import net.minecraft.init.Items;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -22,8 +23,9 @@ public class AntiOverlayMod extends ToggleMod {
   /** Disables water/lava fog */
   @SubscribeEvent
   public void onFogRender(EntityViewRenderEvent.FogDensity event) {
-    if (event.getBlockState().getMaterial().equals(Material.WATER)
-        || event.getBlockState().getMaterial().equals(Material.LAVA)) {
+    IFluidState fluidState = event.getInfo().func_216771_k();
+    if (fluidState.getBlockState().getMaterial().equals(Material.WATER)
+        || fluidState.getBlockState().getMaterial().equals(Material.LAVA)) {
       event.setDensity(0);
       event.setCanceled(true);
     }
@@ -44,10 +46,10 @@ public class AntiOverlayMod extends ToggleMod {
 
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    ItemStack item = FastReflection.Fields.EntityRenderer_itemActivationItem.get(MC.entityRenderer);
+    ItemStack item = FastReflection.Fields.EntityRenderer_itemActivationItem.get(MC.gameRenderer);
 
     if (item != null && item.getItem() == Items.TOTEM_OF_UNDYING) {
-      FastReflection.Fields.EntityRenderer_itemActivationItem.set(MC.entityRenderer, null);
+      FastReflection.Fields.EntityRenderer_itemActivationItem.set(MC.gameRenderer, null);
     }
   }
 }

@@ -8,6 +8,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /** Created on 6/14/2017 by fr1kin */
+// TODO: probably not necessary in 1.14
 @RegisterMod
 public class PigmenAngerCooldownService extends ServiceMod {
   public PigmenAngerCooldownService() {
@@ -19,9 +20,9 @@ public class PigmenAngerCooldownService extends ServiceMod {
     if (event.getEntityLiving() instanceof ZombiePigmanEntity) {
       // update pigmens anger level
       ZombiePigmanEntity pigZombie = (ZombiePigmanEntity) event.getEntityLiving();
-      if (pigZombie.isArmsRaised()) {
+      /*if (pigZombie.isArmsRaised()) {
         FastReflection.Fields.EntityPigZombie_angerLevel.set(pigZombie, 400);
-      } else if (pigZombie.isAngry()) {
+      } else*/ if (pigZombie.isAngry()) {
         FastReflection.Fields.EntityPigZombie_angerLevel.set(
             pigZombie, FastReflection.Fields.EntityPigZombie_angerLevel.get(pigZombie) - 1);
       }

@@ -10,11 +10,11 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.function.Predicate;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityEnderCrystal;
+import net.minecraft.entity.item.EnderCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.network.play.client.CPacketUseEntity;
-import net.minecraft.util.EnumHand;
+import net.minecraft.network.play.client.CAnimateHandPacket;
+import net.minecraft.network.play.client.CUseEntityPacket;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -118,7 +118,7 @@ public class AutoCrystalMod extends ToggleMod {
               getLocalPlayer().getPositionVector().subtract(delta),
               getLocalPlayer().getPositionVector().add(delta));
       getWorld()
-          .getEntitiesWithinAABB(EntityEnderCrystal.class, bb)
+          .getEntitiesWithinAABB(EnderCrystalEntity.class, bb)
           .stream()
           // Re-check timer, since it may have been reset in a previous iteration
           .filter(__ -> timer.hasTimeElapsed(delay.get()))
@@ -130,8 +130,8 @@ public class AutoCrystalMod extends ToggleMod {
           .filter(e -> !checkEnemy.get() || enemyWithinDistance(e, maxEnemyDistance.get()))
           .forEach(
               e -> {
-                getNetworkManager().sendPacket(new CPacketUseEntity(e));
-                getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+                getNetworkManager().sendPacket(new CUseEntityPacket(e));
+                getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
                 timer.start();
               });
     }
