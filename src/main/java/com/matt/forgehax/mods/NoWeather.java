@@ -94,17 +94,16 @@ public class NoWeather extends ToggleMod {
       float strength = ((SPacketChangeGameState) event.getPacket()).getValue();
       boolean isRainState = false;
       switch (state) {
-        case 1:
-          isRainState = true;
-          setState(true, 0.f, 0.f);
+        case 1: // end rain
+          isRainState = false;
+          setState(false, 0.f, 0.f);
           break;
-        case 2:
+        case 2: // start rain
           isRainState = true;
-          setState(false, 1.f, 1.f);
+          setState(true, 1.f, 1.f);
           break;
-        case 7:
-          isRainState = true;
-          setState(strength, strength);
+        case 7: // fade value: sky brightness
+          isRainState = true; // needs to be cancelled to avoid flicker
           break;
       }
       if (isRainState) {
@@ -116,8 +115,8 @@ public class NoWeather extends ToggleMod {
 
   @Override
   public String getDisplayText() {
-    if (!isRaining // == it rains. but how and why?
-        && showStatus.getAsBoolean() && getWorld() != null && getLocalPlayer() != null) {
+    if (isRaining // == it rains. but how and why?
+      && showStatus.getAsBoolean() && getWorld() != null && getLocalPlayer() != null) {
       Biome biome = getWorld().getBiome(getLocalPlayer().getPosition());
       boolean canRain = biome.canRain();
       boolean canSnow = biome.getEnableSnow();
