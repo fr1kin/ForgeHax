@@ -115,7 +115,7 @@ public class NoWeather extends ToggleMod {
 
   @Override
   public String getDisplayText() {
-    if (isRaining // == it rains. but how and why?
+    if (isRaining
       && showStatus.getAsBoolean() && getWorld() != null && getLocalPlayer() != null) {
       Biome biome = getWorld().getBiome(getLocalPlayer().getPosition());
       boolean canRain = biome.canRain();
