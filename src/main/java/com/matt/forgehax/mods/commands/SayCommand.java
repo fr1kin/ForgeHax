@@ -2,11 +2,13 @@ package com.matt.forgehax.mods.commands;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Arrays;
+import net.minecraft.network.play.client.CPacketChatMessage;
 
 @RegisterMod
 public class SayCommand extends CommandMod {
@@ -28,15 +30,13 @@ public class SayCommand extends CommandMod {
                     boolean fake = data.hasOption("fake");
                     // any emoji will work until 1.13
                     final int fakePrefix = 0x1F921;
-                    final String msg = data.getArgumentCount() > 0 ? data.getArgumentAsString(0) : "";
+                    String msg = data.getArgumentCount() > 0 ? data.getArgumentAsString(0) : "";
+
                     if (getLocalPlayer() != null) {
                         if (fake) {
-                            getLocalPlayer().sendChatMessage(
-                                new StringBuilder().appendCodePoint(fakePrefix).append(msg).toString()
-                            );
-                        } else {
-                            getLocalPlayer().sendChatMessage(msg);
+                            msg = new StringBuilder().appendCodePoint(fakePrefix).append(msg).toString();
                         }
+                        PacketHelper.ignoreAndSend(new CPacketChatMessage(msg));
                     }
                 }
             )

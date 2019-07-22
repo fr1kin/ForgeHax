@@ -2,6 +2,7 @@ package com.matt.forgehax.mods.services;
 
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.command.CommandHelper;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
@@ -43,7 +44,8 @@ public class ChatCommandService extends ServiceMod {
   public void onSendPacket(PacketEvent.Outgoing.Pre event) {
     if (event.getPacket() instanceof CPacketChatMessage) {
       String message = ((CPacketChatMessage) event.getPacket()).getMessage();
-      if (message.startsWith(activationCharacter.getAsString()) && message.length() > 1) {
+      if (!PacketHelper.isIgnored(event.getPacket())
+          && message.startsWith(activationCharacter.getAsString()) && message.length() > 1) {
         // cut out the . from the message
         String line = message.substring(1);
         handleCommand(line);
