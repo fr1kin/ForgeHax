@@ -25,9 +25,14 @@ public class CompassMod extends ToggleMod {
           .defaultTo(3.D)
           .build();
 
-  private final double HALF_PI = Math.PI / 2;
+  private static final double HALF_PI = Math.PI / 2;
 
-  private final String[] DIRECTIONS = {"N", "W", "S", "E"};
+  private enum Direction {
+    N,
+    W,
+    S,
+    E
+  }
 
   public CompassMod() {
     super(Category.RENDER, "Compass", false, "cool compass overlay");
@@ -38,14 +43,16 @@ public class CompassMod extends ToggleMod {
     final double centerX = event.getScreenWidth() / 2;
     final double centerY = event.getScreenHeight() * 0.8;
 
-    for (String dir : DIRECTIONS) {
+    for (Direction dir : Direction.values()) {
       double rad = getPosOnCompass(dir);
       SurfaceHelper.drawTextShadowCentered(
-          dir,
+          dir.name(),
           (float) (centerX + getX(rad)),
           (float) (centerY + getY(rad)),
-          dir.equals("N") ? Utils.Colors.RED : Utils.Colors.WHITE);
+          dir == Direction.N ? Utils.Colors.RED : Utils.Colors.WHITE);
+
     }
+
   }
 
   private double getX(double rad) {
@@ -53,16 +60,17 @@ public class CompassMod extends ToggleMod {
   }
 
   private double getY(double rad) {
-    double pitch = Math.toRadians(Helper.getLocalPlayer().rotationPitch); // player pitch
-    return Math.cos(rad) * Math.sin(pitch) * (scale.getAsDouble() * 10);
+    final double epicPitch = MathHelper.clamp(Helper.getLocalPlayer().rotationPitch + 30f, -90f, 90f);
+    final double pitchRadians = Math.toRadians(epicPitch); // player pitch
+    return Math.cos(rad) * Math.sin(pitchRadians) * (scale.getAsDouble() * 10);
   }
 
   // return the position on the circle in radians
-  private double getPosOnCompass(String s) {
+  private static double getPosOnCompass(Direction dir) {
     double yaw =
         Math.toRadians(
             MathHelper.wrapDegrees(Helper.getLocalPlayer().rotationYaw - 90)); // player yaw
-    int index = ArrayUtils.indexOf(DIRECTIONS, s) + 1;
+    int index = dir.ordinal() + 1;
     return yaw + (index * HALF_PI);
   }
 }
