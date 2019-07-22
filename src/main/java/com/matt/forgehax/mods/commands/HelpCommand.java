@@ -220,4 +220,16 @@ public class HelpCommand extends CommandMod {
             })
         .build();
   }
+
+@RegisterCommand
+    public Command clearChat(CommandBuilders builders) {
+      return builders
+        .newCommandBuilder()
+        .name("clear")
+        .description("Clears chat")
+        .processor(d -> MC.addScheduledTask(
+          () -> MC.ingameGUI.getChatGUI().clearChatMessages(true))
+        )
+        .build();
+    }
 }
