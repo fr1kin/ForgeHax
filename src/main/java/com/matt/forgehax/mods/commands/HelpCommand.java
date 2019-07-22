@@ -227,7 +227,9 @@ public class HelpCommand extends CommandMod {
         .newCommandBuilder()
         .name("clear")
         .description("Clears chat")
-        .processor(d -> MC.ingameGUI.getChatGUI().clearChatMessages(true))
+        .processor(d -> MC.addScheduledTask(
+          () -> MC.ingameGUI.getChatGUI().clearChatMessages(true))
+        )
         .build();
     }
 }
