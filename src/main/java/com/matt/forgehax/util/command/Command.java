@@ -5,7 +5,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.mods.services.ChatCommandService;
 import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.command.exception.CommandBuildException;
@@ -242,9 +241,8 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
 
   protected boolean processChildren(@Nonnull String[] args)
       throws CommandExecuteException, NullPointerException {
-    if (args.length > 0
-        && !args[0].startsWith(ChatCommandService.getActivationCharacter().toString())) {
-      final String lookup = args[0].toLowerCase();
+    if (args.length > 0) {
+      final String lookup = (args[0] != null ? args[0] : Strings.EMPTY).toLowerCase();
       Command child = getChild(lookup);
       if (child != null) { // perfect match, use this
         child.run(CommandHelper.forward(args));
