@@ -23,6 +23,7 @@ public class SayCommand extends CommandMod {
             .options(
                 parser -> {
                     parser.acceptsAll(Arrays.asList("fake", "f"), "Send a fake message that won't be treated as command");
+                    parser.acceptsAll(Arrays.asList("local", "l"), "Send message from local chat");
                 }
             )
             .processor(
@@ -36,7 +37,11 @@ public class SayCommand extends CommandMod {
                         if (fake) {
                             msg = new StringBuilder().appendCodePoint(fakePrefix).append(msg).toString();
                         }
-                        PacketHelper.ignoreAndSend(new CPacketChatMessage(msg));
+                        if (data.hasOption("local")) {
+                          getLocalPlayer().sendChatMessage(msg);
+                        } else {
+                          PacketHelper.ignoreAndSend(new CPacketChatMessage(msg));
+                        }
                     }
                 }
             )
