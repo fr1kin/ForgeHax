@@ -9,7 +9,12 @@ import com.matt.forgehax.util.console.ConsoleIO;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import com.matt.forgehax.util.typeconverter.TypeConverter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -130,8 +135,8 @@ public class Setting<E> extends Command implements ISerializableJson {
   public boolean set(E value, boolean silent) {
     if (comparator != null && value != null && this.value != null) {
       // clamp value to minimum and maximum value
-      if (minValue != null && comparator.compare(get(), minValue) < 0) value = minValue;
-      else if (maxValue != null && comparator.compare(get(), maxValue) > 0) value = maxValue;
+      if (minValue != null && comparator.compare(value, minValue) < 0) value = minValue;
+      else if (maxValue != null && comparator.compare(value, maxValue) > 0) value = maxValue;
     }
     if (!Objects.equals(get(), value)) {
       if (!silent) {
