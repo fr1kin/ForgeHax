@@ -36,7 +36,7 @@ public class TimerMod extends ToggleMod {
           getCommandStub()
                   .builders()
                   .<Boolean>newSettingBuilder()
-                  .name("tpsSync")
+                  .name("tps-sync")
                   .description("sync timer to tps")
                   .defaultTo(false)
                   .build();
@@ -67,7 +67,9 @@ public class TimerMod extends ToggleMod {
                 TickRateService.TickRateData.CalculationData point = data.getPoint();
                 setSpeed((float) (DEFAULT_SPEED / (point.getAverage() / 20)));
             }
-        }
+        }else {
+            updateTimer();
+        } 
     }
 
   private void setSpeed(float value) {
