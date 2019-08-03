@@ -33,7 +33,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class ChatBot extends ToggleMod {
-  public final Options<SpamEntry> spams =
+  private final Options<SpamEntry> spams =
       getCommandStub()
           .builders()
           .<SpamEntry>newOptionsBuilder()
@@ -43,7 +43,7 @@ public class ChatBot extends ToggleMod {
           .supplier(Sets::newConcurrentHashSet)
           .build();
 
-  public final Setting<Integer> max_input_length =
+  private final Setting<Integer> max_input_length =
       getCommandStub()
           .builders()
           .<Integer>newSettingBuilder()
@@ -54,8 +54,26 @@ public class ChatBot extends ToggleMod {
           .max(256)
           .build();
 
+  private final Setting<Boolean> resetSequentialIndex =
+    getCommandStub()
+    .builders()
+    .<Boolean>newSettingBuilder()
+    .name("reset-sequential")
+    .description("start spam list anew in sequential mode")
+    .defaultTo(false)
+    .build();
+
   public ChatBot() {
     super(Category.MISC, "ChatBot", false, "Spam chat");
+  }
+
+  @Override
+  protected void onDisabled() {
+    if (resetSequentialIndex.get()) {
+      for (SpamEntry e : spams) {
+        e.reset();
+      }
+    }
   }
 
   @Override
@@ -103,6 +121,7 @@ public class ChatBot extends ToggleMod {
               if (data.hasOption("trigger")) entry.setTrigger(data.getOptionAsString("trigger"));
               if (data.hasOption("enabled"))
                 entry.setEnabled(SafeConverter.toBoolean(data.getOptionAsString("enabled")));
+                if (!entry.isEnabled() && resetSequentialIndex.get()) entry.reset();
               if (data.hasOption("delay"))
                 entry.setDelay(SafeConverter.toLong(data.getOptionAsString("delay")));
 
