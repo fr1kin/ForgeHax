@@ -58,8 +58,8 @@ public class ChatBot extends ToggleMod {
     getCommandStub()
     .builders()
     .<Boolean>newSettingBuilder()
-    .name("resetSequential")
-    .description("resets spam line counter for Sequential mode")
+    .name("reset-sequential")
+    .description("start spam list anew in sequential mode")
     .defaultTo(false)
     .build();
 
