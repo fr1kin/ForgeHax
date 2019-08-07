@@ -24,12 +24,12 @@ public class NoRender extends ToggleMod {
         if (getWorld() == null || getLocalPlayer() == null) return;
 
         if(event.phase == TickEvent.Phase.START)
-        getWorld()
-                .loadedEntityList
-                .stream()
-                .filter(EntityItem.class::isInstance)
-                .map(EntityItem.class::cast)
-                .forEach(Entity::setDead);
+            getWorld()
+                    .loadedEntityList
+                    .stream()
+                    .filter(EntityItem.class::isInstance)
+                    .map(EntityItem.class::cast)
+                    .forEach(Entity::setDead);
     }
 }
 
