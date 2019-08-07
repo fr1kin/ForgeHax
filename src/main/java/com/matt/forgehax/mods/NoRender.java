@@ -5,9 +5,10 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 
 @RegisterMod
@@ -18,7 +19,8 @@ public class NoRender extends ToggleMod {
     }
 
     @SubscribeEvent
-    public void onRenderLiving(RenderLivingEvent.Pre event) {
+    public void onClientTick(ClientTickEvent event) {
+        if (getWorld() == null || getLocalPlayer() == null) return;
         getWorld()
                 .loadedEntityList
                 .stream()
