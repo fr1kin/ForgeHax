@@ -89,10 +89,10 @@ public class StepMod extends ToggleMod {
     player.setPositionAndUpdate(player.posX, newY.get(), player.posZ);
   }
 
-  public void updateUnstep(EntityPlayer player) {
+  private void updateUnstep(EntityPlayer player) {
     try {
       if (unstep.get() && wasOnGround && !player.onGround && player.motionY <= 0) {
-        unstep(player);
+        MC.addScheduledTask(() -> unstep(player));
       }
     } finally {
       wasOnGround = player.onGround;
