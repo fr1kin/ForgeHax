@@ -75,7 +75,10 @@ public class StepMod extends ToggleMod {
 
   private boolean wasOnGround = false;
 
-  public void unstep(EntityPlayer player) {
+  private void unstep(EntityPlayer player) {
+    if (!MC.isCallingFromMinecraftThread())
+      throw new IllegalStateException("This function must be called from the main thread");
+
     AxisAlignedBB range = player.getEntityBoundingBox().expand(0, -stepHeight.get(), 0).contract(0, player.height, 0);
 
     if (!player.world.collidesWithAnyBlock(range)) return;
