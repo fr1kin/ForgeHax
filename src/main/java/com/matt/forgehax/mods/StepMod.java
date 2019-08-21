@@ -27,7 +27,7 @@ public class StepMod extends ToggleMod {
           .<Float>newSettingBuilder()
           .name("height")
           .description("how high you can step")
-          .defaultTo(1.1f)
+          .defaultTo(1.2f)
           .min(0f)
           .build();
 
