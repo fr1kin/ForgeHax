@@ -33,7 +33,8 @@ public class StepMod extends ToggleMod {
           .defaultTo(1.2f)
           .min(0f)
           .success(__ -> {
-            updateStepHeight(getLocalPlayer());
+            EntityPlayer player = getLocalPlayer();
+            if (player != null) updateStepHeight(player);
           })
           .build();
 
@@ -51,10 +52,15 @@ public class StepMod extends ToggleMod {
   }
 
   @Override
+  protected void onEnabled() {
+    EntityPlayer player = getLocalPlayer();
+    if (player != null) wasOnGround = player.onGround;
+  }
+
+  @Override
   public void onDisabled() {
-    if (getLocalPlayer() != null) {
-      getLocalPlayer().stepHeight = DEFAULT_STEP_HEIGHT;
-    }
+    EntityPlayer player = getLocalPlayer();
+    if (player != null) player.stepHeight = DEFAULT_STEP_HEIGHT;
   }
 
   void updateStepHeight(EntityPlayer player) {
@@ -65,7 +71,7 @@ public class StepMod extends ToggleMod {
     }
   }
 
-  public boolean wasOnGround = true;
+  public boolean wasOnGround = false;
 
   public void unstep(EntityPlayer player) {
     if (!MC.isCallingFromMinecraftThread())
@@ -95,6 +101,7 @@ public class StepMod extends ToggleMod {
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+    if (player == null) return;
 
     updateStepHeight(player);
     updateUnstep(player);
