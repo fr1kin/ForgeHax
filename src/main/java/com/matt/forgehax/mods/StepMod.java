@@ -19,6 +19,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @RegisterMod
 public class StepMod extends ToggleMod {
   public static final float DEFAULT_STEP_HEIGHT = 0.6f;
+  
+  public final Setting<Float> stepHeight =
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("height")
+          .description("how high you can step")
+          .defaultTo(1.1f)
+          .min(0f)
+          .build();
 
   public StepMod() {
     super(Category.PLAYER, "Step", false, "Step up blocks");
@@ -35,7 +45,7 @@ public class StepMod extends ToggleMod {
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     EntityPlayer localPlayer = (EntityPlayer) event.getEntityLiving();
     if (localPlayer.onGround) {
-      localPlayer.stepHeight = 1.1f;
+      localPlayer.stepHeight = stepHeight.getAsFloat();
     } else {
       localPlayer.stepHeight = DEFAULT_STEP_HEIGHT;
     }
@@ -76,5 +86,10 @@ public class StepMod extends ToggleMod {
       }
       previousPositionPacket = (CPacketPlayer) event.getPacket();
     }
+  }
+
+  @Override
+  public String getDisplayText() {
+      return String.format("%s[%.2f]", super.getDisplayText(), stepHeight.get());
   }
 }
