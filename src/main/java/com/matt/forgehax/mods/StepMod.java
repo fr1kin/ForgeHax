@@ -33,8 +33,10 @@ public class StepMod extends ToggleMod {
           .defaultTo(1.2f)
           .min(0f)
           .success(__ -> {
-            EntityPlayer player = getLocalPlayer();
-            if (player != null) updateStepHeight(player);
+            if (isEnabled()) {
+              EntityPlayer player = getLocalPlayer();
+              if (player != null) updateStepHeight(player);
+            }
           })
           .build();
 
