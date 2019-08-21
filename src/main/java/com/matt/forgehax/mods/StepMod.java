@@ -35,7 +35,7 @@ public class StepMod extends ToggleMod {
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     EntityPlayer localPlayer = (EntityPlayer) event.getEntityLiving();
     if (localPlayer.onGround) {
-      localPlayer.stepHeight = 1.f;
+      localPlayer.stepHeight = 1.1f;
     } else {
       localPlayer.stepHeight = DEFAULT_STEP_HEIGHT;
     }
