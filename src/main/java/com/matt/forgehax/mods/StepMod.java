@@ -32,14 +32,12 @@ public class StepMod extends ToggleMod {
           .description("how high you can step")
           .defaultTo(1.2f)
           .min(0f)
-          .success(__ -> {
-            MC.addScheduledTask(() -> {
-              if (isEnabled()) {
-                EntityPlayer player = getLocalPlayer();
-                if (player != null) updateStepHeight(player);
-              }
-            });
-          })
+          .changed(__ -> MC.addScheduledTask(() -> {
+            if (isEnabled()) {
+              EntityPlayer player = getLocalPlayer();
+              if (player != null) updateStepHeight(player);
+            }
+          }))
           .build();
 
   public final Setting<Boolean> unstep =
