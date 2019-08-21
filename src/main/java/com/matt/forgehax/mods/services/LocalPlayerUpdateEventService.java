@@ -1,5 +1,8 @@
 package com.matt.forgehax.mods.services;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getWorld;
+
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -17,7 +20,9 @@ public class LocalPlayerUpdateEventService extends ServiceMod {
 
   @SubscribeEvent
   public void onUpdate(LivingEvent.LivingUpdateEvent event) {
-    if (MC.world != null && event.getEntityLiving().equals(MC.player)) {
+    if (getWorld() != null
+        && !getWorld().isRemote
+        && event.getEntityLiving().equals(getLocalPlayer())) {
       Event ev = new LocalPlayerUpdateEvent(event.getEntityLiving());
       MinecraftForge.EVENT_BUS.post(ev);
       event.setCanceled(ev.isCanceled());
