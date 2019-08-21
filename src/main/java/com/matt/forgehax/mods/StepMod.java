@@ -1,8 +1,5 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -11,16 +8,22 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
 public class StepMod extends ToggleMod {
   public static final float DEFAULT_STEP_HEIGHT = 0.6f;
-  
+
   public final Setting<Float> stepHeight =
       getCommandStub()
           .builders()
@@ -29,6 +32,18 @@ public class StepMod extends ToggleMod {
           .description("how high you can step")
           .defaultTo(1.2f)
           .min(0f)
+          .success(__ -> {
+            updateStepHeight(getLocalPlayer());
+          })
+          .build();
+
+  public final Setting<Boolean> unstep =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("unstep")
+          .description("step down instead of falling")
+          .defaultTo(false)
           .build();
 
   public StepMod() {
@@ -42,14 +57,47 @@ public class StepMod extends ToggleMod {
     }
   }
 
+  void updateStepHeight(EntityPlayer player) {
+    if (player.onGround) {
+      player.stepHeight = stepHeight.get();
+    } else {
+      player.stepHeight = DEFAULT_STEP_HEIGHT;
+    }
+  }
+
+  public boolean wasOnGround = true;
+
+  public void unstep(EntityPlayer player) {
+    if (!MC.isCallingFromMinecraftThread())
+      throw new IllegalStateException("Call this using MC.addScheduledTask");
+
+    AxisAlignedBB range = player.getEntityBoundingBox().expand(0, -stepHeight.get(), 0).contract(0, player.height, 0);
+
+    if (!player.world.collidesWithAnyBlock(range)) return;
+
+    List<AxisAlignedBB> collisionBoxes = player.world.getCollisionBoxes(player, range);
+    AtomicReference<Double> _newY = new AtomicReference<>(0D);
+    collisionBoxes.forEach(box -> _newY.set(Math.max(_newY.get(), box.maxY)));
+    double newY = _newY.get();
+    player.setPositionAndUpdate(player.posX, newY, player.posZ);
+  }
+
+  public void updateUnstep(EntityPlayer player) {
+    try {
+      if (unstep.get() && wasOnGround && !player.onGround && player.motionY <= 0) {
+        MC.addScheduledTask(() -> unstep(player));
+      }
+    } finally {
+      wasOnGround = player.onGround;
+    }
+  }
+
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    EntityPlayer localPlayer = (EntityPlayer) event.getEntityLiving();
-    if (localPlayer.onGround) {
-      localPlayer.stepHeight = stepHeight.getAsFloat();
-    } else {
-      localPlayer.stepHeight = DEFAULT_STEP_HEIGHT;
-    }
+    EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+
+    updateStepHeight(player);
+    updateUnstep(player);
   }
 
   private CPacketPlayer previousPositionPacket = null;
@@ -91,6 +139,11 @@ public class StepMod extends ToggleMod {
 
   @Override
   public String getDisplayText() {
-      return String.format("%s[%s]", super.getDisplayText(), stepHeight.get().toString());
+    return String.format(
+        "%s[%s%s]",
+        super.getDisplayText(),
+        stepHeight.get().toString(),
+        unstep.get() ? "+unstep" : ""
+    );
   }
 }
