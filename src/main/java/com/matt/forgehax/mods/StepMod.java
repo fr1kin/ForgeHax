@@ -33,10 +33,12 @@ public class StepMod extends ToggleMod {
           .defaultTo(1.2f)
           .min(0f)
           .success(__ -> {
-            if (isEnabled()) {
-              EntityPlayer player = getLocalPlayer();
-              if (player != null) updateStepHeight(player);
-            }
+            MC.addScheduledTask(() -> {
+              if (isEnabled()) {
+                EntityPlayer player = getLocalPlayer();
+                if (player != null) updateStepHeight(player);
+              }
+            });
           })
           .build();
 
