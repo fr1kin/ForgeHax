@@ -67,12 +67,11 @@ public class StepMod extends ToggleMod {
     if (player != null) player.stepHeight = DEFAULT_STEP_HEIGHT;
   }
 
-  void updateStepHeight(EntityPlayer player) {
-    if (player.onGround) {
-      player.stepHeight = stepHeight.get();
-    } else {
-      player.stepHeight = DEFAULT_STEP_HEIGHT;
-    }
+  private void updateStepHeight(EntityPlayer player) {
+    if (!MC.isCallingFromMinecraftThread())
+      throw new IllegalStateException("This function must be called from the main thread");
+
+    player.stepHeight = player.onGround ? stepHeight.get() : DEFAULT_STEP_HEIGHT;
   }
 
   private boolean wasOnGround = false;
@@ -92,9 +91,12 @@ public class StepMod extends ToggleMod {
   }
 
   private void updateUnstep(EntityPlayer player) {
+    if (!MC.isCallingFromMinecraftThread())
+      throw new IllegalStateException("This function must be called from the main thread");
+
     try {
       if (unstep.get() && wasOnGround && !player.onGround && player.motionY <= 0) {
-        MC.addScheduledTask(() -> unstep(player));
+        unstep(player);
       }
     } finally {
       wasOnGround = player.onGround;
@@ -103,6 +105,11 @@ public class StepMod extends ToggleMod {
 
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
+    if (!MC.isCallingFromMinecraftThread()) {
+      MC.addScheduledTask(() -> onLocalPlayerUpdate(event));
+      return;
+    }
+
     EntityPlayer player = (EntityPlayer) event.getEntityLiving();
     if (player == null) return;
 
