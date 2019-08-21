@@ -73,12 +73,9 @@ public class StepMod extends ToggleMod {
     }
   }
 
-  public boolean wasOnGround = false;
+  private boolean wasOnGround = false;
 
   public void unstep(EntityPlayer player) {
-    if (!MC.isCallingFromMinecraftThread())
-      throw new IllegalStateException("Call this using MC.addScheduledTask");
-
     AxisAlignedBB range = player.getEntityBoundingBox().expand(0, -stepHeight.get(), 0).contract(0, player.height, 0);
 
     if (!player.world.collidesWithAnyBlock(range)) return;
@@ -92,7 +89,7 @@ public class StepMod extends ToggleMod {
   public void updateUnstep(EntityPlayer player) {
     try {
       if (unstep.get() && wasOnGround && !player.onGround && player.motionY <= 0) {
-        MC.addScheduledTask(() -> unstep(player));
+        unstep(player);
       }
     } finally {
       wasOnGround = player.onGround;
