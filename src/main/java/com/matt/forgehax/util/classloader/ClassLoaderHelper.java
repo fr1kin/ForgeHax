@@ -203,6 +203,10 @@ public class ClassLoaderHelper {
                         path.indexOf('/') + 1,
                         path.length()); // remove the initial '/' or 'file:/' appended to the path
 
+                if (!System.getProperty("os.name").startsWith("Windows")) {
+                  path = "/" + path;
+                }
+
                 // the root directory to the jar/folder containing the classes
                 String rootDir = path.substring(0, path.indexOf(pkgdir));
                 // package directory
