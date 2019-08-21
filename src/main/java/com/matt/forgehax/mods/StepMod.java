@@ -91,6 +91,6 @@ public class StepMod extends ToggleMod {
 
   @Override
   public String getDisplayText() {
-      return String.format("%s[%.2f]", super.getDisplayText(), stepHeight.get());
+      return String.format("%s[%s]", super.getDisplayText(), stepHeight.get().toString());
   }
 }
