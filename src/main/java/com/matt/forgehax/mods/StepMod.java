@@ -94,10 +94,7 @@ public class StepMod extends ToggleMod {
 
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (!MC.isCallingFromMinecraftThread()) {
-      MC.addScheduledTask(() -> onLocalPlayerUpdate(event));
-      return;
-    }
+    if (!MC.isCallingFromMinecraftThread()) return;
 
     EntityPlayer player = (EntityPlayer) event.getEntityLiving();
     if (player == null) return;
