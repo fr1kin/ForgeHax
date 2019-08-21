@@ -21,7 +21,7 @@ public class LocalPlayerUpdateEventService extends ServiceMod {
   @SubscribeEvent
   public void onUpdate(LivingEvent.LivingUpdateEvent event) {
     if (getWorld() != null
-        && !getWorld().isRemote
+        && !event.getEntity().getEntityWorld().isRemote
         && event.getEntityLiving().equals(getLocalPlayer())) {
       Event ev = new LocalPlayerUpdateEvent(event.getEntityLiving());
       MinecraftForge.EVENT_BUS.post(ev);
