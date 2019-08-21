@@ -153,7 +153,7 @@ public class StepMod extends ToggleMod {
   }
 
   @Override
-  public String getDisplayText() {
+  public String getDebugDisplayText() {
     return String.format(
         "%s[%s%s]",
         super.getDisplayText(),
