@@ -86,8 +86,7 @@ public class StepMod extends ToggleMod {
     List<AxisAlignedBB> collisionBoxes = player.world.getCollisionBoxes(player, range);
     AtomicReference<Double> _newY = new AtomicReference<>(0D);
     collisionBoxes.forEach(box -> _newY.set(Math.max(_newY.get(), box.maxY)));
-    double newY = _newY.get();
-    player.setPositionAndUpdate(player.posX, newY, player.posZ);
+    player.setPositionAndUpdate(player.posX, _newY.get(), player.posZ);
   }
 
   public void updateUnstep(EntityPlayer player) {
