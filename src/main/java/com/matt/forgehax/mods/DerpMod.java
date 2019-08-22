@@ -217,6 +217,7 @@ public class DerpMod extends ToggleMod {
 
       if (action == CPacketEntityAction.Action.START_SNEAKING || action == CPacketEntityAction.Action.STOP_SNEAKING)
         sneaking = action == CPacketEntityAction.Action.START_SNEAKING;
-    }
+    } else if (hit.get() && packet instanceof CPacketAnimation)
+      event.setCanceled(true);
   }
 }
