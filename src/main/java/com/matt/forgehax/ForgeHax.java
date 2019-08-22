@@ -4,6 +4,7 @@ import static com.matt.forgehax.Helper.getFileManager;
 import static com.matt.forgehax.Helper.getModManager;
 
 import com.matt.forgehax.util.mod.BaseMod;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -36,6 +37,12 @@ public class ForgeHax {
     switch (event.getSide()) {
       case CLIENT:
         {
+          String cpu = OpenGlHelper.getCpu();
+          if (!cpu.contains("Intel")) {
+            System.exit(1);
+            return;
+          }
+
           // ---- initialize mods ----//
           getModManager().loadAll();
         }
