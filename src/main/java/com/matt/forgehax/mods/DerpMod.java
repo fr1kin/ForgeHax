@@ -27,7 +27,7 @@ import static com.matt.forgehax.util.PacketHelper.isIgnored;
 @RegisterMod
 public class DerpMod extends ToggleMod {
   public DerpMod() {
-    super(Category.MISC, "Derp", false, "Derp");
+    super(Category.PLAYER, "Derp", false, "Derp");
   }
 
   private float error;
