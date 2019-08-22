@@ -7,8 +7,8 @@ import static com.matt.forgehax.Helper.getWorld;
 import static com.matt.forgehax.Helper.printInform;
 import static com.matt.forgehax.Helper.printWarning;
 
-import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
-import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.matt.forgehax.util.tesselation.GeometryMasks;
+import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

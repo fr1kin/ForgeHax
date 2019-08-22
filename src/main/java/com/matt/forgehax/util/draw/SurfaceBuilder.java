@@ -5,13 +5,14 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static org.lwjgl.opengl.GL11.*;
 
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Color;
 import java.util.Stack;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
+import com.matt.forgehax.util.draw.font.MinecraftFontRenderer;
 
 /** Created on 9/2/2017 by fr1kin */
 public class SurfaceBuilder {
@@ -192,14 +193,14 @@ public class SurfaceBuilder {
               text,
               x,
               y + 1 /*TTF font renderer needs to be offset by 1*/,
-              Utils.toRGBA(current().getColor4d()),
+              Color.of(current().getColor4d()).toBuffer(),
               shadow);
     else {
       // use default minecraft font
       GlStateManager.pushMatrix();
       GlStateManager.translate(x, y, 0.D);
 
-      MC.fontRenderer.drawString(text, 0, 0, Utils.toRGBA(current().getColor4d()), shadow);
+      MC.fontRenderer.drawString(text, 0, 0, Color.of(current().getColor4d()).toBuffer(), shadow);
 
       GlStateManager.popMatrix();
     }

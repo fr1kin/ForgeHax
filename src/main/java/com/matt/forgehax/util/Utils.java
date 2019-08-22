@@ -18,43 +18,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.Vec3d;
 
 public class Utils implements Globals {
-
-  /** Use PacketHelper class now */
-  @Deprecated
-  public static final List<Packet> OUTGOING_PACKET_IGNORE_LIST = Collections.emptyList();
-
-  @Deprecated
-  public static int toRGBA(int r, int g, int b, int a) {
-    return (r << 16) + (g << 8) + (b << 0) + (a << 24);
-  }
-
-  @Deprecated
-  public static int toRGBA(float r, float g, float b, float a) {
-    return toRGBA((int) (r * 255.f), (int) (g * 255.f), (int) (b * 255.f), (int) (a * 255.f));
-  }
-
-  @Deprecated
-  public static int toRGBA(float[] colors) {
-    if (colors.length != 4) throw new IllegalArgumentException("colors[] must have a length of 4!");
-    return toRGBA(colors[0], colors[1], colors[2], colors[3]);
-  }
-
-  @Deprecated
-  public static int toRGBA(double[] colors) {
-    if (colors.length != 4) throw new IllegalArgumentException("colors[] must have a length of 4!");
-    return toRGBA((float) colors[0], (float) colors[1], (float) colors[2], (float) colors[3]);
-  }
-
-  @Deprecated
-  public static int[] toRGBAArray(int colorBuffer) {
-    return new int[] {
-      (colorBuffer >> 16 & 255),
-      (colorBuffer >> 8 & 255),
-      (colorBuffer & 255),
-      (colorBuffer >> 24 & 255)
-    };
-  }
-
   public static <E extends Enum<?>> String[] toArray(E[] o) {
     String[] output = new String[o.length];
     for (int i = 0; i < output.length; i++) output[i] = o[i].name();
@@ -104,10 +67,6 @@ public class Utils implements Globals {
     return to_min + (to_max - to_min) * ((x - from_min) / (from_max - from_min));
   }
 
-  public static <T> boolean isInRange(T[] array, int index) {
-    return array != null && index >= 0 && index < array.length;
-  }
-
   public static <T> boolean isInRange(Collection<T> list, int index) {
     return list != null && index >= 0 && index < list.size();
   }
@@ -127,19 +86,5 @@ public class Utils implements Globals {
       }
     }
     return contents;
-  }
-
-  @Deprecated
-  public static class Colors {
-    public static final int WHITE = Utils.toRGBA(255, 255, 255, 255);
-    public static final int BLACK = Utils.toRGBA(0, 0, 0, 255);
-    public static final int RED = Utils.toRGBA(255, 0, 0, 255);
-    public static final int GREEN = Utils.toRGBA(0, 255, 0, 255);
-    public static final int BLUE = Utils.toRGBA(0, 0, 255, 255);
-    public static final int ORANGE = Utils.toRGBA(255, 128, 0, 255);
-    public static final int PURPLE = Utils.toRGBA(163, 73, 163, 255);
-    public static final int GRAY = Utils.toRGBA(127, 127, 127, 255);
-    public static final int DARK_RED = Utils.toRGBA(64, 0, 0, 255);
-    public static final int YELLOW = Utils.toRGBA(255, 255, 0, 255);
   }
 }

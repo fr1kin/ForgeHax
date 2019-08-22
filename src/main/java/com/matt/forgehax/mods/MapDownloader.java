@@ -4,7 +4,7 @@ import static com.matt.forgehax.util.ImageUtils.*;
 
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
-import com.matt.forgehax.log.FileManager;
+import com.matt.forgehax.util.FileManager;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;

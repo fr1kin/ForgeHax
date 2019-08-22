@@ -1,13 +1,13 @@
 package com.matt.forgehax.mods;
 
-import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
-import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.matt.forgehax.util.tesselation.GeometryMasks;
+import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.RenderEvent;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -190,7 +190,7 @@ public class ChunkLogger extends ToggleMod {
               break;
           }
 
-          int color = chunk.isNewChunk() ? Utils.Colors.WHITE : Utils.Colors.RED;
+          int color = chunk.isNewChunk() ? Colors.WHITE.toBuffer() : Colors.RED.toBuffer();
 
           GeometryTessellator.drawQuads(
               event.getBuffer(),

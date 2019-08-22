@@ -7,6 +7,7 @@ import static com.matt.forgehax.Helper.getWorld;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.entity.mobtypes.MobType;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeRegistry;
@@ -184,14 +185,14 @@ public class EntityUtils implements Globals {
   /** Find the entities draw color */
   public static int getDrawColor(EntityLivingBase living) {
     if (isPlayer(living)) {
-      if (PlayerUtils.isFriend((EntityPlayer) living)) return Utils.Colors.GREEN;
-      else return Utils.Colors.RED;
+      if (PlayerUtils.isFriend((EntityPlayer) living)) return Colors.GREEN.toBuffer();
+      else return Colors.RED.toBuffer();
     } else if (isHostileMob(living)) {
-      return Utils.Colors.ORANGE;
+      return Colors.ORANGE.toBuffer();
     } else if (isFriendlyMob(living)) {
-      return Utils.Colors.GREEN;
+      return Colors.GREEN.toBuffer();
     } else {
-      return Utils.Colors.WHITE;
+      return Colors.WHITE.toBuffer();
     }
   }
 

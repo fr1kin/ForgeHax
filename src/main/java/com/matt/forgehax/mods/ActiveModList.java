@@ -4,6 +4,7 @@ import static com.matt.forgehax.Helper.getModManager;
 
 import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
@@ -121,7 +122,7 @@ public class ActiveModList extends ToggleMod {
     int posX = 1;
     final AtomicInteger posY = new AtomicInteger(1);
     if (tps_meter.get()) {
-      SurfaceHelper.drawTextShadow(generateTickRateText(), posX, posY.get(), Utils.Colors.WHITE);
+      SurfaceHelper.drawTextShadow(generateTickRateText(), posX, posY.get(), Colors.WHITE.toBuffer());
       posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
     }
 
@@ -133,7 +134,7 @@ public class ActiveModList extends ToggleMod {
           .filter(mod -> !mod.isHidden())
           .count();
       SurfaceHelper.drawTextShadow(enabledMods + " mods enabled",
-          posX, posY.get(), Utils.Colors.WHITE);
+          posX, posY.get(), Colors.WHITE.toBuffer());
     } else {
       getModManager()
           .getMods()
@@ -144,7 +145,7 @@ public class ActiveModList extends ToggleMod {
           .sorted(sortMode.get().getComparator())
           .forEach(
               name -> {
-                SurfaceHelper.drawTextShadow(">" + name, posX, posY.get(), Utils.Colors.WHITE);
+                SurfaceHelper.drawTextShadow(">" + name, posX, posY.get(), Colors.WHITE.toBuffer());
                 posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
               });
     }

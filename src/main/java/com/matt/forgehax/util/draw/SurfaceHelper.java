@@ -23,7 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
-import uk.co.hexeption.thx.ttf.MinecraftFontRenderer;
+import com.matt.forgehax.util.draw.font.MinecraftFontRenderer;
 
 /** 2D rendering */
 public class SurfaceHelper implements Globals {

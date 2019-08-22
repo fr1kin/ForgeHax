@@ -2,10 +2,10 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getWorld;
 
-import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
-import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.matt.forgehax.util.tesselation.GeometryMasks;
+import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import com.matt.forgehax.events.RenderEvent;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -31,7 +31,7 @@ public class SpawnerEspMod extends ToggleMod {
       if (tileEntity instanceof TileEntityMobSpawner) {
         BlockPos pos = tileEntity.getPos();
         GeometryTessellator.drawCuboid(
-            event.getBuffer(), pos, GeometryMasks.Line.ALL, Utils.Colors.RED);
+            event.getBuffer(), pos, GeometryMasks.Line.ALL, Colors.RED.toBuffer());
       }
     }
 

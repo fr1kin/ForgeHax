@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.Category;
@@ -49,7 +50,7 @@ public class CompassMod extends ToggleMod {
           dir.name(),
           (float) (centerX + getX(rad)),
           (float) (centerY + getY(rad)),
-          dir == Direction.N ? Utils.Colors.RED : Utils.Colors.WHITE);
+          dir == Direction.N ? Colors.RED.toBuffer() : Colors.WHITE.toBuffer());
 
     }
 

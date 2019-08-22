@@ -3,6 +3,7 @@ package com.matt.forgehax.gui.windows;
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.gui.elements.GuiButton;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
@@ -98,7 +99,7 @@ public class GuiWindowMod extends GuiWindow {
     windowY = headerY + 22;
 
     SurfaceHelper.drawOutlinedRectShaded(
-        posX, windowY, width, height, Utils.toRGBA(130, 130, 130, 255), 80, 3);
+        posX, windowY, width, height, Colors.GRAY.toBuffer(), 80, 3);
     int buttonY = windowY - buttonListOffset + 2;
 
     int scale = ClickGui.scaledRes.getScaleFactor();
@@ -113,7 +114,7 @@ public class GuiWindowMod extends GuiWindow {
           button.getName(),
           (posX + 2) + width / 2f,
           buttonY + GuiButton.height / 2f,
-          Utils.toRGBA(255, 255, 255, 255));
+          Colors.WHITE.toBuffer());
       button.setCoords(posX + 2, buttonY);
       buttonY += GuiButton.height + 1;
     }

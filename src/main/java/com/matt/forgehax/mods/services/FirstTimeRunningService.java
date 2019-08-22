@@ -5,7 +5,7 @@ import static com.matt.forgehax.Helper.printMessageNaked;
 
 import com.matt.forgehax.ForgeHax;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
-import com.matt.forgehax.log.FileManager;
+import com.matt.forgehax.util.FileManager;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.io.IOException;

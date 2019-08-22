@@ -3,8 +3,8 @@ package com.matt.forgehax.mods;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 
-import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
-import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.matt.forgehax.util.tesselation.GeometryMasks;
+import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;

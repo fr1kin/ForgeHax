@@ -2,7 +2,6 @@ package com.matt.forgehax.util.mod;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Helper;
-import com.matt.forgehax.mcversion.MCVersionChecker;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
 import java.lang.annotation.ElementType;
@@ -35,7 +34,6 @@ public class CommandMod extends ServiceMod {
           if (m.isAnnotationPresent(RegisterCommand.class)
               && Arrays.equals(m.getParameterTypes(), new Class<?>[] {CommandBuilders.class})
               && Command.class.isAssignableFrom(m.getReturnType())) {
-            MCVersionChecker.requireValidVersion(m);
             commands.add((Command) m.invoke(this, Helper.getGlobalCommand().builders()));
           }
         } catch (Throwable t) {

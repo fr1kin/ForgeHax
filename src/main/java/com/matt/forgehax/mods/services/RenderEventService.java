@@ -2,7 +2,7 @@ package com.matt.forgehax.mods.services;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
-import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.entity.EntityUtils;

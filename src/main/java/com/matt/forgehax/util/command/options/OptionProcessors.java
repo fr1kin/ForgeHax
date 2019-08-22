@@ -2,6 +2,7 @@ package com.matt.forgehax.util.command.options;
 
 import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.command.ExecuteData;
 import net.minecraft.util.math.MathHelper;
 
@@ -14,11 +15,12 @@ public class OptionProcessors {
     int a = SafeConverter.toInteger(data.getOption("alpha"), 255);
     data.set(
         "colorBuffer",
-        Utils.toRGBA(
+        Color.of(
             MathHelper.clamp(r, 0, 255),
             MathHelper.clamp(g, 0, 255),
             MathHelper.clamp(b, 0, 255),
-            MathHelper.clamp(a, 0, 255)));
+            MathHelper.clamp(a, 0, 255)
+        ).toBuffer());
     data.set(
         "isColorPresent",
         data.hasOption("red")

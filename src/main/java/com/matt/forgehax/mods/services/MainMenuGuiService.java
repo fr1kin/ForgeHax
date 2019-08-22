@@ -5,6 +5,7 @@ import static org.lwjgl.input.Keyboard.*;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.io.IOException;
@@ -127,7 +128,7 @@ public class MainMenuGuiService extends ServiceMod {
           .forEach(
               str -> {
                 MC.fontRenderer.drawString(
-                    str, 5, (this.height - 50 - offset.intValue()), Utils.Colors.WHITE);
+                    str, 5, (this.height - 50 - offset.intValue()), Colors.WHITE.toBuffer());
                 offset.addAndGet(10);
               });
     }

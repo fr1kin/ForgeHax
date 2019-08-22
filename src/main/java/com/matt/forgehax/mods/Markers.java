@@ -2,8 +2,8 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.*;
 
-import com.github.lunatrius.core.client.renderer.unique.GeometryMasks;
-import com.github.lunatrius.core.client.renderer.unique.GeometryTessellator;
+import com.matt.forgehax.util.tesselation.GeometryMasks;
+import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.Helper;
@@ -12,10 +12,10 @@ import com.matt.forgehax.asm.events.*;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.events.RenderEvent;
-import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.blocks.BlockEntry;
 import com.matt.forgehax.util.blocks.properties.BoundProperty;
 import com.matt.forgehax.util.blocks.properties.ColorProperty;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.ExecuteData;
 import com.matt.forgehax.util.command.Options;
 import com.matt.forgehax.util.command.Setting;
@@ -251,7 +251,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
 
               final boolean isColorPresent = data.get("isColorPresent", false);
 
-              final int colorBuffer = data.get("colorBuffer", Utils.Colors.WHITE);
+              final int colorBuffer = data.get("colorBuffer", Colors.WHITE.toBuffer());
 
               entries.forEach(
                   entry -> {
@@ -799,7 +799,7 @@ public class Markers extends ToggleMod implements BlockModelRenderListener {
                     16.f - 0.16,
                     16.f - 0.16,
                     GeometryMasks.Line.ALL,
-                    Utils.Colors.RED);
+                    Colors.RED.toBuffer());
               });
 
           tessellator.draw();

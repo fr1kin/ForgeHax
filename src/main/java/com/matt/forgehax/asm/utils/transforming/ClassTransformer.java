@@ -10,7 +10,6 @@ import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.asmtype.ASMClass;
 import com.matt.forgehax.asm.utils.environment.RuntimeState;
 import com.matt.forgehax.asm.utils.environment.State;
-import com.matt.forgehax.mcversion.MCVersionChecker;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -29,8 +28,7 @@ public abstract class ClassTransformer
     for (Class c : getClass().getDeclaredClasses()) {
       try {
         if (c.isAnnotationPresent(RegisterMethodTransformer.class)
-            && MethodTransformer.class.isAssignableFrom(c)
-            && MCVersionChecker.checkVersion(c)) {
+            && MethodTransformer.class.isAssignableFrom(c)) {
           Constructor constructor;
           try {
             constructor = c.getDeclaredConstructor(getClass());

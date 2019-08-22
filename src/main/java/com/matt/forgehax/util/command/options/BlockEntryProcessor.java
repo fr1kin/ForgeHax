@@ -7,6 +7,7 @@ import com.matt.forgehax.util.blocks.BlockEntry;
 import com.matt.forgehax.util.blocks.BlockOptionHelper;
 import com.matt.forgehax.util.blocks.properties.BoundProperty;
 import com.matt.forgehax.util.blocks.properties.ColorProperty;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.ExecuteData;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
 import java.util.Collection;
@@ -47,7 +48,7 @@ public class BlockEntryProcessor {
     boolean isColorPresent = data.get("isColorPresent", false);
 
     if (isColorPresent) {
-      final int colorBuffer = data.get("colorBuffer", Utils.Colors.WHITE);
+      final int colorBuffer = data.get("colorBuffer", Colors.WHITE.toBuffer());
       entries.forEach(entry -> entry.getWritableProperty(ColorProperty.class).set(colorBuffer));
     }
   }

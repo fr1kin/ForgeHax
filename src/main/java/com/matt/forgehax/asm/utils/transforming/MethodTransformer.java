@@ -4,7 +4,6 @@ import com.google.common.collect.Queues;
 import com.matt.forgehax.asm.ASMCommon;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
-import com.matt.forgehax.mcversion.MCVersionChecker;
 import java.lang.reflect.Method;
 import java.util.*;
 import joptsimple.internal.Strings;
@@ -20,8 +19,7 @@ public abstract class MethodTransformer implements ASMCommon {
         m.setAccessible(true);
         if (m.isAnnotationPresent(Inject.class)
             && m.getParameterCount() > 0
-            && MethodNode.class.equals(m.getParameterTypes()[0])
-            && MCVersionChecker.checkVersion(m)) {
+            && MethodNode.class.equals(m.getParameterTypes()[0])) {
           tasks.add(
               new TaskElement(
                   m,

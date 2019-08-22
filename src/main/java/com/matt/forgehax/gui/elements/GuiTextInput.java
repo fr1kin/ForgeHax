@@ -4,6 +4,7 @@ import static com.matt.forgehax.Globals.MC;
 
 import com.matt.forgehax.gui.windows.GuiWindowSetting;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import java.io.IOException;
@@ -70,13 +71,13 @@ public class GuiTextInput extends GuiElement {
 
   public void draw(int mouseX, int mouseY) {
     super.draw(x, y);
-    SurfaceHelper.drawRect(x, y, width - 2, height, Utils.Colors.WHITE);
-    SurfaceHelper.drawOutlinedRect(x, y, width - 2, height, Utils.Colors.BLACK);
+    SurfaceHelper.drawRect(x, y, width - 2, height, Colors.WHITE.toBuffer());
+    SurfaceHelper.drawOutlinedRect(x, y, width - 2, height, Colors.BLACK.toBuffer());
     if (ticks % blinkSpeed * 2 > blinkSpeed && isActive) {
       int width = getBlinkWidth();
       // SurfaceHelper.drawLine(x+width+1, y+2,x+width+1, y+height-2, Utils.Colors.BLACK);
     }
-    SurfaceHelper.drawText(getInputString(), x + 1, y + 2, Utils.Colors.BLACK);
+    SurfaceHelper.drawText(getInputString(), x + 1, y + 2, Colors.BLACK.toBuffer());
 
     ticks++;
   }

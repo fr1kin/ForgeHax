@@ -6,8 +6,10 @@ import static com.matt.forgehax.Helper.getWorld;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Color;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
-import com.matt.forgehax.util.draw.Fonts;
+import com.matt.forgehax.util.draw.font.Fonts;
 import com.matt.forgehax.util.draw.SurfaceBuilder;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.entity.EntityUtils;
@@ -213,9 +215,9 @@ public class ESP extends ToggleMod implements Fonts {
             .task(SurfaceBuilder::enableFontRendering)
             .task(SurfaceBuilder::enableTexture2D) // enable texture
             .fontRenderer(ARIAL)
-            .color(Utils.Colors.BLACK)
+            .color(Colors.BLACK.toBuffer())
             .text(text, x + 1, y + 1)
-            .color(Utils.Colors.WHITE)
+            .color(Colors.WHITE.toBuffer())
             .text(text, x, y)
             .task(SurfaceBuilder::disableBlend)
             .task(SurfaceBuilder::disableFontRendering)
@@ -246,12 +248,12 @@ public class ESP extends ToggleMod implements Fonts {
         double y = topY - HEALTHBAR_HEIGHT - 2;
         int color =
             (living.getHealth() + living.getAbsorptionAmount() > living.getMaxHealth())
-                ? Utils.Colors.YELLOW
-                : Utils.toRGBA(
+                ? Colors.YELLOW.toBuffer()
+                : Color.of(
                     (int) ((255 - hp) * 255),
                     (int) (255 * hp),
                     0,
-                    255); // if above 20 hp bar is yellow
+                    255).toBuffer(); // if above 20 hp bar is yellow
 
         builder
             .reset() // clean up from previous uses
@@ -259,7 +261,7 @@ public class ESP extends ToggleMod implements Fonts {
             .task(SurfaceBuilder::enableBlend)
             .task(SurfaceBuilder::disableTexture2D)
             .beginQuads()
-            .color(Utils.Colors.BLACK)
+            .color(Colors.BLACK.toBuffer())
             .rectangle(x, y, HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT)
             .end()
             .reset()

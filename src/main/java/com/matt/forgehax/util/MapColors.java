@@ -1,5 +1,6 @@
 package com.matt.forgehax.util;
 
+import com.matt.forgehax.util.color.Color;
 import net.minecraft.block.material.MapColor;
 
 /** Created by Babbaj on 8/19/2017. */
@@ -22,23 +23,34 @@ public class MapColors {
     BASE_COLORS = new int[baseColorsLength];
     COLOR_LIST = new int[baseColorsLength * 4];
 
-    for (int i = 0;
-        i < BASE_COLORS.length;
-        i++) { // get integer color values from MapColor object list
+    for (int i = 0; i < BASE_COLORS.length; i++) {
+      // get integer color values from MapColor object list
       BASE_COLORS[i] = MapColor.COLORS[i].colorValue;
     }
 
     for (int i = 0;
         i < BASE_COLORS.length;
         i++) { // generates full list of colors from the list of base colors
-      int[] rgb = Utils.toRGBAArray(BASE_COLORS[i]);
-      COLOR_LIST[i * 4 + 0] =
-          Utils.toRGBA((rgb[0] * 180) / 255, (rgb[1] * 180) / 255, (rgb[2] * 180) / 255, 0);
-      COLOR_LIST[i * 4 + 1] =
-          Utils.toRGBA((rgb[0] * 220) / 255, (rgb[1] * 220) / 255, (rgb[2] * 220) / 255, 0);
+      int[] rgb = Color.of(BASE_COLORS[i]).toIntegerArray();
+      COLOR_LIST[i * 4] = Color.of(
+          (rgb[0] * 180) / 255,
+          (rgb[1] * 180) / 255,
+          (rgb[2] * 180) / 255,
+          0
+      ).toBuffer();
+      COLOR_LIST[i * 4 + 1] = Color.of(
+          (rgb[0] * 220) / 255,
+          (rgb[1] * 220) / 255,
+          (rgb[2] * 220) / 255,
+          0
+      ).toBuffer();
       COLOR_LIST[i * 4 + 2] = BASE_COLORS[i];
-      COLOR_LIST[i * 4 + 3] =
-          Utils.toRGBA((rgb[0] * 135) / 255, (rgb[1] * 135) / 255, (rgb[2] * 135) / 255, 0);
+      COLOR_LIST[i * 4 + 3] = Color.of(
+          (rgb[0] * 135) / 255,
+          (rgb[1] * 135) / 255,
+          (rgb[2] * 135) / 255,
+          0
+      ).toBuffer();
     }
   }
 

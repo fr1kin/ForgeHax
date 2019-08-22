@@ -6,11 +6,11 @@ import static com.matt.forgehax.util.MapColors.*;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -41,14 +41,14 @@ public class MapMod extends ToggleMod {
           .build();
 
   private byte closest_color_RGB(int colorIn) {
-    int[] RGB_Array = Utils.toRGBAArray(colorIn); // [0] red [1] green [2] blue [3] alpha
+    int[] RGB_Array = Color.of(colorIn).toIntegerArray(); // [0] red [1] green [2] blue [3] alpha
 
     double closestDistance = 500; // create a starting point
     int closestColorIndex =
         4; // index of COLOR_LIST that is the closest color we've found to the input color - start
     // at 4 so we dont ever use air
     for (int i = 4; i < colorListLength(); i++) {
-      int[] currentColor = Utils.toRGBAArray(getColor(i));
+      int[] currentColor = Color.of(getColor(i)).toIntegerArray();
       double distance = distanceBetweenColors(currentColor, RGB_Array);
       if (distance < closestDistance) {
         closestDistance = distance;
