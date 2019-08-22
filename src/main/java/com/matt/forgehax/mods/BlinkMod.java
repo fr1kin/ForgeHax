@@ -18,6 +18,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 import static com.matt.forgehax.Helper.printMessage;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Coded by LoganDark on 8/22/2019
@@ -69,12 +70,12 @@ public class BlinkMod extends ToggleMod {
 
   @Override
   protected void onDisabled() {
-    if (!isNull(ghost)) {
+    if (nonNull(ghost)) {
       removeGhostPlayer();
       ghost = null;
     }
 
-    if (!isNull(packets)) {
+    if (nonNull(packets)) {
       packets.forEach(PacketHelper::ignoreAndSend);
       packets = null;
     }
@@ -84,7 +85,7 @@ public class BlinkMod extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketSending(PacketEvent.Outgoing.Pre event) {
-    if (!isNull(packets)) {
+    if (nonNull(packets)) {
       event.setCanceled(true);
       packets.add(event.getPacket());
     }
