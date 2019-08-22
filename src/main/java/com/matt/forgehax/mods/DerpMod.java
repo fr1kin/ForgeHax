@@ -43,7 +43,7 @@ public class DerpMod extends ToggleMod {
     timerMod = getModManager().get(TimerMod.class).orElse(null);
   }
 
-  private final Setting<Float> speed =
+  public final Setting<Float> speed =
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
@@ -53,7 +53,7 @@ public class DerpMod extends ToggleMod {
           .changed(__ -> error = 0)
           .build();
 
-  private final Setting<Boolean> timerSync =
+  public final Setting<Boolean> timerSync =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -62,7 +62,7 @@ public class DerpMod extends ToggleMod {
           .defaultTo(true)
           .build();
 
-  private final Setting<Boolean> rotate =
+  public final Setting<Boolean> rotate =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -74,7 +74,7 @@ public class DerpMod extends ToggleMod {
           .defaultTo(true)
           .build();
 
-  private final Setting<Float> rotateChance =
+  public final Setting<Float> rotateChance =
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
@@ -85,7 +85,7 @@ public class DerpMod extends ToggleMod {
           .defaultTo(1f)
           .build();
 
-  private final Setting<Boolean> sneak =
+  public final Setting<Boolean> sneak =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -102,7 +102,7 @@ public class DerpMod extends ToggleMod {
           .defaultTo(false)
           .build();
 
-  private final Setting<Float> sneakChance =
+  public final Setting<Float> sneakChance =
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
@@ -113,7 +113,7 @@ public class DerpMod extends ToggleMod {
           .defaultTo(1f)
           .build();
 
-  private final Setting<Boolean> hit =
+  public final Setting<Boolean> hit =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
@@ -122,7 +122,7 @@ public class DerpMod extends ToggleMod {
           .defaultTo(true)
           .build();
 
-  private final Setting<Float> hitChance =
+  public final Setting<Float> hitChance =
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
@@ -133,7 +133,7 @@ public class DerpMod extends ToggleMod {
           .defaultTo(.25f)
           .build();
 
-  private final Setting<Float> hitPan =
+  public final Setting<Float> hitPan =
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
