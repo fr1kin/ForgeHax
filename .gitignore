@@ -8,10 +8,10 @@ private/.gradle
 private/src
 
 .idea/
+*.ipr
+*.iws
+*.iml
 
 libs/journeymap*
 
 .gradle/
-gradle/
-gradlew
-gradlew.bat
