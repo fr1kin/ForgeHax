@@ -39,13 +39,13 @@ public class DerpMod extends ToggleMod {
     sneaking = player != null && player.isSneaking();
   }
 
-  private final Setting<Float> randomSpeed =
+  private final Setting<Float> speed =
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
           .name("speed")
           .description("Approximate derps per tick")
-          .defaultTo(.5f)
+          .defaultTo(1f)
           .changed(__ -> error = 0)
           .build();
 
@@ -180,7 +180,7 @@ public class DerpMod extends ToggleMod {
     if (player == null) return;
     Random rng = player.getRNG();
 
-    error += randomSpeed.get();
+    error += speed.get();
     int iter = (int) error;
     error -= iter;
 
