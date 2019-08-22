@@ -21,6 +21,9 @@ import static com.matt.forgehax.Helper.getModManager;
 import static com.matt.forgehax.util.PacketHelper.ignoreAndSend;
 import static com.matt.forgehax.util.PacketHelper.isIgnored;
 
+/**
+ * Coded by LoganDark on 8/21/2019
+ */
 @RegisterMod
 public class DerpMod extends ToggleMod {
   public DerpMod() {
