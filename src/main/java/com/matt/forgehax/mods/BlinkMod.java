@@ -14,7 +14,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Helper.printMessage;
 import static java.util.Objects.isNull;
 
 /**
