@@ -3,7 +3,6 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
-import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -15,7 +14,6 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.Optional;
 import java.util.Random;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
@@ -31,6 +29,7 @@ public class DerpMod extends ToggleMod {
 
   private float error;
   private boolean sneaking;
+  private TimerMod timerMod;
 
   @Override
   protected void onEnabled() {
@@ -40,6 +39,8 @@ public class DerpMod extends ToggleMod {
 
     EntityPlayer player = getLocalPlayer();
     sneaking = player != null && player.isSneaking();
+
+    timerMod = getModManager().get(TimerMod.class).orElse(null);
   }
 
   private final Setting<Float> speed =
@@ -193,10 +194,9 @@ public class DerpMod extends ToggleMod {
     Random rng = player.getRNG();
 
     float effectiveSpeed = speed.get();
-    Optional<? extends BaseMod> timerBaseMod = getModManager().get("Timer");
 
-    if (timerSync.get() && timerBaseMod.map(BaseMod::isEnabled).orElse(false))
-      effectiveSpeed /= ((TimerMod) timerBaseMod.get()).factor.get();
+    if (timerSync.get() && timerMod != null && timerMod.isEnabled())
+      effectiveSpeed /= timerMod.factor.get();
 
     error += effectiveSpeed;
     int iter = (int) error;
