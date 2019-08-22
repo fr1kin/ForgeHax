@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -14,9 +15,11 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.Optional;
 import java.util.Random;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getModManager;
 import static com.matt.forgehax.util.PacketHelper.ignoreAndSend;
 import static com.matt.forgehax.util.PacketHelper.isIgnored;
 
@@ -47,6 +50,15 @@ public class DerpMod extends ToggleMod {
           .description("Approximate derps per tick")
           .defaultTo(1f)
           .changed(__ -> error = 0)
+          .build();
+
+  private final Setting<Boolean> timerSync =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("timer_sync")
+          .description("Preserve original speed even with Timer enabled")
+          .defaultTo(true)
           .build();
 
   private final Setting<Boolean> rotate =
@@ -180,7 +192,13 @@ public class DerpMod extends ToggleMod {
     if (player == null) return;
     Random rng = player.getRNG();
 
-    error += speed.get();
+    float effectiveSpeed = speed.get();
+    Optional<? extends BaseMod> timerBaseMod = getModManager().get("Timer");
+
+    if (timerSync.get() && timerBaseMod.map(BaseMod::isEnabled).orElse(false))
+      effectiveSpeed /= ((TimerMod) timerBaseMod.get()).factor.get();
+
+    error += effectiveSpeed;
     int iter = (int) error;
     error -= iter;
 
