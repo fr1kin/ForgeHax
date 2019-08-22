@@ -125,7 +125,7 @@ public class DerpMod extends ToggleMod {
           .builders()
           .<Float>newSettingBuilder()
           .name("hit_pan")
-          .description("chance for any hit to be the off hand")
+          .description("Chance for any hit to be the off hand")
           .min(0f)
           .max(1f)
           .defaultTo(.5f)
