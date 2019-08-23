@@ -24,6 +24,7 @@ import static java.util.Objects.isNull;
 public class VanillaFlyMod extends ToggleMod {
   private Handle fly = getFlySwitch().createHandle(getModName());
 
+  @SuppressWarnings("WeakerAccess")
   public final Setting<Boolean> groundSpoof =
       getCommandStub()
           .builders()
@@ -55,6 +56,7 @@ public class VanillaFlyMod extends ToggleMod {
     if (!player.capabilities.allowFlying) {
       fly.disable();
       fly.enable();
+      player.capabilities.isFlying = false;
     }
   }
 
