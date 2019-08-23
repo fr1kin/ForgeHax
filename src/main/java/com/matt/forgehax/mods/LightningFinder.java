@@ -25,6 +25,9 @@ public class LightningFinder extends ToggleMod {
           .name("warning")
           .description("warn about the patch")
           .defaultTo(true)
+          .changed(change -> {
+            if (isEnabled() && change.getTo()) MC.addScheduledTask(this::doWarning);
+          })
           .build();
 
   @SuppressWarnings("WeakerAccess")
@@ -42,20 +45,20 @@ public class LightningFinder extends ToggleMod {
     super(Category.MISC, "LightningFinder", false, "Logs positions of lightning strikes to chat");
   }
 
+  private void doWarning() {
+    printWarning(
+        "Warning: Spigot (and forks) have patched this lightning exploit and don't provide absolute coordinates." +
+            " This is still safe to use on Vanilla and Forge servers."
+    );
+
+    warning.set(false);
+  }
+
   @Override
   protected void onEnabled() {
     super.onEnabled();
 
-    if (warning.get()) {
-      MC.addScheduledTask(() -> {
-        printWarning(
-            "Warning: Spigot (and forks) have patched this lightning exploit and don't provide absolute coordinates." +
-                " This is still safe to use on Vanilla and Forge servers."
-        );
-
-        warning.set(false);
-      });
-    }
+    if (warning.get()) MC.addScheduledTask(this::doWarning);
   }
 
   @SubscribeEvent
