@@ -140,8 +140,6 @@ public class LocalPlayerUtils implements Globals {
   }
 
   private static final Switch FLY_SWITCH = new Switch("PlayerFlying") {
-    private static final float DEFAULT_FLY_SPEED = 0.05f;
-
     @Override
     protected void onEnabled() {
       MC.addScheduledTask(() -> {
