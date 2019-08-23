@@ -17,7 +17,6 @@ import static com.matt.forgehax.Helper.printWarning;
 
 @RegisterMod
 public class LightningFinder extends ToggleMod {
-  @SuppressWarnings("WeakerAccess")
   public final Setting<Boolean> warning =
       getCommandStub()
           .builders()
