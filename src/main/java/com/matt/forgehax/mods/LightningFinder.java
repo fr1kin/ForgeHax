@@ -46,14 +46,16 @@ public class LightningFinder extends ToggleMod {
   protected void onEnabled() {
     super.onEnabled();
 
-    if (warning.get())
-      MC.addScheduledTask(() -> printWarning(
-          "Warning: Spigot (and forks) have patched this lightning exploit and don't provide absolute coordinates." +
-              " This is still safe to use on Vanilla and Forge servers. This warning message will be disabled now;" +
-              " you can enable it again with the 'warning' setting."
-      ));
+    if (warning.get()) {
+      MC.addScheduledTask(() -> {
+        printWarning(
+            "Warning: Spigot (and forks) have patched this lightning exploit and don't provide absolute coordinates." +
+                " This is still safe to use on Vanilla and Forge servers."
+        );
 
-    warning.set(false, true);
+        warning.set(false);
+      });
+    }
   }
 
   @SubscribeEvent
