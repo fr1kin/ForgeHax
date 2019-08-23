@@ -26,9 +26,13 @@ public class PacketHelper {
     CACHE.put(packet, true);
   }
 
+  public static void send(Packet packet) {
+    getNetworkManager().sendPacket(packet);
+  }
+
   public static void ignoreAndSend(Packet packet) {
     ignore(packet);
-    getNetworkManager().sendPacket(packet);
+    send(packet);
   }
 
   public static boolean isIgnored(Packet packet) {

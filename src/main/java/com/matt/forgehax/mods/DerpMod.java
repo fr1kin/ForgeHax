@@ -20,6 +20,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getModManager;
 import static com.matt.forgehax.util.PacketHelper.ignoreAndSend;
 import static com.matt.forgehax.util.PacketHelper.isIgnored;
+import static com.matt.forgehax.util.PacketHelper.send;
 
 /**
  * Coded by LoganDark on 8/21/2019
@@ -33,18 +34,6 @@ public class DerpMod extends ToggleMod {
   private float error;
   private boolean sneaking;
   private TimerMod timerMod;
-
-  @Override
-  protected void onEnabled() {
-    super.onEnabled();
-
-    error = 0;
-
-    EntityPlayer player = getLocalPlayer();
-    sneaking = player != null && player.isSneaking();
-
-    timerMod = getModManager().get(TimerMod.class).orElse(null);
-  }
 
   public final Setting<Float> speed =
       getCommandStub()
@@ -60,7 +49,7 @@ public class DerpMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("timer_sync")
+          .name("timer-sync")
           .description("Preserve original speed even with Timer enabled")
           .defaultTo(true)
           .build();
@@ -72,7 +61,7 @@ public class DerpMod extends ToggleMod {
           .name("rotate")
           .description("Randomly rotate head every derp")
           .changed(change -> MC.addScheduledTask(() -> {
-            if (isEnabled() && change.getFrom() && !change.getTo()) rotateDisabled();
+            if (isEnabled() && !change.getTo()) rotateDisabled();
           }))
           .defaultTo(true)
           .build();
@@ -81,7 +70,7 @@ public class DerpMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
-          .name("rotate_chance")
+          .name("rotate-chance")
           .description("Chance to rotate for every derp")
           .min(0f)
           .max(1f)
@@ -96,8 +85,8 @@ public class DerpMod extends ToggleMod {
           .description("Toggle sneak every derp")
           .changed(change -> MC.addScheduledTask(() -> {
             if (!isEnabled()) return;
-            if (change.getFrom() && !change.getTo()) sneakDisabled();
-            if (!change.getFrom() && change.getTo()) {
+            if (!change.getTo()) sneakDisabled();
+            else {
               EntityPlayer player = getLocalPlayer();
               sneaking = player != null && player.isSneaking();
             }
@@ -109,7 +98,7 @@ public class DerpMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
-          .name("sneak_chance")
+          .name("sneak-chance")
           .description("Chance to sneak for every derp")
           .min(0f)
           .max(1f)
@@ -129,7 +118,7 @@ public class DerpMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
-          .name("hit_chance")
+          .name("hit-chance")
           .description("Chance to hit for every derp")
           .min(0f)
           .max(1f)
@@ -140,7 +129,7 @@ public class DerpMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
-          .name("hit_pan")
+          .name("hit-pan")
           .description("Chance for any hit to be the off hand")
           .min(0f)
           .max(1f)
@@ -176,18 +165,30 @@ public class DerpMod extends ToggleMod {
     sendSneakPacket(player, player.isSneaking());
   }
 
-  @Override
-  protected void onDisabled() {
-    if (rotate.get()) rotateDisabled();
-    if (sneak.get()) sneakDisabled();
-  }
-
   private void sendHitPacket(EnumHand hand) {
     ignoreAndSend(new CPacketAnimation(hand));
   }
 
   private boolean chance(float chance) {
     return chance == 1f || (chance != 0f && Math.random() <= chance);
+  }
+
+  @Override
+  protected void onEnabled() {
+    super.onEnabled();
+
+    error = 0;
+
+    EntityPlayer player = getLocalPlayer();
+    sneaking = player != null && player.isSneaking();
+
+    timerMod = getModManager().get(TimerMod.class).orElse(null);
+  }
+
+  @Override
+  protected void onDisabled() {
+    if (rotate.get()) rotateDisabled();
+    if (sneak.get()) sneakDisabled();
   }
 
   @SubscribeEvent
@@ -226,7 +227,7 @@ public class DerpMod extends ToggleMod {
       event.setCanceled(true);
 
       if (packet instanceof CPacketPlayer.PositionRotation) {
-        ignoreAndSend(new CPacketPlayer.Position(
+        send(new CPacketPlayer.Position(
             ((CPacketPlayer) packet).getX(0),
             ((CPacketPlayer) packet).getY(0),
             ((CPacketPlayer) packet).getZ(0),
