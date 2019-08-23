@@ -11,6 +11,8 @@ import com.matt.forgehax.util.math.Angle;
 import java.util.Optional;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -154,12 +156,18 @@ public class LocalPlayerUtils implements Globals {
     @Override
     protected void onDisabled() {
       MC.addScheduledTask(() -> {
-        if(getLocalPlayer() == null || getLocalPlayer().capabilities == null)
+        EntityPlayer player = getLocalPlayer();
+
+        if (player == null || player.capabilities == null)
           return;
 
-        getLocalPlayer().capabilities.allowFlying = false;
-        getLocalPlayer().capabilities.isFlying = false;
-        getLocalPlayer().capabilities.setFlySpeed(DEFAULT_FLY_SPEED);
+        PlayerCapabilities gmCaps = new PlayerCapabilities();
+        MC.playerController.getCurrentGameType().configurePlayerCapabilities(gmCaps);
+
+        PlayerCapabilities capabilities = player.capabilities;
+        capabilities.allowFlying = gmCaps.allowFlying;
+        capabilities.isFlying = gmCaps.allowFlying && capabilities.isFlying;
+        capabilities.setFlySpeed(gmCaps.getFlySpeed());
       });
     }
   };
