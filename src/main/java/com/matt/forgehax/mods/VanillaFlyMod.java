@@ -34,6 +34,17 @@ public class VanillaFlyMod extends ToggleMod {
           .defaultTo(false)
           .build();
 
+  @SuppressWarnings("WeakerAccess")
+  public final Setting<Float> flySpeed =
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("speed")
+          .description("fly speed as a multiplier of the default")
+          .min(0f)
+          .defaultTo(1f)
+          .build();
+
   public VanillaFlyMod() {
     super(Category.PLAYER, "VanillaFly", false, "Fly like creative mode");
   }
@@ -58,6 +69,8 @@ public class VanillaFlyMod extends ToggleMod {
       fly.enable();
       player.capabilities.isFlying = false;
     }
+
+    player.capabilities.setFlySpeed(0.05f * flySpeed.get());
   }
 
   @SubscribeEvent
