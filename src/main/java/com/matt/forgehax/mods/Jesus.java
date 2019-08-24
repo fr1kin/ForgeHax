@@ -80,7 +80,9 @@ public class Jesus extends ToggleMod {
         && !isAboveLand(getLocalPlayer())) {
         int ticks = getLocalPlayer().ticksExisted % 2;
         double y = FastReflection.Fields.CPacketPlayer_y.get(event.getPacket());
-        if (ticks == 0) FastReflection.Fields.CPacketPlayer_y.set(event.getPacket(), y + 0.02D);
+        if (ticks == 0) {
+          FastReflection.Fields.CPacketPlayer_y.set(event.getPacket(), y + 0.02D);
+        }
       }
     }
   }

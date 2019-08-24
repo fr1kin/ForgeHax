@@ -169,13 +169,14 @@ public class LocalPlayerUtils implements Globals {
     protected void onDisabled() {
       MC.addScheduledTask(() -> {
         EntityPlayer player = getLocalPlayer();
-
-        if (player == null || player.capabilities == null)
+  
+        if (player == null || player.capabilities == null) {
           return;
-
+        }
+        
         PlayerCapabilities gmCaps = new PlayerCapabilities();
         MC.playerController.getCurrentGameType().configurePlayerCapabilities(gmCaps);
-
+  
         PlayerCapabilities capabilities = player.capabilities;
         capabilities.allowFlying = gmCaps.allowFlying;
         capabilities.isFlying = gmCaps.allowFlying && capabilities.isFlying;
