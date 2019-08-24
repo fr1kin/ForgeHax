@@ -7,10 +7,13 @@ import joptsimple.internal.Strings;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 
-/** Created on 6/10/2017 by fr1kin */
+/**
+ * Created on 6/10/2017 by fr1kin
+ */
 
 // TODO: fix memory leak
 public class ConsoleIO implements Globals {
+
   public static final Style HEADING = new Style().setColor(TextFormatting.GRAY).setItalic(true);
 
   private static final ThreadLocal<AtomicInteger> INDENTATION = new ThreadLocal<>();
@@ -31,8 +34,11 @@ public class ConsoleIO implements Globals {
 
   public static void write(String msg, Style style) {
     String tab = Strings.repeat('>', Math.max(getOrCreate().get(), MIN_INDENT)) + " ";
-    if (style == null) Helper.printMessageNaked(tab, msg); // TODO: use a non-chat console
-    else Helper.printMessageNaked(tab, msg, style); // TODO: use a non-chat console
+    if (style == null) {
+      Helper.printMessageNaked(tab, msg); // TODO: use a non-chat console
+    } else {
+      Helper.printMessageNaked(tab, msg, style); // TODO: use a non-chat console
+    }
   }
 
   public static void write(String msg) {

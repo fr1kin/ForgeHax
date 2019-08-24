@@ -7,7 +7,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class PlayerUtils implements Globals {
-  /** Use EntityUtils::isLocalPlayer */
+  
+  /**
+   * Use EntityUtils::isLocalPlayer
+   */
   @Deprecated
   public static boolean isLocalPlayer(Entity player) {
     EntityPlayer localPlayer = getLocalPlayer();

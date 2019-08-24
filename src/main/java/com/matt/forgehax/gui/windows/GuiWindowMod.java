@@ -2,7 +2,7 @@ package com.matt.forgehax.gui.windows;
 
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.gui.elements.GuiButton;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
@@ -53,7 +53,9 @@ public class GuiWindowMod extends GuiWindow {
 
         String name = moduleButton.getName();
         int width = SurfaceHelper.getTextWidth(name);
-        if (width > maxWidth) maxWidth = width;
+        if (width > maxWidth) {
+          maxWidth = width;
+        }
       }
     }
     height = Math.min(maxHeight, newHeight + 3);
@@ -79,16 +81,16 @@ public class GuiWindowMod extends GuiWindow {
 
     if ((tooltipY + tooltipHeight) * scale > ClickGui.scaledRes.getScaledHeight())
       tooltipY -= tooltipHeight + offset * 2;
+    
+    final int col = Color.of(50, 50, 50, 255).toBuffer();
 
-    SurfaceHelper.drawRect(
-        tooltipX * scale, tooltipY * scale + 1, tooltipWidth * scale, tooltipHeight * scale - 2,
-        Utils.toRGBA(50, 50, 50, 255)
-    );
+    SurfaceHelper.drawRect(tooltipX * scale, tooltipY * scale + 1,
+      tooltipWidth * scale, tooltipHeight * scale - 2,
+      col);
 
-    SurfaceHelper.drawRect(
-        tooltipX * scale + 1, tooltipY * scale, tooltipWidth * scale - 2, tooltipHeight * scale,
-        Utils.toRGBA(50, 50, 50, 255)
-    );
+    SurfaceHelper.drawRect(tooltipX * scale + 1, tooltipY * scale,
+      tooltipWidth * scale - 2, tooltipHeight * scale,
+      col);
 
     SurfaceHelper.drawTextShadow(modName, (tooltipX + padding) * scale, (tooltipY + padding) * scale, 0xFFFFFF);
     SurfaceHelper.drawTextShadow(modDescription, (tooltipX + padding) * scale, (tooltipY + padding + lineHeight + lineSpacing) * scale, 0xAAAAAA);
@@ -99,7 +101,7 @@ public class GuiWindowMod extends GuiWindow {
     windowY = headerY + 22;
 
     SurfaceHelper.drawOutlinedRectShaded(
-        posX, windowY, width, height, Colors.GRAY.toBuffer(), 80, 3);
+      posX, windowY, width, height, Colors.GRAY.toBuffer(), 80, 3);
     int buttonY = windowY - buttonListOffset + 2;
 
     int scale = ClickGui.scaledRes.getScaleFactor();
@@ -111,10 +113,10 @@ public class GuiWindowMod extends GuiWindow {
     for (GuiButton button : buttonList) {
       SurfaceHelper.drawRect(posX + 2, buttonY, width - 4, GuiButton.height, button.getColor());
       SurfaceHelper.drawTextShadowCentered(
-          button.getName(),
-          (posX + 2) + width / 2f,
-          buttonY + GuiButton.height / 2f,
-          Colors.WHITE.toBuffer());
+        button.getName(),
+        (posX + 2) + width / 2f,
+        buttonY + GuiButton.height / 2f,
+        Colors.WHITE.toBuffer());
       button.setCoords(posX + 2, buttonY);
       buttonY += GuiButton.height + 1;
     }
@@ -145,10 +147,10 @@ public class GuiWindowMod extends GuiWindow {
     super.mouseClicked(x, y, state);
     for (GuiButton button : buttonList) {
       if (x > button.x
-          && x < (button.x + width)
-          && y > button.y
-          && y < (button.y + GuiButton.height)
-          && !isMouseInHeader(x, y)) {
+        && x < (button.x + width)
+        && y > button.y
+        && y < (button.y + GuiButton.height)
+        && !isMouseInHeader(x, y)) {
         button.toggleMod();
         break;
       }
@@ -160,11 +162,15 @@ public class GuiWindowMod extends GuiWindow {
 
     i = MathHelper.clamp(i, -1, 1);
     buttonListOffset -= i * 10;
-
-    if (buttonListOffset < 0) buttonListOffset = 0; // dont scroll up if its already at the top
+  
+    if (buttonListOffset < 0) {
+      buttonListOffset = 0; // dont scroll up if its already at the top
+    }
 
     int lowestButtonY = (GuiButton.height + 1) * buttonList.size() + windowY;
     int lowestAllowedOffset = lowestButtonY - height - windowY + 3;
-    if (lowestButtonY - buttonListOffset < bottomY) buttonListOffset = lowestAllowedOffset;
+    if (lowestButtonY - buttonListOffset < bottomY) {
+      buttonListOffset = lowestAllowedOffset;
+    }
   }
 }

@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class SetupTerrainEvent extends Event {
+  
   private final Entity renderEntity;
   private boolean culling;
 

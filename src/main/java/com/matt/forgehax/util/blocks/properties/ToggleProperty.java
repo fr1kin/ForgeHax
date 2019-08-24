@@ -4,8 +4,11 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 
-/** Created on 5/24/2017 by fr1kin */
+/**
+ * Created on 5/24/2017 by fr1kin
+ */
 public class ToggleProperty implements IBlockProperty {
+
   private static final String HEADING = "enabled";
 
   private boolean enabled = true;
@@ -27,8 +30,11 @@ public class ToggleProperty implements IBlockProperty {
   }
 
   public void toggle() {
-    if (enabled) disable();
-    else enable();
+    if (enabled) {
+      disable();
+    } else {
+      enable();
+    }
   }
 
   @Override
@@ -62,21 +68,26 @@ public class ToggleProperty implements IBlockProperty {
   }
 
   private static class ImmutableToggle extends ToggleProperty {
+
     @Override
     public boolean isEnabled() {
       return true;
     }
 
     @Override
-    public void setEnabled(boolean enabled) {}
+    public void setEnabled(boolean enabled) {
+    }
 
     @Override
-    public void enable() {}
+    public void enable() {
+    }
 
     @Override
-    public void disable() {}
+    public void disable() {
+    }
 
     @Override
-    public void toggle() {}
+    public void toggle() {
+    }
   }
 }

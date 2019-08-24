@@ -1,11 +1,17 @@
 package com.matt.forgehax.util.spam;
 
-/** Created on 7/18/2017 by fr1kin */
+/**
+ * Created on 7/18/2017 by fr1kin
+ */
 public enum SpamType {
-  /** Randomly select from list */
+  /**
+   * Randomly select from list
+   */
   RANDOM,
-
-  /** Sequentially select from list */
+  
+  /**
+   * Sequentially select from list
+   */
   SEQUENTIAL,
   ;
 }

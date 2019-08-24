@@ -2,14 +2,16 @@ package com.matt.forgehax.util.blocks.properties;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.color.Colors;
 import java.io.IOException;
 import net.minecraft.util.math.MathHelper;
 
-/** Created on 5/20/2017 by fr1kin */
+/**
+ * Created on 5/20/2017 by fr1kin
+ */
 public class ColorProperty implements IBlockProperty {
+
   private static final String HEADING = "color";
   private static final int DEFAULT_COLOR_BUFFER = Colors.WHITE.toBuffer();
   private static final int[] DEFAULT_COLOR_ARRAY = Color.of(DEFAULT_COLOR_BUFFER).toIntegerArray();
@@ -42,7 +44,7 @@ public class ColorProperty implements IBlockProperty {
   }
 
   public int[] getAsArray() {
-    return new int[] {r, g, b, a};
+    return new int[]{r, g, b, a};
   }
 
   public int getAsBuffer() {
@@ -93,6 +95,7 @@ public class ColorProperty implements IBlockProperty {
   }
 
   private static class ImmutableColor extends ColorProperty {
+
     @Override
     public int getRed() {
       return DEFAULT_COLOR_ARRAY[0];
@@ -124,9 +127,11 @@ public class ColorProperty implements IBlockProperty {
     }
 
     @Override
-    public void set(int buffer) {}
+    public void set(int buffer) {
+    }
 
     @Override
-    public void set(int r, int g, int b, int a) {}
+    public void set(int r, int g, int b, int a) {
+    }
   }
 }

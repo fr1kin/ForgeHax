@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public abstract class Switch {
+
   private final Set<Handle> handles = Sets.newHashSet();
   private final String name;
 
@@ -17,10 +18,11 @@ public abstract class Switch {
   public Handle createHandle(String id) {
     Handle handle = new Handle(this, id);
     synchronized (handles) {
-      if(handles.add(handle))
+      if (handles.add(handle)) {
         return handle;
-      else
+      } else {
         throw new Error("failed to add handle with id '" + id + "'");
+      }
     }
   }
 
@@ -47,6 +49,7 @@ public abstract class Switch {
   }
 
   protected abstract void onEnabled();
+
   protected abstract void onDisabled();
 
   @Override
@@ -56,6 +59,7 @@ public abstract class Switch {
 
   // a more efficient way to toggle the state without having the iterate the array list everytime
   public static class Handle {
+
     private final Switch parent;
     private final String id;
 
@@ -69,23 +73,25 @@ public abstract class Switch {
     }
 
     public void enable() {
-      if(!enabled) {
+      if (!enabled) {
         enabled = true;
         parent.enable();
       }
-
-      if(parent.isEnabled())
+  
+      if (parent.isEnabled()) {
         parent.onEnabled();
+      }
     }
 
     public void disable() {
-      if(enabled) {
+      if (enabled) {
         enabled = false;
         parent.disable();
       }
-
-      if(parent.isDisabled())
+  
+      if (parent.isDisabled()) {
         parent.onDisabled();
+      }
     }
 
     @Override
@@ -95,7 +101,8 @@ public abstract class Switch {
 
     @Override
     public boolean equals(Object obj) {
-      return this == obj || (obj instanceof Handle && parent.equals(((Handle) obj).parent) && id == ((Handle) obj).id);
+      return this == obj || (obj instanceof Handle && parent.equals(((Handle) obj).parent)
+        && id == ((Handle) obj).id);
     }
 
     @Override

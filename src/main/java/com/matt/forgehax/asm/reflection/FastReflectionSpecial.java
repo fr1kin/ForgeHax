@@ -5,15 +5,25 @@ import com.matt.forgehax.asm.utils.fasttype.FastTypeBuilder;
 import java.util.Map;
 import org.lwjgl.input.Keyboard;
 
-/** Created on 5/8/2017 by fr1kin */
+/**
+ * Created on 5/8/2017 by fr1kin
+ */
 public interface FastReflectionSpecial {
-  interface Classes {}
-
-  interface Methods {}
+  
+  interface Classes {
+  
+  }
+  
+  interface Methods {
+  
+  }
 
   interface Fields {
-    /** LJGLW Keyboard */
+  
+    /**
+     * LJGLW Keyboard
+     */
     FastField<Map<String, Integer>> Keyboard_keyMap =
-        FastTypeBuilder.create().setInsideClass(Keyboard.class).setName("keyMap").asField();
+      FastTypeBuilder.create().setInsideClass(Keyboard.class).setName("keyMap").asField();
   }
 }

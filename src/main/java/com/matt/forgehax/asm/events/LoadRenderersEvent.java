@@ -4,8 +4,11 @@ import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-/** Created on 5/10/2017 by fr1kin */
+/**
+ * Created on 5/10/2017 by fr1kin
+ */
 public class LoadRenderersEvent extends Event {
+  
   private final ViewFrustum viewFrustum;
   private final ChunkRenderDispatcher renderDispatcher;
 

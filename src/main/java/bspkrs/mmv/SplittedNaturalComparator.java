@@ -30,23 +30,28 @@ import bspkrs.mmv.version.NaturalOrderComparator;
 import java.util.Comparator;
 
 public class SplittedNaturalComparator implements Comparator<Object> {
+  
   private final String splitter;
-
+  
   public SplittedNaturalComparator(String splitter) {
     this.splitter = splitter;
   }
-
+  
   @Override
   public int compare(Object o1, Object o2) {
     String[] a = o1.toString().split(splitter);
     String[] b = o2.toString().split(splitter);
-
-    if (a.length != b.length) return b.length - a.length;
-
+    
+    if (a.length != b.length) {
+      return b.length - a.length;
+    }
+    
     NaturalOrderComparator comp = new NaturalOrderComparator();
     for (int i = 0; i < a.length; i++) {
       int comparison = comp.compare(a[i], b[i]);
-      if (comparison != 0) return comparison;
+      if (comparison != 0) {
+        return comparison;
+      }
     }
     return 0;
   }

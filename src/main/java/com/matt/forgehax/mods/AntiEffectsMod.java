@@ -12,19 +12,20 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class AntiEffectsMod extends ToggleMod {
+  
   public final Setting<Boolean> no_particles =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("no_particles")
-          .description("Stops the particle effect from rendering on other entities")
-          .defaultTo(true)
-          .build();
-
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("no_particles")
+      .description("Stops the particle effect from rendering on other entities")
+      .defaultTo(true)
+      .build();
+  
   public AntiEffectsMod() {
     super(Category.RENDER, "AntiPotionEffects", false, "Removes potion effects");
   }
-
+  
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
     EntityLivingBase living = event.getEntityLiving();

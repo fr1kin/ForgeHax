@@ -11,8 +11,11 @@ import java.util.Iterator;
 import java.util.Objects;
 import org.objectweb.asm.Type;
 
-/** Created on 5/26/2017 by fr1kin */
+/**
+ * Created on 5/26/2017 by fr1kin
+ */
 public class ASMClass implements IASMType {
+
   private final IName<Type> className;
 
   public ASMClass(IName<Type> className) {
@@ -83,7 +86,9 @@ public class ASMClass implements IASMType {
       State next = it.next();
       Type type = className.getByState(next);
       if (type != null) {
-        if (needsSeparator) builder.append(",");
+        if (needsSeparator) {
+          builder.append(",");
+        }
         builder.append(next.name());
         builder.append("=");
         builder.append(type.getInternalName());

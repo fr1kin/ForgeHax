@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class ItemStoppedUsedEvent extends Event {
+  
   private final PlayerControllerMP playerController;
   private final EntityPlayer player;
 

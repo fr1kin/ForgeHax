@@ -8,8 +8,11 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import org.objectweb.asm.Type;
 
-/** Created on 5/26/2017 by fr1kin */
+/**
+ * Created on 5/26/2017 by fr1kin
+ */
 public class ASMField extends ASMClassChild {
+
   private final IName<String> fieldName;
   private final IName<Type> type;
 
@@ -38,23 +41,25 @@ public class ASMField extends ASMClassChild {
   @Override
   public boolean equals(Object obj) {
     return obj instanceof ASMField
-        && Objects.equals(getName(), ((ASMField) obj).getName())
-        && Objects.equals(getDescriptor(), ((ASMField) obj).getDescriptor());
+      && Objects.equals(getName(), ((ASMField) obj).getName())
+      && Objects.equals(getDescriptor(), ((ASMField) obj).getDescriptor());
   }
 
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(
-        String.format(
-            "FIELD[states=%d,maxStates=%d]{",
-            fieldName.getStateCount(), Math.max(fieldName.getStateCount(), type.getStateCount())));
+      String.format(
+        "FIELD[states=%d,maxStates=%d]{",
+        fieldName.getStateCount(), Math.max(fieldName.getStateCount(), type.getStateCount())));
     Iterator<State> it = Arrays.asList(State.values()).iterator();
     boolean needsSeparator = false;
     while (it.hasNext()) {
       State next = it.next();
       if (fieldName.getByState(next) != null || type.getByState(next) != null) {
-        if (needsSeparator) builder.append(",");
+        if (needsSeparator) {
+          builder.append(",");
+        }
         builder.append(next.name());
         builder.append("=");
         builder.append(getNameByState(next));

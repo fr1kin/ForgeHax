@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 @Cancelable
 public class DoBlockCollisionsEvent extends EntityEvent {
+  
   private final BlockPos pos;
   private final IBlockState state;
 

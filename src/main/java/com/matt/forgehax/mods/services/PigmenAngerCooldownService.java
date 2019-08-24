@@ -7,9 +7,12 @@ import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-/** Created on 6/14/2017 by fr1kin */
+/**
+ * Created on 6/14/2017 by fr1kin
+ */
 @RegisterMod
 public class PigmenAngerCooldownService extends ServiceMod {
+
   public PigmenAngerCooldownService() {
     super("PigmenAngerCooldownService");
   }
@@ -23,7 +26,7 @@ public class PigmenAngerCooldownService extends ServiceMod {
         FastReflection.Fields.EntityPigZombie_angerLevel.set(pigZombie, 400);
       } else if (pigZombie.isAngry()) {
         FastReflection.Fields.EntityPigZombie_angerLevel.set(
-            pigZombie, FastReflection.Fields.EntityPigZombie_angerLevel.get(pigZombie) - 1);
+          pigZombie, FastReflection.Fields.EntityPigZombie_angerLevel.get(pigZombie) - 1);
       }
     }
   }

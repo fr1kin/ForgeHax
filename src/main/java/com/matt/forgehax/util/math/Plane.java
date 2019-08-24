@@ -1,7 +1,10 @@
 package com.matt.forgehax.util.math;
 
-/** Created on 9/2/2017 by fr1kin */
+/**
+ * Created on 9/2/2017 by fr1kin
+ */
 public class Plane {
+  
   private final double x;
   private final double y;
 

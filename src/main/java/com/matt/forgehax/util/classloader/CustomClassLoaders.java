@@ -10,10 +10,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** Created on 2/16/2018 by fr1kin */
+/**
+ * Created on 2/16/2018 by fr1kin
+ */
 public class CustomClassLoaders {
+
   public static ClassLoader newFsClassLoader(ClassLoader parent, FileSystem fs)
-      throws RuntimeException {
+    throws RuntimeException {
     try {
       return new FsClassLoader(parent, fs);
     } catch (MalformedURLException e) {
@@ -22,10 +25,11 @@ public class CustomClassLoaders {
   }
 
   private static class FsClassLoader extends URLClassLoader {
+  
     private final Path root;
 
     private FsClassLoader(ClassLoader parent, Path path) throws MalformedURLException {
-      super(new URL[] {path.toUri().toURL()}, parent);
+      super(new URL[]{path.toUri().toURL()}, parent);
       this.root = path;
     }
 

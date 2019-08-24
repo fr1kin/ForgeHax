@@ -13,16 +13,17 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class BedModeMod extends ToggleMod {
+  
   public BedModeMod() {
     super(Category.PLAYER, "BedMode", false, "Sleep walking");
   }
-
+  
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     FastReflection.Fields.EntityPlayer_sleeping.set(getLocalPlayer(), false);
     FastReflection.Fields.EntityPlayer_sleepTimer.set(getLocalPlayer(), 0);
   }
-
+  
   @SubscribeEvent
   public void onGuiUpdate(GuiOpenEvent event) {
     if (event.getGui() instanceof GuiSleepMP) {

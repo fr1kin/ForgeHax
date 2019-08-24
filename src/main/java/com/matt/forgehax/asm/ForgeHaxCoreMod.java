@@ -6,9 +6,10 @@ import java.util.Map;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
+
   @Override
   public String[] getASMTransformerClass() {
-    return new String[] {ForgeHaxTransformer.class.getName()};
+    return new String[]{ForgeHaxTransformer.class.getName()};
   }
 
   @Override

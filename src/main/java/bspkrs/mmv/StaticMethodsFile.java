@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class StaticMethodsFile {
+  
   private final File file;
   public List<String> staticMethods;
 

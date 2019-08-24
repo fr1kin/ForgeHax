@@ -13,19 +13,23 @@ import org.lwjgl.input.Mouse;
 
 @RegisterMod
 public class ManualDeleteMod extends ToggleMod {
-
+  
   public ManualDeleteMod() {
-    super(Category.WORLD, "ManualEntityDelete", false, "Manually delete entities with middle click");
+    super(Category.WORLD, "ManualEntityDelete", false,
+      "Manually delete entities with middle click");
   }
-
+  
   @SubscribeEvent
   public void onInput(MouseEvent event) {
-    if(getWorld() == null || getLocalPlayer() == null)
+    if (getWorld() == null || getLocalPlayer() == null) {
       return;
-
+    }
+    
     if (event.getButton() == 2 && Mouse.getEventButtonState()) { // on middle click
       RayTraceResult aim = MC.objectMouseOver;
-      if (aim == null) return;
+      if (aim == null) {
+        return;
+      }
       if (aim.typeOfHit == RayTraceResult.Type.ENTITY) {
         if (aim.entityHit != null) {
           MC.world.removeEntity(aim.entityHit);

@@ -40,6 +40,7 @@ import java.util.Scanner;
 import java.util.TreeMap;
 
 public class ParamCsvFile {
+
   private final File file;
   private final Map<String, ParamCsvData> srgParamName2ParamCsvData;
   private boolean isDirty;
@@ -62,7 +63,7 @@ public class ParamCsvFile {
         String mcpName = in.next();
         String side = in.nextLine().substring(1);
         srgParamName2ParamCsvData.put(
-            srgName, new ParamCsvData(srgName, mcpName, Integer.valueOf(side)));
+          srgName, new ParamCsvData(srgName, mcpName, Integer.valueOf(side)));
       }
     } finally {
       in.close();
@@ -73,11 +74,11 @@ public class ParamCsvFile {
     if (isDirty) {
       if (file.exists()) {
         File fileBak =
-            new File(
-                file.getAbsolutePath()
-                    + "_"
-                    + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
-                    + ".bak");
+          new File(
+            file.getAbsolutePath()
+              + "_"
+              + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
+              + ".bak");
         file.renameTo(fileBak);
       }
 
@@ -85,8 +86,10 @@ public class ParamCsvFile {
 
       PrintWriter out = new PrintWriter(new FileWriter(file));
       out.println(headerLine);
-
-      for (ParamCsvData data : srgParamName2ParamCsvData.values()) out.println(data.toCsv());
+  
+      for (ParamCsvData data : srgParamName2ParamCsvData.values()) {
+        out.println(data.toCsv());
+      }
 
       out.close();
 

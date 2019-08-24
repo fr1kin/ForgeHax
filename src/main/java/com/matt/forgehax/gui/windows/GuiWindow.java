@@ -1,18 +1,18 @@
 package com.matt.forgehax.gui.windows;
 
 import static com.matt.forgehax.Globals.MC;
+import static com.matt.forgehax.util.color.Colors.GRAY;
+import static com.matt.forgehax.util.color.Colors.WHITE;
 
 import com.matt.forgehax.gui.ClickGui;
-import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Color;
-import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import java.io.IOException;
 import net.minecraft.client.gui.ScaledResolution;
 
-import static com.matt.forgehax.util.color.Colors.*;
-
-/** Created by Babbaj on 9/5/2017. */
+/**
+ * Created by Babbaj on 9/5/2017.
+ */
 public abstract class GuiWindow {
 
   public boolean isHidden; // whether or not not to show everything below the header
@@ -28,9 +28,9 @@ public abstract class GuiWindow {
   private boolean dragging;
 
   final int maxHeight =
-      (int)
-          (ClickGui.scaledRes.getScaledHeight()
-              * 0.8); // a window can only take up 80% of the height of the window
+    (int)
+      (ClickGui.scaledRes.getScaledHeight()
+        * 0.8); // a window can only take up 80% of the height of the window
   public int width, height; // width of the window
 
   GuiWindow(String titleIn) {
@@ -50,10 +50,14 @@ public abstract class GuiWindow {
   boolean isMouseInHeader(int mouseX, int mouseY) {
     return (mouseX > posX && mouseX < posX + width && mouseY > headerY && mouseY < headerY + 20);
   }
-
-  /** 0 == Left Click 1 == Right Click 2 == Middle Click */
+  
+  /**
+   * 0 == Left Click 1 == Right Click 2 == Middle Click
+   */
   public void mouseClicked(int mouseX, int mouseY, int state) {
-    if (state != 0) return;
+    if (state != 0) {
+      return;
+    }
     if (isMouseInHeader(mouseX, mouseY)) {
       dragging = true;
 
@@ -83,7 +87,7 @@ public abstract class GuiWindow {
     drawHeader();
     windowY = headerY + 21;
     SurfaceHelper.drawOutlinedRectShaded(
-        posX, windowY, width, height, GRAY.toBuffer(), 80, 3);
+      posX, windowY, width, height, GRAY.toBuffer(), 80, 3);
   }
   
   public void drawTooltip(int mouseX, int mouseY) {}
@@ -91,9 +95,9 @@ public abstract class GuiWindow {
   public void drawHeader() {
     // draw the title of the window
     SurfaceHelper.drawOutlinedRectShaded(
-        posX, headerY, width, 20,
-        Color.of(150, 150, 150, 255).toBuffer(), 50, 5);
+      posX, headerY, width, 20,
+      Color.of(150, 150, 150, 255).toBuffer(), 50, 5);
     SurfaceHelper.drawTextShadowCentered(
-        getTitle(), posX + width / 2f, headerY + 10, WHITE.toBuffer());
+      getTitle(), posX + width / 2f, headerY + 10, WHITE.toBuffer());
   }
 }

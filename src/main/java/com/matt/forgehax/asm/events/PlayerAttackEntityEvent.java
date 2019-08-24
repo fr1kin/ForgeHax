@@ -6,12 +6,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class PlayerAttackEntityEvent extends Event {
+
   private final PlayerControllerMP playerController;
   private final EntityPlayer attacker;
   private final Entity victim;
 
   public PlayerAttackEntityEvent(
-      PlayerControllerMP playerController, EntityPlayer attacker, Entity victim) {
+    PlayerControllerMP playerController, EntityPlayer attacker, Entity victim) {
     this.playerController = playerController;
     this.attacker = attacker;
     this.victim = victim;

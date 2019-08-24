@@ -1,8 +1,28 @@
 package com.matt.forgehax.asm;
 
 import com.matt.forgehax.asm.TypesMc.Classes;
-import com.matt.forgehax.asm.patches.*;
-import com.matt.forgehax.asm.patches.special.*;
+import com.matt.forgehax.asm.patches.BlockPatch;
+import com.matt.forgehax.asm.patches.BoatPatch;
+import com.matt.forgehax.asm.patches.BufferBuilderPatch;
+import com.matt.forgehax.asm.patches.ChunkRenderContainerPatch;
+import com.matt.forgehax.asm.patches.ChunkRenderDispatcherPatch;
+import com.matt.forgehax.asm.patches.ChunkRenderWorkerPatch;
+import com.matt.forgehax.asm.patches.EntityLivingBasePatch;
+import com.matt.forgehax.asm.patches.EntityPatch;
+import com.matt.forgehax.asm.patches.EntityPlayerSPPatch;
+import com.matt.forgehax.asm.patches.EntityRendererPatch;
+import com.matt.forgehax.asm.patches.KeyBindingPatch;
+import com.matt.forgehax.asm.patches.MinecraftPatch;
+import com.matt.forgehax.asm.patches.NetManager$4Patch;
+import com.matt.forgehax.asm.patches.NetManagerPatch;
+import com.matt.forgehax.asm.patches.PlayerControllerMCPatch;
+import com.matt.forgehax.asm.patches.PlayerTabOverlayPatch;
+import com.matt.forgehax.asm.patches.RenderBoatPatch;
+import com.matt.forgehax.asm.patches.RenderChunkPatch;
+import com.matt.forgehax.asm.patches.RenderGlobalPatch;
+import com.matt.forgehax.asm.patches.VisGraphPatch;
+import com.matt.forgehax.asm.patches.WorldPatch;
+import com.matt.forgehax.asm.patches.special.SchematicPrinterPatch;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
 import java.lang.reflect.Field;
@@ -19,6 +39,7 @@ import org.objectweb.asm.tree.ClassNode;
 
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
+
   private HashMap<String, ClassTransformer> transformingClasses = new HashMap<>();
   private int transformingLevel = 0;
 
@@ -58,11 +79,11 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     } catch (MixinMissingException e) {
       LOGGER.info("Mixin not detected running, skipped adding transformer exclusions");
     } catch (NullPointerException
-        | ClassNotFoundException
-        | NoSuchFieldException
-        | IllegalAccessException
-        | NoSuchMethodException
-        | InvocationTargetException e) {
+      | ClassNotFoundException
+      | NoSuchFieldException
+      | IllegalAccessException
+      | NoSuchMethodException
+      | InvocationTargetException e) {
       LOGGER.info("Failed to add ForgeHax transformer exclusion into Mixin environment");
       ASMStackLogger.printStackTrace(e);
     }
@@ -74,8 +95,9 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
 
   @Override
   public byte[] transform(String name, String realName, byte[] bytes) {
-    if (transformingLevel > 0)
+    if (transformingLevel > 0) {
       LOGGER.warn("Reentrant class loaded {} at level {}", realName, transformingLevel);
+    }
 
     ++transformingLevel;
     if (transformingClasses.containsKey(realName)) {
@@ -90,7 +112,7 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         transformer.transform(classNode);
 
         ClassWriter classWriter =
-            new NoClassLoadingClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+          new NoClassLoadingClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
         classNode.accept(classWriter);
 
@@ -100,11 +122,11 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         bytes = classWriter.toByteArray();
       } catch (Exception e) {
         LOGGER.error(
-            e.getClass().getSimpleName()
-                + " thrown from transforming class "
-                + realName
-                + ": "
-                + e.getMessage());
+          e.getClass().getSimpleName()
+            + " thrown from transforming class "
+            + realName
+            + ": "
+            + e.getMessage());
         ASMStackLogger.printStackTrace(e);
       }
     }
@@ -114,12 +136,13 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
   }
 
   /**
-   * This will prevent Mixin from feeding our transformer meta class data which it may later discard
+   * This will prevent Mixin from feeding our transformer meta class data which it may later
+   * discard
    */
   private static int addExcludedTransformersToMixin(String... excludedTransformers)
-      throws MixinMissingException, NullPointerException, ClassNotFoundException,
-          NoSuchFieldException, IllegalAccessException, NoSuchMethodException,
-          InvocationTargetException {
+    throws MixinMissingException, NullPointerException, ClassNotFoundException,
+    NoSuchFieldException, IllegalAccessException, NoSuchMethodException,
+    InvocationTargetException {
     // get the MixinEnvironment class
     Class<?> class_MixinEnvironment;
     try {
@@ -131,12 +154,12 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     int count = 0;
 
     Method method_addTransformerExclusion =
-        class_MixinEnvironment.getDeclaredMethod("addTransformerExclusion", String.class);
+      class_MixinEnvironment.getDeclaredMethod("addTransformerExclusion", String.class);
     method_addTransformerExclusion.setAccessible(true);
 
     // get the environment phase subclass
     Class<?> class_MixinEnvironment$Phase =
-        Class.forName("org.spongepowered.asm.mixin.MixinEnvironment$Phase");
+      Class.forName("org.spongepowered.asm.mixin.MixinEnvironment$Phase");
 
     // get the phases field
     Field field_phases = class_MixinEnvironment$Phase.getDeclaredField("phases");
@@ -171,17 +194,22 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
   }
 
   private class NoClassLoadingClassWriter extends ClassWriter {
+
     NoClassLoadingClassWriter(int flags) {
       super(flags);
     }
 
     @Override
     protected String getCommonSuperClass(String type1, String type2) {
-      if (type1.matches(Classes.GuiMainMenu.getRuntimeInternalName()))
+      if (type1.matches(Classes.GuiMainMenu.getRuntimeInternalName())) {
         return Classes.GuiScreen.getRuntimeInternalName(); // stupid edge case
-      else return "java/lang/Object"; // credits to popbob
+      } else {
+        return "java/lang/Object"; // credits to popbob
+      }
     }
   }
-
-  private static class MixinMissingException extends Exception {}
+  
+  private static class MixinMissingException extends Exception {
+  
+  }
 }

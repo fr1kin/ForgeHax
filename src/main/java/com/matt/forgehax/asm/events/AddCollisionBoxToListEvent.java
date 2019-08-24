@@ -10,9 +10,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-/** Created on 4/9/2017 by fr1kin */
+/**
+ * Created on 4/9/2017 by fr1kin
+ */
 @Cancelable
 public class AddCollisionBoxToListEvent extends Event {
+
   private final Block block;
   private final IBlockState state;
   private final World world;
@@ -23,14 +26,14 @@ public class AddCollisionBoxToListEvent extends Event {
   private final boolean bool;
 
   public AddCollisionBoxToListEvent(
-      Block block,
-      IBlockState state,
-      World worldIn,
-      BlockPos pos,
-      AxisAlignedBB entityBox,
-      List<AxisAlignedBB> collidingBoxes,
-      Entity entityIn,
-      boolean bool) {
+    Block block,
+    IBlockState state,
+    World worldIn,
+    BlockPos pos,
+    AxisAlignedBB entityBox,
+    List<AxisAlignedBB> collidingBoxes,
+    Entity entityIn,
+    boolean bool) {
     this.block = block;
     this.state = state;
     this.world = worldIn;

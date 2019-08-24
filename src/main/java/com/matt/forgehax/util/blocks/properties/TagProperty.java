@@ -8,8 +8,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import joptsimple.internal.Strings;
 
-/** Created on 5/23/2017 by fr1kin */
+/**
+ * Created on 5/23/2017 by fr1kin
+ */
 public class TagProperty implements IBlockProperty {
+
   private static final String HEADING = "tags";
 
   private final Collection<String> tags = Sets.newTreeSet(String.CASE_INSENSITIVE_ORDER);
@@ -56,7 +59,9 @@ public class TagProperty implements IBlockProperty {
     while (it.hasNext()) {
       String tag = it.next();
       builder.append(tag);
-      if (it.hasNext()) builder.append(", ");
+      if (it.hasNext()) {
+        builder.append(", ");
+      }
     }
     builder.append("}");
     return builder.toString();
@@ -73,6 +78,7 @@ public class TagProperty implements IBlockProperty {
   }
 
   private static class ImmutableBlockTag extends TagProperty {
+  
     @Override
     public boolean add(String tag) {
       return false;

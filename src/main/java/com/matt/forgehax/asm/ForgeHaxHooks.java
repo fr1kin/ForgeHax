@@ -3,8 +3,38 @@ package com.matt.forgehax.asm;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.matt.forgehax.asm.TypesMc.Methods;
-import com.matt.forgehax.asm.events.*;
+import com.matt.forgehax.asm.events.AddCollisionBoxToListEvent;
+import com.matt.forgehax.asm.events.AddRenderChunkEvent;
+import com.matt.forgehax.asm.events.ApplyClimbableBlockMovement;
+import com.matt.forgehax.asm.events.ApplyCollisionMotionEvent;
+import com.matt.forgehax.asm.events.BlockControllerProcessEvent;
+import com.matt.forgehax.asm.events.BlockRenderEvent;
+import com.matt.forgehax.asm.events.BuildChunkEvent;
+import com.matt.forgehax.asm.events.ChunkUploadedEvent;
+import com.matt.forgehax.asm.events.ComputeVisibilityEvent;
+import com.matt.forgehax.asm.events.DeleteGlResourcesEvent;
+import com.matt.forgehax.asm.events.DoBlockCollisionsEvent;
+import com.matt.forgehax.asm.events.DrawBlockBoundingBoxEvent;
+import com.matt.forgehax.asm.events.EntityBlockSlipApplyEvent;
 import com.matt.forgehax.asm.events.EntityBlockSlipApplyEvent.Stage;
+import com.matt.forgehax.asm.events.HurtCamEffectEvent;
+import com.matt.forgehax.asm.events.ItemStoppedUsedEvent;
+import com.matt.forgehax.asm.events.LeftClickCounterUpdateEvent;
+import com.matt.forgehax.asm.events.LoadRenderersEvent;
+import com.matt.forgehax.asm.events.LocalPlayerUpdateMovementEvent;
+import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.asm.events.PlayerAttackEntityEvent;
+import com.matt.forgehax.asm.events.PlayerDamageBlockEvent;
+import com.matt.forgehax.asm.events.PlayerSyncItemEvent;
+import com.matt.forgehax.asm.events.PushOutOfBlocksEvent;
+import com.matt.forgehax.asm.events.RenderBlockInLayerEvent;
+import com.matt.forgehax.asm.events.RenderBlockLayerEvent;
+import com.matt.forgehax.asm.events.RenderBoatEvent;
+import com.matt.forgehax.asm.events.SchematicaPlaceBlockEvent;
+import com.matt.forgehax.asm.events.SetupTerrainEvent;
+import com.matt.forgehax.asm.events.WaterMovementEvent;
+import com.matt.forgehax.asm.events.WorldCheckLightForEvent;
+import com.matt.forgehax.asm.events.WorldRendererDeallocatedEvent;
 import com.matt.forgehax.asm.events.listeners.BlockModelRenderListener;
 import com.matt.forgehax.asm.events.listeners.Listeners;
 import com.matt.forgehax.asm.utils.MultiBoolean;
@@ -20,7 +50,11 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.ViewFrustum;
-import net.minecraft.client.renderer.chunk.*;
+import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.SetVisibility;
+import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
@@ -39,193 +73,227 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class ForgeHaxHooks implements ASMCommon {
+  
   private static final List<HookReporter> ALL_REPORTERS = Lists.newArrayList();
-
+  
   public static List<HookReporter> getReporters() {
     return Collections.unmodifiableList(ALL_REPORTERS);
   }
-
+  
   private static HookReporter.Builder newHookReporter() {
     return HookReporter.Builder.of()
-        .parentClass(ForgeHaxHooks.class)
-        .finalizeBy(ALL_REPORTERS::add);
+      .parentClass(ForgeHaxHooks.class)
+      .finalizeBy(ALL_REPORTERS::add);
   }
-
-  /** static fields */
+  
+  /**
+   * static fields
+   */
   public static boolean isSafeWalkActivated = false;
-
+  
   public static boolean isNoSlowDownActivated = false;
-
+  
   public static boolean isNoBoatGravityActivated = false;
   public static boolean isNoClampingActivated = false;
   public static boolean isBoatSetYawActivated = false;
   public static boolean isNotRowingBoatActivated = false;
-
+  
   public static boolean doIncreaseTabListSize = false;
-
+  
   /** static hooks */
-
-  /** Convenient functions for firing events */
+  
+  /**
+   * Convenient functions for firing events
+   */
   public static void fireEvent_v(Event event) {
     MinecraftForge.EVENT_BUS.post(event);
   }
-
+  
   public static boolean fireEvent_b(Event event) {
     return MinecraftForge.EVENT_BUS.post(event);
   }
-
-  /** onDrawBoundingBox */
+  
+  /**
+   * onDrawBoundingBox
+   */
   public static void onDrawBoundingBoxPost() {
     MinecraftForge.EVENT_BUS.post(new DrawBlockBoundingBoxEvent.Post());
   }
-
-  /** onPushOutOfBlocks */
+  
+  /**
+   * onPushOutOfBlocks
+   */
   public static final HookReporter HOOK_onPushOutOfBlocks =
-      newHookReporter()
-          .hook("onPushOutOfBlocks")
-          .dependsOn(TypesMc.Methods.EntityPlayerSP_pushOutOfBlocks)
-          .forgeEvent(PushOutOfBlocksEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPushOutOfBlocks")
+      .dependsOn(TypesMc.Methods.EntityPlayerSP_pushOutOfBlocks)
+      .forgeEvent(PushOutOfBlocksEvent.class)
+      .build();
+  
   public static boolean onPushOutOfBlocks() {
     return HOOK_onPushOutOfBlocks.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new PushOutOfBlocksEvent());
+      && MinecraftForge.EVENT_BUS.post(new PushOutOfBlocksEvent());
   }
-
-  /** onRenderBoat */
+  
+  /**
+   * onRenderBoat
+   */
   public static final HookReporter HOOK_onRenderBoat =
-      newHookReporter()
-          .hook("onRenderBoat")
-          .dependsOn(TypesMc.Methods.RenderBoat_doRender)
-          .forgeEvent(RenderBoatEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onRenderBoat")
+      .dependsOn(TypesMc.Methods.RenderBoat_doRender)
+      .forgeEvent(RenderBoatEvent.class)
+      .build();
+  
   public static float onRenderBoat(EntityBoat boat, float entityYaw) {
     if (HOOK_onRenderBoat.reportHook()) {
       RenderBoatEvent event = new RenderBoatEvent(boat, entityYaw);
       MinecraftForge.EVENT_BUS.post(event);
       return event.getYaw();
-    } else return entityYaw;
+    } else {
+      return entityYaw;
+    }
   }
-
-  /** onSchematicaPlaceBlock */
+  
+  /**
+   * onSchematicaPlaceBlock
+   */
   public static final HookReporter HOOK_onSchematicaPlaceBlock =
-      newHookReporter()
-          .hook("onSchematicaPlaceBlock")
-          .dependsOn(TypesSpecial.Methods.SchematicPrinter_placeBlock)
-          .forgeEvent(SchematicaPlaceBlockEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onSchematicaPlaceBlock")
+      .dependsOn(TypesSpecial.Methods.SchematicPrinter_placeBlock)
+      .forgeEvent(SchematicaPlaceBlockEvent.class)
+      .build();
+  
   public static void onSchematicaPlaceBlock(ItemStack itemIn, BlockPos posIn, Vec3d vecIn) {
-    if (HOOK_onSchematicaPlaceBlock.reportHook())
+    if (HOOK_onSchematicaPlaceBlock.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new SchematicaPlaceBlockEvent(itemIn, posIn, vecIn));
+    }
   }
-
-  /** onHurtcamEffect */
+  
+  /**
+   * onHurtcamEffect
+   */
   public static final HookReporter HOOK_onHurtcamEffect =
-      newHookReporter()
-          .hook("onHurtcamEffect")
-          .dependsOn(TypesMc.Methods.EntityRenderer_hurtCameraEffect)
-          .forgeEvent(HurtCamEffectEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onHurtcamEffect")
+      .dependsOn(TypesMc.Methods.EntityRenderer_hurtCameraEffect)
+      .forgeEvent(HurtCamEffectEvent.class)
+      .build();
+  
   public static boolean onHurtcamEffect(float partialTicks) {
     return HOOK_onHurtcamEffect.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new HurtCamEffectEvent(partialTicks));
+      && MinecraftForge.EVENT_BUS.post(new HurtCamEffectEvent(partialTicks));
   }
-
-  /** onSendingPacket */
+  
+  /**
+   * onSendingPacket
+   */
   public static final HookReporter HOOK_onSendingPacket =
-      newHookReporter()
-          .hook("onSendingPacket")
-          .dependsOn(TypesMc.Methods.NetworkManager_dispatchPacket)
-          .dependsOn(TypesMc.Methods.NetworkManager$4_run)
-          .forgeEvent(PacketEvent.Outgoing.Pre.class)
-          .build();
-
+    newHookReporter()
+      .hook("onSendingPacket")
+      .dependsOn(TypesMc.Methods.NetworkManager_dispatchPacket)
+      .dependsOn(TypesMc.Methods.NetworkManager$4_run)
+      .forgeEvent(PacketEvent.Outgoing.Pre.class)
+      .build();
+  
   public static boolean onSendingPacket(Packet<?> packet) {
     return HOOK_onSendingPacket.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Pre(packet));
+      && MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Pre(packet));
   }
-
-  /** onSentPacket */
+  
+  /**
+   * onSentPacket
+   */
   public static final HookReporter HOOK_onSentPacket =
-      newHookReporter()
-          .hook("onSentPacket")
-          .dependsOn(TypesMc.Methods.NetworkManager_dispatchPacket)
-          .dependsOn(TypesMc.Methods.NetworkManager$4_run)
-          .forgeEvent(PacketEvent.Outgoing.Post.class)
-          .build();
-
+    newHookReporter()
+      .hook("onSentPacket")
+      .dependsOn(TypesMc.Methods.NetworkManager_dispatchPacket)
+      .dependsOn(TypesMc.Methods.NetworkManager$4_run)
+      .forgeEvent(PacketEvent.Outgoing.Post.class)
+      .build();
+  
   public static void onSentPacket(Packet<?> packet) {
-    if (HOOK_onSentPacket.reportHook())
+    if (HOOK_onSentPacket.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new PacketEvent.Outgoing.Post(packet));
+    }
   }
-
-  /** onPreReceived */
+  
+  /**
+   * onPreReceived
+   */
   public static final HookReporter HOOK_onPreReceived =
-      newHookReporter()
-          .hook("onPreReceived")
-          .dependsOn(TypesMc.Methods.NetworkManager_channelRead0)
-          .forgeEvent(PacketEvent.Incoming.Pre.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPreReceived")
+      .dependsOn(TypesMc.Methods.NetworkManager_channelRead0)
+      .forgeEvent(PacketEvent.Incoming.Pre.class)
+      .build();
+  
   public static boolean onPreReceived(Packet<?> packet) {
     return HOOK_onPreReceived.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Pre(packet));
+      && MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Pre(packet));
   }
-
-  /** onPostReceived */
+  
+  /**
+   * onPostReceived
+   */
   public static final HookReporter HOOK_onPostReceived =
-      newHookReporter()
-          .hook("onPostReceived")
-          .dependsOn(TypesMc.Methods.NetworkManager_channelRead0)
-          .forgeEvent(PacketEvent.Incoming.Post.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPostReceived")
+      .dependsOn(TypesMc.Methods.NetworkManager_channelRead0)
+      .forgeEvent(PacketEvent.Incoming.Post.class)
+      .build();
+  
   public static void onPostReceived(Packet<?> packet) {
-    if (HOOK_onPostReceived.reportHook())
+    if (HOOK_onPostReceived.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new PacketEvent.Incoming.Post(packet));
+    }
   }
-
-  /** onWaterMovement */
+  
+  /**
+   * onWaterMovement
+   */
   public static final HookReporter HOOK_onWaterMovement =
-      newHookReporter()
-          .hook("onWaterMovement")
-          .dependsOn(TypesMc.Methods.World_handleMaterialAcceleration)
-          .forgeEvent(WaterMovementEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onWaterMovement")
+      .dependsOn(TypesMc.Methods.World_handleMaterialAcceleration)
+      .forgeEvent(WaterMovementEvent.class)
+      .build();
+  
   public static boolean onWaterMovement(Entity entity, Vec3d moveDir) {
     return HOOK_onWaterMovement.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new WaterMovementEvent(entity, moveDir));
+      && MinecraftForge.EVENT_BUS.post(new WaterMovementEvent(entity, moveDir));
   }
-
-  /** onApplyCollisionMotion */
+  
+  /**
+   * onApplyCollisionMotion
+   */
   public static final HookReporter HOOK_onApplyCollisionMotion =
-      newHookReporter()
-          .hook("onApplyCollisionMotion")
-          .dependsOn(TypesMc.Methods.Entity_applyEntityCollision)
-          .forgeEvent(ApplyCollisionMotionEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onApplyCollisionMotion")
+      .dependsOn(TypesMc.Methods.Entity_applyEntityCollision)
+      .forgeEvent(ApplyCollisionMotionEvent.class)
+      .build();
+  
   public static boolean onApplyCollisionMotion(
-      Entity entity, Entity collidedWithEntity, double x, double z) {
+    Entity entity, Entity collidedWithEntity, double x, double z) {
     return HOOK_onApplyCollisionMotion.reportHook()
-        && MinecraftForge.EVENT_BUS.post(
-            new ApplyCollisionMotionEvent(entity, collidedWithEntity, x, 0.D, z));
+      && MinecraftForge.EVENT_BUS.post(
+      new ApplyCollisionMotionEvent(entity, collidedWithEntity, x, 0.D, z));
   }
-
-  /** onPutColorMultiplier */
+  
+  /**
+   * onPutColorMultiplier
+   */
   public static final HookReporter HOOK_onPutColorMultiplier =
-      newHookReporter()
-          .hook("onPutColorMultiplier")
-          .dependsOn(TypesMc.Methods.BufferBuilder_putColorMultiplier)
-          .build();
-
+    newHookReporter()
+      .hook("onPutColorMultiplier")
+      .dependsOn(TypesMc.Methods.BufferBuilder_putColorMultiplier)
+      .build();
+  
   public static boolean SHOULD_UPDATE_ALPHA = false;
   public static float COLOR_MULTIPLIER_ALPHA = 150.f / 255.f;
-
+  
   public static int onPutColorMultiplier(float r, float g, float b, int buffer, boolean[] flag) {
     flag[0] = SHOULD_UPDATE_ALPHA;
     if (HOOK_onPutColorMultiplier.reportHook() && SHOULD_UPDATE_ALPHA) {
@@ -245,433 +313,517 @@ public class ForgeHaxHooks implements ASMCommon {
     }
     return buffer;
   }
-
-  /** onPreRenderBlockLayer */
+  
+  /**
+   * onPreRenderBlockLayer
+   */
   public static final HookReporter HOOK_onPreRenderBlockLayer =
-      newHookReporter()
-          .hook("onPreRenderBlockLayer")
-          .dependsOn(TypesMc.Methods.RenderGlobal_renderBlockLayer)
-          .forgeEvent(RenderBlockLayerEvent.Pre.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPreRenderBlockLayer")
+      .dependsOn(TypesMc.Methods.RenderGlobal_renderBlockLayer)
+      .forgeEvent(RenderBlockLayerEvent.Pre.class)
+      .build();
+  
   public static boolean onPreRenderBlockLayer(BlockRenderLayer layer, double partialTicks) {
     return HOOK_onPreRenderBlockLayer.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new RenderBlockLayerEvent.Pre(layer, partialTicks));
+      && MinecraftForge.EVENT_BUS.post(new RenderBlockLayerEvent.Pre(layer, partialTicks));
   }
-
-  /** onPostRenderBlockLayer */
+  
+  /**
+   * onPostRenderBlockLayer
+   */
   public static final HookReporter HOOK_onPostRenderBlockLayer =
-      newHookReporter()
-          .hook("onPostRenderBlockLayer")
-          .dependsOn(TypesMc.Methods.RenderGlobal_renderBlockLayer)
-          .forgeEvent(RenderBlockLayerEvent.Post.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPostRenderBlockLayer")
+      .dependsOn(TypesMc.Methods.RenderGlobal_renderBlockLayer)
+      .forgeEvent(RenderBlockLayerEvent.Post.class)
+      .build();
+  
   public static void onPostRenderBlockLayer(BlockRenderLayer layer, double partialTicks) {
-    if (HOOK_onPostRenderBlockLayer.reportHook())
+    if (HOOK_onPostRenderBlockLayer.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new RenderBlockLayerEvent.Post(layer, partialTicks));
+    }
   }
-
-  /** onSetupTerrain */
+  
+  /**
+   * onSetupTerrain
+   */
   public static final HookReporter HOOK_onSetupTerrain =
-      newHookReporter()
-          .hook("onSetupTerrain")
-          .dependsOn(TypesMc.Methods.RenderGlobal_setupTerrain)
-          .forgeEvent(SetupTerrainEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onSetupTerrain")
+      .dependsOn(TypesMc.Methods.RenderGlobal_setupTerrain)
+      .forgeEvent(SetupTerrainEvent.class)
+      .build();
+  
   public static boolean onSetupTerrain(Entity renderEntity, boolean playerSpectator) {
     if (HOOK_onSetupTerrain.reportHook()) {
       SetupTerrainEvent event = new SetupTerrainEvent(renderEntity, playerSpectator);
       MinecraftForge.EVENT_BUS.post(event);
       return event.isCulling();
-    } else return playerSpectator;
+    } else {
+      return playerSpectator;
+    }
   }
-
-  /** onComputeVisibility */
+  
+  /**
+   * onComputeVisibility
+   */
   public static final HookReporter HOOK_onComputeVisibility =
-      newHookReporter()
-          .hook("onComputeVisibility")
-          // no hook exists anymore
-          .forgeEvent(ComputeVisibilityEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onComputeVisibility")
+      // no hook exists anymore
+      .forgeEvent(ComputeVisibilityEvent.class)
+      .build();
+  
   @Deprecated
   public static void onComputeVisibility(VisGraph visGraph, SetVisibility setVisibility) {
-    if (HOOK_onComputeVisibility.reportHook())
+    if (HOOK_onComputeVisibility.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new ComputeVisibilityEvent(visGraph, setVisibility));
+    }
   }
-
-  /** onDoBlockCollisions */
+  
+  /**
+   * onDoBlockCollisions
+   */
   public static final HookReporter HOOK_onDoBlockCollisions =
-      newHookReporter()
-          .hook("onDoBlockCollisions")
-          // no hook exists anymore
-          .forgeEvent(DoBlockCollisionsEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onDoBlockCollisions")
+      // no hook exists anymore
+      .forgeEvent(DoBlockCollisionsEvent.class)
+      .build();
+  
   @Deprecated
   public static boolean onDoBlockCollisions(Entity entity, BlockPos pos, IBlockState state) {
     return HOOK_onDoBlockCollisions.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new DoBlockCollisionsEvent(entity, pos, state));
+      && MinecraftForge.EVENT_BUS.post(new DoBlockCollisionsEvent(entity, pos, state));
   }
-
-  /** isBlockFiltered */
+  
+  /**
+   * isBlockFiltered
+   */
   public static final HookReporter HOOK_isBlockFiltered =
-      newHookReporter()
-          .hook("isBlockFiltered")
-          .dependsOn(TypesMc.Methods.Entity_doBlockCollisions)
-          .build();
-
+    newHookReporter()
+      .hook("isBlockFiltered")
+      .dependsOn(TypesMc.Methods.Entity_doBlockCollisions)
+      .build();
+  
   public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = Sets.newHashSet();
-
+  
   public static boolean isBlockFiltered(Entity entity, IBlockState state) {
     return HOOK_isBlockFiltered.reportHook()
-        && entity instanceof EntityPlayer
-        && LIST_BLOCK_FILTER.contains(state.getBlock().getClass());
+      && entity instanceof EntityPlayer
+      && LIST_BLOCK_FILTER.contains(state.getBlock().getClass());
   }
-
-  /** onApplyClimbableBlockMovement */
+  
+  /**
+   * onApplyClimbableBlockMovement
+   */
   public static final HookReporter HOOK_onApplyClimbableBlockMovement =
-      newHookReporter()
-          .hook("onApplyClimbableBlockMovement")
-          // no hook exists
-          .forgeEvent(ApplyClimbableBlockMovement.class)
-          .build();
-
+    newHookReporter()
+      .hook("onApplyClimbableBlockMovement")
+      // no hook exists
+      .forgeEvent(ApplyClimbableBlockMovement.class)
+      .build();
+  
   @Deprecated
   public static boolean onApplyClimbableBlockMovement(EntityLivingBase livingBase) {
     return HOOK_onApplyClimbableBlockMovement.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new ApplyClimbableBlockMovement(livingBase));
+      && MinecraftForge.EVENT_BUS.post(new ApplyClimbableBlockMovement(livingBase));
   }
-
-  /** onRenderBlockInLayer */
+  
+  /**
+   * onRenderBlockInLayer
+   */
   public static final HookReporter HOOK_onRenderBlockInLayer =
-      newHookReporter()
-          .hook("onRenderBlockInLayer")
-          .dependsOn(TypesMc.Methods.Block_canRenderInLayer)
-          .forgeEvent(RenderBlockInLayerEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onRenderBlockInLayer")
+      .dependsOn(TypesMc.Methods.Block_canRenderInLayer)
+      .forgeEvent(RenderBlockInLayerEvent.class)
+      .build();
+  
   public static BlockRenderLayer onRenderBlockInLayer(
-      Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
+    Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
     if (HOOK_onRenderBlockInLayer.reportHook()) {
       RenderBlockInLayerEvent event =
-          new RenderBlockInLayerEvent(block, state, layer, compareToLayer);
+        new RenderBlockInLayerEvent(block, state, layer, compareToLayer);
       MinecraftForge.EVENT_BUS.post(event);
       return event.getLayer();
-    } else return layer;
+    } else {
+      return layer;
+    }
   }
-
-  /** onBlockRender */
+  
+  /**
+   * onBlockRender
+   */
   public static final HookReporter HOOK_onBlockRender =
-      newHookReporter()
-          .hook("onBlockRender")
-          // no hook exists
-          .forgeEvent(BlockRenderEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onBlockRender")
+      // no hook exists
+      .forgeEvent(BlockRenderEvent.class)
+      .build();
+  
   @Deprecated
   public static void onBlockRender(
-      BlockPos pos, IBlockState state, IBlockAccess access, BufferBuilder buffer) {
-    if (HOOK_onBlockRender.reportHook())
+    BlockPos pos, IBlockState state, IBlockAccess access, BufferBuilder buffer) {
+    if (HOOK_onBlockRender.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new BlockRenderEvent(pos, state, access, buffer));
+    }
   }
-
-  /** onAddCollisionBoxToList */
+  
+  /**
+   * onAddCollisionBoxToList
+   */
   public static final HookReporter HOOK_onAddCollisionBoxToList =
-      newHookReporter()
-          .hook("onAddCollisionBoxToList")
-          .dependsOn(TypesMc.Methods.Block_addCollisionBoxToList)
-          .forgeEvent(AddCollisionBoxToListEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onAddCollisionBoxToList")
+      .dependsOn(TypesMc.Methods.Block_addCollisionBoxToList)
+      .forgeEvent(AddCollisionBoxToListEvent.class)
+      .build();
+  
   public static boolean onAddCollisionBoxToList(
-      Block block,
-      IBlockState state,
-      World worldIn,
-      BlockPos pos,
-      AxisAlignedBB entityBox,
-      List<AxisAlignedBB> collidingBoxes,
-      Entity entityIn,
-      boolean bool) {
+    Block block,
+    IBlockState state,
+    World worldIn,
+    BlockPos pos,
+    AxisAlignedBB entityBox,
+    List<AxisAlignedBB> collidingBoxes,
+    Entity entityIn,
+    boolean bool) {
     return HOOK_onAddCollisionBoxToList.reportHook()
-        && MinecraftForge.EVENT_BUS.post(
-            new AddCollisionBoxToListEvent(
-                block, state, worldIn, pos, entityBox, collidingBoxes, entityIn, bool));
+      && MinecraftForge.EVENT_BUS.post(
+      new AddCollisionBoxToListEvent(
+        block, state, worldIn, pos, entityBox, collidingBoxes, entityIn, bool));
   }
-
-  /** onBlockRenderInLoop */
+  
+  /**
+   * onBlockRenderInLoop
+   */
   public static final HookReporter HOOK_onBlockRenderInLoop =
-      newHookReporter()
-          .hook("onBlockRenderInLoop")
-          .dependsOn(TypesMc.Methods.RenderChunk_rebuildChunk)
-          .listenerEvent(BlockModelRenderListener.class)
-          .build();
-
+    newHookReporter()
+      .hook("onBlockRenderInLoop")
+      .dependsOn(TypesMc.Methods.RenderChunk_rebuildChunk)
+      .listenerEvent(BlockModelRenderListener.class)
+      .build();
+  
   public static void onBlockRenderInLoop(
-      RenderChunk renderChunk, Block block, IBlockState state, BlockPos pos) {
+    RenderChunk renderChunk, Block block, IBlockState state, BlockPos pos) {
     // faster hook
-    if (HOOK_onBlockRenderInLoop.reportHook())
-      for (BlockModelRenderListener listener : Listeners.BLOCK_MODEL_RENDER_LISTENER.getAll())
+    if (HOOK_onBlockRenderInLoop.reportHook()) {
+      for (BlockModelRenderListener listener : Listeners.BLOCK_MODEL_RENDER_LISTENER.getAll()) {
         listener.onBlockRenderInLoop(renderChunk, block, state, pos);
+      }
+    }
   }
-
-  /** onPreBuildChunk */
+  
+  /**
+   * onPreBuildChunk
+   */
   public static final HookReporter HOOK_onPreBuildChunk =
-      newHookReporter()
-          .hook("onPreBuildChunk")
-          .dependsOn(TypesMc.Methods.RenderChunk_rebuildChunk)
-          .forgeEvent(BuildChunkEvent.Pre.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPreBuildChunk")
+      .dependsOn(TypesMc.Methods.RenderChunk_rebuildChunk)
+      .forgeEvent(BuildChunkEvent.Pre.class)
+      .build();
+  
   public static void onPreBuildChunk(RenderChunk renderChunk) {
-    if (HOOK_onPreBuildChunk.reportHook())
+    if (HOOK_onPreBuildChunk.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new BuildChunkEvent.Pre(renderChunk));
+    }
   }
-
-  /** onPostBuildChunk */
+  
+  /**
+   * onPostBuildChunk
+   */
   public static final HookReporter HOOK_onPostBuildChunk =
-      newHookReporter()
-          .hook("onPostBuildChunk")
-          .dependsOn(TypesMc.Methods.RenderChunk_rebuildChunk)
-          .forgeEvent(BuildChunkEvent.Post.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPostBuildChunk")
+      .dependsOn(TypesMc.Methods.RenderChunk_rebuildChunk)
+      .forgeEvent(BuildChunkEvent.Post.class)
+      .build();
+  
   public static void onPostBuildChunk(RenderChunk renderChunk) {
     // i couldn't place a post block render hook within the if label so I have to do this
-    if (HOOK_onPostBuildChunk.reportHook())
+    if (HOOK_onPostBuildChunk.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new BuildChunkEvent.Post(renderChunk));
+    }
   }
-
-  /** onDeleteGlResources */
+  
+  /**
+   * onDeleteGlResources
+   */
   public static final HookReporter HOOK_onDeleteGlResources =
-      newHookReporter()
-          .hook("onDeleteGlResources")
-          .dependsOn(TypesMc.Methods.RenderChunk_deleteGlResources)
-          .forgeEvent(DeleteGlResourcesEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onDeleteGlResources")
+      .dependsOn(TypesMc.Methods.RenderChunk_deleteGlResources)
+      .forgeEvent(DeleteGlResourcesEvent.class)
+      .build();
+  
   public static void onDeleteGlResources(RenderChunk renderChunk) {
-    if (HOOK_onDeleteGlResources.reportHook())
+    if (HOOK_onDeleteGlResources.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new DeleteGlResourcesEvent(renderChunk));
+    }
   }
-
-  /** onAddRenderChunk */
+  
+  /**
+   * onAddRenderChunk
+   */
   public static final HookReporter HOOK_onAddRenderChunk =
-      newHookReporter()
-          .hook("onAddRenderChunk")
-          .dependsOn(TypesMc.Methods.ChunkRenderContainer_addRenderChunk)
-          .forgeEvent(AddRenderChunkEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onAddRenderChunk")
+      .dependsOn(TypesMc.Methods.ChunkRenderContainer_addRenderChunk)
+      .forgeEvent(AddRenderChunkEvent.class)
+      .build();
+  
   public static void onAddRenderChunk(RenderChunk renderChunk, BlockRenderLayer layer) {
-    if (HOOK_onAddRenderChunk.reportHook())
+    if (HOOK_onAddRenderChunk.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new AddRenderChunkEvent(renderChunk, layer));
+    }
   }
-
-  /** onChunkUploaded */
+  
+  /**
+   * onChunkUploaded
+   */
   public static final HookReporter HOOK_onChunkUploaded =
-      newHookReporter()
-          .hook("onChunkUploaded")
-          .dependsOn(TypesMc.Methods.ChunkRenderDispatcher_uploadChunk)
-          .forgeEvent(ChunkUploadedEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onChunkUploaded")
+      .dependsOn(TypesMc.Methods.ChunkRenderDispatcher_uploadChunk)
+      .forgeEvent(ChunkUploadedEvent.class)
+      .build();
+  
   public static void onChunkUploaded(RenderChunk chunk, BufferBuilder buffer) {
-    if (HOOK_onChunkUploaded.reportHook())
+    if (HOOK_onChunkUploaded.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new ChunkUploadedEvent(chunk, buffer));
+    }
   }
-
-  /** onLoadRenderers */
+  
+  /**
+   * onLoadRenderers
+   */
   public static final HookReporter HOOK_onLoadRenderers =
-      newHookReporter()
-          .hook("onLoadRenderers")
-          .dependsOn(TypesMc.Methods.RenderGlobal_loadRenderers)
-          .forgeEvent(LoadRenderersEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onLoadRenderers")
+      .dependsOn(TypesMc.Methods.RenderGlobal_loadRenderers)
+      .forgeEvent(LoadRenderersEvent.class)
+      .build();
+  
   public static void onLoadRenderers(
-      ViewFrustum viewFrustum, ChunkRenderDispatcher renderDispatcher) {
-    if (HOOK_onLoadRenderers.reportHook())
+    ViewFrustum viewFrustum, ChunkRenderDispatcher renderDispatcher) {
+    if (HOOK_onLoadRenderers.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new LoadRenderersEvent(viewFrustum, renderDispatcher));
+    }
   }
-
-  /** onWorldRendererDeallocated */
+  
+  /**
+   * onWorldRendererDeallocated
+   */
   public static final HookReporter HOOK_onWorldRendererDeallocated =
-      newHookReporter()
-          .hook("onWorldRendererDeallocated")
-          .dependsOn(TypesMc.Methods.ChunkRenderWorker_freeRenderBuilder)
-          .forgeEvent(WorldRendererDeallocatedEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onWorldRendererDeallocated")
+      .dependsOn(TypesMc.Methods.ChunkRenderWorker_freeRenderBuilder)
+      .forgeEvent(WorldRendererDeallocatedEvent.class)
+      .build();
+  
   public static void onWorldRendererDeallocated(ChunkCompileTaskGenerator generator) {
-    if (HOOK_onWorldRendererDeallocated.reportHook())
+    if (HOOK_onWorldRendererDeallocated.reportHook()) {
       MinecraftForge.EVENT_BUS.post(
-          new WorldRendererDeallocatedEvent(generator, generator.getRenderChunk()));
+        new WorldRendererDeallocatedEvent(generator, generator.getRenderChunk()));
+    }
   }
-
-  /** shouldDisableCaveCulling */
+  
+  /**
+   * shouldDisableCaveCulling
+   */
   public static final HookReporter HOOK_shouldDisableCaveCulling =
-      newHookReporter()
-          .hook("shouldDisableCaveCulling")
-          .dependsOn(TypesMc.Methods.RenderGlobal_setupTerrain)
-          .dependsOn(TypesMc.Methods.VisGraph_setOpaqueCube)
-          .dependsOn(TypesMc.Methods.VisGraph_computeVisibility)
-          .build();
-
+    newHookReporter()
+      .hook("shouldDisableCaveCulling")
+      .dependsOn(TypesMc.Methods.RenderGlobal_setupTerrain)
+      .dependsOn(TypesMc.Methods.VisGraph_setOpaqueCube)
+      .dependsOn(TypesMc.Methods.VisGraph_computeVisibility)
+      .build();
+  
   public static final MultiBoolean SHOULD_DISABLE_CAVE_CULLING = new MultiBoolean();
-
+  
   public static boolean shouldDisableCaveCulling() {
     return HOOK_shouldDisableCaveCulling.reportHook() && SHOULD_DISABLE_CAVE_CULLING.isEnabled();
   }
-
-  /** onUpdateWalkingPlayerPre */
+  
+  /**
+   * onUpdateWalkingPlayerPre
+   */
   public static final HookReporter HOOK_onUpdateWalkingPlayerPre =
-      newHookReporter()
-          .hook("onUpdateWalkingPlayerPre")
-          .dependsOn(TypesMc.Methods.EntityPlayerSP_onUpdateWalkingPlayer)
-          .forgeEvent(LocalPlayerUpdateMovementEvent.Pre.class)
-          .build();
-
+    newHookReporter()
+      .hook("onUpdateWalkingPlayerPre")
+      .dependsOn(TypesMc.Methods.EntityPlayerSP_onUpdateWalkingPlayer)
+      .forgeEvent(LocalPlayerUpdateMovementEvent.Pre.class)
+      .build();
+  
   public static boolean onUpdateWalkingPlayerPre(EntityPlayerSP localPlayer) {
     return HOOK_onUpdateWalkingPlayerPre.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Pre(localPlayer));
+      && MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Pre(localPlayer));
   }
-
-  /** onUpdateWalkingPlayerPost */
+  
+  /**
+   * onUpdateWalkingPlayerPost
+   */
   public static final HookReporter HOOK_onUpdateWalkingPlayerPost =
-      newHookReporter()
-          .hook("onUpdateWalkingPlayerPost")
-          .dependsOn(TypesMc.Methods.EntityPlayerSP_onUpdateWalkingPlayer)
-          .forgeEvent(LocalPlayerUpdateMovementEvent.Post.class)
-          .build();
-
+    newHookReporter()
+      .hook("onUpdateWalkingPlayerPost")
+      .dependsOn(TypesMc.Methods.EntityPlayerSP_onUpdateWalkingPlayer)
+      .forgeEvent(LocalPlayerUpdateMovementEvent.Post.class)
+      .build();
+  
   public static void onUpdateWalkingPlayerPost(EntityPlayerSP localPlayer) {
-    if (HOOK_onUpdateWalkingPlayerPost.reportHook())
+    if (HOOK_onUpdateWalkingPlayerPost.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new LocalPlayerUpdateMovementEvent.Post(localPlayer));
+    }
   }
-
-  /** onWorldCheckLightFor */
+  
+  /**
+   * onWorldCheckLightFor
+   */
   public static final HookReporter HOOK_onWorldCheckLightFor =
-      newHookReporter()
-          .hook("onWorldCheckLightFor")
-          .dependsOn(TypesMc.Methods.World_checkLightFor)
-          .forgeEvent(WorldCheckLightForEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onWorldCheckLightFor")
+      .dependsOn(TypesMc.Methods.World_checkLightFor)
+      .forgeEvent(WorldCheckLightForEvent.class)
+      .build();
+  
   public static boolean onWorldCheckLightFor(EnumSkyBlock enumSkyBlock, BlockPos pos) {
     return HOOK_onWorldCheckLightFor.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new WorldCheckLightForEvent(enumSkyBlock, pos));
+      && MinecraftForge.EVENT_BUS.post(new WorldCheckLightForEvent(enumSkyBlock, pos));
   }
-
-  /** onLeftClickCounterSet */
+  
+  /**
+   * onLeftClickCounterSet
+   */
   public static final HookReporter HOOK_onLeftClickCounterSet =
-      newHookReporter()
-          .hook("onLeftClickCounterSet")
-          .dependsOn(TypesMc.Methods.Minecraft_runTick)
-          .dependsOn(TypesMc.Methods.Minecraft_setIngameFocus)
-          .forgeEvent(LeftClickCounterUpdateEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onLeftClickCounterSet")
+      .dependsOn(TypesMc.Methods.Minecraft_runTick)
+      .dependsOn(TypesMc.Methods.Minecraft_setIngameFocus)
+      .forgeEvent(LeftClickCounterUpdateEvent.class)
+      .build();
+  
   public static int onLeftClickCounterSet(int value, Minecraft minecraft) {
     if (HOOK_onLeftClickCounterSet.reportHook()) {
       LeftClickCounterUpdateEvent event = new LeftClickCounterUpdateEvent(minecraft, value);
       return MinecraftForge.EVENT_BUS.post(event) ? event.getCurrentValue() : event.getValue();
-    } else return value;
+    } else {
+      return value;
+    }
   }
-
-  /** onSendClickBlockToController */
+  
+  /**
+   * onSendClickBlockToController
+   */
   public static final HookReporter HOOK_onSendClickBlockToController =
-      newHookReporter()
-          .hook("onSendClickBlockToController")
-          .dependsOn(TypesMc.Methods.Minecraft_runTick)
-          .forgeEvent(BlockControllerProcessEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onSendClickBlockToController")
+      .dependsOn(TypesMc.Methods.Minecraft_runTick)
+      .forgeEvent(BlockControllerProcessEvent.class)
+      .build();
+  
   public static boolean onSendClickBlockToController(Minecraft minecraft, boolean clicked) {
     if (HOOK_onSendClickBlockToController.reportHook()) {
       BlockControllerProcessEvent event = new BlockControllerProcessEvent(minecraft, clicked);
       MinecraftForge.EVENT_BUS.post(event);
       return event.isLeftClicked();
-    } else return clicked;
+    } else {
+      return clicked;
+    }
   }
-
-  /** onPlayerItemSync */
+  
+  /**
+   * onPlayerItemSync
+   */
   public static final HookReporter HOOK_onPlayerItemSync =
-      newHookReporter()
-          .hook("onPlayerItemSync")
-          .dependsOn(Methods.PlayerControllerMC_syncCurrentPlayItem)
-          .forgeEvent(PlayerSyncItemEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPlayerItemSync")
+      .dependsOn(Methods.PlayerControllerMC_syncCurrentPlayItem)
+      .forgeEvent(PlayerSyncItemEvent.class)
+      .build();
+  
   public static void onPlayerItemSync(PlayerControllerMP playerControllerMP) {
-    if (HOOK_onPlayerItemSync.reportHook())
+    if (HOOK_onPlayerItemSync.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new PlayerSyncItemEvent(playerControllerMP));
+    }
   }
-
-  /** onPlayerBreakingBlock */
+  
+  /**
+   * onPlayerBreakingBlock
+   */
   public static final HookReporter HOOK_onPlayerBreakingBlock =
-      newHookReporter()
-          .hook("onPlayerBreakingBlock")
-          .dependsOn(Methods.PlayerControllerMC_onPlayerDamageBlock)
-          .forgeEvent(PlayerDamageBlockEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPlayerBreakingBlock")
+      .dependsOn(Methods.PlayerControllerMC_onPlayerDamageBlock)
+      .forgeEvent(PlayerDamageBlockEvent.class)
+      .build();
+  
   public static void onPlayerBreakingBlock(
-      PlayerControllerMP playerControllerMP, BlockPos pos, EnumFacing facing) {
-    if (HOOK_onPlayerBreakingBlock.reportHook())
+    PlayerControllerMP playerControllerMP, BlockPos pos, EnumFacing facing) {
+    if (HOOK_onPlayerBreakingBlock.reportHook()) {
       MinecraftForge.EVENT_BUS.post(new PlayerDamageBlockEvent(playerControllerMP, pos, facing));
+    }
   }
-
-  /** onPlayerAttackEntity */
+  
+  /**
+   * onPlayerAttackEntity
+   */
   public static final HookReporter HOOK_onPlayerAttackEntity =
-      newHookReporter()
-          .hook("onPlayerAttackEntity")
-          .dependsOn(Methods.PlayerControllerMC_attackEntity)
-          .forgeEvent(PlayerAttackEntityEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPlayerAttackEntity")
+      .dependsOn(Methods.PlayerControllerMC_attackEntity)
+      .forgeEvent(PlayerAttackEntityEvent.class)
+      .build();
+  
   public static void onPlayerAttackEntity(
-      PlayerControllerMP playerControllerMP, EntityPlayer attacker, Entity victim) {
-    if (HOOK_onPlayerAttackEntity.reportHook())
+    PlayerControllerMP playerControllerMP, EntityPlayer attacker, Entity victim) {
+    if (HOOK_onPlayerAttackEntity.reportHook()) {
       MinecraftForge.EVENT_BUS.post(
-          new PlayerAttackEntityEvent(playerControllerMP, attacker, victim));
+        new PlayerAttackEntityEvent(playerControllerMP, attacker, victim));
+    }
   }
-
-  /** onPlayerStopUse */
+  
+  /**
+   * onPlayerStopUse
+   */
   public static final HookReporter HOOK_onPlayerStopUse =
-      newHookReporter()
-          .hook("onPlayerStopUse")
-          .dependsOn(Methods.PlayerControllerMC_onStoppedUsingItem)
-          .forgeEvent(ItemStoppedUsedEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onPlayerStopUse")
+      .dependsOn(Methods.PlayerControllerMC_onStoppedUsingItem)
+      .forgeEvent(ItemStoppedUsedEvent.class)
+      .build();
+  
   public static boolean onPlayerStopUse(
-      PlayerControllerMP playerControllerMP, EntityPlayer player) {
+    PlayerControllerMP playerControllerMP, EntityPlayer player) {
     return HOOK_onPlayerStopUse.reportHook()
-        && MinecraftForge.EVENT_BUS.post(new ItemStoppedUsedEvent(playerControllerMP, player));
+      && MinecraftForge.EVENT_BUS.post(new ItemStoppedUsedEvent(playerControllerMP, player));
   }
-
-  /** onPlayerStopUse */
+  
+  /**
+   * onPlayerStopUse
+   */
   public static final HookReporter HOOK_onEntityBlockSlipApply =
-      newHookReporter()
-          .hook("onEntityBlockSlipApply")
-          .dependsOn(Methods.PlayerControllerMC_onStoppedUsingItem)
-          .forgeEvent(EntityBlockSlipApplyEvent.class)
-          .build();
-
+    newHookReporter()
+      .hook("onEntityBlockSlipApply")
+      .dependsOn(Methods.PlayerControllerMC_onStoppedUsingItem)
+      .forgeEvent(EntityBlockSlipApplyEvent.class)
+      .build();
+  
   public static float onEntityBlockSlipApply(
-      float defaultSlipperiness,
-      EntityLivingBase entityLivingBase,
-      IBlockState blockStateUnder,
-      int stage) {
+    float defaultSlipperiness,
+    EntityLivingBase entityLivingBase,
+    IBlockState blockStateUnder,
+    int stage) {
     if (HOOK_onEntityBlockSlipApply.reportHook()) {
       EntityBlockSlipApplyEvent event =
-          new EntityBlockSlipApplyEvent(
-              Stage.values()[stage], entityLivingBase, blockStateUnder, defaultSlipperiness);
+        new EntityBlockSlipApplyEvent(
+          Stage.values()[stage], entityLivingBase, blockStateUnder, defaultSlipperiness);
       MinecraftForge.EVENT_BUS.post(event);
       return event.getSlipperiness();
-    } else return defaultSlipperiness;
+    } else {
+      return defaultSlipperiness;
+    }
   }
 }

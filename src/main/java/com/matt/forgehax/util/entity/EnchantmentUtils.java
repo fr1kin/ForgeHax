@@ -10,36 +10,48 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.nbt.NBTTagList;
 
 public class EnchantmentUtils {
+
   public static List<EntityEnchantment> getEnchantments(NBTTagList tags) {
-    if (tags == null) return null;
+    if (tags == null) {
+      return null;
+    }
     List<EntityEnchantment> list = Lists.newArrayList();
-    for (int i = 0; i < tags.tagCount(); i++)
+    for (int i = 0; i < tags.tagCount(); i++) {
       list.add(
-          new EntityEnchantment(
-              tags.getCompoundTagAt(i).getShort("id"), tags.getCompoundTagAt(i).getShort("lvl")));
+        new EntityEnchantment(
+          tags.getCompoundTagAt(i).getShort("id"), tags.getCompoundTagAt(i).getShort("lvl")));
+    }
     return list;
   }
 
   public static List<EntityEnchantment> getEnchantmentsSorted(NBTTagList tags) {
     List<EntityEnchantment> list = getEnchantments(tags);
-    if (list != null) Collections.sort(list, new EnchantSort());
+    if (list != null) {
+      Collections.sort(list, new EnchantSort());
+    }
     return list;
   }
 
   // IV.sort(III)
 
   public static class EnchantSort implements Comparator<EntityEnchantment> {
+
     @Override
     public int compare(EntityEnchantment o1, EntityEnchantment o2) {
       int deltaEch1 = o1.getEnchantment().getMaxLevel() - o1.getEnchantment().getMinLevel();
       int deltaEch2 = o2.getEnchantment().getMaxLevel() - o2.getEnchantment().getMinLevel();
-      if (deltaEch1 == deltaEch2) return 0;
-      else if (deltaEch1 < deltaEch2) return 1;
-      else return -1;
+      if (deltaEch1 == deltaEch2) {
+        return 0;
+      } else if (deltaEch1 < deltaEch2) {
+        return 1;
+      } else {
+        return -1;
+      }
     }
   }
 
   public static class EntityEnchantment {
+  
     private static final Map<Integer, String> SHORT_ENCHANT_NAMES = Maps.newHashMap();
 
     static {
@@ -95,9 +107,14 @@ public class EnchantmentUtils {
     public String getShortName() {
       int id = Enchantment.getEnchantmentID(enchantment);
       if (SHORT_ENCHANT_NAMES.containsKey(id)) {
-        if (enchantment.getMaxLevel() <= 1) return SHORT_ENCHANT_NAMES.get(id);
-        else return SHORT_ENCHANT_NAMES.get(id) + this.level;
-      } else return toString();
+        if (enchantment.getMaxLevel() <= 1) {
+          return SHORT_ENCHANT_NAMES.get(id);
+        } else {
+          return SHORT_ENCHANT_NAMES.get(id) + this.level;
+        }
+      } else {
+        return toString();
+      }
     }
 
     public String toString() {

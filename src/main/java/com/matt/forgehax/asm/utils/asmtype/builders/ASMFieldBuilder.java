@@ -9,15 +9,19 @@ import java.util.Objects;
 import joptsimple.internal.Strings;
 import org.objectweb.asm.Type;
 
-/** Created on 5/27/2017 by fr1kin */
+/**
+ * Created on 5/27/2017 by fr1kin
+ */
 public class ASMFieldBuilder implements ASMCommon {
+
   private ASMClass parentClass = null;
   private String name = null, srgName = null, obfuscatedName = null;
   private IName<Type> type = null;
 
   private boolean auto = false;
-
-  protected ASMFieldBuilder() {}
+  
+  protected ASMFieldBuilder() {
+  }
 
   public ASMFieldBuilder setParentClass(ASMClass parentClass) {
     this.parentClass = parentClass;
@@ -62,7 +66,7 @@ public class ASMFieldBuilder implements ASMCommon {
 
   public ASMFieldBuilder setType(String internalClassName) {
     return setType(
-        !Strings.isNullOrEmpty(internalClassName) ? Type.getObjectType(internalClassName) : null);
+      !Strings.isNullOrEmpty(internalClassName) ? Type.getObjectType(internalClassName) : null);
   }
 
   public ASMFieldBuilder setType(Class<?> clazz) {
@@ -86,7 +90,9 @@ public class ASMFieldBuilder implements ASMCommon {
   public ASMField build() {
     Objects.requireNonNull(name, "Missing field name");
     Objects.requireNonNull(type, "Missing field type");
-    if (auto) attemptAutoAssign();
+    if (auto) {
+      attemptAutoAssign();
+    }
     return new ASMField(parentClass, NameBuilder.create(name, srgName, obfuscatedName), type);
   }
 }

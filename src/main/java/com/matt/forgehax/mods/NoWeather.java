@@ -14,19 +14,21 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
-/** Created on 5/16/2017 by fr1kin */
+/**
+ * Created on 5/16/2017 by fr1kin
+ */
 @RegisterMod
 public class NoWeather extends ToggleMod {
+  
   private boolean isRaining = false;
   private float rainStrength = 0.f;
   private float previousRainStrength = 0.f;
-
+  
   public NoWeather() {
     super(Category.WORLD, "NoWeather", false, "Disables weather");
   }
-
+  
   private final Setting<Boolean> showStatus =
     getCommandStub()
       .builders()
@@ -35,30 +37,32 @@ public class NoWeather extends ToggleMod {
       .description("show info about suppressed weather")
       .defaultTo(true)
       .build();
-
+  
   private void saveState(World world) {
-    if (world != null)
+    if (world != null) {
       setState(world.getWorldInfo().isRaining(), world.rainingStrength, world.prevRainingStrength);
-    else setState(false, 1.f, 1.f);
+    } else {
+      setState(false, 1.f, 1.f);
+    }
   }
-
+  
   private void setState(boolean raining, float rainStrength, float previousRainStrength) {
     this.isRaining = raining;
     setState(rainStrength, previousRainStrength);
   }
-
+  
   private void setState(float rainStrength, float previousRainStrength) {
     this.rainStrength = rainStrength;
     this.previousRainStrength = previousRainStrength;
   }
-
+  
   private void disableRain() {
     if (getWorld() != null) {
       getWorld().getWorldInfo().setRaining(false);
       getWorld().setRainStrength(0.f);
     }
   }
-
+  
   public void resetState() {
     if (getWorld() != null) {
       getWorld().getWorldInfo().setRaining(isRaining);
@@ -66,27 +70,27 @@ public class NoWeather extends ToggleMod {
       getWorld().prevRainingStrength = previousRainStrength;
     }
   }
-
+  
   @Override
   public void onEnabled() {
     saveState(getWorld());
   }
-
+  
   @Override
   public void onDisabled() {
     resetState();
   }
-
+  
   @SubscribeEvent
   public void onWorldChange(WorldChangeEvent event) {
     saveState(event.getWorld());
   }
-
+  
   @SubscribeEvent
   public void onWorldTick(TickEvent.ClientTickEvent event) {
     disableRain();
   }
-
+  
   @SubscribeEvent
   public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketChangeGameState) {
@@ -112,7 +116,7 @@ public class NoWeather extends ToggleMod {
       }
     }
   }
-
+  
   @Override
   public String getDisplayText() {
     if (isRaining
@@ -120,9 +124,9 @@ public class NoWeather extends ToggleMod {
       Biome biome = getWorld().getBiome(getLocalPlayer().getPosition());
       boolean canRain = biome.canRain();
       boolean canSnow = biome.getEnableSnow();
-
+  
       String status;
-
+  
       if (getWorld().isThundering()) {
         status = "[Thunder]";
       } else if (canSnow) {
@@ -132,7 +136,7 @@ public class NoWeather extends ToggleMod {
       } else {
         status = "[Raining]";
       }
-
+  
       return super.getDisplayText() + status;
     } else {
       return super.getDisplayText();

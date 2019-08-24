@@ -1,12 +1,6 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.IFNE;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.RETURN;
-
 import com.matt.forgehax.asm.TypesHook;
-import com.matt.forgehax.asm.TypesHook.Methods;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
@@ -22,12 +16,14 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class PlayerControllerMCPatch extends ClassTransformer {
+
   public PlayerControllerMCPatch() {
     super(Classes.PlayerControllerMP);
   }
 
   @RegisterMethodTransformer
   public class SyncCurrentPlayItem extends MethodTransformer {
+  
     @Override
     public ASMMethod getMethod() {
       return Methods.PlayerControllerMC_syncCurrentPlayItem;
@@ -45,6 +41,7 @@ public class PlayerControllerMCPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   public class AttackEntity extends MethodTransformer {
+  
     @Override
     public ASMMethod getMethod() {
       return Methods.PlayerControllerMC_attackEntity;
@@ -64,6 +61,7 @@ public class PlayerControllerMCPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   public class OnPlayerDamageBlock extends MethodTransformer {
+  
     @Override
     public ASMMethod getMethod() {
       return Methods.PlayerControllerMC_onPlayerDamageBlock;
@@ -83,6 +81,7 @@ public class PlayerControllerMCPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   public class OnStoppedUsingItem extends MethodTransformer {
+  
     @Override
     public ASMMethod getMethod() {
       return Methods.PlayerControllerMC_onStoppedUsingItem;
@@ -91,7 +90,7 @@ public class PlayerControllerMCPatch extends ClassTransformer {
     @Inject(description = "Add callback at top of method")
     public void inject(MethodNode node) {
       AbstractInsnNode last =
-          ASMHelper.findPattern(node.instructions.getFirst(), new int[] {RETURN}, "x");
+        ASMHelper.findPattern(node.instructions.getFirst(), new int[]{RETURN}, "x");
 
       Objects.requireNonNull(last, "Could not find RET opcode");
 

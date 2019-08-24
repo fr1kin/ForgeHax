@@ -1,7 +1,6 @@
 package com.matt.forgehax.asm.patches;
 
 import com.matt.forgehax.asm.TypesHook;
-import com.matt.forgehax.asm.TypesHook.Methods;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
@@ -16,12 +15,14 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class EntityLivingBasePatch extends ClassTransformer {
+
   public EntityLivingBasePatch() {
     super(Classes.EntityLivingBase);
   }
 
   @RegisterMethodTransformer
   public class Travel extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.EntityLivingBase_travel;
@@ -31,28 +32,28 @@ public class EntityLivingBasePatch extends ClassTransformer {
     public void injectFirst(MethodNode node) {
       // at first underState.getBlock().getSlipperiness(...)
       AbstractInsnNode first =
-          ASMHelper.findPattern(
-              node,
-              INVOKEVIRTUAL,
-              LDC,
-              FMUL,
-              FSTORE,
-              NONE,
-              NONE,
-              NONE,
-              LDC,
-              FLOAD,
-              FLOAD,
-              FMUL,
-              FLOAD,
-              FMUL,
-              FDIV,
-              FSTORE,
-              NONE,
-              NONE,
-              ALOAD,
-              GETFIELD,
-              IFEQ);
+        ASMHelper.findPattern(
+          node,
+          INVOKEVIRTUAL,
+          LDC,
+          FMUL,
+          FSTORE,
+          NONE,
+          NONE,
+          NONE,
+          LDC,
+          FLOAD,
+          FLOAD,
+          FMUL,
+          FLOAD,
+          FMUL,
+          FDIV,
+          FSTORE,
+          NONE,
+          NONE,
+          ALOAD,
+          GETFIELD,
+          IFEQ);
 
       Objects.requireNonNull(first, "Could not find first slip motion node");
 
@@ -61,7 +62,7 @@ public class EntityLivingBasePatch extends ClassTransformer {
       list.add(new VarInsnNode(ALOAD, 6));
       list.add(new InsnNode(ICONST_0));
       list.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onEntityBlockSlipApply));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onEntityBlockSlipApply));
       // top of stack should be a modified or unmodified slippery float
 
       node.instructions.insert(first, list); // insert after
@@ -71,31 +72,31 @@ public class EntityLivingBasePatch extends ClassTransformer {
     public void injectSecond(MethodNode node) {
       // at second underState.getBlock().getSlipperiness(...)
       AbstractInsnNode second =
-          ASMHelper.findPattern(
-              node,
-              INVOKEVIRTUAL,
-              LDC,
-              FMUL,
-              FSTORE,
-              NONE,
-              NONE,
-              NONE,
-              ALOAD,
-              INVOKEVIRTUAL,
-              IFEQ,
-              NONE,
-              NONE,
-              LDC,
-              FSTORE,
-              NONE,
-              NONE,
-              ALOAD,
-              ALOAD,
-              GETFIELD,
-              LDC,
-              LDC,
-              INVOKESTATIC,
-              PUTFIELD);
+        ASMHelper.findPattern(
+          node,
+          INVOKEVIRTUAL,
+          LDC,
+          FMUL,
+          FSTORE,
+          NONE,
+          NONE,
+          NONE,
+          ALOAD,
+          INVOKEVIRTUAL,
+          IFEQ,
+          NONE,
+          NONE,
+          LDC,
+          FSTORE,
+          NONE,
+          NONE,
+          ALOAD,
+          ALOAD,
+          GETFIELD,
+          LDC,
+          LDC,
+          INVOKESTATIC,
+          PUTFIELD);
 
       Objects.requireNonNull(second, "Could not find second slip motion node");
 
@@ -104,7 +105,7 @@ public class EntityLivingBasePatch extends ClassTransformer {
       list.add(new VarInsnNode(ALOAD, 8));
       list.add(new InsnNode(ICONST_1));
       list.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onEntityBlockSlipApply));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onEntityBlockSlipApply));
       // top of stack should be a modified or unmodified slippery float
 
       node.instructions.insert(second, list); // insert after

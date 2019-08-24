@@ -5,6 +5,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class EntityBlockSlipApplyEvent extends Event {
+
   public enum Stage {
     FIRST,
     SECOND,
@@ -18,10 +19,10 @@ public class EntityBlockSlipApplyEvent extends Event {
   private float slipperiness;
 
   public EntityBlockSlipApplyEvent(
-      Stage stage,
-      EntityLivingBase entityLivingBase,
-      IBlockState blockStateUnder,
-      float defaultSlipperiness) {
+    Stage stage,
+    EntityLivingBase entityLivingBase,
+    IBlockState blockStateUnder,
+    float defaultSlipperiness) {
     this.stage = stage;
     this.entityLivingBase = entityLivingBase;
     this.blockStateUnder = blockStateUnder;

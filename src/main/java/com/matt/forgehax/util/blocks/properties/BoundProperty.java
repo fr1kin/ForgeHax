@@ -9,8 +9,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 
-/** Created on 5/21/2017 by fr1kin */
+/**
+ * Created on 5/21/2017 by fr1kin
+ */
 public class BoundProperty implements IBlockProperty {
+
   private static final String HEADING = "bounds";
 
   private final Collection<Bound> bounds = Sets.newHashSet();
@@ -26,7 +29,11 @@ public class BoundProperty implements IBlockProperty {
 
   @Nullable
   public Bound get(int minY, int maxY) {
-    for (Bound bound : bounds) if (bound.getMin() == minY && bound.getMax() == maxY) return bound;
+    for (Bound bound : bounds) {
+      if (bound.getMin() == minY && bound.getMax() == maxY) {
+        return bound;
+      }
+    }
     return null;
   }
 
@@ -38,7 +45,11 @@ public class BoundProperty implements IBlockProperty {
     if (bounds.isEmpty()) {
       return true;
     } else {
-      for (Bound bound : bounds) if (bound.isWithinBound(posY)) return true;
+      for (Bound bound : bounds) {
+        if (bound.isWithinBound(posY)) {
+          return true;
+        }
+      }
       return false;
     }
   }
@@ -82,7 +93,9 @@ public class BoundProperty implements IBlockProperty {
       builder.append(',');
       builder.append(bound.getMax());
       builder.append(']');
-      if (it.hasNext()) builder.append(", ");
+      if (it.hasNext()) {
+        builder.append(", ");
+      }
     }
     builder.append('}');
     return builder.toString();
@@ -99,11 +112,14 @@ public class BoundProperty implements IBlockProperty {
   }
 
   public static class Bound {
+  
     private final int min;
     private final int max;
 
     public Bound(int min, int max) throws IllegalArgumentException {
-      if (min > max) throw new IllegalArgumentException("min cannot be greater than max");
+      if (min > max) {
+        throw new IllegalArgumentException("min cannot be greater than max");
+      }
       this.min = min;
       this.max = max;
     }
@@ -127,6 +143,7 @@ public class BoundProperty implements IBlockProperty {
   }
 
   private static class ImmutableBoundProperty extends BoundProperty {
+  
     @Override
     public boolean add(int minY, int maxY) {
       return false;

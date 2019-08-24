@@ -5,8 +5,11 @@ import java.util.Objects;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
-/** Created on 6/22/2017 by fr1kin */
+/**
+ * Created on 6/22/2017 by fr1kin
+ */
 public class SimulationResult {
+
   private final List<Vec3d> points;
   private final double distanceTraveledSq;
   private final Entity hitEntity;
@@ -50,7 +53,9 @@ public class SimulationResult {
     Vec3d hit = getHitPos();
     if (start != null && hit != null) {
       return start.squareDistanceTo(hit);
-    } else return 0.D;
+    } else {
+      return 0.D;
+    }
   }
 
   public List<Vec3d> getPathTraveled() {

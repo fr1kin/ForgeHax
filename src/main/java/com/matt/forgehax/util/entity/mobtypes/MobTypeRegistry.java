@@ -5,8 +5,11 @@ import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 
-/** Created on 6/27/2017 by fr1kin */
+/**
+ * Created on 6/27/2017 by fr1kin
+ */
 public class MobTypeRegistry {
+  
   public static final MobType HOSTILE = new HostileMob();
   public static final MobType FRIENDLY = new FriendlyMob();
 

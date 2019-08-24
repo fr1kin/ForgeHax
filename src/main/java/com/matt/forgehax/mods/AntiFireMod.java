@@ -16,35 +16,39 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class AntiFireMod extends ToggleMod {
+  
   public AntiFireMod() {
     super(Category.PLAYER, "AntiFire", false, "Removes fire");
   }
-
+  
   private final Setting<Boolean> collisions =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("collisions")
-          .description("Give fire collision boxes")
-          .defaultTo(false)
-          .build();
-
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("collisions")
+      .description("Give fire collision boxes")
+      .defaultTo(false)
+      .build();
+  
   @SubscribeEvent
   public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
-    if (!collisions.get()) return;
-
+    if (!collisions.get()) {
+      return;
+    }
+    
     if (Helper.getLocalPlayer() != null) {
       AxisAlignedBB bb = new AxisAlignedBB(event.getPos()).expand(0, 0.1D, 0);
-      if (event.getBlock() == Blocks.FIRE && isAbovePlayer(event.getPos()) && event.getEntityBox().intersects(bb)) {
+      if (event.getBlock() == Blocks.FIRE && isAbovePlayer(event.getPos()) && event.getEntityBox()
+        .intersects(bb)) {
         event.getCollidingBoxes().add(bb);
       }
     }
   }
-
+  
   private boolean isAbovePlayer(BlockPos pos) {
     return pos.getY() >= getLocalPlayer().posY;
   }
-
+  
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     event.getEntityLiving().extinguish();

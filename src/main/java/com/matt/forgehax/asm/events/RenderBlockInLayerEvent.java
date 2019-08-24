@@ -6,13 +6,14 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class RenderBlockInLayerEvent extends Event {
+
   private final Block block;
   private final IBlockState state;
   private final BlockRenderLayer compareToLayer;
   private BlockRenderLayer layer;
 
   public RenderBlockInLayerEvent(
-      Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
+    Block block, IBlockState state, BlockRenderLayer layer, BlockRenderLayer compareToLayer) {
     this.block = block;
     this.state = state;
     this.layer = layer;

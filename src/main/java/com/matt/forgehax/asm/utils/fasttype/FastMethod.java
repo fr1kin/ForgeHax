@@ -8,8 +8,11 @@ import java.util.Arrays;
 import java.util.Objects;
 import joptsimple.internal.Strings;
 
-/** Created on 5/25/2017 by fr1kin */
+/**
+ * Created on 5/25/2017 by fr1kin
+ */
 public class FastMethod<V> extends FastType<Method> {
+
   private final Class<?>[] parameters;
 
   public FastMethod(Class<?> insideClass, IName<String> name, Class<?>[] parameters) {
@@ -23,9 +26,13 @@ public class FastMethod<V> extends FastType<Method> {
 
   public <E> V invoke(E instance, V defaultValue, Object... args) {
     try {
-      if (attemptLookup()) return (V) type.invoke(instance, args);
+      if (attemptLookup()) {
+        return (V) type.invoke(instance, args);
+      }
     } catch (Exception e) {
-      if (printOnce.compareAndSet(false, true)) ASMStackLogger.printStackTrace(e);
+      if (printOnce.compareAndSet(false, true)) {
+        ASMStackLogger.printStackTrace(e);
+      }
     }
     return defaultValue;
   }
@@ -43,13 +50,15 @@ public class FastMethod<V> extends FastType<Method> {
     Objects.requireNonNull(parameters);
     for (State state : State.values()) {
       String n = name.getByState(state);
-      if (!Strings.isNullOrEmpty(n))
+      if (!Strings.isNullOrEmpty(n)) {
         try {
           Method m = insideClass.getDeclaredMethod(n, parameters);
           m.setAccessible(true);
           return m;
-        } catch (Exception e) {;
+        } catch (Exception e) {
+          ;
         }
+      }
     }
     return null;
   }

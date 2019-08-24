@@ -1,7 +1,5 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -10,16 +8,27 @@ import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FrameNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
-/** Created on 5/5/2017 by fr1kin */
+/**
+ * Created on 5/5/2017 by fr1kin
+ */
 public class RenderChunkPatch extends ClassTransformer {
+
   public RenderChunkPatch() {
     super(Classes.RenderChunk);
   }
 
   @RegisterMethodTransformer
   private class RebuildChunk extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.RenderChunk_rebuildChunk;
@@ -29,10 +38,10 @@ public class RenderChunkPatch extends ClassTransformer {
     public void inject(MethodNode main) {
       // searches for ++renderChunksUpdated;
       AbstractInsnNode top =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {GETSTATIC, ICONST_1, IADD, PUTSTATIC},
-              "xxxx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{GETSTATIC, ICONST_1, IADD, PUTSTATIC},
+          "xxxx");
 
       Objects.requireNonNull(top, "Find pattern failed for top");
 
@@ -41,22 +50,22 @@ public class RenderChunkPatch extends ClassTransformer {
       // <--- inject somewhere here
       // if (iblockstate.isOpaqueCube())
       AbstractInsnNode loop =
-          ASMHelper.findPattern(
-              top,
-              new int[] {
-                ASTORE,
-                0x00,
-                0x00,
-                ALOAD,
-                INVOKEINTERFACE,
-                ASTORE,
-                0x00,
-                0x00,
-                ALOAD,
-                INVOKEINTERFACE,
-                IFEQ
-              },
-              "x??xxx??xxx");
+        ASMHelper.findPattern(
+          top,
+          new int[]{
+            ASTORE,
+            0x00,
+            0x00,
+            ALOAD,
+            INVOKEINTERFACE,
+            ASTORE,
+            0x00,
+            0x00,
+            ALOAD,
+            INVOKEINTERFACE,
+            IFEQ
+          },
+          "x??xxx??xxx");
 
       Objects.requireNonNull(loop, "Find pattern failed for loop");
 
@@ -112,7 +121,7 @@ public class RenderChunkPatch extends ClassTransformer {
       patch.add(new FrameNode(F_SAME, 0, null, 0, null));
       patch.add(new InsnNode(ICONST_0));
       patch.add(jumpPast);
-      patch.add(new FrameNode(F_SAME1, 0, null, 1, new Object[] {INTEGER}));
+      patch.add(new FrameNode(F_SAME1, 0, null, 1, new Object[]{INTEGER}));
       patch.add(new InsnNode(DUP));
       patch.add(new VarInsnNode(ISTORE, STORE_AT));
       patch.add(new JumpInsnNode(IFEQ, skipRenderingLabel));
@@ -149,14 +158,18 @@ public class RenderChunkPatch extends ClassTransformer {
       // for the index of blockpos$mutableblockpos, which SHOULD be the last ALOAD
       // i have to do this because optifine changes up the code at that line
       AbstractInsnNode prev = loop;
-      while (prev.getOpcode() != ALOAD) prev = prev.getPrevious();
+      while (prev.getOpcode() != ALOAD) {
+        prev = prev.getPrevious();
+      }
 
       int BLOCK_POS_INDEX = ((VarInsnNode) prev).var;
 
       // now find block
       // should just be the next ASTORE starting at the loop node
       AbstractInsnNode next2 = loop.getNext();
-      while (next2.getOpcode() != ASTORE) next2 = next2.getNext();
+      while (next2.getOpcode() != ASTORE) {
+        next2 = next2.getNext();
+      }
 
       int BLOCK_INDEX = ((VarInsnNode) next2).var;
 
@@ -191,6 +204,7 @@ public class RenderChunkPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   private class DeleteGlResources extends MethodTransformer {
+  
     @Override
     public ASMMethod getMethod() {
       return Methods.RenderChunk_deleteGlResources;
@@ -205,7 +219,7 @@ public class RenderChunkPatch extends ClassTransformer {
       InsnList insnList = new InsnList();
       insnList.add(new VarInsnNode(ALOAD, 0));
       insnList.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onDeleteGlResources));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onDeleteGlResources));
 
       main.instructions.insertBefore(node, insnList);
     }

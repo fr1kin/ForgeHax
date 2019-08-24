@@ -1,10 +1,11 @@
 package com.matt.forgehax.gui.elements;
 
-import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.mod.BaseMod;
 
-/** Created by Babbaj on 9/5/2017. */
+/**
+ * Created by Babbaj on 9/5/2017.
+ */
 public class GuiButton {
 
   private final BaseMod mod;
@@ -31,8 +32,11 @@ public class GuiButton {
   }
 
   public void toggleMod() {
-    if (!mod.isEnabled()) mod.enable();
-    else mod.disable();
+    if (!mod.isEnabled()) {
+      mod.enable();
+    } else {
+      mod.disable();
+    }
   }
 
   public String getName() {

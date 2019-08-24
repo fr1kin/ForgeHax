@@ -4,8 +4,11 @@ import com.matt.forgehax.util.common.PriorityEnum;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityWolf;
 
-/** Created on 6/27/2017 by fr1kin */
+/**
+ * Created on 6/27/2017 by fr1kin
+ */
 public class WolfMob extends MobType {
+  
   @Override
   protected PriorityEnum getPriority() {
     return PriorityEnum.LOW;

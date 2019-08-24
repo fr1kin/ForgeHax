@@ -1,7 +1,5 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -10,15 +8,23 @@ import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 public class EntityPatch extends ClassTransformer {
+
   public EntityPatch() {
     super(Classes.Entity);
   }
 
   @RegisterMethodTransformer
   private class ApplyEntityCollision extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.Entity_applyEntityCollision;
@@ -27,21 +33,21 @@ public class EntityPatch extends ClassTransformer {
     @Inject(description = "Add hook to disable push motion")
     private void inject(MethodNode main) {
       AbstractInsnNode thisEntityPreNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {ALOAD, DLOAD, DNEG, DCONST_0, DLOAD, DNEG, INVOKEVIRTUAL},
-              "xxxxxxx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{ALOAD, DLOAD, DNEG, DCONST_0, DLOAD, DNEG, INVOKEVIRTUAL},
+          "xxxxxxx");
       // start at preNode, and scan for next INVOKEVIRTUAL sig
       AbstractInsnNode thisEntityPostNode =
-          ASMHelper.findPattern(thisEntityPreNode, new int[] {INVOKEVIRTUAL}, "x");
+        ASMHelper.findPattern(thisEntityPreNode, new int[]{INVOKEVIRTUAL}, "x");
       AbstractInsnNode otherEntityPreNode =
-          ASMHelper.findPattern(
-              thisEntityPostNode,
-              new int[] {ALOAD, DLOAD, DCONST_0, DLOAD, INVOKEVIRTUAL},
-              "xxxxx");
+        ASMHelper.findPattern(
+          thisEntityPostNode,
+          new int[]{ALOAD, DLOAD, DCONST_0, DLOAD, INVOKEVIRTUAL},
+          "xxxxx");
       // start at preNode, and scan for next INVOKEVIRTUAL sig
       AbstractInsnNode otherEntityPostNode =
-          ASMHelper.findPattern(otherEntityPreNode, new int[] {INVOKEVIRTUAL}, "x");
+        ASMHelper.findPattern(otherEntityPreNode, new int[]{INVOKEVIRTUAL}, "x");
 
       Objects.requireNonNull(thisEntityPreNode, "Find pattern failed for thisEntityPreNode");
       Objects.requireNonNull(thisEntityPostNode, "Find pattern failed for thisEntityPostNode");
@@ -61,7 +67,7 @@ public class EntityPatch extends ClassTransformer {
       insnThisPre.add(new VarInsnNode(DLOAD, 4));
       insnThisPre.add(new InsnNode(DNEG)); // push -Z
       insnThisPre.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onApplyCollisionMotion));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onApplyCollisionMotion));
       insnThisPre.add(new JumpInsnNode(IFNE, endJumpForThis));
 
       InsnList insnOtherPre = new InsnList();
@@ -70,7 +76,7 @@ public class EntityPatch extends ClassTransformer {
       insnOtherPre.add(new VarInsnNode(DLOAD, 2)); // push X
       insnOtherPre.add(new VarInsnNode(DLOAD, 4)); // push Z
       insnOtherPre.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onApplyCollisionMotion));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onApplyCollisionMotion));
       insnOtherPre.add(new JumpInsnNode(IFNE, endJumpForOther));
 
       main.instructions.insertBefore(thisEntityPreNode, insnThisPre);
@@ -83,6 +89,7 @@ public class EntityPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   private class MoveEntity extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.Entity_move;
@@ -91,10 +98,10 @@ public class EntityPatch extends ClassTransformer {
     @Inject(description = "Insert flag into statement that performs sneak movement")
     public void inject(MethodNode main) {
       AbstractInsnNode sneakFlagNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {IFEQ, ALOAD, INSTANCEOF, IFEQ, 0x00, 0x00, LDC, DSTORE},
-              "xxxx??xx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{IFEQ, ALOAD, INSTANCEOF, IFEQ, 0x00, 0x00, LDC, DSTORE},
+          "xxxx??xx");
 
       Objects.requireNonNull(sneakFlagNode, "Find pattern failed for sneakFlagNode");
 
@@ -111,8 +118,8 @@ public class EntityPatch extends ClassTransformer {
 
       InsnList insnList = new InsnList();
       insnList.add(
-          new JumpInsnNode(
-              IFNE, orJump)); // if not equal, jump past the ForgeHaxHooks.isSafeWalkActivated
+        new JumpInsnNode(
+          IFNE, orJump)); // if not equal, jump past the ForgeHaxHooks.isSafeWalkActivated
       insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isSafeWalkActivated));
       insnList.add(new JumpInsnNode(IFEQ, jumpToLabel));
       insnList.add(orJump);
@@ -125,6 +132,7 @@ public class EntityPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   private class DoBlockCollisions extends MethodTransformer {
+  
     @Override
     public ASMMethod getMethod() {
       return Methods.Entity_doBlockCollisions;
@@ -133,23 +141,23 @@ public class EntityPatch extends ClassTransformer {
     @Inject(description = "Add hook to disable block motion effects")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {
-                ASTORE,
-                0x00,
-                0x00,
-                ALOAD,
-                INVOKEINTERFACE,
-                ALOAD,
-                GETFIELD,
-                ALOAD,
-                ALOAD,
-                ALOAD,
-                INVOKEVIRTUAL
-              },
-              "x??xxxxxxxx");
-      AbstractInsnNode postNode = ASMHelper.findPattern(preNode, new int[] {GOTO}, "x");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{
+            ASTORE,
+            0x00,
+            0x00,
+            ALOAD,
+            INVOKEINTERFACE,
+            ALOAD,
+            GETFIELD,
+            ALOAD,
+            ALOAD,
+            ALOAD,
+            INVOKEVIRTUAL
+          },
+          "x??xxxxxxxx");
+      AbstractInsnNode postNode = ASMHelper.findPattern(preNode, new int[]{GOTO}, "x");
 
       Objects.requireNonNull(preNode, "Find pattern failed for preNode");
       Objects.requireNonNull(postNode, "Find pattern failed for postNode");

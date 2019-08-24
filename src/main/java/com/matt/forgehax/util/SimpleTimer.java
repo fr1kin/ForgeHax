@@ -6,8 +6,11 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-/** Created on 8/22/2017 by fr1kin */
+/**
+ * Created on 8/22/2017 by fr1kin
+ */
 public class SimpleTimer {
+
   private static final DateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss.SSS");
   private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -27,7 +30,9 @@ public class SimpleTimer {
   private long timeStopped = -1;
 
   public SimpleTimer(boolean startOnInit) {
-    if (startOnInit) start();
+    if (startOnInit) {
+      start();
+    }
   }
 
   public SimpleTimer() {
@@ -89,8 +94,11 @@ public class SimpleTimer {
   protected static String formatInterval(long delta) {
     final long hr = TimeUnit.MILLISECONDS.toHours(delta);
     final long min = TimeUnit.MILLISECONDS.toMinutes(delta - TimeUnit.HOURS.toMillis(hr));
-    final long sec = TimeUnit.MILLISECONDS.toSeconds(delta - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
-    final long ms = TimeUnit.MILLISECONDS.toMillis(delta - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
+    final long sec = TimeUnit.MILLISECONDS
+      .toSeconds(delta - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
+    final long ms = TimeUnit.MILLISECONDS.toMillis(
+      delta - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS
+        .toMillis(sec));
     return String.format("%02d:%02d:%02d.%03d", hr, min, sec, ms);
   }
 }

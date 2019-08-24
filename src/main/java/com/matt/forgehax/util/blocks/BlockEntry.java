@@ -9,14 +9,21 @@ import com.matt.forgehax.util.blocks.properties.IBlockProperty;
 import com.matt.forgehax.util.blocks.properties.PropertyFactory;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import joptsimple.internal.Strings;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 
-/** Created on 5/19/2017 by fr1kin */
+/**
+ * Created on 5/19/2017 by fr1kin
+ */
 public class BlockEntry implements ISerializableJson, Globals {
+
   private enum OpenMode {
     READ,
     WRITE,
@@ -48,7 +55,9 @@ public class BlockEntry implements ISerializableJson, Globals {
 
   public BlockEntry(Block block, int meta, boolean check) throws BlockDoesNotExistException {
     meta = Math.max(meta, 0);
-    if (check) BlockOptionHelper.requiresValidBlock(block, meta);
+    if (check) {
+      BlockOptionHelper.requiresValidBlock(block, meta);
+    }
     this.block = block;
     this.meta = BlockOptionHelper.getAllBlocks(block).size() > 1 ? meta : -1;
     this.uniqueId = getResourceName() + (isMetadata() ? ("::" + getMetadata()) : Strings.EMPTY);
@@ -80,17 +89,17 @@ public class BlockEntry implements ISerializableJson, Globals {
 
   public String getResourceName() {
     return block != null
-        ? (block.getRegistryName() != null ? block.getRegistryName().toString() : block.toString())
-        : Strings.EMPTY;
+      ? (block.getRegistryName() != null ? block.getRegistryName().toString() : block.toString())
+      : Strings.EMPTY;
   }
 
   public String getPrettyName() {
     return block != null
-        ? ((block.getRegistryName() != null
-                ? block.getRegistryName().getResourcePath()
-                : block.toString())
-            + (isMetadata() ? ":" + meta : Strings.EMPTY))
-        : Strings.EMPTY;
+      ? ((block.getRegistryName() != null
+      ? block.getRegistryName().getResourcePath()
+      : block.toString())
+      + (isMetadata() ? ":" + meta : Strings.EMPTY))
+      : Strings.EMPTY;
   }
 
   public Block getBlock() {
@@ -111,17 +120,17 @@ public class BlockEntry implements ISerializableJson, Globals {
         return properties.getOrDefault(clazz, PropertyFactory.getImmutableInstance(clazz)).cast();
       case WRITE:
         return properties
-            .computeIfAbsent(
-                clazz,
-                c -> {
-                  IBlockProperty property = PropertyFactory.newInstance(c);
-                  registerProperty(property);
-                  return property;
-                })
-            .cast();
+          .computeIfAbsent(
+            clazz,
+            c -> {
+              IBlockProperty property = PropertyFactory.newInstance(c);
+              registerProperty(property);
+              return property;
+            })
+          .cast();
     }
     throw new IllegalArgumentException(
-        String.format("No such property \"%s\" (Possibly not registered?)", clazz.getSimpleName()));
+      String.format("No such property \"%s\" (Possibly not registered?)", clazz.getSimpleName()));
   }
 
   /**
@@ -150,11 +159,16 @@ public class BlockEntry implements ISerializableJson, Globals {
   public <T extends IBlockProperty> T getWritableProperty(@Nonnull Class<T> clazz) {
     return getProperty(clazz, OpenMode.WRITE);
   }
-
-  /** Unregisters any property that is not necessary. Call this after using getWritableProperty */
+  
+  /**
+   * Unregisters any property that is not necessary. Call this after using getWritableProperty
+   */
   public void cleanupProperties() {
-    for (IBlockProperty property : properties.values())
-      if (!property.isNecessary()) unregisterProperty(property);
+    for (IBlockProperty property : properties.values()) {
+      if (!property.isNecessary()) {
+        unregisterProperty(property);
+      }
+    }
   }
 
   boolean isEqual(Block block, int meta) {
@@ -170,7 +184,9 @@ public class BlockEntry implements ISerializableJson, Globals {
       builder.append(option.toString());
       builder.append("=");
       builder.append(option.helpText());
-      if (it.hasNext()) builder.append(", ");
+      if (it.hasNext()) {
+        builder.append(", ");
+      }
     }
     builder.append("}");
     return builder.toString();
@@ -206,13 +222,15 @@ public class BlockEntry implements ISerializableJson, Globals {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof BlockEntry)
+    if (obj instanceof BlockEntry) {
       return getUniqueName().compareTo(((BlockEntry) obj).getUniqueName()) == 0;
-    else if (obj instanceof IBlockState) {
+    } else if (obj instanceof IBlockState) {
       return isEqual(
-          ((IBlockState) obj).getBlock(),
-          ((IBlockState) obj).getBlock().getMetaFromState((IBlockState) obj));
-    } else return hashCode() == obj.hashCode();
+        ((IBlockState) obj).getBlock(),
+        ((IBlockState) obj).getBlock().getMetaFromState((IBlockState) obj));
+    } else {
+      return hashCode() == obj.hashCode();
+    }
   }
 
   @Override

@@ -7,13 +7,17 @@ import java.util.Objects;
 import joptsimple.internal.Strings;
 import org.objectweb.asm.Type;
 
-/** Created on 5/27/2017 by fr1kin */
+/**
+ * Created on 5/27/2017 by fr1kin
+ */
 public class ASMClassBuilder implements ASMCommon {
+
   private Type name = null, srgName = null, obfuscatedName = null;
 
   private boolean auto = false;
-
-  protected ASMClassBuilder() {}
+  
+  protected ASMClassBuilder() {
+  }
 
   public ASMClassBuilder setClassName(Type type) {
     name = type;
@@ -22,7 +26,7 @@ public class ASMClassBuilder implements ASMCommon {
 
   public ASMClassBuilder setClassName(String internalClassName) {
     return setClassName(
-        !Strings.isNullOrEmpty(internalClassName) ? Type.getObjectType(internalClassName) : null);
+      !Strings.isNullOrEmpty(internalClassName) ? Type.getObjectType(internalClassName) : null);
   }
 
   public ASMClassBuilder setClassName(Class<?> clazz) {
@@ -31,17 +35,17 @@ public class ASMClassBuilder implements ASMCommon {
 
   public ASMClassBuilder setSrgClassName(String srgInternalClassName) {
     srgName =
-        !Strings.isNullOrEmpty(srgInternalClassName)
-            ? Type.getObjectType(srgInternalClassName)
-            : null;
+      !Strings.isNullOrEmpty(srgInternalClassName)
+        ? Type.getObjectType(srgInternalClassName)
+        : null;
     return this;
   }
 
   public ASMClassBuilder setObfuscatedClassName(String obfuscatedInternalClassName) {
     obfuscatedName =
-        !Strings.isNullOrEmpty(obfuscatedInternalClassName)
-            ? Type.getObjectType(obfuscatedInternalClassName)
-            : null;
+      !Strings.isNullOrEmpty(obfuscatedInternalClassName)
+        ? Type.getObjectType(obfuscatedInternalClassName)
+        : null;
     return this;
   }
 
@@ -57,7 +61,9 @@ public class ASMClassBuilder implements ASMCommon {
 
   public ASMClass build() {
     Objects.requireNonNull(name, "Class name is missing");
-    if (auto) attemptAutoAssign();
+    if (auto) {
+      attemptAutoAssign();
+    }
     return new ASMClass(NameBuilder.create(name, srgName, obfuscatedName));
   }
 }

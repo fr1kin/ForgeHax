@@ -13,18 +13,21 @@ import java.util.Arrays;
 import java.util.Collection;
 import joptsimple.internal.Strings;
 
-/** Created on 6/1/2017 by fr1kin */
+/**
+ * Created on 6/1/2017 by fr1kin
+ */
 public class CommandMod extends ServiceMod {
+  
   private final Collection<Command> commands = Lists.newArrayList();
-
+  
   public CommandMod(String name, String desc) {
     super(name, desc);
   }
-
+  
   public CommandMod(String name) {
     super(name, Strings.EMPTY);
   }
-
+  
   @Override
   protected void onLoad() {
     try {
@@ -32,8 +35,8 @@ public class CommandMod extends ServiceMod {
         try {
           m.setAccessible(true);
           if (m.isAnnotationPresent(RegisterCommand.class)
-              && Arrays.equals(m.getParameterTypes(), new Class<?>[] {CommandBuilders.class})
-              && Command.class.isAssignableFrom(m.getReturnType())) {
+            && Arrays.equals(m.getParameterTypes(), new Class<?>[]{CommandBuilders.class})
+            && Command.class.isAssignableFrom(m.getReturnType())) {
             commands.add((Command) m.invoke(this, Helper.getGlobalCommand().builders()));
           }
         } catch (Throwable t) {
@@ -44,13 +47,15 @@ public class CommandMod extends ServiceMod {
       Helper.handleThrowable(t);
     }
   }
-
+  
   @Override
   protected void onUnload() {
     commands.forEach(Command::leaveParent);
   }
-
+  
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface RegisterCommand {}
+  public @interface RegisterCommand {
+  
+  }
 }

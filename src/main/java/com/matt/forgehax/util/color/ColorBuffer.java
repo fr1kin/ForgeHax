@@ -1,7 +1,10 @@
 package com.matt.forgehax.util.color;
 
-/** Created on 2/5/2018 by fr1kin */
+/**
+ * Created on 2/5/2018 by fr1kin
+ */
 public class ColorBuffer extends Color {
+
   private static final Color FACTORY = new ColorBuffer();
 
   public static Color getFactory() {
@@ -30,7 +33,7 @@ public class ColorBuffer extends Color {
   @Override
   public Color set(float red, float green, float blue, float alpha) {
     return set(
-        (int) (red * 255.f), (int) (green * 255.f), (int) (blue * 255.f), (int) (alpha * 255.f));
+      (int) (red * 255.f), (int) (green * 255.f), (int) (blue * 255.f), (int) (alpha * 255.f));
   }
 
   @Override
@@ -80,7 +83,7 @@ public class ColorBuffer extends Color {
 
   @Override
   public float[] toFloatArray() {
-    return new float[] {getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat()};
+    return new float[]{getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat()};
   }
 
   @Override

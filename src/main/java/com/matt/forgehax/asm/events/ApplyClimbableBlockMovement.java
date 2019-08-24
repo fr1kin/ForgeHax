@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 @Cancelable
 public class ApplyClimbableBlockMovement extends LivingEvent {
+  
   public ApplyClimbableBlockMovement(EntityLivingBase entity) {
     super(entity);
   }

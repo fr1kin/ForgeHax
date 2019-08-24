@@ -2,7 +2,11 @@ package com.matt.forgehax.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -12,23 +16,36 @@ import javax.annotation.Nullable;
 
 // credits to http://www.nurkiewicz.com/2014/07/introduction-to-writing-custom.html
 
-/** Created on 2/6/2018 by fr1kin */
+/**
+ * Created on 2/6/2018 by fr1kin
+ */
 public class Immutables {
+
   public static <T> Collection<T> copy(@Nullable Collection<T> collection) {
     return copyToList(collection);
   }
 
   public static <T> List<T> copyToList(@Nullable Collection<T> collection) {
-    if (collection == null || collection.isEmpty()) return Collections.emptyList();
-    if (collection instanceof ImmutableList) return (List<T>) collection;
-    else if (collection.size() == 1) return Collections.singletonList(collection.iterator().next());
-    else return ImmutableList.copyOf(collection);
+    if (collection == null || collection.isEmpty()) {
+      return Collections.emptyList();
+    }
+    if (collection instanceof ImmutableList) {
+      return (List<T>) collection;
+    } else if (collection.size() == 1) {
+      return Collections.singletonList(collection.iterator().next());
+    } else {
+      return ImmutableList.copyOf(collection);
+    }
   }
 
   public static <T> Set<T> copyToSet(@Nullable Collection<T> collection) {
-    if (collection == null || collection.isEmpty()) return Collections.emptySet();
-    else if (collection.size() == 1) return Collections.singleton(collection.iterator().next());
-    else return ImmutableSet.copyOf(collection);
+    if (collection == null || collection.isEmpty()) {
+      return Collections.emptySet();
+    } else if (collection.size() == 1) {
+      return Collections.singleton(collection.iterator().next());
+    } else {
+      return ImmutableSet.copyOf(collection);
+    }
   }
 
   public static <T> Collector<T, ImmutableSet.Builder<T>, ImmutableSet<T>> toImmutableSet() {
@@ -40,7 +57,8 @@ public class Immutables {
   }
 
   private static class ImmutableSetCollector<E>
-      implements Collector<E, ImmutableSet.Builder<E>, ImmutableSet<E>> {
+    implements Collector<E, ImmutableSet.Builder<E>, ImmutableSet<E>> {
+
     @Override
     public Supplier<ImmutableSet.Builder<E>> supplier() {
       return ImmutableSet::builder;
@@ -71,7 +89,8 @@ public class Immutables {
   }
 
   private static class ImmutableListCollector<E>
-      implements Collector<E, ImmutableList.Builder<E>, ImmutableList<E>> {
+    implements Collector<E, ImmutableList.Builder<E>, ImmutableList<E>> {
+
     @Override
     public Supplier<ImmutableList.Builder<E>> supplier() {
       return ImmutableList::builder;

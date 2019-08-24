@@ -1,7 +1,5 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -10,15 +8,21 @@ import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
 
 public class VisGraphPatch extends ClassTransformer {
+
   public VisGraphPatch() {
     super(Classes.VisGraph);
   }
 
   @RegisterMethodTransformer
   private class SetOpaqueCube extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.VisGraph_setOpaqueCube;
@@ -28,7 +32,7 @@ public class VisGraphPatch extends ClassTransformer {
     public void inject(MethodNode main) {
       AbstractInsnNode top = main.instructions.getFirst();
       AbstractInsnNode bottom =
-          ASMHelper.findPattern(main.instructions.getFirst(), new int[] {RETURN}, "x");
+        ASMHelper.findPattern(main.instructions.getFirst(), new int[]{RETURN}, "x");
 
       Objects.requireNonNull(top, "Find pattern failed for top");
       Objects.requireNonNull(bottom, "Find pattern failed for bottom");
@@ -37,7 +41,7 @@ public class VisGraphPatch extends ClassTransformer {
 
       InsnList insnList = new InsnList();
       insnList.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldDisableCaveCulling));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldDisableCaveCulling));
       insnList.add(new JumpInsnNode(IFNE, cancelNode));
 
       main.instructions.insertBefore(top, insnList);
@@ -47,6 +51,7 @@ public class VisGraphPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   private class ComputeVisibility extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.VisGraph_computeVisibility;
@@ -54,11 +59,11 @@ public class VisGraphPatch extends ClassTransformer {
 
     @Inject(
       description =
-          "Add hook that adds or logic to the jump that checks if setAllVisible(true) should be called"
+        "Add hook that adds or logic to the jump that checks if setAllVisible(true) should be called"
     )
     public void inject(MethodNode main) {
       AbstractInsnNode node =
-          ASMHelper.findPattern(main.instructions.getFirst(), new int[] {SIPUSH, IF_ICMPGE}, "xx");
+        ASMHelper.findPattern(main.instructions.getFirst(), new int[]{SIPUSH, IF_ICMPGE}, "xx");
 
       Objects.requireNonNull(node, "Find pattern failed for node");
 
@@ -73,7 +78,7 @@ public class VisGraphPatch extends ClassTransformer {
       InsnList insnList = new InsnList();
       insnList.add(new JumpInsnNode(IF_ICMPLT, orLabel));
       insnList.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldDisableCaveCulling));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldDisableCaveCulling));
       insnList.add(new JumpInsnNode(IFEQ, nextIfStatement));
       insnList.add(orLabel);
 

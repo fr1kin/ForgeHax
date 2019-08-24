@@ -13,21 +13,22 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class AutoWalkMod extends ToggleMod {
+  
   public final Setting<Boolean> stop_at_unloaded_chunks =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("stop_at_unloaded_chunks")
-          .description("Stops moving at unloaded chunks")
-          .defaultTo(true)
-          .build();
-
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("stop_at_unloaded_chunks")
+      .description("Stops moving at unloaded chunks")
+      .defaultTo(true)
+      .build();
+  
   private boolean isBound = false;
-
+  
   public AutoWalkMod() {
     super(Category.PLAYER, "AutoWalk", false, "Automatically walks forward");
   }
-
+  
   @Override
   public void onDisabled() {
     if (isBound) {
@@ -36,18 +37,21 @@ public class AutoWalkMod extends ToggleMod {
       isBound = false;
     }
   }
-
+  
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (!isBound) {
       Bindings.forward.bind();
       isBound = true;
     }
-    if (!Bindings.forward.getBinding().isKeyDown()) Bindings.forward.setPressed(true);
-
+    if (!Bindings.forward.getBinding().isKeyDown()) {
+      Bindings.forward.setPressed(true);
+    }
+    
     if (stop_at_unloaded_chunks.get()) {
-      if (!getWorld().getChunkFromBlockCoords(getLocalPlayer().getPosition()).isLoaded())
+      if (!getWorld().getChunkFromBlockCoords(getLocalPlayer().getPosition()).isLoaded()) {
         Bindings.forward.setPressed(false);
+      }
     }
   }
 }

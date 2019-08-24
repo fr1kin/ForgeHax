@@ -1,9 +1,6 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
-import com.matt.forgehax.asm.TypesHook.Methods;
 import com.matt.forgehax.asm.events.RenderTabNameEvent;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.AsmPattern;
@@ -15,16 +12,28 @@ import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
-/** Created by Babbaj on 8/9/2017. thanks 086 :3 */
+/**
+ * Created by Babbaj on 8/9/2017. thanks 086 :3
+ */
 public class PlayerTabOverlayPatch extends ClassTransformer {
+
   public PlayerTabOverlayPatch() {
     super(Classes.GuiPlayerTabOverlay);
   }
 
   @RegisterMethodTransformer
   private class RenderPlayerlist_renderIcon extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.PlayerTabOverlay_renderPlayerList;
@@ -33,19 +42,19 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
     @Inject(description = "Add hook to increase the size of the tab list")
     public void inject(MethodNode main) {
       AbstractInsnNode subListNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {
-                ALOAD,
-                ICONST_0,
-                ALOAD,
-                INVOKEINTERFACE,
-                BIPUSH,
-                INVOKESTATIC,
-                INVOKEINTERFACE,
-                ASTORE
-              },
-              "xxxxxxxx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{
+            ALOAD,
+            ICONST_0,
+            ALOAD,
+            INVOKEINTERFACE,
+            BIPUSH,
+            INVOKESTATIC,
+            INVOKEINTERFACE,
+            ASTORE
+          },
+          "xxxxxxxx");
 
       AbstractInsnNode astoreNode = subListNode;
       for (int i = 0; i < 7; i++) {
@@ -68,6 +77,7 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   private class RenderPlayerlist_renderName extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.PlayerTabOverlay_renderPlayerList;
@@ -76,34 +86,34 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
     @Inject(description = "Add hook to change color of names in player list")
     public void inject(MethodNode main) { // TODO: do this better
       final LabelNode eventVarStart =
-          (LabelNode)
-              new AsmPattern.Builder(AsmPattern.IGNORE_FRAMES | AsmPattern.IGNORE_LINENUMBERS)
-                  .custom(
-                      insn ->
-                          insn.getOpcode() == ALOAD
-                              && ((VarInsnNode) insn).var == 24) // networkplayerinfo1
-                  .opcodes(
-                      INVOKEVIRTUAL,
-                      GETSTATIC,
-                      IF_ACMPNE) // if (networkplayerinfo1.getGameType() == GameType.SPECTATOR)
-                  .build()
-                  .test(main)
-                  .getLast()
-                  .getNext(); // start of the scope of the new local var
+        (LabelNode)
+          new AsmPattern.Builder(AsmPattern.IGNORE_FRAMES | AsmPattern.IGNORE_LINENUMBERS)
+            .custom(
+              insn ->
+                insn.getOpcode() == ALOAD
+                  && ((VarInsnNode) insn).var == 24) // networkplayerinfo1
+            .opcodes(
+              INVOKEVIRTUAL,
+              GETSTATIC,
+              IF_ACMPNE) // if (networkplayerinfo1.getGameType() == GameType.SPECTATOR)
+            .build()
+            .test(main)
+            .getLast()
+            .getNext(); // start of the scope of the new local var
 
       final AsmPattern getFontRendererPattern =
-          new AsmPattern.Builder(AsmPattern.CODE_ONLY)
-              .custom(insn -> insn.getOpcode() == ALOAD && ((VarInsnNode) insn).var == 0) // this
-              .opcodes(GETFIELD, GETFIELD)
-              .build();
+        new AsmPattern.Builder(AsmPattern.CODE_ONLY)
+          .custom(insn -> insn.getOpcode() == ALOAD && ((VarInsnNode) insn).var == 0) // this
+          .opcodes(GETFIELD, GETFIELD)
+          .build();
 
       final AsmPattern drawStringPattern =
-          new AsmPattern.Builder(AsmPattern.CODE_ONLY)
-              .opcodes(ILOAD, I2F, ILOAD, I2F)
-              .any() // color
-              .opcode(INVOKEVIRTUAL)
-              .opcode(POP)
-              .build();
+        new AsmPattern.Builder(AsmPattern.CODE_ONLY)
+          .opcodes(ILOAD, I2F, ILOAD, I2F)
+          .any() // color
+          .opcode(INVOKEVIRTUAL)
+          .opcode(POP)
+          .build();
 
       final int index_s4 = 26; // TODO: get this dynamically
 
@@ -114,15 +124,15 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
       final InsnPattern renderNormal = drawStringPattern.test(renderSpectator.getLast());
 
       final LabelNode eventVarEnd =
-          ((JumpInsnNode) renderSpectator.getLast().getNext()).label; // label from the goto
+        ((JumpInsnNode) renderSpectator.getLast().getNext()).label; // label from the goto
 
       final int eventVar =
-          ASMHelper.addNewLocalVariable(
-              main,
-              "event",
-              Type.getDescriptor(RenderTabNameEvent.class),
-              eventVarStart,
-              eventVarEnd);
+        ASMHelper.addNewLocalVariable(
+          main,
+          "event",
+          Type.getDescriptor(RenderTabNameEvent.class),
+          eventVarStart,
+          eventVarEnd);
 
       createAndFireEvent(main, renderSpectatorPre.getLast(), eventVar, index_s4);
       createAndFireEvent(main, renderNormalPre.getLast(), eventVar, index_s4);
@@ -136,8 +146,8 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, eventVar));
       list.add(
-          new MethodInsnNode(
-              INVOKEVIRTUAL, Type.getInternalName(RenderTabNameEvent.class), "getColor", "()I"));
+        new MethodInsnNode(
+          INVOKEVIRTUAL, Type.getInternalName(RenderTabNameEvent.class), "getColor", "()I"));
 
       method.instructions.insert(node, list); // insert at constant
       method.instructions.remove(node); // remove constant
@@ -145,7 +155,7 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
 
     // creates and fires the event, sets the variable for the event and sets name variable
     private void createAndFireEvent(
-        MethodNode method, AbstractInsnNode location, int variableIndex, int nameIndex) {
+      MethodNode method, AbstractInsnNode location, int variableIndex, int nameIndex) {
       final InsnList list = new InsnList();
 
       // arguments
@@ -154,20 +164,20 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
       eventObjectArgs.add(new LdcInsnNode(-1)); // TODO: get original value
 
       list.add(
-          ASMHelper.newInstance(
-              Type.getInternalName(RenderTabNameEvent.class),
-              "(Ljava/lang/String;I)V",
-              eventObjectArgs));
+        ASMHelper.newInstance(
+          Type.getInternalName(RenderTabNameEvent.class),
+          "(Ljava/lang/String;I)V",
+          eventObjectArgs));
       list.add(new InsnNode(DUP)); // for firing event
       list.add(new InsnNode(DUP)); // for getName
       list.add(new VarInsnNode(ASTORE, variableIndex));
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_fireEvent_v));
       list.add(
-          new MethodInsnNode(
-              INVOKEVIRTUAL,
-              Type.getInternalName(RenderTabNameEvent.class),
-              "getName",
-              "()Ljava/lang/String;"));
+        new MethodInsnNode(
+          INVOKEVIRTUAL,
+          Type.getInternalName(RenderTabNameEvent.class),
+          "getName",
+          "()Ljava/lang/String;"));
       list.add(new VarInsnNode(ASTORE, nameIndex));
 
       method.instructions.insert(location, list);
