@@ -76,6 +76,10 @@ public class ClickGui extends GuiScreen implements Globals {
     for (GuiWindow window : windowList) {
       window.drawWindow(mouseX, mouseY);
     }
+
+    for (GuiWindow window : windowList) {
+      window.drawTooltip(mouseX, mouseY);
+    }
   }
 
   public void mouseClicked(int mouseX, int mouseY, int b) throws IOException {

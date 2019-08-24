@@ -82,6 +82,8 @@ public abstract class GuiWindow {
         posX, windowY, width, height, Utils.toRGBA(130, 130, 130, 255), 80, 3);
   }
 
+  public void drawTooltip(int mouseX, int mouseY) {}
+
   public void drawHeader() {
     // draw the title of the window
     SurfaceHelper.drawOutlinedRectShaded(
