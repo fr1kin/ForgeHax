@@ -123,6 +123,11 @@ public class GuiWindowMod extends GuiWindow {
     // update variables
     bottomX = posX + width; // set the coords of the bottom right corner for mouse coord testing
     bottomY = windowY + height;
+  }
+
+  @Override
+  public void drawTooltip(int mouseX, int mouseY) {
+    int scale = ClickGui.scaledRes.getScaleFactor();
 
     if (mouseX >= posX && mouseX < bottomX &&
         mouseY >= windowY + (5 / scale) && mouseY < bottomY - (5 / scale))
