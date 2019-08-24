@@ -16,12 +16,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -30,7 +28,6 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 import static com.matt.forgehax.Helper.printInform;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 @RegisterMod
 public class CoordsFinder extends ToggleMod {
@@ -97,39 +94,11 @@ public class CoordsFinder extends ToggleMod {
           .defaultTo(256)
           .build();
 
-  private final Path log = getFileManager().getBaseResolve("logs/coordsfinder.log");
+  private final Path logPath = getFileManager().getBaseResolve("logs/coordsfinder.log");
   private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
-  private BufferedWriter logWriter;
 
   public CoordsFinder() {
     super(Category.MISC, "CoordsFinder", false, "Logs coordinates of lightning strikes and teleports");
-  }
-
-  @Override
-  protected void onEnabled() {
-    super.onEnabled();
-
-    try {
-      if (!Files.exists(log)) Files.createFile(log);
-
-      logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(log.toFile(), true)));
-    } catch (Throwable t) {
-      t.printStackTrace();
-    }
-  }
-
-  @Override
-  protected void onDisabled() {
-    try {
-      if (nonNull(logWriter))
-        logWriter.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      logWriter = null;
-    }
-
-    super.onDisabled();
   }
 
   private void logCoords(String name, double x, double y, double z) {
@@ -139,14 +108,11 @@ public class CoordsFinder extends ToggleMod {
 
     printInform("%s > [x:%d, y:%d, z:%d]", name, ix, iy, iz);
 
-    if (nonNull(logWriter)) {
-      try {
-        logWriter.write(String.format("[%s][%s][%d,%d,%d]", timeFormat.format(new Date()), name, ix, iy, iz));
-        logWriter.newLine();
-        logWriter.flush();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+    try {
+      String toWrite = String.format("[%s][%s][%d,%d,%d]\n", timeFormat.format(new Date()), name, ix, iy, iz);
+      Files.write(logPath, toWrite.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
