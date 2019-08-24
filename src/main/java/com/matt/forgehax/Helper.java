@@ -154,37 +154,44 @@ public class Helper implements Globals {
     printMessage(String.format(format, args));
   }
   
-  private static ITextComponent getFormattedText(
-    String text, TextFormatting color, boolean bold, boolean italic) {
+  private static ITextComponent getFormattedText(String text, TextFormatting color,
+    boolean bold, boolean italic) {
     return new TextComponentString(text.replaceAll("\r", ""))
-      .setStyle(new Style().setColor(color).setBold(bold).setItalic(italic));
+      .setStyle(new Style()
+        .setColor(color)
+        .setBold(bold)
+        .setItalic(italic)
+      );
   }
   
   public static void printInform(String format, Object... args) {
     outputMessage(
       getFormattedText("[ForgeHax]", TextFormatting.GREEN, true, false)
         .appendSibling(
-          getFormattedText(
-            " " + String.format(format, args).trim(), TextFormatting.GRAY, false, false))
-        .getFormattedText());
+          getFormattedText(" " + String.format(format, args).trim(),
+            TextFormatting.GRAY, false, false)
+        ).getFormattedText()
+    );
   }
   
   public static void printWarning(String format, Object... args) {
     outputMessage(
       getFormattedText("[ForgeHax]", TextFormatting.YELLOW, true, false)
         .appendSibling(
-          getFormattedText(
-            " " + String.format(format, args).trim(), TextFormatting.GRAY, false, false))
-        .getFormattedText());
+          getFormattedText(" " + String.format(format, args).trim(),
+            TextFormatting.GRAY, false, false)
+        ).getFormattedText()
+    );
   }
   
   public static void printError(String format, Object... args) {
     outputMessage(
       getFormattedText("[ForgeHax]", TextFormatting.RED, true, false)
         .appendSibling(
-          getFormattedText(
-            " " + String.format(format, args).trim(), TextFormatting.GRAY, false, false))
-        .getFormattedText());
+          getFormattedText(" " + String.format(format, args).trim(),
+            TextFormatting.GRAY, false, false)
+        ).getFormattedText()
+    );
   }
   
   public static void printStackTrace(Throwable t) {
