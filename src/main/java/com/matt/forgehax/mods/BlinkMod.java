@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -16,7 +15,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
-import static com.matt.forgehax.Helper.printMessage;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -33,7 +31,6 @@ public class BlinkMod extends ToggleMod {
 
   private ConcurrentLinkedDeque<Packet<?>> packets;
   private EntityOtherPlayerMP ghost;
-  private boolean disablePlease = false;
 
   private boolean setGhostPlayer() {
     EntityPlayer player = getLocalPlayer();
@@ -54,14 +51,8 @@ public class BlinkMod extends ToggleMod {
   protected void onEnabled() {
     super.onEnabled();
 
-    if (MC.isSingleplayer()) {
-      printMessage("Sorry, Blink doesn't work in singleplayer at the moment...");
-      disablePlease = true;
-      return;
-    }
-
     packets = new ConcurrentLinkedDeque<>();
-    if (!setGhostPlayer()) disablePlease = true;
+    if (!setGhostPlayer()) disable();
   }
 
   private void removeGhostPlayer() {
@@ -85,17 +76,9 @@ public class BlinkMod extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketSending(PacketEvent.Outgoing.Pre event) {
-    if (nonNull(packets)) {
+    if (nonNull(packets) && event.getPacket().getClass().getCanonicalName().startsWith("net.minecraft.network.play.client")) {
       event.setCanceled(true);
       packets.add(event.getPacket());
-    }
-  }
-
-  @SubscribeEvent
-  public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (disablePlease) {
-      disablePlease = false;
-      disable();
     }
   }
 }
