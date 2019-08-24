@@ -73,7 +73,7 @@ processResources {
     exclude 'mcmod.info'
   }
 
-  filesMatching("**/*.properties") {
+  filesMatching('**/*.properties') {
     it.filter ReplaceTokens, tokens: [
       "forgehax.version"      : project.property("forgehax.version"),
       "forgehax.mc.version"   : project.property("forgehax.mc.version"),
