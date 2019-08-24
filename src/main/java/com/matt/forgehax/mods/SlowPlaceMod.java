@@ -77,7 +77,7 @@ public class SlowPlaceMod extends ToggleMod {
     } else if (lastDelay <= 1 && currentDelay > 0) {
       float factor = this.factor.get() * (timerSync.get() && nonNull(timerMod) && timerMod.isEnabled() ? timerMod.factor.get() : 1);
 
-      setRightClickDelay(MathHelper.floor((currentDelay + 1) * factor - 1));
+      setRightClickDelay(Math.max(MathHelper.floor((currentDelay + 1) * factor - 1), 0));
     }
 
     lastDelay = currentDelay;
