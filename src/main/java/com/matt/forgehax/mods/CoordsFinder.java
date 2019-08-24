@@ -150,7 +150,7 @@ public class CoordsFinder extends ToggleMod {
           logCoordsOnMinecraftThread("Wolf teleport", packet.getX(), packet.getY(), packet.getZ());
       } else if (logPlayer.get() && teleporting instanceof EntityPlayer) {
         if (pastDistance(player, pos, minPlayerDist.get()))
-          logCoordsOnMinecraftThread("Player teleport", packet.getX(), packet.getY(), packet.getZ());
+          logCoordsOnMinecraftThread(String.format("Player teleport (%s)", teleporting.getName()), packet.getX(), packet.getY(), packet.getZ());
       }
     }
   }
