@@ -199,10 +199,10 @@ public class Helper implements Globals {
   }
   
   public static void handleThrowable(Throwable t) {
-    getLog()
-      .error(
-        String.format(
-          "[%s] %s", t.getClass().getSimpleName(), Strings.nullToEmpty(t.getMessage())));
+    getLog().error(String.format("[%s] %s",
+      t.getClass().getSimpleName(),
+      Strings.nullToEmpty(t.getMessage())));
+    
     if (t.getCause() != null) {
       handleThrowable(t.getCause());
     }
