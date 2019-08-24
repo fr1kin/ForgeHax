@@ -1,7 +1,5 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-apply plugin: 'java'
-
 buildscript {
     repositories {
         jcenter()
@@ -10,7 +8,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.15.0"
+
     }
 }
 
@@ -20,6 +18,8 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/groups/public/' }
 }
 
+apply plugin: 'java'
+apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 sourceCompatibility = targetCompatibility = '1.8'
@@ -49,12 +49,11 @@ dependencies {
 
 jar {
     manifest {
-        attributes (
+        attributes(
                 'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
                 'FMLCorePluginContainsFMLMod': 'true'
         )
     }
-    exclude ('assets/minecraft/textures/forgehax/*')
 }
 
 processResources
@@ -68,7 +67,7 @@ processResources
         include 'mcmod.info'
 
         // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'version': project.version, 'mcversion': project.minecraft.version
     }
 
     // copy everything else, thats not the mcmod.info
@@ -76,9 +75,7 @@ processResources
         exclude 'mcmod.info'
     }
 
-
-    // TODO: Filter images out properly
-    //filesNotMatching("**/*.png") {
+    filesMatching("**/*.properties") {
         it.filter ReplaceTokens, tokens: [
                 "forgehax.version"      : project.property("forgehax.version"),
                 "forgehax.mc.version"   : project.property("forgehax.mc.version"),
@@ -87,16 +84,16 @@ processResources
                 "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
                 "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
         ]
-    //}
+    }
 }
 
 
 task setGameDir() {
     // Check if custom gamedir has been passed, if not use default ones per platform
-    if(!project.hasProperty("gameDir")) {
-        if(org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    if (!project.hasProperty("gameDir")) {
+        if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
             project.ext.gameDir = System.getenv("APPDATA") + "/.minecraft"
-        } else if(org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        } else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
             project.ext.gameDir = System.properties["user.home"] + "/Library/Application Support/minecraft"
         } else {
             project.ext.gameDir = System.properties["user.home"] + "/.minecraft"
@@ -113,16 +110,16 @@ task copyJar(type: Copy, dependsOn: [setGameDir]) {
     }.files
 
     // change file name
-    if(previousJars) {
+    if (previousJars) {
         // create .backups folder
         def backupDir = gameDirectory + '/.backups/'
         file(backupDir).mkdirs()
 
-        for(File previousJar : previousJars) {
+        for (File previousJar : previousJars) {
             def n = gameDirectory + '/.backups/' + previousJar.getName() + '.bk'
             def f = file(n)
             def i = 1
-            while(f.exists()) {
+            while (f.exists()) {
                 f = file(n + '_' + i)
                 i++
             }
