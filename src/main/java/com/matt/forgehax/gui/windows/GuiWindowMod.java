@@ -1,22 +1,25 @@
 package com.matt.forgehax.gui.windows;
 
-import static com.matt.forgehax.Globals.MC;
-import static com.matt.forgehax.Helper.getModManager;
-
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.gui.elements.GuiButton;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-/** Created by Babbaj on 9/5/2017. */
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.matt.forgehax.Globals.MC;
+import static com.matt.forgehax.Helper.getModManager;
+
+/**
+ * Created by Babbaj on 9/5/2017.
+ */
 public class GuiWindowMod extends GuiWindow {
 
   public List<GuiButton> buttonList = new ArrayList<>();
@@ -56,6 +59,40 @@ public class GuiWindowMod extends GuiWindow {
     width = maxWidth + 15; // set the width of window to the width of the longest mod name
   }
 
+  private void drawModTooltip(BaseMod mod, int xScaled, int yScaled) {
+    int scale = ClickGui.scaledRes.getScaleFactor();
+
+    String modName = mod.getModName();
+    String modDescription = mod.getModDescription();
+    int offset = 2;
+    int tooltipX = xScaled / scale + offset;
+    int tooltipY = yScaled / scale + offset;
+    int padding = 2;
+    int tooltipWidth = Math.max(SurfaceHelper.getTextWidth(modName), SurfaceHelper.getTextWidth(modDescription)) / scale + padding * 2;
+    int lineHeight = SurfaceHelper.getTextHeight() / scale;
+    int lineSpacing = 2;
+    int tooltipHeight = lineHeight * 2 + lineSpacing + padding * 2;
+
+    if ((tooltipX + tooltipWidth) * scale > ClickGui.scaledRes.getScaledWidth())
+      tooltipX -= tooltipWidth + offset * 2;
+
+    if ((tooltipY + tooltipHeight) * scale > ClickGui.scaledRes.getScaledHeight())
+      tooltipY -= tooltipHeight + offset * 2;
+
+    SurfaceHelper.drawRect(
+        tooltipX * scale, tooltipY * scale + 1, tooltipWidth * scale, tooltipHeight * scale - 2,
+        Utils.toRGBA(50, 50, 50, 255)
+    );
+
+    SurfaceHelper.drawRect(
+        tooltipX * scale + 1, tooltipY * scale, tooltipWidth * scale - 2, tooltipHeight * scale,
+        Utils.toRGBA(50, 50, 50, 255)
+    );
+
+    SurfaceHelper.drawTextShadow(modName, (tooltipX + padding) * scale, (tooltipY + padding) * scale, 0xFFFFFF);
+    SurfaceHelper.drawTextShadow(modDescription, (tooltipX + padding) * scale, (tooltipY + padding + lineHeight + lineSpacing) * scale, 0xAAAAAA);
+  }
+
   public void drawWindow(int mouseX, int mouseY) {
     super.drawWindow(mouseX, mouseY);
     windowY = headerY + 22;
@@ -86,6 +123,21 @@ public class GuiWindowMod extends GuiWindow {
     // update variables
     bottomX = posX + width; // set the coords of the bottom right corner for mouse coord testing
     bottomY = windowY + height;
+  }
+
+  @Override
+  public void drawTooltip(int mouseX, int mouseY) {
+    int scale = ClickGui.scaledRes.getScaleFactor();
+
+    if (mouseX >= posX && mouseX < bottomX &&
+        mouseY >= windowY + (5 / scale) && mouseY < bottomY - (5 / scale))
+      for (GuiButton button : buttonList) {
+        if (mouseX > button.x && mouseX < (button.x + width) &&
+            mouseY > button.y && mouseY < (button.y + GuiButton.height)) {
+          drawModTooltip(button.getMod(), mouseX, mouseY);
+          break;
+        }
+      }
   }
 
   public void mouseClicked(int x, int y, int state) {

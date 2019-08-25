@@ -72,8 +72,8 @@ public class Jesus extends ToggleMod {
           && !isInWater(getLocalPlayer())
           && !isAboveLand(getLocalPlayer())) {
         int ticks = getLocalPlayer().ticksExisted % 2;
-        double y = FastReflection.Fields.CPacketPlayer_Y.get(event.getPacket());
-        if (ticks == 0) FastReflection.Fields.CPacketPlayer_Y.set(event.getPacket(), y + 0.02D);
+        double y = FastReflection.Fields.CPacketPlayer_y.get(event.getPacket());
+        if (ticks == 0) FastReflection.Fields.CPacketPlayer_y.set(event.getPacket(), y + 0.02D);
       }
     }
   }

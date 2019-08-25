@@ -99,24 +99,49 @@ public interface FastReflection extends ASMCommon {
             .setName("yaw")
             .autoAssign()
             .asField();
+
+    FastField<Boolean> CPacketPlayer_moving =
+        FastTypeBuilder.create()
+            .setInsideClass(CPacketPlayer.class)
+            .setName("moving")
+            .autoAssign()
+            .asField();
+
     FastField<Boolean> CPacketPlayer_rotating =
         FastTypeBuilder.create()
             .setInsideClass(CPacketPlayer.class)
             .setName("rotating")
             .autoAssign()
             .asField();
+
     FastField<Boolean> CPacketPlayer_onGround =
         FastTypeBuilder.create()
             .setInsideClass(CPacketPlayer.class)
             .setName("onGround")
             .autoAssign()
             .asField();
-    FastField<Double> CPacketPlayer_Y =
+
+    FastField<Double> CPacketPlayer_x =
+        FastTypeBuilder.create()
+            .setInsideClass(CPacketPlayer.class)
+            .setName("x")
+            .autoAssign()
+            .asField();
+
+    FastField<Double> CPacketPlayer_y =
         FastTypeBuilder.create()
             .setInsideClass(CPacketPlayer.class)
             .setName("y")
             .autoAssign()
             .asField();
+
+    FastField<Double> CPacketPlayer_z =
+        FastTypeBuilder.create()
+            .setInsideClass(CPacketPlayer.class)
+            .setName("z")
+            .autoAssign()
+            .asField();
+
     /** CPacketVehicleMove */
     FastField<Float> CPacketVehicleMove_yaw =
         FastTypeBuilder.create()
@@ -153,6 +178,27 @@ public interface FastReflection extends ASMCommon {
         FastTypeBuilder.create()
             .setInsideClass(SPacketPlayerPosLook.class)
             .setName("yaw")
+            .autoAssign()
+            .asField();
+
+    FastField<Double> SPacketPlayer_x =
+        FastTypeBuilder.create()
+            .setInsideClass(SPacketPlayerPosLook.class)
+            .setName("x")
+            .autoAssign()
+            .asField();
+
+    FastField<Double> SPacketPlayer_y =
+        FastTypeBuilder.create()
+            .setInsideClass(SPacketPlayerPosLook.class)
+            .setName("y")
+            .autoAssign()
+            .asField();
+
+    FastField<Double> SPacketPlayer_z =
+        FastTypeBuilder.create()
+            .setInsideClass(SPacketPlayerPosLook.class)
+            .setName("z")
             .autoAssign()
             .asField();
 
