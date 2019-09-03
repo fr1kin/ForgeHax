@@ -3,8 +3,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 buildscript {
   repositories {
     jcenter()
-    maven { url = "http://files.minecraftforge.net/maven" }
-    maven { url = "https://plugins.gradle.org/m2/" }
+    maven { url "http://files.minecraftforge.net/maven" }
+    maven { url "https://plugins.gradle.org/m2/" }
   }
   dependencies {
     classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
@@ -13,7 +13,7 @@ buildscript {
 
 repositories {
   mavenCentral()
-  maven { url = 'https://oss.sonatype.org/content/groups/public/' }
+  maven { url "https://oss.sonatype.org/content/groups/public/" }
 }
 
 apply plugin: 'java'
@@ -36,7 +36,7 @@ minecraft {
   runDir = "run"
 
   // channel_mapping
-  mappings = project.property('forgehax.mcp.channel') + '_' + project.property('forgehax.mcp.mapping')
+  mappings = "${project.property('forgehax.mcp.channel')}_${project.property('forgehax.mcp.mapping')}"
 }
 
 dependencies {
