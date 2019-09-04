@@ -58,522 +58,598 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.AnvilChunkLoader;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
-/** Created on 5/8/2017 by fr1kin */
+/**
+ * Created on 5/8/2017 by fr1kin
+ */
 public interface FastReflection extends ASMCommon {
+  
   // ****************************************
   // FIELDS
   // ****************************************
   interface Fields {
-    /** ActiveRenderInfo */
+    
+    /**
+     * ActiveRenderInfo
+     */
     FastField<FloatBuffer> ActiveRenderInfo_MODELVIEW =
-        FastTypeBuilder.create()
-            .setInsideClass(ActiveRenderInfo.class)
-            .setName("MODELVIEW")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(ActiveRenderInfo.class)
+        .setName("MODELVIEW")
+        .autoAssign()
+        .asField();
+    
     FastField<FloatBuffer> ActiveRenderInfo_PROJECTION =
-        FastTypeBuilder.create()
-            .setInsideClass(ActiveRenderInfo.class)
-            .setName("PROJECTION")
-            .autoAssign()
-            .asField();
+      FastTypeBuilder.create()
+        .setInsideClass(ActiveRenderInfo.class)
+        .setName("PROJECTION")
+        .autoAssign()
+        .asField();
     FastField<Vec3d> ActiveRenderInfo_position =
-        FastTypeBuilder.create()
-            .setInsideClass(ActiveRenderInfo.class)
-            .setName("position")
-            .autoAssign()
-            .asField();
-
-    /** CPacketPlayer */
+      FastTypeBuilder.create()
+        .setInsideClass(ActiveRenderInfo.class)
+        .setName("position")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * CPacketPlayer
+     */
     FastField<Float> CPacketPlayer_pitch =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketPlayer.class)
-            .setName("pitch")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketPlayer.class)
+        .setName("pitch")
+        .autoAssign()
+        .asField();
+    
     FastField<Float> CPacketPlayer_yaw =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketPlayer.class)
-            .setName("yaw")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketPlayer.class)
+        .setName("yaw")
+        .autoAssign()
+        .asField();
+    
     FastField<Boolean> CPacketPlayer_moving =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketPlayer.class)
-            .setName("moving")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketPlayer.class)
+        .setName("moving")
+        .autoAssign()
+        .asField();
+    
     FastField<Boolean> CPacketPlayer_rotating =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketPlayer.class)
-            .setName("rotating")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketPlayer.class)
+        .setName("rotating")
+        .autoAssign()
+        .asField();
+    
     FastField<Boolean> CPacketPlayer_onGround =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketPlayer.class)
-            .setName("onGround")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketPlayer.class)
+        .setName("onGround")
+        .autoAssign()
+        .asField();
+    
     FastField<Double> CPacketPlayer_x =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketPlayer.class)
-            .setName("x")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketPlayer.class)
+        .setName("x")
+        .autoAssign()
+        .asField();
+    
     FastField<Double> CPacketPlayer_y =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketPlayer.class)
-            .setName("y")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketPlayer.class)
+        .setName("y")
+        .autoAssign()
+        .asField();
+    
     FastField<Double> CPacketPlayer_z =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketPlayer.class)
-            .setName("z")
-            .autoAssign()
-            .asField();
-
-    /** CPacketVehicleMove */
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketPlayer.class)
+        .setName("z")
+        .autoAssign()
+        .asField();
+    /**
+     * CPacketVehicleMove
+     */
     FastField<Float> CPacketVehicleMove_yaw =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketVehicleMove.class)
-            .setName("yaw")
-            .autoAssign()
-            .asField();
-
-    /** CPacketCloseWindow */
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketVehicleMove.class)
+        .setName("yaw")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * CPacketCloseWindow
+     */
     FastField<Integer> CPacketCloseWindow_windowId =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketCloseWindow.class)
-            .setName("windowId")
-            .autoAssign()
-            .asField();
-
-    /** CPacketEntityAction */
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketCloseWindow.class)
+        .setName("windowId")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * CPacketEntityAction
+     */
     FastField<Integer> CPacketEntityAction_entityID =
-        FastTypeBuilder.create()
-            .setInsideClass(CPacketEntityAction.class)
-            .setName("entityID")
-            .autoAssign()
-            .asField();
-
-    /** SPacketPlayerPosLook */
+      FastTypeBuilder.create()
+        .setInsideClass(CPacketEntityAction.class)
+        .setName("entityID")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * SPacketPlayerPosLook
+     */
     FastField<Float> SPacketPlayer_pitch =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketPlayerPosLook.class)
-            .setName("pitch")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketPlayerPosLook.class)
+        .setName("pitch")
+        .autoAssign()
+        .asField();
+    
     FastField<Float> SPacketPlayer_yaw =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketPlayerPosLook.class)
-            .setName("yaw")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketPlayerPosLook.class)
+        .setName("yaw")
+        .autoAssign()
+        .asField();
+    
     FastField<Double> SPacketPlayer_x =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketPlayerPosLook.class)
-            .setName("x")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketPlayerPosLook.class)
+        .setName("x")
+        .autoAssign()
+        .asField();
+    
     FastField<Double> SPacketPlayer_y =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketPlayerPosLook.class)
-            .setName("y")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketPlayerPosLook.class)
+        .setName("y")
+        .autoAssign()
+        .asField();
+    
     FastField<Double> SPacketPlayer_z =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketPlayerPosLook.class)
-            .setName("z")
-            .autoAssign()
-            .asField();
-
-    /** Entity */
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketPlayerPosLook.class)
+        .setName("z")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * Entity
+     */
     FastField<EntityDataManager> Entity_dataManager =
-        FastTypeBuilder.create()
-            .setInsideClass(Entity.class)
-            .setName("dataManager")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(Entity.class)
+        .setName("dataManager")
+        .autoAssign()
+        .asField();
+    
     FastField<Boolean> Entity_inPortal =
-        FastTypeBuilder.create()
-            .setInsideClass(Entity.class)
-            .setName("inPortal")
-            .autoAssign()
-            .asField();
-
-    /** EntityPigZombie */
+      FastTypeBuilder.create()
+        .setInsideClass(Entity.class)
+        .setName("inPortal")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * EntityPigZombie
+     */
     FastField<Integer> EntityPigZombie_angerLevel =
-        FastTypeBuilder.create()
-            .setInsideClass(EntityPigZombie.class)
-            .setName("angerLevel")
-            .autoAssign()
-            .asField();
-
-    /** EntityPlayer */
+      FastTypeBuilder.create()
+        .setInsideClass(EntityPigZombie.class)
+        .setName("angerLevel")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * EntityPlayer
+     */
     FastField<Boolean> EntityPlayer_sleeping =
-        FastTypeBuilder.create()
-            .setInsideClass(EntityPlayer.class)
-            .setName("sleeping")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(EntityPlayer.class)
+        .setName("sleeping")
+        .autoAssign()
+        .asField();
+    
     FastField<Integer> EntityPlayer_sleepTimer =
-        FastTypeBuilder.create()
-            .setInsideClass(EntityPlayer.class)
-            .setName("sleepTimer")
-            .autoAssign()
-            .asField();
-
-    /** EntityPlayerSP */
+      FastTypeBuilder.create()
+        .setInsideClass(EntityPlayer.class)
+        .setName("sleepTimer")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * EntityPlayerSP
+     */
     FastField<Float> EntityPlayerSP_horseJumpPower =
-        FastTypeBuilder.create()
-            .setInsideClass(EntityPlayerSP.class)
-            .setName("horseJumpPower")
-            .autoAssign()
-            .asField();
-
-    /** GuiConnecting */
+      FastTypeBuilder.create()
+        .setInsideClass(EntityPlayerSP.class)
+        .setName("horseJumpPower")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * GuiConnecting
+     */
     FastField<NetworkManager> GuiConnecting_networkManager =
-        FastTypeBuilder.create()
-            .setInsideClass(GuiConnecting.class)
-            .setName("networkManager")
-            .autoAssign()
-            .asField();
-
-    /** GuiDisconnected */
+      FastTypeBuilder.create()
+        .setInsideClass(GuiConnecting.class)
+        .setName("networkManager")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * GuiDisconnected
+     */
     FastField<GuiScreen> GuiDisconnected_parentScreen =
-        FastTypeBuilder.create()
-            .setInsideClass(GuiDisconnected.class)
-            .setName("parentScreen")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(GuiDisconnected.class)
+        .setName("parentScreen")
+        .autoAssign()
+        .asField();
+    
     FastField<ITextComponent> GuiDisconnected_message =
-        FastTypeBuilder.create()
-            .setInsideClass(GuiDisconnected.class)
-            .setName("message")
-            .autoAssign()
-            .asField();
+      FastTypeBuilder.create()
+        .setInsideClass(GuiDisconnected.class)
+        .setName("message")
+        .autoAssign()
+        .asField();
     FastField<String> GuiDisconnected_reason =
-        FastTypeBuilder.create()
-            .setInsideClass(GuiDisconnected.class)
-            .setName("reason")
-            .autoAssign()
-            .asField();
-
-    /** Minecraft */
+      FastTypeBuilder.create()
+        .setInsideClass(GuiDisconnected.class)
+        .setName("reason")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * Minecraft
+     */
     FastField<Integer> Minecraft_leftClickCounter =
-        FastTypeBuilder.create()
-            .setInsideClass(Minecraft.class)
-            .setName("leftClickCounter")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(Minecraft.class)
+        .setName("leftClickCounter")
+        .autoAssign()
+        .asField();
+    
     FastField<Integer> Minecraft_rightClickDelayTimer =
-        FastTypeBuilder.create()
-            .setInsideClass(Minecraft.class)
-            .setName("rightClickDelayTimer")
-            .autoAssign()
-            .asField();
+      FastTypeBuilder.create()
+        .setInsideClass(Minecraft.class)
+        .setName("rightClickDelayTimer")
+        .autoAssign()
+        .asField();
     FastField<Timer> Minecraft_timer =
-        FastTypeBuilder.create()
-            .setInsideClass(Minecraft.class)
-            .setName("timer")
-            .autoAssign()
-            .asField();
-
-    /** PlayerControllerMP */
+      FastTypeBuilder.create()
+        .setInsideClass(Minecraft.class)
+        .setName("timer")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * PlayerControllerMP
+     */
     FastField<Integer> PlayerControllerMP_blockHitDelay =
-        FastTypeBuilder.create()
-            .setInsideClass(PlayerControllerMP.class)
-            .setName("blockHitDelay")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(PlayerControllerMP.class)
+        .setName("blockHitDelay")
+        .autoAssign()
+        .asField();
+    
     FastField<Float> PlayerControllerMP_curBlockDamageMP =
-        FastTypeBuilder.create()
-            .setInsideClass(PlayerControllerMP.class)
-            .setName("curBlockDamageMP")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(PlayerControllerMP.class)
+        .setName("curBlockDamageMP")
+        .autoAssign()
+        .asField();
+    
     FastField<Integer> PlayerControllerMP_currentPlayerItem =
-        FastTypeBuilder.create()
-            .setInsideClass(PlayerControllerMP.class)
-            .setName("currentPlayerItem")
-            .autoAssign()
-            .asField();
-
-    /** SPacketEntityVelocity */
+      FastTypeBuilder.create()
+        .setInsideClass(PlayerControllerMP.class)
+        .setName("currentPlayerItem")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * SPacketEntityVelocity
+     */
     FastField<Integer> SPacketEntityVelocity_motionX =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketEntityVelocity.class)
-            .setName("motionX")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketEntityVelocity.class)
+        .setName("motionX")
+        .autoAssign()
+        .asField();
+    
     FastField<Integer> SPacketEntityVelocity_motionY =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketEntityVelocity.class)
-            .setName("motionY")
-            .autoAssign()
-            .asField();
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketEntityVelocity.class)
+        .setName("motionY")
+        .autoAssign()
+        .asField();
     FastField<Integer> SPacketEntityVelocity_motionZ =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketEntityVelocity.class)
-            .setName("motionZ")
-            .autoAssign()
-            .asField();
-
-    /** SPacketExplosion */
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketEntityVelocity.class)
+        .setName("motionZ")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * SPacketExplosion
+     */
     FastField<Float> SPacketExplosion_motionX =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketExplosion.class)
-            .setName("motionX")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketExplosion.class)
+        .setName("motionX")
+        .autoAssign()
+        .asField();
+    
     FastField<Float> SPacketExplosion_motionY =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketExplosion.class)
-            .setName("motionY")
-            .autoAssign()
-            .asField();
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketExplosion.class)
+        .setName("motionY")
+        .autoAssign()
+        .asField();
     FastField<Float> SPacketExplosion_motionZ =
-        FastTypeBuilder.create()
-            .setInsideClass(SPacketExplosion.class)
-            .setName("motionZ")
-            .autoAssign()
-            .asField();
-
-    /** BufferBuilder */
+      FastTypeBuilder.create()
+        .setInsideClass(SPacketExplosion.class)
+        .setName("motionZ")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * BufferBuilder
+     */
     FastField<Boolean> BufferBuilder_isDrawing =
-        FastTypeBuilder.create()
-            .setInsideClass(BufferBuilder.class)
-            .setName("isDrawing")
-            .autoAssign()
-            .asField();
-
-    /** Session */
+      FastTypeBuilder.create()
+        .setInsideClass(BufferBuilder.class)
+        .setName("isDrawing")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * Session
+     */
     FastField<String> Session_username =
-        FastTypeBuilder.create()
-            .setInsideClass(Session.class)
-            .setName("username")
-            .autoAssign()
-            .asField();
-
-    /** TextureManager */
+      FastTypeBuilder.create()
+        .setInsideClass(Session.class)
+        .setName("username")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * TextureManager
+     */
     FastField<Map<ResourceLocation, ITextureObject>> TextureManager_mapTextureObjects =
-        FastTypeBuilder.create()
-            .setInsideClass(TextureManager.class)
-            .setName("mapTextureObjects")
-            .autoAssign()
-            .asField();
-
-    /** EntityRenderer */
+      FastTypeBuilder.create()
+        .setInsideClass(TextureManager.class)
+        .setName("mapTextureObjects")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * EntityRenderer
+     */
     FastField<ItemStack> EntityRenderer_itemActivationItem =
-        FastTypeBuilder.create()
-            .setInsideClass(EntityRenderer.class)
-            .setName("itemActivationItem")
-            .autoAssign()
-            .asField();
-
-    /** AbstractHorse */
+      FastTypeBuilder.create()
+        .setInsideClass(EntityRenderer.class)
+        .setName("itemActivationItem")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * AbstractHorse
+     */
     FastField<IAttribute> AbstractHorse_JUMP_STRENGTH =
-        FastTypeBuilder.create()
-            .setInsideClass(AbstractHorse.class)
-            .setName("JUMP_STRENGTH")
-            .autoAssign()
-            .asField();
-    /** SharedMonsterAttributes */
+      FastTypeBuilder.create()
+        .setInsideClass(AbstractHorse.class)
+        .setName("JUMP_STRENGTH")
+        .autoAssign()
+        .asField();
+    /**
+     * SharedMonsterAttributes
+     */
     FastField<IAttribute> SharedMonsterAttributes_MOVEMENT_SPEED =
-        FastTypeBuilder.create()
-            .setInsideClass(SharedMonsterAttributes.class)
-            .setName("MOVEMENT_SPEED")
-            .autoAssign()
-            .asField();
-    /** GuiEditSign */
+      FastTypeBuilder.create()
+        .setInsideClass(SharedMonsterAttributes.class)
+        .setName("MOVEMENT_SPEED")
+        .autoAssign()
+        .asField();
+    /**
+     * GuiEditSign
+     */
     FastField<TileEntitySign> GuiEditSign_tileSign =
-        FastTypeBuilder.create()
-            .setInsideClass(GuiEditSign.class)
-            .setName("tileSign")
-            .autoAssign()
-            .asField();
-    /** NBTTagCompound */
+      FastTypeBuilder.create()
+        .setInsideClass(GuiEditSign.class)
+        .setName("tileSign")
+        .autoAssign()
+        .asField();
+    /**
+     * NBTTagCompound
+     */
     FastField<Map<String, NBTBase>> NBTTag_tagMap =
-        FastTypeBuilder.create()
-            .setInsideClass(NBTTagCompound.class)
-            .setName("tagMap")
-            .autoAssign()
-            .asField();
-    /** Timer */
+      FastTypeBuilder.create()
+        .setInsideClass(NBTTagCompound.class)
+        .setName("tagMap")
+        .autoAssign()
+        .asField();
+    /**
+     * Timer
+     */
     FastField<Float> Timer_tickLength =
-        FastTypeBuilder.create()
-            .setInsideClass(Timer.class)
-            .setName("tickLength")
-            .autoAssign()
-            .asField();
-    /** KeyBinding */
+      FastTypeBuilder.create()
+        .setInsideClass(Timer.class)
+        .setName("tickLength")
+        .autoAssign()
+        .asField();
+    /**
+     * KeyBinding
+     */
     FastField<Integer> Binding_pressTime =
-        FastTypeBuilder.create()
-            .setInsideClass(KeyBinding.class)
-            .setName("pressTime")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(KeyBinding.class)
+        .setName("pressTime")
+        .autoAssign()
+        .asField();
+    
     FastField<Boolean> Binding_pressed =
-        FastTypeBuilder.create()
-            .setInsideClass(KeyBinding.class)
-            .setName("pressed")
-            .autoAssign()
-            .asField();
-
-    /** ItemSword */
+      FastTypeBuilder.create()
+        .setInsideClass(KeyBinding.class)
+        .setName("pressed")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * ItemSword
+     */
     FastField<Float> ItemSword_attackDamage =
-        FastTypeBuilder.create()
-            .setInsideClass(ItemSword.class)
-            .setName("attackDamage")
-            .autoAssign()
-            .asField();
-
-    /** ItemTool */
+      FastTypeBuilder.create()
+        .setInsideClass(ItemSword.class)
+        .setName("attackDamage")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * ItemTool
+     */
     FastField<Float> ItemTool_damageVsEntity =
-        FastTypeBuilder.create()
-            .setInsideClass(ItemTool.class)
-            .setName("damageVsEntity")
-            .autoAssign()
-            .asField();
-
+      FastTypeBuilder.create()
+        .setInsideClass(ItemTool.class)
+        .setName("damageVsEntity")
+        .autoAssign()
+        .asField();
+    
     FastField<Float> ItemTool_attackSpeed =
-        FastTypeBuilder.create()
-            .setInsideClass(ItemTool.class)
-            .setName("attackSpeed")
-            .autoAssign()
-            .asField();
-
-    /** ItemFood */
+      FastTypeBuilder.create()
+        .setInsideClass(ItemTool.class)
+        .setName("attackSpeed")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * ItemFood
+     */
     FastField<PotionEffect> ItemFood_potionId =
-        FastTypeBuilder.create()
-            .setInsideClass(ItemFood.class)
-            .setName("potionId")
-            .autoAssign()
-            .asField();
-
-    /** Chunk */
+      FastTypeBuilder.create()
+        .setInsideClass(ItemFood.class)
+        .setName("potionId")
+        .autoAssign()
+        .asField();
+    
+    /**
+     * Chunk
+     */
     FastField<ExtendedBlockStorage[]> Chunk_storageArrays =
-        FastTypeBuilder.create()
-            .setInsideClass(Chunk.class)
-            .setName("storageArrays")
-            .autoAssign()
-            .asField();
+      FastTypeBuilder.create()
+        .setInsideClass(Chunk.class)
+        .setName("storageArrays")
+        .autoAssign()
+        .asField();
   }
-
+  
   // ****************************************
   // METHODS
   // ****************************************
-
+  
   interface Methods {
-    /** Block */
+    
+    /**
+     * Block
+     */
     FastMethod<Boolean> Block_onBlockActivated =
-        FastTypeBuilder.create()
-            .setInsideClass(Block.class)
-            .setName("onBlockActivated")
-            .setParameters(
-                World.class,
-                BlockPos.class,
-                IBlockState.class,
-                EntityPlayer.class,
-                EnumHand.class,
-                EnumFacing.class,
-                float.class,
-                float.class,
-                float.class)
-            .setReturnType(boolean.class)
-            .autoAssign()
-            .asMethod();
-
-    /** Entity */
+      FastTypeBuilder.create()
+        .setInsideClass(Block.class)
+        .setName("onBlockActivated")
+        .setParameters(
+          World.class,
+          BlockPos.class,
+          IBlockState.class,
+          EntityPlayer.class,
+          EnumHand.class,
+          EnumFacing.class,
+          float.class,
+          float.class,
+          float.class)
+        .setReturnType(boolean.class)
+        .autoAssign()
+        .asMethod();
+    
+    /**
+     * Entity
+     */
     FastMethod<Boolean> Entity_getFlag =
-        FastTypeBuilder.create()
-            .setInsideClass(Entity.class)
-            .setName("getFlag")
-            .setParameters(int.class)
-            .setReturnType(boolean.class)
-            .autoAssign()
-            .asMethod();
-
+      FastTypeBuilder.create()
+        .setInsideClass(Entity.class)
+        .setName("getFlag")
+        .setParameters(int.class)
+        .setReturnType(boolean.class)
+        .autoAssign()
+        .asMethod();
+    
     FastMethod<Void> Entity_setFlag =
-        FastTypeBuilder.create()
-            .setInsideClass(Entity.class)
-            .setName("setFlag")
-            .setParameters(int.class, boolean.class)
-            .setReturnType(void.class)
-            .autoAssign()
-            .asMethod();
-
-    /** EntityLivingBase */
+      FastTypeBuilder.create()
+        .setInsideClass(Entity.class)
+        .setName("setFlag")
+        .setParameters(int.class, boolean.class)
+        .setReturnType(void.class)
+        .autoAssign()
+        .asMethod();
+    
+    /**
+     * EntityLivingBase
+     */
     FastMethod<Void> EntityLivingBase_resetPotionEffectMetadata =
-        FastTypeBuilder.create()
-            .setInsideClass(EntityLivingBase.class)
-            .setName("resetPotionEffectMetadata")
-            .setParameters()
-            .setReturnType(void.class)
-            .autoAssign()
-            .asMethod();
-
-    /** Minecraft */
+      FastTypeBuilder.create()
+        .setInsideClass(EntityLivingBase.class)
+        .setName("resetPotionEffectMetadata")
+        .setParameters()
+        .setReturnType(void.class)
+        .autoAssign()
+        .asMethod();
+    
+    /**
+     * Minecraft
+     */
     FastMethod<Void> Minecraft_clickMouse =
-        FastTypeBuilder.create()
-            .setInsideClass(Minecraft.class)
-            .setName("clickMouse")
-            .setParameters()
-            .setReturnType(void.class)
-            .autoAssign()
-            .asMethod();
-
+      FastTypeBuilder.create()
+        .setInsideClass(Minecraft.class)
+        .setName("clickMouse")
+        .setParameters()
+        .setReturnType(void.class)
+        .autoAssign()
+        .asMethod();
+    
     FastMethod<Void> Minecraft_rightClickMouse =
-        FastTypeBuilder.create()
-            .setInsideClass(Minecraft.class)
-            .setName("rightClickMouse")
-            .setParameters()
-            .setReturnType(void.class)
-            .autoAssign()
-            .asMethod();
-
-    /** KeyBinding */
+      FastTypeBuilder.create()
+        .setInsideClass(Minecraft.class)
+        .setName("rightClickMouse")
+        .setParameters()
+        .setReturnType(void.class)
+        .autoAssign()
+        .asMethod();
+    
+    /**
+     * KeyBinding
+     */
     FastMethod<Void> KeyBinding_unPress =
-        FastTypeBuilder.create()
-            .setInsideClass(KeyBinding.class)
-            .setName("unpressKey")
-            .setParameters()
-            .setReturnType(void.class)
-            .autoAssign()
-            .asMethod();
-
-    /** IChunkLoader */
+      FastTypeBuilder.create()
+        .setInsideClass(KeyBinding.class)
+        .setName("unpressKey")
+        .setParameters()
+        .setReturnType(void.class)
+        .autoAssign()
+        .asMethod();
+    
+    /**
+     * IChunkLoader
+     */
     FastMethod<AnvilChunkLoader> AnvilChunkLoader_writeChunkToNBT =
-        FastTypeBuilder.create()
-            .setInsideClass(AnvilChunkLoader.class)
-            .setName("writeChunkToNBT")
-            .setParameters(Chunk.class, World.class, NBTTagCompound.class)
-            .setReturnType(void.class)
-            .autoAssign()
-            .asMethod();
+      FastTypeBuilder.create()
+        .setInsideClass(AnvilChunkLoader.class)
+        .setName("writeChunkToNBT")
+        .setParameters(Chunk.class, World.class, NBTTagCompound.class)
+        .setReturnType(void.class)
+        .autoAssign()
+        .asMethod();
   }
 }

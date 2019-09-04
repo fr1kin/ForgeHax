@@ -11,8 +11,11 @@ import java.util.Objects;
 import net.minecraft.world.DimensionType;
 import net.minecraftforge.common.DimensionManager;
 
-/** Created on 5/23/2017 by fr1kin */
+/**
+ * Created on 5/23/2017 by fr1kin
+ */
 public class DimensionProperty implements IBlockProperty {
+
   private static final String HEADING = "dimensions";
 
   private Collection<DimensionType> dimensions = Sets.newHashSet();
@@ -24,7 +27,8 @@ public class DimensionProperty implements IBlockProperty {
   public boolean add(int id) {
     try {
       return add(DimensionManager.getProviderType(id));
-    } catch (Exception e) {; // will throw exception if id does not exist
+    } catch (Exception e) {
+      ; // will throw exception if id does not exist
       return false;
     }
   }
@@ -42,13 +46,15 @@ public class DimensionProperty implements IBlockProperty {
   }
 
   public boolean contains(int id) {
-    if (dimensions.isEmpty()) return true; // true if none other
-    else
+    if (dimensions.isEmpty()) {
+      return true; // true if none other
+    } else {
       try {
         return dimensions.contains(DimensionManager.getProviderType(id));
       } catch (Exception e) {
         return false;
       }
+    }
   }
 
   @Override
@@ -65,11 +71,12 @@ public class DimensionProperty implements IBlockProperty {
     reader.beginArray();
     while (reader.hasNext() && reader.peek().equals(JsonToken.STRING)) {
       String dim = reader.nextString();
-      for (DimensionType type : DimensionType.values())
+      for (DimensionType type : DimensionType.values()) {
         if (Objects.equals(type.getName(), dim)) {
           add(type);
           break;
         }
+      }
     }
   }
 
@@ -85,7 +92,9 @@ public class DimensionProperty implements IBlockProperty {
     while (it.hasNext()) {
       String name = it.next().getName();
       builder.append(name);
-      if (it.hasNext()) builder.append(", ");
+      if (it.hasNext()) {
+        builder.append(", ");
+      }
     }
     builder.append("}");
     return builder.toString();
@@ -102,6 +111,7 @@ public class DimensionProperty implements IBlockProperty {
   }
 
   private static class ImmutableDimension extends DimensionProperty {
+  
     @Override
     public boolean add(int id) {
       return false;

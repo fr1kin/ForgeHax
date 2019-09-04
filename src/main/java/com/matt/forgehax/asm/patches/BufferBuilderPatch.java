@@ -1,7 +1,5 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -10,15 +8,24 @@ import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 public class BufferBuilderPatch extends ClassTransformer {
+
   public BufferBuilderPatch() {
     super(Classes.BufferBuilder);
   }
 
   @RegisterMethodTransformer
   private class PutColorMultiplier extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.BufferBuilder_putColorMultiplier;
@@ -27,29 +34,29 @@ public class BufferBuilderPatch extends ClassTransformer {
     @Inject(description = "Add hook that allows method to be overwritten")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {
-                INVOKESTATIC,
-                GETSTATIC,
-                IF_ACMPNE,
-                0x00,
-                0x00,
-                ILOAD,
-                SIPUSH,
-                IAND,
-                I2F,
-                FLOAD,
-                FMUL,
-                F2I,
-                ISTORE
-              },
-              "xxx??xxxxxxxx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{
+            INVOKESTATIC,
+            GETSTATIC,
+            IF_ACMPNE,
+            0x00,
+            0x00,
+            ILOAD,
+            SIPUSH,
+            IAND,
+            I2F,
+            FLOAD,
+            FMUL,
+            F2I,
+            ISTORE
+          },
+          "xxx??xxxxxxxx");
       AbstractInsnNode postNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {ALOAD, GETFIELD, ILOAD, ILOAD, INVOKEVIRTUAL, POP},
-              "xxxxxx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{ALOAD, GETFIELD, ILOAD, ILOAD, INVOKEVIRTUAL, POP},
+          "xxxxxx");
 
       Objects.requireNonNull(preNode, "Find pattern failed for preNode");
       Objects.requireNonNull(postNode, "Find pattern failed for postNode");
@@ -70,7 +77,7 @@ public class BufferBuilderPatch extends ClassTransformer {
       insnPre.add(new VarInsnNode(ILOAD, 6));
       insnPre.add(new VarInsnNode(ALOAD, 10));
       insnPre.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPutColorMultiplier));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPutColorMultiplier));
       insnPre.add(new VarInsnNode(ISTORE, 6));
       insnPre.add(new VarInsnNode(ALOAD, 10));
       insnPre.add(new InsnNode(ICONST_0));

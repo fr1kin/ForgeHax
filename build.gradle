@@ -1,25 +1,23 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-apply plugin: 'java'
-
 buildscript {
-    repositories {
-        jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.15.0"
-    }
+  repositories {
+    jcenter()
+    maven { url "http://files.minecraftforge.net/maven" }
+    maven { url "https://plugins.gradle.org/m2/" }
+  }
+  dependencies {
+    classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+  }
 }
 
 repositories {
-    mavenCentral()
-
-    maven { url 'https://oss.sonatype.org/content/groups/public/' }
+  mavenCentral()
+  maven { url "https://oss.sonatype.org/content/groups/public/" }
 }
 
+apply plugin: 'java'
+apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 sourceCompatibility = targetCompatibility = '1.8'
@@ -30,111 +28,105 @@ version project.property('forgehax.version')
 archivesBaseName = "forgehax-" + project.property('forgehax.mc.version')
 
 configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 minecraft {
-    version = project.property('forgehax.forge.version')
-    runDir = "run"
+  version = project.property('forgehax.forge.version')
+  runDir = "run"
 
-    // channel_mapping
-    mappings = project.property('forgehax.mcp.channel') + '_' + project.property('forgehax.mcp.mapping')
+  // channel_mapping
+  mappings = "${project.property('forgehax.mcp.channel')}_${project.property('forgehax.mcp.mapping')}"
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
+  testCompile group: 'junit', name: 'junit', version: '4.12'
+  testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
 }
 
 
 jar {
-    manifest {
-        attributes (
-                'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
-                'FMLCorePluginContainsFMLMod': 'true'
-        )
-    }
-    exclude ('assets/minecraft/textures/forgehax/*')
+  manifest {
+    attributes(
+      'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
+      'FMLCorePluginContainsFMLMod': 'true'
+    )
+  }
 }
 
-processResources
-{
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+processResources {
+  // this will ensure that this task is redone when the versions change.
+  inputs.property "version", project.version
+  inputs.property "mcversion", project.minecraft.version
 
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
+  // replace stuff in mcmod.info, nothing else
+  from(sourceSets.main.resources.srcDirs) {
+    include 'mcmod.info'
 
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
+    // replace version and mcversion
+    expand 'version': project.version, 'mcversion': project.minecraft.version
+  }
 
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+  // copy everything else, thats not the mcmod.info
+  from(sourceSets.main.resources.srcDirs) {
+    exclude 'mcmod.info'
+  }
 
-
-    // TODO: Filter images out properly
-    //filesNotMatching("**/*.png") {
-        it.filter ReplaceTokens, tokens: [
-                "forgehax.version"      : project.property("forgehax.version"),
-                "forgehax.mc.version"   : project.property("forgehax.mc.version"),
-                "forgehax.forge.version": project.property("forgehax.forge.version"),
-                "forgehax.mcp.version"  : project.property("forgehax.mcp.version"),
-                "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
-                "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
-        ]
-    //}
+  filesMatching('**/*.properties') {
+    it.filter ReplaceTokens, tokens: [
+      "forgehax.version"      : project.property("forgehax.version"),
+      "forgehax.mc.version"   : project.property("forgehax.mc.version"),
+      "forgehax.forge.version": project.property("forgehax.forge.version"),
+      "forgehax.mcp.version"  : project.property("forgehax.mcp.version"),
+      "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
+      "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
+    ]
+  }
 }
 
 
 task setGameDir() {
-    // Check if custom gamedir has been passed, if not use default ones per platform
-    if(!project.hasProperty("gameDir")) {
-        if(org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-            project.ext.gameDir = System.getenv("APPDATA") + "/.minecraft"
-        } else if(org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
-            project.ext.gameDir = System.properties["user.home"] + "/Library/Application Support/minecraft"
-        } else {
-            project.ext.gameDir = System.properties["user.home"] + "/.minecraft"
-        }
+  // Check if custom gamedir has been passed, if not use default ones per platform
+  if (!project.hasProperty("gameDir")) {
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+      project.ext.gameDir = System.getenv("APPDATA") + "/.minecraft"
+    } else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+      project.ext.gameDir = System.properties["user.home"] + "/Library/Application Support/minecraft"
+    } else {
+      project.ext.gameDir = System.properties["user.home"] + "/.minecraft"
     }
+  }
 }
 
 task copyJar(type: Copy, dependsOn: [setGameDir]) {
-    def gameDirectory = "$gameDir/mods/" + minecraft.version
+  def gameDirectory = "$gameDir/mods/" + minecraft.version
 
-    // find previous jar (if it exists)
-    def previousJars = fileTree(dir: gameDirectory).matching {
-        include archivesBaseName + '*'
-    }.files
+  // find previous jar (if it exists)
+  def previousJars = fileTree(dir: gameDirectory).matching {
+    include archivesBaseName + '*'
+  }.files
 
-    // change file name
-    if(previousJars) {
-        // create .backups folder
-        def backupDir = gameDirectory + '/.backups/'
-        file(backupDir).mkdirs()
+  // change file name
+  if (previousJars) {
+    // create .backups folder
+    def backupDir = gameDirectory + '/.backups/'
+    file(backupDir).mkdirs()
 
-        for(File previousJar : previousJars) {
-            def n = gameDirectory + '/.backups/' + previousJar.getName() + '.bk'
-            def f = file(n)
-            def i = 1
-            while(f.exists()) {
-                f = file(n + '_' + i)
-                i++
-            }
-            previousJar.renameTo(f)
-        }
+    for (File previousJar : previousJars) {
+      def n = gameDirectory + '/.backups/' + previousJar.getName() + '.bk'
+      def f = file(n)
+      def i = 1
+      while (f.exists()) {
+        f = file(n + '_' + i)
+        i++
+      }
+      previousJar.renameTo(f)
     }
+  }
 
-    // copy forgehax jar from libs to forge mod folder
-    from jar
-    into "$gameDir/mods/" + minecraft.version
+  // copy forgehax jar from libs to forge mod folder
+  from jar
+  into "$gameDir/mods/" + minecraft.version
 }
-
-task publishToMavenLocal() {} // dummy
 
 build.finalizedBy copyJar

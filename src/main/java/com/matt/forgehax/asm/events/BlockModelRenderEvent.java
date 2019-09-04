@@ -7,8 +7,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-/** Created on 5/5/2017 by fr1kin */
+/**
+ * Created on 5/5/2017 by fr1kin
+ */
 public class BlockModelRenderEvent extends Event {
+
   private final IBlockAccess blockAccess;
   private final IBakedModel bakedModel;
   private final IBlockState blockState;
@@ -18,13 +21,13 @@ public class BlockModelRenderEvent extends Event {
   private final long rand;
 
   public BlockModelRenderEvent(
-      IBlockAccess worldIn,
-      IBakedModel modelIn,
-      IBlockState stateIn,
-      BlockPos posIn,
-      BufferBuilder buffer,
-      boolean checkSides,
-      long rand) {
+    IBlockAccess worldIn,
+    IBakedModel modelIn,
+    IBlockState stateIn,
+    BlockPos posIn,
+    BufferBuilder buffer,
+    boolean checkSides,
+    long rand) {
     this.blockAccess = worldIn;
     this.bakedModel = modelIn;
     this.blockState = stateIn;

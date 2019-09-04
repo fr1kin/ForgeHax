@@ -3,9 +3,14 @@ package com.matt.forgehax.asm.utils.environment;
 import com.matt.forgehax.asm.utils.remapping.NonObfuscatedStateMapper;
 import com.matt.forgehax.asm.utils.remapping.ObfuscatedStateMapper;
 
-/** Created on 5/26/2017 by fr1kin */
+/**
+ * Created on 5/26/2017 by fr1kin
+ */
 public class RuntimeState {
-  /** Used for remapping Notch to SRG and obfuscated naming conventions */
+  
+  /**
+   * Used for remapping Notch to SRG and obfuscated naming conventions
+   */
   private static IStateMapper remapper = null;
 
   /**
@@ -13,9 +18,11 @@ public class RuntimeState {
    * feeds us the obfuscation state
    */
   private static ThreadLocal<State> localState =
-      ThreadLocal.withInitial(RuntimeState::getDefaultState);
-
-  /** Default state use (unless specified not to) */
+    ThreadLocal.withInitial(RuntimeState::getDefaultState);
+  
+  /**
+   * Default state use (unless specified not to)
+   */
   private static State defaultState = State.OBFUSCATED;
 
   public static State getDefaultState() {
@@ -60,10 +67,10 @@ public class RuntimeState {
 
   public static IStateMapper getMapper() {
     return remapper == null
-        ? remapper =
-            (isObfuscated()
-                ? ObfuscatedStateMapper.getInstance()
-                : NonObfuscatedStateMapper.getInstance())
-        : remapper;
+      ? remapper =
+      (isObfuscated()
+        ? ObfuscatedStateMapper.getInstance()
+        : NonObfuscatedStateMapper.getInstance())
+      : remapper;
   }
 }

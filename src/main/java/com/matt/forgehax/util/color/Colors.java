@@ -1,7 +1,10 @@
 package com.matt.forgehax.util.color;
 
-/** Created on 2/6/2018 by fr1kin */
+/**
+ * Created on 2/6/2018 by fr1kin
+ */
 public interface Colors {
+  
   Color WHITE = Color.of(255, 255, 255, 255);
   Color BLACK = Color.of(0, 0, 0, 255);
   Color RED = Color.of(255, 0, 0, 255);

@@ -2,8 +2,11 @@ package com.matt.forgehax.util.color;
 
 import java.util.Arrays;
 
-/** Created on 2/6/2018 by fr1kin */
+/**
+ * Created on 2/6/2018 by fr1kin
+ */
 public class Color4F extends Color {
+
   private static final Color FACTORY = new Color4F();
 
   public static Color getFactory() {
@@ -15,8 +18,9 @@ public class Color4F extends Color {
   //
 
   private final float[] color = new float[4];
-
-  private Color4F() {}
+  
+  private Color4F() {
+  }
 
   private Color4F(float red, float green, float blue, float alpha) {
     color[0] = red;
@@ -28,10 +32,10 @@ public class Color4F extends Color {
   @Override
   public Color set(int buffer) {
     return set(
-        (float) (buffer >> 16 & 255) / 255.f,
-        (float) (buffer >> 8 & 255) / 255.f,
-        (float) (buffer & 255) / 255.f,
-        (float) (buffer >> 24 & 255) / 255.f);
+      (float) (buffer >> 16 & 255) / 255.f,
+      (float) (buffer >> 8 & 255) / 255.f,
+      (float) (buffer & 255) / 255.f,
+      (float) (buffer >> 24 & 255) / 255.f);
   }
 
   @Override
@@ -87,8 +91,8 @@ public class Color4F extends Color {
   @Override
   public String toString() {
     return String.format(
-        "r=%.2f,g=%.2f,b=%.2f,a=%.2f",
-        getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat());
+      "r=%.2f,g=%.2f,b=%.2f,a=%.2f",
+      getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat());
   }
 
   @Override

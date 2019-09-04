@@ -1,7 +1,10 @@
 package com.matt.forgehax.util;
 
-/** Created on 7/19/2017 by fr1kin */
+/**
+ * Created on 7/19/2017 by fr1kin
+ */
 public class ArrayHelper {
+  
   public static <T> T getOrDefault(T[] array, int index, T defaultValue) {
     return isInRange(array, index) ? array[index] : defaultValue;
   }

@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class SneakService extends ServiceMod {
+
   private static SneakService instance;
 
   public static SneakService getInstance() {
@@ -50,12 +51,15 @@ public class SneakService extends ServiceMod {
       CPacketEntityAction packet = (CPacketEntityAction) event.getPacket();
       int id = CPacketEntityAction_entityID.get(packet);
       if (getLocalPlayer().getEntityId() == id
-          && (packet.getAction() == Action.START_SNEAKING
-              || packet.getAction() == Action.STOP_SNEAKING)
-          && !PacketHelper.isIgnored(packet)) {
+        && (packet.getAction() == Action.START_SNEAKING
+        || packet.getAction() == Action.STOP_SNEAKING)
+        && !PacketHelper.isIgnored(packet)) {
         sneakingClient = packet.getAction() == Action.START_SNEAKING;
-        if (isSuppressing()) event.setCanceled(true);
-        else sneakingServer = sneakingClient;
+        if (isSuppressing()) {
+          event.setCanceled(true);
+        } else {
+          sneakingServer = sneakingClient;
+        }
       }
     }
   }

@@ -1,15 +1,17 @@
 package com.matt.forgehax.gui.elements;
 
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.mod.BaseMod;
 
-/** Created by Babbaj on 9/5/2017. */
+/**
+ * Created by Babbaj on 9/5/2017.
+ */
 public class GuiButton {
 
   private final BaseMod mod;
 
-  public static final int COLOR_ENABLED = Utils.toRGBA(65, 65, 65, 200);
-  public static final int COLOR_DISABLED = Utils.toRGBA(100, 100, 100, 150);
+  private static final int COLOR_ENABLED = Color.of(65, 65, 65, 200).toBuffer();
+  private static final int COLOR_DISABLED = Color.of(100, 100, 100, 150).toBuffer();
 
   public int width;
   public static final int height = 15;
@@ -30,8 +32,11 @@ public class GuiButton {
   }
 
   public void toggleMod() {
-    if (!mod.isEnabled()) mod.enable();
-    else mod.disable();
+    if (!mod.isEnabled()) {
+      mod.enable();
+    } else {
+      mod.disable();
+    }
   }
 
   public String getName() {

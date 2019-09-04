@@ -1,22 +1,30 @@
 package com.matt.forgehax.asm.utils.remapping;
 
-import bspkrs.mmv.*;
+import bspkrs.mmv.CsvFile;
+import bspkrs.mmv.ExcFile;
+import bspkrs.mmv.ParamCsvFile;
+import bspkrs.mmv.RemoteZipHandler;
+import bspkrs.mmv.SrgFile;
+import bspkrs.mmv.StaticMethodsFile;
 import com.matt.forgehax.asm.utils.ASMStackLogger;
 import java.io.File;
 import java.io.IOException;
 import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
 
-/** Credits to bspkrs */
+/**
+ * Credits to bspkrs
+ */
 public class MCPMappingLoader {
+
   private final File baseDir =
-      new File(new File(System.getProperty("user.home")), ".cache/MCPMappingViewer");
+    new File(new File(System.getProperty("user.home")), ".cache/MCPMappingViewer");
   private final String baseSrgDir = "{mc_ver}";
   private final String baseMappingDir = "{mc_ver}/{channel}_{map_ver}";
   private final String baseMappingUrl =
-      "http://export.mcpbot.bspk.rs/mcp_{channel}/{map_ver}-{mc_ver}/mcp_{channel}-{map_ver}-{mc_ver}.zip";
+    "http://export.mcpbot.bspk.rs/mcp_{channel}/{map_ver}-{mc_ver}/mcp_{channel}-{map_ver}-{mc_ver}.zip";
   private final String baseSrgUrl =
-      "http://export.mcpbot.bspk.rs/mcp/{mc_ver}/mcp-{mc_ver}-srg.zip";
+    "http://export.mcpbot.bspk.rs/mcp/{mc_ver}/mcp-{mc_ver}-srg.zip";
 
   private final File srgDir;
   private final File mappingDir;
@@ -31,10 +39,11 @@ public class MCPMappingLoader {
   private ParamCsvFile csvParamData;
 
   public MCPMappingLoader(String mapping)
-      throws IOException, CantLoadMCPMappingException, NoSuchAlgorithmException, DigestException {
+    throws IOException, CantLoadMCPMappingException, NoSuchAlgorithmException, DigestException {
     String[] tokens = mapping.split("_");
-    if (tokens.length < 3)
+    if (tokens.length < 3) {
       throw new CantLoadMCPMappingException("Invalid mapping string specified.");
+    }
 
     srgDir = getSubDirForZip(tokens, baseSrgUrl, baseSrgDir);
     mappingDir = getSubDirForZip(tokens, baseMappingUrl, baseMappingDir);
@@ -42,18 +51,21 @@ public class MCPMappingLoader {
     srgFile = new File(srgDir, "joined.srg");
     excFile = new File(srgDir, "joined.exc");
     staticMethodsFile = new File(srgDir, "static_methods.txt");
-
-    if (!srgFile.exists())
+  
+    if (!srgFile.exists()) {
       throw new CantLoadMCPMappingException(
-          "Unable to find joined.srg. Your MCP conf folder may be corrupt.");
-
-    if (!excFile.exists())
+        "Unable to find joined.srg. Your MCP conf folder may be corrupt.");
+    }
+  
+    if (!excFile.exists()) {
       throw new CantLoadMCPMappingException(
-          "Unable to find joined.exc. Your MCP conf folder may be corrupt.");
-
-    if (!staticMethodsFile.exists())
+        "Unable to find joined.exc. Your MCP conf folder may be corrupt.");
+    }
+  
+    if (!staticMethodsFile.exists()) {
       throw new CantLoadMCPMappingException(
-          "Unable to find static_methods.txt. Your MCP conf folder may be corrupt.");
+        "Unable to find static_methods.txt. Your MCP conf folder may be corrupt.");
+    }
 
     staticMethods = new StaticMethodsFile(staticMethodsFile);
     excFileData = new ExcFile(excFile);
@@ -77,18 +89,20 @@ public class MCPMappingLoader {
   }
 
   private File getSubDirForZip(String[] tokens, String baseZipUrl, String baseSubDir)
-      throws CantLoadMCPMappingException, NoSuchAlgorithmException, DigestException, IOException {
-    if (!baseDir.exists() && !baseDir.mkdirs())
+    throws CantLoadMCPMappingException, NoSuchAlgorithmException, DigestException, IOException {
+    if (!baseDir.exists() && !baseDir.mkdirs()) {
       throw new CantLoadMCPMappingException(
-          "Application data folder does not exist and cannot be created.");
+        "Application data folder does not exist and cannot be created.");
+    }
 
     File subDir = new File(baseDir, replaceTokens(baseSubDir, tokens));
-    if (!subDir.exists() && !subDir.mkdirs())
+    if (!subDir.exists() && !subDir.mkdirs()) {
       throw new CantLoadMCPMappingException("Data folder does not exist and cannot be created.");
+    }
 
     try {
       RemoteZipHandler rzh =
-          new RemoteZipHandler(replaceTokens(baseZipUrl, tokens), subDir, "SHA1");
+        new RemoteZipHandler(replaceTokens(baseZipUrl, tokens), subDir, "SHA1");
       rzh.checkRemoteZip();
     } catch (Throwable t) {
       ASMStackLogger.printStackTrace(t);
@@ -99,11 +113,12 @@ public class MCPMappingLoader {
 
   private String replaceTokens(String s, String[] tokens) {
     return s.replace("{mc_ver}", tokens[0])
-        .replace("{channel}", tokens[1])
-        .replace("{map_ver}", tokens[2]);
+      .replace("{channel}", tokens[1])
+      .replace("{map_ver}", tokens[2]);
   }
 
   public static class CantLoadMCPMappingException extends Exception {
+  
     public CantLoadMCPMappingException(String msg) {
       super(msg);
     }

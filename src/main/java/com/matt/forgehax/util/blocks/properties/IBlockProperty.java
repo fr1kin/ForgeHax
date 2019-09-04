@@ -2,8 +2,11 @@ package com.matt.forgehax.util.blocks.properties;
 
 import com.matt.forgehax.util.serialization.ISerializableJson;
 
-/** Created on 5/20/2017 by fr1kin */
+/**
+ * Created on 5/20/2017 by fr1kin
+ */
 public interface IBlockProperty extends ISerializableJson {
+  
   /**
    * If the current mutable instance is containing unique data. If this method returns false, then
    * the property may be switched to an immutable instance of itself.

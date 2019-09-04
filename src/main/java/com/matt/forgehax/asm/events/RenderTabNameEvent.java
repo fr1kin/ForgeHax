@@ -8,8 +8,9 @@ public class RenderTabNameEvent extends Event {
 
   private final String name;
   private final int color;
-
-  private @Nullable String newName;
+  
+  private @Nullable
+  String newName;
   private OptionalInt newColor = OptionalInt.empty();
 
   public RenderTabNameEvent(String name, int color) {

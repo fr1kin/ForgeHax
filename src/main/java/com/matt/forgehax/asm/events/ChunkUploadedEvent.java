@@ -4,8 +4,11 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-/** Created on 5/7/2017 by fr1kin */
+/**
+ * Created on 5/7/2017 by fr1kin
+ */
 public class ChunkUploadedEvent extends Event {
+  
   private final RenderChunk renderChunk;
   private final BufferBuilder buffer;
 

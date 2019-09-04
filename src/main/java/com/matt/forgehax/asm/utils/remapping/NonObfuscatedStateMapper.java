@@ -3,8 +3,11 @@ package com.matt.forgehax.asm.utils.remapping;
 import com.matt.forgehax.asm.utils.environment.IStateMapper;
 import javax.annotation.Nullable;
 
-/** Created on 5/28/2017 by fr1kin */
+/**
+ * Created on 5/28/2017 by fr1kin
+ */
 public class NonObfuscatedStateMapper implements IStateMapper {
+
   private static NonObfuscatedStateMapper INSTANCE = null;
 
   public static NonObfuscatedStateMapper getInstance() {
@@ -26,15 +29,15 @@ public class NonObfuscatedStateMapper implements IStateMapper {
   @Nullable
   @Override
   public String getSrgMethodName(
-      String parentClassName, String methodName, String methodDescriptor) {
+    String parentClassName, String methodName, String methodDescriptor) {
     return ObfuscatedStateMapper.getInstance()
-        .getSrgMethodName(parentClassName, methodName, methodDescriptor);
+      .getSrgMethodName(parentClassName, methodName, methodDescriptor);
   }
 
   @Nullable
   @Override
   public String getObfMethodName(
-      String parentClassName, String methodName, String methodDescriptor) {
+    String parentClassName, String methodName, String methodDescriptor) {
     return null;
   }
 

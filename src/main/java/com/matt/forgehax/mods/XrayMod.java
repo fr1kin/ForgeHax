@@ -18,28 +18,29 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class XrayMod extends ToggleMod {
+  
   public final Setting<Integer> opacity =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("opacity")
-          .description("Xray opacity")
-          .defaultTo(150)
-          .min(0)
-          .max(255)
-          .changed(
-              cb -> {
-                ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (cb.getTo().floatValue() / 255.f);
-                reloadChunks();
-              })
-          .build();
-
+    getCommandStub()
+      .builders()
+      .<Integer>newSettingBuilder()
+      .name("opacity")
+      .description("Xray opacity")
+      .defaultTo(150)
+      .min(0)
+      .max(255)
+      .changed(
+        cb -> {
+          ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (cb.getTo().floatValue() / 255.f);
+          reloadChunks();
+        })
+      .build();
+  
   private boolean previousForgeLightPipelineEnabled = false;
-
+  
   public XrayMod() {
     super(Category.WORLD, "Xray", false, "See blocks through walls");
   }
-
+  
   @Override
   public void onEnabled() {
     previousForgeLightPipelineEnabled = ForgeModContainer.forgeLightPipelineEnabled;
@@ -49,7 +50,7 @@ public class XrayMod extends ToggleMod {
     reloadChunks();
     ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable("Xray");
   }
-
+  
   @Override
   public void onDisabled() {
     ForgeModContainer.forgeLightPipelineEnabled = previousForgeLightPipelineEnabled;
@@ -57,9 +58,9 @@ public class XrayMod extends ToggleMod {
     reloadChunks();
     ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("Xray");
   }
-
+  
   private boolean isInternalCall = false;
-
+  
   @SubscribeEvent
   public void onPreRenderBlockLayer(RenderBlockLayerEvent.Pre event) {
     if (!isInternalCall) {
@@ -70,27 +71,28 @@ public class XrayMod extends ToggleMod {
         Entity renderEntity = MC.getRenderViewEntity();
         GlStateManager.disableAlpha();
         MC.renderGlobal.renderBlockLayer(
-            BlockRenderLayer.SOLID, event.getPartialTicks(), 0, renderEntity);
+          BlockRenderLayer.SOLID, event.getPartialTicks(), 0, renderEntity);
         GlStateManager.enableAlpha();
         MC.renderGlobal.renderBlockLayer(
-            BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), 0, renderEntity);
+          BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), 0, renderEntity);
         MC.getTextureManager()
-            .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
-            .setBlurMipmap(false, false);
+          .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+          .setBlurMipmap(false, false);
         MC.renderGlobal.renderBlockLayer(
-            BlockRenderLayer.CUTOUT, event.getPartialTicks(), 0, renderEntity);
+          BlockRenderLayer.CUTOUT, event.getPartialTicks(), 0, renderEntity);
         MC.getTextureManager()
-            .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
-            .restoreLastBlurMipmap();
+          .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+          .restoreLastBlurMipmap();
         GlStateManager.disableAlpha();
         isInternalCall = false;
       }
     }
   }
-
+  
   @SubscribeEvent
-  public void onPostRenderBlockLayer(RenderBlockLayerEvent.Post event) {}
-
+  public void onPostRenderBlockLayer(RenderBlockLayerEvent.Post event) {
+  }
+  
   @SubscribeEvent
   public void onRenderBlockInLayer(RenderBlockInLayerEvent event) {
     if (event.getCompareToLayer().equals(BlockRenderLayer.TRANSLUCENT)) {

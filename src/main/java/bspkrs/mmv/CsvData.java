@@ -27,6 +27,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  */
 
 public class CsvData implements Comparable<CsvData> {
+
   private final String srgName;
   private String mcpName;
   private final int side;
@@ -39,13 +40,15 @@ public class CsvData implements Comparable<CsvData> {
     this.side = side;
 
     if (comment.contains(",")
-        || (!comment.isEmpty()
-            && comment.charAt(0) == '"'
-            && comment.charAt(comment.length() - 1) == '"')) {
+      || (!comment.isEmpty()
+      && comment.charAt(0) == '"'
+      && comment.charAt(comment.length() - 1) == '"')) {
       needsQuoted = true;
-      if (comment.charAt(0) == '"' && comment.charAt(comment.length() - 1) == '"')
+      if (comment.charAt(0) == '"' && comment.charAt(comment.length() - 1) == '"') {
         this.comment = comment.substring(1, comment.length() - 1);
-      else this.comment = comment;
+      } else {
+        this.comment = comment;
+      }
     } else {
       this.comment = comment;
       needsQuoted = false;
@@ -54,12 +57,12 @@ public class CsvData implements Comparable<CsvData> {
 
   public String toCsv() {
     return srgName
-        + ","
-        + mcpName
-        + ","
-        + side
-        + ","
-        + (needsQuoted ? "\"" + comment + "\"" : comment);
+      + ","
+      + mcpName
+      + ","
+      + side
+      + ","
+      + (needsQuoted ? "\"" + comment + "\"" : comment);
   }
 
   public String getSrgName() {
@@ -90,7 +93,9 @@ public class CsvData implements Comparable<CsvData> {
 
   @Override
   public int compareTo(CsvData o) {
-    if (o != null) return this.srgName.compareTo(o.srgName);
+    if (o != null) {
+      return this.srgName.compareTo(o.srgName);
+    }
 
     return 1;
   }

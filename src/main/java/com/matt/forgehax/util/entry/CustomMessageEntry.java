@@ -10,8 +10,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Created on 7/21/2017 by fr1kin */
+/**
+ * Created on 7/21/2017 by fr1kin
+ */
 public class CustomMessageEntry implements ISerializableJson {
+
   private final UUID player;
 
   private final List<MessageEntry> messages = Lists.newCopyOnWriteArrayList();
@@ -26,8 +29,6 @@ public class CustomMessageEntry implements ISerializableJson {
 
   /**
    * The player this join message is for
-   *
-   * @return
    */
   public UUID getPlayer() {
     return player;
@@ -38,7 +39,11 @@ public class CustomMessageEntry implements ISerializableJson {
   }
 
   public MessageEntry getEntry(UUID owner) {
-    for (MessageEntry entry : messages) if (entry.getOwner().equals(owner)) return entry;
+    for (MessageEntry entry : messages) {
+      if (entry.getOwner().equals(owner)) {
+        return entry;
+      }
+    }
     return null;
   }
 
@@ -68,7 +73,9 @@ public class CustomMessageEntry implements ISerializableJson {
   }
 
   public void setSize(int size) {
-    while (messages.size() > size) messages.remove(getRandom());
+    while (messages.size() > size) {
+      messages.remove(getRandom());
+    }
   }
 
   @Override
@@ -116,9 +123,9 @@ public class CustomMessageEntry implements ISerializableJson {
   @Override
   public boolean equals(Object obj) {
     return obj == this
-        || (obj instanceof CustomMessageEntry
-            && player.equals(((CustomMessageEntry) obj).getPlayer()))
-        || (obj instanceof UUID && player.equals(obj));
+      || (obj instanceof CustomMessageEntry
+      && player.equals(((CustomMessageEntry) obj).getPlayer()))
+      || (obj instanceof UUID && player.equals(obj));
   }
 
   @Override
@@ -132,6 +139,7 @@ public class CustomMessageEntry implements ISerializableJson {
   }
 
   public static class MessageEntry implements ISerializableJson {
+  
     private final UUID owner;
     private String message;
 
@@ -179,7 +187,7 @@ public class CustomMessageEntry implements ISerializableJson {
     @Override
     public boolean equals(Object obj) {
       return (obj instanceof MessageEntry && owner.equals(((MessageEntry) obj).owner))
-          || (obj instanceof UUID && owner.equals(obj));
+        || (obj instanceof UUID && owner.equals(obj));
     }
 
     @Override

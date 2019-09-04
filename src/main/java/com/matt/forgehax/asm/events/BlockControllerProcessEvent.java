@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class BlockControllerProcessEvent extends Event {
+  
   private final Minecraft minecraft;
   private boolean leftClicked;
 

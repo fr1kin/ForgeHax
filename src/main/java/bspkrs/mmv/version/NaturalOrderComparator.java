@@ -39,6 +39,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 import java.util.Comparator;
 
 public class NaturalOrderComparator implements Comparator<Object> {
+
   int compareRight(String a, String b) {
     int bias = 0;
     int ia = 0;
@@ -63,7 +64,9 @@ public class NaturalOrderComparator implements Comparator<Object> {
           bias = -1;
         }
       } else if (ca > cb) {
-        if (bias == 0) bias = +1;
+        if (bias == 0) {
+          bias = +1;
+        }
       } else if (ca == 0 && cb == 0) {
         return bias;
       }

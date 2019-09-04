@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class LeftClickCounterUpdateEvent extends Event {
+  
   private final Minecraft minecraft;
   private int value;
 

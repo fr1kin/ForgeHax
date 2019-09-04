@@ -4,8 +4,11 @@ import com.matt.forgehax.asm.utils.environment.State;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/** Created on 5/26/2017 by fr1kin */
+/**
+ * Created on 5/26/2017 by fr1kin
+ */
 public class McMultiName<E> extends SingleName<E> {
+  
   private final E srg;
   private final E obf;
 

@@ -7,8 +7,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import joptsimple.internal.Strings;
 
-/** Created on 5/25/2017 by fr1kin */
+/**
+ * Created on 5/25/2017 by fr1kin
+ */
 public class FastField<V> extends FastType<Field> {
+
   private final boolean stripFinal;
 
   public FastField(Class<?> insideClass, IName<String> name, boolean stripFinal) {
@@ -18,9 +21,13 @@ public class FastField<V> extends FastType<Field> {
 
   public <E> V get(E instance, V defaultValue) {
     try {
-      if (attemptLookup()) return (V) type.get(instance);
+      if (attemptLookup()) {
+        return (V) type.get(instance);
+      }
     } catch (Exception e) {
-      if (printOnce.compareAndSet(false, true)) ASMStackLogger.printStackTrace(e);
+      if (printOnce.compareAndSet(false, true)) {
+        ASMStackLogger.printStackTrace(e);
+      }
     }
     return defaultValue;
   }
@@ -44,7 +51,9 @@ public class FastField<V> extends FastType<Field> {
         return true;
       }
     } catch (Exception e) {
-      if (printOnce.compareAndSet(false, true)) ASMStackLogger.printStackTrace(e);
+      if (printOnce.compareAndSet(false, true)) {
+        ASMStackLogger.printStackTrace(e);
+      }
     }
     return false; // failed to set
   }
@@ -57,7 +66,7 @@ public class FastField<V> extends FastType<Field> {
   protected Field lookup() throws Exception {
     for (State state : State.values()) {
       String n = name.getByState(state);
-      if (!Strings.isNullOrEmpty(n))
+      if (!Strings.isNullOrEmpty(n)) {
         try {
           Field f = insideClass.getDeclaredField(n);
           f.setAccessible(true);
@@ -67,8 +76,10 @@ public class FastField<V> extends FastType<Field> {
             modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
           }
           return f;
-        } catch (Exception e) {;
+        } catch (Exception e) {
+          ;
         }
+      }
     }
     return null;
   }

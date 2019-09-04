@@ -9,4 +9,6 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  * <p>Called every time the player updates cancel to stop getting pushed out of blocks
  */
 @Cancelable
-public class PushOutOfBlocksEvent extends Event {}
+public class PushOutOfBlocksEvent extends Event {
+
+}

@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class WaterMovementEvent extends Event {
+  
   private Entity entity;
   private Vec3d movement;
 

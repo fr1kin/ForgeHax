@@ -12,7 +12,9 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.input.Mouse;
 
-/** Created by Babbaj on 9/5/2017. */
+/**
+ * Created by Babbaj on 9/5/2017.
+ */
 public class ClickGui extends GuiScreen implements Globals {
 
   private static ClickGui INSTANCE;
@@ -43,9 +45,9 @@ public class ClickGui extends GuiScreen implements Globals {
     // TODO: improve this a bit maybe
     for (int i = 0; i < windowList.size(); i++) {
       int x =
-          (i + 1) * scaledRes.getScaledWidth() / (windowList.size() + 1)
-              - windowList.get(i).width / 2
-              - 10;
+        (i + 1) * scaledRes.getScaledWidth() / (windowList.size() + 1)
+          - windowList.get(i).width / 2
+          - 10;
       int y = scaledRes.getScaledHeight() / 15;
       windowList.get(i).setPosition(x, y);
     }
@@ -62,14 +64,16 @@ public class ClickGui extends GuiScreen implements Globals {
 
   public void moveWindowToTop(GuiWindow window) {
     if (windowList.remove(window)) // if it wasnt already in the list dont add it
-    windowList.add(window);
+    {
+      windowList.add(window);
+    }
   }
 
   public boolean isMouseInWindow(int mouseX, int mouseY, GuiWindow window) {
     return mouseX > window.posX
-        && mouseX < window.bottomX
-        && mouseY > window.headerY
-        && mouseY < window.bottomY;
+      && mouseX < window.bottomX
+      && mouseY > window.headerY
+      && mouseY < window.bottomY;
   }
 
   public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -118,7 +122,7 @@ public class ClickGui extends GuiScreen implements Globals {
     int scale = scaledRes.getScaleFactor();
     for (GuiWindow window : Lists.reverse(windowList)) {
       if (isMouseInWindow(
-          Mouse.getEventX() / scale, (MC.displayHeight - Mouse.getEventY()) / scale, window)) {
+        Mouse.getEventX() / scale, (MC.displayHeight - Mouse.getEventY()) / scale, window)) {
         window.handleMouseInput();
         break;
       }

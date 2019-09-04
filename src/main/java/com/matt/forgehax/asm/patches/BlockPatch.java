@@ -1,21 +1,30 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
-import com.matt.forgehax.asm.utils.transforming.*;
+import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
+import com.matt.forgehax.asm.utils.transforming.Inject;
+import com.matt.forgehax.asm.utils.transforming.InjectPriority;
+import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
+import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 public class BlockPatch extends ClassTransformer {
+
   public BlockPatch() {
     super(Classes.Block);
   }
 
   @RegisterMethodTransformer
   private class CanRenderInLayer extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.Block_canRenderInLayer;
@@ -24,7 +33,7 @@ public class BlockPatch extends ClassTransformer {
     @Inject(description = "Changes in layer code so that we can change it")
     public void inject(MethodNode main) {
       AbstractInsnNode node =
-          ASMHelper.findPattern(main.instructions.getFirst(), new int[] {INVOKEVIRTUAL}, "x");
+        ASMHelper.findPattern(main.instructions.getFirst(), new int[]{INVOKEVIRTUAL}, "x");
 
       Objects.requireNonNull(node, "Find pattern failed for node");
 
@@ -37,9 +46,9 @@ public class BlockPatch extends ClassTransformer {
       insnList.add(new VarInsnNode(ALOAD, 1)); // push block state
       insnList.add(new VarInsnNode(ALOAD, 3)); // push this.getBlockLayer() result
       insnList.add(
-          new VarInsnNode(ALOAD, 2)); // push the block layer of the block we are comparing to
+        new VarInsnNode(ALOAD, 2)); // push the block layer of the block we are comparing to
       insnList.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onRenderBlockInLayer));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onRenderBlockInLayer));
       // now our result is on the stack
 
       main.instructions.insert(node, insnList);
@@ -48,6 +57,7 @@ public class BlockPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   private class AddCollisionBoxToList extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.Block_addCollisionBoxToList;
@@ -55,13 +65,13 @@ public class BlockPatch extends ClassTransformer {
 
     @Inject(
       description =
-          "Redirects method to our hook and allows the vanilla code to be canceled from executing",
+        "Redirects method to our hook and allows the vanilla code to be canceled from executing",
       priority = InjectPriority.LOWEST
     )
     public void inject(MethodNode main) {
       AbstractInsnNode node = main.instructions.getFirst();
       AbstractInsnNode end =
-          ASMHelper.findPattern(main.instructions.getFirst(), new int[] {RETURN}, "x");
+        ASMHelper.findPattern(main.instructions.getFirst(), new int[]{RETURN}, "x");
 
       Objects.requireNonNull(node, "Find pattern failed for node");
       Objects.requireNonNull(end, "Find pattern failed for end");
@@ -78,7 +88,7 @@ public class BlockPatch extends ClassTransformer {
       insnList.add(new VarInsnNode(ALOAD, 6)); // entityIn
       insnList.add(new VarInsnNode(ILOAD, 7)); // bool
       insnList.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onAddCollisionBoxToList));
+        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onAddCollisionBoxToList));
       insnList.add(new JumpInsnNode(IFNE, jumpPast));
 
       main.instructions.insertBefore(end, jumpPast);

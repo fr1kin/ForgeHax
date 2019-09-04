@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  */
 
 public class McpBotCommand {
+
   public enum BotCommand {
     SF,
     SM,
@@ -55,7 +56,7 @@ public class McpBotCommand {
   }
 
   public static McpBotCommand getMcpBotCommand(
-      MemberType type, boolean isForced, String srgName, String newName, String comment) {
+    MemberType type, boolean isForced, String srgName, String newName, String comment) {
     return new McpBotCommand(getCommand(type, isForced), srgName, newName, comment);
   }
 
@@ -70,6 +71,6 @@ public class McpBotCommand {
   @Override
   public String toString() {
     return String.format(
-        "!%s %s %s %s", command.toString().toLowerCase(), srgName, newName, comment);
+      "!%s %s %s %s", command.toString().toLowerCase(), srgName, newName, comment);
   }
 }

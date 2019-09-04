@@ -5,17 +5,20 @@ import java.util.Map;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
-/** Created on 6/4/2017 by fr1kin */
+/**
+ * Created on 6/4/2017 by fr1kin
+ */
 public class PropertyFactory {
+
   private static final Map<Class<? extends IBlockProperty>, Supplier<? extends IBlockProperty>>
-      PROPERTY_FACTORY = Maps.newHashMap();
+    PROPERTY_FACTORY = Maps.newHashMap();
   private static final Map<Class<? extends IBlockProperty>, IBlockProperty> CLASS_TO_IMMUTABLE =
-      Maps.newHashMap();
+    Maps.newHashMap();
   private static final Map<String, Class<? extends IBlockProperty>> HEADING_TO_CLASS =
-      Maps.newHashMap();
+    Maps.newHashMap();
 
   public static void registerPropertyFactory(
-      Class<? extends IBlockProperty> clazz, Supplier<? extends IBlockProperty> factory) {
+    Class<? extends IBlockProperty> clazz, Supplier<? extends IBlockProperty> factory) {
     IBlockProperty temp = factory.get();
     CLASS_TO_IMMUTABLE.put(clazz, temp.newImmutableInstance());
     HEADING_TO_CLASS.put(temp.toString(), clazz);
@@ -25,7 +28,9 @@ public class PropertyFactory {
   public static <T extends IBlockProperty> T newInstance(Class<T> clazz) {
     if (clazz != null) {
       Supplier<? extends IBlockProperty> supplier = PROPERTY_FACTORY.get(clazz);
-      if (supplier != null) return supplier.get().cast();
+      if (supplier != null) {
+        return supplier.get().cast();
+      }
     }
     return null;
   }

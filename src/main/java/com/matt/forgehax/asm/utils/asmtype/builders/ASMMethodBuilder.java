@@ -9,8 +9,11 @@ import java.util.Objects;
 import joptsimple.internal.Strings;
 import org.objectweb.asm.Type;
 
-/** Created on 5/27/2017 by fr1kin */
+/**
+ * Created on 5/27/2017 by fr1kin
+ */
 public class ASMMethodBuilder implements ASMCommon {
+
   private static final IName<Type>[] NO_PARAMETERS = new ParameterBuilder().asArray();
 
   private ASMClass parentClass = null;
@@ -19,8 +22,9 @@ public class ASMMethodBuilder implements ASMCommon {
   private IName<Type> returnType = null;
 
   private boolean auto = false;
-
-  protected ASMMethodBuilder() {}
+  
+  protected ASMMethodBuilder() {
+  }
 
   public ASMMethodBuilder setParentClass(ASMClass parentClass) {
     this.parentClass = parentClass;
@@ -78,7 +82,7 @@ public class ASMMethodBuilder implements ASMCommon {
 
   public ASMMethodBuilder setReturnType(String internalClassName) {
     return setReturnType(
-        !Strings.isNullOrEmpty(internalClassName) ? Type.getObjectType(internalClassName) : null);
+      !Strings.isNullOrEmpty(internalClassName) ? Type.getObjectType(internalClassName) : null);
   }
 
   public ASMMethodBuilder setReturnType(Class<?> clazz) {
@@ -97,7 +101,9 @@ public class ASMMethodBuilder implements ASMCommon {
   private void attemptAutoAssign() {
     // build parameter list for normal state
     Type[] normalParameters = new Type[parameterTypes.length];
-    for (int i = 0; i < parameterTypes.length; i++) normalParameters[i] = parameterTypes[i].get();
+    for (int i = 0; i < parameterTypes.length; i++) {
+      normalParameters[i] = parameterTypes[i].get();
+    }
     // create method descriptor
     String descriptor = Type.getMethodType(returnType.get(), normalParameters).getDescriptor();
 
@@ -109,10 +115,12 @@ public class ASMMethodBuilder implements ASMCommon {
     // parent class not required
     Objects.requireNonNull(name, "Missing method name");
     Objects.requireNonNull(
-        parameterTypes, "Missing method parameters (use emptyParameters() if none are present)");
+      parameterTypes, "Missing method parameters (use emptyParameters() if none are present)");
     Objects.requireNonNull(returnType, "Missing method return type");
-    if (auto) attemptAutoAssign();
+    if (auto) {
+      attemptAutoAssign();
+    }
     return new ASMMethod(
-        parentClass, NameBuilder.create(name, srgName, obfuscatedName), parameterTypes, returnType);
+      parentClass, NameBuilder.create(name, srgName, obfuscatedName), parameterTypes, returnType);
   }
 }

@@ -8,9 +8,12 @@ import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import org.lwjgl.input.Keyboard;
 
-/** Created by Babbaj on 9/10/2017. */
+/**
+ * Created by Babbaj on 9/10/2017.
+ */
 @RegisterMod
 public class GuiService extends ServiceMod {
+
   public GuiService() {
     super("GUI");
   }
@@ -25,9 +28,9 @@ public class GuiService extends ServiceMod {
   @Override
   protected StubBuilder buildStubCommand(StubBuilder builder) {
     return builder
-        .kpressed(this::onBindPressed)
-        .kdown(this::onBindKeyDown)
-        .bind(Keyboard.KEY_RSHIFT) // default to right shift
-    ;
+      .kpressed(this::onBindPressed)
+      .kdown(this::onBindKeyDown)
+      .bind(Keyboard.KEY_RSHIFT) // default to right shift
+      ;
   }
 }

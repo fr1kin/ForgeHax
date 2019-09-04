@@ -3,8 +3,11 @@ package com.matt.forgehax.asm.utils.fasttype;
 import com.matt.forgehax.asm.utils.name.IName;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Created on 5/25/2017 by fr1kin */
+/**
+ * Created on 5/25/2017 by fr1kin
+ */
 public abstract class FastType<T> {
+
   protected final Class<?> insideClass;
   protected final IName<String> name;
 
@@ -37,9 +40,13 @@ public abstract class FastType<T> {
         lookupFailed = (type == null);
       }
       return !lookupFailed;
-    } else return true; // previous attempt failed, trying again wont work
+    } else {
+      return true; // previous attempt failed, trying again wont work
+    }
   }
-
-  /** Reflection lookup */
+  
+  /**
+   * Reflection lookup
+   */
   protected abstract T lookup() throws Exception;
 }

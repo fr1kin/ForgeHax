@@ -6,6 +6,7 @@ import java.io.IOException;
 import javax.annotation.Nullable;
 
 public interface ISerializableImmutable<E> {
+  
   void serialize(JsonWriter writer, @Nullable E instance) throws IOException;
 
   @Nullable

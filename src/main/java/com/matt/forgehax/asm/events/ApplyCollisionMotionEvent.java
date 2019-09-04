@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class ApplyCollisionMotionEvent extends Event {
+
   private Entity entity;
   private Entity collidedWithEntity;
 
@@ -14,7 +15,7 @@ public class ApplyCollisionMotionEvent extends Event {
   private double motionZ;
 
   public ApplyCollisionMotionEvent(
-      Entity entity, Entity collidedWithEntity, double mX, double mY, double mZ) {
+    Entity entity, Entity collidedWithEntity, double mX, double mY, double mZ) {
     this.entity = entity;
     this.collidedWithEntity = collidedWithEntity;
     motionX = mX;

@@ -1,7 +1,5 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -10,15 +8,22 @@ import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 public class NetManagerPatch extends ClassTransformer {
+
   public NetManagerPatch() {
     super(Classes.NetworkManager);
   }
 
   @RegisterMethodTransformer
   private class DispatchPacket extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.NetworkManager_dispatchPacket;
@@ -27,29 +32,29 @@ public class NetManagerPatch extends ClassTransformer {
     @Inject(description = "Add pre and post hooks that allow method to be disabled")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {
-                ALOAD,
-                ALOAD,
-                IF_ACMPEQ,
-                ALOAD,
-                INSTANCEOF,
-                IFNE,
-                0x00,
-                0x00,
-                ALOAD,
-                ALOAD,
-                INVOKEVIRTUAL
-              },
-              "xxxxxx??xxx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{
+            ALOAD,
+            ALOAD,
+            IF_ACMPEQ,
+            ALOAD,
+            INSTANCEOF,
+            IFNE,
+            0x00,
+            0x00,
+            ALOAD,
+            ALOAD,
+            INVOKEVIRTUAL
+          },
+          "xxxxxx??xxx");
       AbstractInsnNode postNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {
-                POP, 0x00, 0x00, GOTO, 0x00, 0x00, 0x00, ALOAD, GETFIELD, INVOKEINTERFACE, NEW, DUP
-              },
-              "x??x???xxxxx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{
+            POP, 0x00, 0x00, GOTO, 0x00, 0x00, 0x00, ALOAD, GETFIELD, INVOKEINTERFACE, NEW, DUP
+          },
+          "x??x???xxxxx");
 
       Objects.requireNonNull(preNode, "Find pattern failed for preNode");
       Objects.requireNonNull(postNode, "Find pattern failed for postNode");
@@ -73,6 +78,7 @@ public class NetManagerPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   private class ChannelRead0 extends MethodTransformer {
+  
     @Override
     public ASMMethod getMethod() {
       return Methods.NetworkManager_channelRead0;
@@ -81,17 +87,17 @@ public class NetManagerPatch extends ClassTransformer {
     @Inject(description = "Add pre and post hook that allows the method to be disabled")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {ALOAD, ALOAD, GETFIELD, INVOKEINTERFACE},
-              "xxxx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{ALOAD, ALOAD, GETFIELD, INVOKEINTERFACE},
+          "xxxx");
       AbstractInsnNode postNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {
-                INVOKEINTERFACE, 0x00, 0x00, GOTO,
-              },
-              "x??x");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{
+            INVOKEINTERFACE, 0x00, 0x00, GOTO,
+          },
+          "x??x");
 
       Objects.requireNonNull(preNode, "Find pattern failed for preNode");
       Objects.requireNonNull(postNode, "Find pattern failed for postNode");

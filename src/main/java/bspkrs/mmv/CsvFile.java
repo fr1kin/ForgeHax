@@ -40,6 +40,7 @@ import java.util.Scanner;
 import java.util.TreeMap;
 
 public class CsvFile {
+
   private final File file;
   private final Map<String, CsvData> srgMemberName2CsvData;
   private boolean isDirty;
@@ -63,7 +64,7 @@ public class CsvFile {
         String side = in.next();
         String comment = in.nextLine().substring(1);
         srgMemberName2CsvData.put(
-            srgName, new CsvData(srgName, mcpName, Integer.valueOf(side), comment));
+          srgName, new CsvData(srgName, mcpName, Integer.valueOf(side), comment));
       }
     } finally {
       in.close();
@@ -74,11 +75,11 @@ public class CsvFile {
     if (isDirty) {
       if (file.exists()) {
         File fileBak =
-            new File(
-                file.getAbsolutePath()
-                    + "_"
-                    + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
-                    + ".bak");
+          new File(
+            file.getAbsolutePath()
+              + "_"
+              + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
+              + ".bak");
         file.renameTo(fileBak);
       }
 
@@ -86,8 +87,10 @@ public class CsvFile {
 
       PrintWriter out = new PrintWriter(new FileWriter(file));
       out.println(headerLine);
-
-      for (CsvData data : srgMemberName2CsvData.values()) out.println(data.toCsv());
+  
+      for (CsvData data : srgMemberName2CsvData.values()) {
+        out.println(data.toCsv());
+      }
 
       out.close();
 

@@ -2,8 +2,11 @@ package com.matt.forgehax.util.spam;
 
 import com.matt.forgehax.util.common.PriorityEnum;
 
-/** Created on 7/21/2017 by fr1kin */
+/**
+ * Created on 7/21/2017 by fr1kin
+ */
 public class SpamMessage implements Comparable<SpamMessage> {
+
   private final String message;
   private final String type;
   private final long delay;
@@ -11,7 +14,7 @@ public class SpamMessage implements Comparable<SpamMessage> {
   private final PriorityEnum priority;
 
   public SpamMessage(
-      String message, String type, long delay, String activator, PriorityEnum priority) {
+    String message, String type, long delay, String activator, PriorityEnum priority) {
     this.message = message;
     this.type = type.toLowerCase();
     this.delay = delay;
@@ -43,10 +46,10 @@ public class SpamMessage implements Comparable<SpamMessage> {
   @Override
   public boolean equals(Object obj) {
     return obj == this
-        || (obj instanceof SpamMessage
-            && activator != null
-            && ((SpamMessage) obj).activator != null
-            && activator.equalsIgnoreCase(((SpamMessage) obj).activator));
+      || (obj instanceof SpamMessage
+      && activator != null
+      && ((SpamMessage) obj).activator != null
+      && activator.equalsIgnoreCase(((SpamMessage) obj).activator));
   }
 
   @Override

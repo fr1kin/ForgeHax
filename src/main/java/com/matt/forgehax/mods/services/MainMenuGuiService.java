@@ -1,22 +1,36 @@
 package com.matt.forgehax.mods.services;
 
-import static net.minecraft.util.text.TextFormatting.*;
-import static org.lwjgl.input.Keyboard.*;
+import static net.minecraft.util.text.TextFormatting.RED;
+import static org.lwjgl.input.Keyboard.KEY_DOWN;
+import static org.lwjgl.input.Keyboard.KEY_ESCAPE;
+import static org.lwjgl.input.Keyboard.KEY_NEXT;
+import static org.lwjgl.input.Keyboard.KEY_NUMPADENTER;
+import static org.lwjgl.input.Keyboard.KEY_PRIOR;
+import static org.lwjgl.input.Keyboard.KEY_RETURN;
+import static org.lwjgl.input.Keyboard.KEY_UP;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
-/** Created by Babbaj on 4/10/2018. */
+/**
+ * Created by Babbaj on 4/10/2018.
+ */
 @RegisterMod
 public class MainMenuGuiService extends ServiceMod {
 
@@ -32,23 +46,23 @@ public class MainMenuGuiService extends ServiceMod {
       GuiMainMenu gui = (GuiMainMenu) event.getGui();
 
       event
-          .getButtonList()
-          .stream()
-          .skip(4) // skip first 4 button
-          .forEach(
-              button -> {
-                button.y += 24;
-              }); // lower the rest of the buttons to make room for ours
+        .getButtonList()
+        .stream()
+        .skip(4) // skip first 4 button
+        .forEach(
+          button -> {
+            button.y += 24;
+          }); // lower the rest of the buttons to make room for ours
 
       event
-          .getButtonList()
-          .add(
-              customButton =
-                  new GuiButton(
-                      666,
-                      gui.width / 2 - 100,
-                      gui.height / 4 + 48 + (24 * 3), // put button in 4th row
-                      "Command Input"));
+        .getButtonList()
+        .add(
+          customButton =
+            new GuiButton(
+              666,
+              gui.width / 2 - 100,
+              gui.height / 4 + 48 + (24 * 3), // put button in 4th row
+              "Command Input"));
     }
   }
 
@@ -76,23 +90,23 @@ public class MainMenuGuiService extends ServiceMod {
     public void initGui() {
       Keyboard.enableRepeatEvents(true);
       this.inputField =
-          new GuiTextField(0, this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
+        new GuiTextField(0, this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
       inputField.setMaxStringLength(Integer.MAX_VALUE);
       this.inputField.setEnableBackgroundDrawing(false);
       this.inputField.setFocused(true);
       this.inputField.setCanLoseFocus(false);
 
       this.buttonList.add(
-          modeButton =
-              new GuiButton(
-                  0, this.width - 100 - 2, this.height - 20 - 2, 100, 20, mode.getName()));
+        modeButton =
+          new GuiButton(
+            0, this.width - 100 - 2, this.height - 20 - 2, 100, 20, mode.getName()));
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
       this.drawDefaultBackground();
       drawRect(
-          2, this.height - 16, this.width - 104, this.height - 4, Integer.MIN_VALUE); // input field
+        2, this.height - 16, this.width - 104, this.height - 4, Integer.MIN_VALUE); // input field
       drawRect(2, 2, this.width - 2, this.height - 38, 70 << 24); // messageHistory box
       this.inputField.drawTextBox();
       this.drawHistory();
@@ -122,14 +136,14 @@ public class MainMenuGuiService extends ServiceMod {
     private void drawHistory() {
       AtomicDouble offset = new AtomicDouble();
       messageHistory
-          .stream()
-          .limit(100)
-          .forEach(
-              str -> {
-                MC.fontRenderer.drawString(
-                    str, 5, (this.height - 50 - offset.intValue()), Utils.Colors.WHITE);
-                offset.addAndGet(10);
-              });
+        .stream()
+        .limit(100)
+        .forEach(
+          str -> {
+            MC.fontRenderer.drawString(
+              str, 5, (this.height - 50 - offset.intValue()), Colors.WHITE.toBuffer());
+            offset.addAndGet(10);
+          });
     }
 
     @Override
@@ -141,12 +155,16 @@ public class MainMenuGuiService extends ServiceMod {
         {
           // older
           String sent = getSentHistory(-1);
-          if (sent != null) inputField.setText(sent);
+          if (sent != null) {
+            inputField.setText(sent);
+          }
         } else if (keyCode == KEY_DOWN) // down arrow
         {
           // newer
           String sent = getSentHistory(1);
-          if (sent != null) inputField.setText(sent);
+          if (sent != null) {
+            inputField.setText(sent);
+          }
         } else if (keyCode == KEY_PRIOR) {
           // this.mc.ingameGUI.getChatGUI().scroll(this.mc.ingameGUI.getChatGUI().getLineCount() -
           // 1);
@@ -164,7 +182,7 @@ public class MainMenuGuiService extends ServiceMod {
           // this.print("> " + str);
           this.inputField.setText("");
           if (this.inputHistory.isEmpty()
-              || !this.inputHistory.get(this.inputHistory.size() - 1).equals(str)) {
+            || !this.inputHistory.get(this.inputHistory.size() - 1).equals(str)) {
             this.inputHistory.add(str);
           }
           this.sentHistoryCursor = inputHistory.size();

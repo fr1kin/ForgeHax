@@ -5,8 +5,11 @@ import com.matt.forgehax.util.typeconverter.TypeConverter;
 import java.util.Comparator;
 import javax.annotation.Nullable;
 
-/** Created on 3/23/2017 by fr1kin */
+/**
+ * Created on 3/23/2017 by fr1kin
+ */
 public class LongType extends TypeConverter<Long> {
+  
   @Override
   public String label() {
     return "long";

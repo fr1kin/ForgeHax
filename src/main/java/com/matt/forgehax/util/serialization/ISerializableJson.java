@@ -4,8 +4,11 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 
-/** Created on 5/20/2017 by fr1kin */
+/**
+ * Created on 5/20/2017 by fr1kin
+ */
 public interface ISerializableJson {
+  
   /**
    * Serialize this object and all necessary data into json
    *
@@ -13,7 +16,7 @@ public interface ISerializableJson {
    * @throws IOException if you format the json incorrectly
    */
   void serialize(final JsonWriter writer) throws IOException;
-
+  
   /**
    * Deserialize data from json into a new object.
    *
@@ -21,7 +24,7 @@ public interface ISerializableJson {
    * @throws IOException if you read the json incorrectly
    */
   void deserialize(final JsonReader reader) throws IOException;
-
+  
   /**
    * A unique heading to identify this object.
    *

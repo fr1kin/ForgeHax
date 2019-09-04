@@ -5,6 +5,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class HurtCamEffectEvent extends Event {
+  
   private final float partialTicks;
 
   public HurtCamEffectEvent(float pt) {

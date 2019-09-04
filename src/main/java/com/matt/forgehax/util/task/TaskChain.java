@@ -8,28 +8,29 @@ import java.util.List;
 import java.util.Queue;
 
 public interface TaskChain<E> extends Iterator<E> {
+
   TaskChain EMPTY =
-      new TaskChain<Object>() {
-        @Override
-        public TaskChain<Object> then(Object task) {
-          throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public TaskChain<Object> thenLast(Object task) {
-          throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean hasNext() {
-          return false;
-        }
-
-        @Override
-        public Object next() {
-          return null;
-        }
-      };
+    new TaskChain<Object>() {
+      @Override
+      public TaskChain<Object> then(Object task) {
+        throw new UnsupportedOperationException();
+      }
+    
+      @Override
+      public TaskChain<Object> thenLast(Object task) {
+        throw new UnsupportedOperationException();
+      }
+    
+      @Override
+      public boolean hasNext() {
+        return false;
+      }
+    
+      @Override
+      public Object next() {
+        return null;
+      }
+    };
 
   static <T> Builder<T> builder() {
     return new Builder<>();
@@ -77,6 +78,7 @@ public interface TaskChain<E> extends Iterator<E> {
 
   // not really needed anymore
   class Builder<T> {
+
     private final Queue<T> queue = Queues.newArrayDeque();
 
     public Builder<T> then(T task) {
@@ -90,7 +92,9 @@ public interface TaskChain<E> extends Iterator<E> {
     }
 
     public Builder<T> collect(TaskChain<T> ts) {
-      while (ts.hasNext()) queue.add(ts.next());
+      while (ts.hasNext()) {
+        queue.add(ts.next());
+      }
       return this;
     }
 
@@ -100,9 +104,11 @@ public interface TaskChain<E> extends Iterator<E> {
   }
 
   class DynamicTaskChain<T> implements TaskChain<T> {
+  
     private final List<T> tasks = Lists.newArrayList();
-
-    private DynamicTaskChain() {}
+  
+    private DynamicTaskChain() {
+    }
 
     private DynamicTaskChain(Collection<T> collection) {
       tasks.addAll(collection);

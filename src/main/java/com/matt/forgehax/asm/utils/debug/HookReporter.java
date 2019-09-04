@@ -14,8 +14,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-/** Created on 2/11/2018 by fr1kin */
+/**
+ * Created on 2/11/2018 by fr1kin
+ */
 public class HookReporter {
+
   private final Method method;
 
   private final List<ASMMethod> hookedMethods;
@@ -25,18 +28,20 @@ public class HookReporter {
   private MultiBoolean activator = new MultiBoolean();
 
   private HookReporter(
-      Method method,
-      Collection<ASMMethod> hookedMethods,
-      Collection<Class<?>> eventClasses,
-      boolean startDisabled)
-      throws NullPointerException {
+    Method method,
+    Collection<ASMMethod> hookedMethods,
+    Collection<Class<?>> eventClasses,
+    boolean startDisabled)
+    throws NullPointerException {
     Objects.requireNonNull(method);
 
     this.method = method;
     this.hookedMethods = Immutables.copyToList(hookedMethods);
     this.eventClasses = Immutables.copyToList(eventClasses);
-
-    if (!startDisabled) enable();
+  
+    if (!startDisabled) {
+      enable();
+    }
   }
 
   /**
@@ -59,8 +64,6 @@ public class HookReporter {
 
   /**
    * Gets all the event classes that are created by this hook
-   *
-   * @return
    */
   public List<Class<?>> getEventClasses() {
     return eventClasses;
@@ -74,19 +77,19 @@ public class HookReporter {
   @SuppressWarnings("unchecked")
   public List<Class<? extends Event>> getForgeEventClasses() {
     return eventClasses
-        .stream()
-        .filter(Event.class::isAssignableFrom)
-        .map(clazz -> (Class<? extends Event>) clazz)
-        .collect(Immutables.toImmutableList());
+      .stream()
+      .filter(Event.class::isAssignableFrom)
+      .map(clazz -> (Class<? extends Event>) clazz)
+      .collect(Immutables.toImmutableList());
   }
 
   @SuppressWarnings("unchecked")
   public List<Class<? extends ListenerHook>> getListenerEventClasses() {
     return eventClasses
-        .stream()
-        .filter(ListenerHook.class::isAssignableFrom)
-        .map(clazz -> (Class<? extends ListenerHook>) clazz)
-        .collect(Immutables.toImmutableList());
+      .stream()
+      .filter(ListenerHook.class::isAssignableFrom)
+      .map(clazz -> (Class<? extends ListenerHook>) clazz)
+      .collect(Immutables.toImmutableList());
   }
 
   /**
@@ -116,13 +119,17 @@ public class HookReporter {
   public MultiBoolean getActivator() {
     return activator;
   }
-
-  /** Enables the hook */
+  
+  /**
+   * Enables the hook
+   */
   public void enable() {
     activator.enable("root");
   }
-
-  /** Force disables the hook */
+  
+  /**
+   * Force disables the hook
+   */
   public void disable() {
     activator.forceDisable();
   }
@@ -144,8 +151,8 @@ public class HookReporter {
   @Override
   public boolean equals(Object obj) {
     return this == obj
-        || (obj instanceof HookReporter
-            && Objects.equals(getMethod(), ((HookReporter) obj).getMethod()));
+      || (obj instanceof HookReporter
+      && Objects.equals(getMethod(), ((HookReporter) obj).getMethod()));
   }
 
   @Override
@@ -154,11 +161,13 @@ public class HookReporter {
   }
 
   public static class Builder {
+
     public static Builder of() {
       return new Builder();
     }
-
-    private Builder() {}
+  
+    private Builder() {
+    }
 
     private Method method;
     private List<ASMMethod> hookedMethods = Lists.newArrayList();
@@ -190,19 +199,22 @@ public class HookReporter {
     }
 
     public Builder hook(Class<?> parentClass, final String methodName)
-        throws InvalidMethodException {
+      throws InvalidMethodException {
       Objects.requireNonNull(parentClass);
       Objects.requireNonNull(methodName);
 
       List<Method> results =
-          Arrays.stream(parentClass.getDeclaredMethods())
-              .filter(m -> methodName.equals(m.getName()))
-              .collect(Collectors.toList());
-
-      if (results.size() == 1) return hook(results.get(0));
-      else if (results.size() > 1)
+        Arrays.stream(parentClass.getDeclaredMethods())
+          .filter(m -> methodName.equals(m.getName()))
+          .collect(Collectors.toList());
+  
+      if (results.size() == 1) {
+        return hook(results.get(0));
+      } else if (results.size() > 1) {
         throw new InvalidMethodException("Found two methods with the same name");
-      else throw new InvalidMethodException("No such method found");
+      } else {
+        throw new InvalidMethodException("No such method found");
+      }
     }
 
     public Builder hook(final String methodName) throws InvalidMethodException {
@@ -254,12 +266,15 @@ public class HookReporter {
 
     public HookReporter build() {
       final HookReporter hp = new HookReporter(method, hookedMethods, eventClasses, startDisabled);
-      if (finalizeBy != null) finalizeBy.accept(hp);
+      if (finalizeBy != null) {
+        finalizeBy.accept(hp);
+      }
       return hp;
     }
   }
 
   public static class InvalidMethodException extends RuntimeException {
+  
     public InvalidMethodException(String message) {
       super(message);
     }

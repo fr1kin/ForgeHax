@@ -3,9 +3,14 @@ package com.matt.forgehax.asm.utils;
 import com.google.common.collect.Sets;
 import java.util.Set;
 
-/** Created on 5/12/2017 by fr1kin */
+/**
+ * Created on 5/12/2017 by fr1kin
+ */
 public class MultiBoolean {
-  /** A list of unique string ids so that one mod cannot increment the level more than once. */
+  
+  /**
+   * A list of unique string ids so that one mod cannot increment the level more than once.
+   */
   private final Set<String> ids = Sets.newCopyOnWriteArraySet();
 
   private int level = 0;

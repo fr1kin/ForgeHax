@@ -4,7 +4,7 @@
       "name": "ForgeHax",
       "description": "Hax 4 forge",
       "version": "${version}",
-      "mcversion": "",
+      "mcversion": "${mcversion}",
       "url": "https://github.com/fr1kin/ForgeHax",
       "updateUrl": "",
       "authorList": ["fr1kin", "Babbaj", "Chunkr"],

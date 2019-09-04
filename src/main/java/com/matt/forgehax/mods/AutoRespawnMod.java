@@ -16,23 +16,24 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
 @RegisterMod
 public class AutoRespawnMod extends ToggleMod {
+  
   public AutoRespawnMod() {
     super(Category.PLAYER, "AutoRespawn", false, "Auto respawn on death");
   }
-
+  
   private final Setting<Integer> delay =
-      getCommandStub()
-        .builders()
-        .<Integer>newSettingBuilder()
-        .name("delay")
-        .description("wait ticks before respawning")
-        .min(0)
-        .defaultTo(50)
-        .build();
-
+    getCommandStub()
+      .builders()
+      .<Integer>newSettingBuilder()
+      .name("delay")
+      .description("wait ticks before respawning")
+      .min(0)
+      .defaultTo(50)
+      .build();
+  
   private boolean isDead = false;
   private int deadTicks = 0;
-
+  
   @SubscribeEvent
   public void onClientTick(ClientTickEvent ev) {
     if (isDead) {
@@ -44,16 +45,16 @@ public class AutoRespawnMod extends ToggleMod {
       }
     }
   }
-
+  
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (getLocalPlayer().getHealth() <= 0) {
       if (isDead == false) { // print once
         Helper.printInform("Died at %.1f, %.1f, %.1f on %s",
-            getLocalPlayer().posX,
-            getLocalPlayer().posY,
-            getLocalPlayer().posZ,
-            new SimpleDateFormat("HH:mm:ss").format(new Date())
+          getLocalPlayer().posX,
+          getLocalPlayer().posY,
+          getLocalPlayer().posZ,
+          new SimpleDateFormat("HH:mm:ss").format(new Date())
         );
       }
       isDead = true;

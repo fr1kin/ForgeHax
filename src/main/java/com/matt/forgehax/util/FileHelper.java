@@ -11,10 +11,13 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
 
-/** Created on 2/16/2018 by fr1kin */
+/**
+ * Created on 2/16/2018 by fr1kin
+ */
 public class FileHelper {
+
   private static final Pattern PATTERN_PACKAGE_FROM_PATH =
-      Pattern.compile("[.]jar[!][\\/|\\\\](.*)");
+    Pattern.compile("[.]jar[!][\\/|\\\\](.*)");
   private static final Pattern PATTERN_JAR_DIR_FROM_PATH = Pattern.compile("(.*.jar)");
   private static final Pattern PATTERN_FILE_SEPARATORS = Pattern.compile("[\\\\|\\/]");
 
@@ -56,12 +59,17 @@ public class FileHelper {
   }
 
   public static String asPackagePath(@Nullable String filePath) {
-    if (filePath == null) return "";
+    if (filePath == null) {
+      return "";
+    }
     String str = getPathWithoutExtension(filePath); // remove the extension (if there is one)
     str = PATTERN_FILE_SEPARATORS.matcher(str).replaceAll("."); // replace '/' and '\' with '.'
-    if (str.startsWith(".")) str = str.substring(1); // jar files will start with a '/'
-    if (str.endsWith("."))
+    if (str.startsWith(".")) {
+      str = str.substring(1); // jar files will start with a '/'
+    }
+    if (str.endsWith(".")) {
       str = str.substring(0, str.length() - 1); // if the path ended with '/' that will be removed
+    }
     return str;
   }
 

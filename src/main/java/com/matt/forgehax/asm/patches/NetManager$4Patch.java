@@ -1,7 +1,5 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -10,15 +8,22 @@ import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 public class NetManager$4Patch extends ClassTransformer {
+
   public NetManager$4Patch() {
     super(Classes.NetworkManager$4);
   }
 
   @RegisterMethodTransformer
   private class Run extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.NetworkManager$4_run;
@@ -27,13 +32,13 @@ public class NetManager$4Patch extends ClassTransformer {
     @Inject(description = "Add a pre and post hook that allows the method to be disabled")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[] {ALOAD, GETFIELD, ALOAD, GETFIELD, IF_ACMPEQ},
-              "xxxxx");
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{ALOAD, GETFIELD, ALOAD, GETFIELD, IF_ACMPEQ},
+          "xxxxx");
 
       AbstractInsnNode postNode =
-          ASMHelper.findPattern(main.instructions.getFirst(), new int[] {RETURN}, "x");
+        ASMHelper.findPattern(main.instructions.getFirst(), new int[]{RETURN}, "x");
 
       Objects.requireNonNull(preNode, "Find pattern failed for preNode");
       Objects.requireNonNull(postNode, "Find pattern failed for postNode");

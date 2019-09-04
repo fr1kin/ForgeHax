@@ -7,21 +7,26 @@ import java.util.List;
 import java.util.StringTokenizer;
 import joptsimple.internal.Strings;
 
-/** Created on 5/15/2017 by fr1kin */
+/**
+ * Created on 5/15/2017 by fr1kin
+ */
 public class CommandHelper {
+
   private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
   public static final String MOD_PROPERTY_SEPARATOR = ":";
-
-  /** Moves the argument array forward by one or returns an empty array if not possible */
+  
+  /**
+   * Moves the argument array forward by one or returns an empty array if not possible
+   */
   public static String[] forward(String[] args) {
     return args.length > 0 ? Arrays.copyOfRange(args, 1, args.length) : EMPTY_STRING_ARRAY;
   }
 
   public static String join(String[] args, String separator, int startIndex, int endIndex) {
     return Strings.join(
-        Arrays.copyOfRange(args, startIndex, endIndex),
-        com.google.common.base.Strings.nullToEmpty(separator));
+      Arrays.copyOfRange(args, startIndex, endIndex),
+      com.google.common.base.Strings.nullToEmpty(separator));
   }
 
   public static String join(String[] args, String separator) {
@@ -30,7 +35,7 @@ public class CommandHelper {
 
   public static String toUniqueId(String parent, String child) {
     return makeParserFriendly(
-        !Strings.isNullOrEmpty(parent) ? (parent + MOD_PROPERTY_SEPARATOR + child) : child);
+      !Strings.isNullOrEmpty(parent) ? (parent + MOD_PROPERTY_SEPARATOR + child) : child);
   }
 
   public static String makeParserFriendly(String string) {
@@ -38,8 +43,10 @@ public class CommandHelper {
   }
 
   public static void requireArguments(List<?> args, int requiredArguments)
-      throws CommandExecuteException {
-    if (args.size() < requiredArguments) throw new CommandExecuteException("Missing argument(s)");
+    throws CommandExecuteException {
+    if (args.size() < requiredArguments) {
+      throw new CommandExecuteException("Missing argument(s)");
+    }
   }
 
   /**
@@ -47,7 +54,7 @@ public class CommandHelper {
    *
    * @param toProcess the command line to process.
    * @return the command line broken into strings. An empty or null toProcess parameter results in a
-   *     zero sized array.
+   * zero sized array.
    */
   public static String[] translate(String toProcess) {
     if (toProcess == null || toProcess.length() == 0) {

@@ -8,11 +8,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by Babbaj on 9/5/2017. */
+/**
+ * Created by Babbaj on 9/5/2017.
+ */
 public class GuiWindowSetting extends GuiWindow {
 
   public List<GuiElement> inputList =
-      new ArrayList<>(); // list of toggles, sliders, text inputs, etc.
+    new ArrayList<>(); // list of toggles, sliders, text inputs, etc.
 
   private BaseMod mod;
 

@@ -1,7 +1,5 @@
 package com.matt.forgehax.asm.patches;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import com.matt.forgehax.asm.TypesHook;
 import com.matt.forgehax.asm.utils.ASMHelper;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
@@ -10,15 +8,20 @@ import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import java.util.Objects;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 public class MinecraftPatch extends ClassTransformer {
+
   public MinecraftPatch() {
     super(Classes.Minecraft);
   }
 
   @RegisterMethodTransformer
   public class SetIngameFocus extends MethodTransformer {
+
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_setIngameFocus;
@@ -27,10 +30,10 @@ public class MinecraftPatch extends ClassTransformer {
     @Inject(description = "Add callback before setting leftclick timer")
     public void inject(MethodNode method) {
       AbstractInsnNode node =
-          ASMHelper.findPattern(
-              method.instructions.getFirst(),
-              new int[] {SIPUSH, PUTFIELD, 0, 0, 0, RETURN},
-              "xx???x");
+        ASMHelper.findPattern(
+          method.instructions.getFirst(),
+          new int[]{SIPUSH, PUTFIELD, 0, 0, 0, RETURN},
+          "xx???x");
       Objects.requireNonNull(node, "Failed to find SIPUSH node");
 
       InsnList list = new InsnList();
@@ -43,6 +46,7 @@ public class MinecraftPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   public class RunTick extends MethodTransformer {
+  
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_runTick;
@@ -51,24 +55,24 @@ public class MinecraftPatch extends ClassTransformer {
     @Inject(description = "Add callback before setting leftclick timer")
     public void inject(MethodNode method) {
       AbstractInsnNode node =
-          ASMHelper.findPattern(
-              method.instructions.getFirst(),
-              new int[] {
-                SIPUSH,
-                PUTFIELD,
-                0,
-                0,
-                0,
-                ALOAD,
-                GETFIELD,
-                IFNULL,
-                0,
-                0,
-                ALOAD,
-                GETFIELD,
-                INVOKEVIRTUAL
-              },
-              "xx???xxx??xxx");
+        ASMHelper.findPattern(
+          method.instructions.getFirst(),
+          new int[]{
+            SIPUSH,
+            PUTFIELD,
+            0,
+            0,
+            0,
+            ALOAD,
+            GETFIELD,
+            IFNULL,
+            0,
+            0,
+            ALOAD,
+            GETFIELD,
+            INVOKEVIRTUAL
+          },
+          "xx???xxx??xxx");
       Objects.requireNonNull(node, "Failed to find SIPUSH node");
 
       InsnList list = new InsnList();
@@ -81,6 +85,7 @@ public class MinecraftPatch extends ClassTransformer {
 
   @RegisterMethodTransformer
   public class SendClickBlockToController extends MethodTransformer {
+  
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_sendClickBlockToController;
@@ -92,8 +97,8 @@ public class MinecraftPatch extends ClassTransformer {
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(new VarInsnNode(ILOAD, 1));
       list.add(
-          ASMHelper.call(
-              INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendClickBlockToController));
+        ASMHelper.call(
+          INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendClickBlockToController));
       list.add(new VarInsnNode(ISTORE, 1));
 
       method.instructions.insert(list);

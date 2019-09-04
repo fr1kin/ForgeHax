@@ -3,6 +3,7 @@ package com.matt.forgehax.asm.events;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class DrawBlockBoundingBoxEvent extends Event {
+
   public float red;
   public float green;
   public float blue;
@@ -16,10 +17,13 @@ public class DrawBlockBoundingBoxEvent extends Event {
   }
 
   public static class Pre extends DrawBlockBoundingBoxEvent {
+  
     public Pre(float r, float g, float b, float a) {
       super(r, g, b, a);
     }
   }
-
-  public static class Post extends Event {}
+  
+  public static class Post extends Event {
+  
+  }
 }

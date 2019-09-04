@@ -1,35 +1,39 @@
 package com.matt.forgehax.gui.windows;
 
 import static com.matt.forgehax.Globals.MC;
+import static com.matt.forgehax.util.color.Colors.GRAY;
+import static com.matt.forgehax.util.color.Colors.WHITE;
 
 import com.matt.forgehax.gui.ClickGui;
-import com.matt.forgehax.util.Utils;
+import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import java.io.IOException;
 import net.minecraft.client.gui.ScaledResolution;
 
-/** Created by Babbaj on 9/5/2017. */
+/**
+ * Created by Babbaj on 9/5/2017.
+ */
 public abstract class GuiWindow {
 
   public boolean isHidden; // whether or not not to show everything below the header
 
-  public String title;
+  private String title;
 
   public int posX, headerY, windowY;
   public int bottomX, bottomY;
 
   // coords of where the window is being dragged from
-  public int dragX, dragY;
+  private int dragX, dragY;
 
   private boolean dragging;
 
   final int maxHeight =
-      (int)
-          (ClickGui.scaledRes.getScaledHeight()
-              * 0.8); // a window can only take up 80% of the height of the window
+    (int)
+      (ClickGui.scaledRes.getScaledHeight()
+        * 0.8); // a window can only take up 80% of the height of the window
   public int width, height; // width of the window
 
-  public GuiWindow(String titleIn) {
+  GuiWindow(String titleIn) {
     this.title = titleIn;
     width = SurfaceHelper.getTextWidth(title) + 15;
   }
@@ -39,17 +43,21 @@ public abstract class GuiWindow {
     this.headerY = y;
   }
 
-  public String getTitle() {
+  private String getTitle() {
     return title;
   }
 
-  public boolean isMouseInHeader(int mouseX, int mouseY) {
+  boolean isMouseInHeader(int mouseX, int mouseY) {
     return (mouseX > posX && mouseX < posX + width && mouseY > headerY && mouseY < headerY + 20);
   }
-
-  /** 0 == Left Click 1 == Right Click 2 == Middle Click */
+  
+  /**
+   * 0 == Left Click 1 == Right Click 2 == Middle Click
+   */
   public void mouseClicked(int mouseX, int mouseY, int state) {
-    if (state != 0) return;
+    if (state != 0) {
+      return;
+    }
     if (isMouseInHeader(mouseX, mouseY)) {
       dragging = true;
 
@@ -79,16 +87,17 @@ public abstract class GuiWindow {
     drawHeader();
     windowY = headerY + 21;
     SurfaceHelper.drawOutlinedRectShaded(
-        posX, windowY, width, height, Utils.toRGBA(130, 130, 130, 255), 80, 3);
+      posX, windowY, width, height, GRAY.toBuffer(), 80, 3);
   }
-
+  
   public void drawTooltip(int mouseX, int mouseY) {}
 
   public void drawHeader() {
     // draw the title of the window
     SurfaceHelper.drawOutlinedRectShaded(
-        posX, headerY, width, 20, Utils.toRGBA(150, 150, 150, 255), 50, 5);
+      posX, headerY, width, 20,
+      Color.of(150, 150, 150, 255).toBuffer(), 50, 5);
     SurfaceHelper.drawTextShadowCentered(
-        getTitle(), posX + width / 2f, headerY + 10, Utils.toRGBA(255, 255, 255, 255));
+      getTitle(), posX + width / 2f, headerY + 10, WHITE.toBuffer());
   }
 }
