@@ -1,8 +1,5 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -19,12 +16,24 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getRidingEntity;
+
 @RegisterMod
 public class StepMod extends ToggleMod {
   
-  public static final float DEFAULT_STEP_HEIGHT = 0.6f;
+  private static final float DEFAULT_STEP_HEIGHT = 0.6f;
+
+  private final Setting<Boolean> entityStep =
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("entity-step")
+      .description("entitystep")
+      .defaultTo(false)
+      .build();
   
-  public final Setting<Float> stepHeight =
+  private final Setting<Float> stepHeight =
     getCommandStub()
       .builders()
       .<Float>newSettingBuilder()
@@ -42,7 +51,7 @@ public class StepMod extends ToggleMod {
       }))
       .build();
   
-  public final Setting<Boolean> unstep =
+  private final Setting<Boolean> unstep =
     getCommandStub()
       .builders()
       .<Boolean>newSettingBuilder()
@@ -68,6 +77,10 @@ public class StepMod extends ToggleMod {
     EntityPlayer player = getLocalPlayer();
     if (player != null) {
       player.stepHeight = DEFAULT_STEP_HEIGHT;
+    }
+
+    if (getRidingEntity() != null) {
+      getRidingEntity().stepHeight = 1;
     }
   }
   
@@ -110,6 +123,14 @@ public class StepMod extends ToggleMod {
     
     updateStepHeight(player);
     updateUnstep(player);
+
+    if (getRidingEntity() != null) {
+      if (entityStep.getAsBoolean()) {
+        getRidingEntity().stepHeight = 256;
+      } else {
+        getRidingEntity().stepHeight = 1;
+      }
+    }
   }
   
   private CPacketPlayer previousPositionPacket = null;
