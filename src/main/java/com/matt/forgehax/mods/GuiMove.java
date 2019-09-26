@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -37,7 +38,8 @@ public class GuiMove extends ToggleMod {
       || MC.currentScreen instanceof GuiVideoSettings
       || MC.currentScreen instanceof GuiScreenOptionsSounds
       || MC.currentScreen instanceof GuiContainer
-      || MC.currentScreen instanceof GuiIngameMenu) {
+      || MC.currentScreen instanceof GuiIngameMenu
+      || MC.currentScreen instanceof ClickGui) {
       for (KeyBinding bind : keys) {
         KeyBinding.setKeyBindState(bind.getKeyCode(), Keyboard.isKeyDown(bind.getKeyCode()));
       }
