@@ -71,8 +71,8 @@ public class CompassMod extends ToggleMod {
   private static double getPosOnCompass(Direction dir) {
     double yaw =
         Math.toRadians(
-            MathHelper.wrapDegrees(Helper.getLocalPlayer().rotationYaw - 90)); // player yaw
-    int index = dir.ordinal() + 1;
+            MathHelper.wrapDegrees(Helper.getLocalPlayer().rotationYaw)); // player yaw
+    int index = dir.ordinal();
     return yaw + (index * HALF_PI);
   }
 }
