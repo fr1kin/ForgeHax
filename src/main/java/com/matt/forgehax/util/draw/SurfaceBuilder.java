@@ -139,22 +139,22 @@ public class SurfaceBuilder {
   
   public SurfaceBuilder color(double r, double g, double b, double a) {
     current()
-      .setColor4d(
-        new double[]{
-          MathHelper.clamp(r, 0.D, 1.D),
-          MathHelper.clamp(g, 0.D, 1.D),
-          MathHelper.clamp(b, 0.D, 1.D),
-          MathHelper.clamp(a, 0.D, 1.D)
-        });
+        .setColor4d(
+            new double[]{
+                MathHelper.clamp(r, 0.D, 1.D),
+                MathHelper.clamp(g, 0.D, 1.D),
+                MathHelper.clamp(b, 0.D, 1.D),
+                MathHelper.clamp(a, 0.D, 1.D)
+            });
     return this;
   }
   
   public SurfaceBuilder color(int buffer) {
     return color(
-      (buffer >> 16 & 255) / 255.D,
-      (buffer >> 8 & 255) / 255.D,
-      (buffer & 255) / 255.D,
-      (buffer >> 24 & 255) / 255.D);
+        (buffer >> 16 & 255) / 255.D,
+        (buffer >> 8 & 255) / 255.D,
+        (buffer & 255) / 255.D,
+        (buffer >> 24 & 255) / 255.D);
   }
   
   public SurfaceBuilder color(int r, int g, int b, int a) {
@@ -220,20 +220,20 @@ public class SurfaceBuilder {
     if (current().hasFontRenderer()) // use custom font renderer
     {
       current()
-        .getFontRenderer()
-        .drawString(
-          text,
-          x,
-          y + 1 /*TTF font renderer needs to be offset by 1*/,
-          Color.of(current().getColor4d()).toBuffer(),
-          shadow);
+          .getFontRenderer()
+          .drawString(
+              text,
+              x,
+              y + 1 /*TTF font renderer needs to be offset by 1*/,
+              Color.of(current().getColor4d()).toBuffer(),
+              shadow);
     } else {
       // use default minecraft font
       GlStateManager.pushMatrix();
       GlStateManager.translate(x, y, 0.D);
-  
+      
       MC.fontRenderer.drawString(text, 0, 0, Color.of(current().getColor4d()).toBuffer(), shadow);
-  
+      
       GlStateManager.popMatrix();
     }
     return this;
@@ -255,19 +255,19 @@ public class SurfaceBuilder {
   public SurfaceBuilder item(ItemStack stack, double x, double y) {
     MC.getRenderItem().zLevel = 100.f;
     SurfaceHelper.renderItemAndEffectIntoGUI(
-      getLocalPlayer(), stack, x, y, current().hasScale() ? current().getScale3d()[0] : 16.D);
+        getLocalPlayer(), stack, x, y, current().hasScale() ? current().getScale3d()[0] : 16.D);
     MC.getRenderItem().zLevel = 0.f;
     return this;
   }
   
   public SurfaceBuilder itemOverlay(ItemStack stack, double x, double y) {
     SurfaceHelper.renderItemOverlayIntoGUI(
-      MC.fontRenderer,
-      stack,
-      x,
-      y,
-      null,
-      current().hasScale() ? current().getScale3d()[0] : 16.D);
+        MC.fontRenderer,
+        stack,
+        x,
+        y,
+        null,
+        current().hasScale() ? current().getScale3d()[0] : 16.D);
     return this;
   }
   
@@ -275,22 +275,22 @@ public class SurfaceBuilder {
     MC.renderEngine.bindTexture(resource);
     double scale = current().hasScale() ? current().getScale3d()[0] : 12.D;
     SurfaceHelper.drawScaledCustomSizeModalRect(
-      (x * (1 / scale)), (y * (1 / scale)), 8.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
+        (x * (1 / scale)), (y * (1 / scale)), 8.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
     SurfaceHelper.drawScaledCustomSizeModalRect(
-      (x * (1 / scale)), (y * (1 / scale)), 40.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
+        (x * (1 / scale)), (y * (1 / scale)), 40.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
     return this;
   }
   
   public int getFontWidth(String text) {
     return current().hasFontRenderer()
-      ? current().getFontRenderer().getStringWidth(text)
-      : MC.fontRenderer.getStringWidth(text);
+        ? current().getFontRenderer().getStringWidth(text)
+        : MC.fontRenderer.getStringWidth(text);
   }
   
   public int getFontHeight() {
     return current().hasFontRenderer()
-      ? current().getFontRenderer().getHeight()
-      : MC.fontRenderer.FONT_HEIGHT;
+        ? current().getFontRenderer().getHeight()
+        : MC.fontRenderer.FONT_HEIGHT;
   }
   
   public int getFontHeight(String text) {
@@ -334,10 +334,10 @@ public class SurfaceBuilder {
   public static void enableBlend() {
     GlStateManager.enableBlend();
     GlStateManager.tryBlendFuncSeparate(
-      GlStateManager.SourceFactor.SRC_ALPHA,
-      GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-      GlStateManager.SourceFactor.ONE,
-      GlStateManager.DestFactor.ZERO);
+        GlStateManager.SourceFactor.SRC_ALPHA,
+        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+        GlStateManager.SourceFactor.ONE,
+        GlStateManager.DestFactor.ZERO);
   }
   
   public static void disableBlend() {

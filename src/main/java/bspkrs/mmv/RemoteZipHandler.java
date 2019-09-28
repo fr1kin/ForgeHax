@@ -48,17 +48,17 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class RemoteZipHandler {
-
+  
   private static final String MMV_VERSION = "1.0.1";
-
+  
   private final URL zipUrl;
   private final URL digestUrl;
   private final File localDir;
   private final String digestType;
   private final String zipFileName;
-
+  
   public RemoteZipHandler(String urlString, File dir, String digestType)
-    throws MalformedURLException {
+      throws MalformedURLException {
     zipUrl = new URL(urlString);
     if (digestType != null) {
       digestUrl = new URL(urlString + "." + digestType.toLowerCase());
@@ -70,7 +70,7 @@ public class RemoteZipHandler {
     localDir = dir;
     this.digestType = digestType;
   }
-
+  
   public void checkRemoteZip() throws IOException, NoSuchAlgorithmException, DigestException {
     // fetch zip file sha1
     boolean fetchZip = true;
@@ -81,7 +81,7 @@ public class RemoteZipHandler {
       remoteHash = loadTextFromURL(digestUrl, new String[]{""})[0];
       if (!remoteHash.isEmpty()) {
         digestFile = new File(localDir, zipFileName + "." + digestType.toLowerCase());
-
+        
         // if local digest exists and hashes match skip getting the zip file
         if (digestFile.exists()) {
           String existingHash = loadTextFromFile(digestFile, new String[]{""})[0];
@@ -91,7 +91,7 @@ public class RemoteZipHandler {
         }
       }
     }
-
+    
     if (fetchZip) {
       // download zip
       File localZip = new File(localDir, zipFileName);
@@ -112,22 +112,22 @@ public class RemoteZipHandler {
       } finally {
         output.close();
       }
-
+      
       // Check hash of downloaded file to ensure we received it correctly
       if (digestType != null && !remoteHash.isEmpty()) {
         String downloadHash = getFileDigest(new FileInputStream(localZip), digestType);
         if (!remoteHash.equals(downloadHash)) {
           throw new java.security.DigestException(
-            "Remote digest does not match digest of downloaded file!");
+              "Remote digest does not match digest of downloaded file!");
         }
       }
-
+      
       // extract zip file
       extractZip(localZip, localDir);
       if (localZip.exists()) {
         localZip.delete();
       }
-
+      
       // save new hash after successful extract
       if (digestType != null && !remoteHash.isEmpty()) {
         if (digestFile.exists()) {
@@ -140,7 +140,7 @@ public class RemoteZipHandler {
       }
     }
   }
-
+  
   public static String[] loadTextFromURL(URL url, String[] defaultValue) {
     List<String> arraylist = new ArrayList<String>();
     Scanner scanner = null;
@@ -149,7 +149,7 @@ public class RemoteZipHandler {
       uc.addRequestProperty("User-Agent", "MMV/" + MMV_VERSION);
       InputStream is = uc.getInputStream();
       scanner = new Scanner(is, "UTF-8");
-
+      
       while (scanner.hasNextLine()) {
         arraylist.add(scanner.nextLine());
       }
@@ -162,10 +162,10 @@ public class RemoteZipHandler {
     }
     return arraylist.toArray(new String[arraylist.size()]);
   }
-
+  
   public static String[] loadTextFromFile(File file, String[] defaultValue) {
     ArrayList<String> lines = new ArrayList<String>();
-
+    
     Scanner scanner = null;
     try {
       scanner = new Scanner(file);
@@ -179,39 +179,39 @@ public class RemoteZipHandler {
         scanner.close();
       }
     }
-
+    
     return lines.toArray(new String[lines.size()]);
   }
-
+  
   public static String getFileDigest(InputStream is, String digestType)
-    throws NoSuchAlgorithmException, IOException {
+      throws NoSuchAlgorithmException, IOException {
     MessageDigest md = MessageDigest.getInstance(digestType);
     byte[] dataBytes = new byte[1024];
-
+    
     int nread = 0;
-  
+    
     while ((nread = is.read(dataBytes)) != -1) {
       md.update(dataBytes, 0, nread);
     }
-
+    
     is.close();
-
+    
     byte[] mdbytes = md.digest();
-
+    
     // convert the byte to hex format
-    StringBuffer sb = new StringBuffer("");
+    StringBuffer sb = new StringBuffer();
     for (int i = 0; i < mdbytes.length; i++) {
       sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
     }
     return sb.toString();
   }
-
+  
   public static void extractZip(File zipFile, File destDir) throws IOException {
     byte[] buffer = new byte[1024];
     if (!destDir.exists()) {
       destDir.mkdirs();
     }
-
+    
     ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
     ZipEntry ze = zis.getNextEntry();
     try {
@@ -235,7 +235,7 @@ public class RemoteZipHandler {
           while ((len = zis.read(buffer)) > 0) {
             fos.write(buffer, 0, len);
           }
-
+          
           fos.close();
         }
         ze = zis.getNextEntry();
@@ -245,7 +245,7 @@ public class RemoteZipHandler {
       zis.close();
     }
   }
-
+  
   public static boolean deleteDirAndContents(File dir) {
     if (dir.isDirectory()) {
       String[] children = dir.list();

@@ -21,13 +21,13 @@ public class AutoSprintMod extends ToggleMod {
   }
   
   public final Setting<Modes> mode =
-    getCommandStub()
-      .builders()
-      .<Modes>newSettingEnumBuilder()
-      .name("mode")
-      .description("Sprint mode")
-      .defaultTo(Modes.ALWAYS)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Modes>newSettingEnumBuilder()
+          .name("mode")
+          .description("Sprint mode")
+          .defaultTo(Modes.ALWAYS)
+          .build();
   
   public AutoSprintMod() {
     super(Category.PLAYER, "AutoSprint", false, "Automatically sprints");
@@ -75,8 +75,8 @@ public class AutoSprintMod extends ToggleMod {
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (event.getEntityLiving().moveForward > 0
-      && !event.getEntityLiving().collidedHorizontally
-      && !event.getEntityLiving().isSneaking()) {
+        && !event.getEntityLiving().collidedHorizontally
+        && !event.getEntityLiving().isSneaking()) {
       startSprinting();
     }
   }

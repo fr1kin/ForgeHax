@@ -14,22 +14,22 @@ public class FloatType extends TypeConverter<Float> {
   public String label() {
     return "float";
   }
-
+  
   @Override
   public Class<Float> type() {
     return Float.class;
   }
-
+  
   @Override
   public Float parse(String value) {
     return SafeConverter.toFloat(value);
   }
-
+  
   @Override
   public String toString(Float value) {
     return Float.toString(value);
   }
-
+  
   @Nullable
   @Override
   public Comparator<Float> comparator() {

@@ -49,61 +49,61 @@ public class ChunkLogger extends ToggleMod {
   }
   
   private final Setting<Integer> max_chunks =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("max-chunks")
-      .description("Maximum chunks to render (set to 0 for infinite)")
-      .defaultTo(5120)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("max-chunks")
+          .description("Maximum chunks to render (set to 0 for infinite)")
+          .defaultTo(5120)
+          .build();
   
   private final Setting<Boolean> clear_on_toggle =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("clear-on-toggle")
-      .description("Clear chunk list on disable")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("clear-on-toggle")
+          .description("Clear chunk list on disable")
+          .defaultTo(true)
+          .build();
   
   private final Setting<ShowChunkEnum> show_only =
-    getCommandStub()
-      .builders()
-      .<ShowChunkEnum>newSettingEnumBuilder()
-      .name("show-only")
-      .description("Specify which chunk to only show")
-      .defaultTo(ShowChunkEnum.ALL)
-      .build();
+      getCommandStub()
+          .builders()
+          .<ShowChunkEnum>newSettingEnumBuilder()
+          .name("show-only")
+          .description("Specify which chunk to only show")
+          .defaultTo(ShowChunkEnum.ALL)
+          .build();
   
   private final Setting<DetectionMethodEnum> detection_method =
-    getCommandStub()
-      .builders()
-      .<DetectionMethodEnum>newSettingEnumBuilder()
-      .name("detection-method")
-      .description(
-        "Specify the method to detect new chunks. Currently only IS_FULL_CHUNK is supported.")
-      .defaultTo(DetectionMethodEnum.IS_FULL_CHUNK)
-      .build();
+      getCommandStub()
+          .builders()
+          .<DetectionMethodEnum>newSettingEnumBuilder()
+          .name("detection-method")
+          .description(
+              "Specify the method to detect new chunks. Currently only IS_FULL_CHUNK is supported.")
+          .defaultTo(DetectionMethodEnum.IS_FULL_CHUNK)
+          .build();
   
   private final Setting<Long> flag_timing =
-    getCommandStub()
-      .builders()
-      .<Long>newSettingBuilder()
-      .name("flag-timing")
-      .description(
-        "Maximum time in MS that another chunk load in succession will trigger it to be marked as a new chunk")
-      .defaultTo(1000L)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Long>newSettingBuilder()
+          .name("flag-timing")
+          .description(
+              "Maximum time in MS that another chunk load in succession will trigger it to be marked as a new chunk")
+          .defaultTo(1000L)
+          .build();
   
   private final Setting<Integer> block_change_threshold =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("block-change-threshold")
-      .description(
-        "Maximum number of blocks required to change between chunk loading in order to be marked as a new chunk")
-      .defaultTo(100)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("block-change-threshold")
+          .description(
+              "Maximum number of blocks required to change between chunk loading in order to be marked as a new chunk")
+          .defaultTo(100)
+          .build();
   
   private final Lock chunkLock = new ReentrantLock();
   
@@ -164,7 +164,7 @@ public class ChunkLogger extends ToggleMod {
   @SubscribeEvent
   public void onPacketInbound(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketChunkData) {
-      SPacketChunkData packet = (SPacketChunkData) event.getPacket();
+      SPacketChunkData packet = event.getPacket();
       addChunk(packet);
     }
   }
@@ -186,36 +186,36 @@ public class ChunkLogger extends ToggleMod {
     }
     
     copy.forEach(
-      chunk -> {
-        switch (show_only.get()) {
-          case NEW_ONLY:
-            if (!chunk.isNewChunk()) {
-              return;
-            }
-            break;
-          case OLD_ONLY:
-            if (chunk.isNewChunk()) {
-              return;
-            }
-            break;
-          case ALL:
-          default:
-            break;
-        }
-        
-        int color = chunk.isNewChunk() ? Colors.WHITE.toBuffer() : Colors.RED.toBuffer();
-        
-        GeometryTessellator.drawQuads(
-          event.getBuffer(),
-          chunk.bbox.minX,
-          chunk.bbox.minY,
-          chunk.bbox.minZ,
-          chunk.bbox.maxX,
-          chunk.bbox.maxY,
-          chunk.bbox.maxZ,
-          GeometryMasks.Quad.ALL,
-          color);
-      });
+        chunk -> {
+          switch (show_only.get()) {
+            case NEW_ONLY:
+              if (!chunk.isNewChunk()) {
+                return;
+              }
+              break;
+            case OLD_ONLY:
+              if (chunk.isNewChunk()) {
+                return;
+              }
+              break;
+            case ALL:
+            default:
+              break;
+          }
+          
+          int color = chunk.isNewChunk() ? Colors.WHITE.toBuffer() : Colors.RED.toBuffer();
+          
+          GeometryTessellator.drawQuads(
+              event.getBuffer(),
+              chunk.bbox.minX,
+              chunk.bbox.minY,
+              chunk.bbox.minZ,
+              chunk.bbox.maxX,
+              chunk.bbox.maxY,
+              chunk.bbox.maxZ,
+              GeometryMasks.Quad.ALL,
+              color);
+        });
     
     event.getTessellator().draw();
   }
@@ -225,32 +225,32 @@ public class ChunkLogger extends ToggleMod {
   }
   
   private class ChunkData {
-  
+    
     final ChunkPos pos;
     final AxisAlignedBB bbox;
     final boolean isFullChunk; // initial chunk
-  
+    
     boolean isNewByFullChunk = false;
     boolean isNewByTiming = false;
     boolean isNewByBlockCount = false;
     boolean isNewByDecoratorBlocks = false;
-  
+    
     boolean updatedIsFullChunk;
-  
+    
     long timeArrived = -1;
     long previousTimeArrived;
-  
+    
     int blockCount = 0;
     int previousBlockCount;
-  
+    
     ChunkData(SPacketChunkData packet) {
       pos = new ChunkPos(packet.getChunkX(), packet.getChunkZ());
       bbox =
-        new AxisAlignedBB(pos.getXStart(), 0, pos.getZStart(), pos.getXEnd(), 255, pos.getZEnd());
+          new AxisAlignedBB(pos.getXStart(), 0, pos.getZStart(), pos.getXEnd(), 255, pos.getZEnd());
       isFullChunk = packet.isFullChunk();
       update(packet);
     }
-  
+    
     void update(SPacketChunkData packet) {
       updatedIsFullChunk = packet.isFullChunk();
       if (!updatedIsFullChunk) {
@@ -259,18 +259,18 @@ public class ChunkLogger extends ToggleMod {
       
       previousTimeArrived = timeArrived;
       timeArrived = System.currentTimeMillis();
-    
+      
       if (getTimeDifference() != -1 && getTimeDifference() <= flag_timing.get()) {
         isNewByTiming = true;
       }
       
       previousBlockCount = blockCount;
     }
-  
+    
     long getTimeDifference() {
       return previousTimeArrived == -1 ? -1 : previousTimeArrived - timeArrived;
     }
-  
+    
     boolean isNewChunk() {
       switch (detection_method.get()) {
         case IS_FULL_CHUNK:
@@ -280,15 +280,15 @@ public class ChunkLogger extends ToggleMod {
       }
       return false;
     }
-  
+    
     @Override
     public boolean equals(Object obj) {
       return obj == this
-        || (obj instanceof ChunkData
-        && this.pos.x == ((ChunkData) obj).pos.x
-        && this.pos.z == ((ChunkData) obj).pos.z);
+          || (obj instanceof ChunkData
+          && this.pos.x == ((ChunkData) obj).pos.x
+          && this.pos.z == ((ChunkData) obj).pos.z);
     }
-  
+    
     @Override
     public int hashCode() {
       return Objects.hash(pos.x, pos.z);

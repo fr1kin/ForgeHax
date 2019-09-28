@@ -80,7 +80,7 @@ public class MatrixNotifications extends ToggleMod {
       builder.loadTrustMaterial(null, (chain, authType) -> true);
       SSLContext sslContext = builder.build();
       SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
-        new AllowAllHostsVerifier());
+          new AllowAllHostsVerifier());
       sf = RegistryBuilder.<ConnectionSocketFactory>create().register("https", sslsf).build();
     } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
       e.printStackTrace();
@@ -90,67 +90,67 @@ public class MatrixNotifications extends ToggleMod {
   }
   
   private final Setting<String> url =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("url")
-      .description("URL to the Matrix web hook")
-      .defaultTo("")
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("url")
+          .description("URL to the Matrix web hook")
+          .defaultTo("")
+          .build();
   
   private final Setting<String> user =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("user")
-      .description("User to ping for high priority messages")
-      .defaultTo("")
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("user")
+          .description("User to ping for high priority messages")
+          .defaultTo("")
+          .build();
   
   private final Setting<String> skin_server_url =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("skin-server-url")
-      .description("URL to the skin server. If left empty then no image will be used.")
-      .defaultTo("https://visage.surgeplay.com/face/160/")
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("skin-server-url")
+          .description("URL to the skin server. If left empty then no image will be used.")
+          .defaultTo("https://visage.surgeplay.com/face/160/")
+          .build();
   
   private final Setting<Integer> queue_notify_pos =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("queue-notify-pos")
-      .description("Position to start sending notifications at")
-      .defaultTo(5)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("queue-notify-pos")
+          .description("Position to start sending notifications at")
+          .defaultTo(5)
+          .build();
   
   private final Setting<Boolean> on_connected =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("on-connected")
-      .description("Message on connected to server")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("on-connected")
+          .description("Message on connected to server")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> on_disconnected =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("on-disconnected")
-      .description("Message on disconnected from server")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("on-disconnected")
+          .description("Message on disconnected from server")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> on_queue_move =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("on-queue-move")
-      .description("Message when player moves in the queue")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("on-queue-move")
+          .description("Message when player moves in the queue")
+          .defaultTo(true)
+          .build();
   
   public MatrixNotifications() {
     super(Category.MISC, "MatrixNotifications", false, "Matrix notifications");
@@ -163,19 +163,19 @@ public class MatrixNotifications extends ToggleMod {
   
   private static CloseableHttpClient createHttpClient() {
     final RequestConfig req = RequestConfig.custom()
-      .setConnectTimeout(30 * 1000)
-      .setConnectionRequestTimeout(30 * 1000)
-      .build();
+        .setConnectTimeout(30 * 1000)
+        .setConnectionRequestTimeout(30 * 1000)
+        .build();
     
     if (SOCKET_FACTORY_REGISTRY == null) {
       return HttpClientBuilder.create()
-        .setDefaultRequestConfig(req)
-        .build();
+          .setDefaultRequestConfig(req)
+          .build();
     } else {
       return HttpClients.custom()
-        .setDefaultRequestConfig(req)
-        .setConnectionManager(new PoolingHttpClientConnectionManager(SOCKET_FACTORY_REGISTRY))
-        .build();
+          .setDefaultRequestConfig(req)
+          .setConnectionManager(new PoolingHttpClientConnectionManager(SOCKET_FACTORY_REGISTRY))
+          .build();
     }
   }
   
@@ -210,16 +210,16 @@ public class MatrixNotifications extends ToggleMod {
   
   private static String getServerName() {
     return Optional.ofNullable(MC.getCurrentServerData())
-      .map(data -> data.serverName)
-      .orElse("server");
+        .map(data -> data.serverName)
+        .orElse("server");
   }
   
   private static String getUriUuid() {
     return Optional.of(MC.getSession().getProfile())
-      .map(GameProfile::getId)
-      .map(UUID::toString)
-      .map(id -> id.replaceAll("-", ""))
-      .orElse(null);
+        .map(GameProfile::getId)
+        .map(UUID::toString)
+        .map(id -> id.replaceAll("-", ""))
+        .orElse(null);
   }
   
   private void notify(String message) {
@@ -227,7 +227,7 @@ public class MatrixNotifications extends ToggleMod {
     object.addProperty("text", message);
     object.addProperty("format", "plain");
     object.addProperty("displayName", MC.getSession().getUsername());
-  
+    
     String id = getUriUuid();
     if (!skin_server_url.get().isEmpty() && id != null) {
       object.addProperty("avatarUrl", skin_server_url.get() + id);
@@ -253,14 +253,14 @@ public class MatrixNotifications extends ToggleMod {
   protected void onEnabled() {
     joined = once = false;
     position = 0;
-  
+    
     if (url.get().isEmpty()) {
       printError("Missing url");
     }
-  
+    
     if (SOCKET_FACTORY_REGISTRY == null) {
       printError(
-        "Custom socket factory has not been registered. All host SSL certificates must be trusted with the current JRE");
+          "Custom socket factory has not been registered. All host SSL certificates must be trusted with the current JRE");
     }
   }
   
@@ -286,7 +286,7 @@ public class MatrixNotifications extends ToggleMod {
   public void onWorldUnload(WorldEvent.Unload event) {
     once = false;
     position = 0;
-  
+    
     if (MC.getCurrentServerData() != null) {
       serverName = getServerName();
     }
@@ -296,11 +296,11 @@ public class MatrixNotifications extends ToggleMod {
   public void onGuiOpened(GuiOpenEvent event) {
     if (event.getGui() instanceof GuiDisconnected && joined) {
       joined = false;
-    
+      
       if (on_disconnected.get()) {
         String reason = Optional.ofNullable(GuiDisconnected_message.get(event.getGui()))
-          .map(ITextComponent::getUnformattedText)
-          .orElse("");
+            .map(ITextComponent::getUnformattedText)
+            .orElse("");
         if (reason.isEmpty()) {
           notify("Disconnected from %s", serverName);
         } else {

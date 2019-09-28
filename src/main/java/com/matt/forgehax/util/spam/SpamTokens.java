@@ -26,22 +26,22 @@ public enum SpamTokens {
    */
   MESSAGE("MESSAGE"),
   ;
-
+  
   public static SpamTokens[] ALL =
-    new SpamTokens[]{PLAYER_NAME, NAME_HISTORY, SENDER_NAME, MESSAGE};
+      new SpamTokens[]{PLAYER_NAME, NAME_HISTORY, SENDER_NAME, MESSAGE};
   public static SpamTokens[] PLAYERNAME_NAMEHISTORY = new SpamTokens[]{PLAYER_NAME, NAME_HISTORY};
   public static SpamTokens[] PLAYERNAME_SENDERNAME = new SpamTokens[]{PLAYER_NAME, SENDER_NAME};
-
+  
   final String token;
-
+  
   SpamTokens(String token) {
     this.token = "\\{" + token + "\\}";
   }
-
+  
   public String fill(String str, String with) {
     return str.replaceAll(token, Matcher.quoteReplacement(with));
   }
-
+  
   public static String fillAll(String str, SpamTokens[] tokens, String... replacements) {
     if (replacements.length != tokens.length) {
       throw new IllegalArgumentException("replacements length != tokens length");

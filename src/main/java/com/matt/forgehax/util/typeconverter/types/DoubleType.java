@@ -14,22 +14,22 @@ public class DoubleType extends TypeConverter<Double> {
   public String label() {
     return "double";
   }
-
+  
   @Override
   public Class<Double> type() {
     return Double.class;
   }
-
+  
   @Override
   public Double parse(String value) {
     return SafeConverter.toDouble(value);
   }
-
+  
   @Override
   public String toString(Double value) {
     return Double.toString(value);
   }
-
+  
   @Nullable
   @Override
   public Comparator<Double> comparator() {

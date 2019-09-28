@@ -44,14 +44,14 @@ public class ModManager extends AbstractClassLoader<BaseMod> implements Globals 
   
   private final Set<Class<? extends BaseMod>> classes = Sets.newHashSet();
   private final Set<BaseMod> active =
-    Sets.newTreeSet(Comparator.comparing(BaseMod::getModName, String.CASE_INSENSITIVE_ORDER));
+      Sets.newTreeSet(Comparator.comparing(BaseMod::getModName, String.CASE_INSENSITIVE_ORDER));
   
   public boolean searchPackage(String packageDir) {
     try {
       return classes.addAll(
-        filterClassPaths(
-          getFMLClassLoader(),
-          ClassLoaderHelper.getClassPathsInPackage(getFMLClassLoader(), packageDir)));
+          filterClassPaths(
+              getFMLClassLoader(),
+              ClassLoaderHelper.getClassPathsInPackage(getFMLClassLoader(), packageDir)));
     } catch (IOException e) {
       e.printStackTrace();
       return false;
@@ -66,7 +66,7 @@ public class ModManager extends AbstractClassLoader<BaseMod> implements Globals 
       FileSystem fs = FileHelper.newFileSystem(jar);
       ClassLoader classLoader = CustomClassLoaders.newFsClassLoader(getFMLClassLoader(), fs);
       return classes.addAll(
-        filterClassPaths(classLoader, ClassLoaderHelper.getClassPathsInJar(jar, packageDir)));
+          filterClassPaths(classLoader, ClassLoaderHelper.getClassPathsInJar(jar, packageDir)));
     } catch (IOException e) {
       e.printStackTrace();
       return false;
@@ -87,9 +87,9 @@ public class ModManager extends AbstractClassLoader<BaseMod> implements Globals 
     }
     try {
       return Files.list(directory)
-        .filter(Files::isRegularFile)
-        .filter(path -> FileHelper.getFileExtension(path).equals("jar"))
-        .anyMatch(path -> searchPlugin(path, ArrayHelper.getOrDefault(packageDir, 0, "")));
+          .filter(Files::isRegularFile)
+          .filter(path -> FileHelper.getFileExtension(path).equals("jar"))
+          .anyMatch(path -> searchPlugin(path, ArrayHelper.getOrDefault(packageDir, 0, "")));
     } catch (IOException e) {
       e.printStackTrace();
       return false;
@@ -102,14 +102,14 @@ public class ModManager extends AbstractClassLoader<BaseMod> implements Globals 
   
   private Stream<Class<? extends BaseMod>> unloadedClasses() {
     return classes
-      .stream()
-      .filter(clazz -> active.stream().noneMatch(mod -> mod.getClass().equals(clazz)));
+        .stream()
+        .filter(clazz -> active.stream().noneMatch(mod -> mod.getClass().equals(clazz)));
   }
   
   private Stream<Class<? extends BaseMod>> loadedClasses() {
     return classes
-      .stream()
-      .filter(clazz -> active.stream().anyMatch(mod -> mod.getClass().equals(clazz)));
+        .stream()
+        .filter(clazz -> active.stream().anyMatch(mod -> mod.getClass().equals(clazz)));
   }
   
   public Collection<Class<? extends BaseMod>> getUnloadedClasses() {
@@ -131,10 +131,10 @@ public class ModManager extends AbstractClassLoader<BaseMod> implements Globals 
   @SuppressWarnings("unchecked")
   public <T extends BaseMod> Optional<T> get(final Class<T> clazz) {
     return active
-      .stream()
-      .filter(mod -> Objects.equals(clazz, mod.getClass()))
-      .map(mod -> (T) mod)
-      .findFirst();
+        .stream()
+        .filter(mod -> Objects.equals(clazz, mod.getClass()))
+        .map(mod -> (T) mod)
+        .findFirst();
   }
   
   public void load(Class<? extends BaseMod> clazz) {

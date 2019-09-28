@@ -27,32 +27,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  */
 
 public class MethodSrgData extends MemberSrgData implements Comparable<MethodSrgData> {
-
+  
   private final String obfDescriptor;
   private final String srgDescriptor;
-
+  
   public MethodSrgData(
-    String obfOwner,
-    String obfName,
-    String obfDescriptor,
-    String srgOwner,
-    String srgPkg,
-    String srgName,
-    String srgDescriptor,
-    boolean isClientOnly) {
+      String obfOwner,
+      String obfName,
+      String obfDescriptor,
+      String srgOwner,
+      String srgPkg,
+      String srgName,
+      String srgDescriptor,
+      boolean isClientOnly) {
     super(obfOwner, obfName, srgOwner, srgPkg, srgName, isClientOnly);
     this.obfDescriptor = obfDescriptor;
     this.srgDescriptor = srgDescriptor;
   }
-
+  
   public String getObfDescriptor() {
     return obfDescriptor;
   }
-
+  
   public String getSrgDescriptor() {
     return srgDescriptor;
   }
-
+  
   @Override
   public int compareTo(MethodSrgData o) {
     if (o != null) {

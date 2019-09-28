@@ -16,7 +16,7 @@ public class ManualDeleteMod extends ToggleMod {
   
   public ManualDeleteMod() {
     super(Category.WORLD, "ManualEntityDelete", false,
-      "Manually delete entities with middle click");
+        "Manually delete entities with middle click");
   }
   
   @SubscribeEvent

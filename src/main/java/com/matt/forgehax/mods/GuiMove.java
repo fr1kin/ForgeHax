@@ -27,19 +27,19 @@ public class GuiMove extends ToggleMod {
   @SubscribeEvent
   public void LocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     KeyBinding[] keys = {
-      MC.gameSettings.keyBindForward,
-      MC.gameSettings.keyBindBack,
-      MC.gameSettings.keyBindLeft,
-      MC.gameSettings.keyBindRight,
-      MC.gameSettings.keyBindJump,
-      MC.gameSettings.keyBindSprint
+        MC.gameSettings.keyBindForward,
+        MC.gameSettings.keyBindBack,
+        MC.gameSettings.keyBindLeft,
+        MC.gameSettings.keyBindRight,
+        MC.gameSettings.keyBindJump,
+        MC.gameSettings.keyBindSprint
     };
     if (MC.currentScreen instanceof GuiOptions
-      || MC.currentScreen instanceof GuiVideoSettings
-      || MC.currentScreen instanceof GuiScreenOptionsSounds
-      || MC.currentScreen instanceof GuiContainer
-      || MC.currentScreen instanceof GuiIngameMenu
-      || MC.currentScreen instanceof ClickGui) {
+        || MC.currentScreen instanceof GuiVideoSettings
+        || MC.currentScreen instanceof GuiScreenOptionsSounds
+        || MC.currentScreen instanceof GuiContainer
+        || MC.currentScreen instanceof GuiIngameMenu
+        || MC.currentScreen instanceof ClickGui) {
       for (KeyBinding bind : keys) {
         KeyBinding.setKeyBindState(bind.getKeyCode(), Keyboard.isKeyDown(bind.getKeyCode()));
       }

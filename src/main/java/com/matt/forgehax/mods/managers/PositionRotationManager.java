@@ -123,14 +123,14 @@ public class PositionRotationManager extends ServiceMod {
     for (MovementUpdateListener listener : getManager().functions()) {
       ls = new Local(gs);
       listener.onLocalPlayerMovementUpdate(ls);
-  
+      
       boolean clientCng = ls.isClientAnglesChanged();
       boolean serverCng = ls.isServerAnglesChanged();
-  
+      
       if (ls.isCanceled()) {
         // cancel event, do not update any view angles
         event.setCanceled(true);
-    
+        
         // set the current server angles to the previous states as this event wont fire
         RotationState rs = new RotationState(gs);
         rs.setServerAngles(gState.getServerAngles());

@@ -6,11 +6,11 @@ package com.matt.forgehax.util;
 public class TickrateCounter {
   
   private static double tr = 0.D;
-
+  
   public static double getTickrate() {
     return 0.D;
   }
-
+  
   public static void setTickrate(double tickrate) {
     tr = tickrate;
   }

@@ -40,7 +40,7 @@ import net.minecraft.util.math.Vec3d;
 public class Scaffold extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
   
   private static final EnumSet<EnumFacing> NEIGHBORS =
-    EnumSet.of(EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.WEST);
+      EnumSet.of(EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.WEST);
   
   private int tickCount = 0;
   private boolean placing = false;
@@ -80,13 +80,13 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     }
     
     InvItem items =
-      LocalPlayerInventory.getHotbarInventory()
-        .stream()
-        .filter(InvItem::nonNull)
-        .filter(item -> item.getItem() instanceof ItemBlock)
-        .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isFullBlock())
-        .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
-        .orElse(InvItem.EMPTY);
+        LocalPlayerInventory.getHotbarInventory()
+            .stream()
+            .filter(InvItem::nonNull)
+            .filter(item -> item.getItem() instanceof ItemBlock)
+            .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isFullBlock())
+            .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
+            .orElse(InvItem.EMPTY);
     
     if (items.isNull()) {
       return;
@@ -96,19 +96,19 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     final Vec3d dir = LocalPlayerUtils.getViewAngles().getDirectionVector();
     
     BlockTraceInfo trace =
-      Optional.ofNullable(BlockHelper.getPlaceableBlockSideTrace(eyes, dir, below))
-        .filter(tr -> tr.isPlaceable(items))
-        .orElseGet(
-          () ->
-            NEIGHBORS
-              .stream()
-              .map(below::offset)
-              .filter(BlockHelper::isBlockReplaceable)
-              .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
-              .filter(Objects::nonNull)
-              .filter(tr -> tr.isPlaceable(items))
-              .max(Comparator.comparing(BlockTraceInfo::isSneakRequired))
-              .orElse(null));
+        Optional.ofNullable(BlockHelper.getPlaceableBlockSideTrace(eyes, dir, below))
+            .filter(tr -> tr.isPlaceable(items))
+            .orElseGet(
+                () ->
+                    NEIGHBORS
+                        .stream()
+                        .map(below::offset)
+                        .filter(BlockHelper::isBlockReplaceable)
+                        .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
+                        .filter(Objects::nonNull)
+                        .filter(tr -> tr.isPlaceable(items))
+                        .max(Comparator.comparing(BlockTraceInfo::isSneakRequired))
+                        .orElse(null));
     
     if (trace == null) {
       return;
@@ -119,43 +119,43 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     
     final BlockTraceInfo tr = trace;
     state.invokeLater(
-      rs -> {
-        ResetFunction func = LocalPlayerInventory.setSelected(items);
-    
-        boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
-        if (sneak) {
-          // send start sneaking packet
-          PacketHelper.ignoreAndSend(
-            new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
-      
-          LocalPlayerUtils.setSneaking(true);
-          LocalPlayerUtils.setSneakingSuppression(true);
-        }
-    
-        getPlayerController()
-          .processRightClickBlock(
-            getLocalPlayer(),
-            getWorld(),
-            tr.getPos(),
-            tr.getOppositeSide(),
-            hit,
-            EnumHand.MAIN_HAND);
-    
-        getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
-    
-        if (sneak) {
-          LocalPlayerUtils.setSneaking(false);
-          LocalPlayerUtils.setSneakingSuppression(false);
-      
-          getNetworkManager()
-            .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
-        }
-    
-        func.revert();
-    
-        Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
-        placing = true;
-        tickCount = 0;
-      });
+        rs -> {
+          ResetFunction func = LocalPlayerInventory.setSelected(items);
+          
+          boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
+          if (sneak) {
+            // send start sneaking packet
+            PacketHelper.ignoreAndSend(
+                new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
+            
+            LocalPlayerUtils.setSneaking(true);
+            LocalPlayerUtils.setSneakingSuppression(true);
+          }
+          
+          getPlayerController()
+              .processRightClickBlock(
+                  getLocalPlayer(),
+                  getWorld(),
+                  tr.getPos(),
+                  tr.getOppositeSide(),
+                  hit,
+                  EnumHand.MAIN_HAND);
+          
+          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+          
+          if (sneak) {
+            LocalPlayerUtils.setSneaking(false);
+            LocalPlayerUtils.setSneakingSuppression(false);
+            
+            getNetworkManager()
+                .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
+          }
+          
+          func.revert();
+          
+          Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
+          placing = true;
+          tickCount = 0;
+        });
   }
 }

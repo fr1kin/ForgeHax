@@ -98,11 +98,11 @@ public class FileManager {
   
   public Path getMkBaseDirectory(String... names) {
     return getMkDirectory(
-      getBasePath(), expandPaths(names).collect(Collectors.joining(File.separator)));
+        getBasePath(), expandPaths(names).collect(Collectors.joining(File.separator)));
   }
   
   public Path getMkConfigDirectory(String... names) {
     return getMkDirectory(
-      getConfig(), expandPaths(names).collect(Collectors.joining(File.separator)));
+        getConfig(), expandPaths(names).collect(Collectors.joining(File.separator)));
   }
 }

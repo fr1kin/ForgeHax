@@ -187,7 +187,7 @@ public class MacroCommand extends CommandMod {
               .findFirst()
               .orElseThrow(
                 () -> new CommandExecuteException(String.format("Unknown macro: \"%s\"", name)));
-      
+          
           executeMacro(macro);
         })
       .build();
@@ -218,7 +218,7 @@ public class MacroCommand extends CommandMod {
           if (data.getOption("name") == null && key == Keyboard.KEY_NONE) {
             throw new CommandExecuteException("A macro must have a name and/or a valid key");
           }
-      
+          
           final List<ImmutableList<String>> commands =
             data.arguments()
               .stream()
@@ -226,7 +226,7 @@ public class MacroCommand extends CommandMod {
               .map(Object::toString)
               .map(this::parseCommand)
               .collect(Collectors.toList());
-      
+          
           final MacroEntry macro =
             new MacroEntry((String) data.getOption("name"), key, commands);
           MACROS
@@ -238,11 +238,11 @@ public class MacroCommand extends CommandMod {
                 String.format("Command \"%s\" already exists!", alreadyExists.getName().get()));
             });
           MACROS.add(macro);
-      
+          
           if (!macro.isAnonymous()) {
             macro.registerBind();
           }
-      
+          
           Helper.printMessage("Successfully bound to %s", Keyboard.getKeyName(key));
         })
       .build();
@@ -254,57 +254,57 @@ public class MacroCommand extends CommandMod {
   }
   
   public static class MacroEntry implements ISerializableJson {
-  
+    
     private Optional<String> name;
     private int key = Keyboard.KEY_NONE;
     private final List<ImmutableList<String>> commands = new ArrayList<>();
-  
+    
     @Nullable // null if this is an anonymous macro (ie !name.isPresent())
     private transient KeyBinding bind;
-  
+    
     public MacroEntry(String name) {
       this.name = name.isEmpty() ? Optional.empty() : Optional.of(name);
     }
-  
+    
     public MacroEntry(@Nullable String name, int key, List<ImmutableList<String>> commands) {
       this.name = Optional.ofNullable(name);
       this.key = key;
       this.commands.addAll(commands);
     }
-  
+    
     public int getKey() {
       return Optional.ofNullable(bind).map(KeyBinding::getKeyCode).orElse(this.key);
     }
-  
+    
     public Optional<String> getName() {
       return this.name;
     }
-  
+    
     public boolean isAnonymous() {
       return !getName().isPresent();
     }
-  
+    
     public List<ImmutableList<String>> getCommands() {
       return commands;
     }
-  
+    
     public KeyBinding getBind() {
       return this.bind;
     }
-  
+    
     // only done for named macros
     private void registerBind() {
       KeyBinding bind = new KeyBinding(name.get(), this.getKey(), "Macros");
       ClientRegistry.registerKeyBinding(bind); // TODO: listen for key pressed for anonymous macros
       this.bind = bind;
     }
-  
+    
     @Override
     public void serialize(JsonWriter writer) throws IOException {
       writer.beginObject();
       writer.name("key");
       writer.value(getKey());
-    
+      
       writer.name("commands");
       writer.beginArray();
       for (final List<String> list : commands) {
@@ -317,22 +317,22 @@ public class MacroCommand extends CommandMod {
       writer.endArray();
       writer.endObject();
     }
-  
+    
     @Override
     public void deserialize(JsonReader reader) throws IOException {
       JsonObject root = new JsonParser().parse(reader).getAsJsonObject();
       this.key = root.get("key").getAsInt();
-    
+      
       Streams.stream(root.get("commands").getAsJsonArray())
         .map(JsonElement::getAsJsonArray)
         .map(jArray -> ImmutableList.copyOf(stringIterator(jArray)))
         .forEach(commands::add);
-    
+      
       if (!this.isAnonymous()) {
         this.registerBind();
       }
     }
-  
+    
     @Override
     public String toString() {
       return name.orElse("");

@@ -20,9 +20,9 @@ public class SimpleManagerContainer<T> {
   private Optional<Member<T>> get(T func) {
     synchronized (functions) {
       return functions
-        .stream()
-        .filter(member -> member.getFunction() == func) // compare references
-        .findFirst();
+          .stream()
+          .filter(member -> member.getFunction() == func) // compare references
+          .findFirst();
     }
   }
   
@@ -110,19 +110,19 @@ public class SimpleManagerContainer<T> {
   public void begin(T function) {
     synchronized (functions) {
       Member<T> member = get(function).orElse(null);
-  
+      
       if (member == null) {
         return;
       }
       
       find(Member::isRunning)
-        .ifPresent(
-          m -> {
-            synchronized (listeners) {
-              listeners.forEach(l -> l.onFunctionStopped(m.getFunction()));
-            }
-            m.setRunning(false);
-          });
+          .ifPresent(
+              m -> {
+                synchronized (listeners) {
+                  listeners.forEach(l -> l.onFunctionStopped(m.getFunction()));
+                }
+                m.setRunning(false);
+              });
       
       setRunning(member, true);
     }
@@ -131,13 +131,13 @@ public class SimpleManagerContainer<T> {
   public void finish(T function) {
     synchronized (functions) {
       Member<T> member = get(function).orElse(null);
-  
+      
       if (member == null || !member.isRunning()) {
         return;
       }
       
       setRunning(member, false);
-  
+      
       if (member.isOnce()) {
         unregister(member);
       }
@@ -183,8 +183,8 @@ public class SimpleManagerContainer<T> {
     @Override
     public int compareTo(Member o) {
       return (isOnce() || o.isOnce())
-        ? Boolean.compare(isOnce(), o.isOnce())
-        : getPriority().compareTo(o.getPriority());
+          ? Boolean.compare(isOnce(), o.isOnce())
+          : getPriority().compareTo(o.getPriority());
     }
     
     @Override
@@ -195,9 +195,9 @@ public class SimpleManagerContainer<T> {
     @Override
     public boolean equals(Object obj) {
       return this == obj
-        || (obj instanceof SimpleManagerContainer.Member
-        && this.getFunction()
-        == ((Member) obj).getFunction()); // compare references, don't use equals()
+          || (obj instanceof SimpleManagerContainer.Member
+          && this.getFunction()
+          == ((Member) obj).getFunction()); // compare references, don't use equals()
     }
   }
   

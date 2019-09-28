@@ -12,7 +12,7 @@ public class HostileMob extends MobType {
   public boolean isMobType(Entity entity) {
     return entity.isCreatureType(EnumCreatureType.MONSTER, false);
   }
-
+  
   @Override
   protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
     return MobTypeEnum.HOSTILE;

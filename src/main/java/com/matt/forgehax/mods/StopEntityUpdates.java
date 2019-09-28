@@ -12,10 +12,10 @@ public class StopEntityUpdates extends ToggleMod {
   
   public StopEntityUpdates() {
     super(
-      Category.MISC,
-      "StopEntityUpdates",
-      false,
-      "Prevent entity metadata update packets from being processed");
+        Category.MISC,
+        "StopEntityUpdates",
+        false,
+        "Prevent entity metadata update packets from being processed");
   }
   
   @SubscribeEvent

@@ -26,5 +26,5 @@ public enum SpamTrigger {
   /**
    * Triggered when player disconnects from server
    */
-  PLAYER_DISCONNECT;
+  PLAYER_DISCONNECT
 }

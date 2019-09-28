@@ -13,12 +13,12 @@ public class EndermanMob extends MobType {
   protected PriorityEnum getPriority() {
     return PriorityEnum.LOW;
   }
-
+  
   @Override
   public boolean isMobType(Entity entity) {
     return entity instanceof EntityEnderman;
   }
-
+  
   @Override
   protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
     EntityEnderman enderman = (EntityEnderman) entity;

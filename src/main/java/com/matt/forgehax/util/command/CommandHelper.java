@@ -11,9 +11,9 @@ import joptsimple.internal.Strings;
  * Created on 5/15/2017 by fr1kin
  */
 public class CommandHelper {
-
+  
   private static final String[] EMPTY_STRING_ARRAY = new String[0];
-
+  
   public static final String MOD_PROPERTY_SEPARATOR = ":";
   
   /**
@@ -22,33 +22,33 @@ public class CommandHelper {
   public static String[] forward(String[] args) {
     return args.length > 0 ? Arrays.copyOfRange(args, 1, args.length) : EMPTY_STRING_ARRAY;
   }
-
+  
   public static String join(String[] args, String separator, int startIndex, int endIndex) {
     return Strings.join(
-      Arrays.copyOfRange(args, startIndex, endIndex),
-      com.google.common.base.Strings.nullToEmpty(separator));
+        Arrays.copyOfRange(args, startIndex, endIndex),
+        com.google.common.base.Strings.nullToEmpty(separator));
   }
-
+  
   public static String join(String[] args, String separator) {
     return join(args, separator, 0, args.length);
   }
-
+  
   public static String toUniqueId(String parent, String child) {
     return makeParserFriendly(
-      !Strings.isNullOrEmpty(parent) ? (parent + MOD_PROPERTY_SEPARATOR + child) : child);
+        !Strings.isNullOrEmpty(parent) ? (parent + MOD_PROPERTY_SEPARATOR + child) : child);
   }
-
+  
   public static String makeParserFriendly(String string) {
     return string.replaceAll(" ", "_");
   }
-
+  
   public static void requireArguments(List<?> args, int requiredArguments)
-    throws CommandExecuteException {
+      throws CommandExecuteException {
     if (args.size() < requiredArguments) {
       throw new CommandExecuteException("Missing argument(s)");
     }
   }
-
+  
   /**
    * [code borrowed from ant.jar] Crack a command line.
    *
@@ -62,7 +62,7 @@ public class CommandHelper {
       return new String[0];
     }
     // parse with a simple finite state machine
-
+    
     final int normal = 0;
     final int inQuote = 1;
     final int inDoubleQuote = 2;
@@ -71,7 +71,7 @@ public class CommandHelper {
     final ArrayList<String> result = new ArrayList<String>();
     final StringBuilder current = new StringBuilder();
     boolean lastTokenHasBeenQuoted = false;
-
+    
     while (tok.hasMoreTokens()) {
       String nextTok = tok.nextToken();
       switch (state) {

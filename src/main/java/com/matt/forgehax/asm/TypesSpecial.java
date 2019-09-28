@@ -8,9 +8,9 @@ import com.matt.forgehax.asm.utils.asmtype.builders.ASMBuilders;
  * Created on 5/29/2017 by fr1kin
  */
 public interface TypesSpecial {
-
+  
   interface Classes {
-
+    
     ASMClass SchematicPrinter =
       ASMBuilders.newClassBuilder()
         .setClassName("com/github/lunatrius/schematica/client/printer/SchematicPrinter")
@@ -20,9 +20,9 @@ public interface TypesSpecial {
   interface Fields {
   
   }
-
-  interface Methods {
   
+  interface Methods {
+    
     ASMMethod SchematicPrinter_placeBlock =
       Classes.SchematicPrinter.childMethod()
         .setName("placeBlock")

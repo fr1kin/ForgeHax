@@ -57,12 +57,12 @@ public class ClassEntry implements ISerializableJson {
   @Override
   public boolean equals(Object obj) {
     return obj == this
-      || (obj instanceof ClassEntry && clazzName.equals(((ClassEntry) obj).clazzName))
-      || (obj instanceof String && clazzName.equals(obj))
-      || (getClassInstance() != null
-      && obj != null
-      && obj instanceof Class
-      && getClassInstance().equals(obj));
+        || (obj instanceof ClassEntry && clazzName.equals(((ClassEntry) obj).clazzName))
+        || (obj instanceof String && clazzName.equals(obj))
+        || (getClassInstance() != null
+        && obj != null
+        && obj instanceof Class
+        && getClassInstance().equals(obj));
   }
   
   @Override

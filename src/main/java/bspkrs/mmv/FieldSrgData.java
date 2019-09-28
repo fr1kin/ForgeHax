@@ -29,12 +29,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 public class FieldSrgData extends MemberSrgData implements Comparable<FieldSrgData> {
   
   public FieldSrgData(
-    String obfOwner,
-    String obfName,
-    String srgOwner,
-    String srgPkg,
-    String srgName,
-    boolean isClientOnly) {
+      String obfOwner,
+      String obfName,
+      String srgOwner,
+      String srgPkg,
+      String srgName,
+      boolean isClientOnly) {
     super(obfOwner, obfName, srgOwner, srgPkg, srgName, isClientOnly);
   }
   

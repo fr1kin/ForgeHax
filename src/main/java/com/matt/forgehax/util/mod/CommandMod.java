@@ -35,8 +35,8 @@ public class CommandMod extends ServiceMod {
         try {
           m.setAccessible(true);
           if (m.isAnnotationPresent(RegisterCommand.class)
-            && Arrays.equals(m.getParameterTypes(), new Class<?>[]{CommandBuilders.class})
-            && Command.class.isAssignableFrom(m.getReturnType())) {
+              && Arrays.equals(m.getParameterTypes(), new Class<?>[]{CommandBuilders.class})
+              && Command.class.isAssignableFrom(m.getReturnType())) {
             commands.add((Command) m.invoke(this, Helper.getGlobalCommand().builders()));
           }
         } catch (Throwable t) {

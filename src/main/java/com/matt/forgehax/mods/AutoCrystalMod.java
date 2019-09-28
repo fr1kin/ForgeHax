@@ -28,62 +28,62 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AutoCrystalMod extends ToggleMod {
   
   public final Setting<Float> maxDistance =
-    getCommandStub()
-      .builders()
-      .<Float>newSettingBuilder()
-      .name("maxDistance")
-      .description("maximum distance to detonate crystals")
-      .defaultTo(3f)
-      .min(0f)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("maxDistance")
+          .description("maximum distance to detonate crystals")
+          .defaultTo(3f)
+          .min(0f)
+          .build();
   
   public final Setting<Float> minDistance =
-    getCommandStub()
-      .builders()
-      .<Float>newSettingBuilder()
-      .name("minDistance")
-      .description("minimum distance to detonate crystals")
-      .defaultTo(0f)
-      .min(0f)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("minDistance")
+          .description("minimum distance to detonate crystals")
+          .defaultTo(0f)
+          .min(0f)
+          .build();
   
   public final Setting<Float> minHeight =
-    getCommandStub()
-      .builders()
-      .<Float>newSettingBuilder()
-      .name("minHeight")
-      .description("detonate crystals with a relative y coord greater than this value")
-      .defaultTo(-5f)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("minHeight")
+          .description("detonate crystals with a relative y coord greater than this value")
+          .defaultTo(-5f)
+          .build();
   
   public final Setting<Integer> delay =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("delay")
-      .description("delay between detonations in ms")
-      .defaultTo(10)
-      .min(0)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("delay")
+          .description("delay between detonations in ms")
+          .defaultTo(10)
+          .min(0)
+          .build();
   
   public final Setting<Boolean> checkEnemy =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("checkEnemy")
-      .description("only detonate crystals close to enemy players")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("checkEnemy")
+          .description("only detonate crystals close to enemy players")
+          .defaultTo(true)
+          .build();
   
   public final Setting<Float> maxEnemyDistance =
-    getCommandStub()
-      .builders()
-      .<Float>newSettingBuilder()
-      .name("maxEnemyDistance")
-      .description("maximum distance from crystal to enemy")
-      .defaultTo(10f)
-      .min(0f)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("maxEnemyDistance")
+          .description("maximum distance from crystal to enemy")
+          .defaultTo(10f)
+          .min(0f)
+          .build();
   
   public AutoCrystalMod() {
     super(Category.COMBAT, "AutoCrystal", false, "Automatically detonates nearby end crystals");
@@ -103,12 +103,12 @@ public class AutoCrystalMod extends ToggleMod {
   private boolean enemyWithinDistance(Entity e, float dist) {
     Vec3d delta = new Vec3d(dist, dist, dist);
     AxisAlignedBB bb =
-      new AxisAlignedBB(e.getPositionVector().subtract(delta), e.getPositionVector().add(delta));
+        new AxisAlignedBB(e.getPositionVector().subtract(delta), e.getPositionVector().add(delta));
     return getWorld()
-      .getEntitiesWithinAABB(EntityPlayer.class, bb)
-      .stream()
-      .filter(p -> !p.isEntityEqual(getLocalPlayer()))
-      .anyMatch(p -> e.getDistanceSq(p) < dist * dist);
+        .getEntitiesWithinAABB(EntityPlayer.class, bb)
+        .stream()
+        .filter(p -> !p.isEntityEqual(getLocalPlayer()))
+        .anyMatch(p -> e.getDistanceSq(p) < dist * dist);
   }
   
   @SubscribeEvent
@@ -121,26 +121,26 @@ public class AutoCrystalMod extends ToggleMod {
       
       Vec3d delta = new Vec3d(maxDistance.get(), maxDistance.get(), maxDistance.get());
       AxisAlignedBB bb =
-        new AxisAlignedBB(
-          getLocalPlayer().getPositionVector().subtract(delta),
-          getLocalPlayer().getPositionVector().add(delta));
+          new AxisAlignedBB(
+              getLocalPlayer().getPositionVector().subtract(delta),
+              getLocalPlayer().getPositionVector().add(delta));
       getWorld()
-        .getEntitiesWithinAABB(EntityEnderCrystal.class, bb)
-        .stream()
-        // Re-check timer, since it may have been reset in a previous iteration
-        .filter(__ -> timer.hasTimeElapsed(delay.get()))
-        .filter(
-          e ->
-            e.getPosition().getY() - getLocalPlayer().getPosition().getY() >= minHeight.get())
-        .filter(playerWithinDistance(maxDistance.get()))
-        .filter(playerWithinDistance(minDistance.get()).negate())
-        .filter(e -> !checkEnemy.get() || enemyWithinDistance(e, maxEnemyDistance.get()))
-        .forEach(
-          e -> {
-            getNetworkManager().sendPacket(new CPacketUseEntity(e));
-            getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
-            timer.start();
-          });
+          .getEntitiesWithinAABB(EntityEnderCrystal.class, bb)
+          .stream()
+          // Re-check timer, since it may have been reset in a previous iteration
+          .filter(__ -> timer.hasTimeElapsed(delay.get()))
+          .filter(
+              e ->
+                  e.getPosition().getY() - getLocalPlayer().getPosition().getY() >= minHeight.get())
+          .filter(playerWithinDistance(maxDistance.get()))
+          .filter(playerWithinDistance(minDistance.get()).negate())
+          .filter(e -> !checkEnemy.get() || enemyWithinDistance(e, maxEnemyDistance.get()))
+          .forEach(
+              e -> {
+                getNetworkManager().sendPacket(new CPacketUseEntity(e));
+                getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+                timer.start();
+              });
     }
   }
 }

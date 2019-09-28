@@ -32,13 +32,13 @@ public class WaifuESP extends ToggleMod {
   }
   
   public final Setting<Boolean> noRenderPlayers =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("noRenderPlayers")
-      .description("render other players")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("noRenderPlayers")
+          .description("render other players")
+          .defaultTo(false)
+          .build();
   
   // private final ResourceLocation waifu = new ResourceLocation("textures/forgehax/waifu1.png");
   private ResourceLocation waifu;
@@ -46,7 +46,7 @@ public class WaifuESP extends ToggleMod {
   private final String waifuUrl = "https://raw.githubusercontent.com/forgehax/assets/master/img/waifu_v01.png";
   
   private final File waifuCache =
-    Helper.getFileManager().getBaseResolve("cache/waifu.png").toFile();
+      Helper.getFileManager().getBaseResolve("cache/waifu.png").toFile();
   
   private <T> BufferedImage getImage(T source, ThrowingFunction<T, BufferedImage> readFunction) {
     try {
@@ -59,9 +59,9 @@ public class WaifuESP extends ToggleMod {
   
   private boolean shouldDraw(EntityLivingBase entity) {
     return (!entity.equals(MC.player)
-      && EntityUtils.isAlive(entity)
-      && EntityUtils.isValidEntity(entity)
-      && (EntityUtils.isPlayer(entity)));
+        && EntityUtils.isAlive(entity)
+        && EntityUtils.isValidEntity(entity)
+        && (EntityUtils.isPlayer(entity)));
   }
   
   @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -75,24 +75,24 @@ public class WaifuESP extends ToggleMod {
         EntityLivingBase living = (EntityLivingBase) (entity);
         Vec3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
         Vec3d topVec =
-          bottomVec.add(new Vec3d(0, (entity.getRenderBoundingBox().maxY - entity.posY), 0));
+            bottomVec.add(new Vec3d(0, (entity.getRenderBoundingBox().maxY - entity.posY), 0));
         VectorUtils.ScreenPos top = VectorUtils._toScreen(topVec.x, topVec.y, topVec.z);
         VectorUtils.ScreenPos bot = VectorUtils._toScreen(bottomVec.x, bottomVec.y, bottomVec.z);
         if (top.isVisible || bot.isVisible) {
-  
+          
           int height = (bot.y - top.y);
           int width = height;
-  
+          
           int x =
-            (int) (top.x - (width / 1.8)); // normally 2.0 but lowering it shifts it to the left
+              (int) (top.x - (width / 1.8)); // normally 2.0 but lowering it shifts it to the left
           int y = top.y;
-  
+          
           // draw waifu
           MC.renderEngine.bindTexture(waifu);
-  
+          
           GlStateManager.color(255, 255, 255);
           Gui.drawScaledCustomSizeModalRect(
-            x, y, 0, 0, width, height, width, height, width, height);
+              x, y, 0, 0, width, height, width, height, width, height);
         }
       }
     }
@@ -108,38 +108,38 @@ public class WaifuESP extends ToggleMod {
   @Override
   public void onLoad() {
     MC.addScheduledTask(
-      () -> {
-        try {
-          BufferedImage image;
-          if (waifuCache.exists()) { // TODO: download async
-            image = getImage(waifuCache, ImageIO::read); // from cache
-          } else {
-            image = getImage(new URL(waifuUrl), ImageIO::read); // from internet
-            if (image != null) {
-              try {
-                ImageIO.write(image, "png", waifuCache);
-              } catch (IOException ex) {
-                ex.printStackTrace();
+        () -> {
+          try {
+            BufferedImage image;
+            if (waifuCache.exists()) { // TODO: download async
+              image = getImage(waifuCache, ImageIO::read); // from cache
+            } else {
+              image = getImage(new URL(waifuUrl), ImageIO::read); // from internet
+              if (image != null) {
+                try {
+                  ImageIO.write(image, "png", waifuCache);
+                } catch (IOException ex) {
+                  ex.printStackTrace();
+                }
               }
             }
+            if (image == null) {
+              LOGGER.warn("Failed to download waifu image");
+              return;
+            }
+            
+            DynamicTexture dynamicTexture = new DynamicTexture(image);
+            dynamicTexture.loadTexture(MC.getResourceManager());
+            waifu = MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
+          } catch (Exception e) {
+            e.printStackTrace();
           }
-          if (image == null) {
-            LOGGER.warn("Failed to download waifu image");
-            return;
-          }
-      
-          DynamicTexture dynamicTexture = new DynamicTexture(image);
-          dynamicTexture.loadTexture(MC.getResourceManager());
-          waifu = MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      });
+        });
   }
   
   @FunctionalInterface
   private interface ThrowingFunction<T, R> {
-  
+    
     R apply(T obj) throws IOException;
   }
 }

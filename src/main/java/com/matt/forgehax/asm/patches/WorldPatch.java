@@ -17,19 +17,19 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class WorldPatch extends ClassTransformer {
-
+  
   public WorldPatch() {
     super(Classes.World);
   }
-
+  
   @RegisterMethodTransformer
   private class HandleMaterialAcceleration extends MethodTransformer {
-
+    
     @Override
     public ASMMethod getMethod() {
       return Methods.World_handleMaterialAcceleration;
     }
-
+    
     @Inject(description = "Add hook that allows water movement math to be skipped")
     public void inject(MethodNode method) {
       AbstractInsnNode preNode =
@@ -58,39 +58,39 @@ public class WorldPatch extends ClassTransformer {
           "xxx??xx??xxxxxxxxx");
       AbstractInsnNode postNode =
         ASMHelper.findPattern(method.instructions.getFirst(), new int[]{ILOAD, IRETURN}, "xx");
-
+      
       Objects.requireNonNull(preNode, "Find pattern failed for preNode");
       Objects.requireNonNull(postNode, "Find pattern failed for postNode");
-
+      
       LabelNode endJump = new LabelNode();
-
+      
       InsnList insnPre = new InsnList();
       insnPre.add(new VarInsnNode(ALOAD, 3));
       insnPre.add(new VarInsnNode(ALOAD, 11));
       insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onWaterMovement));
       insnPre.add(new JumpInsnNode(IFNE, endJump));
-
+      
       method.instructions.insertBefore(preNode, insnPre);
       method.instructions.insertBefore(postNode, endJump);
     }
   }
-
+  
   @RegisterMethodTransformer
   private class CheckLightFor extends MethodTransformer {
-  
+    
     @Override
     public ASMMethod getMethod() {
       return Methods.World_checkLightFor;
     }
-
+    
     @Inject(description = "Add hook before everything")
     public void inject(MethodNode method) {
       AbstractInsnNode node = method.instructions.getFirst();
-
+      
       Objects.requireNonNull(node, "Failed to find node.");
-
+      
       LabelNode label = new LabelNode();
-
+      
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 1)); // enum
       list.add(new VarInsnNode(ALOAD, 2)); // blockpos
@@ -99,7 +99,7 @@ public class WorldPatch extends ClassTransformer {
       list.add(new InsnNode(ICONST_0));
       list.add(new InsnNode(IRETURN));
       list.add(label);
-
+      
       method.instructions.insertBefore(node, list);
     }
   }

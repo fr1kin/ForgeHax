@@ -14,31 +14,31 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AutoReply extends ToggleMod {
   
   public final Setting<String> reply =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("reply")
-      .description("Text to reply with")
-      .defaultTo("fuck off newfag")
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("reply")
+          .description("Text to reply with")
+          .defaultTo("fuck off newfag")
+          .build();
   
   public final Setting<String> mode =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("mode")
-      .description("Reply or chat")
-      .defaultTo("REPLY")
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("mode")
+          .description("Reply or chat")
+          .defaultTo("REPLY")
+          .build();
   
   public final Setting<String> search =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("search")
-      .description("Text to search for in message")
-      .defaultTo("whispers: ")
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("search")
+          .description("Text to search for in message")
+          .defaultTo("whispers: ")
+          .build();
   
   public AutoReply() {
     super(Category.MISC, "AutoReply", false, "Automatically talk in chat if finds a strings");

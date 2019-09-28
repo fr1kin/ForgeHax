@@ -30,13 +30,13 @@ public class NoWeather extends ToggleMod {
   }
   
   private final Setting<Boolean> showStatus =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("hudstatus")
-      .description("show info about suppressed weather")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("hudstatus")
+          .description("show info about suppressed weather")
+          .defaultTo(true)
+          .build();
   
   private void saveState(World world) {
     if (world != null) {
@@ -120,13 +120,13 @@ public class NoWeather extends ToggleMod {
   @Override
   public String getDisplayText() {
     if (isRaining
-      && showStatus.getAsBoolean() && getWorld() != null && getLocalPlayer() != null) {
+        && showStatus.getAsBoolean() && getWorld() != null && getLocalPlayer() != null) {
       Biome biome = getWorld().getBiome(getLocalPlayer().getPosition());
       boolean canRain = biome.canRain();
       boolean canSnow = biome.getEnableSnow();
-  
+      
       String status;
-  
+      
       if (getWorld().isThundering()) {
         status = "[Thunder]";
       } else if (canSnow) {
@@ -136,7 +136,7 @@ public class NoWeather extends ToggleMod {
       } else {
         status = "[Raining]";
       }
-  
+      
       return super.getDisplayText() + status;
     } else {
       return super.getDisplayText();

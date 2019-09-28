@@ -18,19 +18,19 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class BufferBuilderPatch extends ClassTransformer {
-
+  
   public BufferBuilderPatch() {
     super(Classes.BufferBuilder);
   }
-
+  
   @RegisterMethodTransformer
   private class PutColorMultiplier extends MethodTransformer {
-
+    
     @Override
     public ASMMethod getMethod() {
       return Methods.BufferBuilder_putColorMultiplier;
     }
-
+    
     @Inject(description = "Add hook that allows method to be overwritten")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode =
@@ -57,12 +57,12 @@ public class BufferBuilderPatch extends ClassTransformer {
           main.instructions.getFirst(),
           new int[]{ALOAD, GETFIELD, ILOAD, ILOAD, INVOKEVIRTUAL, POP},
           "xxxxxx");
-
+      
       Objects.requireNonNull(preNode, "Find pattern failed for preNode");
       Objects.requireNonNull(postNode, "Find pattern failed for postNode");
-
+      
       LabelNode endJump = new LabelNode();
-
+      
       InsnList insnPre = new InsnList();
       insnPre.add(new InsnNode(ICONST_1));
       insnPre.add(new IntInsnNode(NEWARRAY, T_BOOLEAN));
@@ -83,7 +83,7 @@ public class BufferBuilderPatch extends ClassTransformer {
       insnPre.add(new InsnNode(ICONST_0));
       insnPre.add(new InsnNode(BALOAD));
       insnPre.add(new JumpInsnNode(IFNE, endJump));
-
+      
       main.instructions.insertBefore(preNode, insnPre);
       main.instructions.insertBefore(postNode, endJump);
     }

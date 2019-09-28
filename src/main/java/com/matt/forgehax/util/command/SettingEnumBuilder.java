@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  * Created on 8/5/2017 by fr1kin
  */
 public class SettingEnumBuilder<E extends Enum<E>>
-  extends BaseCommandBuilder<SettingEnumBuilder<E>, Setting<E>> {
+    extends BaseCommandBuilder<SettingEnumBuilder<E>, Setting<E>> {
   
   public SettingEnumBuilder<E> changed(Consumer<OnChangeCallback<E>> consumer) {
     getCallbacks(CallbackType.CHANGE).add(consumer);
@@ -45,49 +45,49 @@ public class SettingEnumBuilder<E extends Enum<E>>
     TypeConverter<E> converter = TypeConverterRegistry.get(clazz);
     if (converter == null) {
       converter =
-        new TypeConverter<E>() {
-          @Override
-          public String label() {
-            return clazz.getName();
-          }
-    
-          @Override
-          public Class<E> type() {
-            return (Class<E>) clazz;
-          }
-    
-          @Override
-          public E parse(String value) {
-            return Arrays.stream(type().getEnumConstants())
-              .filter(e -> e.name().toLowerCase().contains(value.toLowerCase()))
-              .min(
-                Comparator.comparing(
-                  e ->
-                    StringUtils.getLevenshteinDistance(
-                      e.name().toLowerCase(), value.toLowerCase())))
-              .orElseGet(
-                () -> {
-                  E[] values = type().getEnumConstants();
-                  try {
-                    int index = Integer.valueOf(value);
-                    return values[MathHelper.clamp(index, 0, values.length - 1)];
-                  } catch (NumberFormatException e) {
-                    return values[0];
-                  }
-                });
-          }
-    
-          @Override
-          public String toString(E value) {
-            return value.name();
-          }
-    
-          @Nullable
-          @Override
-          public Comparator<E> comparator() {
-            return Enum::compareTo;
-          }
-        };
+          new TypeConverter<E>() {
+            @Override
+            public String label() {
+              return clazz.getName();
+            }
+            
+            @Override
+            public Class<E> type() {
+              return (Class<E>) clazz;
+            }
+            
+            @Override
+            public E parse(String value) {
+              return Arrays.stream(type().getEnumConstants())
+                  .filter(e -> e.name().toLowerCase().contains(value.toLowerCase()))
+                  .min(
+                      Comparator.comparing(
+                          e ->
+                              StringUtils.getLevenshteinDistance(
+                                  e.name().toLowerCase(), value.toLowerCase())))
+                  .orElseGet(
+                      () -> {
+                        E[] values = type().getEnumConstants();
+                        try {
+                          int index = Integer.valueOf(value);
+                          return values[MathHelper.clamp(index, 0, values.length - 1)];
+                        } catch (NumberFormatException e) {
+                          return values[0];
+                        }
+                      });
+            }
+            
+            @Override
+            public String toString(E value) {
+              return value.name();
+            }
+            
+            @Nullable
+            @Override
+            public Comparator<E> comparator() {
+              return Enum::compareTo;
+            }
+          };
     }
     
     E min;

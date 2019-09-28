@@ -88,88 +88,88 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   }
   
   private final Options<PlaceConfigEntry> config =
-    getCommandStub()
-      .builders()
-      .<PlaceConfigEntry>newOptionsBuilder()
-      .name("config")
-      .description("Saved selection configs")
-      .factory(PlaceConfigEntry::new)
-      .supplier(Lists::newCopyOnWriteArrayList)
-      .build();
+      getCommandStub()
+          .builders()
+          .<PlaceConfigEntry>newOptionsBuilder()
+          .name("config")
+          .description("Saved selection configs")
+          .factory(PlaceConfigEntry::new)
+          .supplier(Lists::newCopyOnWriteArrayList)
+          .build();
   
   private final Options<FacingEntry> sides =
-    getCommandStub()
-      .builders()
-      .<FacingEntry>newOptionsBuilder()
-      .name("sides")
-      .description("Sides to place the blocks on")
-      .defaults(() -> Collections.singleton(new FacingEntry(EnumFacing.UP)))
-      .factory(FacingEntry::new)
-      .supplier(Lists::newCopyOnWriteArrayList)
-      .build();
+      getCommandStub()
+          .builders()
+          .<FacingEntry>newOptionsBuilder()
+          .name("sides")
+          .description("Sides to place the blocks on")
+          .defaults(() -> Collections.singleton(new FacingEntry(EnumFacing.UP)))
+          .factory(FacingEntry::new)
+          .supplier(Lists::newCopyOnWriteArrayList)
+          .build();
   
   private final Setting<Boolean> check_neighbors =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("check-neighbors")
-      .description("Will check the neighboring blocks to see if a block can be placed")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("check-neighbors")
+          .description("Will check the neighboring blocks to see if a block can be placed")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Boolean> whitelist =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("whitelist")
-      .description("Makes the target list function as an inclusive list")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("whitelist")
+          .description("Makes the target list function as an inclusive list")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> silent =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("silent")
-      .description("Client angles don't change")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("silent")
+          .description("Client angles don't change")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Integer> cooldown =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("cooldown")
-      .description(
-        "Block place delay to check_neighbors after placing a block. Set to 0 to disable")
-      .defaultTo(4)
-      .min(0)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("cooldown")
+          .description(
+              "Block place delay to check_neighbors after placing a block. Set to 0 to disable")
+          .defaultTo(4)
+          .min(0)
+          .build();
   
   private final Setting<Boolean> render =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("render")
-      .description("Show which blocks are currently visible and being targeted")
-      .defaultTo(false)
-      .changed(
-        cb -> {
-          if (cb.getTo()) {
-            this.renderingBlocks.clear();
-            this.currentRenderingTarget = null;
-          }
-        })
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("render")
+          .description("Show which blocks are currently visible and being targeted")
+          .defaultTo(false)
+          .changed(
+              cb -> {
+                if (cb.getTo()) {
+                  this.renderingBlocks.clear();
+                  this.currentRenderingTarget = null;
+                }
+              })
+          .build();
   
   private final Setting<Boolean> client_angles =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("client-angles")
-      .description("Sort the blocks to break by the clients angle instead of the servers")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("client-angles")
+          .description("Sort the blocks to break by the clients angle instead of the servers")
+          .defaultTo(false)
+          .build();
   
   private final Set<BlockPos> renderingBlocks = Sets.newConcurrentHashSet();
   private BlockPos currentRenderingTarget = null;
@@ -216,291 +216,291 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   
   private boolean isValidBlock(UniqueBlock info) {
     return whitelist.get()
-      ? targets.stream().anyMatch(info::equals)
-      : targets.stream().noneMatch(info::equals);
+        ? targets.stream().anyMatch(info::equals)
+        : targets.stream().noneMatch(info::equals);
   }
   
   private boolean isClickable(UniqueBlock info) {
     return sides
-      .stream()
-      .map(FacingEntry::getFacing)
-      .anyMatch(side -> BlockHelper.isBlockReplaceable(info.getPos().offset(side)));
+        .stream()
+        .map(FacingEntry::getFacing)
+        .anyMatch(side -> BlockHelper.isBlockReplaceable(info.getPos().offset(side)));
   }
   
   private EnumFacing getBestFacingMatch(final String input) {
     return Arrays.stream(EnumFacing.values())
-      .filter(side -> side.getName2().toLowerCase().contains(input.toLowerCase()))
-      .min(
-        Comparator.comparing(
-          e -> e.getName2().toLowerCase(),
-          Comparator.<String>comparingInt(
-            n -> StringUtils.getLevenshteinDistance(n, input.toLowerCase()))
-            .thenComparing(n -> n.startsWith(input))))
-      .orElseGet(
-        () -> {
-          EnumFacing[] values = EnumFacing.values();
-          try {
-            int index = Integer.valueOf(input);
-            return values[MathHelper.clamp(index, 0, values.length - 1)];
-          } catch (NumberFormatException e) {
-            return values[0];
-          }
-        });
+        .filter(side -> side.getName2().toLowerCase().contains(input.toLowerCase()))
+        .min(
+            Comparator.comparing(
+                e -> e.getName2().toLowerCase(),
+                Comparator.<String>comparingInt(
+                    n -> StringUtils.getLevenshteinDistance(n, input.toLowerCase()))
+                    .thenComparing(n -> n.startsWith(input))))
+        .orElseGet(
+            () -> {
+              EnumFacing[] values = EnumFacing.values();
+              try {
+                int index = Integer.valueOf(input);
+                return values[MathHelper.clamp(index, 0, values.length - 1)];
+              } catch (NumberFormatException e) {
+                return values[0];
+              }
+            });
   }
   
   private void showInfo(String filter) {
     MC.addScheduledTask(
-      () -> {
-        if ("selected".startsWith(filter)) {
-          printInform(
-            "Selected item %s",
-            this.selectedItem.getItem().getRegistryName().toString()
-              + "{"
-              + this.selectedItem.getMetadata()
-              + "}");
-        }
-    
-        if ("targets".startsWith(filter)) {
-          printInform(
-            "Targets: %s",
-            this.targets.stream().map(UniqueBlock::toString).collect(Collectors.joining(", ")));
-        }
-    
-        if ("sides".startsWith(filter)) {
-          printInform(
-            "Sides: %s",
-            this.sides
-              .stream()
-              .map(FacingEntry::getFacing)
-              .map(EnumFacing::getName2)
-              .collect(Collectors.joining(", ")));
-        }
-    
-        if ("whitelist".startsWith(filter)) {
-          printInform("Whitelist: %s", Boolean.toString(whitelist.get()));
-        }
-    
-        if ("check_neighbors".startsWith(filter)) {
-          printInform("Check Neighbors: %s", Boolean.toString(check_neighbors.get()));
-        }
-      });
+        () -> {
+          if ("selected".startsWith(filter)) {
+            printInform(
+                "Selected item %s",
+                this.selectedItem.getItem().getRegistryName().toString()
+                    + "{"
+                    + this.selectedItem.getMetadata()
+                    + "}");
+          }
+          
+          if ("targets".startsWith(filter)) {
+            printInform(
+                "Targets: %s",
+                this.targets.stream().map(UniqueBlock::toString).collect(Collectors.joining(", ")));
+          }
+          
+          if ("sides".startsWith(filter)) {
+            printInform(
+                "Sides: %s",
+                this.sides
+                    .stream()
+                    .map(FacingEntry::getFacing)
+                    .map(EnumFacing::getName2)
+                    .collect(Collectors.joining(", ")));
+          }
+          
+          if ("whitelist".startsWith(filter)) {
+            printInform("Whitelist: %s", Boolean.toString(whitelist.get()));
+          }
+          
+          if ("check_neighbors".startsWith(filter)) {
+            printInform("Check Neighbors: %s", Boolean.toString(check_neighbors.get()));
+          }
+        });
   }
   
   @Override
   protected void onLoad() {
     getCommandStub()
-      .builders()
-      .newCommandBuilder()
-      .name("reset")
-      .description("Reset to the setup process")
-      .processor(
-        data -> {
-          resetToggle.set(true);
-          if (getLocalPlayer() == null && getWorld() == null) {
-            reset();
-          }
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("reset")
+        .description("Reset to the setup process")
+        .processor(
+            data -> {
+              resetToggle.set(true);
+              if (getLocalPlayer() == null && getWorld() == null) {
+                reset();
+              }
+            })
+        .build();
     
     getCommandStub()
-      .builders()
-      .newCommandBuilder()
-      .name("info")
-      .description("Print info about the mod")
-      .processor(
-        data -> {
-          String arg = data.getArgumentCount() > 1 ? data.getArgumentAsString(0) : "";
-          showInfo(arg);
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("info")
+        .description("Print info about the mod")
+        .processor(
+            data -> {
+              String arg = data.getArgumentCount() > 1 ? data.getArgumentAsString(0) : "";
+              showInfo(arg);
+            })
+        .build();
     
     sides
-      .builders()
-      .newCommandBuilder()
-      .name("add")
-      .description("Add side to the list")
-      .requiredArgs(1)
-      .processor(
-        data -> {
-          final String name = data.getArgumentAsString(0);
-          EnumFacing facing = getBestFacingMatch(name);
-      
-          if ("all".equalsIgnoreCase(name)) {
-            sides.addAll(
-              Arrays.stream(EnumFacing.values())
-                .map(FacingEntry::new)
-                .filter(e -> !sides.contains(e))
-                .collect(Collectors.toSet()));
-            data.write("Added all sides");
-            data.markSuccess();
-            sides.serializeAll();
-          } else if (sides.get(facing) == null) {
-            sides.add(new FacingEntry(facing));
-            data.write("Added side " + facing.getName2());
-            data.markSuccess();
-            sides.serializeAll();
-          } else {
-            data.write(facing.getName2() + " already exists");
-            data.markFailed();
-          }
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("add")
+        .description("Add side to the list")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              final String name = data.getArgumentAsString(0);
+              EnumFacing facing = getBestFacingMatch(name);
+              
+              if ("all".equalsIgnoreCase(name)) {
+                sides.addAll(
+                    Arrays.stream(EnumFacing.values())
+                        .map(FacingEntry::new)
+                        .filter(e -> !sides.contains(e))
+                        .collect(Collectors.toSet()));
+                data.write("Added all sides");
+                data.markSuccess();
+                sides.serializeAll();
+              } else if (sides.get(facing) == null) {
+                sides.add(new FacingEntry(facing));
+                data.write("Added side " + facing.getName2());
+                data.markSuccess();
+                sides.serializeAll();
+              } else {
+                data.write(facing.getName2() + " already exists");
+                data.markFailed();
+              }
+            })
+        .build();
     
     sides
-      .builders()
-      .newCommandBuilder()
-      .name("remove")
-      .description("Remove side from the list")
-      .requiredArgs(1)
-      .processor(
-        data -> {
-          final String name = data.getArgumentAsString(0);
-          EnumFacing facing = getBestFacingMatch(name);
-      
-          if ("all".equalsIgnoreCase(name)) {
-            sides.clear();
-            data.write("Removed all sides");
-            data.markSuccess();
-            sides.serializeAll();
-          } else if (sides.remove(new FacingEntry(facing))) {
-            data.write("Removed side " + facing.getName2());
-            data.markSuccess();
-            sides.serializeAll();
-          } else {
-            data.write(facing.getName2() + " doesn't exist");
-            data.markFailed();
-          }
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("remove")
+        .description("Remove side from the list")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              final String name = data.getArgumentAsString(0);
+              EnumFacing facing = getBestFacingMatch(name);
+              
+              if ("all".equalsIgnoreCase(name)) {
+                sides.clear();
+                data.write("Removed all sides");
+                data.markSuccess();
+                sides.serializeAll();
+              } else if (sides.remove(new FacingEntry(facing))) {
+                data.write("Removed side " + facing.getName2());
+                data.markSuccess();
+                sides.serializeAll();
+              } else {
+                data.write(facing.getName2() + " doesn't exist");
+                data.markFailed();
+              }
+            })
+        .build();
     
     sides
-      .builders()
-      .newCommandBuilder()
-      .name("list")
-      .description("List all the current added sides")
-      .processor(
-        data -> {
-          data.write(
-            "Sides: "
-              + sides
-              .stream()
-              .map(FacingEntry::getFacing)
-              .map(EnumFacing::getName2)
-              .collect(Collectors.joining(", ")));
-          data.markSuccess();
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("list")
+        .description("List all the current added sides")
+        .processor(
+            data -> {
+              data.write(
+                  "Sides: "
+                      + sides
+                      .stream()
+                      .map(FacingEntry::getFacing)
+                      .map(EnumFacing::getName2)
+                      .collect(Collectors.joining(", ")));
+              data.markSuccess();
+            })
+        .build();
     
     config
-      .builders()
-      .newCommandBuilder()
-      .name("save")
-      .description("Save current setup")
-      .requiredArgs(1)
-      .processor(
-        data -> {
-          String name = data.getArgumentAsString(0);
-      
-          if (config.get(name) == null) {
-            PlaceConfigEntry entry = new PlaceConfigEntry(name);
-            entry.setSides(
-              this.sides.stream().map(FacingEntry::getFacing).collect(Collectors.toSet()));
-            entry.setTargets(this.targets);
-            entry.setSelection(this.selectedItem);
-            entry.setWhitelist(this.whitelist.get());
-            entry.setUse(this.check_neighbors.get());
-        
-            config.add(entry);
-            config.serializeAll();
-            data.write("Saved current config as " + name);
-            data.markSuccess();
-          } else {
-            data.write(name + " is already in check_neighbors!");
-            data.markFailed();
-          }
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("save")
+        .description("Save current setup")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              String name = data.getArgumentAsString(0);
+              
+              if (config.get(name) == null) {
+                PlaceConfigEntry entry = new PlaceConfigEntry(name);
+                entry.setSides(
+                    this.sides.stream().map(FacingEntry::getFacing).collect(Collectors.toSet()));
+                entry.setTargets(this.targets);
+                entry.setSelection(this.selectedItem);
+                entry.setWhitelist(this.whitelist.get());
+                entry.setUse(this.check_neighbors.get());
+                
+                config.add(entry);
+                config.serializeAll();
+                data.write("Saved current config as " + name);
+                data.markSuccess();
+              } else {
+                data.write(name + " is already in check_neighbors!");
+                data.markFailed();
+              }
+            })
+        .build();
     
     config
-      .builders()
-      .newCommandBuilder()
-      .name("load")
-      .description("Load config")
-      .requiredArgs(1)
-      .processor(
-        data -> {
-          String name = data.getArgumentAsString(0);
-      
-          PlaceConfigEntry entry = config.get(name);
-          if (entry != null) {
-            data.write(name + " loaded");
-            resetTask =
-              () -> {
-                this.targets.clear();
-                this.targets.addAll(entry.getTargets());
-            
-                this.sides.clear();
-                this.sides.addAll(
-                  entry
-                    .getSides()
-                    .stream()
-                    .map(FacingEntry::new)
-                    .collect(Collectors.toSet()));
-            
-                this.selectedItem = entry.getSelection();
-            
-                this.whitelist.set(entry.isWhitelist());
-                this.check_neighbors.set(entry.isUse());
-            
-                this.stage = Stage.CONFIRM;
-            
-                this.getCommandStub().serializeAll();
-              };
-            this.resetToggle.set(true);
-          } else {
-            data.write(name + " doesn't exist!");
-            data.markFailed();
-          }
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("load")
+        .description("Load config")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              String name = data.getArgumentAsString(0);
+              
+              PlaceConfigEntry entry = config.get(name);
+              if (entry != null) {
+                data.write(name + " loaded");
+                resetTask =
+                    () -> {
+                      this.targets.clear();
+                      this.targets.addAll(entry.getTargets());
+                      
+                      this.sides.clear();
+                      this.sides.addAll(
+                          entry
+                              .getSides()
+                              .stream()
+                              .map(FacingEntry::new)
+                              .collect(Collectors.toSet()));
+                      
+                      this.selectedItem = entry.getSelection();
+                      
+                      this.whitelist.set(entry.isWhitelist());
+                      this.check_neighbors.set(entry.isUse());
+                      
+                      this.stage = Stage.CONFIRM;
+                      
+                      this.getCommandStub().serializeAll();
+                    };
+                this.resetToggle.set(true);
+              } else {
+                data.write(name + " doesn't exist!");
+                data.markFailed();
+              }
+            })
+        .build();
     
     config
-      .builders()
-      .newCommandBuilder()
-      .name("delete")
-      .description("Delete a configuration")
-      .requiredArgs(1)
-      .processor(
-        data -> {
-          String name = data.getArgumentAsString(0);
-      
-          if (config.remove(new PlaceConfigEntry(name))) {
-            config.serializeAll();
-            data.write("Deleted config " + name);
-            data.markSuccess();
-          } else {
-            data.write(name + " doesn't exist!");
-            data.markFailed();
-          }
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("delete")
+        .description("Delete a configuration")
+        .requiredArgs(1)
+        .processor(
+            data -> {
+              String name = data.getArgumentAsString(0);
+              
+              if (config.remove(new PlaceConfigEntry(name))) {
+                config.serializeAll();
+                data.write("Deleted config " + name);
+                data.markSuccess();
+              } else {
+                data.write(name + " doesn't exist!");
+                data.markFailed();
+              }
+            })
+        .build();
     
     config
-      .builders()
-      .newCommandBuilder()
-      .name("list")
-      .description("List all the current configs")
-      .processor(
-        data -> {
-          data.write(
-            "Configs: "
-              + config
-              .stream()
-              .map(PlaceConfigEntry::getName)
-              .collect(Collectors.joining(", ")));
-          data.markSuccess();
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("list")
+        .description("List all the current configs")
+        .processor(
+            data -> {
+              data.write(
+                  "Configs: "
+                      + config
+                      .stream()
+                      .map(PlaceConfigEntry::getName)
+                      .collect(Collectors.joining(", ")));
+              data.markSuccess();
+            })
+        .build();
   }
   
   @Override
@@ -536,24 +536,24 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     tessellator.setTranslation(0, 0, 0);
     
     renderingBlocks.forEach(
-      pos -> {
-        IBlockState state = getWorld().getBlockState(pos);
-        AxisAlignedBB bb = state.getBoundingBox(getWorld(), pos);
-        tessellator.setTranslation(
-          (double) pos.getX() - event.getRenderPos().x,
-          (double) pos.getY() - event.getRenderPos().y,
-          (double) pos.getZ() - event.getRenderPos().z);
-        GeometryTessellator.drawLines(
-          builder,
-          bb.minX,
-          bb.minY,
-          bb.minZ,
-          bb.maxX,
-          bb.maxY,
-          bb.maxZ,
-          GeometryMasks.Line.ALL,
-          Colors.GREEN.setAlpha(150).toBuffer());
-      });
+        pos -> {
+          IBlockState state = getWorld().getBlockState(pos);
+          AxisAlignedBB bb = state.getBoundingBox(getWorld(), pos);
+          tessellator.setTranslation(
+              (double) pos.getX() - event.getRenderPos().x,
+              (double) pos.getY() - event.getRenderPos().y,
+              (double) pos.getZ() - event.getRenderPos().z);
+          GeometryTessellator.drawLines(
+              builder,
+              bb.minX,
+              bb.minY,
+              bb.minZ,
+              bb.maxX,
+              bb.maxY,
+              bb.maxZ,
+              GeometryMasks.Line.ALL,
+              Colors.GREEN.setAlpha(150).toBuffer());
+        });
     
     // poz
     final BlockPos current = this.currentRenderingTarget;
@@ -562,19 +562,19 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       IBlockState state = getWorld().getBlockState(current);
       AxisAlignedBB bb = state.getBoundingBox(getWorld(), current);
       tessellator.setTranslation(
-        (double) current.getX() - event.getRenderPos().x,
-        (double) current.getY() - event.getRenderPos().y,
-        (double) current.getZ() - event.getRenderPos().z);
+          (double) current.getX() - event.getRenderPos().x,
+          (double) current.getY() - event.getRenderPos().y,
+          (double) current.getZ() - event.getRenderPos().z);
       GeometryTessellator.drawLines(
-        builder,
-        bb.minX,
-        bb.minY,
-        bb.minZ,
-        bb.maxX,
-        bb.maxY,
-        bb.maxZ,
-        GeometryMasks.Line.ALL,
-        Colors.RED.setAlpha(150).toBuffer());
+          builder,
+          bb.minX,
+          bb.minY,
+          bb.minZ,
+          bb.maxX,
+          bb.maxY,
+          bb.maxZ,
+          GeometryMasks.Line.ALL,
+          Colors.RED.setAlpha(150).toBuffer());
     }
     
     tessellator.draw();
@@ -642,8 +642,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       case SELECT_REPLACEMENT: {
         if (printToggle.compareAndSet(false, true)) {
           printInform(
-            "Hover over the block in your hot bar you want to place and press %s to select",
-            BindingHelper.getIndexName(bindSelect));
+              "Hover over the block in your hot bar you want to place and press %s to select",
+              BindingHelper.getIndexName(bindSelect));
         }
         
         if (bindSelect.isKeyDown() && bindSelectToggle.compareAndSet(false, true)) {
@@ -655,14 +655,14 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           }
           
           this.selectedItem =
-            new ItemStack(selected.getItem(), 1, selected.getItemStack().getMetadata());
+              new ItemStack(selected.getItem(), 1, selected.getItemStack().getMetadata());
           
           printInform(
-            "Selected item %s",
-            this.selectedItem.getItem().getRegistryName().toString()
-              + "{"
-              + this.selectedItem.getMetadata()
-              + "}");
+              "Selected item %s",
+              this.selectedItem.getItem().getRegistryName().toString()
+                  + "{"
+                  + this.selectedItem.getMetadata()
+                  + "}");
           
           stage = Stage.CONFIRM;
           printToggle.set(false);
@@ -674,13 +674,13 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       case CONFIRM: {
         if (printToggle.compareAndSet(false, true)) {
           printInform(
-            "Press %s to begin, or '.%s info' to set the current settings",
-            BindingHelper.getIndexName(bindFinish), getModName());
+              "Press %s to begin, or '.%s info' to set the current settings",
+              BindingHelper.getIndexName(bindFinish), getModName());
         }
         
         if (bindFinish.isKeyDown()
-          && selectedItem != null
-          && bindFinishToggle.compareAndSet(false, true)) {
+            && selectedItem != null
+            && bindFinishToggle.compareAndSet(false, true)) {
           printInform("Block place process started");
           printInform("Type '.%s reset' to restart the process", getModName());
           stage = Stage.READY;
@@ -718,16 +718,16 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     }
     
     InvItem items =
-      LocalPlayerInventory.getHotbarInventory()
-        .stream()
-        .filter(InvItem::nonNull)
-        .filter(inv -> inv.getItem().equals(selectedItem.getItem()))
-        .filter(
-          item ->
-            !(item.getItem() instanceof ItemBlock)
-              || item.getItemStack().getMetadata() == selectedItem.getMetadata())
-        .findFirst()
-        .orElse(InvItem.EMPTY);
+        LocalPlayerInventory.getHotbarInventory()
+            .stream()
+            .filter(InvItem::nonNull)
+            .filter(inv -> inv.getItem().equals(selectedItem.getItem()))
+            .filter(
+                item ->
+                    !(item.getItem() instanceof ItemBlock)
+                        || item.getItemStack().getMetadata() == selectedItem.getMetadata())
+            .findFirst()
+            .orElse(InvItem.EMPTY);
     
     if (items.isNull()) {
       return;
@@ -735,23 +735,23 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     
     final Vec3d eyes = LocalPlayerUtils.getEyePos();
     final Vec3d dir =
-      client_angles.get()
-        ? LocalPlayerUtils.getDirectionVector()
-        : LocalPlayerUtils.getServerDirectionVector();
+        client_angles.get()
+            ? LocalPlayerUtils.getDirectionVector()
+            : LocalPlayerUtils.getServerDirectionVector();
     
     List<UniqueBlock> blocks =
-      BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
-        .stream()
-        .filter(pos -> !getWorld().isAirBlock(pos))
-        .map(BlockHelper::newUniqueBlock)
-        .filter(this::isValidBlock)
-        .filter(this::isClickable)
-        .sorted(
-          Comparator.comparingDouble(
-            info ->
-              VectorUtils.getCrosshairDistance(
-                eyes, dir, BlockHelper.getOBBCenter(info.getPos()))))
-        .collect(Collectors.toList());
+        BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
+            .stream()
+            .filter(pos -> !getWorld().isAirBlock(pos))
+            .map(BlockHelper::newUniqueBlock)
+            .filter(this::isValidBlock)
+            .filter(this::isClickable)
+            .sorted(
+                Comparator.comparingDouble(
+                    info ->
+                        VectorUtils.getCrosshairDistance(
+                            eyes, dir, BlockHelper.getOBBCenter(info.getPos()))))
+            .collect(Collectors.toList());
     
     if (blocks.isEmpty()) {
       return;
@@ -774,32 +774,32 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       final UniqueBlock at = blocks.get(index++);
       if (!check_neighbors.get()) {
         trace =
-          sides
-            .stream()
-            .map(FacingEntry::getFacing)
-            .map(side -> BlockHelper.getBlockSideTrace(eyes, at.getPos(), side.getOpposite()))
-            .filter(Objects::nonNull)
-            .filter(tr -> tr.isPlaceable(items))
-            .max(
-              Comparator.comparing(BlockTraceInfo::isSneakRequired)
-                .thenComparing(
-                  i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
-            .orElse(null);
+            sides
+                .stream()
+                .map(FacingEntry::getFacing)
+                .map(side -> BlockHelper.getBlockSideTrace(eyes, at.getPos(), side.getOpposite()))
+                .filter(Objects::nonNull)
+                .filter(tr -> tr.isPlaceable(items))
+                .max(
+                    Comparator.comparing(BlockTraceInfo::isSneakRequired)
+                        .thenComparing(
+                            i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
+                .orElse(null);
       } else {
         trace =
-          sides
-            .stream()
-            .map(FacingEntry::getFacing)
-            .map(
-              side ->
-                BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().offset(side)))
-            .filter(Objects::nonNull)
-            .filter(tr -> tr.isPlaceable(items))
-            .max(
-              Comparator.comparing(BlockTraceInfo::isSneakRequired)
-                .thenComparing(
-                  i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
-            .orElse(null);
+            sides
+                .stream()
+                .map(FacingEntry::getFacing)
+                .map(
+                    side ->
+                        BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().offset(side)))
+                .filter(Objects::nonNull)
+                .filter(tr -> tr.isPlaceable(items))
+                .max(
+                    Comparator.comparing(BlockTraceInfo::isSneakRequired)
+                        .thenComparing(
+                            i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
+                .orElse(null);
       }
     } while (trace == null);
     
@@ -817,151 +817,151 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     
     final BlockTraceInfo tr = trace;
     state.invokeLater(
-      rs -> {
-        ResetFunction func = LocalPlayerInventory.setSelected(items);
-    
-        boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
-        if (sneak) {
-          // send start sneaking packet
-          PacketHelper.ignoreAndSend(
-            new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
-      
-          LocalPlayerUtils.setSneakingSuppression(true);
-          LocalPlayerUtils.setSneaking(true);
-        }
-    
-        getPlayerController()
-          .processRightClickBlock(
-            getLocalPlayer(),
-            getWorld(),
-            tr.getPos(),
-            tr.getOppositeSide(),
-            tr.getHitVec(),
-            EnumHand.MAIN_HAND);
-    
-        // stealth send swing packet
-        getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
-    
-        if (sneak) {
-          LocalPlayerUtils.setSneaking(false);
-          LocalPlayerUtils.setSneakingSuppression(false);
-      
-          getNetworkManager()
-            .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
-        }
-    
-        func.revert();
-    
-        // set the block place delay
-        Fields.Minecraft_rightClickDelayTimer.set(MC, cooldown.get());
-      });
+        rs -> {
+          ResetFunction func = LocalPlayerInventory.setSelected(items);
+          
+          boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
+          if (sneak) {
+            // send start sneaking packet
+            PacketHelper.ignoreAndSend(
+                new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
+            
+            LocalPlayerUtils.setSneakingSuppression(true);
+            LocalPlayerUtils.setSneaking(true);
+          }
+          
+          getPlayerController()
+              .processRightClickBlock(
+                  getLocalPlayer(),
+                  getWorld(),
+                  tr.getPos(),
+                  tr.getOppositeSide(),
+                  tr.getHitVec(),
+                  EnumHand.MAIN_HAND);
+          
+          // stealth send swing packet
+          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+          
+          if (sneak) {
+            LocalPlayerUtils.setSneaking(false);
+            LocalPlayerUtils.setSneakingSuppression(false);
+            
+            getNetworkManager()
+                .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
+          }
+          
+          func.revert();
+          
+          // set the block place delay
+          Fields.Minecraft_rightClickDelayTimer.set(MC, cooldown.get());
+        });
   }
   
   private static class PlaceConfigEntry implements ISerializableJson {
-  
+    
     private final String name;
-  
+    
     private final List<UniqueBlock> targets = Lists.newArrayList();
     private final List<EnumFacing> sides = Lists.newArrayList();
     private ItemStack selection = ItemStack.EMPTY;
     private boolean use = false;
     private boolean whitelist = true;
-  
+    
     private PlaceConfigEntry(String name) {
       Objects.requireNonNull(name);
       this.name = name;
     }
-  
+    
     public String getName() {
       return name;
     }
-  
+    
     public List<UniqueBlock> getTargets() {
       return Collections.unmodifiableList(targets);
     }
-  
+    
     public void setTargets(Collection<UniqueBlock> list) {
       targets.clear();
       targets.addAll(
-        list.stream()
-          .filter(info -> !Blocks.AIR.equals(info.getBlock()))
-          .collect(Collectors.toSet())); // collect to set to eliminate duplicates
+          list.stream()
+              .filter(info -> !Blocks.AIR.equals(info.getBlock()))
+              .collect(Collectors.toSet())); // collect to set to eliminate duplicates
     }
-  
+    
     public List<EnumFacing> getSides() {
       return Collections.unmodifiableList(sides);
     }
-  
+    
     public void setSides(Collection<EnumFacing> list) {
       sides.clear();
       sides.addAll(Sets.newLinkedHashSet(list)); // copy to set to eliminate duplicates
     }
-  
+    
     public ItemStack getSelection() {
       return selection;
     }
-  
+    
     public void setSelection(ItemStack selection) {
       this.selection =
-        Optional.ofNullable(selection)
-          .filter(s -> !Items.AIR.equals(s.getItem()))
-          .orElse(ItemStack.EMPTY);
+          Optional.ofNullable(selection)
+              .filter(s -> !Items.AIR.equals(s.getItem()))
+              .orElse(ItemStack.EMPTY);
     }
-  
+    
     public boolean isUse() {
       return use;
     }
-  
+    
     public void setUse(boolean use) {
       this.use = use;
     }
-  
+    
     public boolean isWhitelist() {
       return whitelist;
     }
-  
+    
     public void setWhitelist(boolean whitelist) {
       this.whitelist = whitelist;
     }
-  
+    
     @Override
     public void serialize(JsonWriter writer) throws IOException {
       writer.beginObject();
-    
+      
       writer.name("selection");
       writer.beginObject();
       {
         writer.name("item");
         writer.value(getSelection().getItem().getRegistryName().toString());
-  
+        
         writer.name("metadata");
         writer.value(getSelection().getMetadata());
       }
       writer.endObject();
-    
+      
       writer.name("targets");
       writer.beginArray();
       {
         for (UniqueBlock info : getTargets()) {
           writer.beginObject();
-  
+          
           writer.name("block");
           writer.value(info.getBlock().getRegistryName().toString());
-  
+          
           writer.name("metadata");
           writer.value(info.getMetadata());
-  
+          
           writer.endObject();
         }
       }
       writer.endArray();
-    
+      
       writer.name("use");
       writer.value(isUse());
-    
+      
       writer.name("whitelist");
       writer.value(isWhitelist());
-    
+      
       writer.name("sides");
       writer.beginArray();
       {
@@ -970,51 +970,51 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         }
       }
       writer.endArray();
-    
+      
       writer.endObject();
     }
-  
+    
     @Override
     public void deserialize(JsonReader reader) throws IOException {
       reader.beginObject();
-    
+      
       while (reader.hasNext()) {
         switch (reader.nextName()) {
           case "selection": {
             reader.beginObject();
-    
+            
             reader.nextName();
             Item item = ItemSword.getByNameOrId(reader.nextString());
-    
+            
             reader.nextName();
             int meta = reader.nextInt();
-    
+            
             setSelection(new ItemStack(MoreObjects.firstNonNull(item, Items.AIR), 1, meta));
-    
+            
             reader.endObject();
             break;
           }
           case "targets": {
             reader.beginArray();
-    
+            
             List<UniqueBlock> blocks = Lists.newArrayList();
             while (reader.hasNext()) {
               reader.beginObject();
-      
+              
               // block
               reader.nextName();
               Block block = Block.getBlockFromName(reader.nextString());
-      
+              
               // metadata
               reader.nextName();
               int meta = reader.nextInt();
-      
+              
               blocks.add(BlockHelper.newUniqueBlock(block, meta));
-      
+              
               reader.endObject();
             }
             setTargets(blocks);
-    
+            
             reader.endArray();
             break;
           }
@@ -1028,16 +1028,16 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           }
           case "sides": {
             reader.beginArray();
-    
+            
             List<EnumFacing> sides = Lists.newArrayList();
             while (reader.hasNext()) {
               sides.add(
-                Optional.ofNullable(reader.nextString())
-                  .map(EnumFacing::byName)
-                  .orElse(EnumFacing.UP));
+                  Optional.ofNullable(reader.nextString())
+                      .map(EnumFacing::byName)
+                      .orElse(EnumFacing.UP));
             }
             setSides(sides);
-    
+            
             reader.endArray();
             break;
           }
@@ -1046,18 +1046,18 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             break;
         }
       }
-    
+      
       reader.endObject();
     }
-  
+    
     @Override
     public boolean equals(Object obj) {
       return this == obj
-        || (obj instanceof PlaceConfigEntry
-        && getName().equalsIgnoreCase(((PlaceConfigEntry) obj).getName()))
-        || (obj instanceof String && getName().equalsIgnoreCase((String) obj));
+          || (obj instanceof PlaceConfigEntry
+          && getName().equalsIgnoreCase(((PlaceConfigEntry) obj).getName()))
+          || (obj instanceof String && getName().equalsIgnoreCase((String) obj));
     }
-  
+    
     @Override
     public String toString() {
       return name;

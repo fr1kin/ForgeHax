@@ -37,8 +37,8 @@ public class StorageESPMod extends ToggleMod {
   
   private int getTileEntityColor(TileEntity tileEntity) {
     if (tileEntity instanceof TileEntityChest
-      || tileEntity instanceof TileEntityDispenser
-      || tileEntity instanceof TileEntityShulkerBox) {
+        || tileEntity instanceof TileEntityDispenser
+        || tileEntity instanceof TileEntityShulkerBox) {
       return Colors.ORANGE.toBuffer();
     } else if (tileEntity instanceof TileEntityEnderChest) {
       return Colors.PURPLE.toBuffer();
@@ -55,7 +55,7 @@ public class StorageESPMod extends ToggleMod {
     if (entity instanceof EntityMinecartChest) {
       return Colors.ORANGE.toBuffer();
     } else if (entity instanceof EntityItemFrame
-      && ((EntityItemFrame) entity).getDisplayedItem().getItem() instanceof ItemShulkerBox) {
+        && ((EntityItemFrame) entity).getDisplayedItem().getItem() instanceof ItemShulkerBox) {
       return Colors.YELLOW.toBuffer();
     } else {
       return -1;
@@ -65,10 +65,10 @@ public class StorageESPMod extends ToggleMod {
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-  
+    
     for (TileEntity tileEntity : getWorld().loadedTileEntityList) {
       BlockPos pos = tileEntity.getPos();
-    
+      
       int color = getTileEntityColor(tileEntity);
       if (color != -1) {
         GeometryTessellator.drawCuboid(event.getBuffer(), pos, GeometryMasks.Line.ALL, color);
@@ -80,10 +80,10 @@ public class StorageESPMod extends ToggleMod {
       int color = getEntityColor(entity);
       if (color != -1) {
         GeometryTessellator.drawCuboid(
-          event.getBuffer(),
-          entity instanceof EntityItemFrame ? pos.add(0, -1, 0) : pos,
-          GeometryMasks.Line.ALL,
-          color);
+            event.getBuffer(),
+            entity instanceof EntityItemFrame ? pos.add(0, -1, 0) : pos,
+            GeometryMasks.Line.ALL,
+            color);
       }
     }
     

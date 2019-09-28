@@ -8,17 +8,17 @@ import net.minecraftforge.client.settings.IKeyConflictContext;
 public class KeyBindingHandler implements Globals {
   
   private static final IKeyConflictContext OVERRIDE_KEYCONFLICT_CONTEXT =
-    new IKeyConflictContext() {
-      @Override
-      public boolean isActive() {
-        return true;
-      }
-      
-      @Override
-      public boolean conflicts(IKeyConflictContext other) {
-        return false;
-      }
-    };
+      new IKeyConflictContext() {
+        @Override
+        public boolean isActive() {
+          return true;
+        }
+        
+        @Override
+        public boolean conflicts(IKeyConflictContext other) {
+          return false;
+        }
+      };
   
   private final KeyBinding binding;
   

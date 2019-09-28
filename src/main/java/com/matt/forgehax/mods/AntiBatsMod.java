@@ -19,22 +19,22 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AntiBatsMod extends ToggleMod {
   
   private static final MobType BATS_MOBTYPE =
-    new MobType() {
-      @Override
-      protected PriorityEnum getPriority() {
-        return PriorityEnum.LOW;
-      }
-      
-      @Override
-      public boolean isMobType(Entity entity) {
-        return entity instanceof EntityBat;
-      }
-      
-      @Override
-      protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
-        return MobTypeEnum.INVALID;
-      }
-    };
+      new MobType() {
+        @Override
+        protected PriorityEnum getPriority() {
+          return PriorityEnum.LOW;
+        }
+        
+        @Override
+        public boolean isMobType(Entity entity) {
+          return entity instanceof EntityBat;
+        }
+        
+        @Override
+        protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
+          return MobTypeEnum.INVALID;
+        }
+      };
   
   public AntiBatsMod() {
     super(Category.RENDER, "AntiBats", false, "666 KILL BATS 666");
@@ -62,10 +62,10 @@ public class AntiBatsMod extends ToggleMod {
   @SubscribeEvent
   public void onPlaySound(PlaySoundAtEntityEvent event) {
     if (event.getSound().equals(SoundEvents.ENTITY_BAT_AMBIENT)
-      || event.getSound().equals(SoundEvents.ENTITY_BAT_DEATH)
-      || event.getSound().equals(SoundEvents.ENTITY_BAT_HURT)
-      || event.getSound().equals(SoundEvents.ENTITY_BAT_LOOP)
-      || event.getSound().equals(SoundEvents.ENTITY_BAT_TAKEOFF)) {
+        || event.getSound().equals(SoundEvents.ENTITY_BAT_DEATH)
+        || event.getSound().equals(SoundEvents.ENTITY_BAT_HURT)
+        || event.getSound().equals(SoundEvents.ENTITY_BAT_LOOP)
+        || event.getSound().equals(SoundEvents.ENTITY_BAT_TAKEOFF)) {
       event.setVolume(0.f);
       event.setPitch(0.f);
       event.setCanceled(true);

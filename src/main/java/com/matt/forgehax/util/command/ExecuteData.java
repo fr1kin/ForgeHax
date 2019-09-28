@@ -120,7 +120,6 @@ public class ExecuteData implements Globals, ConsoleWriter {
       try {
         return options.valuesOf(name);
       } catch (Throwable t) {
-        ;
       }
     }
     return Collections.emptyList();

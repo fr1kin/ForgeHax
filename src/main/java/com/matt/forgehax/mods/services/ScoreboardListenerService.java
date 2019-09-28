@@ -30,34 +30,34 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
  */
 @RegisterMod
 public class ScoreboardListenerService extends ServiceMod {
-
+  
   private final Setting<Integer> wait =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("wait")
-      .description("Time to wait after joining world")
-      .defaultTo(5000)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("wait")
+          .description("Time to wait after joining world")
+          .defaultTo(5000)
+          .build();
   private final Setting<Integer> retries =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("retries")
-      .description("Number of times to attempt retries on failure")
-      .defaultTo(1)
-      .build();
-
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("retries")
+          .description("Number of times to attempt retries on failure")
+          .defaultTo(1)
+          .build();
+  
   private final SimpleTimer timer = new SimpleTimer();
-
+  
   private boolean ignore = false;
-
+  
   public ScoreboardListenerService() {
     super("ScoreboardListenerService", "Listens for player joining and leaving");
   }
-
+  
   private void fireEvents(
-    SPacketPlayerListItem.Action action, PlayerInfo info, GameProfile profile) {
+      SPacketPlayerListItem.Action action, PlayerInfo info, GameProfile profile) {
     if (ignore || info == null) {
       return;
     }
@@ -72,23 +72,23 @@ public class ScoreboardListenerService extends ServiceMod {
       }
     }
   }
-
+  
   @SubscribeEvent
   public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
     ignore = false;
   }
-
+  
   @SubscribeEvent
   public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
     ignore = false;
   }
-
+  
   @SubscribeEvent
   public void onPacketIn(PacketEvent.Incoming.Pre event) {
     if (ignore && timer.isStarted() && timer.hasTimeElapsed(wait.get())) {
       ignore = false;
     }
-
+    
     if (!ignore && event.getPacket() instanceof SPacketCustomPayload) {
       ignore = true;
       timer.start();
@@ -97,59 +97,59 @@ public class ScoreboardListenerService extends ServiceMod {
       timer.reset();
     }
   }
-
+  
   @SubscribeEvent
   public void onScoreboardEvent(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketPlayerListItem) {
-      final SPacketPlayerListItem packet = (SPacketPlayerListItem) event.getPacket();
+      final SPacketPlayerListItem packet = event.getPacket();
       if (!Action.ADD_PLAYER.equals(packet.getAction())
-        && !Action.REMOVE_PLAYER.equals(packet.getAction())) {
+          && !Action.REMOVE_PLAYER.equals(packet.getAction())) {
         return;
       }
-
+      
       packet
-        .getEntries()
-        .stream()
-        .filter(Objects::nonNull)
-        .filter(
-          data ->
-            !Strings.isNullOrEmpty(data.getProfile().getName())
-              || data.getProfile().getId() != null)
-        .forEach(
-          data -> {
-            final String name = data.getProfile().getName();
-            final UUID id = data.getProfile().getId();
-            final AtomicInteger retries = new AtomicInteger(this.retries.get());
-            PlayerInfoHelper.registerWithCallback(
-              id,
-              name,
-              new FutureCallback<PlayerInfo>() {
-                @Override
-                public void onSuccess(@Nullable PlayerInfo result) {
-                  fireEvents(packet.getAction(), result, data.getProfile());
-                }
-          
-                @Override
-                public void onFailure(Throwable t) {
-                  if (retries.getAndDecrement() > 0) {
-                    getLog()
-                      .warn(
-                        "Failed to lookup "
-                          + name
-                          + "/"
-                          + id.toString()
-                          + ", retrying ("
-                          + retries.get()
-                          + ")...");
-                    PlayerInfoHelper.registerWithCallback(
-                      data.getProfile().getId(), name, this);
-                  } else {
-                    t.printStackTrace();
-                    PlayerInfoHelper.generateOfflineWithCallback(name, this);
-                  }
-                }
+          .getEntries()
+          .stream()
+          .filter(Objects::nonNull)
+          .filter(
+              data ->
+                  !Strings.isNullOrEmpty(data.getProfile().getName())
+                      || data.getProfile().getId() != null)
+          .forEach(
+              data -> {
+                final String name = data.getProfile().getName();
+                final UUID id = data.getProfile().getId();
+                final AtomicInteger retries = new AtomicInteger(this.retries.get());
+                PlayerInfoHelper.registerWithCallback(
+                    id,
+                    name,
+                    new FutureCallback<PlayerInfo>() {
+                      @Override
+                      public void onSuccess(@Nullable PlayerInfo result) {
+                        fireEvents(packet.getAction(), result, data.getProfile());
+                      }
+                      
+                      @Override
+                      public void onFailure(Throwable t) {
+                        if (retries.getAndDecrement() > 0) {
+                          getLog()
+                              .warn(
+                                  "Failed to lookup "
+                                      + name
+                                      + "/"
+                                      + id.toString()
+                                      + ", retrying ("
+                                      + retries.get()
+                                      + ")...");
+                          PlayerInfoHelper.registerWithCallback(
+                              data.getProfile().getId(), name, this);
+                        } else {
+                          t.printStackTrace();
+                          PlayerInfoHelper.generateOfflineWithCallback(name, this);
+                        }
+                      }
+                    });
               });
-          });
     }
   }
 }

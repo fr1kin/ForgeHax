@@ -10,16 +10,16 @@ public class ItemStoppedUsedEvent extends Event {
   
   private final PlayerControllerMP playerController;
   private final EntityPlayer player;
-
+  
   public ItemStoppedUsedEvent(PlayerControllerMP playerController, EntityPlayer player) {
     this.playerController = playerController;
     this.player = player;
   }
-
+  
   public PlayerControllerMP getPlayerController() {
     return playerController;
   }
-
+  
   public EntityPlayer getPlayer() {
     return player;
   }

@@ -96,17 +96,17 @@ public class MarkersRenderGlobal extends RenderGlobal implements Globals {
   
   @Override
   public void setupTerrain(
-    Entity viewEntity,
-    double partialTicks,
-    ICamera camera,
-    int frameCount,
-    boolean playerSpectator) {
+      Entity viewEntity,
+      double partialTicks,
+      ICamera camera,
+      int frameCount,
+      boolean playerSpectator) {
     super.setupTerrain(viewEntity, partialTicks, camera, frameCount, playerSpectator);
   }
   
   @Override
   public int renderBlockLayer(
-    BlockRenderLayer blockLayerIn, double partialTicks, int pass, Entity entityIn) {
+      BlockRenderLayer blockLayerIn, double partialTicks, int pass, Entity entityIn) {
     return super.renderBlockLayer(blockLayerIn, partialTicks, pass, entityIn);
   }
   
@@ -122,7 +122,7 @@ public class MarkersRenderGlobal extends RenderGlobal implements Globals {
   
   @Override
   public void renderClouds(
-    float partialTicks, int pass, double p_180447_3_, double p_180447_5_, double p_180447_7_) {
+      float partialTicks, int pass, double p_180447_3_, double p_180447_5_, double p_180447_7_) {
     super.renderClouds(partialTicks, pass, p_180447_3_, p_180447_5_, p_180447_7_);
   }
   
@@ -143,22 +143,22 @@ public class MarkersRenderGlobal extends RenderGlobal implements Globals {
   
   @Override
   public void drawBlockDamageTexture(
-    Tessellator tessellatorIn,
-    BufferBuilder worldRendererIn,
-    Entity entityIn,
-    float partialTicks) {
+      Tessellator tessellatorIn,
+      BufferBuilder worldRendererIn,
+      Entity entityIn,
+      float partialTicks) {
     super.drawBlockDamageTexture(tessellatorIn, worldRendererIn, entityIn, partialTicks);
   }
   
   @Override
   public void drawSelectionBox(
-    EntityPlayer player, RayTraceResult movingObjectPositionIn, int execute, float partialTicks) {
+      EntityPlayer player, RayTraceResult movingObjectPositionIn, int execute, float partialTicks) {
     super.drawSelectionBox(player, movingObjectPositionIn, execute, partialTicks);
   }
   
   @Override
   public void notifyBlockUpdate(
-    World worldIn, BlockPos pos, IBlockState oldState, IBlockState newState, int flags) {
+      World worldIn, BlockPos pos, IBlockState oldState, IBlockState newState, int flags) {
     super.notifyBlockUpdate(worldIn, pos, oldState, newState, flags);
   }
   
@@ -177,29 +177,29 @@ public class MarkersRenderGlobal extends RenderGlobal implements Globals {
   
   @Override
   public void playSoundToAllNearExcept(
-    @Nullable EntityPlayer player,
-    SoundEvent soundIn,
-    SoundCategory category,
-    double x,
-    double y,
-    double z,
-    float volume,
-    float pitch) {
+      @Nullable EntityPlayer player,
+      SoundEvent soundIn,
+      SoundCategory category,
+      double x,
+      double y,
+      double z,
+      float volume,
+      float pitch) {
     super.playSoundToAllNearExcept(player, soundIn, category, x, y, z, volume, pitch);
   }
   
   @Override
   public void spawnParticle(
-    int id,
-    boolean ignoreRange,
-    boolean p_190570_3_,
-    double x,
-    double y,
-    double z,
-    double xSpeed,
-    double ySpeed,
-    double zSpeed,
-    int... parameters) {
+      int id,
+      boolean ignoreRange,
+      boolean p_190570_3_,
+      double x,
+      double y,
+      double z,
+      double xSpeed,
+      double ySpeed,
+      double zSpeed,
+      int... parameters) {
     super.spawnParticle(id, ignoreRange, p_190570_3_, x, y, z, xSpeed, ySpeed, zSpeed, parameters);
   }
   
@@ -245,7 +245,7 @@ public class MarkersRenderGlobal extends RenderGlobal implements Globals {
   
   @Override
   public void updateTileEntities(
-    Collection<TileEntity> tileEntitiesToRemove, Collection<TileEntity> tileEntitiesToAdd) {
+      Collection<TileEntity> tileEntitiesToRemove, Collection<TileEntity> tileEntitiesToAdd) {
     super.updateTileEntities(tileEntitiesToRemove, tileEntitiesToAdd);
   }
 }

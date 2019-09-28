@@ -49,14 +49,14 @@ public abstract class AbstractClassLoader<E> {
    */
   @SuppressWarnings("unchecked")
   public Collection<Class<? extends E>> filterClassPaths(
-    ClassLoader classLoader, Collection<Path> classPaths) throws IOException {
+      ClassLoader classLoader, Collection<Path> classPaths) throws IOException {
     return ClassLoaderHelper.getLoadedClasses(classLoader, classPaths)
-      .stream()
-      .filter(this::checkAnnotation)
-      .filter(this::checkInheritedClass)
-      .map(this::wildCast)
-      .filter(this::valid)
-      .collect(Collectors.toList());
+        .stream()
+        .filter(this::checkAnnotation)
+        .filter(this::checkInheritedClass)
+        .map(this::wildCast)
+        .filter(this::valid)
+        .collect(Collectors.toList());
   }
   
   /**
@@ -84,19 +84,19 @@ public abstract class AbstractClassLoader<E> {
     try {
       return clazz.getDeclaredConstructor().newInstance();
     } catch (InstantiationException
-      | IllegalAccessException
-      | InvocationTargetException
-      | NoSuchMethodException e) {
+        | IllegalAccessException
+        | InvocationTargetException
+        | NoSuchMethodException e) {
       getLog()
-        .error(
-          "Failed to initialize class "
-            + clazz.getSimpleName()
-            + ": "
-            + e.getClass().getSimpleName()
-            + " - "
-            + e.getMessage()
-            + " - caused by: "
-            + e.getCause());
+          .error(
+              "Failed to initialize class "
+                  + clazz.getSimpleName()
+                  + ": "
+                  + e.getClass().getSimpleName()
+                  + " - "
+                  + e.getMessage()
+                  + " - caused by: "
+                  + e.getCause());
       e.printStackTrace();
       return null;
     }

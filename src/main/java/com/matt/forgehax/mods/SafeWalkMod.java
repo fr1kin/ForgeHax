@@ -24,21 +24,21 @@ public class SafeWalkMod extends ToggleMod {
   }
   
   private final Setting<Boolean> collisions =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("collisions")
-      .description("Give air collision boxes")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("collisions")
+          .description("Give air collision boxes")
+          .defaultTo(false)
+          .build();
   private final Setting<Integer> min_height =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("min-height")
-      .description("Minimum height above ground for collisions")
-      .defaultTo(15)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("min-height")
+          .description("Minimum height above ground for collisions")
+          .defaultTo(15)
+          .build();
   
   @SubscribeEvent
   public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
@@ -47,13 +47,14 @@ public class SafeWalkMod extends ToggleMod {
     }
     
     if (getLocalPlayer() != null &&
-      (EntityUtils.isDrivenByPlayer(event.getEntity()) || event.getEntity() == getLocalPlayer())) {
+        (EntityUtils.isDrivenByPlayer(event.getEntity())
+            || event.getEntity() == getLocalPlayer())) {
       
       AxisAlignedBB axisalignedbb = new AxisAlignedBB(event.getPos()).shrink(0.3D);
       if (event.getEntityBox().intersects(axisalignedbb)) {
         if (isAbovePlayer(event.getPos()) &&
-          !hasCollisionBox(event.getPos()) &&
-          !isAboveBlock(event.getPos(), min_height.get())) {
+            !hasCollisionBox(event.getPos()) &&
+            !isAboveBlock(event.getPos(), min_height.get())) {
           
           event.getCollidingBoxes().add(axisalignedbb);
         }

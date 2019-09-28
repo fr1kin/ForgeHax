@@ -31,9 +31,9 @@ public class SchematicaPrinterBypass extends ToggleMod {
   public void onPrinterBlockPlace(SchematicaPlaceBlockEvent event) {
     Angle lookAngle = Utils.getLookAtAngles(event.getVec());
     getNetworkManager()
-      .sendPacket(
-        new CPacketPlayer.Rotation(
-          lookAngle.getYaw(), lookAngle.getPitch(), getLocalPlayer().onGround));
+        .sendPacket(
+            new CPacketPlayer.Rotation(
+                lookAngle.getYaw(), lookAngle.getPitch(), getLocalPlayer().onGround));
     // getLocalPlayer().rotationYaw = getLocalPlayer().prevRotationYaw = (float)lookAngle.getYaw();
     // getLocalPlayer().rotationPitch = getLocalPlayer().prevRotationPitch =
     // (float)lookAngle.getPitch();

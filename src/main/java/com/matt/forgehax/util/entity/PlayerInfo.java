@@ -57,8 +57,8 @@ public class PlayerInfo implements Globals, GsonConstant {
     ar.add(name);
     
     JsonArray array =
-      getResources(new URL("https://api.mojang.com/profiles/minecraft"), "POST", ar)
-        .getAsJsonArray();
+        getResources(new URL("https://api.mojang.com/profiles/minecraft"), "POST", ar)
+            .getAsJsonArray();
     JsonObject node = array.get(0).getAsJsonObject();
     
     UUID uuid = PlayerInfoHelper.getIdFromString(node.get("id").getAsString());
@@ -79,13 +79,13 @@ public class PlayerInfo implements Globals, GsonConstant {
   
   private static List<Name> lookupNames(UUID id) throws IOException {
     JsonArray array =
-      getResources(
-        new URL(
-          "https://api.mojang.com/user/profiles/"
-            + PlayerInfoHelper.getIdNoHyphens(id)
-            + "/names"),
-        "GET")
-        .getAsJsonArray();
+        getResources(
+            new URL(
+                "https://api.mojang.com/user/profiles/"
+                    + PlayerInfoHelper.getIdNoHyphens(id)
+                    + "/names"),
+            "GET")
+            .getAsJsonArray();
     List<Name> temp = Lists.newArrayList();
     for (JsonElement e : array) {
       JsonObject node = e.getAsJsonObject();
@@ -173,7 +173,7 @@ public class PlayerInfo implements Globals, GsonConstant {
   }
   
   private static JsonElement getResources(URL url, String request, JsonElement element)
-    throws IOException {
+      throws IOException {
     JsonElement data;
     HttpsURLConnection connection = null;
     try {
@@ -181,13 +181,13 @@ public class PlayerInfo implements Globals, GsonConstant {
       connection.setDoOutput(true);
       connection.setRequestMethod(request);
       connection.setRequestProperty("Content-Type", "application/json");
-  
+      
       if (element != null) {
         DataOutputStream output = new DataOutputStream(connection.getOutputStream());
         output.writeBytes(GSON.toJson(element));
         output.close();
       }
-  
+      
       Scanner scanner = new Scanner(connection.getInputStream());
       StringBuilder builder = new StringBuilder();
       while (scanner.hasNextLine()) {
@@ -195,7 +195,7 @@ public class PlayerInfo implements Globals, GsonConstant {
         builder.append('\n');
       }
       scanner.close();
-  
+      
       String json = builder.toString();
       data = PARSER.parse(json);
     } finally {
@@ -240,8 +240,8 @@ public class PlayerInfo implements Globals, GsonConstant {
     @Override
     public boolean equals(Object obj) {
       return obj instanceof Name
-        && name.equalsIgnoreCase(((Name) obj).getName())
-        && changedAt == ((Name) obj).changedAt;
+          && name.equalsIgnoreCase(((Name) obj).getName())
+          && changedAt == ((Name) obj).changedAt;
     }
     
     @Override

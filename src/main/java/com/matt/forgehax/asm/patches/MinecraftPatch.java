@@ -14,19 +14,19 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class MinecraftPatch extends ClassTransformer {
-
+  
   public MinecraftPatch() {
     super(Classes.Minecraft);
   }
-
+  
   @RegisterMethodTransformer
   public class SetIngameFocus extends MethodTransformer {
-
+    
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_setIngameFocus;
     }
-
+    
     @Inject(description = "Add callback before setting leftclick timer")
     public void inject(MethodNode method) {
       AbstractInsnNode node =
@@ -35,23 +35,23 @@ public class MinecraftPatch extends ClassTransformer {
           new int[]{SIPUSH, PUTFIELD, 0, 0, 0, RETURN},
           "xx???x");
       Objects.requireNonNull(node, "Failed to find SIPUSH node");
-
+      
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
-
+      
       method.instructions.insert(node, list);
     }
   }
-
+  
   @RegisterMethodTransformer
   public class RunTick extends MethodTransformer {
-  
+    
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_runTick;
     }
-
+    
     @Inject(description = "Add callback before setting leftclick timer")
     public void inject(MethodNode method) {
       AbstractInsnNode node =
@@ -74,23 +74,23 @@ public class MinecraftPatch extends ClassTransformer {
           },
           "xx???xxx??xxx");
       Objects.requireNonNull(node, "Failed to find SIPUSH node");
-
+      
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
-
+      
       method.instructions.insert(node, list);
     }
   }
-
+  
   @RegisterMethodTransformer
   public class SendClickBlockToController extends MethodTransformer {
-  
+    
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_sendClickBlockToController;
     }
-
+    
     @Inject(description = "Add hook to set left click")
     public void inject(MethodNode method) {
       InsnList list = new InsnList();
@@ -100,7 +100,7 @@ public class MinecraftPatch extends ClassTransformer {
         ASMHelper.call(
           INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendClickBlockToController));
       list.add(new VarInsnNode(ISTORE, 1));
-
+      
       method.instructions.insert(list);
     }
   }

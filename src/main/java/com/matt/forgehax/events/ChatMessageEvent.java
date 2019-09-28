@@ -15,7 +15,7 @@ public class ChatMessageEvent extends Event {
   }
   
   public static ChatMessageEvent newPrivateChat(
-    PlayerInfo sender, PlayerInfo receiver, String message) {
+      PlayerInfo sender, PlayerInfo receiver, String message) {
     return new ChatMessageEvent(sender, message, receiver);
   }
   

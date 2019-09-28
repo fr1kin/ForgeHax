@@ -44,151 +44,151 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
   
   private final Setting<Boolean> silent =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("silent")
-      .description("Wont look at target when aiming")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("silent")
+          .description("Wont look at target when aiming")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> auto_attack =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("auto-attack")
-      .description("Automatically attack when target found")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("auto-attack")
+          .description("Automatically attack when target found")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> hold_target =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("hold-target")
-      .description("Keep first caught target until it becomes no longer valid")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("hold-target")
+          .description("Keep first caught target until it becomes no longer valid")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Boolean> vis_check =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("trace")
-      .description("Check if the target is visible before acquiring")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("trace")
+          .description("Check if the target is visible before acquiring")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Boolean> target_players =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("target-players")
-      .description("Target players")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("target-players")
+          .description("Target players")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> target_mobs_hostile =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("target-hostile-mobs")
-      .description("Target hostile mobs")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("target-hostile-mobs")
+          .description("Target hostile mobs")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> target_mobs_friendly =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("target-friendly-mobs")
-      .description("Target friendly mobs")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("target-friendly-mobs")
+          .description("Target friendly mobs")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Boolean> lag_compensation =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("lag-compensation")
-      .description("Compensate for server lag")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("lag-compensation")
+          .description("Compensate for server lag")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Integer> fov =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("fov")
-      .description("Aimbot field of view")
-      .defaultTo(180)
-      .min(0)
-      .max(180)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("fov")
+          .description("Aimbot field of view")
+          .defaultTo(180)
+          .min(0)
+          .max(180)
+          .build();
   
   private final Setting<Double> range =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("range")
-      .description("Aimbot range")
-      .defaultTo(4.5D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("range")
+          .description("Aimbot range")
+          .defaultTo(4.5D)
+          .build();
   
   private final Setting<Float> cooldown_percent =
-    getCommandStub()
-      .builders()
-      .<Float>newSettingBuilder()
-      .name("cooldown_percent")
-      .description("Minimum cooldown percent for next strike")
-      .defaultTo(100F)
-      .min(0F)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("cooldown_percent")
+          .description("Minimum cooldown percent for next strike")
+          .defaultTo(100F)
+          .min(0F)
+          .build();
   
   private final Setting<Boolean> projectile_aimbot =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("proj-aimbot")
-      .description("Projectile aimbot")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("proj-aimbot")
+          .description("Projectile aimbot")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> projectile_auto_attack =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("proj-auto-attack")
-      .description("Automatically attack when target found for projectile weapons")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("proj-auto-attack")
+          .description("Automatically attack when target found for projectile weapons")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> projectile_trace_check =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("projectile-trace")
-      .description("Check the trace of each target if holding a weapon that fires a projectile")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("projectile-trace")
+          .description("Check the trace of each target if holding a weapon that fires a projectile")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Double> projectile_range =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("projectile-range")
-      .description("Projectile aimbot range")
-      .defaultTo(100D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("projectile-range")
+          .description("Projectile aimbot range")
+          .defaultTo(100D)
+          .build();
   
   private final Setting<Selector> selector =
-    getCommandStub()
-      .builders()
-      .<Selector>newSettingEnumBuilder()
-      .name("selector")
-      .description("The method used to select a target from a group")
-      .defaultTo(Selector.CROSSHAIR)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Selector>newSettingEnumBuilder()
+          .name("selector")
+          .description("The method used to select a target from a group")
+          .defaultTo(Selector.CROSSHAIR)
+          .build();
   
   public Aimbot() {
     super(Category.COMBAT, "Aimbot", false, "Automatically attack entities and players");
@@ -206,8 +206,8 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     final float cdRatio = cooldown_percent.get() / 100F;
     final float cdOffset = cdRatio <= 1F ? 0F : -(localPlayer.getCooldownPeriod() * (cdRatio - 1F));
     return localPlayer.getCooledAttackStrength((float) getLagComp() + cdOffset)
-      >= (Math.min(1F, cdRatio))
-      && (auto_attack.get() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
+        >= (Math.min(1F, cdRatio))
+        && (auto_attack.get() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
   }
   
   private Projectile getHeldProjectile() {
@@ -240,15 +240,15 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   private boolean filterTarget(Vec3d pos, Vec3d viewNormal, Angle angles, Entity entity) {
     final Vec3d tpos = getAttackPosition(entity);
     return Optional.of(entity)
-      .filter(EntityUtils::isLiving)
-      .filter(EntityUtils::isAlive)
-      .filter(EntityUtils::isValidEntity)
-      .filter(ent -> !ent.equals(getLocalPlayer()))
-      .filter(this::isFiltered)
-      .filter(ent -> isInRange(tpos, pos))
-      .filter(ent -> isInFov(angles, tpos.subtract(pos)))
-      .filter(this::isVisible)
-      .isPresent();
+        .filter(EntityUtils::isLiving)
+        .filter(EntityUtils::isAlive)
+        .filter(EntityUtils::isValidEntity)
+        .filter(ent -> !ent.equals(getLocalPlayer()))
+        .filter(this::isFiltered)
+        .filter(ent -> isInRange(tpos, pos))
+        .filter(ent -> isInFov(angles, tpos.subtract(pos)))
+        .filter(this::isVisible)
+        .isPresent();
   }
   
   private boolean isFiltered(Entity entity) {
@@ -283,27 +283,27 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
   
   private double selecting(
-    final Vec3d pos, final Vec3d viewNormal, final Angle angles, final Entity entity) {
+      final Vec3d pos, final Vec3d viewNormal, final Angle angles, final Entity entity) {
     switch (selector.get()) {
       case DISTANCE:
         return getAttackPosition(entity).subtract(pos).lengthSquared();
       case CROSSHAIR:
       default:
         return getAttackPosition(entity)
-          .subtract(pos)
-          .normalize()
-          .subtract(viewNormal)
-          .lengthSquared();
+            .subtract(pos)
+            .normalize()
+            .subtract(viewNormal)
+            .lengthSquared();
     }
   }
   
   private Entity findTarget(final Vec3d pos, final Vec3d viewNormal, final Angle angles) {
     return getWorld()
-      .loadedEntityList
-      .stream()
-      .filter(entity -> filterTarget(pos, viewNormal, angles, entity))
-      .min(Comparator.comparingDouble(entity -> selecting(pos, viewNormal, angles, entity)))
-      .orElse(null);
+        .loadedEntityList
+        .stream()
+        .filter(entity -> filterTarget(pos, viewNormal, angles, entity))
+        .min(Comparator.comparingDouble(entity -> selecting(pos, viewNormal, angles, entity)))
+        .orElse(null);
   }
   
   @Override
@@ -324,8 +324,8 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     
     Entity t = getTarget();
     if (!hold_target.get()
-      || t == null
-      || !filterTarget(pos, look.normalize(), angles, getTarget())) {
+        || t == null
+        || !filterTarget(pos, look.normalize(), angles, getTarget())) {
       setTarget(t = findTarget(pos, look.normalize(), angles));
     }
     
@@ -343,10 +343,10 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
       
       if (canAttack(getLocalPlayer(), tar)) {
         state.invokeLater(
-          rs -> {
-            getPlayerController().attackEntity(getLocalPlayer(), tar);
-            getLocalPlayer().swingArm(EnumHand.MAIN_HAND);
-          });
+            rs -> {
+              getPlayerController().attackEntity(getLocalPlayer(), tar);
+              getLocalPlayer().swingArm(EnumHand.MAIN_HAND);
+            });
       }
     }
   }

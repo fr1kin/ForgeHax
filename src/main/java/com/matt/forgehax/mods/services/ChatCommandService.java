@@ -25,14 +25,14 @@ public class ChatCommandService extends ServiceMod {
   }
   
   public final Setting<Character> activationCharacter =
-    getCommandStub()
-      .builders()
-      .<Character>newSettingBuilder()
-      .name("activation_char")
-      .description("Activation character")
-      .defaultTo('.')
-      .changed(cb -> ACTIVATION_CHARACTER = cb.getTo())
-      .build();
+      getCommandStub()
+          .builders()
+          .<Character>newSettingBuilder()
+          .name("activation_char")
+          .description("Activation character")
+          .defaultTo('.')
+          .changed(cb -> ACTIVATION_CHARACTER = cb.getTo())
+          .build();
   
   public ChatCommandService() {
     super("ChatCommandService", "Listeners for activation key in chat messages typed");
@@ -48,7 +48,7 @@ public class ChatCommandService extends ServiceMod {
     if (event.getPacket() instanceof CPacketChatMessage) {
       String message = ((CPacketChatMessage) event.getPacket()).getMessage();
       if (!PacketHelper.isIgnored(event.getPacket())
-        && message.startsWith(activationCharacter.getAsString()) && message.length() > 1) {
+          && message.startsWith(activationCharacter.getAsString()) && message.length() > 1) {
         // cut out the . from the message
         String line = message.substring(1);
         handleCommand(line);

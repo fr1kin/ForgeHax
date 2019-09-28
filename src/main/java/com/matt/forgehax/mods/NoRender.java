@@ -27,11 +27,11 @@ public class NoRender extends ToggleMod {
     
     if (event.phase == TickEvent.Phase.START) {
       getWorld()
-        .loadedEntityList
-        .stream()
-        .filter(EntityItem.class::isInstance)
-        .map(EntityItem.class::cast)
-        .forEach(Entity::setDead);
+          .loadedEntityList
+          .stream()
+          .filter(EntityItem.class::isInstance)
+          .map(EntityItem.class::cast)
+          .forEach(Entity::setDead);
     }
   }
 }

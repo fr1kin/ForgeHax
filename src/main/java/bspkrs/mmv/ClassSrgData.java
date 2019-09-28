@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 public class ClassSrgData implements Comparable<ClassSrgData> {
   
-  public static enum SortType {
+  public enum SortType {
     PKG,
     OBF
   }

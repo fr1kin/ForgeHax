@@ -306,7 +306,7 @@ public interface TypesMc {
   }
   
   interface Fields {
-  
+    
     ASMField NetworkManager$4_val$inPacket =
       Classes.NetworkManager$4.childField()
         .setName("val$inPacket")
@@ -328,7 +328,7 @@ public interface TypesMc {
   }
   
   interface Methods {
-  
+    
     ASMMethod Block_canRenderInLayer =
       Classes.Block.childMethod()
         .setName("canRenderInLayer")

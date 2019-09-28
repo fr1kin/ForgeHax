@@ -18,7 +18,7 @@ public class NoRotate extends ToggleMod {
   @SubscribeEvent
   public void onPacketRecieved(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketPlayerPosLook) {
-      SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();
+      SPacketPlayerPosLook packet = event.getPacket();
       if (MC.player != null) {
         if (MC.player.rotationYaw != -180 && MC.player.rotationPitch != 0) {
           FastReflection.Fields.SPacketPlayer_yaw.set(packet, MC.player.rotationYaw);

@@ -23,11 +23,11 @@ import joptsimple.internal.Strings;
  */
 @RegisterMod
 public class HelpCommand extends CommandMod {
-
+  
   public HelpCommand() {
     super("HelpCommand");
   }
-
+  
   @RegisterCommand
   public Command save(CommandBuilders builder) {
     return builder
@@ -37,7 +37,7 @@ public class HelpCommand extends CommandMod {
       .processor(data -> getGlobalCommand().serializeAll())
       .build();
   }
-
+  
   @RegisterCommand
   public Command help(CommandBuilders builder) {
     return builder
@@ -56,7 +56,7 @@ public class HelpCommand extends CommandMod {
         })
       .build();
   }
-
+  
   @RegisterCommand
   public Command search(CommandBuilders builder) {
     return builder
@@ -98,7 +98,7 @@ public class HelpCommand extends CommandMod {
         })
       .build();
   }
-
+  
   @RegisterCommand
   public Command history(CommandBuilders builder) {
     return builder
@@ -137,7 +137,7 @@ public class HelpCommand extends CommandMod {
                 }
                 ConsoleIO.setIndents(previousIndents);
               }
-          
+              
               @Override
               public void onFailure(Throwable t) {
               }
@@ -147,7 +147,7 @@ public class HelpCommand extends CommandMod {
         })
       .build();
   }
-
+  
   @RegisterCommand
   public Command loaded(CommandBuilders builder) {
     return builder
@@ -173,7 +173,7 @@ public class HelpCommand extends CommandMod {
         })
       .build();
   }
-
+  
   @RegisterCommand
   public Command online(CommandBuilders builder) {
     return builder
@@ -183,11 +183,11 @@ public class HelpCommand extends CommandMod {
       .processor(
         data -> {
           List<PlayerInfo> players = PlayerInfoHelper.getOnlinePlayers();
-      
+          
           if (players.size() > 0) {
             final String match =
               data.getArgumentCount() > 0 ? data.getArgumentAsString(0).toLowerCase() : "";
-        
+            
             StringBuilder str = new StringBuilder();
             str.append(players.size());
             if (match.isEmpty()) {
@@ -212,7 +212,7 @@ public class HelpCommand extends CommandMod {
         })
       .build();
   }
-
+  
   @RegisterCommand
   public Command respawn(CommandBuilders builder) {
     return builder

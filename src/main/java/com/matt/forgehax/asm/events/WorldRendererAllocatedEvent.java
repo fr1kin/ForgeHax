@@ -11,16 +11,16 @@ public class WorldRendererAllocatedEvent extends Event {
   
   private final ChunkCompileTaskGenerator generator;
   private final RenderChunk renderChunk;
-
+  
   public WorldRendererAllocatedEvent(ChunkCompileTaskGenerator generator, RenderChunk renderChunk) {
     this.generator = generator;
     this.renderChunk = renderChunk;
   }
-
+  
   public ChunkCompileTaskGenerator getGenerator() {
     return generator;
   }
-
+  
   public RenderChunk getRenderChunk() {
     return renderChunk;
   }

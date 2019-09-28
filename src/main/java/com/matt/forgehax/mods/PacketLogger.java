@@ -55,31 +55,31 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
   
   private static final Path INBOUND =
-    getFileManager().getMkBaseResolve("logs/packets/IN-" + DATE + ".log");
+      getFileManager().getMkBaseResolve("logs/packets/IN-" + DATE + ".log");
   private static final Path OUTBOUND =
-    getFileManager().getMkBaseResolve("logs/packets/OUT-" + DATE + ".log");
+      getFileManager().getMkBaseResolve("logs/packets/OUT-" + DATE + ".log");
   
   private volatile BufferedWriter stream_packet_in = null;
   private volatile BufferedWriter stream_packet_out = null;
   
   private final Setting<Boolean> blacklist_on =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("blacklist_on")
-      .description("Enables the blacklist")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("blacklist_on")
+          .description("Enables the blacklist")
+          .defaultTo(false)
+          .build();
   
   private final Options<ClassEntry> blacklist =
-    getCommandStub()
-      .builders()
-      .<ClassEntry>newOptionsBuilder()
-      .name("blacklist")
-      .description("Classes to ignore")
-      .factory(ClassEntry::new)
-      .supplier(Sets::newConcurrentHashSet)
-      .build();
+      getCommandStub()
+          .builders()
+          .<ClassEntry>newOptionsBuilder()
+          .name("blacklist")
+          .description("Classes to ignore")
+          .factory(ClassEntry::new)
+          .supplier(Sets::newConcurrentHashSet)
+          .build();
   
   public PacketLogger() {
     super(Category.MISC, "PacketLogger", false, "Logs all packets to file");
@@ -88,105 +88,105 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   @Override
   protected void onLoad() {
     blacklist
-      .builders()
-      .newCommandBuilder()
-      .name("add")
-      .description("Add class")
-      .processor(
-        data -> {
-          data.requiredArguments(1);
-          final String className = data.getArgumentAsString(0).toLowerCase();
-      
-          if (Strings.isNullOrEmpty(className)) {
-            throw new CommandExecuteException("Empty or null argument");
-          }
-      
-          Optional<Class<?>> match =
-            getLoadedClasses(Launch.classLoader)
-              .stream()
-              .filter(Packet.class::isAssignableFrom)
-              .filter(clazz -> clazz.getCanonicalName().toLowerCase().contains(className))
-              .sorted(
-                (o1, o2) ->
-                  String.CASE_INSENSITIVE_ORDER.compare(
-                    o1.getCanonicalName(), o2.getCanonicalName()))
-              .findFirst();
-      
-          if (match.isPresent()) {
-            Class<?> clazz = match.get();
-            blacklist.add(new ClassEntry(clazz));
-            data.write(String.format("Added class \"%s\"", clazz.getName()));
-            data.markSuccess();
-          } else {
-            data.write(
-              String.format("Could not find any class name matching \"%s\"", className));
-            data.markFailed();
-          }
-        })
-      .success(cb -> blacklist.serialize())
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("add")
+        .description("Add class")
+        .processor(
+            data -> {
+              data.requiredArguments(1);
+              final String className = data.getArgumentAsString(0).toLowerCase();
+              
+              if (Strings.isNullOrEmpty(className)) {
+                throw new CommandExecuteException("Empty or null argument");
+              }
+              
+              Optional<Class<?>> match =
+                  getLoadedClasses(Launch.classLoader)
+                      .stream()
+                      .filter(Packet.class::isAssignableFrom)
+                      .filter(clazz -> clazz.getCanonicalName().toLowerCase().contains(className))
+                      .sorted(
+                          (o1, o2) ->
+                              String.CASE_INSENSITIVE_ORDER.compare(
+                                  o1.getCanonicalName(), o2.getCanonicalName()))
+                      .findFirst();
+              
+              if (match.isPresent()) {
+                Class<?> clazz = match.get();
+                blacklist.add(new ClassEntry(clazz));
+                data.write(String.format("Added class \"%s\"", clazz.getName()));
+                data.markSuccess();
+              } else {
+                data.write(
+                    String.format("Could not find any class name matching \"%s\"", className));
+                data.markFailed();
+              }
+            })
+        .success(cb -> blacklist.serialize())
+        .build();
     
     blacklist
-      .builders()
-      .newCommandBuilder()
-      .name("remove")
-      .description("Remove class")
-      .processor(
-        data -> {
-          data.requiredArguments(1);
-          final String className = data.getArgumentAsString(0).toLowerCase();
-      
-          if (Strings.isNullOrEmpty(className)) {
-            throw new CommandExecuteException("Empty or null argument");
-          }
-      
-          Optional<ClassEntry> match =
-            blacklist
-              .stream()
-              .filter(entry -> className.contains(entry.getClassName().toLowerCase()))
-              .sorted(
-                (o1, o2) ->
-                  String.CASE_INSENSITIVE_ORDER.compare(
-                    o1.getClassName(), o2.getClassName()))
-              .findFirst();
-      
-          if (match.isPresent()) {
-            ClassEntry entry = match.get();
-            if (blacklist.remove(entry)) {
-              data.write(String.format("Removed class \"%s\"", entry.getClassName()));
+        .builders()
+        .newCommandBuilder()
+        .name("remove")
+        .description("Remove class")
+        .processor(
+            data -> {
+              data.requiredArguments(1);
+              final String className = data.getArgumentAsString(0).toLowerCase();
+              
+              if (Strings.isNullOrEmpty(className)) {
+                throw new CommandExecuteException("Empty or null argument");
+              }
+              
+              Optional<ClassEntry> match =
+                  blacklist
+                      .stream()
+                      .filter(entry -> className.contains(entry.getClassName().toLowerCase()))
+                      .sorted(
+                          (o1, o2) ->
+                              String.CASE_INSENSITIVE_ORDER.compare(
+                                  o1.getClassName(), o2.getClassName()))
+                      .findFirst();
+              
+              if (match.isPresent()) {
+                ClassEntry entry = match.get();
+                if (blacklist.remove(entry)) {
+                  data.write(String.format("Removed class \"%s\"", entry.getClassName()));
+                  data.markSuccess();
+                } else {
+                  data.write(String.format("Could not remove class \"%s\"", entry.getClassName()));
+                  data.markFailed();
+                }
+              } else {
+                data.write(
+                    String.format("Could not find any class name matching \"%s\"", className));
+                data.markFailed();
+              }
+            })
+        .success(cb -> blacklist.serialize())
+        .build();
+    
+    blacklist
+        .builders()
+        .newCommandBuilder()
+        .name("list")
+        .description("List current contents")
+        .processor(
+            data -> {
+              StringBuilder builder = new StringBuilder();
+              Iterator<ClassEntry> it = blacklist.iterator();
+              if (it.hasNext()) {
+                builder.append(it.next().getClassName());
+                if (it.hasNext()) {
+                  builder.append(", ");
+                }
+              }
+              data.write(builder.toString());
               data.markSuccess();
-            } else {
-              data.write(String.format("Could not remove class \"%s\"", entry.getClassName()));
-              data.markFailed();
-            }
-          } else {
-            data.write(
-              String.format("Could not find any class name matching \"%s\"", className));
-            data.markFailed();
-          }
-        })
-      .success(cb -> blacklist.serialize())
-      .build();
-    
-    blacklist
-      .builders()
-      .newCommandBuilder()
-      .name("list")
-      .description("List current contents")
-      .processor(
-        data -> {
-          StringBuilder builder = new StringBuilder();
-          Iterator<ClassEntry> it = blacklist.iterator();
-          if (it.hasNext()) {
-            builder.append(it.next().getClassName());
-            if (it.hasNext()) {
-              builder.append(", ");
-            }
-          }
-          data.write(builder.toString());
-          data.markSuccess();
-        })
-      .build();
+            })
+        .build();
   }
   
   @Override
@@ -200,9 +200,9 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
       }
       
       stream_packet_in = new BufferedWriter(new OutputStreamWriter(
-        new FileOutputStream(INBOUND.toFile(), true), StandardCharsets.UTF_8));
+          new FileOutputStream(INBOUND.toFile(), true), StandardCharsets.UTF_8));
       stream_packet_out = new BufferedWriter(new OutputStreamWriter(
-        new FileOutputStream(OUTBOUND.toFile(), true), StandardCharsets.UTF_8));
+          new FileOutputStream(OUTBOUND.toFile(), true), StandardCharsets.UTF_8));
     } catch (Throwable t) {
     }
   }
@@ -256,12 +256,12 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
     
     try {
       stream.write(
-        String.format(
-          "[%s][%s] %s\n",
-          TIME_FORMAT.format(new Date()),
-          packet.getClass().getSimpleName(),
-          GSON_PRETTY.toJson(objectToElement(packet, true, null, Lists.newArrayList()))
-        )
+          String.format(
+              "[%s][%s] %s\n",
+              TIME_FORMAT.format(new Date()),
+              packet.getClass().getSimpleName(),
+              GSON_PRETTY.toJson(objectToElement(packet, true, null, Lists.newArrayList()))
+          )
       );
       stream.flush();
     } catch (Throwable t) {
@@ -270,10 +270,10 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   }
   
   private static JsonElement objectToElement(
-    Object obj,
-    boolean deep,
-    @Nullable Class<?> superClassLimit,
-    @Nonnull final List<Object> dejaVu) {
+      Object obj,
+      boolean deep,
+      @Nullable Class<?> superClassLimit,
+      @Nonnull final List<Object> dejaVu) {
     JsonObject json = new JsonObject();
     dejaVu.add(obj);
     if (obj != null) {
@@ -289,11 +289,11 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
                 try {
                   value = field.get(obj);
                   name =
-                    clazz.getSimpleName()
-                      + "."
-                      + field.getName()
-                      + "@"
-                      + Integer.toHexString(Objects.hashCode(value));
+                      clazz.getSimpleName()
+                          + "."
+                          + field.getName()
+                          + "@"
+                          + Integer.toHexString(Objects.hashCode(value));
                 } catch (Throwable t) {
                   name = "null@0";
                 }

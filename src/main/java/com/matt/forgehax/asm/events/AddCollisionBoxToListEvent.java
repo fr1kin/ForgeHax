@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  */
 @Cancelable
 public class AddCollisionBoxToListEvent extends Event {
-
+  
   private final Block block;
   private final IBlockState state;
   private final World world;
@@ -24,7 +24,7 @@ public class AddCollisionBoxToListEvent extends Event {
   private final List<AxisAlignedBB> collidingBoxes;
   private final Entity entity;
   private final boolean bool;
-
+  
   public AddCollisionBoxToListEvent(
     Block block,
     IBlockState state,
@@ -43,35 +43,35 @@ public class AddCollisionBoxToListEvent extends Event {
     this.entity = entityIn;
     this.bool = bool;
   }
-
+  
   public Block getBlock() {
     return block;
   }
-
+  
   public IBlockState getState() {
     return state;
   }
-
+  
   public World getWorld() {
     return world;
   }
-
+  
   public BlockPos getPos() {
     return pos;
   }
-
+  
   public AxisAlignedBB getEntityBox() {
     return entityBox;
   }
-
+  
   public List<AxisAlignedBB> getCollidingBoxes() {
     return collidingBoxes;
   }
-
+  
   public Entity getEntity() {
     return entity;
   }
-
+  
   public boolean isBool() {
     return bool;
   }

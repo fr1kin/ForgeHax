@@ -33,10 +33,10 @@ public class SignTextMod extends ToggleMod {
       }
       if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
         TileEntity tileEntity = MC.world.getTileEntity(result.getBlockPos());
-  
+        
         if (tileEntity instanceof TileEntitySign) {
           TileEntitySign sign = (TileEntitySign) tileEntity;
-    
+          
           int signTextLength = 0;
           // find the first line from the bottom that isn't empty
           for (int i = 3; i >= 0; i--) {
@@ -50,14 +50,14 @@ public class SignTextMod extends ToggleMod {
           }
           
           String[] lines = new String[signTextLength];
-    
+          
           for (int i = 0; i < signTextLength; i++) {
             lines[i] =
-              sign.signText[i].getFormattedText().replace(TextFormatting.RESET.toString(), "");
+                sign.signText[i].getFormattedText().replace(TextFormatting.RESET.toString(), "");
           }
-    
+          
           String fullText = String.join("\n", lines);
-    
+          
           Helper.printMessage("Copied sign");
           setClipboardString(fullText);
         }

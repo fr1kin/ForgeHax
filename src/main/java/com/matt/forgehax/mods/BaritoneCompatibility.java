@@ -16,22 +16,22 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class BaritoneCompatibility extends ToggleMod {
   
   private final Setting<String> on_string =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("on-string")
-      .description("Message to enable baritone")
-      .defaultTo("#mine diamond_ore")
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("on-string")
+          .description("Message to enable baritone")
+          .defaultTo("#mine diamond_ore")
+          .build();
   
   private final Setting<String> off_string =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("off-string")
-      .description("Message to disable baritone")
-      .defaultTo("#stop")
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("off-string")
+          .description("Message to disable baritone")
+          .defaultTo("#stop")
+          .build();
   
   public BaritoneCompatibility() {
     super(Category.MISC, "BaritoneCompatibility", false, "the lazy compatibility mod");

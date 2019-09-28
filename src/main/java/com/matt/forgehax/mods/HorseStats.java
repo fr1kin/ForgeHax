@@ -26,30 +26,30 @@ public class HorseStats extends ToggleMod {
   }
   
   private final Setting<Double> jumpHeight =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("JumpHeight")
-      .description("Modified horse jump height attribute. Default: 1")
-      .defaultTo(1.0D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("JumpHeight")
+          .description("Modified horse jump height attribute. Default: 1")
+          .defaultTo(1.0D)
+          .build();
   private final Setting<Double> speed =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("Speed")
-      .description("Modified horse speed attribute. Default: 0.3375")
-      .defaultTo(0.3375D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("Speed")
+          .description("Modified horse speed attribute. Default: 0.3375")
+          .defaultTo(0.3375D)
+          .build();
   
   private final Setting<Double> multiplier =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("multiplier")
-      .description("multiplier while sprinting")
-      .defaultTo(1.0D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("multiplier")
+          .description("multiplier while sprinting")
+          .defaultTo(1.0D)
+          .build();
   
   @Override
   public void onDisabled() {
@@ -61,7 +61,7 @@ public class HorseStats extends ToggleMod {
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
     if (EntityUtils.isDrivenByPlayer(event.getEntity())
-      && getRidingEntity() instanceof AbstractHorse) {
+        && getRidingEntity() instanceof AbstractHorse) {
       
       double newSpeed = speed.getAsDouble();
       if (getLocalPlayer().isSprinting()) {
@@ -73,15 +73,15 @@ public class HorseStats extends ToggleMod {
   
   private void applyStats(double newJump, double newSpeed) {
     final IAttribute jump_strength =
-      FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getRidingEntity());
+        FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getRidingEntity());
     final IAttribute movement_speed =
-      FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getRidingEntity());
+        FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getRidingEntity());
     
     ((EntityLivingBase) getRidingEntity())
-      .getEntityAttribute(jump_strength)
-      .setBaseValue(newJump);
+        .getEntityAttribute(jump_strength)
+        .setBaseValue(newJump);
     ((EntityLivingBase) getRidingEntity())
-      .getEntityAttribute(movement_speed)
-      .setBaseValue(newSpeed);
+        .getEntityAttribute(movement_speed)
+        .setBaseValue(newSpeed);
   }
 }

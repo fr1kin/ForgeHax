@@ -32,14 +32,14 @@ public abstract class BaseMod implements Globals {
     this.modDescription = desc;
     this.category = category;
     stubCommand =
-      buildStubCommand(
-        getGlobalCommand()
-          .builders()
-          .newStubBuilder()
-          .name(name)
-          .description(desc)
-          .processor(this::onProcessCommand))
-        .build();
+        buildStubCommand(
+            getGlobalCommand()
+                .builders()
+                .newStubBuilder()
+                .name(name)
+                .description(desc)
+                .processor(this::onProcessCommand))
+            .build();
   }
   
   public BaseMod(Category category, String name) {
@@ -194,23 +194,23 @@ public abstract class BaseMod implements Globals {
   public abstract boolean isEnabled();
   
   private void writeChildren(
-    StringBuilder builder, Command command, final boolean deep, final String append) {
+      StringBuilder builder, Command command, final boolean deep, final String append) {
     command
-      .getChildren()
-      .forEach(
-        child -> {
-          boolean invalid = Strings.isNullOrEmpty(append);
-          if (!invalid) {
-            builder.append(append);
-            builder.append(' ');
-          }
-          builder.append(child.getPrintText());
-          builder.append('\n');
-          if (deep) {
-            String app = invalid ? Strings.EMPTY : append;
-            writeChildren(builder, child, deep, app + ">");
-          }
-        });
+        .getChildren()
+        .forEach(
+            child -> {
+              boolean invalid = Strings.isNullOrEmpty(append);
+              if (!invalid) {
+                builder.append(append);
+                builder.append(' ');
+              }
+              builder.append(child.getPrintText());
+              builder.append('\n');
+              if (deep) {
+                String app = invalid ? Strings.EMPTY : append;
+                writeChildren(builder, child, deep, app + ">");
+              }
+            });
   }
   
   protected void onProcessCommand(ExecuteData data) {

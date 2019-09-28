@@ -12,9 +12,9 @@ import javax.imageio.ImageIO;
  * Created by Babbaj on 11/7/2017.
  */
 public class ImageUtils implements Globals {
-
+  
   public static BufferedImage createResizedCopy(
-    Image originalImage, int scaledWidth, int scaledHeight, boolean preserveAlpha) {
+      Image originalImage, int scaledWidth, int scaledHeight, boolean preserveAlpha) {
     int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
     BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);
     Graphics2D g = scaledBI.createGraphics();
@@ -25,7 +25,7 @@ public class ImageUtils implements Globals {
     g.dispose();
     return scaledBI;
   }
-
+  
   public static BufferedImage getImageFromUrl(String link) {
     BufferedImage image = null;
     try {
@@ -36,13 +36,13 @@ public class ImageUtils implements Globals {
     }
     return image;
   }
-
+  
   public static int[][] imageToArray(BufferedImage imageIn) {
     int width = imageIn.getWidth();
     int height = imageIn.getHeight();
-
+    
     int[][] data = new int[height][width]; // array of rows
-
+    
     for (int i = 0; i < height; i++) {
       for (int j = 0; j < width; j++) {
         data[i][j] = imageIn.getRGB(i, j);

@@ -15,13 +15,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AutoWalkMod extends ToggleMod {
   
   public final Setting<Boolean> stop_at_unloaded_chunks =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("stop_at_unloaded_chunks")
-      .description("Stops moving at unloaded chunks")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("stop_at_unloaded_chunks")
+          .description("Stops moving at unloaded chunks")
+          .defaultTo(true)
+          .build();
   
   private boolean isBound = false;
   

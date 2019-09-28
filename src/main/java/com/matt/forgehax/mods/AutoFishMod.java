@@ -31,33 +31,33 @@ public class AutoFishMod extends ToggleMod {
   private boolean previouslyHadRodEquipped = false;
   
   public final Setting<Integer> casting_delay =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("casting_delay")
-      .description("Number of ticks to wait after casting the rod to attempt a recast")
-      .defaultTo(20)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("casting_delay")
+          .description("Number of ticks to wait after casting the rod to attempt a recast")
+          .defaultTo(20)
+          .build();
   
   public final Setting<Double> max_sound_distance =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("max_sound_distance")
-      .description(
-        "Maximum distance between the splash sound and hook entity allowed (set to 0 to disable this feature)")
-      .defaultTo(2.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("max_sound_distance")
+          .description(
+              "Maximum distance between the splash sound and hook entity allowed (set to 0 to disable this feature)")
+          .defaultTo(2.D)
+          .build();
   
   public final Setting<Integer> fail_safe_time =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("fail_safe_time")
-      .description(
-        "Maximum amount of time (in ticks) allowed until the hook is pulled in (set to 0 to disable this feature)")
-      .defaultTo(600)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("fail_safe_time")
+          .description(
+              "Maximum amount of time (in ticks) allowed until the hook is pulled in (set to 0 to disable this feature)")
+          .defaultTo(600)
+          .build();
   
   public AutoFishMod() {
     super(Category.PLAYER, "AutoFish", false, "Auto fish");
@@ -66,14 +66,14 @@ public class AutoFishMod extends ToggleMod {
   private boolean isCorrectSplashPacket(SPacketSoundEffect packet) {
     EntityPlayerSP me = getLocalPlayer();
     return packet.getSound().equals(SoundEvents.ENTITY_BOBBER_SPLASH)
-      && (me != null
-      && me.fishEntity != null
-      && (max_sound_distance.get() == 0
-      || // disables this check
-      (me.fishEntity
-        .getPositionVector()
-        .distanceTo(new Vec3d(packet.getX(), packet.getY(), packet.getZ()))
-        <= max_sound_distance.get())));
+        && (me != null
+        && me.fishEntity != null
+        && (max_sound_distance.get() == 0
+        || // disables this check
+        (me.fishEntity
+            .getPositionVector()
+            .distanceTo(new Vec3d(packet.getX(), packet.getY(), packet.getZ()))
+            <= max_sound_distance.get())));
   }
   
   private void rightClick() {
@@ -108,8 +108,8 @@ public class AutoFishMod extends ToggleMod {
     
     // check if player is holding a fishing rod
     if (heldStack != null
-      && // item not null (shouldn't be, but I am being safe)
-      heldStack.getItem() instanceof ItemFishingRod // item being held is a fishing rod
+        && // item not null (shouldn't be, but I am being safe)
+        heldStack.getItem() instanceof ItemFishingRod // item being held is a fishing rod
     ) {
       if (!previouslyHadRodEquipped) {
         ticksCastDelay = casting_delay.get();
@@ -120,7 +120,7 @@ public class AutoFishMod extends ToggleMod {
       } else { // hook is deployed and rod was not previously equipped
         // increment the number of ticks that the hook entity has existed
         ++ticksHookDeployed;
-  
+        
         if (fail_safe_time.get() != 0 && (ticksHookDeployed > fail_safe_time.get())) {
           rightClick(); // reel in hook if the fail safe time has passed
           resetLocals();
@@ -141,7 +141,7 @@ public class AutoFishMod extends ToggleMod {
   @SubscribeEvent
   public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketSoundEffect) {
-      SPacketSoundEffect packet = (SPacketSoundEffect) event.getPacket();
+      SPacketSoundEffect packet = event.getPacket();
       if (isCorrectSplashPacket(packet)) {
         rightClick();
       }

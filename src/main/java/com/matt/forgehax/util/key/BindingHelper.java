@@ -11,17 +11,17 @@ public class BindingHelper {
   
   private static final Map<Integer, String> MOUSE_CODES = Maps.newHashMap();
   private static final IKeyConflictContext EMPTY =
-    new IKeyConflictContext() {
-      @Override
-      public boolean isActive() {
-        return false;
-      }
-    
-      @Override
-      public boolean conflicts(IKeyConflictContext other) {
-        return false;
-      }
-    };
+      new IKeyConflictContext() {
+        @Override
+        public boolean isActive() {
+          return false;
+        }
+        
+        @Override
+        public boolean conflicts(IKeyConflictContext other) {
+          return false;
+        }
+      };
   
   static {
     MOUSE_CODES.put(-100, "MOUSE_LEFT");

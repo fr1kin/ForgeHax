@@ -34,29 +34,29 @@ import org.lwjgl.opengl.GL11;
 public class LogoutSpot extends ToggleMod {
   
   private final Setting<Boolean> render =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("render")
-      .description("Draw a box where the player logged out")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("render")
+          .description("Draw a box where the player logged out")
+          .defaultTo(true)
+          .build();
   private final Setting<Integer> max_distance =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("max-distance")
-      .description("Distance from box before deleting it")
-      .defaultTo(320)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("max-distance")
+          .description("Distance from box before deleting it")
+          .defaultTo(320)
+          .build();
   private final Setting<Boolean> print_message =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("print-message")
-      .description("Print connect/disconnect messages in chat")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("print-message")
+          .description("Print connect/disconnect messages in chat")
+          .defaultTo(true)
+          .build();
   
   private final Set<LogoutPos> spots = Sets.newHashSet();
   
@@ -79,12 +79,12 @@ public class LogoutSpot extends ToggleMod {
   @Override
   public void onLoad() {
     getCommandStub()
-      .builders()
-      .newCommandBuilder()
-      .name("clear")
-      .description("Clear cloned players")
-      .processor(data -> reset())
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("clear")
+        .description("Clear cloned players")
+        .processor(data -> reset())
+        .build();
   }
   
   @Override
@@ -112,11 +112,11 @@ public class LogoutSpot extends ToggleMod {
       AxisAlignedBB bb = player.getEntityBoundingBox();
       synchronized (spots) {
         if (spots.add(
-          new LogoutPos(
-            event.getPlayerInfo().getId(),
-            event.getPlayerInfo().getName(),
-            new Vec3d(bb.maxX, bb.maxY, bb.maxZ),
-            new Vec3d(bb.minX, bb.minY, bb.minZ)))) {
+            new LogoutPos(
+                event.getPlayerInfo().getId(),
+                event.getPlayerInfo().getName(),
+                new Vec3d(bb.maxX, bb.maxY, bb.maxZ),
+                new Vec3d(bb.minX, bb.minY, bb.minZ)))) {
           printWarning("%s has disconnected!", event.getPlayerInfo().getName());
         }
       }
@@ -131,19 +131,19 @@ public class LogoutSpot extends ToggleMod {
     
     synchronized (spots) {
       spots.forEach(
-        spot -> {
-          Vec3d top = spot.getTopVec();
-          Plane upper = VectorUtils.toScreen(top);
-          if (upper.isVisible()) {
-            double distance = getLocalPlayer().getPositionVector().distanceTo(top);
-            String name = String.format("%s (%.1f)", spot.getName(), distance);
-            SurfaceHelper.drawTextShadow(
-              name,
-              (int) upper.getX() - (SurfaceHelper.getTextWidth(name) / 2),
-              (int) upper.getY() - (SurfaceHelper.getTextHeight() + 1),
-              Colors.RED.toBuffer());
-          }
-        });
+          spot -> {
+            Vec3d top = spot.getTopVec();
+            Plane upper = VectorUtils.toScreen(top);
+            if (upper.isVisible()) {
+              double distance = getLocalPlayer().getPositionVector().distanceTo(top);
+              String name = String.format("%s (%.1f)", spot.getName(), distance);
+              SurfaceHelper.drawTextShadow(
+                  name,
+                  (int) upper.getX() - (SurfaceHelper.getTextWidth(name) / 2),
+                  (int) upper.getY() - (SurfaceHelper.getTextHeight() + 1),
+                  Colors.RED.toBuffer());
+            }
+          });
     }
   }
   
@@ -157,17 +157,17 @@ public class LogoutSpot extends ToggleMod {
     
     synchronized (spots) {
       spots.forEach(
-        spot ->
-          GeometryTessellator.drawLines(
-            event.getBuffer(),
-            spot.getMins().x,
-            spot.getMins().y,
-            spot.getMins().z,
-            spot.getMaxs().x,
-            spot.getMaxs().y,
-            spot.getMaxs().z,
-            GeometryMasks.Line.ALL,
-            Colors.RED.toBuffer()));
+          spot ->
+              GeometryTessellator.drawLines(
+                  event.getBuffer(),
+                  spot.getMins().x,
+                  spot.getMins().y,
+                  spot.getMins().z,
+                  spot.getMaxs().x,
+                  spot.getMaxs().y,
+                  spot.getMaxs().z,
+                  GeometryMasks.Line.ALL,
+                  Colors.RED.toBuffer()));
     }
     
     event.getTessellator().draw();
@@ -178,9 +178,9 @@ public class LogoutSpot extends ToggleMod {
     if (max_distance.get() > 0) {
       synchronized (spots) {
         spots.removeIf(
-          pos ->
-            getLocalPlayer().getPositionVector().distanceTo(pos.getTopVec())
-              > max_distance.getAsDouble());
+            pos ->
+                getLocalPlayer().getPositionVector().distanceTo(pos.getTopVec())
+                    > max_distance.getAsDouble());
       }
     }
   }
@@ -227,13 +227,13 @@ public class LogoutSpot extends ToggleMod {
     
     public Vec3d getTopVec() {
       return new Vec3d(
-        (getMins().x + getMaxs().x) / 2.D, getMaxs().y, (getMins().z + getMaxs().z) / 2.D);
+          (getMins().x + getMaxs().x) / 2.D, getMaxs().y, (getMins().z + getMaxs().z) / 2.D);
     }
     
     @Override
     public boolean equals(Object other) {
       return this == other
-        || (other instanceof LogoutPos && getId().equals(((LogoutPos) other).getId()));
+          || (other instanceof LogoutPos && getId().equals(((LogoutPos) other).getId()));
     }
     
     @Override

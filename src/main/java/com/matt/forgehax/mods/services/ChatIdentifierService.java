@@ -25,27 +25,27 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @RegisterMod
 public class ChatIdentifierService extends ServiceMod {
-
+  
   // should split into two groups: group 1: senders name. group 2: message
   private static final Pattern[] MESSAGE_PATTERNS = {
-    Pattern.compile("<(.*?)> (.*)"), // vanilla
+      Pattern.compile("<(.*?)> (.*)"), // vanilla
   };
-
+  
   private static final Pattern[] INCOMING_PRIVATE_MESSAGES = {
-    Pattern.compile("(.*?) whispers to you: (.*)"), // vanilla
-    Pattern.compile("(.*?) whispers: (.*)"), // 2b2t
+      Pattern.compile("(.*?) whispers to you: (.*)"), // vanilla
+      Pattern.compile("(.*?) whispers: (.*)"), // 2b2t
   };
-
+  
   private static final Pattern[] OUTGOING_PRIVATE_MESSAGES = {
-    Pattern.compile("[Tt]o (.*?): (.*)"), // 2b2t and vanilla i think
+      Pattern.compile("[Tt]o (.*?): (.*)"), // 2b2t and vanilla i think
   };
-
+  
   public ChatIdentifierService() {
     super("ChatIdentifierService", "Listens to incoming chat messages and identifies the sender");
   }
-
+  
   private static boolean extract(
-    String message, Pattern[] patterns, BiConsumer<GameProfile, String> callback) {
+      String message, Pattern[] patterns, BiConsumer<GameProfile, String> callback) {
     for (Pattern pattern : patterns) {
       Matcher matcher = pattern.matcher(message);
       if (matcher.find()) {
@@ -54,8 +54,9 @@ public class ChatIdentifierService extends ServiceMod {
         if (!Strings.isNullOrEmpty(messageSender)) {
           for (NetworkPlayerInfo data : getLocalPlayer().connection.getPlayerInfoMap()) {
             if (
-              String.CASE_INSENSITIVE_ORDER.compare(messageSender, data.getGameProfile().getName())
-                == 0) {
+                String.CASE_INSENSITIVE_ORDER
+                    .compare(messageSender, data.getGameProfile().getName())
+                    == 0) {
               callback.accept(data.getGameProfile(), messageOnly);
               return true;
             }
@@ -65,125 +66,125 @@ public class ChatIdentifierService extends ServiceMod {
     }
     return false;
   }
-
+  
   @SuppressWarnings("Duplicates")
   @SubscribeEvent
   public void onChatMessage(PacketEvent.Incoming.Pre event) {
     if (getLocalPlayer() == null || getLocalPlayer().connection == null) {
       return;
     } else if (event.getPacket() instanceof SPacketChat) {
-      SPacketChat packet = (SPacketChat) event.getPacket();
+      SPacketChat packet = event.getPacket();
       String message = packet.getChatComponent().getUnformattedText();
       if (!Strings.isNullOrEmpty(message)) {
         MC.addScheduledTask(() -> {
           // normal public messages
           if (extract(
-            message,
-            MESSAGE_PATTERNS,
-            (senderProfile, msg) -> {
-              PlayerInfoHelper.registerWithCallback(
-                senderProfile.getName(),
-                new FutureCallback<PlayerInfo>() {
-                  @Override
-                  public void onSuccess(@Nullable PlayerInfo result) {
-                    if (result != null) {
-                      MinecraftForge.EVENT_BUS
-                        .post(ChatMessageEvent.newPublicChat(result, msg));
-                    }
-                  }
-        
-                  @Override
-                  public void onFailure(Throwable t) {
-                    PlayerInfoHelper.generateOfflineWithCallback(senderProfile.getName(), this);
-                  }
-                });
-            })) {
+              message,
+              MESSAGE_PATTERNS,
+              (senderProfile, msg) -> {
+                PlayerInfoHelper.registerWithCallback(
+                    senderProfile.getName(),
+                    new FutureCallback<PlayerInfo>() {
+                      @Override
+                      public void onSuccess(@Nullable PlayerInfo result) {
+                        if (result != null) {
+                          MinecraftForge.EVENT_BUS
+                              .post(ChatMessageEvent.newPublicChat(result, msg));
+                        }
+                      }
+                      
+                      @Override
+                      public void onFailure(Throwable t) {
+                        PlayerInfoHelper.generateOfflineWithCallback(senderProfile.getName(), this);
+                      }
+                    });
+              })) {
             return;
           }
-
+          
           // private messages to the local player
           if (extract(
-            message,
-            INCOMING_PRIVATE_MESSAGES,
-            (senderProfile, msg) -> {
-              PlayerInfoHelper.registerWithCallback(
-                senderProfile.getName(),
-                new FutureCallback<PlayerInfo>() {
-                  @Override
-                  public void onSuccess(final @Nullable PlayerInfo sender) {
-                    // now get the local player
-                    if (sender != null) {
-                      PlayerInfoHelper.registerWithCallback(
-                        getLocalPlayer().getName(),
-                        new FutureCallback<PlayerInfo>() {
-                          @Override
-                          public void onSuccess(@Nullable PlayerInfo result) {
-                            if (result != null) {
-                              MinecraftForge.EVENT_BUS.post(
-                                ChatMessageEvent.newPrivateChat(sender, result, msg));
-                            }
-                          }
-                
-                          @Override
-                          public void onFailure(Throwable t) {
-                            PlayerInfoHelper.generateOfflineWithCallback(
-                              getLocalPlayer().getName(), this);
-                          }
-                        });
-                    }
-                  }
-        
-                  @Override
-                  public void onFailure(Throwable t) {
-                    PlayerInfoHelper.generateOfflineWithCallback(senderProfile.getName(), this);
-                  }
-                });
-            })) {
+              message,
+              INCOMING_PRIVATE_MESSAGES,
+              (senderProfile, msg) -> {
+                PlayerInfoHelper.registerWithCallback(
+                    senderProfile.getName(),
+                    new FutureCallback<PlayerInfo>() {
+                      @Override
+                      public void onSuccess(final @Nullable PlayerInfo sender) {
+                        // now get the local player
+                        if (sender != null) {
+                          PlayerInfoHelper.registerWithCallback(
+                              getLocalPlayer().getName(),
+                              new FutureCallback<PlayerInfo>() {
+                                @Override
+                                public void onSuccess(@Nullable PlayerInfo result) {
+                                  if (result != null) {
+                                    MinecraftForge.EVENT_BUS.post(
+                                        ChatMessageEvent.newPrivateChat(sender, result, msg));
+                                  }
+                                }
+                                
+                                @Override
+                                public void onFailure(Throwable t) {
+                                  PlayerInfoHelper.generateOfflineWithCallback(
+                                      getLocalPlayer().getName(), this);
+                                }
+                              });
+                        }
+                      }
+                      
+                      @Override
+                      public void onFailure(Throwable t) {
+                        PlayerInfoHelper.generateOfflineWithCallback(senderProfile.getName(), this);
+                      }
+                    });
+              })) {
             return;
           }
-
+          
           // outgoing pms from local player
           if (extract(
-            message,
-            OUTGOING_PRIVATE_MESSAGES,
-            (receiverProfile, msg) -> {
-              PlayerInfoHelper.registerWithCallback(
-                receiverProfile.getName(),
-                new FutureCallback<PlayerInfo>() {
-                  @Override
-                  public void onSuccess(final @Nullable PlayerInfo receiver) {
-                    // now get the local player
-                    if (receiver != null) {
-                      PlayerInfoHelper.registerWithCallback(
-                        getLocalPlayer().getName(),
-                        new FutureCallback<PlayerInfo>() {
-                          @Override
-                          public void onSuccess(@Nullable PlayerInfo sender) {
-                            if (sender != null) {
-                              MinecraftForge.EVENT_BUS.post(
-                                ChatMessageEvent.newPrivateChat(sender, receiver, msg));
-                            }
-                          }
-                
-                          @Override
-                          public void onFailure(Throwable t) {
-                            PlayerInfoHelper.generateOfflineWithCallback(
-                              getLocalPlayer().getName(), this);
-                          }
-                        });
-                    }
-                  }
-        
-                  @Override
-                  public void onFailure(Throwable t) {
-                    PlayerInfoHelper
-                      .generateOfflineWithCallback(receiverProfile.getName(), this);
-                  }
-                });
-            })) {
+              message,
+              OUTGOING_PRIVATE_MESSAGES,
+              (receiverProfile, msg) -> {
+                PlayerInfoHelper.registerWithCallback(
+                    receiverProfile.getName(),
+                    new FutureCallback<PlayerInfo>() {
+                      @Override
+                      public void onSuccess(final @Nullable PlayerInfo receiver) {
+                        // now get the local player
+                        if (receiver != null) {
+                          PlayerInfoHelper.registerWithCallback(
+                              getLocalPlayer().getName(),
+                              new FutureCallback<PlayerInfo>() {
+                                @Override
+                                public void onSuccess(@Nullable PlayerInfo sender) {
+                                  if (sender != null) {
+                                    MinecraftForge.EVENT_BUS.post(
+                                        ChatMessageEvent.newPrivateChat(sender, receiver, msg));
+                                  }
+                                }
+                                
+                                @Override
+                                public void onFailure(Throwable t) {
+                                  PlayerInfoHelper.generateOfflineWithCallback(
+                                      getLocalPlayer().getName(), this);
+                                }
+                              });
+                        }
+                      }
+                      
+                      @Override
+                      public void onFailure(Throwable t) {
+                        PlayerInfoHelper
+                            .generateOfflineWithCallback(receiverProfile.getName(), this);
+                      }
+                    });
+              })) {
             return;
           }
-
+          
           // if reached here then the message is unrecognized
         });
       }

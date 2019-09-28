@@ -34,7 +34,7 @@ public class SpawnerEspMod extends ToggleMod {
       if (tileEntity instanceof TileEntityMobSpawner) {
         BlockPos pos = tileEntity.getPos();
         GeometryTessellator.drawCuboid(
-          event.getBuffer(), pos, GeometryMasks.Line.ALL, Colors.RED.toBuffer());
+            event.getBuffer(), pos, GeometryMasks.Line.ALL, Colors.RED.toBuffer());
       }
     }
     

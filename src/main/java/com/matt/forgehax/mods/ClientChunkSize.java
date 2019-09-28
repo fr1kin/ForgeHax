@@ -77,10 +77,10 @@ public class ClientChunkSize extends ToggleMod {
   @Override
   public String getDisplayText() {
     return super.getDisplayText()
-      + " "
-      + String.format(
-      "[%s | %s]",
-      size == -1 ? "<error>" : toFormattedBytes(size), difference(size - previousSize));
+        + " "
+        + String.format(
+        "[%s | %s]",
+        size == -1 ? "<error>" : toFormattedBytes(size), difference(size - previousSize));
   }
   
   @SubscribeEvent
@@ -95,57 +95,57 @@ public class ClientChunkSize extends ToggleMod {
         if (chunk.isEmpty()) {
           return;
         }
-    
+        
         ChunkPos pos = chunk.getPos();
         if (!pos.equals(current) || (timer.isStarted() && timer.hasTimeElapsed(1000L))) {
           // chunk changed, don't show diff between different chunks
           if (current != null && !pos.equals(current)) {
             size = previousSize = 0L;
           }
-      
+          
           current = pos;
           running = true;
-      
+          
           // process size calculation on another thread
           Executors.defaultThreadFactory()
-            .newThread(
-              () -> {
-                try {
-                  final NBTTagCompound root = new NBTTagCompound();
-                  NBTTagCompound level = new NBTTagCompound();
-                  root.setTag("Level", level);
-                  root.setInteger("DataVersion", 1337);
-              
-                  try {
-                    // this should be done on the main mc thread but it works 99% of the
-                    // time outside it
-                    AnvilChunkLoader loader = new AnvilChunkLoader(DUMMY, null);
-                    Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
-                      loader, chunk, getWorld(), level);
-                  } catch (Throwable t) {
-                    size = -1L;
-                    previousSize = 0L;
-                    return; // couldn't save chunk
-                  }
-              
-                  DataOutputStream compressed =
-                    new DataOutputStream(
-                      new BufferedOutputStream(
-                        new DeflaterOutputStream(new ByteArrayOutputStream(8096))));
-                  try {
-                    CompressedStreamTools.write(root, compressed);
-                    previousSize = size;
-                    size = compressed.size();
-                  } catch (IOException e) {
-                    size = -1L;
-                    previousSize = 0L;
-                  }
-                } finally {
-                  timer.start();
-                  running = false;
-                }
-              })
-            .start();
+              .newThread(
+                  () -> {
+                    try {
+                      final NBTTagCompound root = new NBTTagCompound();
+                      NBTTagCompound level = new NBTTagCompound();
+                      root.setTag("Level", level);
+                      root.setInteger("DataVersion", 1337);
+                      
+                      try {
+                        // this should be done on the main mc thread but it works 99% of the
+                        // time outside it
+                        AnvilChunkLoader loader = new AnvilChunkLoader(DUMMY, null);
+                        Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
+                            loader, chunk, getWorld(), level);
+                      } catch (Throwable t) {
+                        size = -1L;
+                        previousSize = 0L;
+                        return; // couldn't save chunk
+                      }
+                      
+                      DataOutputStream compressed =
+                          new DataOutputStream(
+                              new BufferedOutputStream(
+                                  new DeflaterOutputStream(new ByteArrayOutputStream(8096))));
+                      try {
+                        CompressedStreamTools.write(root, compressed);
+                        previousSize = size;
+                        size = compressed.size();
+                      } catch (IOException e) {
+                        size = -1L;
+                        previousSize = 0L;
+                      }
+                    } finally {
+                      timer.start();
+                      running = false;
+                    }
+                  })
+              .start();
         }
         break;
       }

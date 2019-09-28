@@ -39,10 +39,10 @@ import org.objectweb.asm.tree.ClassNode;
 
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
-
+  
   private HashMap<String, ClassTransformer> transformingClasses = new HashMap<>();
   private int transformingLevel = 0;
-
+  
   @SuppressWarnings("ResultOfMethodCallIgnored")
   public ForgeHaxTransformer() {
     registerTransformer(new BlockPatch());
@@ -62,16 +62,16 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     registerTransformer(new BufferBuilderPatch());
     registerTransformer(new VisGraphPatch());
     registerTransformer(new WorldPatch());
-
+    
     // Babbaj
     registerTransformer(new BoatPatch());
     registerTransformer(new RenderBoatPatch());
     registerTransformer(new PlayerTabOverlayPatch());
     registerTransformer(new KeyBindingPatch());
     registerTransformer(new SchematicPrinterPatch());
-
+    
     // special transformers
-
+    
     // exclude transformers from Mixin
     try {
       int count = addExcludedTransformersToMixin(ForgeHaxTransformer.class.getName());
@@ -88,37 +88,37 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
       ASMStackLogger.printStackTrace(e);
     }
   }
-
+  
   private void registerTransformer(ClassTransformer transformer) {
     transformingClasses.put(transformer.getTransformingClassName(), transformer);
   }
-
+  
   @Override
   public byte[] transform(String name, String realName, byte[] bytes) {
     if (transformingLevel > 0) {
       LOGGER.warn("Reentrant class loaded {} at level {}", realName, transformingLevel);
     }
-
+    
     ++transformingLevel;
     if (transformingClasses.containsKey(realName)) {
       ClassTransformer transformer = transformingClasses.get(realName);
       try {
         LOGGER.info("Transforming class " + realName);
-
+        
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytes);
         classReader.accept(classNode, 0);
-
+        
         transformer.transform(classNode);
-
+        
         ClassWriter classWriter =
           new NoClassLoadingClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-
+        
         classNode.accept(classWriter);
-
+        
         // let gc clean this up
         transformingClasses.remove(realName);
-
+        
         bytes = classWriter.toByteArray();
       } catch (Exception e) {
         LOGGER.error(
@@ -130,11 +130,11 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         ASMStackLogger.printStackTrace(e);
       }
     }
-
+    
     --transformingLevel;
     return bytes;
   }
-
+  
   /**
    * This will prevent Mixin from feeding our transformer meta class data which it may later
    * discard
@@ -150,29 +150,29 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     } catch (ClassNotFoundException e) {
       throw new MixinMissingException();
     }
-
+    
     int count = 0;
-
+    
     Method method_addTransformerExclusion =
       class_MixinEnvironment.getDeclaredMethod("addTransformerExclusion", String.class);
     method_addTransformerExclusion.setAccessible(true);
-
+    
     // get the environment phase subclass
     Class<?> class_MixinEnvironment$Phase =
       Class.forName("org.spongepowered.asm.mixin.MixinEnvironment$Phase");
-
+    
     // get the phases field
     Field field_phases = class_MixinEnvironment$Phase.getDeclaredField("phases");
     field_phases.setAccessible(true);
-
+    
     // get the getEnvironment method (non-static)
     Method method_getEnvironment = class_MixinEnvironment$Phase.getDeclaredMethod("getEnvironment");
     method_getEnvironment.setAccessible(true);
-
+    
     // get the list of phases
     List<Object> phases = (List<Object>) field_phases.get(null);
     Objects.requireNonNull(phases, "phases instance is null!");
-
+    
     for (Object phase : phases) {
       // get the environment variable
       Object instance;
@@ -183,22 +183,22 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
         continue;
       }
       Objects.requireNonNull(instance, "MixinEnvironment$Phase::getEnvironment returned null!");
-
+      
       for (String className : excludedTransformers) {
         method_addTransformerExclusion.invoke(instance, className);
         count++;
       }
     }
-
+    
     return count; // number of successful class exclusions
   }
-
+  
   private class NoClassLoadingClassWriter extends ClassWriter {
-
+    
     NoClassLoadingClassWriter(int flags) {
       super(flags);
     }
-
+    
     @Override
     protected String getCommonSuperClass(String type1, String type2) {
       if (type1.matches(Classes.GuiMainMenu.getRuntimeInternalName())) {

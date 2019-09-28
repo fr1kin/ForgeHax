@@ -73,17 +73,17 @@ public class BlockHelper {
   public static boolean isTraceClear(Vec3d start, Vec3d end, EnumFacing targetSide) {
     RayTraceResult tr = getWorld().rayTraceBlocks(start, end, false, true, false);
     return tr == null
-      || (new BlockPos(end).equals(new BlockPos(tr.hitVec))
-      && targetSide.getOpposite().equals(tr.sideHit));
+        || (new BlockPos(end).equals(new BlockPos(tr.hitVec))
+        && targetSide.getOpposite().equals(tr.sideHit));
   }
   
   public static Vec3d getOBBCenter(BlockPos pos) {
     IBlockState state = getWorld().getBlockState(pos);
     AxisAlignedBB bb = state.getBoundingBox(getWorld(), pos);
     return new Vec3d(
-      bb.minX + ((bb.maxX - bb.minX) / 2.D),
-      bb.minY + ((bb.maxY - bb.minY) / 2.D),
-      bb.minZ + ((bb.maxZ - bb.minZ) / 2.D));
+        bb.minX + ((bb.maxX - bb.minX) / 2.D),
+        bb.minY + ((bb.maxY - bb.minY) / 2.D),
+        bb.minZ + ((bb.maxZ - bb.minZ) / 2.D));
   }
   
   public static boolean isBlockPlaceable(BlockPos pos) {
@@ -92,21 +92,21 @@ public class BlockHelper {
   }
   
   private static BlockTraceInfo getPlaceableBlockSideTrace(
-    Vec3d eyes, Vec3d normal, Stream<EnumFacing> stream, BlockPos pos) {
+      Vec3d eyes, Vec3d normal, Stream<EnumFacing> stream, BlockPos pos) {
     return stream
-      .map(side -> newBlockTrace(pos.offset(side), side))
-      .filter(info -> isBlockPlaceable(info.getPos()))
-      .filter(info -> isInReach(eyes, info.getHitVec()))
-      .filter(info -> BlockHelper.isTraceClear(eyes, info.getHitVec(), info.getSide()))
-      .min(
-        Comparator.<BlockTraceInfo>comparingInt(info -> info.isSneakRequired() ? 1 : 0)
-          .thenComparing(
-            info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
-      .orElse(null);
+        .map(side -> newBlockTrace(pos.offset(side), side))
+        .filter(info -> isBlockPlaceable(info.getPos()))
+        .filter(info -> isInReach(eyes, info.getHitVec()))
+        .filter(info -> BlockHelper.isTraceClear(eyes, info.getHitVec(), info.getSide()))
+        .min(
+            Comparator.<BlockTraceInfo>comparingInt(info -> info.isSneakRequired() ? 1 : 0)
+                .thenComparing(
+                    info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
+        .orElse(null);
   }
   
   public static BlockTraceInfo getPlaceableBlockSideTrace(
-    Vec3d eyes, Vec3d normal, EnumSet<EnumFacing> sides, BlockPos pos) {
+      Vec3d eyes, Vec3d normal, EnumSet<EnumFacing> sides, BlockPos pos) {
     return getPlaceableBlockSideTrace(eyes, normal, sides.stream(), pos);
   }
   
@@ -116,62 +116,62 @@ public class BlockHelper {
   
   public static BlockTraceInfo getBlockSideTrace(Vec3d eyes, BlockPos pos, EnumFacing side) {
     return Optional.of(newBlockTrace(pos, side))
-      .filter(tr -> BlockHelper.isTraceClear(eyes, tr.getHitVec(), tr.getSide()))
-      .filter(tr -> LocalPlayerUtils.isInReach(eyes, tr.getHitVec()))
-      .orElse(null);
+        .filter(tr -> BlockHelper.isTraceClear(eyes, tr.getHitVec(), tr.getSide()))
+        .filter(tr -> LocalPlayerUtils.isInReach(eyes, tr.getHitVec()))
+        .orElse(null);
   }
   
   public static BlockTraceInfo getVisibleBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
     return Arrays.stream(EnumFacing.values())
-      .map(side -> BlockHelper.getBlockSideTrace(eyes, pos, side.getOpposite()))
-      .filter(Objects::nonNull)
-      .min(
-        Comparator.comparingDouble(
-          i -> VectorUtils.getCrosshairDistance(eyes, normal, i.getCenteredPos())))
-      .orElse(null);
+        .map(side -> BlockHelper.getBlockSideTrace(eyes, pos, side.getOpposite()))
+        .filter(Objects::nonNull)
+        .min(
+            Comparator.comparingDouble(
+                i -> VectorUtils.getCrosshairDistance(eyes, normal, i.getCenteredPos())))
+        .orElse(null);
   }
   
   public static class BlockTraceInfo {
-  
+    
     private final BlockPos pos;
     private final EnumFacing side;
     private final Vec3d center;
     private final Vec3d hitVec;
-  
+    
     private BlockTraceInfo(BlockPos pos, EnumFacing side) {
       this.pos = pos;
       this.side = side;
       Vec3d obb = BlockHelper.getOBBCenter(pos);
       this.center = new Vec3d(pos).add(obb);
       this.hitVec =
-        this.center.add(
-          VectorUtils.multiplyBy(new Vec3d(getOppositeSide().getDirectionVec()), obb));
+          this.center.add(
+              VectorUtils.multiplyBy(new Vec3d(getOppositeSide().getDirectionVec()), obb));
     }
-  
+    
     public BlockPos getPos() {
       return pos;
     }
-  
+    
     public EnumFacing getSide() {
       return side;
     }
-  
+    
     public EnumFacing getOppositeSide() {
       return side.getOpposite();
     }
-  
+    
     public Vec3d getHitVec() {
       return this.hitVec;
     }
-  
+    
     public Vec3d getCenteredPos() {
       return center;
     }
-  
+    
     public IBlockState getBlockState() {
       return getWorld().getBlockState(getPos());
     }
-  
+    
     public boolean isPlaceable(InvItem item) {
       if (!(item.getItem() instanceof ItemBlock)) {
         return true;
@@ -179,9 +179,9 @@ public class BlockHelper {
       
       ItemBlock itemBlock = (ItemBlock) item.getItem();
       return itemBlock.canPlaceBlockOnSide(
-        getWorld(), getPos(), getOppositeSide(), getLocalPlayer(), item.getItemStack());
+          getWorld(), getPos(), getOppositeSide(), getLocalPlayer(), item.getItemStack());
     }
-  
+    
     public boolean isSneakRequired() {
       return BlockActivationChecker.isOverwritten(getBlockState().getBlock());
     }
@@ -232,9 +232,9 @@ public class BlockHelper {
     @Override
     public boolean equals(Object obj) {
       return this == obj
-        || (obj instanceof UniqueBlock
-        && getBlock().equals(((UniqueBlock) obj).getBlock())
-        && getMetadata() == ((UniqueBlock) obj).getMetadata());
+          || (obj instanceof UniqueBlock
+          && getBlock().equals(((UniqueBlock) obj).getBlock())
+          && getMetadata() == ((UniqueBlock) obj).getMetadata());
     }
     
     @Override
@@ -250,10 +250,10 @@ public class BlockHelper {
     public static boolean isOverwritten(final Block instance) {
       Objects.requireNonNull(instance);
       return CACHE.computeIfAbsent(
-        instance.getClass(),
-        clazz ->
-          Block.class
-            != ReflectionHelper.getMethodDeclaringClass(Block_onBlockActivated, instance));
+          instance.getClass(),
+          clazz ->
+              Block.class
+                  != ReflectionHelper.getMethodDeclaringClass(Block_onBlockActivated, instance));
     }
   }
 }

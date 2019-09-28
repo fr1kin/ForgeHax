@@ -13,11 +13,11 @@ import net.minecraft.block.Block;
  */
 @RegisterMod
 public class BlocksCommand extends CommandMod {
-
+  
   public BlocksCommand() {
     super("BlocksCommand");
   }
-
+  
   @RegisterCommand
   public Command blocks(CommandBuilders builders) {
     return builders

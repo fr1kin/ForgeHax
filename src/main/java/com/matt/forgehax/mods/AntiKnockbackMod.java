@@ -27,94 +27,94 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AntiKnockbackMod extends ToggleMod {
   
   private final Setting<Double> multiplier_x =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("x-multiplier")
-      .description("Multiplier for X axis")
-      .defaultTo(0.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("x-multiplier")
+          .description("Multiplier for X axis")
+          .defaultTo(0.D)
+          .build();
   
   private final Setting<Double> multiplier_y =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("y-multiplier")
-      .description("Multiplier for Y axis")
-      .defaultTo(0.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("y-multiplier")
+          .description("Multiplier for Y axis")
+          .defaultTo(0.D)
+          .build();
   
   private final Setting<Double> multiplier_z =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("z-multiplier")
-      .description("Multiplier for Z axis")
-      .defaultTo(0.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("z-multiplier")
+          .description("Multiplier for Z axis")
+          .defaultTo(0.D)
+          .build();
   
   private final Setting<Boolean> explosions =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("explosions")
-      .description("Disable velocity from SPacketExplosion")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("explosions")
+          .description("Disable velocity from SPacketExplosion")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> velocity =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("velocity")
-      .description("Disable velocity from SPacketEntityVelocity")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("velocity")
+          .description("Disable velocity from SPacketEntityVelocity")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> fishhook =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("fishhook")
-      .description("Disable velocity from a fishhook")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("fishhook")
+          .description("Disable velocity from a fishhook")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> water =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("water")
-      .description("Disable velocity from flowing water")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("water")
+          .description("Disable velocity from flowing water")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> push =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("push")
-      .description("Disable velocity from entity pushing")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("push")
+          .description("Disable velocity from entity pushing")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> blocks =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("blocks")
-      .description("Disable velocity from block pushing")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("blocks")
+          .description("Disable velocity from block pushing")
+          .defaultTo(true)
+          .build();
   
   private final Setting<Boolean> slipping =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("slipping")
-      .description("Disable velocity from ice slipping")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("slipping")
+          .description("Disable velocity from ice slipping")
+          .defaultTo(true)
+          .build();
   
   public AntiKnockbackMod() {
     super(Category.COMBAT, "AntiKnockback", false, "Removes knockback movement");
@@ -127,14 +127,14 @@ public class AntiKnockbackMod extends ToggleMod {
   private Vec3d getPacketMotion(Packet<?> packet) {
     if (packet instanceof SPacketExplosion) {
       return new Vec3d(
-        FastReflection.Fields.SPacketExplosion_motionX.get(packet),
-        FastReflection.Fields.SPacketExplosion_motionY.get(packet),
-        FastReflection.Fields.SPacketExplosion_motionZ.get(packet));
+          FastReflection.Fields.SPacketExplosion_motionX.get(packet),
+          FastReflection.Fields.SPacketExplosion_motionY.get(packet),
+          FastReflection.Fields.SPacketExplosion_motionZ.get(packet));
     } else if (packet instanceof SPacketEntityVelocity) {
       return new Vec3d(
-        FastReflection.Fields.SPacketEntityVelocity_motionX.get(packet),
-        FastReflection.Fields.SPacketEntityVelocity_motionY.get(packet),
-        FastReflection.Fields.SPacketEntityVelocity_motionZ.get(packet));
+          FastReflection.Fields.SPacketEntityVelocity_motionX.get(packet),
+          FastReflection.Fields.SPacketEntityVelocity_motionY.get(packet),
+          FastReflection.Fields.SPacketEntityVelocity_motionZ.get(packet));
     } else {
       throw new IllegalArgumentException();
     }
@@ -173,12 +173,12 @@ public class AntiKnockbackMod extends ToggleMod {
       setPacketMotion(event.getPacket(), VectorUtils.multiplyBy(motion, multiplier));
     } else if (velocity.get() && event.getPacket() instanceof SPacketEntityVelocity) {
       if (((SPacketEntityVelocity) event.getPacket()).getEntityID()
-        == getLocalPlayer().getEntityId()) {
+          == getLocalPlayer().getEntityId()) {
         Vec3d multiplier = getMultiplier();
         if (multiplier.lengthSquared() > 0.D) {
           setPacketMotion(
-            event.getPacket(),
-            VectorUtils.multiplyBy(getPacketMotion(event.getPacket()), multiplier));
+              event.getPacket(),
+              VectorUtils.multiplyBy(getPacketMotion(event.getPacket()), multiplier));
         } else {
           event.setCanceled(true);
         }
@@ -186,7 +186,7 @@ public class AntiKnockbackMod extends ToggleMod {
     } else if (fishhook.get() && event.getPacket() instanceof SPacketEntityStatus) {
       // CREDITS TO 0x22
       // fuck you popbob for making me need this
-      SPacketEntityStatus packet = (SPacketEntityStatus) event.getPacket();
+      SPacketEntityStatus packet = event.getPacket();
       switch (packet.getOpCode()) {
         case 31: {
           Entity offender = packet.getEntity(getWorld());
@@ -211,8 +211,8 @@ public class AntiKnockbackMod extends ToggleMod {
   public void onWaterMovementEvent(WaterMovementEvent event) {
     if (water.get() && getLocalPlayer() != null && getLocalPlayer().equals(event.getEntity())) {
       addEntityVelocity(
-        event.getEntity(),
-        VectorUtils.multiplyBy(event.getMoveDir().normalize().scale(0.014D), getMultiplier()));
+          event.getEntity(),
+          VectorUtils.multiplyBy(event.getMoveDir().normalize().scale(0.014D), getMultiplier()));
       event.setCanceled(true);
     }
   }
@@ -224,10 +224,10 @@ public class AntiKnockbackMod extends ToggleMod {
   public void onApplyCollisionMotion(ApplyCollisionMotionEvent event) {
     if (push.get() && getLocalPlayer() != null && getLocalPlayer().equals(event.getEntity())) {
       addEntityVelocity(
-        event.getEntity(),
-        VectorUtils.multiplyBy(
-          new Vec3d(event.getMotionX(), event.getMotionY(), event.getMotionZ()),
-          getMultiplier()));
+          event.getEntity(),
+          VectorUtils.multiplyBy(
+              new Vec3d(event.getMotionX(), event.getMotionY(), event.getMotionZ()),
+              getMultiplier()));
       event.setCanceled(true);
     }
   }
@@ -242,8 +242,8 @@ public class AntiKnockbackMod extends ToggleMod {
   @SubscribeEvent
   public void onBlockSlip(EntityBlockSlipApplyEvent event) {
     if (slipping.get()
-      && getLocalPlayer() != null
-      && getLocalPlayer().equals(event.getEntityLivingBase())) {
+        && getLocalPlayer() != null
+        && getLocalPlayer().equals(event.getEntityLivingBase())) {
       event.setSlipperiness(0.6f);
     }
   }

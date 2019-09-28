@@ -35,8 +35,8 @@ public class AngleHelper {
     Angle a1 = ang1.normalize();
     Angle a2 = ang2.same(a1).normalize();
     return isAngleEqual(a1.getPitch(), a2.getPitch())
-      && isAngleEqual(a1.getYaw(), a2.getYaw())
-      && isAngleEqual(a1.getRoll(), a2.getRoll());
+        && isAngleEqual(a1.getYaw(), a2.getYaw())
+        && isAngleEqual(a1.getRoll(), a2.getRoll());
   }
   
   public static double normalizeInRadians(double ang) {

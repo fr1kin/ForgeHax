@@ -9,11 +9,11 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 public class DeleteGlResourcesEvent extends Event {
   
   private final RenderChunk renderChunk;
-
+  
   public DeleteGlResourcesEvent(RenderChunk renderChunk) {
     this.renderChunk = renderChunk;
   }
-
+  
   public RenderChunk getRenderChunk() {
     return renderChunk;
   }

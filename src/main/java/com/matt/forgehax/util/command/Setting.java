@@ -46,33 +46,33 @@ public class Setting<E> extends Command implements ISerializableJson {
     try {
       this.converter = (TypeConverter<E>) data.get(CONVERTER);
       Objects.requireNonNull(this.converter, "Setting requires converter");
-  
+      
       this.defaultValue = (E) data.get(DEFAULTVALUE);
       this.comparator = (Comparator<E>) data.get(COMPARATOR);
       this.minValue = (E) data.get(MINVALUE);
       this.maxValue = (E) data.get(MAXVALUE);
-  
+      
       Boolean defaultProcessor = (Boolean) data.getOrDefault(DEFAULTPROCESSOR, true);
       if (defaultProcessor) {
         processors.add(
-          in -> {
-            in.requiredArguments(1);
-            Object arg = in.getArgument(0);
-            if (arg != null) {
-              rawSet(String.valueOf(arg));
-              serialize();
-              in.markSuccess();
-            } else {
-              in.markFailed();
-            }
-          });
+            in -> {
+              in.requiredArguments(1);
+              Object arg = in.getArgument(0);
+              if (arg != null) {
+                rawSet(String.valueOf(arg));
+                serialize();
+                in.markSuccess();
+              } else {
+                in.markFailed();
+              }
+            });
       }
-  
+      
       Boolean resetAutoGen = (Boolean) data.getOrDefault(RESETAUTOGEN, true);
       if (resetAutoGen) {
         parser.acceptsAll(Arrays.asList("r", "reset"), "Sets the command to its default value");
       }
-  
+      
       // set with constraints
       set(defaultValue, true);
     } catch (Throwable t) {
@@ -189,7 +189,7 @@ public class Setting<E> extends Command implements ISerializableJson {
   @Override
   public boolean addChild(@Nonnull Command child) {
     throw new UnsupportedOperationException(
-      "Command::addChild is not supported for a Setting type");
+        "Command::addChild is not supported for a Setting type");
   }
   
   @Override

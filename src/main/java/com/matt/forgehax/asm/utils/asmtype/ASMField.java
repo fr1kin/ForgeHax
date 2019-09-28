@@ -12,16 +12,16 @@ import org.objectweb.asm.Type;
  * Created on 5/26/2017 by fr1kin
  */
 public class ASMField extends ASMClassChild {
-
+  
   private final IName<String> fieldName;
   private final IName<Type> type;
-
+  
   public ASMField(@Nullable ASMClass parentClass, IName<String> fieldName, IName<Type> type) {
     super(parentClass);
     this.fieldName = fieldName;
     this.type = type;
   }
-
+  
   /**
    * The field type, specified by state, containing the field name
    *
@@ -32,19 +32,19 @@ public class ASMField extends ASMClassChild {
   public String getNameByState(State state) {
     return fieldName.getByStateSafe(state);
   }
-
+  
   @Override
   public String getDescriptorByState(State state) {
     return type.getByStateSafe(state).getDescriptor();
   }
-
+  
   @Override
   public boolean equals(Object obj) {
     return obj instanceof ASMField
       && Objects.equals(getName(), ((ASMField) obj).getName())
       && Objects.equals(getDescriptor(), ((ASMField) obj).getDescriptor());
   }
-
+  
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();

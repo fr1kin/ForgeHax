@@ -26,7 +26,7 @@ public class AntiOverlayMod extends ToggleMod {
   @SubscribeEvent
   public void onFogRender(EntityViewRenderEvent.FogDensity event) {
     if (event.getState().getMaterial().equals(Material.WATER)
-      || event.getState().getMaterial().equals(Material.LAVA)) {
+        || event.getState().getMaterial().equals(Material.LAVA)) {
       event.setDensity(0);
       event.setCanceled(true);
     }
@@ -43,7 +43,7 @@ public class AntiOverlayMod extends ToggleMod {
   @SubscribeEvent
   public void onRenderGameOverlay(RenderGameOverlayEvent event) {
     if (event.getType().equals(RenderGameOverlayEvent.ElementType.HELMET)
-      || event.getType().equals(RenderGameOverlayEvent.ElementType.PORTAL)) {
+        || event.getType().equals(RenderGameOverlayEvent.ElementType.PORTAL)) {
       event.setCanceled(true);
     }
   }
@@ -51,7 +51,7 @@ public class AntiOverlayMod extends ToggleMod {
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     ItemStack item = FastReflection.Fields.EntityRenderer_itemActivationItem.get(MC.entityRenderer);
-  
+    
     if (item != null && item.getItem() == Items.TOTEM_OF_UNDYING) {
       FastReflection.Fields.EntityRenderer_itemActivationItem.set(MC.entityRenderer, null);
     }

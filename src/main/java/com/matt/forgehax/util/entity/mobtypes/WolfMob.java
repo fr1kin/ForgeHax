@@ -13,13 +13,13 @@ public class WolfMob extends MobType {
   protected PriorityEnum getPriority() {
     return PriorityEnum.LOW;
   }
-
+  
   @Override
   protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
     EntityWolf wolf = (EntityWolf) entity;
     return wolf.isAngry() ? MobTypeEnum.HOSTILE : MobTypeEnum.NEUTRAL;
   }
-
+  
   @Override
   public boolean isMobType(Entity entity) {
     return entity instanceof EntityWolf;

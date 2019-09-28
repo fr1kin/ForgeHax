@@ -18,13 +18,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class InstantMessage extends ToggleMod {
   
   private final Setting<String> message =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("message")
-      .description("Message to send")
-      .defaultTo("Never fear on {SRVNAME}, {NAME} is here!")
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("message")
+          .description("Message to send")
+          .defaultTo("Never fear on {SRVNAME}, {NAME} is here!")
+          .build();
   
   public InstantMessage() {
     super(Category.MISC, "InstantMessage", false, "Send message as soon as you join");
@@ -33,21 +33,21 @@ public class InstantMessage extends ToggleMod {
   @SubscribeEvent
   public void onPacketIn(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketLoginSuccess) {
-  
+      
       if (MC.currentScreen instanceof GuiConnecting) {
-    
+        
         ServerData serverData = MC.getCurrentServerData();
         String serverName = serverData != null ? serverData.serverName : "Unknown";
         String serverIP = serverData != null ? serverData.serverIP : "";
-    
+        
         GuiConnecting_networkManager.get(MC.currentScreen)
-          .sendPacket(
-            new CPacketChatMessage(
-              message
-                .get()
-                .replace("{SRVNAME}", serverName)
-                .replace("{IP}", serverIP)
-                .replace("{NAME}", MC.getSession().getUsername())));
+            .sendPacket(
+                new CPacketChatMessage(
+                    message
+                        .get()
+                        .replace("{SRVNAME}", serverName)
+                        .replace("{IP}", serverIP)
+                        .replace("{NAME}", MC.getSession().getUsername())));
       } else {
         getLog().warn("Did not send message as current screen is not GuiConnecting");
       }

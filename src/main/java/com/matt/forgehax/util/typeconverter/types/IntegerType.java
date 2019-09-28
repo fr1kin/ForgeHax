@@ -14,22 +14,22 @@ public class IntegerType extends TypeConverter<Integer> {
   public String label() {
     return "int";
   }
-
+  
   @Override
   public Class<Integer> type() {
     return Integer.class;
   }
-
+  
   @Override
   public Integer parse(String value) {
     return SafeConverter.toInteger(value);
   }
-
+  
   @Override
   public String toString(Integer value) {
     return Integer.toString(value);
   }
-
+  
   @Nullable
   @Override
   public Comparator<Integer> comparator() {

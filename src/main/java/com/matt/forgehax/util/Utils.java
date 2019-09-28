@@ -71,7 +71,7 @@ public class Utils implements Globals {
   }
   
   public static double scale(
-    double x, double from_min, double from_max, double to_min, double to_max) {
+      double x, double from_min, double from_max, double to_min, double to_max) {
     return to_min + (to_max - to_min) * ((x - from_min) / (from_max - from_min));
   }
   

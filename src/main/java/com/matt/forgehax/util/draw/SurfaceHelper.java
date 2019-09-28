@@ -31,12 +31,12 @@ import org.lwjgl.opengl.GL11;
 public class SurfaceHelper implements Globals {
   
   public static void drawString(
-    @Nullable MinecraftFontRenderer fontRenderer,
-    String text,
-    double x,
-    double y,
-    int color,
-    boolean shadow) {
+      @Nullable MinecraftFontRenderer fontRenderer,
+      String text,
+      double x,
+      double y,
+      int color,
+      boolean shadow) {
     if (fontRenderer == null) {
       MC.fontRenderer.drawString(text, Math.round(x), Math.round(y), color, shadow);
     } else {
@@ -70,7 +70,7 @@ public class SurfaceHelper implements Globals {
   }
   
   public static void drawOutlinedRectShaded(
-    int x, int y, int w, int h, int colorOutline, int shade, float width) {
+      int x, int y, int w, int h, int colorOutline, int shade, float width) {
     int shaded = (0x00FFFFFF & colorOutline) | ((shade & 255) << 24); // modify the alpha value
     // int shaded = Utils.toRGBA(255,255,255, 100);
     drawRect(x, y, w, h, shaded);
@@ -88,19 +88,19 @@ public class SurfaceHelper implements Globals {
     GlStateManager.enableBlend();
     GlStateManager.disableTexture2D();
     GlStateManager.tryBlendFuncSeparate(
-      GlStateManager.SourceFactor.SRC_ALPHA,
-      GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-      GlStateManager.SourceFactor.ONE,
-      GlStateManager.DestFactor.ZERO);
+        GlStateManager.SourceFactor.SRC_ALPHA,
+        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+        GlStateManager.SourceFactor.ONE,
+        GlStateManager.DestFactor.ZERO);
     GlStateManager.color(r, g, b, a);
     
     GL11.glLineWidth(width);
     
     BufferBuilder.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION);
-    BufferBuilder.pos((double) x, (double) y, 0.0D).endVertex();
-    BufferBuilder.pos((double) x, (double) y + h, 0.0D).endVertex();
+    BufferBuilder.pos(x, y, 0.0D).endVertex();
+    BufferBuilder.pos(x, (double) y + h, 0.0D).endVertex();
     BufferBuilder.pos((double) x + w, (double) y + h, 0.0D).endVertex();
-    BufferBuilder.pos((double) x + w, (double) y, 0.0D).endVertex();
+    BufferBuilder.pos((double) x + w, y, 0.0D).endVertex();
     tessellator.draw();
     
     GlStateManager.enableTexture2D();
@@ -108,30 +108,30 @@ public class SurfaceHelper implements Globals {
   }
   
   public static void drawTexturedRect(
-    int x, int y, int textureX, int textureY, int width, int height, int zLevel) {
+      int x, int y, int textureX, int textureY, int width, int height, int zLevel) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder BufferBuilder = tessellator.getBuffer();
     BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-    BufferBuilder.pos((double) (x + 0), (double) (y + height), (double) zLevel)
-      .tex(
-        (double) ((float) (textureX + 0) * 0.00390625F),
-        (double) ((float) (textureY + height) * 0.00390625F))
-      .endVertex();
-    BufferBuilder.pos((double) (x + width), (double) (y + height), (double) zLevel)
-      .tex(
-        (double) ((float) (textureX + width) * 0.00390625F),
-        (double) ((float) (textureY + height) * 0.00390625F))
-      .endVertex();
-    BufferBuilder.pos((double) (x + width), (double) (y + 0), (double) zLevel)
-      .tex(
-        (double) ((float) (textureX + width) * 0.00390625F),
-        (double) ((float) (textureY + 0) * 0.00390625F))
-      .endVertex();
-    BufferBuilder.pos((double) (x + 0), (double) (y + 0), (double) zLevel)
-      .tex(
-        (double) ((float) (textureX + 0) * 0.00390625F),
-        (double) ((float) (textureY + 0) * 0.00390625F))
-      .endVertex();
+    BufferBuilder.pos(x + 0, y + height, zLevel)
+        .tex(
+            (float) (textureX + 0) * 0.00390625F,
+            (float) (textureY + height) * 0.00390625F)
+        .endVertex();
+    BufferBuilder.pos(x + width, y + height, zLevel)
+        .tex(
+            (float) (textureX + width) * 0.00390625F,
+            (float) (textureY + height) * 0.00390625F)
+        .endVertex();
+    BufferBuilder.pos(x + width, y + 0, zLevel)
+        .tex(
+            (float) (textureX + width) * 0.00390625F,
+            (float) (textureY + 0) * 0.00390625F)
+        .endVertex();
+    BufferBuilder.pos(x + 0, y + 0, zLevel)
+        .tex(
+            (float) (textureX + 0) * 0.00390625F,
+            (float) (textureY + 0) * 0.00390625F)
+        .endVertex();
     tessellator.draw();
   }
   
@@ -146,17 +146,17 @@ public class SurfaceHelper implements Globals {
     GlStateManager.enableBlend();
     GlStateManager.disableTexture2D();
     GlStateManager.tryBlendFuncSeparate(
-      GlStateManager.SourceFactor.SRC_ALPHA,
-      GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-      GlStateManager.SourceFactor.ONE,
-      GlStateManager.DestFactor.ZERO);
+        GlStateManager.SourceFactor.SRC_ALPHA,
+        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+        GlStateManager.SourceFactor.ONE,
+        GlStateManager.DestFactor.ZERO);
     GlStateManager.color(r, g, b, a);
     
     GL11.glLineWidth(width);
     
     BufferBuilder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
-    BufferBuilder.pos((double) x1, (double) y1, 0.0D).endVertex();
-    BufferBuilder.pos((double) x2, (double) y2, 0.0D).endVertex();
+    BufferBuilder.pos(x1, y1, 0.0D).endVertex();
+    BufferBuilder.pos(x2, y2, 0.0D).endVertex();
     tessellator.draw();
     
     GlStateManager.color(1f, 1f, 1f);
@@ -183,7 +183,7 @@ public class SurfaceHelper implements Globals {
     GlStateManager.disableDepth();
     GlStateManager.scale(scale, scale, scale);
     MC.fontRenderer.drawString(
-      msg, (int) (x * (1 / scale)), (int) (y * (1 / scale)), color, shadow);
+        msg, (int) (x * (1 / scale)), (int) (y * (1 / scale)), color, shadow);
     GlStateManager.enableDepth();
     GlStateManager.popMatrix();
   }
@@ -278,19 +278,19 @@ public class SurfaceHelper implements Globals {
     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.F);
     GlStateManager.scale(scale, scale, scale);
     drawScaledCustomSizeModalRect(
-      (x * (1 / scale)), (y * (1 / scale)), 8.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
+        (x * (1 / scale)), (y * (1 / scale)), 8.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
     drawScaledCustomSizeModalRect(
-      (x * (1 / scale)), (y * (1 / scale)), 40.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
+        (x * (1 / scale)), (y * (1 / scale)), 40.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
     GlStateManager.popMatrix();
   }
   
   protected static void renderItemAndEffectIntoGUI(
-    @Nullable EntityLivingBase living, final ItemStack stack, double x, double y, double scale) {
+      @Nullable EntityLivingBase living, final ItemStack stack, double x, double y, double scale) {
     if (!stack.isEmpty()) {
       MC.getRenderItem().zLevel += 50.f;
       try {
         renderItemModelIntoGUI(
-          stack, x, y, MC.getRenderItem().getItemModelWithOverrides(stack, null, living), scale);
+            stack, x, y, MC.getRenderItem().getItemModelWithOverrides(stack, null, living), scale);
       } catch (Throwable t) {
         Helper.handleThrowable(t);
       } finally {
@@ -300,18 +300,18 @@ public class SurfaceHelper implements Globals {
   }
   
   private static void renderItemModelIntoGUI(
-    ItemStack stack, double x, double y, IBakedModel bakedmodel, double scale) {
+      ItemStack stack, double x, double y, IBakedModel bakedmodel, double scale) {
     GlStateManager.pushMatrix();
     MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
     MC.getTextureManager()
-      .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
-      .setBlurMipmap(false, false);
+        .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+        .setBlurMipmap(false, false);
     GlStateManager.enableRescaleNormal();
     GlStateManager.enableAlpha();
     GlStateManager.alphaFunc(516, 0.1F);
     GlStateManager.enableBlend();
     GlStateManager.blendFunc(
-      GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
     
     GlStateManager.translate(x, y, 100.0F + MC.getRenderItem().zLevel);
@@ -326,8 +326,8 @@ public class SurfaceHelper implements Globals {
     }
     
     bakedmodel =
-      net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(
-        bakedmodel, ItemCameraTransforms.TransformType.GUI, false);
+        net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(
+            bakedmodel, ItemCameraTransforms.TransformType.GUI, false);
     MC.getRenderItem().renderItem(stack, bakedmodel);
     GlStateManager.disableAlpha();
     GlStateManager.disableRescaleNormal();
@@ -338,12 +338,12 @@ public class SurfaceHelper implements Globals {
   }
   
   protected static void renderItemOverlayIntoGUI(
-    FontRenderer fr,
-    ItemStack stack,
-    double xPosition,
-    double yPosition,
-    @Nullable String text,
-    double scale) {
+      FontRenderer fr,
+      ItemStack stack,
+      double xPosition,
+      double yPosition,
+      @Nullable String text,
+      double scale) {
     final double SCALE_RATIO = 1.23076923077D;
     
     if (!stack.isEmpty()) {
@@ -353,10 +353,10 @@ public class SurfaceHelper implements Globals {
         GlStateManager.disableDepth();
         GlStateManager.disableBlend();
         fr.drawStringWithShadow(
-          s,
-          (float) (xPosition + 19 - 2 - fr.getStringWidth(s)),
-          (float) (yPosition + 6 + 3),
-          16777215);
+            s,
+            (float) (xPosition + 19 - 2 - fr.getStringWidth(s)),
+            (float) (yPosition + 6 + 3),
+            16777215);
         GlStateManager.enableLighting();
         GlStateManager.enableDepth();
         // Fixes opaque cooldown overlay a bit lower
@@ -376,14 +376,14 @@ public class SurfaceHelper implements Globals {
         int j = rgbfordisplay;
         draw(xPosition + (scale / 8.D), yPosition + (scale / SCALE_RATIO), 13, 2, 0, 0, 0, 255);
         draw(
-          xPosition + (scale / 8.D),
-          yPosition + (scale / SCALE_RATIO),
-          i,
-          1,
-          j >> 16 & 255,
-          j >> 8 & 255,
-          j & 255,
-          255);
+            xPosition + (scale / 8.D),
+            yPosition + (scale / SCALE_RATIO),
+            i,
+            1,
+            j >> 16 & 255,
+            j >> 8 & 255,
+            j & 255,
+            255);
         GlStateManager.enableBlend();
         GlStateManager.enableAlpha();
         GlStateManager.enableTexture2D();
@@ -393,11 +393,11 @@ public class SurfaceHelper implements Globals {
       
       EntityPlayerSP entityplayersp = Minecraft.getMinecraft().player;
       float f3 =
-        entityplayersp == null
-          ? 0.0F
-          : entityplayersp
-            .getCooldownTracker()
-            .getCooldown(stack.getItem(), Minecraft.getMinecraft().getRenderPartialTicks());
+          entityplayersp == null
+              ? 0.0F
+              : entityplayersp
+                  .getCooldownTracker()
+                  .getCooldown(stack.getItem(), Minecraft.getMinecraft().getRenderPartialTicks());
       
       if (f3 > 0.0F) {
         GlStateManager.disableLighting();
@@ -412,61 +412,61 @@ public class SurfaceHelper implements Globals {
   }
   
   private static void draw(
-    double x, double y, double width, double height, int red, int green, int blue, int alpha) {
+      double x, double y, double width, double height, int red, int green, int blue, int alpha) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder renderer = tessellator.getBuffer();
     renderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
     renderer
-      .pos((double) (x + 0), (double) (y + 0), 0.0D)
-      .color(red, green, blue, alpha)
-      .endVertex();
+        .pos(x + 0, y + 0, 0.0D)
+        .color(red, green, blue, alpha)
+        .endVertex();
     renderer
-      .pos((double) (x + 0), (double) (y + height), 0.0D)
-      .color(red, green, blue, alpha)
-      .endVertex();
+        .pos(x + 0, y + height, 0.0D)
+        .color(red, green, blue, alpha)
+        .endVertex();
     renderer
-      .pos((double) (x + width), (double) (y + height), 0.0D)
-      .color(red, green, blue, alpha)
-      .endVertex();
+        .pos(x + width, y + height, 0.0D)
+        .color(red, green, blue, alpha)
+        .endVertex();
     renderer
-      .pos((double) (x + width), (double) (y + 0), 0.0D)
-      .color(red, green, blue, alpha)
-      .endVertex();
+        .pos(x + width, y + 0, 0.0D)
+        .color(red, green, blue, alpha)
+        .endVertex();
     Tessellator.getInstance().draw();
   }
   
   protected static void drawScaledCustomSizeModalRect(
-    double x,
-    double y,
-    float u,
-    float v,
-    double uWidth,
-    double vHeight,
-    double width,
-    double height,
-    double tileWidth,
-    double tileHeight) {
+      double x,
+      double y,
+      float u,
+      float v,
+      double uWidth,
+      double vHeight,
+      double width,
+      double height,
+      double tileWidth,
+      double tileHeight) {
     double f = 1.0F / tileWidth;
     double f1 = 1.0F / tileHeight;
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferbuilder = tessellator.getBuffer();
     bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
     bufferbuilder
-      .pos((double) x, (double) (y + height), 0.0D)
-      .tex((double) (u * f), (double) ((v + (float) vHeight) * f1))
-      .endVertex();
+        .pos(x, y + height, 0.0D)
+        .tex(u * f, (v + (float) vHeight) * f1)
+        .endVertex();
     bufferbuilder
-      .pos((double) (x + width), (double) (y + height), 0.0D)
-      .tex((double) ((u + (float) uWidth) * f), (double) ((v + (float) vHeight) * f1))
-      .endVertex();
+        .pos(x + width, y + height, 0.0D)
+        .tex((u + (float) uWidth) * f, (v + (float) vHeight) * f1)
+        .endVertex();
     bufferbuilder
-      .pos((double) (x + width), (double) y, 0.0D)
-      .tex((double) ((u + (float) uWidth) * f), (double) (v * f1))
-      .endVertex();
+        .pos(x + width, y, 0.0D)
+        .tex((u + (float) uWidth) * f, v * f1)
+        .endVertex();
     bufferbuilder
-      .pos((double) x, (double) y, 0.0D)
-      .tex((double) (u * f), (double) (v * f1))
-      .endVertex();
+        .pos(x, y, 0.0D)
+        .tex(u * f, v * f1)
+        .endVertex();
     tessellator.draw();
   }
   

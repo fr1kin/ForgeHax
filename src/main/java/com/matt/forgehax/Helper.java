@@ -95,7 +95,7 @@ public class Helper implements Globals {
   }
   
   public static void printMessageNaked(
-    String startWith, String message, Style firstStyle, Style secondStyle) {
+      String startWith, String message, Style firstStyle, Style secondStyle) {
     if (!Strings.isNullOrEmpty(message)) {
       if (message.contains("\n")) {
         Scanner scanner = new Scanner(message);
@@ -111,7 +111,7 @@ public class Helper implements Globals {
         }
       } else {
         TextComponentString string =
-          new TextComponentString(startWith + message.replaceAll("\r", ""));
+            new TextComponentString(startWith + message.replaceAll("\r", ""));
         string.setStyle(firstStyle);
         outputMessage(string.getFormattedText());
       }
@@ -133,10 +133,10 @@ public class Helper implements Globals {
   
   public static void printMessageNaked(String append, String message) {
     printMessageNaked(
-      append,
-      message,
-      new Style().setColor(TextFormatting.WHITE),
-      new Style().setColor(TextFormatting.GRAY));
+        append,
+        message,
+        new Style().setColor(TextFormatting.WHITE),
+        new Style().setColor(TextFormatting.GRAY));
   }
   
   public static void printMessageNaked(String message) {
@@ -155,42 +155,42 @@ public class Helper implements Globals {
   }
   
   private static ITextComponent getFormattedText(String text, TextFormatting color,
-    boolean bold, boolean italic) {
+      boolean bold, boolean italic) {
     return new TextComponentString(text.replaceAll("\r", ""))
-      .setStyle(new Style()
-        .setColor(color)
-        .setBold(bold)
-        .setItalic(italic)
-      );
+        .setStyle(new Style()
+            .setColor(color)
+            .setBold(bold)
+            .setItalic(italic)
+        );
   }
   
   public static void printInform(String format, Object... args) {
     outputMessage(
-      getFormattedText("[ForgeHax]", TextFormatting.GREEN, true, false)
-        .appendSibling(
-          getFormattedText(" " + String.format(format, args).trim(),
-            TextFormatting.GRAY, false, false)
-        ).getFormattedText()
+        getFormattedText("[ForgeHax]", TextFormatting.GREEN, true, false)
+            .appendSibling(
+                getFormattedText(" " + String.format(format, args).trim(),
+                    TextFormatting.GRAY, false, false)
+            ).getFormattedText()
     );
   }
   
   public static void printWarning(String format, Object... args) {
     outputMessage(
-      getFormattedText("[ForgeHax]", TextFormatting.YELLOW, true, false)
-        .appendSibling(
-          getFormattedText(" " + String.format(format, args).trim(),
-            TextFormatting.GRAY, false, false)
-        ).getFormattedText()
+        getFormattedText("[ForgeHax]", TextFormatting.YELLOW, true, false)
+            .appendSibling(
+                getFormattedText(" " + String.format(format, args).trim(),
+                    TextFormatting.GRAY, false, false)
+            ).getFormattedText()
     );
   }
   
   public static void printError(String format, Object... args) {
     outputMessage(
-      getFormattedText("[ForgeHax]", TextFormatting.RED, true, false)
-        .appendSibling(
-          getFormattedText(" " + String.format(format, args).trim(),
-            TextFormatting.GRAY, false, false)
-        ).getFormattedText()
+        getFormattedText("[ForgeHax]", TextFormatting.RED, true, false)
+            .appendSibling(
+                getFormattedText(" " + String.format(format, args).trim(),
+                    TextFormatting.GRAY, false, false)
+            ).getFormattedText()
     );
   }
   
@@ -200,8 +200,8 @@ public class Helper implements Globals {
   
   public static void handleThrowable(Throwable t) {
     getLog().error(String.format("[%s] %s",
-      t.getClass().getSimpleName(),
-      Strings.nullToEmpty(t.getMessage())));
+        t.getClass().getSimpleName(),
+        Strings.nullToEmpty(t.getMessage())));
     
     if (t.getCause() != null) {
       handleThrowable(t.getCause());
@@ -213,25 +213,25 @@ public class Helper implements Globals {
     // credits to 0x22
     if (getWorld() != null && getLocalPlayer() != null) {
       MC.addScheduledTask(
-        () -> {
-          int x = (int) getLocalPlayer().posX;
-          int y = (int) getLocalPlayer().posY;
-          int z = (int) getLocalPlayer().posZ;
-    
-          int distance = MC.gameSettings.renderDistanceChunks * 16;
-    
-          MC.renderGlobal.markBlockRangeForRenderUpdate(
-            x - distance, y - distance, z - distance, x + distance, y + distance, z + distance);
-        });
+          () -> {
+            int x = (int) getLocalPlayer().posX;
+            int y = (int) getLocalPlayer().posY;
+            int z = (int) getLocalPlayer().posZ;
+            
+            int distance = MC.gameSettings.renderDistanceChunks * 16;
+            
+            MC.renderGlobal.markBlockRangeForRenderUpdate(
+                x - distance, y - distance, z - distance, x + distance, y + distance, z + distance);
+          });
     }
   }
   
   public static void reloadChunksHard() {
     MC.addScheduledTask(
-      () -> {
-        if (getWorld() != null && getLocalPlayer() != null) {
-          MC.renderGlobal.loadRenderers();
-        }
-      });
+        () -> {
+          if (getWorld() != null && getLocalPlayer() != null) {
+            MC.renderGlobal.loadRenderers();
+          }
+        });
   }
 }

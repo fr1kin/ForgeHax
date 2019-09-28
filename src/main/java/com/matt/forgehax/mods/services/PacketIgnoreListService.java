@@ -12,18 +12,18 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @RegisterMod
 public class PacketIgnoreListService extends ServiceMod {
-
+  
   public PacketIgnoreListService() {
     super("PacketIgnoreListService");
   }
-
+  
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onSentPacket(PacketEvent.Outgoing.Post event) {
     if (PacketHelper.isIgnored(event.getPacket())) {
       PacketHelper.remove(event.getPacket());
     }
   }
-
+  
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onIncomingPacket(PacketEvent.Incoming.Post event) {
     if (PacketHelper.isIgnored(event.getPacket())) {

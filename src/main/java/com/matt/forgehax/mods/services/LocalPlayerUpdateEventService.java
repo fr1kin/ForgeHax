@@ -16,16 +16,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @RegisterMod
 public class LocalPlayerUpdateEventService extends ServiceMod {
-
+  
   public LocalPlayerUpdateEventService() {
     super("LocalPlayerUpdateEventService");
   }
-
+  
   @SubscribeEvent
   public void onUpdate(LivingEvent.LivingUpdateEvent event) {
     if (getWorld() != null
-      && event.getEntity().getEntityWorld().isRemote
-      && event.getEntityLiving().equals(getLocalPlayer())) {
+        && event.getEntity().getEntityWorld().isRemote
+        && event.getEntityLiving().equals(getLocalPlayer())) {
       Event ev = new LocalPlayerUpdateEvent(event.getEntityLiving());
       MinecraftForge.EVENT_BUS.post(ev);
       event.setCanceled(ev.isCanceled());

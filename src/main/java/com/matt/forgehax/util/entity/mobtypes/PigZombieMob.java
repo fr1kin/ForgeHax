@@ -13,12 +13,12 @@ public class PigZombieMob extends MobType {
   protected PriorityEnum getPriority() {
     return PriorityEnum.LOW;
   }
-
+  
   @Override
   public boolean isMobType(Entity entity) {
     return entity instanceof EntityPigZombie;
   }
-
+  
   @Override
   protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
     EntityPigZombie zombie = (EntityPigZombie) entity;

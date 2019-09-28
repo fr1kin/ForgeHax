@@ -78,7 +78,7 @@ public class ASMHelper {
           // Reset the number of insns matched
           found = 0;
         }
-  
+        
         // Check if found entire pattern
         if (found >= patternSize) {
           final AbstractInsnNode end = next;
@@ -121,7 +121,6 @@ public class ASMHelper {
     for (int i = 0;
       i < Math.abs(n) && node != null;
       ++i, node = n > 0 ? node.getNext() : node.getPrevious()) {
-      ;
     }
     return node;
   }
@@ -171,9 +170,9 @@ public class ASMHelper {
   // scope is from first label to last label
   public static int addNewLocalVariable(MethodNode method, String name, String desc) {
     AsmPattern labelPattern = new AsmPattern.Builder(0).label().build();
-  
+    
     final LabelNode start = labelPattern.test(method).getFirst();
-  
+    
     // TODO: implement backwards pattern matching so this can be refactored
     AbstractInsnNode iter = method.instructions.getFirst();
     LabelNode end = null;

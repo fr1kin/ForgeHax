@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
  * Created on 1/18/2018 by fr1kin
  */
 public class RenderUploader<E extends Tessellator> implements Globals {
-
+  
   private final Uploaders<E> parent;
   private final ReentrantLock _lock = new ReentrantLock();
   
@@ -33,29 +33,29 @@ public class RenderUploader<E extends Tessellator> implements Globals {
    * The thread the current VBO is being processed on
    */
   private volatile Thread currentThread;
-
+  
   private boolean complete = false;
   private boolean uploaded = false;
   private int renderCount = 0;
   private BlockPos region = null;
-
+  
   public RenderUploader(Uploaders<E> parent, VertexFormat format) {
     this.parent = parent;
     vertexBuffer = new VertexBuffer(format);
   }
-
+  
   public RenderUploader(Uploaders<E> parent) {
     this(parent, DefaultVertexFormats.POSITION_COLOR);
   }
-
+  
   public boolean isComplete() {
     return complete;
   }
-
+  
   public void setComplete(boolean complete) {
     this.complete = complete;
   }
-
+  
   /**
    * Gets the tessellator
    *
@@ -64,7 +64,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
   public E getTessellator() {
     return tessellator;
   }
-
+  
   public void setTessellator(E tessellator) throws UploaderException {
     if (tessellator != null && this.tessellator != null) {
       throw new UploaderException("Tried to set tessellator without removing the previous one");
@@ -72,13 +72,13 @@ public class RenderUploader<E extends Tessellator> implements Globals {
       this.tessellator = tessellator;
     }
   }
-
+  
   public void takeTessellator() throws UploaderException, InterruptedException {
     setTessellator(parent.cache().take());
   }
-
+  
   public void freeTessellator()
-    throws UploaderException, TessellatorCache.TessellatorCacheFreeException {
+      throws UploaderException, TessellatorCache.TessellatorCacheFreeException {
     if (tessellator != null) {
       // stop tessellator from drawing
       if (isTessellatorDrawing()) {
@@ -92,7 +92,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
       setTessellator(null);
     }
   }
-
+  
   public BufferBuilder getBufferBuilder() {
     return getTessellator().getBuffer();
   }
@@ -103,11 +103,11 @@ public class RenderUploader<E extends Tessellator> implements Globals {
   public void setCurrentThread() {
     currentThread = Thread.currentThread();
   }
-
+  
   public void nullifyCurrentThread() {
     currentThread = null;
   }
-
+  
   /**
    * Verify that the current thread is the one doing the rendering
    *
@@ -118,21 +118,21 @@ public class RenderUploader<E extends Tessellator> implements Globals {
       throw new ThreadMismatchException("Tried executing in incorrect thread (this is normal)");
     }
   }
-
+  
   /**
    * Same thing but returns a boolean instead of throwing error
    */
   public boolean isCorrectCurrentThread() {
     return currentThread == Thread.currentThread();
   }
-
+  
   /**
    * Get the vertex buffer used to upload
    */
   public VertexBuffer getVertexBuffer() {
     return vertexBuffer;
   }
-
+  
   /**
    * Upload the vertex buffer to the GPU
    *
@@ -147,18 +147,18 @@ public class RenderUploader<E extends Tessellator> implements Globals {
     }
     // if(isTessellatorDrawing()) throw new UploaderException("Tried to upload VBO while tessellator
     // is still drawing");
-
+    
     // while (isTessellatorDrawing()); // wait until drawing is finished. could cause thread lockups
-
+    
     boolean update = false;
-
+    
     lock().lock();
     try {
       if (isTessellatorDrawing()) {
         finishDrawing(); // force to stop
         update = true;
       }
-
+      
       getBufferBuilder().reset();
       vertexBuffer.bufferData(getBufferBuilder().getByteBuffer());
     } finally {
@@ -168,7 +168,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
     }
     return update;
   }
-
+  
   /**
    * Unload the vertex buffer from the GPU
    *
@@ -181,7 +181,7 @@ public class RenderUploader<E extends Tessellator> implements Globals {
     if (!MC.isCallingFromMinecraftThread()) {
       throw new UploaderException("Not calling from main Minecraft thread");
     }
-
+    
     try {
       vertexBuffer.deleteGlBuffers();
     } finally {
@@ -190,31 +190,31 @@ public class RenderUploader<E extends Tessellator> implements Globals {
       resetRegion();
     }
   }
-
+  
   /**
    * Check if the tessellator instance is current drawing
    */
   public boolean isTessellatorDrawing() {
     return getTessellator() != null
-      && FastReflection.Fields.BufferBuilder_isDrawing.get(getBufferBuilder());
+        && FastReflection.Fields.BufferBuilder_isDrawing.get(getBufferBuilder());
   }
-
+  
   public void finishDrawing() {
     if (!isTessellatorDrawing()) {
       return;
     }
-
+    
     renderCount = getBufferBuilder().getVertexCount() / 24;
     getBufferBuilder().finishDrawing();
   }
-
+  
   /**
    * Check if the vertex buffer has been uploaded
    */
   public boolean isUploaded() {
     return uploaded;
   }
-
+  
   /**
    * Number of objects currently added to the tessellator
    *
@@ -223,47 +223,47 @@ public class RenderUploader<E extends Tessellator> implements Globals {
   public int getRenderCount() {
     return renderCount;
   }
-
+  
   public void resetRenderCount() {
     renderCount = 0;
   }
-
+  
   public void setRegion(RenderChunk chunk) {
     region = new BlockPos(chunk.getPosition()); // copy because RenderChunk.position is mutable
   }
-
+  
   public void resetRegion() {
     region = null;
   }
-
+  
   public BlockPos getRegion() {
     return region;
   }
-
+  
   public boolean isCorrectRegion(RenderChunk chunk) {
     return region != null && region.equals(chunk.getPosition());
   }
-
+  
   public ReentrantLock lock() {
     return _lock;
   }
-
-  public static class UploaderException extends Exception {
   
+  public static class UploaderException extends Exception {
+    
     public UploaderException(String msg) {
       super(msg);
     }
   }
-
-  public static class ThreadMismatchException extends UploaderException {
   
+  public static class ThreadMismatchException extends UploaderException {
+    
     public ThreadMismatchException(String msg) {
       super(msg);
     }
   }
-
-  public static class VertexBufferException extends UploaderException {
   
+  public static class VertexBufferException extends UploaderException {
+    
     public VertexBufferException(String msg) {
       super(msg);
     }

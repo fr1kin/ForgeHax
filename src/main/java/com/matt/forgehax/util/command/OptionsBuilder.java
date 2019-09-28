@@ -9,7 +9,7 @@ import java.util.function.Supplier;
  * Created on 6/5/2017 by fr1kin
  */
 public class OptionsBuilder<E extends ISerializableJson>
-  extends BaseCommandBuilder<OptionsBuilder<E>, Options<E>> {
+    extends BaseCommandBuilder<OptionsBuilder<E>, Options<E>> {
   
   public OptionsBuilder<E> supplier(Supplier<Collection<E>> supplier) {
     return insert(Options.SUPPLIER, supplier);

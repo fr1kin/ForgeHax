@@ -7,11 +7,11 @@ import java.util.Objects;
  * Created on 5/18/2017 by fr1kin
  */
 public class SafeConverter {
-
+  
   private static final String ACCEPTABLE_TRUE_BOOLEAN_STRINGS =
-    CommandHelper.join(
-      new String[]{Boolean.TRUE.toString(), "t", "on", "enable", "enabled"}, "|");
-
+      CommandHelper.join(
+          new String[]{Boolean.TRUE.toString(), "t", "on", "enable", "enabled"}, "|");
+  
   //
   // BOOLEAN
   //
@@ -32,15 +32,15 @@ public class SafeConverter {
       return defaultValue;
     }
   }
-
+  
   public static boolean toBoolean(Object o) {
     return toBoolean(o, Boolean.FALSE);
   }
-
+  
   //
   // BYTE
   //
-
+  
   public static byte toByte(Object o, byte defaultValue) {
     try {
       Objects.requireNonNull(o);
@@ -54,15 +54,15 @@ public class SafeConverter {
       return defaultValue;
     }
   }
-
+  
   public static byte toByte(Object o) {
     return toByte(o, (byte) 0);
   }
-
+  
   //
   // CHARACTER
   //
-
+  
   public static char toCharacter(Object o, char defaultValue) {
     try {
       Objects.requireNonNull(o);
@@ -76,15 +76,15 @@ public class SafeConverter {
       return defaultValue;
     }
   }
-
+  
   public static char toCharacter(Object o) {
     return toCharacter(o, '\u0000');
   }
-
+  
   //
   // DOUBLE
   //
-
+  
   public static double toDouble(Object o, double defaultValue) {
     try {
       Objects.requireNonNull(o);
@@ -98,15 +98,15 @@ public class SafeConverter {
       return defaultValue;
     }
   }
-
+  
   public static double toDouble(Object o) {
     return toDouble(o, 0.D);
   }
-
+  
   //
   // FLOAT
   //
-
+  
   public static float toFloat(Object o, float defaultValue) {
     try {
       Objects.requireNonNull(o);
@@ -120,15 +120,15 @@ public class SafeConverter {
       return defaultValue;
     }
   }
-
+  
   public static float toFloat(Object o) {
     return toFloat(o, 0.f);
   }
-
+  
   //
   // INTEGER
   //
-
+  
   public static int toInteger(Object o, int defaultValue) {
     try {
       Objects.requireNonNull(o);
@@ -141,15 +141,15 @@ public class SafeConverter {
       return defaultValue;
     }
   }
-
+  
   public static int toInteger(Object o) {
     return toInteger(o, 0);
   }
-
+  
   //
   // LONG
   //
-
+  
   public static long toLong(Object o, long defaultValue) {
     try {
       Objects.requireNonNull(o);
@@ -163,15 +163,15 @@ public class SafeConverter {
       return defaultValue;
     }
   }
-
+  
   public static long toLong(Object o) {
     return toLong(o, 0L);
   }
-
+  
   //
   // SHORT
   //
-
+  
   public static short toShort(Object o, short defaultValue) {
     try {
       Objects.requireNonNull(o);
@@ -185,15 +185,15 @@ public class SafeConverter {
       return defaultValue;
     }
   }
-
+  
   public static short toShort(Object o) {
     return toShort(o, (short) 0);
   }
-
+  
   //
   // STRING
   //
-
+  
   public static String toString(Object o) {
     return String.valueOf(o);
   }

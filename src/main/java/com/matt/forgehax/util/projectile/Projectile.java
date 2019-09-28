@@ -28,37 +28,37 @@ public enum Projectile implements IProjectile {
     public Item getItem() {
       return null;
     }
-  
+    
     @Override
     public double getForce(int charge) {
       return 0;
     }
-  
+    
     @Override
     public double getMaxForce() {
       return 0;
     }
-  
+    
     @Override
     public double getMinForce() {
       return 0;
     }
-  
+    
     @Override
     public double getGravity() {
       return 0;
     }
-  
+    
     @Override
     public double getDrag() {
       return 0;
     }
-  
+    
     @Override
     public double getWaterDrag() {
       return 0;
     }
-  
+    
     @Override
     public double getProjectileSize() {
       return 0;
@@ -69,7 +69,7 @@ public enum Projectile implements IProjectile {
     public Item getItem() {
       return Items.BOW;
     }
-  
+    
     @Override
     public double getForce(int charge) {
       double force = (double) charge / 20.0F;
@@ -80,27 +80,27 @@ public enum Projectile implements IProjectile {
       force *= 2d * 1.5d;
       return force;
     }
-  
+    
     @Override
     public double getMaxForce() {
       return 3.D;
     }
-  
+    
     @Override
     public double getMinForce() {
       return 0.15D;
     }
-  
+    
     @Override
     public double getGravity() {
       return 0.05D;
     }
-  
+    
     @Override
     public double getWaterDrag() {
       return 0.6D;
     }
-  
+    
     @Override
     public double getProjectileSize() {
       return 0.5D;
@@ -123,12 +123,12 @@ public enum Projectile implements IProjectile {
     public Item getItem() {
       return Items.FISHING_ROD;
     }
-  
+    
     @Override
     public double getGravity() {
       return 0.03999999910593033D;
     }
-  
+    
     @Override
     public double getDrag() {
       return 0.92D;
@@ -142,7 +142,7 @@ public enum Projectile implements IProjectile {
   };
   
   private static final int MAX_ITERATIONS =
-    1000; // fail safe to prevent infinite loops. MUST be greater than 1
+      1000; // fail safe to prevent infinite loops. MUST be greater than 1
   private static final double SHOOT_POS_OFFSET = 0.10000000149011612D;
   
   public boolean isNull() {
@@ -151,7 +151,7 @@ public enum Projectile implements IProjectile {
   
   @Nullable
   public SimulationResult getSimulatedTrajectory(
-    Vec3d shootPos, Angle angle, double force, int factor) throws IllegalArgumentException {
+      Vec3d shootPos, Angle angle, double force, int factor) throws IllegalArgumentException {
     if (isNull()) {
       return null;
     }
@@ -216,7 +216,7 @@ public enum Projectile implements IProjectile {
   
   @Nullable
   public SimulationResult getSimulatedTrajectoryFromEntity(
-    Entity shooter, Angle angle, double force, int factor) {
+      Entity shooter, Angle angle, double force, int factor) {
     angle = getAngleFacing(angle);
     return getSimulatedTrajectory(getShootPosFacing(shooter, angle), angle, force, factor);
   }
@@ -261,7 +261,7 @@ public enum Projectile implements IProjectile {
   
   @Nullable
   public Angle getEstimatedImpactAngleInRadiansFromEntity(
-    Entity entity, Vec3d targetPos, double force) {
+      Entity entity, Vec3d targetPos, double force) {
     return getEstimatedImpactAngleInRadians(getEntityShootPos(entity), targetPos, force);
   }
   
@@ -302,13 +302,13 @@ public enum Projectile implements IProjectile {
   private AxisAlignedBB getBoundBox(Vec3d pos) {
     double mp = getProjectileSize() / 2.D;
     return new AxisAlignedBB(
-      pos.x - mp, pos.y - mp, pos.z - mp, pos.x + mp, pos.y + mp, pos.z + mp);
+        pos.x - mp, pos.y - mp, pos.z - mp, pos.x + mp, pos.y + mp, pos.z + mp);
   }
   
   // ####################################################################################################
   
   private static RayTraceResult rayTraceCheckEntityCollisions(
-    Vec3d start, Vec3d end, AxisAlignedBB bb, double motionX, double motionY, double motionZ) {
+      Vec3d start, Vec3d end, AxisAlignedBB bb, double motionX, double motionY, double motionZ) {
     RayTraceResult trace = getWorld().rayTraceBlocks(start, end, false, true, false);
     
     if (trace != null) {
@@ -317,9 +317,9 @@ public enum Projectile implements IProjectile {
     
     // now check entity collisions
     List<Entity> entities =
-      getWorld()
-        .getEntitiesWithinAABBExcludingEntity(
-          getLocalPlayer(), bb.expand(motionX, motionY, motionZ).grow(1.D));
+        getWorld()
+            .getEntitiesWithinAABBExcludingEntity(
+                getLocalPlayer(), bb.expand(motionX, motionY, motionZ).grow(1.D));
     
     double best = 0.D;
     Vec3d hitPos = Vec3d.ZERO;
@@ -354,15 +354,15 @@ public enum Projectile implements IProjectile {
   
   private static Vec3d getShootPosFacing(Entity entity, Angle angleFacing) {
     return getEntityShootPos(entity)
-      .subtract(
-        Math.cos(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D,
-        0.D,
-        Math.sin(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D);
+        .subtract(
+            Math.cos(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D,
+            0.D,
+            Math.sin(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D);
   }
   
   private static Angle getAngleFacing(Angle angle) {
     return Angle.radians(
-      -angle.inRadians().getPitch(), (float) (angle.inRadians().getYaw() + (Math.PI / 2.D)));
+        -angle.inRadians().getPitch(), (float) (angle.inRadians().getYaw() + (Math.PI / 2.D)));
   }
   
   public static Projectile getProjectileByItem(Item item) {

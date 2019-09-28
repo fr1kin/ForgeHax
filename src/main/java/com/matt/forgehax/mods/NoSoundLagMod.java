@@ -15,13 +15,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class NoSoundLagMod extends ToggleMod {
   
   private static final Set<SoundEvent> BLACKLIST = Sets.newHashSet(
-    SoundEvents.ITEM_ARMOR_EQUIP_GENERIC,
-    SoundEvents.ITEM_ARMOR_EQIIP_ELYTRA,
-    SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND,
-    SoundEvents.ITEM_ARMOR_EQUIP_IRON,
-    SoundEvents.ITEM_ARMOR_EQUIP_GOLD,
-    SoundEvents.ITEM_ARMOR_EQUIP_CHAIN,
-    SoundEvents.ITEM_ARMOR_EQUIP_LEATHER
+      SoundEvents.ITEM_ARMOR_EQUIP_GENERIC,
+      SoundEvents.ITEM_ARMOR_EQIIP_ELYTRA,
+      SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND,
+      SoundEvents.ITEM_ARMOR_EQUIP_IRON,
+      SoundEvents.ITEM_ARMOR_EQUIP_GOLD,
+      SoundEvents.ITEM_ARMOR_EQUIP_CHAIN,
+      SoundEvents.ITEM_ARMOR_EQUIP_LEATHER
   );
   
   public NoSoundLagMod() {

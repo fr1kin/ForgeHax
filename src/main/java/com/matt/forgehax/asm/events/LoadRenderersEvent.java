@@ -11,16 +11,16 @@ public class LoadRenderersEvent extends Event {
   
   private final ViewFrustum viewFrustum;
   private final ChunkRenderDispatcher renderDispatcher;
-
+  
   public LoadRenderersEvent(ViewFrustum viewFrustum, ChunkRenderDispatcher renderDispatcher) {
     this.viewFrustum = viewFrustum;
     this.renderDispatcher = renderDispatcher;
   }
-
+  
   public ViewFrustum getViewFrustum() {
     return viewFrustum;
   }
-
+  
   public ChunkRenderDispatcher getRenderDispatcher() {
     return renderDispatcher;
   }

@@ -15,49 +15,49 @@ import joptsimple.internal.Strings;
  * Created on 2/16/2018 by fr1kin
  */
 public class FileHelper {
-
+  
   private static final Pattern PATTERN_PACKAGE_FROM_PATH =
-    Pattern.compile("[.]jar[!][\\/|\\\\](.*)");
+      Pattern.compile("[.]jar[!][\\/|\\\\](.*)");
   private static final Pattern PATTERN_JAR_DIR_FROM_PATH = Pattern.compile("(.*.jar)");
   private static final Pattern PATTERN_FILE_SEPARATORS = Pattern.compile("[\\\\|\\/]");
-
+  
   public static String getFileExtension(String fullName) {
     return com.google.common.io.Files.getFileExtension(fullName);
   }
-
+  
   public static String getFileExtension(File file) {
     return getFileExtension(file.getName());
   }
-
+  
   public static String getFileExtension(Path path) {
     return getFileExtension(path.getFileName().toString());
   }
-
+  
   public static String getNameWithoutExtension(String file) {
     return com.google.common.io.Files.getNameWithoutExtension(file);
   }
-
+  
   public static String getNameWithoutExtension(File file) {
     return getNameWithoutExtension(file.getName());
   }
-
+  
   public static String getNameWithoutExtension(Path path) {
     return getNameWithoutExtension(path.getFileName().toString());
   }
-
+  
   public static String getPathWithoutExtension(String path) {
     String ext = getFileExtension(path);
     return !Strings.isNullOrEmpty(ext) ? path.substring(0, path.lastIndexOf("." + ext)) : path;
   }
-
+  
   public static String getPathWithoutExtension(File file) {
     return getPathWithoutExtension(file.getPath());
   }
-
+  
   public static String getPathWithoutExtension(Path path) {
     return getPathWithoutExtension(path.toString());
   }
-
+  
   public static String asPackagePath(@Nullable String filePath) {
     if (filePath == null) {
       return "";
@@ -72,49 +72,49 @@ public class FileHelper {
     }
     return str;
   }
-
+  
   public static String asPackagePath(File file) {
     return asPackagePath(file.getPath());
   }
-
+  
   public static String asPackagePath(Path path) {
     return asPackagePath(path.toString());
   }
-
+  
   public static String asFilePath(@Nullable String packagePath) {
     return packagePath == null ? "" : packagePath.replace('.', '/');
   }
-
+  
   public static String getPackageFromFullPath(String file) {
     Matcher matcher = PATTERN_PACKAGE_FROM_PATH.matcher(file);
     return matcher.find() ? matcher.group(1) : null;
   }
-
+  
   public static String getJarPathFromFullPath(String file) {
     Matcher matcher = PATTERN_JAR_DIR_FROM_PATH.matcher(file);
     return matcher.find() ? matcher.group(1) : null;
   }
-
+  
   public static FileSystem newFileSystem(Path filePath, ClassLoader parent) throws IOException {
     return FileSystems.newFileSystem(filePath, parent);
   }
-
+  
   public static FileSystem newFileSystem(File file, ClassLoader parent) throws IOException {
     return FileSystems.newFileSystem(file.toPath(), parent);
   }
-
+  
   public static FileSystem newFileSystem(String filePath, ClassLoader parent) throws IOException {
     return FileSystems.newFileSystem(Paths.get(filePath), parent);
   }
-
+  
   public static FileSystem newFileSystem(Path filePath) throws IOException {
     return newFileSystem(filePath, null);
   }
-
+  
   public static FileSystem newFileSystem(File file) throws IOException {
     return newFileSystem(file, null);
   }
-
+  
   public static FileSystem newFileSystem(String filePath) throws IOException {
     return newFileSystem(filePath, null);
   }

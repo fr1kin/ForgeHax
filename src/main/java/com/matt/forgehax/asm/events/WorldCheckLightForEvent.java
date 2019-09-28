@@ -13,16 +13,16 @@ public class WorldCheckLightForEvent extends Event {
   
   private final EnumSkyBlock enumSkyBlock;
   private final BlockPos pos;
-
+  
   public WorldCheckLightForEvent(EnumSkyBlock enumSkyBlock, BlockPos pos) {
     this.enumSkyBlock = enumSkyBlock;
     this.pos = pos;
   }
-
+  
   public EnumSkyBlock getEnumSkyBlock() {
     return enumSkyBlock;
   }
-
+  
   public BlockPos getPos() {
     return pos;
   }

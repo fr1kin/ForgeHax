@@ -15,31 +15,31 @@ import org.lwjgl.opengl.GL11;
 public class ChamsMod extends ToggleMod {
   
   public final Setting<Boolean> players =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("players")
-      .description("Enables players")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("players")
+          .description("Enables players")
+          .defaultTo(true)
+          .build();
   
   public final Setting<Boolean> mobs_hostile =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("mobs_hostile")
-      .description("Enables hostile mobs")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("mobs_hostile")
+          .description("Enables hostile mobs")
+          .defaultTo(true)
+          .build();
   
   public final Setting<Boolean> mobs_friendly =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("mobs_friendly")
-      .description("Enables friendly mobs")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("mobs_friendly")
+          .description("Enables friendly mobs")
+          .defaultTo(true)
+          .build();
   
   public ChamsMod() {
     super(Category.RENDER, "Chams", false, "Render living models behind walls");
@@ -47,11 +47,11 @@ public class ChamsMod extends ToggleMod {
   
   public boolean shouldDraw(EntityLivingBase entity) {
     return !entity.equals(MC.player)
-      && !entity.isDead
-      && ((mobs_hostile.get() && EntityUtils.isHostileMob(entity))
-      || // check this first
-      (players.get() && EntityUtils.isPlayer(entity))
-      || (mobs_friendly.get() && EntityUtils.isFriendlyMob(entity)));
+        && !entity.isDead
+        && ((mobs_hostile.get() && EntityUtils.isHostileMob(entity))
+        || // check this first
+        (players.get() && EntityUtils.isPlayer(entity))
+        || (mobs_friendly.get() && EntityUtils.isFriendlyMob(entity)));
   }
   
   @SubscribeEvent

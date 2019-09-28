@@ -19,7 +19,7 @@ public interface TypesHook {
   }
   
   interface Fields {
-  
+    
     ASMField ForgeHaxHooks_isSafeWalkActivated =
       Classes.ForgeHaxHooks.childField()
         .setName("isSafeWalkActivated")
@@ -64,7 +64,7 @@ public interface TypesHook {
   }
   
   interface Methods {
-  
+    
     ASMMethod ForgeHaxHooks_onHurtcamEffect =
       Classes.ForgeHaxHooks.childMethod()
         .setName("onHurtcamEffect")

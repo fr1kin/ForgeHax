@@ -22,13 +22,13 @@ public class AntiFireMod extends ToggleMod {
   }
   
   private final Setting<Boolean> collisions =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("collisions")
-      .description("Give fire collision boxes")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("collisions")
+          .description("Give fire collision boxes")
+          .defaultTo(false)
+          .build();
   
   @SubscribeEvent
   public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
@@ -39,7 +39,7 @@ public class AntiFireMod extends ToggleMod {
     if (Helper.getLocalPlayer() != null) {
       AxisAlignedBB bb = new AxisAlignedBB(event.getPos()).expand(0, 0.1D, 0);
       if (event.getBlock() == Blocks.FIRE && isAbovePlayer(event.getPos()) && event.getEntityBox()
-        .intersects(bb)) {
+          .intersects(bb)) {
         event.getCollidingBoxes().add(bb);
       }
     }

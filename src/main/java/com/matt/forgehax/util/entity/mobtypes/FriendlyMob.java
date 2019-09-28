@@ -13,10 +13,10 @@ public class FriendlyMob extends MobType {
   @Override
   public boolean isMobType(Entity entity) {
     return entity.isCreatureType(EnumCreatureType.CREATURE, false)
-      || entity.isCreatureType(EnumCreatureType.AMBIENT, false)
-      || entity.isCreatureType(EnumCreatureType.WATER_CREATURE, false)
-      || entity instanceof EntityVillager
-      || entity instanceof EntityGolem;
+        || entity.isCreatureType(EnumCreatureType.AMBIENT, false)
+        || entity.isCreatureType(EnumCreatureType.WATER_CREATURE, false)
+        || entity instanceof EntityVillager
+        || entity instanceof EntityGolem;
   }
   
   @Override

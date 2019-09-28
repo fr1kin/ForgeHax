@@ -20,20 +20,20 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class XrayMod extends ToggleMod {
   
   public final Setting<Integer> opacity =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("opacity")
-      .description("Xray opacity")
-      .defaultTo(150)
-      .min(0)
-      .max(255)
-      .changed(
-        cb -> {
-          ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (cb.getTo().floatValue() / 255.f);
-          reloadChunks();
-        })
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("opacity")
+          .description("Xray opacity")
+          .defaultTo(150)
+          .min(0)
+          .max(255)
+          .changed(
+              cb -> {
+                ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (cb.getTo().floatValue() / 255.f);
+                reloadChunks();
+              })
+          .build();
   
   private boolean previousForgeLightPipelineEnabled = false;
   
@@ -71,18 +71,18 @@ public class XrayMod extends ToggleMod {
         Entity renderEntity = MC.getRenderViewEntity();
         GlStateManager.disableAlpha();
         MC.renderGlobal.renderBlockLayer(
-          BlockRenderLayer.SOLID, event.getPartialTicks(), 0, renderEntity);
+            BlockRenderLayer.SOLID, event.getPartialTicks(), 0, renderEntity);
         GlStateManager.enableAlpha();
         MC.renderGlobal.renderBlockLayer(
-          BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), 0, renderEntity);
+            BlockRenderLayer.CUTOUT_MIPPED, event.getPartialTicks(), 0, renderEntity);
         MC.getTextureManager()
-          .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
-          .setBlurMipmap(false, false);
+            .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            .setBlurMipmap(false, false);
         MC.renderGlobal.renderBlockLayer(
-          BlockRenderLayer.CUTOUT, event.getPartialTicks(), 0, renderEntity);
+            BlockRenderLayer.CUTOUT, event.getPartialTicks(), 0, renderEntity);
         MC.getTextureManager()
-          .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
-          .restoreLastBlurMipmap();
+            .getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE)
+            .restoreLastBlurMipmap();
         GlStateManager.disableAlpha();
         isInternalCall = false;
       }

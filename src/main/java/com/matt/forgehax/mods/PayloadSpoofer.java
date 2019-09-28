@@ -40,9 +40,7 @@ public class PayloadSpoofer extends ToggleMod {
       scanner.useDelimiter("\\u0000");
       if (scanner.hasNext()) {
         String next = scanner.next();
-        if (!Strings.isNullOrEmpty(next) && IGNORE_LIST.contains(next)) {
-          return true;
-        }
+        return !Strings.isNullOrEmpty(next) && IGNORE_LIST.contains(next);
       }
     }
     return false;

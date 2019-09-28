@@ -39,8 +39,8 @@ public class FacingEntry implements ISerializableJson {
   @Override
   public boolean equals(Object obj) {
     return this == obj
-      || (obj instanceof FacingEntry && facing.equals(((FacingEntry) obj).getFacing()))
-      || (obj instanceof EnumFacing && facing.equals(obj));
+        || (obj instanceof FacingEntry && facing.equals(((FacingEntry) obj).getFacing()))
+        || (obj instanceof EnumFacing && facing.equals(obj));
   }
   
   @Override

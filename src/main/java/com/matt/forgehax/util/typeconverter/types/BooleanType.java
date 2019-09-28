@@ -14,22 +14,22 @@ public class BooleanType extends TypeConverter<Boolean> {
   public String label() {
     return "bool";
   }
-
+  
   @Override
   public Class<Boolean> type() {
     return Boolean.class;
   }
-
+  
   @Override
   public Boolean parse(String value) {
     return SafeConverter.toBoolean(value);
   }
-
+  
   @Override
   public String toString(Boolean value) {
     return Boolean.toString(value);
   }
-
+  
   @Nullable
   @Override
   public Comparator<Boolean> comparator() {

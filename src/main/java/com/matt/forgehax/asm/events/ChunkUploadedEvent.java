@@ -11,16 +11,16 @@ public class ChunkUploadedEvent extends Event {
   
   private final RenderChunk renderChunk;
   private final BufferBuilder buffer;
-
+  
   public ChunkUploadedEvent(RenderChunk renderChunk, BufferBuilder BufferBuilder) {
     this.renderChunk = renderChunk;
     this.buffer = BufferBuilder;
   }
-
+  
   public RenderChunk getRenderChunk() {
     return renderChunk;
   }
-
+  
   public BufferBuilder getBuffer() {
     return buffer;
   }

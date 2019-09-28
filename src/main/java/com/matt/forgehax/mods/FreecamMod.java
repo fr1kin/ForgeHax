@@ -32,13 +32,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class FreecamMod extends ToggleMod {
   
   private final Setting<Double> speed =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("speed")
-      .description("Movement speed")
-      .defaultTo(0.05D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("speed")
+          .description("Movement speed")
+          .defaultTo(0.05D)
+          .build();
   
   private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getModName());
   
@@ -59,7 +59,7 @@ public class FreecamMod extends ToggleMod {
     if (getLocalPlayer() == null || getWorld() == null) {
       return;
     }
-  
+    
     if (isRidingEntity = getLocalPlayer().isRiding()) {
       ridingEntity = getLocalPlayer().getRidingEntity();
       getLocalPlayer().dismountRidingEntity();
@@ -111,11 +111,11 @@ public class FreecamMod extends ToggleMod {
     getLocalPlayer().fallDistance = 0;
     
     if (!Bindings.forward.isPressed()
-      && !Bindings.back.isPressed()
-      && !Bindings.left.isPressed()
-      && !Bindings.right.isPressed()
-      && !Bindings.jump.isPressed()
-      && !Bindings.sneak.isPressed()) {
+        && !Bindings.back.isPressed()
+        && !Bindings.left.isPressed()
+        && !Bindings.right.isPressed()
+        && !Bindings.jump.isPressed()
+        && !Bindings.sneak.isPressed()) {
       getLocalPlayer().setVelocity(0, 0, 0);
     }
   }
@@ -134,7 +134,7 @@ public class FreecamMod extends ToggleMod {
     }
     
     if (event.getPacket() instanceof SPacketPlayerPosLook) {
-      SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();
+      SPacketPlayerPosLook packet = event.getPacket();
       pos = new Vec3d(packet.getX(), packet.getY(), packet.getZ());
       angle = Angle.degrees(packet.getPitch(), packet.getYaw());
       event.setCanceled(true);
@@ -154,8 +154,8 @@ public class FreecamMod extends ToggleMod {
   @SubscribeEvent
   public void onEntityRender(RenderLivingEvent.Pre<?> event) {
     if (originalPlayer != null
-      && getLocalPlayer() != null
-      && getLocalPlayer().equals(event.getEntity())) {
+        && getLocalPlayer() != null
+        && getLocalPlayer().equals(event.getEntity())) {
       event.setCanceled(true);
     }
   }
@@ -163,18 +163,18 @@ public class FreecamMod extends ToggleMod {
   @SubscribeEvent
   public void onRenderTag(RenderLivingEvent.Specials.Pre event) {
     if (originalPlayer != null
-      && getLocalPlayer() != null
-      && getLocalPlayer().equals(event.getEntity())) {
+        && getLocalPlayer() != null
+        && getLocalPlayer().equals(event.getEntity())) {
       event.setCanceled(true);
     }
   }
   
   private static class DummyPlayer extends EntityOtherPlayerMP {
-  
+    
     public DummyPlayer(World worldIn, GameProfile gameProfileIn) {
       super(worldIn, gameProfileIn);
     }
-  
+    
     @Override
     public void onUpdate() {
     }

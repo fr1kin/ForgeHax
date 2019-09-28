@@ -78,39 +78,39 @@ public class LocalPlayerUtils implements Globals {
   
   public static RayTraceResult getMouseOverBlockTrace() {
     return Optional.ofNullable(MC.objectMouseOver)
-      .filter(tr -> tr.getBlockPos() != null) // no its not intelliJ
-      .filter(
-        tr ->
-          Type.BLOCK.equals(tr.typeOfHit)
-            || !Material.AIR.equals(
-            getWorld().getBlockState(tr.getBlockPos()).getMaterial()))
-      .orElse(null);
+        .filter(tr -> tr.getBlockPos() != null) // no its not intelliJ
+        .filter(
+            tr ->
+                Type.BLOCK.equals(tr.typeOfHit)
+                    || !Material.AIR.equals(
+                    getWorld().getBlockState(tr.getBlockPos()).getMaterial()))
+        .orElse(null);
   }
   
   public static RayTraceResult getViewTrace(
-    Entity entity, Vec3d direction, float partialTicks, double reach, double reachAttack) {
+      Entity entity, Vec3d direction, float partialTicks, double reach, double reachAttack) {
     if (entity == null) {
       return null;
     }
     
     Vec3d eyes = entity.getPositionEyes(partialTicks);
     RayTraceResult trace = entity.rayTrace(reach, partialTicks);
-  
+    
     Vec3d dir = direction.scale(reach);
     Vec3d lookDir = eyes.add(dir);
-  
+    
     double hitDistance = trace == null ? reachAttack : trace.hitVec.distanceTo(eyes);
     Entity hitEntity = null;
     Vec3d hitEntityVec = null;
-  
+    
     for (Entity ent :
-      getWorld()
-        .getEntitiesInAABBexcluding(
-          entity,
-          entity.getEntityBoundingBox().expand(dir.x, dir.y, dir.y).grow(1.D),
-          Predicates.and(
-            EntitySelectors.NOT_SPECTATING,
-            ent -> ent != null && ent.canBeCollidedWith()))) {
+        getWorld()
+            .getEntitiesInAABBexcluding(
+                entity,
+                entity.getEntityBoundingBox().expand(dir.x, dir.y, dir.y).grow(1.D),
+                Predicates.and(
+                    EntitySelectors.NOT_SPECTATING,
+                    ent -> ent != null && ent.canBeCollidedWith()))) {
       AxisAlignedBB bb = ent.getEntityBoundingBox().grow(ent.getCollisionBorderSize());
       RayTraceResult tr = bb.calculateIntercept(eyes, lookDir);
       if (bb.contains(eyes)) {
@@ -123,7 +123,7 @@ public class LocalPlayerUtils implements Globals {
         double dist = eyes.distanceTo(tr.hitVec);
         if (dist < hitDistance || hitDistance == 0.D) {
           if (entity.getLowestRidingEntity() == ent.getLowestRidingEntity()
-            && !ent.canRiderInteract()) {
+              && !ent.canRiderInteract()) {
             if (hitDistance == 0.D) {
               hitEntity = ent;
               hitEntityVec = tr.hitVec;
@@ -136,7 +136,7 @@ public class LocalPlayerUtils implements Globals {
         }
       }
     }
-  
+    
     if (hitEntity != null && reach > 3.D && eyes.distanceTo(hitEntityVec) > 3.D) {
       return new RayTraceResult(Type.MISS, hitEntityVec, EnumFacing.UP, new BlockPos(hitEntityVec));
     } else if (hitEntity != null && trace == null && hitDistance < reachAttack) {
@@ -148,8 +148,8 @@ public class LocalPlayerUtils implements Globals {
   
   public static boolean isInReach(Vec3d start, Vec3d end) {
     return start.squareDistanceTo(end)
-      < getPlayerController().getBlockReachDistance()
-      * getPlayerController().getBlockReachDistance();
+        < getPlayerController().getBlockReachDistance()
+        * getPlayerController().getBlockReachDistance();
   }
   
   private static final Switch FLY_SWITCH = new Switch("PlayerFlying") {
@@ -164,19 +164,19 @@ public class LocalPlayerUtils implements Globals {
         getLocalPlayer().capabilities.isFlying = true;
       });
     }
-  
+    
     @Override
     protected void onDisabled() {
       MC.addScheduledTask(() -> {
         EntityPlayer player = getLocalPlayer();
-  
+        
         if (player == null || player.capabilities == null) {
           return;
         }
         
         PlayerCapabilities gmCaps = new PlayerCapabilities();
         MC.playerController.getCurrentGameType().configurePlayerCapabilities(gmCaps);
-  
+        
         PlayerCapabilities capabilities = player.capabilities;
         capabilities.allowFlying = gmCaps.allowFlying;
         capabilities.isFlying = gmCaps.allowFlying && capabilities.isFlying;

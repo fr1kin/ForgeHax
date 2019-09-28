@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  * Created on 6/3/2017 by fr1kin
  */
 public class SettingBuilder<E> extends BaseCommandBuilder<SettingBuilder<E>, Setting<E>>
-  implements Globals {
+    implements Globals {
   
   public SettingBuilder<E> changed(Consumer<OnChangeCallback<E>> consumer) {
     getCallbacks(CallbackType.CHANGE).add(consumer);

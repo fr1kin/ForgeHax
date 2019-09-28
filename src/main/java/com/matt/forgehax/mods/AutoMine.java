@@ -50,12 +50,12 @@ public class AutoMine extends ToggleMod {
     switch (event.phase) {
       case START: {
         RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
-    
+        
         if (tr == null) {
           setPressed(false);
           return;
         }
-    
+        
         setPressed(true);
         break;
       }

@@ -75,14 +75,14 @@ public class MapDownloader extends ToggleMod {
   
   private ResourceLocation findResourceLocation(String name) {
     Map<ResourceLocation, ITextureObject> mapTextureObjects =
-      FastReflection.Fields.TextureManager_mapTextureObjects.get(MC.getTextureManager());
+        FastReflection.Fields.TextureManager_mapTextureObjects.get(MC.getTextureManager());
     
     return mapTextureObjects
-      .keySet()
-      .stream()
-      .filter(k -> k.getResourcePath().contains(name))
-      .findFirst()
-      .orElse(null);
+        .keySet()
+        .stream()
+        .filter(k -> k.getResourcePath().contains(name))
+        .findFirst()
+        .orElse(null);
   }
   
   // TODO: generalize this
@@ -93,7 +93,7 @@ public class MapDownloader extends ToggleMod {
     }
     
     BufferedImage image = new BufferedImage(128, 128, 2);
-  
+    
     image.setRGB(0, 0, image.getWidth(), image.getHeight(), data, 0, 128);
     return image;
   }
@@ -101,26 +101,26 @@ public class MapDownloader extends ToggleMod {
   @Override
   public void onLoad() {
     getCommandStub()
-      .builders()
-      .newCommandBuilder()
-      .name("Download")
-      .description("Download the held map as an image")
-      .processor(
-        data -> {
-          data.requiredArguments(0);
-          // do stuff
-          String fileName = data.getArgument(0);
-          Integer scaledRes = null;
-          try {
-            if (data.getArgument(1) != null) {
-              scaledRes = Integer.valueOf(data.getArgument(1));
-            }
-          } catch (NumberFormatException e) {
-            Helper.printMessage("Failed to parse resolution");
-          }
-      
-          downloadMap(fileName, scaledRes);
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("Download")
+        .description("Download the held map as an image")
+        .processor(
+            data -> {
+              data.requiredArguments(0);
+              // do stuff
+              String fileName = data.getArgument(0);
+              Integer scaledRes = null;
+              try {
+                if (data.getArgument(1) != null) {
+                  scaledRes = Integer.valueOf(data.getArgument(1));
+                }
+              } catch (NumberFormatException e) {
+                Helper.printMessage("Failed to parse resolution");
+              }
+              
+              downloadMap(fileName, scaledRes);
+            })
+        .build();
   }
 }

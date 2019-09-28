@@ -18,15 +18,15 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  * Created on 2/11/2018 by fr1kin
  */
 public class HookReporter {
-
+  
   private final Method method;
-
+  
   private final List<ASMMethod> hookedMethods;
   private final List<Class<?>> eventClasses;
-
+  
   private boolean responding = false;
   private MultiBoolean activator = new MultiBoolean();
-
+  
   private HookReporter(
     Method method,
     Collection<ASMMethod> hookedMethods,
@@ -34,16 +34,16 @@ public class HookReporter {
     boolean startDisabled)
     throws NullPointerException {
     Objects.requireNonNull(method);
-
+    
     this.method = method;
     this.hookedMethods = Immutables.copyToList(hookedMethods);
     this.eventClasses = Immutables.copyToList(eventClasses);
-  
+    
     if (!startDisabled) {
       enable();
     }
   }
-
+  
   /**
    * Gets the hook method this object represents
    *
@@ -52,7 +52,7 @@ public class HookReporter {
   public Method getMethod() {
     return method;
   }
-
+  
   /**
    * Gets the methods that are hooked in order to call our hook
    *
@@ -61,14 +61,14 @@ public class HookReporter {
   public List<ASMMethod> getHookedMethods() {
     return hookedMethods;
   }
-
+  
   /**
    * Gets all the event classes that are created by this hook
    */
   public List<Class<?>> getEventClasses() {
     return eventClasses;
   }
-
+  
   /**
    * Gets all Forge Events represented by this hook
    *
@@ -82,7 +82,7 @@ public class HookReporter {
       .map(clazz -> (Class<? extends Event>) clazz)
       .collect(Immutables.toImmutableList());
   }
-
+  
   @SuppressWarnings("unchecked")
   public List<Class<? extends ListenerHook>> getListenerEventClasses() {
     return eventClasses
@@ -91,7 +91,7 @@ public class HookReporter {
       .map(clazz -> (Class<? extends ListenerHook>) clazz)
       .collect(Immutables.toImmutableList());
   }
-
+  
   /**
    * Check if the hook has been called yet
    *
@@ -100,7 +100,7 @@ public class HookReporter {
   public boolean isResponding() {
     return responding;
   }
-
+  
   /**
    * Reports this hook as functional Should only call this within the hook
    *
@@ -110,7 +110,7 @@ public class HookReporter {
     responding = true;
     return activator.isEnabled();
   }
-
+  
   /**
    * Gets the activator object to enable and disable this hook
    *
@@ -133,7 +133,7 @@ public class HookReporter {
   public void disable() {
     activator.forceDisable();
   }
-
+  
   /**
    * If the hook is currently not being used in anyway
    *
@@ -142,40 +142,40 @@ public class HookReporter {
   public boolean isDeprecatedHook() {
     return method.isAnnotationPresent(Deprecated.class);
   }
-
+  
   @Override
   public int hashCode() {
     return method.hashCode();
   }
-
+  
   @Override
   public boolean equals(Object obj) {
     return this == obj
       || (obj instanceof HookReporter
       && Objects.equals(getMethod(), ((HookReporter) obj).getMethod()));
   }
-
+  
   @Override
   public String toString() {
     return method.getName();
   }
-
+  
   public static class Builder {
-
+    
     public static Builder of() {
       return new Builder();
     }
-  
+    
     private Builder() {
     }
-
+    
     private Method method;
     private List<ASMMethod> hookedMethods = Lists.newArrayList();
     private List<Class<?>> eventClasses = Lists.newArrayList();
     private boolean startDisabled = false;
     private Class<?> parentClass;
     private Consumer<HookReporter> finalizeBy;
-
+    
     /**
      * Set the parent class. Only a convenience method for hook(string)
      *
@@ -186,7 +186,7 @@ public class HookReporter {
       this.parentClass = parentClass;
       return this;
     }
-
+    
     /**
      * Set the hook method this object will represent
      *
@@ -197,17 +197,17 @@ public class HookReporter {
       this.method = method;
       return this;
     }
-
+    
     public Builder hook(Class<?> parentClass, final String methodName)
       throws InvalidMethodException {
       Objects.requireNonNull(parentClass);
       Objects.requireNonNull(methodName);
-
+      
       List<Method> results =
         Arrays.stream(parentClass.getDeclaredMethods())
           .filter(m -> methodName.equals(m.getName()))
           .collect(Collectors.toList());
-  
+      
       if (results.size() == 1) {
         return hook(results.get(0));
       } else if (results.size() > 1) {
@@ -216,22 +216,22 @@ public class HookReporter {
         throw new InvalidMethodException("No such method found");
       }
     }
-
+    
     public Builder hook(final String methodName) throws InvalidMethodException {
       Objects.requireNonNull(parentClass, "this method requires this.parentClass be set");
       return hook(parentClass, methodName);
     }
-
+    
     public Builder forgeEvent(Class<? extends Event> clazz) {
       eventClasses.add(clazz);
       return this;
     }
-
+    
     public Builder listenerEvent(Class<? extends ListenerHook> clazz) {
       eventClasses.add(clazz);
       return this;
     }
-
+    
     /**
      * Hooked method that this hook depends on.
      *
@@ -242,17 +242,17 @@ public class HookReporter {
       hookedMethods.add(method);
       return this;
     }
-
+    
     public Builder startOn() {
       startDisabled = false;
       return this;
     }
-
+    
     public Builder startOff() {
       startDisabled = true;
       return this;
     }
-
+    
     /**
      * Method to call when build() is finally called
      *
@@ -263,7 +263,7 @@ public class HookReporter {
       this.finalizeBy = finalizeBy;
       return this;
     }
-
+    
     public HookReporter build() {
       final HookReporter hp = new HookReporter(method, hookedMethods, eventClasses, startDisabled);
       if (finalizeBy != null) {
@@ -272,9 +272,9 @@ public class HookReporter {
       return hp;
     }
   }
-
-  public static class InvalidMethodException extends RuntimeException {
   
+  public static class InvalidMethodException extends RuntimeException {
+    
     public InvalidMethodException(String message) {
       super(message);
     }

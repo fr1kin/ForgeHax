@@ -26,7 +26,7 @@ public class AutoReconnectMod extends ToggleMod {
   private static ServerData lastConnectedServer;
   
   public static boolean hasAutoLogged =
-    false; // used to disable autoreconnecting without disabling the entire mod
+      false; // used to disable autoreconnecting without disabling the entire mod
   
   public void updateLastConnectedServer() {
     ServerData data = MC.getCurrentServerData();
@@ -36,13 +36,13 @@ public class AutoReconnectMod extends ToggleMod {
   }
   
   public final Setting<Double> delay =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("delay")
-      .description("Delay between each reconnect attempt")
-      .defaultTo(5.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("delay")
+          .description("Delay between each reconnect attempt")
+          .defaultTo(5.D)
+          .build();
   
   public AutoReconnectMod() {
     super(Category.MISC, "AutoReconnect", false, "Automatically reconnects to server");
@@ -52,16 +52,16 @@ public class AutoReconnectMod extends ToggleMod {
   public void onGuiOpened(GuiOpenEvent event) {
     if (!hasAutoLogged) {
       if (event.getGui() instanceof GuiDisconnected
-        && !(event.getGui() instanceof GuiDisconnectedOverride)) {
+          && !(event.getGui() instanceof GuiDisconnectedOverride)) {
         updateLastConnectedServer();
         GuiDisconnected disconnected = (GuiDisconnected) event.getGui();
         event.setGui(
-          new GuiDisconnectedOverride(
-            FastReflection.Fields.GuiDisconnected_parentScreen.get(disconnected),
-            "connect.failed",
-            FastReflection.Fields.GuiDisconnected_message.get(disconnected),
-            FastReflection.Fields.GuiDisconnected_reason.get(disconnected),
-            delay.get()));
+            new GuiDisconnectedOverride(
+                FastReflection.Fields.GuiDisconnected_parentScreen.get(disconnected),
+                "connect.failed",
+                FastReflection.Fields.GuiDisconnected_message.get(disconnected),
+                FastReflection.Fields.GuiDisconnected_reason.get(disconnected),
+                delay.get()));
       }
     }
   }
@@ -88,11 +88,11 @@ public class AutoReconnectMod extends ToggleMod {
     private GuiButton reconnectButton = null;
     
     public GuiDisconnectedOverride(
-      GuiScreen screen,
-      String reasonLocalizationKey,
-      ITextComponent chatComp,
-      String reason,
-      double delay) {
+        GuiScreen screen,
+        String reasonLocalizationKey,
+        ITextComponent chatComp,
+        String reason,
+        double delay) {
       super(screen, reasonLocalizationKey, chatComp);
       parent = screen;
       message = chatComp;
@@ -100,12 +100,12 @@ public class AutoReconnectMod extends ToggleMod {
       // set variable 'reason' to the previous classes value
       try {
         ReflectionHelper.setPrivateValue(
-          GuiDisconnected.class,
-          this,
-          reason,
-          "reason",
-          "field_146306_a",
-          "a"); // TODO: Find obbed mapping name
+            GuiDisconnected.class,
+            this,
+            reason,
+            "reason",
+            "field_146306_a",
+            "a"); // TODO: Find obbed mapping name
       } catch (Exception e) {
         Helper.printStackTrace(e);
       }
@@ -139,17 +139,17 @@ public class AutoReconnectMod extends ToggleMod {
     public void initGui() {
       super.initGui();
       List<String> multilineMessage =
-        fontRenderer.listFormattedStringToWidth(message.getFormattedText(), width - 50);
+          fontRenderer.listFormattedStringToWidth(message.getFormattedText(), width - 50);
       int textHeight = multilineMessage.size() * fontRenderer.FONT_HEIGHT;
       
       if (getLastConnectedServerData() != null) {
         buttonList.add(
-          reconnectButton =
-            new GuiButton(
-              buttonList.size(),
-              width / 2 - 100,
-              (height / 2 + textHeight / 2 + fontRenderer.FONT_HEIGHT) + 23,
-              getFormattedReconnectText()));
+            reconnectButton =
+                new GuiButton(
+                    buttonList.size(),
+                    width / 2 - 100,
+                    (height / 2 + textHeight / 2 + fontRenderer.FONT_HEIGHT) + 23,
+                    getFormattedReconnectText()));
       }
     }
     

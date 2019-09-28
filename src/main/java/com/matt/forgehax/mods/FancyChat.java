@@ -34,39 +34,43 @@ public class FancyChat extends ToggleMod {
   }
   
   private static final String alphabet =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   private static final int[][] FONT = {
-    {
-      0xFF21, 0xFF22, 0xFF23, 0xFF24, 0xFF25, 0xFF26, 0xFF27, 0xFF28, 0xFF29, 0xFF2A, 0xFF2B,
-      0xFF2C, 0xFF2D, 0xFF2E, 0xFF2F, 0xFF30, 0xFF31, 0xFF32, 0xFF33, 0xFF34, 0xFF35, 0xFF36,
-      0xFF37, 0xFF38, 0xFF39, 0xFF3A, 0xFF41, 0xFF42, 0xFF43, 0xFF44, 0xFF45, 0xFF46, 0xFF47,
-      0xFF48, 0xFF49, 0xFF4A, 0xFF4B, 0xFF4C, 0xFF4D, 0xFF4E, 0xFF4F, 0xFF50, 0xFF51, 0xFF52,
-      0xFF53, 0xFF54, 0xFF55, 0xFF56, 0xFF57, 0xFF58, 0xFF59, 0xFF5A, 0xFF10, 0xFF11, 0xFF12,
-      0xFF13, 0xFF14, 0xFF15, 0xFF16, 0xFF17, 0xFF18, 0xFF19
-    },
-    { // Enclosed alphanumerics
-      0x24B6, 0x24B7, 0x24B8, 0x24B9, 0x24BA, 0x24BB, 0x24BC, 0x24BD, 0x24BE, 0x24BF, 0x24C0,
-      0x24C1, 0x24C2, 0x24C3, 0x24C4, 0x24C5, 0x24C6, 0x24C7, 0x24C8, 0x24C9, 0x24CA, 0x24CB,
-      0x24CC, 0x24CD, 0x24CE, 0x24CF, 0x24D0, 0x24D1, 0x24D2, 0x24D3, 0x24D4, 0x24D5, 0x24D6,
-      0x24D7, 0x24D8, 0x24D9, 0x24DA, 0x24DB, 0x24DC, 0x24DD, 0x24DE, 0x24DF, 0x24E0, 0x24E1,
-      0x24E2, 0x24E3, 0x24E4, 0x24E5, 0x24E6, 0x24E7, 0x24E8, 0x24E9, 0x24EA, 0x2460, 0x2461,
-      0x2462, 0x2463, 0x2464, 0x2465, 0x2466, 0x2467, 0x2468
-    },
-    { // Enclosed alphanumerics, no "zero"
-      0x249C, 0x249D, 0x249E, 0x249F, 0x24A0, 0x24A1, 0x24A2, 0x24A3, 0x24A4, 0x24A5, 0x24A6,
-      0x24A7, 0x24A8, 0x24A9, 0x24AA, 0x24AB, 0x24AC, 0x24AD, 0x24AE, 0x24AF, 0x24B0, 0x24B1,
-      0x24B2, 0x24B3, 0x24B4, 0x24B5, 0x249C, 0x249D, 0x249E, 0x249F, 0x24A0, 0x24A1, 0x24A2,
-      0x24A3, 0x24A4, 0x24A5, 0x24A6, 0x24A7, 0x24A8, 0x24A9, 0x24AA, 0x24AB, 0x24AC, 0x24AD,
-      0x24AE, 0x24AF, 0x24B0, 0x24B1, 0x24B2, 0x24B3, 0x24B4, 0x24B5, 0x0030, 0x2474, 0x2475,
-      0x2476, 0x2477, 0x2478, 0x2479, 0x2480, 0x2481, 0x2482
-    },
-    {
-      0x1D43, 0x1D47, 0x1D9C, 0x1D48, 0x1D49, 0x1DA0, 0x1D4D, 0x2B0, 0x1DA4, 0x2B2, 0x1D4F, 0x2E1,
-      0x1D50, 0x1DAF, 0x1D52, 0x1D56, 0x1DA3, 0x2B3, 0x2E2, 0x1D57, 0x1D58, 0x1D5B, 0x2B7, 0x2E3,
-      0x2B8, 0x1DBB, 0x1D43, 0x1D47, 0x1D9C, 0x1D48, 0x1D49, 0x1DA0, 0x1D4D, 0x2B0, 0x1DA4, 0x2B2,
-      0x1D4F, 0x2E1, 0x1D50, 0x1DAF, 0x1D52, 0x1D56, 0x1DA3, 0x2B3, 0x2E2, 0x1D57, 0x1D58, 0x1D5B,
-      0x2B7, 0x2E3, 0x2B8, 0x1DBB, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39
-    }
+      {
+          0xFF21, 0xFF22, 0xFF23, 0xFF24, 0xFF25, 0xFF26, 0xFF27, 0xFF28, 0xFF29, 0xFF2A, 0xFF2B,
+          0xFF2C, 0xFF2D, 0xFF2E, 0xFF2F, 0xFF30, 0xFF31, 0xFF32, 0xFF33, 0xFF34, 0xFF35, 0xFF36,
+          0xFF37, 0xFF38, 0xFF39, 0xFF3A, 0xFF41, 0xFF42, 0xFF43, 0xFF44, 0xFF45, 0xFF46, 0xFF47,
+          0xFF48, 0xFF49, 0xFF4A, 0xFF4B, 0xFF4C, 0xFF4D, 0xFF4E, 0xFF4F, 0xFF50, 0xFF51, 0xFF52,
+          0xFF53, 0xFF54, 0xFF55, 0xFF56, 0xFF57, 0xFF58, 0xFF59, 0xFF5A, 0xFF10, 0xFF11, 0xFF12,
+          0xFF13, 0xFF14, 0xFF15, 0xFF16, 0xFF17, 0xFF18, 0xFF19
+      },
+      { // Enclosed alphanumerics
+          0x24B6, 0x24B7, 0x24B8, 0x24B9, 0x24BA, 0x24BB, 0x24BC, 0x24BD, 0x24BE, 0x24BF, 0x24C0,
+          0x24C1, 0x24C2, 0x24C3, 0x24C4, 0x24C5, 0x24C6, 0x24C7, 0x24C8, 0x24C9, 0x24CA, 0x24CB,
+          0x24CC, 0x24CD, 0x24CE, 0x24CF, 0x24D0, 0x24D1, 0x24D2, 0x24D3, 0x24D4, 0x24D5, 0x24D6,
+          0x24D7, 0x24D8, 0x24D9, 0x24DA, 0x24DB, 0x24DC, 0x24DD, 0x24DE, 0x24DF, 0x24E0, 0x24E1,
+          0x24E2, 0x24E3, 0x24E4, 0x24E5, 0x24E6, 0x24E7, 0x24E8, 0x24E9, 0x24EA, 0x2460, 0x2461,
+          0x2462, 0x2463, 0x2464, 0x2465, 0x2466, 0x2467, 0x2468
+      },
+      { // Enclosed alphanumerics, no "zero"
+          0x249C, 0x249D, 0x249E, 0x249F, 0x24A0, 0x24A1, 0x24A2, 0x24A3, 0x24A4, 0x24A5, 0x24A6,
+          0x24A7, 0x24A8, 0x24A9, 0x24AA, 0x24AB, 0x24AC, 0x24AD, 0x24AE, 0x24AF, 0x24B0, 0x24B1,
+          0x24B2, 0x24B3, 0x24B4, 0x24B5, 0x249C, 0x249D, 0x249E, 0x249F, 0x24A0, 0x24A1, 0x24A2,
+          0x24A3, 0x24A4, 0x24A5, 0x24A6, 0x24A7, 0x24A8, 0x24A9, 0x24AA, 0x24AB, 0x24AC, 0x24AD,
+          0x24AE, 0x24AF, 0x24B0, 0x24B1, 0x24B2, 0x24B3, 0x24B4, 0x24B5, 0x0030, 0x2474, 0x2475,
+          0x2476, 0x2477, 0x2478, 0x2479, 0x2480, 0x2481, 0x2482
+      },
+      {
+          0x1D43, 0x1D47, 0x1D9C, 0x1D48, 0x1D49, 0x1DA0, 0x1D4D, 0x2B0, 0x1DA4, 0x2B2, 0x1D4F,
+          0x2E1,
+          0x1D50, 0x1DAF, 0x1D52, 0x1D56, 0x1DA3, 0x2B3, 0x2E2, 0x1D57, 0x1D58, 0x1D5B, 0x2B7,
+          0x2E3,
+          0x2B8, 0x1DBB, 0x1D43, 0x1D47, 0x1D9C, 0x1D48, 0x1D49, 0x1DA0, 0x1D4D, 0x2B0, 0x1DA4,
+          0x2B2,
+          0x1D4F, 0x2E1, 0x1D50, 0x1DAF, 0x1D52, 0x1D56, 0x1DA3, 0x2B3, 0x2E2, 0x1D57, 0x1D58,
+          0x1D5B,
+          0x2B7, 0x2E3, 0x2B8, 0x1DBB, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39
+      }
   };
   
   // Uppercase Lookup for LEET
@@ -112,85 +116,85 @@ public class FancyChat extends ToggleMod {
   }
   
   private final Setting<MODE> font =
-    getCommandStub()
-      .builders()
-      .<MODE>newSettingEnumBuilder()
-      .name("font")
-      .description("Font to use")
-      .defaultTo(MODE.FULL_WIDTH)
-      .build();
+      getCommandStub()
+          .builders()
+          .<MODE>newSettingEnumBuilder()
+          .name("font")
+          .description("Font to use")
+          .defaultTo(MODE.FULL_WIDTH)
+          .build();
   
   private Pattern prefixPattern;
   private final Setting<String> prefixRegexp =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("prefix")
-      .description("Command prefixes (RegExp)")
-      .defaultTo("/|//|\\!")
-      .requiredArgs(1)
-      .processor(
-        data -> {
-          try {
-            Pattern.compile(data.getArgument(0));
-            data.markSuccess();
-            compileMessagePatterns();
-          } catch (PatternSyntaxException e) {
-            printError(
-              String.format(
-                "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
-            data.markFailed();
-          }
-        })
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("prefix")
+          .description("Command prefixes (RegExp)")
+          .defaultTo("/|//|\\!")
+          .requiredArgs(1)
+          .processor(
+              data -> {
+                try {
+                  Pattern.compile(data.getArgument(0));
+                  data.markSuccess();
+                  compileMessagePatterns();
+                } catch (PatternSyntaxException e) {
+                  printError(
+                      String.format(
+                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
+                  data.markFailed();
+                }
+              })
+          .build();
   
   private Pattern command0ArgPattern;
   private final Setting<String> command0ArgRegexp =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("command0Arg")
-      .description("Commands where all text may be changed (RegExp)")
-      .defaultTo("r|reply")
-      .requiredArgs(1)
-      .processor(
-        data -> {
-          try {
-            Pattern.compile(data.getArgument(0));
-            data.markSuccess();
-            compileMessagePatterns();
-          } catch (PatternSyntaxException e) {
-            printError(
-              String.format(
-                "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
-            data.markFailed();
-          }
-        })
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("command0Arg")
+          .description("Commands where all text may be changed (RegExp)")
+          .defaultTo("r|reply")
+          .requiredArgs(1)
+          .processor(
+              data -> {
+                try {
+                  Pattern.compile(data.getArgument(0));
+                  data.markSuccess();
+                  compileMessagePatterns();
+                } catch (PatternSyntaxException e) {
+                  printError(
+                      String.format(
+                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
+                  data.markFailed();
+                }
+              })
+          .build();
   
   private Pattern command1ArgPattern;
   private final Setting<String> command1ArgRegexp =
-    getCommandStub()
-      .builders()
-      .<String>newSettingBuilder()
-      .name("command1Arg")
-      .description("Commands where only the first argument may not be changed (RegExp)")
-      .defaultTo("pm|tell|msg|message|w|whisper|nick|mail")
-      .requiredArgs(1)
-      .processor(
-        data -> {
-          try {
-            Pattern.compile(data.getArgument(0));
-            data.markSuccess();
-            compileMessagePatterns();
-          } catch (PatternSyntaxException e) {
-            printError(
-              String.format(
-                "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
-            data.markFailed();
-          }
-        })
-      .build();
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("command1Arg")
+          .description("Commands where only the first argument may not be changed (RegExp)")
+          .defaultTo("pm|tell|msg|message|w|whisper|nick|mail")
+          .requiredArgs(1)
+          .processor(
+              data -> {
+                try {
+                  Pattern.compile(data.getArgument(0));
+                  data.markSuccess();
+                  compileMessagePatterns();
+                } catch (PatternSyntaxException e) {
+                  printError(
+                      String.format(
+                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
+                  data.markFailed();
+                }
+              })
+          .build();
   
   public FancyChat() {
     super(Category.MISC, "FancyChat", false, "meme text");
@@ -210,36 +214,36 @@ public class FancyChat extends ToggleMod {
   @SubscribeEvent
   public void onPacketSent(PacketEvent.Outgoing.Pre event) {
     if (event.getPacket() instanceof CPacketChatMessage
-      && !PacketHelper.isIgnored(event.getPacket())) {
+        && !PacketHelper.isIgnored(event.getPacket())) {
       
       boolean is0Arg = false;
       boolean is1Arg = false;
       boolean isIgnore = false;
-  
+      
       String prefix = "";
       String command = "";
       String message;
       String arg1 = "";
-  
+      
       String inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
-  
+      
       Matcher prefixMatcher = prefixPattern.matcher(inputMessage);
       if (prefixMatcher.find()) {
         prefix = prefixMatcher.group(1);
         command = prefixMatcher.group(2);
-  
+        
         Matcher cmd0ArgMatcher = command0ArgPattern.matcher(command);
         Matcher cmd1ArgMatcher = command1ArgPattern.matcher(command);
-  
+        
         // if command is found, make sure the match is not just a substring
         if (cmd0ArgMatcher.find() && command.length() == cmd0ArgMatcher.group().length()) {
           is0Arg = true;
           message = inputMessage.substring(prefixMatcher.end());
-  
+          
         } else if (cmd1ArgMatcher.find() && command.length() == cmd1ArgMatcher.group().length()) {
           is1Arg = true;
           Matcher arg1Matcher = Pattern.compile(" .+? ").matcher(inputMessage);
-  
+          
           if (arg1Matcher.find()) {
             arg1 = inputMessage.substring(arg1Matcher.start(), arg1Matcher.end()).trim();
             message = inputMessage.substring(arg1Matcher.end());
@@ -247,7 +251,7 @@ public class FancyChat extends ToggleMod {
             isIgnore = true;
             message = inputMessage;
           }
-  
+          
         } else {
           message = inputMessage;
           // Completely ignore all unknown commands
@@ -256,10 +260,10 @@ public class FancyChat extends ToggleMod {
       } else {
         message = inputMessage;
       }
-  
+      
       if (!isIgnore) {
         String messageOut = prettify(message);
-    
+        
         if (is0Arg) {
           messageOut = prefix + command + " " + messageOut;
         } else if (is1Arg) {
@@ -298,12 +302,12 @@ public class FancyChat extends ToggleMod {
     StringBuilder builder = new StringBuilder();
     Random random = new Random();
     for (char c : messageArray) {
-      int key = (int) Character.toUpperCase(c);
+      int key = Character.toUpperCase(c);
       // half the probability for LEET
       if (random.nextInt(2) == 0
-        && LeetMap.get(key) != null
-        && (LeetProbability.get(key) == null
-        || LeetProbability.get(key) > random.nextInt(100))) {
+          && LeetMap.get(key) != null
+          && (LeetProbability.get(key) == null
+          || LeetProbability.get(key) > random.nextInt(100))) {
         builder.append(LeetMap.get(key));
       } else {
         builder.append(c);
@@ -351,7 +355,7 @@ public class FancyChat extends ToggleMod {
     char[] messageArray = message.toCharArray();
     int[] currentFont = FONT[fontType.ordinal()];
     int i = 0;
-  
+    
     for (char c : messageArray) {
       int letterKey = alphabet.indexOf(c);
       if (letterKey != -1 && (c != (char) 0x3E)) {

@@ -21,9 +21,9 @@ public abstract class Angle {
   
   public static Angle radians(double pitch, double yaw, double roll) {
     return radians(
-      (float) AngleHelper.roundAngle(pitch),
-      (float) AngleHelper.roundAngle(yaw),
-      (float) AngleHelper.roundAngle(roll));
+        (float) AngleHelper.roundAngle(pitch),
+        (float) AngleHelper.roundAngle(yaw),
+        (float) AngleHelper.roundAngle(roll));
   }
   
   public static Angle radians(double pitch, double yaw) {
@@ -40,9 +40,9 @@ public abstract class Angle {
   
   public static Angle degrees(double pitch, double yaw, double roll) {
     return degrees(
-      (float) AngleHelper.roundAngle(pitch),
-      (float) AngleHelper.roundAngle(yaw),
-      (float) AngleHelper.roundAngle(roll));
+        (float) AngleHelper.roundAngle(pitch),
+        (float) AngleHelper.roundAngle(yaw),
+        (float) AngleHelper.roundAngle(roll));
   }
   
   public static Angle degrees(double pitch, double yaw) {
@@ -95,9 +95,9 @@ public abstract class Angle {
   
   public Angle add(Angle ang) {
     return newInstance(
-      getPitch() + ang.same(this).getPitch(),
-      getYaw() + ang.same(this).getYaw(),
-      getRoll() + ang.same(this).getRoll());
+        getPitch() + ang.same(this).getPitch(),
+        getYaw() + ang.same(this).getYaw(),
+        getRoll() + ang.same(this).getRoll());
   }
   
   public Angle add(float p, float y, float r) {
@@ -135,9 +135,9 @@ public abstract class Angle {
     double kys = Math.sin(inRadians().getYaw());
     double kyc = Math.cos(inRadians().getYaw());
     return new double[]{
-      kpc * kyc, // x
-      kps, // y
-      kpc * kys // z
+        kpc * kyc, // x
+        kps, // y
+        kpc * kys // z
     };
   }
   
@@ -146,7 +146,7 @@ public abstract class Angle {
     float sy = MathHelper.sin(-inDegrees().getYaw() * 0.017453292F - (float) Math.PI);
     float cp = -MathHelper.cos(-inDegrees().getPitch() * 0.017453292F);
     float sp = MathHelper.sin(-inDegrees().getPitch() * 0.017453292F);
-    return new Vec3d((double) (sy * cp), (double) sp, (double) (cy * cp));
+    return new Vec3d(sy * cp, sp, cy * cp);
   }
   
   public float[] toArray() {
@@ -177,48 +177,48 @@ public abstract class Angle {
   @Override
   public String toString() {
     return String.format(
-      "(%.15f, %.15f, %.15f)[%s]",
-      getPitch(), getYaw(), getRoll(), isInRadians() ? "rad" : "deg");
+        "(%.15f, %.15f, %.15f)[%s]",
+        getPitch(), getYaw(), getRoll(), isInRadians() ? "rad" : "deg");
   }
   
   static class Degrees extends Angle {
-  
+    
     private Radians radians = null;
-  
+    
     private Degrees(float pitch, float yaw, float roll) {
       super(pitch, yaw, roll);
     }
-  
+    
     @Override
     public boolean isInDegrees() {
       return true;
     }
-  
+    
     @Override
     public Angle normalize() {
       return newInstance(
-        AngleHelper.normalizeInDegrees(getPitch()),
-        AngleHelper.normalizeInDegrees(getYaw()),
-        AngleHelper.normalizeInDegrees(getRoll()));
+          AngleHelper.normalizeInDegrees(getPitch()),
+          AngleHelper.normalizeInDegrees(getYaw()),
+          AngleHelper.normalizeInDegrees(getRoll()));
     }
-  
+    
     @Override
     public Angle inRadians() {
       return radians == null
-        ? radians =
-        (Radians)
-          radians(
-            Math.toRadians(getPitch()),
-            Math.toRadians(getYaw()),
-            Math.toRadians(getRoll()))
-        : radians;
+          ? radians =
+          (Radians)
+              radians(
+                  Math.toRadians(getPitch()),
+                  Math.toRadians(getYaw()),
+                  Math.toRadians(getRoll()))
+          : radians;
     }
-  
+    
     @Override
     public Angle inDegrees() {
       return this;
     }
-  
+    
     @Override
     protected Angle newInstance(float pitch, float yaw, float roll) {
       return new Degrees(pitch, yaw, roll);
@@ -241,9 +241,9 @@ public abstract class Angle {
     @Override
     public Angle normalize() {
       return newInstance(
-        AngleHelper.normalizeInRadians(getPitch()),
-        AngleHelper.normalizeInRadians(getYaw()),
-        AngleHelper.normalizeInRadians(getRoll()));
+          AngleHelper.normalizeInRadians(getPitch()),
+          AngleHelper.normalizeInRadians(getYaw()),
+          AngleHelper.normalizeInRadians(getRoll()));
     }
     
     @Override
@@ -254,13 +254,13 @@ public abstract class Angle {
     @Override
     public Angle inDegrees() {
       return degrees == null
-        ? degrees =
-        (Degrees)
-          degrees(
-            Math.toDegrees(getPitch()),
-            Math.toDegrees(getYaw()),
-            Math.toDegrees(getRoll()))
-        : degrees;
+          ? degrees =
+          (Degrees)
+              degrees(
+                  Math.toDegrees(getPitch()),
+                  Math.toDegrees(getYaw()),
+                  Math.toDegrees(getRoll()))
+          : degrees;
     }
     
     @Override

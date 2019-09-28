@@ -1,5 +1,9 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
+import static com.matt.forgehax.Helper.getRidingEntity;
+
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -16,49 +20,46 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Helper.*;
-import static com.matt.forgehax.Helper.getRidingEntity;
-
 @RegisterMod
 public class StepMod extends ToggleMod {
   
   private static final float DEFAULT_STEP_HEIGHT = 0.6f;
-
+  
   private final Setting<Boolean> entityStep =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("entity-step")
-      .description("entitystep")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("entity-step")
+          .description("entitystep")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Float> stepHeight =
-    getCommandStub()
-      .builders()
-      .<Float>newSettingBuilder()
-      .name("height")
-      .description("how high you can step")
-      .defaultTo(1.2f)
-      .min(0f)
-      .changed(__ -> MC.addScheduledTask(() -> {
-        if (isEnabled()) {
-          EntityPlayer player = getLocalPlayer();
-          if (player != null) {
-            updateStepHeight(player);
-          }
-        }
-      }))
-      .build();
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("height")
+          .description("how high you can step")
+          .defaultTo(1.2f)
+          .min(0f)
+          .changed(__ -> MC.addScheduledTask(() -> {
+            if (isEnabled()) {
+              EntityPlayer player = getLocalPlayer();
+              if (player != null) {
+                updateStepHeight(player);
+              }
+            }
+          }))
+          .build();
   
   private final Setting<Boolean> unstep =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("unstep")
-      .description("step down instead of falling")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("unstep")
+          .description("step down instead of falling")
+          .defaultTo(false)
+          .build();
   
   public StepMod() {
     super(Category.PLAYER, "Step", false, "Step up blocks");
@@ -78,7 +79,7 @@ public class StepMod extends ToggleMod {
     if (player != null) {
       player.stepHeight = DEFAULT_STEP_HEIGHT;
     }
-
+    
     if (getRidingEntity() != null) {
       getRidingEntity().stepHeight = 1;
     }
@@ -92,7 +93,7 @@ public class StepMod extends ToggleMod {
   
   private void unstep(EntityPlayer player) {
     AxisAlignedBB range = player.getEntityBoundingBox().expand(0, -stepHeight.get(), 0)
-      .contract(0, player.height, 0);
+        .contract(0, player.height, 0);
     
     if (!player.world.collidesWithAnyBlock(range)) {
       return;
@@ -123,7 +124,7 @@ public class StepMod extends ToggleMod {
     
     updateStepHeight(player);
     updateUnstep(player);
-
+    
     if (getRidingEntity() != null) {
       if (entityStep.getAsBoolean()) {
         getRidingEntity().stepHeight = 256;
@@ -138,8 +139,8 @@ public class StepMod extends ToggleMod {
   @SubscribeEvent
   public void onPacketSending(PacketEvent.Outgoing.Pre event) {
     if (event.getPacket() instanceof CPacketPlayer.Position
-      || event.getPacket() instanceof CPacketPlayer.PositionRotation) {
-      CPacketPlayer packetPlayer = (CPacketPlayer) event.getPacket();
+        || event.getPacket() instanceof CPacketPlayer.PositionRotation) {
+      CPacketPlayer packetPlayer = event.getPacket();
       if (previousPositionPacket != null && !PacketHelper.isIgnored(event.getPacket())) {
         double diffY = packetPlayer.getY(0.f) - previousPositionPacket.getY(0.f);
         // y difference must be positive
@@ -154,11 +155,11 @@ public class StepMod extends ToggleMod {
           sendList.add(new CPacketPlayer.Position(x, y + 0.4199999869D, z, true));
           sendList.add(new CPacketPlayer.Position(x, y + 0.7531999805D, z, true));
           sendList.add(
-            new CPacketPlayer.Position(
-              packetPlayer.getX(0.f),
-              packetPlayer.getY(0.f),
-              packetPlayer.getZ(0.f),
-              packetPlayer.isOnGround()));
+              new CPacketPlayer.Position(
+                  packetPlayer.getX(0.f),
+                  packetPlayer.getY(0.f),
+                  packetPlayer.getZ(0.f),
+                  packetPlayer.isOnGround()));
           for (Packet toSend : sendList) {
             PacketHelper.ignore(toSend);
             getNetworkManager().sendPacket(toSend);
@@ -166,17 +167,17 @@ public class StepMod extends ToggleMod {
           event.setCanceled(true);
         }
       }
-      previousPositionPacket = (CPacketPlayer) event.getPacket();
+      previousPositionPacket = event.getPacket();
     }
   }
   
   @Override
   public String getDebugDisplayText() {
     return String.format(
-      "%s[%s%s]",
-      super.getDisplayText(),
-      stepHeight.get().toString(),
-      unstep.get() ? "+unstep" : ""
+        "%s[%s%s]",
+        super.getDisplayText(),
+        stepHeight.get().toString(),
+        unstep.get() ? "+unstep" : ""
     );
   }
 }

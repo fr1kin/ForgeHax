@@ -19,15 +19,15 @@ public class AutoMend extends ToggleMod {
   
   public AutoMend() {
     super(
-      Category.PLAYER,
-      "AutoMend",
-      false,
-      "Automatically swap item in offhand with another valid item once its fully repaired");
+        Category.PLAYER,
+        "AutoMend",
+        false,
+        "Automatically swap item in offhand with another valid item once its fully repaired");
   }
   
   private boolean isMendable(InvItem item) {
     return item.isItemDamageable()
-      && EnchantmentHelper.getEnchantmentLevel(Enchantments.MENDING, item.getItemStack()) > 0;
+        && EnchantmentHelper.getEnchantmentLevel(Enchantments.MENDING, item.getItemStack()) > 0;
   }
   
   private boolean isDamaged(InvItem item) {
@@ -43,24 +43,24 @@ public class AutoMend extends ToggleMod {
     InvItem current = LocalPlayerInventory.getSelected();
     
     Optional.of(LocalPlayerInventory.getOffhand())
-      .filter(this::isMendable)
-      .filter(item -> !isDamaged(item))
-      .ifPresent(
-        offhand ->
-          LocalPlayerInventory.getSlotInventory()
-            .stream()
-            .filter(this::isMendable)
-            .filter(this::isDamaged)
-            .filter(inv -> inv.getIndex() != current.getIndex())
-            .max(Comparator.comparingInt(InvItem::getDamage))
-            .ifPresent(
-              inv -> {
-                // pick up
-                LocalPlayerInventory.sendWindowClick(inv, 0, ClickType.PICKUP);
-                // place in offhand
-                LocalPlayerInventory.sendWindowClick(offhand, 0, ClickType.PICKUP);
-                // place shovel back
-                LocalPlayerInventory.sendWindowClick(inv, 0, ClickType.PICKUP);
-              }));
+        .filter(this::isMendable)
+        .filter(item -> !isDamaged(item))
+        .ifPresent(
+            offhand ->
+                LocalPlayerInventory.getSlotInventory()
+                    .stream()
+                    .filter(this::isMendable)
+                    .filter(this::isDamaged)
+                    .filter(inv -> inv.getIndex() != current.getIndex())
+                    .max(Comparator.comparingInt(InvItem::getDamage))
+                    .ifPresent(
+                        inv -> {
+                          // pick up
+                          LocalPlayerInventory.sendWindowClick(inv, 0, ClickType.PICKUP);
+                          // place in offhand
+                          LocalPlayerInventory.sendWindowClick(offhand, 0, ClickType.PICKUP);
+                          // place shovel back
+                          LocalPlayerInventory.sendWindowClick(inv, 0, ClickType.PICKUP);
+                        }));
   }
 }

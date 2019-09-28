@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 public class ASMStackLogger {
   
   private static final Logger STACK_LOGGER = LogManager.getLogger("ForgeHaxAsmStackTrace");
-
+  
   public static void printStackTrace(Throwable e) {
     STACK_LOGGER.error(Throwables.getStackTraceAsString(e));
   }

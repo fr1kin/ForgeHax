@@ -12,59 +12,59 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class BlockHighlightMod extends ToggleMod {
   
   private final Setting<Integer> alpha =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("alpha")
-      .description("alpha")
-      .min(0)
-      .max(255)
-      .defaultTo(255)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("alpha")
+          .description("alpha")
+          .min(0)
+          .max(255)
+          .defaultTo(255)
+          .build();
   private final Setting<Integer> red =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("red")
-      .description("red")
-      .min(0)
-      .max(255)
-      .defaultTo(0)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("red")
+          .description("red")
+          .min(0)
+          .max(255)
+          .defaultTo(0)
+          .build();
   private final Setting<Integer> green =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("green")
-      .description("green")
-      .min(0)
-      .max(255)
-      .defaultTo(0)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("green")
+          .description("green")
+          .min(0)
+          .max(255)
+          .defaultTo(0)
+          .build();
   private final Setting<Integer> blue =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("blue")
-      .description("blue")
-      .min(0)
-      .max(255)
-      .defaultTo(0)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("blue")
+          .description("blue")
+          .min(0)
+          .max(255)
+          .defaultTo(0)
+          .build();
   
   private final Setting<Float> width =
-    getCommandStub()
-      .builders()
-      .<Float>newSettingBuilder()
-      .name("width")
-      .description("line width")
-      .min(0.f)
-      .defaultTo(5.f)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("width")
+          .description("line width")
+          .min(0.f)
+          .defaultTo(5.f)
+          .build();
   
   public BlockHighlightMod() {
     super(
-      Category.RENDER, "BlockHighlight", false, "Make selected block bounding box more visible");
+        Category.RENDER, "BlockHighlight", false, "Make selected block bounding box more visible");
   }
   
   private float toFloat(int colorVal) {

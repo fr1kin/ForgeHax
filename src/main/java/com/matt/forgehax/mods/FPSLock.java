@@ -12,50 +12,50 @@ import org.lwjgl.opengl.Display;
 public class FPSLock extends ToggleMod {
   
   private final Setting<Integer> defaultFps =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("default-fps")
-      .description("default FPS to revert to")
-      .defaultTo(MC.gameSettings.limitFramerate)
-      .min(1)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("default-fps")
+          .description("default FPS to revert to")
+          .defaultTo(MC.gameSettings.limitFramerate)
+          .min(1)
+          .build();
   
   private final Setting<Integer> fps =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("fps")
-      .description("FPS to use when the world is loaded. Set to 0 to disable.")
-      .min(0)
-      .defaultTo(0)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("fps")
+          .description("FPS to use when the world is loaded. Set to 0 to disable.")
+          .min(0)
+          .defaultTo(0)
+          .build();
   private final Setting<Integer> menu_fps =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("menu-fps")
-      .description("FPS when the GUI is opened. Set to 0 to disable.")
-      .min(0)
-      .defaultTo(60)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("menu-fps")
+          .description("FPS when the GUI is opened. Set to 0 to disable.")
+          .min(0)
+          .defaultTo(60)
+          .build();
   
   private final Setting<Integer> no_focus_fps =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("no-focus-fps")
-      .description("FPS when the game window doesn't have focus. Set to 0 to disable.")
-      .min(0)
-      .defaultTo(3)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("no-focus-fps")
+          .description("FPS when the game window doesn't have focus. Set to 0 to disable.")
+          .min(0)
+          .defaultTo(3)
+          .build();
   
   public FPSLock() {
     super(
-      Category.MISC,
-      "FPSLock",
-      false,
-      "Lock the fps to a lower-than-allowed value, and restore when disabled");
+        Category.MISC,
+        "FPSLock",
+        false,
+        "Lock the fps to a lower-than-allowed value, and restore when disabled");
   }
   
   private int getFps() {

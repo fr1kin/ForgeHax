@@ -38,7 +38,7 @@ public class BlockEntryProcessor {
         process.addAll(BlockOptionHelper.getAllBlocksMatchingByUnlocalized(arg));
       } else {
         process.add(
-          id ? new BlockEntry(SafeConverter.toInteger(arg), meta) : new BlockEntry(arg, meta));
+            id ? new BlockEntry(SafeConverter.toInteger(arg), meta) : new BlockEntry(arg, meta));
       }
     } catch (Throwable t) {
       throw new CommandExecuteException(t.getMessage());
@@ -63,24 +63,24 @@ public class BlockEntryProcessor {
     if (data.hasOption("bounds")) {
       data.requiresEntry("entries");
       final Collection<BlockEntry> entries = data.get("entries");
-  
+      
       data.getOptions("bounds")
-        .forEach(
-          p -> {
-            String value = String.valueOf(p);
-            String[] mm = value.split("-");
-            if (mm.length > 1) {
-              int min = SafeConverter.toInteger(mm[0]);
-              int max = SafeConverter.toInteger(mm[1]);
-              entries.forEach(
-                entry -> entry.getWritableProperty(BoundProperty.class).add(min, max));
-            } else {
-              throw new IllegalArgumentException(
-                String.format(
-                  "Invalid argument \"%s\" given for bounds option. Should be formatted like min-max",
-                  value));
-            }
-          });
+          .forEach(
+              p -> {
+                String value = String.valueOf(p);
+                String[] mm = value.split("-");
+                if (mm.length > 1) {
+                  int min = SafeConverter.toInteger(mm[0]);
+                  int max = SafeConverter.toInteger(mm[1]);
+                  entries.forEach(
+                      entry -> entry.getWritableProperty(BoundProperty.class).add(min, max));
+                } else {
+                  throw new IllegalArgumentException(
+                      String.format(
+                          "Invalid argument \"%s\" given for bounds option. Should be formatted like min-max",
+                          value));
+                }
+              });
     }
   }
 }

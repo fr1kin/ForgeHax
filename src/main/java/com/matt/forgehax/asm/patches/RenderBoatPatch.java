@@ -15,24 +15,24 @@ import org.objectweb.asm.tree.VarInsnNode;
  * Created by Babbaj on 8/9/2017.
  */
 public class RenderBoatPatch extends ClassTransformer {
-
+  
   public RenderBoatPatch() {
     super(Classes.RenderBoat);
   }
-
+  
   @RegisterMethodTransformer
   private class DoRender extends MethodTransformer {
-  
+    
     @Override
     public ASMMethod getMethod() {
       return Methods.RenderBoat_doRender;
     }
-
+    
     @Inject(description = "Add hook to set boat yaw when it's rendered")
     public void inject(MethodNode main) {
-
+      
       InsnList insnList = new InsnList();
-
+      
       insnList.add(new VarInsnNode(ALOAD, 1)); // load the boat entity
       insnList.add(new VarInsnNode(FLOAD, 8)); // load the boat yaw
       insnList.add(
@@ -43,7 +43,7 @@ public class RenderBoatPatch extends ClassTransformer {
       // rotationYaw) returned by the method in
       // ForgeHaxHooks
       insnList.add(new VarInsnNode(FSTORE, 8)); // store it in entityYaw
-
+      
       main.instructions.insert(insnList); // insert code at the top of the method
     }
   }

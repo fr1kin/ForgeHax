@@ -25,10 +25,10 @@ public class AutoTotemMod extends ToggleMod {
   @Override
   public String getDisplayText() {
     final long totemCount =
-      IntStream.rangeClosed(9, 45) // include offhand slot
-        .mapToObj(i -> MC.player.inventoryContainer.getSlot(i).getStack().getItem())
-        .filter(stack -> stack == Items.TOTEM_OF_UNDYING)
-        .count();
+        IntStream.rangeClosed(9, 45) // include offhand slot
+            .mapToObj(i -> MC.player.inventoryContainer.getSlot(i).getStack().getItem())
+            .filter(stack -> stack == Items.TOTEM_OF_UNDYING)
+            .count();
     return String.format(super.getDisplayText() + "[%d]", totemCount);
   }
   
@@ -42,11 +42,11 @@ public class AutoTotemMod extends ToggleMod {
     }
     
     findItem(Items.TOTEM_OF_UNDYING)
-      .ifPresent(
-        slot -> {
-          invPickup(slot);
-          invPickup(OFFHAND_SLOT);
-        });
+        .ifPresent(
+            slot -> {
+              invPickup(slot);
+              invPickup(OFFHAND_SLOT);
+            });
   }
   
   private void invPickup(final int slot) {

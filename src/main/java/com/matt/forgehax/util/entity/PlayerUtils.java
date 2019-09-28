@@ -16,7 +16,7 @@ public class PlayerUtils implements Globals {
     EntityPlayer localPlayer = getLocalPlayer();
     return localPlayer != null && localPlayer.equals(player);
   }
-
+  
   @Deprecated
   public static boolean isFriend(EntityPlayer player) {
     return false;

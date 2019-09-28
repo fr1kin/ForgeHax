@@ -40,56 +40,56 @@ public class FlyMod extends ToggleMod {
       double[] dir = moveLooking(0);
       double xDir = dir[0];
       double zDir = dir[1];
-  
+      
       if ((MC.gameSettings.keyBindForward.isKeyDown()
-        || MC.gameSettings.keyBindLeft.isKeyDown()
-        || MC.gameSettings.keyBindRight.isKeyDown()
-        || MC.gameSettings.keyBindBack.isKeyDown())
-        && !MC.gameSettings.keyBindJump.isKeyDown()) {
+          || MC.gameSettings.keyBindLeft.isKeyDown()
+          || MC.gameSettings.keyBindRight.isKeyDown()
+          || MC.gameSettings.keyBindBack.isKeyDown())
+          && !MC.gameSettings.keyBindJump.isKeyDown()) {
         MC.player.motionX = xDir * 0.26;
         MC.player.motionZ = zDir * 0.26;
       }
       double posX = MC.player.posX + MC.player.motionX;
       double posY =
-        MC.player.posY
-          + (MC.gameSettings.keyBindJump.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001)
-          - (MC.gameSettings.keyBindSneak.isKeyDown()
-          ? (zoomies ? 0.0625 : 0.0624)
-          : 0.00000002);
-      double posZ = MC.player.posZ + MC.player.motionX;
-      getNetworkManager()
-        .sendPacket(
-          new CPacketPlayer.PositionRotation(
-            MC.player.posX + MC.player.motionX,
-            MC.player.posY
-              + (MC.gameSettings.keyBindJump.isKeyDown()
-              ? (zoomies ? 0.0625 : 0.0624)
-              : 0.00000001)
+          MC.player.posY
+              + (MC.gameSettings.keyBindJump.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001)
               - (MC.gameSettings.keyBindSneak.isKeyDown()
               ? (zoomies ? 0.0625 : 0.0624)
-              : 0.00000002),
-            MC.player.posZ + MC.player.motionZ,
-            MC.player.rotationYaw,
-            MC.player.rotationPitch,
-            false));
+              : 0.00000002);
+      double posZ = MC.player.posZ + MC.player.motionX;
       getNetworkManager()
-        .sendPacket(
-          new CPacketPlayer.PositionRotation(
-            MC.player.posX + MC.player.motionX,
-            1337 + MC.player.posY,
-            MC.player.posZ + MC.player.motionZ,
-            MC.player.rotationYaw,
-            MC.player.rotationPitch,
-            true));
+          .sendPacket(
+              new CPacketPlayer.PositionRotation(
+                  MC.player.posX + MC.player.motionX,
+                  MC.player.posY
+                      + (MC.gameSettings.keyBindJump.isKeyDown()
+                      ? (zoomies ? 0.0625 : 0.0624)
+                      : 0.00000001)
+                      - (MC.gameSettings.keyBindSneak.isKeyDown()
+                      ? (zoomies ? 0.0625 : 0.0624)
+                      : 0.00000002),
+                  MC.player.posZ + MC.player.motionZ,
+                  MC.player.rotationYaw,
+                  MC.player.rotationPitch,
+                  false));
+      getNetworkManager()
+          .sendPacket(
+              new CPacketPlayer.PositionRotation(
+                  MC.player.posX + MC.player.motionX,
+                  1337 + MC.player.posY,
+                  MC.player.posZ + MC.player.motionZ,
+                  MC.player.rotationYaw,
+                  MC.player.rotationPitch,
+                  true));
       getNetworkManager().sendPacket(new CPacketEntityAction(MC.player, Action.START_FALL_FLYING));
       MC.player.setPosition(posX, posY, posZ);
-  
+      
       zoomies = !zoomies;
-  
+      
       MC.player.motionX = 0;
       MC.player.motionY = 0;
       MC.player.motionZ = 0;
-  
+      
       MC.player.noClip = true;
     } catch (Exception e) {
       Helper.printStackTrace(e);
@@ -103,22 +103,22 @@ public class FlyMod extends ToggleMod {
   @SubscribeEvent
   public void onOutgoingPacketSent(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketPlayerPosLook) {
-      SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();
+      SPacketPlayerPosLook packet = event.getPacket();
       try {
         ObfuscationReflectionHelper.setPrivateValue(
-          SPacketPlayerPosLook.class,
-          packet,
-          MC.player.rotationYaw,
-          "yaw",
-          "field_148936_d",
-          "d");
+            SPacketPlayerPosLook.class,
+            packet,
+            MC.player.rotationYaw,
+            "yaw",
+            "field_148936_d",
+            "d");
         ObfuscationReflectionHelper.setPrivateValue(
-          SPacketPlayerPosLook.class,
-          packet,
-          MC.player.rotationPitch,
-          "pitch",
-          "field_148937_e",
-          "e");
+            SPacketPlayerPosLook.class,
+            packet,
+            MC.player.rotationPitch,
+            "pitch",
+            "field_148937_e",
+            "e");
       } catch (Exception e) {
       }
     }

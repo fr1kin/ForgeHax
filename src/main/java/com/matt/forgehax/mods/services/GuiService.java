@@ -13,18 +13,18 @@ import org.lwjgl.input.Keyboard;
  */
 @RegisterMod
 public class GuiService extends ServiceMod {
-
+  
   public GuiService() {
     super("GUI");
   }
-
+  
   @Override
   public void onBindPressed(CallbackData cb) {
     if (Helper.getLocalPlayer() != null) {
       MC.displayGuiScreen(ClickGui.getInstance());
     }
   }
-
+  
   @Override
   protected StubBuilder buildStubCommand(StubBuilder builder) {
     return builder

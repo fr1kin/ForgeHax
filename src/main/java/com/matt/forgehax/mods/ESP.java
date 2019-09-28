@@ -103,7 +103,7 @@ public class ESP extends ToggleMod implements Fonts {
       .forEach(
         living -> {
           final Setting<DrawOptions> setting;
-      
+          
           switch (EntityUtils.getRelationship(living)) {
             case PLAYER:
               setting = players;
@@ -119,30 +119,30 @@ public class ESP extends ToggleMod implements Fonts {
               setting = null;
               break;
           }
-      
+          
           if (setting == null || DrawOptions.DISABLED.equals(setting.get())) {
             return;
           }
-      
+          
           Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
           Vec3d topPos =
             bottomPos.addVector(0.D, living.getRenderBoundingBox().maxY - living.posY, 0.D);
-      
+          
           Plane top = VectorUtils.toScreen(topPos);
           Plane bot = VectorUtils.toScreen(bottomPos);
-      
+          
           // stop here if neither are visible
           if (!top.isVisible() && !bot.isVisible()) {
             return;
           }
-      
+          
           double topX = top.getX();
           double topY = top.getY() + 1.D;
           double botX = bot.getX();
           double botY = bot.getY() + 1.D;
           double height = (bot.getY() - top.getY());
           double width = height;
-      
+          
           AtomicDouble offset = new AtomicDouble();
           TopComponents.REVERSE_VALUES
             .stream()
@@ -166,7 +166,7 @@ public class ESP extends ToggleMod implements Fonts {
   }
   
   private interface IComponent {
-  
+    
     /**
      * Draw component
      *
@@ -208,10 +208,10 @@ public class ESP extends ToggleMod implements Fonts {
         double width,
         double height) {
         String text = living.getDisplayName().getUnformattedText();
-  
+        
         double x = topX - ((double) builder.getFontWidth(text) / 2.D);
         double y = topY - (double) builder.getFontHeight() - 1.D;
-  
+        
         builder
           .reset()
           .push()
@@ -229,7 +229,7 @@ public class ESP extends ToggleMod implements Fonts {
         
         return SurfaceHelper.getTextHeight() + 1.D;
       }
-  
+      
       @Override
       public boolean valid(Setting<DrawOptions> setting) {
         return DrawOptions.DISABLED.compareTo(setting.get()) < 0; // DISABLED less than SETTING
@@ -280,7 +280,7 @@ public class ESP extends ToggleMod implements Fonts {
         
         return HEALTHBAR_HEIGHT + 1.D;
       }
-  
+      
       @Override
       public boolean valid(Setting<DrawOptions> setting) {
         return DrawOptions.SIMPLE.compareTo(setting.get())
@@ -325,7 +325,7 @@ public class ESP extends ToggleMod implements Fonts {
           return 0.D;
         }
       }
-  
+      
       @Override
       public boolean valid(Setting<DrawOptions> setting) {
         return DrawOptions.ADVANCED.compareTo(setting.get())

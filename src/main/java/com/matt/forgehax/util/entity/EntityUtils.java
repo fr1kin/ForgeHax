@@ -67,7 +67,7 @@ public class EntityUtils implements Globals {
       if (((EntityPigZombie) entity).isArmsRaised() || ((EntityPigZombie) entity).isAngry()) {
         if (!((EntityPigZombie) entity).isAngry()) {
           // set pigmens anger to 400 if it hasn't been angered already
-          FastReflection.Fields.EntityPigZombie_angerLevel.set((EntityPigZombie) entity, 400);
+          FastReflection.Fields.EntityPigZombie_angerLevel.set(entity, 400);
         }
         return true;
       }
@@ -104,8 +104,8 @@ public class EntityUtils implements Globals {
   public static boolean isValidEntity(Entity entity) {
     Entity riding = getLocalPlayer().getRidingEntity();
     return entity.ticksExisted > 1
-      && !isFakeLocalPlayer(entity)
-      && (riding == null || !riding.equals(entity));
+        && !isFakeLocalPlayer(entity)
+        && (riding == null || !riding.equals(entity));
   }
   
   public static boolean isAlive(Entity entity) {
@@ -117,8 +117,8 @@ public class EntityUtils implements Globals {
    */
   public static boolean isNeutralMob(Entity entity) {
     return entity instanceof EntityPigZombie
-      || entity instanceof EntityWolf
-      || entity instanceof EntityEnderman;
+        || entity instanceof EntityWolf
+        || entity instanceof EntityEnderman;
   }
   
   /**
@@ -126,11 +126,11 @@ public class EntityUtils implements Globals {
    */
   public static boolean isFriendlyMob(Entity entity) {
     return (entity.isCreatureType(EnumCreatureType.CREATURE, false)
-      && !EntityUtils.isNeutralMob(entity))
-      || (entity.isCreatureType(EnumCreatureType.AMBIENT, false) && !isBatsDisabled)
-      || entity instanceof EntityVillager
-      || entity instanceof EntityIronGolem
-      || (isNeutralMob(entity) && !EntityUtils.isMobAggressive(entity));
+        && !EntityUtils.isNeutralMob(entity))
+        || (entity.isCreatureType(EnumCreatureType.AMBIENT, false) && !isBatsDisabled)
+        || entity instanceof EntityVillager
+        || entity instanceof EntityIronGolem
+        || (isNeutralMob(entity) && !EntityUtils.isMobAggressive(entity));
   }
   
   /**
@@ -138,8 +138,8 @@ public class EntityUtils implements Globals {
    */
   public static boolean isHostileMob(Entity entity) {
     return (entity.isCreatureType(EnumCreatureType.MONSTER, false)
-      && !EntityUtils.isNeutralMob(entity))
-      || EntityUtils.isMobAggressive(entity);
+        && !EntityUtils.isNeutralMob(entity))
+        || EntityUtils.isMobAggressive(entity);
   }
   
   /**
@@ -147,9 +147,9 @@ public class EntityUtils implements Globals {
    */
   public static Vec3d getInterpolatedAmount(Entity entity, double x, double y, double z) {
     return new Vec3d(
-      (entity.posX - entity.lastTickPosX) * x,
-      (entity.posY - entity.lastTickPosY) * y,
-      (entity.posZ - entity.lastTickPosZ) * z);
+        (entity.posX - entity.lastTickPosX) * x,
+        (entity.posY - entity.lastTickPosY) * y,
+        (entity.posZ - entity.lastTickPosZ) * z);
   }
   
   public static Vec3d getInterpolatedAmount(Entity entity, Vec3d vec) {
@@ -165,7 +165,7 @@ public class EntityUtils implements Globals {
    */
   public static Vec3d getInterpolatedPos(Entity entity, double ticks) {
     return new Vec3d(entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ)
-      .add(getInterpolatedAmount(entity, ticks));
+        .add(getInterpolatedAmount(entity, ticks));
   }
   
   /**
@@ -188,33 +188,33 @@ public class EntityUtils implements Globals {
   public static Vec3d getOBBCenter(Entity entity) {
     AxisAlignedBB obb = entity.getEntityBoundingBox();
     return new Vec3d(
-      (obb.maxX + obb.minX) / 2.D, (obb.maxY + obb.minY) / 2.D, (obb.maxZ + obb.minZ) / 2.D);
+        (obb.maxX + obb.minX) / 2.D, (obb.maxY + obb.minY) / 2.D, (obb.maxZ + obb.minZ) / 2.D);
   }
   
   /**
    * Create a trace
    */
   public static RayTraceResult traceEntity(
-    World world, Vec3d start, Vec3d end, List<Entity> filter) {
+      World world, Vec3d start, Vec3d end, List<Entity> filter) {
     RayTraceResult result = null;
     double hitDistance = -1;
-  
-    for (Entity ent : world.loadedEntityList) {
     
+    for (Entity ent : world.loadedEntityList) {
+      
       if (filter.contains(ent)) {
         continue;
       }
       
       double distance = start.distanceTo(ent.getPositionVector());
       RayTraceResult trace = ent.getEntityBoundingBox().calculateIntercept(start, end);
-    
+      
       if (trace != null && (hitDistance == -1 || distance < hitDistance)) {
         hitDistance = distance;
         result = trace;
         result.entityHit = ent;
       }
     }
-  
+    
     return result;
   }
   
@@ -251,18 +251,18 @@ public class EntityUtils implements Globals {
     }
     
     double y =
-      entity.posY
-        - (packet
-        ? 0.03
-        : (EntityUtils.isPlayer(entity)
-          ? 0.2
-          : 0.5)); // increasing this seems to flag more in NCP but needs to be increased
+        entity.posY
+            - (packet
+            ? 0.03
+            : (EntityUtils.isPlayer(entity)
+                ? 0.2
+                : 0.5)); // increasing this seems to flag more in NCP but needs to be increased
     // so the player lands on solid water
     
     for (int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++) {
       for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
         BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
-  
+        
         if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) {
           return true;
         }
@@ -282,7 +282,7 @@ public class EntityUtils implements Globals {
     for (int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++) {
       for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
         BlockPos pos = new BlockPos(x, (int) y, z);
-  
+        
         if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) {
           return true;
         }

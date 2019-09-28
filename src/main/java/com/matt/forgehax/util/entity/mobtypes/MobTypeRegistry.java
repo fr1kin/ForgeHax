@@ -12,10 +12,10 @@ public class MobTypeRegistry {
   
   public static final MobType HOSTILE = new HostileMob();
   public static final MobType FRIENDLY = new FriendlyMob();
-
+  
   private static final List<MobType> MOB_TYPES_SPECIAL = Lists.newArrayList();
   private static List<MobType> readOnly = ImmutableList.of();
-
+  
   public static void register(MobType type) {
     synchronized (MOB_TYPES_SPECIAL) {
       MOB_TYPES_SPECIAL.add(type);
@@ -23,7 +23,7 @@ public class MobTypeRegistry {
       readOnly = ImmutableList.copyOf(MOB_TYPES_SPECIAL);
     }
   }
-
+  
   public static void unregister(MobType type) {
     synchronized (MOB_TYPES_SPECIAL) {
       MOB_TYPES_SPECIAL.remove(type);
@@ -31,11 +31,11 @@ public class MobTypeRegistry {
       readOnly = ImmutableList.copyOf(MOB_TYPES_SPECIAL);
     }
   }
-
+  
   public static List<MobType> getSortedSpecialMobTypes() {
     return readOnly;
   }
-
+  
   static {
     register(new EndermanMob());
     register(new PigZombieMob());

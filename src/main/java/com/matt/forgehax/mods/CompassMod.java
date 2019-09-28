@@ -18,13 +18,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class CompassMod extends ToggleMod {
   
   public final Setting<Double> scale =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("scale")
-      .description("size of the compass")
-      .defaultTo(3.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("scale")
+          .description("size of the compass")
+          .defaultTo(3.D)
+          .build();
   
   private static final double HALF_PI = Math.PI / 2;
   
@@ -47,10 +47,10 @@ public class CompassMod extends ToggleMod {
     for (Direction dir : Direction.values()) {
       double rad = getPosOnCompass(dir);
       SurfaceHelper.drawTextShadowCentered(
-        dir.name(),
-        (float) (centerX + getX(rad)),
-        (float) (centerY + getY(rad)),
-        dir == Direction.N ? Colors.RED.toBuffer() : Colors.WHITE.toBuffer());
+          dir.name(),
+          (float) (centerX + getX(rad)),
+          (float) (centerY + getY(rad)),
+          dir == Direction.N ? Colors.RED.toBuffer() : Colors.WHITE.toBuffer());
       
     }
     
@@ -62,7 +62,7 @@ public class CompassMod extends ToggleMod {
   
   private double getY(double rad) {
     final double epicPitch = MathHelper
-      .clamp(Helper.getLocalPlayer().rotationPitch + 30f, -90f, 90f);
+        .clamp(Helper.getLocalPlayer().rotationPitch + 30f, -90f, 90f);
     final double pitchRadians = Math.toRadians(epicPitch); // player pitch
     return Math.cos(rad) * Math.sin(pitchRadians) * (scale.getAsDouble() * 10);
   }
@@ -70,8 +70,8 @@ public class CompassMod extends ToggleMod {
   // return the position on the circle in radians
   private static double getPosOnCompass(Direction dir) {
     double yaw =
-      Math.toRadians(
-        MathHelper.wrapDegrees(Helper.getLocalPlayer().rotationYaw - 90)); // player yaw
+        Math.toRadians(
+            MathHelper.wrapDegrees(Helper.getLocalPlayer().rotationYaw - 90)); // player yaw
     int index = dir.ordinal() + 1;
     return yaw + (index * HALF_PI);
   }

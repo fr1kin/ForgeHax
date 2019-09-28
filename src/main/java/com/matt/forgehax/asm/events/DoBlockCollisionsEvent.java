@@ -11,17 +11,17 @@ public class DoBlockCollisionsEvent extends EntityEvent {
   
   private final BlockPos pos;
   private final IBlockState state;
-
+  
   public DoBlockCollisionsEvent(Entity entity, BlockPos pos, IBlockState state) {
     super(entity);
     this.pos = pos;
     this.state = state;
   }
-
+  
   public BlockPos getPos() {
     return pos;
   }
-
+  
   public IBlockState getState() {
     return state;
   }

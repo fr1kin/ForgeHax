@@ -27,26 +27,26 @@ public class AutoKey extends ToggleMod {
   }
   
   private final Setting<Integer> delay =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("delay")
-      .description("delay(ms) between clicks")
-      .defaultTo(500) // 500 ms
-      .min(0)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("delay")
+          .description("delay(ms) between clicks")
+          .defaultTo(500) // 500 ms
+          .min(0)
+          .build();
   
   private static Setting<Integer> holdTime; // static to allow easy access from ClickMode
   
   {
     holdTime =
-      getCommandStub()
-        .builders()
-        .<Integer>newSettingBuilder()
-        .name("holdTime")
-        .description("how long to hold button for tap")
-        .defaultTo(150) // approximate minimum for reliable key pressing
-        .build();
+        getCommandStub()
+            .builders()
+            .<Integer>newSettingBuilder()
+            .name("holdTime")
+            .description("how long to hold button for tap")
+            .defaultTo(150) // approximate minimum for reliable key pressing
+            .build();
   }
   
   // TODO: make serializable and save as json
@@ -68,67 +68,67 @@ public class AutoKey extends ToggleMod {
   public void onLoad() {
     // add a key
     getCommandStub()
-      .builders()
-      .newCommandBuilder()
-      .name("addKey")
-      .description("add a key to the active key list - (ex: addKey \"jump\" \"hold\"")
-      .processor(
-        data -> {
-          data.requiredArguments(2);
-          KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
-          if (key == null) {
-            Helper.printMessage("Unknown key: %s", data.getArgumentAsString(0));
-            return;
-          }
-      
-          String mode = data.getArgumentAsString(1);
-          ClickMode clickMode =
-            Arrays.stream(ClickMode.values())
-              .filter(m -> m.toString().toLowerCase().contains(mode.toLowerCase()))
-              .findFirst()
-              .orElseGet(
-                () -> {
-                  Helper.printMessage("Unknown mode, defaulting to tap");
-                  return ClickMode.TAP;
-                });
-          activeKeys.put(key, clickMode);
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("addKey")
+        .description("add a key to the active key list - (ex: addKey \"jump\" \"hold\"")
+        .processor(
+            data -> {
+              data.requiredArguments(2);
+              KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
+              if (key == null) {
+                Helper.printMessage("Unknown key: %s", data.getArgumentAsString(0));
+                return;
+              }
+              
+              String mode = data.getArgumentAsString(1);
+              ClickMode clickMode =
+                  Arrays.stream(ClickMode.values())
+                      .filter(m -> m.toString().toLowerCase().contains(mode.toLowerCase()))
+                      .findFirst()
+                      .orElseGet(
+                          () -> {
+                            Helper.printMessage("Unknown mode, defaulting to tap");
+                            return ClickMode.TAP;
+                          });
+              activeKeys.put(key, clickMode);
+            })
+        .build();
     
     // remove all keys
     getCommandStub()
-      .builders()
-      .newCommandBuilder()
-      .name("clearKeys")
-      .description("clear all the active keys")
-      .processor(
-        data -> {
-          if (data.getArgumentCount() > 0) {
-            Helper.printMessage("Unexpected arguments!");
-            return;
-          }
-          activeKeys.clear();
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("clearKeys")
+        .description("clear all the active keys")
+        .processor(
+            data -> {
+              if (data.getArgumentCount() > 0) {
+                Helper.printMessage("Unexpected arguments!");
+                return;
+              }
+              activeKeys.clear();
+            })
+        .build();
     
     // remove a single key
     getCommandStub()
-      .builders()
-      .newCommandBuilder()
-      .name("clearKey")
-      .description("remove an active key - (ex: clearKey \"jump\"")
-      .processor(
-        data -> {
-          data.requiredArguments(1);
-          KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
-          ClickMode mode = activeKeys.remove(key);
-          if (mode != null) {
-            Helper.printMessage("Removed key: %s", key.getBinding().getKeyDescription());
-          } else {
-            Helper.printMessage("Unknown key");
-          }
-        })
-      .build();
+        .builders()
+        .newCommandBuilder()
+        .name("clearKey")
+        .description("remove an active key - (ex: clearKey \"jump\"")
+        .processor(
+            data -> {
+              data.requiredArguments(1);
+              KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
+              ClickMode mode = activeKeys.remove(key);
+              if (mode != null) {
+                Helper.printMessage("Removed key: %s", key.getBinding().getKeyDescription());
+              } else {
+                Helper.printMessage("Unknown key");
+              }
+            })
+        .build();
   }
   
   private static void incrementPressTime(KeyBindingHandler binding) {
@@ -139,20 +139,20 @@ public class AutoKey extends ToggleMod {
   
   private enum ClickMode {
     TAP(
-      (key, time) -> {
-        if (time < holdTime.getAsInteger()) {
-          incrementPressTime(key);
-          key.setPressed(true);
-        } else {
-          key.setPressed(false);
-        }
-      }), // hold key for at least 150ms
+        (key, time) -> {
+          if (time < holdTime.getAsInteger()) {
+            incrementPressTime(key);
+            key.setPressed(true);
+          } else {
+            key.setPressed(false);
+          }
+        }), // hold key for at least 150ms
     
     HOLD(
-      (key, time) -> {
-        incrementPressTime(key);
-        key.setPressed(true);
-      }); // hold key forever
+        (key, time) -> {
+          incrementPressTime(key);
+          key.setPressed(true);
+        }); // hold key forever
     
     BiConsumer<KeyBindingHandler, Integer> clickAction;
     

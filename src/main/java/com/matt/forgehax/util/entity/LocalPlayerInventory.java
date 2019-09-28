@@ -45,18 +45,18 @@ public class LocalPlayerInventory {
   public static List<InvItem> getMainInventory() {
     AtomicInteger next = new AtomicInteger(0);
     return getInventory()
-      .mainInventory
-      .stream()
-      .map(item -> new InvItem.Base(item, next.getAndIncrement()))
-      .collect(Collectors.toList());
+        .mainInventory
+        .stream()
+        .map(item -> new InvItem.Base(item, next.getAndIncrement()))
+        .collect(Collectors.toList());
   }
   
   public static List<InvItem> getSlotInventory() {
     return getContainer()
-      .inventorySlots
-      .stream()
-      .map(SlotWrapper::new)
-      .collect(Collectors.toList());
+        .inventorySlots
+        .stream()
+        .map(SlotWrapper::new)
+        .collect(Collectors.toList());
   }
   
   public static List<InvItem> getMainInventory(int start, int end) {
@@ -142,16 +142,16 @@ public class LocalPlayerInventory {
   }
   
   public static void sendWindowClick(
-    int slotIdIn, int usedButtonIn, ClickType modeIn, ItemStack clickedItemIn) {
+      int slotIdIn, int usedButtonIn, ClickType modeIn, ItemStack clickedItemIn) {
     getNetworkManager()
-      .sendPacket(
-        new CPacketClickWindow(
-          0,
-          slotIdIn,
-          usedButtonIn,
-          modeIn,
-          clickedItemIn,
-          getOpenContainer().getNextTransactionID(getInventory())));
+        .sendPacket(
+            new CPacketClickWindow(
+                0,
+                slotIdIn,
+                usedButtonIn,
+                modeIn,
+                clickedItemIn,
+                getOpenContainer().getNextTransactionID(getInventory())));
   }
   
   public static ItemStack sendWindowClick(InvItem item, int usedButtonIn, ClickType modeIn) {
@@ -160,12 +160,12 @@ public class LocalPlayerInventory {
     }
     ItemStack ret;
     sendWindowClick(
-      item.getSlotNumber(),
-      usedButtonIn,
-      modeIn,
-      ret =
-        getOpenContainer()
-          .slotClick(item.getSlotNumber(), usedButtonIn, modeIn, getLocalPlayer()));
+        item.getSlotNumber(),
+        usedButtonIn,
+        modeIn,
+        ret =
+            getOpenContainer()
+                .slotClick(item.getSlotNumber(), usedButtonIn, modeIn, getLocalPlayer()));
     return ret;
   }
   
@@ -180,22 +180,22 @@ public class LocalPlayerInventory {
   public abstract static class InvItem implements Comparable<InvItem> {
     
     public static final InvItem EMPTY =
-      new InvItem() {
-        @Override
-        public ItemStack getItemStack() {
-          return ItemStack.EMPTY;
-        }
-        
-        @Override
-        public Item getItem() {
-          return Items.AIR;
-        }
-        
-        @Override
-        public int getIndex() {
-          return -1;
-        }
-      };
+        new InvItem() {
+          @Override
+          public ItemStack getItemStack() {
+            return ItemStack.EMPTY;
+          }
+          
+          @Override
+          public Item getItem() {
+            return Items.AIR;
+          }
+          
+          @Override
+          public int getIndex() {
+            return -1;
+          }
+        };
     
     public abstract ItemStack getItemStack();
     
@@ -274,9 +274,9 @@ public class LocalPlayerInventory {
     @Override
     public boolean equals(Object obj) {
       return this == obj
-        || (obj instanceof InvItem
-        && getIndex() == ((InvItem) obj).getIndex()
-        && getItemStack().equals(((InvItem) obj).getItemStack()));
+          || (obj instanceof InvItem
+          && getIndex() == ((InvItem) obj).getIndex()
+          && getItemStack().equals(((InvItem) obj).getItemStack()));
     }
     
     @Override

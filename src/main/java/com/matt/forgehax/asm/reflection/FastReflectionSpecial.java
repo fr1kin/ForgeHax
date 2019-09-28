@@ -17,9 +17,9 @@ public interface FastReflectionSpecial {
   interface Methods {
   
   }
-
-  interface Fields {
   
+  interface Fields {
+    
     /**
      * LJGLW Keyboard
      */

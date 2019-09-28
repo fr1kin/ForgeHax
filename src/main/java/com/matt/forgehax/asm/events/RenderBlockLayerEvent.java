@@ -8,30 +8,30 @@ public class RenderBlockLayerEvent extends Event {
   
   private final BlockRenderLayer renderLayer;
   private final double partialTicks;
-
+  
   public RenderBlockLayerEvent(BlockRenderLayer renderLayer, double partialTicks) {
     this.renderLayer = renderLayer;
     this.partialTicks = partialTicks;
   }
-
+  
   public BlockRenderLayer getRenderLayer() {
     return renderLayer;
   }
-
+  
   public double getPartialTicks() {
     return partialTicks;
   }
-
+  
   @Cancelable
   public static class Pre extends RenderBlockLayerEvent {
-  
+    
     public Pre(BlockRenderLayer renderLayer, double partialTicks) {
       super(renderLayer, partialTicks);
     }
   }
-
-  public static class Post extends RenderBlockLayerEvent {
   
+  public static class Post extends RenderBlockLayerEvent {
+    
     public Post(BlockRenderLayer renderLayer, double partialTicks) {
       super(renderLayer, partialTicks);
     }

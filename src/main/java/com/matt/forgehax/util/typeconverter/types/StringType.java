@@ -13,22 +13,22 @@ public class StringType extends TypeConverter<String> {
   public String label() {
     return "string";
   }
-
+  
   @Override
   public Class<String> type() {
     return String.class;
   }
-
+  
   @Override
   public String parse(String value) {
     return value;
   }
-
+  
   @Override
   public String toString(String value) {
     return value != null ? value : "null";
   }
-
+  
   @Nullable
   @Override
   public Comparator<String> comparator() {

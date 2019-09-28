@@ -30,28 +30,28 @@ public class VectorUtils implements Globals {
    */
   public static Plane toScreen(double x, double y, double z) {
     Entity view = MC.getRenderViewEntity();
-  
+    
     if (view == null) {
       return new Plane(0.D, 0.D, false);
     }
     
     Vec3d camPos = FastReflection.Fields.ActiveRenderInfo_position.getStatic();
     Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
-  
+    
     float vecX = (float) ((camPos.x + eyePos.x) - (float) x);
     float vecY = (float) ((camPos.y + eyePos.y) - (float) y);
     float vecZ = (float) ((camPos.z + eyePos.z) - (float) z);
-  
+    
     Vector4f pos = new Vector4f(vecX, vecY, vecZ, 1.f);
-  
+    
     modelMatrix.load(
-      FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
+        FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
     projectionMatrix.load(
-      FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().asReadOnlyBuffer());
+        FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().asReadOnlyBuffer());
     
     VecTransformCoordinate(pos, modelMatrix);
     VecTransformCoordinate(pos, projectionMatrix);
-  
+    
     if (pos.w > 0.f) {
       pos.x *= -100000;
       pos.y *= -100000;
@@ -60,16 +60,16 @@ public class VectorUtils implements Globals {
       pos.x *= invert;
       pos.y *= invert;
     }
-  
+    
     ScaledResolution res = new ScaledResolution(MC);
     float halfWidth = (float) res.getScaledWidth() / 2.f;
     float halfHeight = (float) res.getScaledHeight() / 2.f;
-  
+    
     pos.x = halfWidth + (0.5f * pos.x * res.getScaledWidth() + 0.5f);
     pos.y = halfHeight - (0.5f * pos.y * res.getScaledHeight() + 0.5f);
-  
+    
     boolean bVisible = true;
-  
+    
     if (pos.x < 0 || pos.y < 0 || pos.x > res.getScaledWidth() || pos.y > res.getScaledHeight()) {
       bVisible = false;
     }

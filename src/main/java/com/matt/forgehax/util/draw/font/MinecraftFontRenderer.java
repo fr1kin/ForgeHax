@@ -57,7 +57,7 @@ public class MinecraftFontRenderer extends CFont {
   
   public float drawCenteredStringWithShadow(String text, float x, float y, int color) {
     float shadowWidth =
-      drawString(text, x - getStringWidth(text) / 2 + 1.0D, y + 1.0D, color, true);
+        drawString(text, x - getStringWidth(text) / 2 + 1.0D, y + 1.0D, color, true);
     return drawString(text, x - getStringWidth(text) / 2, y, color);
   }
   
@@ -97,10 +97,10 @@ public class MinecraftFontRenderer extends CFont {
       GlStateManager.enableBlend();
       GlStateManager.blendFunc(770, 771);
       GlStateManager.color(
-        (color >> 16 & 0xFF) / 255.0F,
-        (color >> 8 & 0xFF) / 255.0F,
-        (color & 0xFF) / 255.0F,
-        alpha);
+          (color >> 16 & 0xFF) / 255.0F,
+          (color >> 8 & 0xFF) / 255.0F,
+          (color & 0xFF) / 255.0F,
+          alpha);
       int size = text.length();
       GlStateManager.enableTexture2D();
       GlStateManager.bindTexture(tex.getGlTextureId());
@@ -140,10 +140,10 @@ public class MinecraftFontRenderer extends CFont {
             
             int colorcode = this.colorCode[colorIndex];
             GlStateManager.color(
-              (colorcode >> 16 & 0xFF) / 255.0F,
-              (colorcode >> 8 & 0xFF) / 255.0F,
-              (colorcode & 0xFF) / 255.0F,
-              alpha);
+                (colorcode >> 16 & 0xFF) / 255.0F,
+                (colorcode >> 8 & 0xFF) / 255.0F,
+                (colorcode & 0xFF) / 255.0F,
+                alpha);
           } else if (colorIndex == 16) {
             randomCase = true;
           } else if (colorIndex == 17) {
@@ -185,10 +185,10 @@ public class MinecraftFontRenderer extends CFont {
             underline = false;
             strikethrough = false;
             GlStateManager.color(
-              (color >> 16 & 0xFF) / 255.0F,
-              (color >> 8 & 0xFF) / 255.0F,
-              (color & 0xFF) / 255.0F,
-              alpha);
+                (color >> 16 & 0xFF) / 255.0F,
+                (color >> 8 & 0xFF) / 255.0F,
+                (color & 0xFF) / 255.0F,
+                alpha);
             GlStateManager.bindTexture(tex.getGlTextureId());
             // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
             // tex.getGlTextureId());
@@ -203,20 +203,20 @@ public class MinecraftFontRenderer extends CFont {
           
           if (strikethrough) {
             drawLine(
-              x,
-              y + currentData[character].height / 2,
-              x + currentData[character].width - 8.0D,
-              y + currentData[character].height / 2,
-              1.0F);
+                x,
+                y + currentData[character].height / 2,
+                x + currentData[character].width - 8.0D,
+                y + currentData[character].height / 2,
+                1.0F);
           }
           
           if (underline) {
             drawLine(
-              x,
-              y + currentData[character].height - 2.0D,
-              x + currentData[character].width - 8.0D,
-              y + currentData[character].height - 2.0D,
-              1.0F);
+                x,
+                y + currentData[character].height - 2.0D,
+                x + currentData[character].width - 8.0D,
+                y + currentData[character].height - 2.0D,
+                1.0F);
           }
           
           x += currentData[character].width - 8 + this.charOffset;
@@ -303,14 +303,14 @@ public class MinecraftFontRenderer extends CFont {
   
   private void setupBoldItalicIDs() {
     texBold =
-      setupTexture(
-        this.font.deriveFont(1), this.antiAlias, this.fractionalMetrics, this.boldChars);
+        setupTexture(
+            this.font.deriveFont(1), this.antiAlias, this.fractionalMetrics, this.boldChars);
     texItalic =
-      setupTexture(
-        this.font.deriveFont(2), this.antiAlias, this.fractionalMetrics, this.italicChars);
+        setupTexture(
+            this.font.deriveFont(2), this.antiAlias, this.fractionalMetrics, this.italicChars);
     texItalicBold =
-      setupTexture(
-        this.font.deriveFont(3), this.antiAlias, this.fractionalMetrics, this.boldItalicChars);
+        setupTexture(
+            this.font.deriveFont(3), this.antiAlias, this.fractionalMetrics, this.boldItalicChars);
   }
   
   private void drawLine(double x, double y, double x1, double y1, float width) {
@@ -334,7 +334,7 @@ public class MinecraftFontRenderer extends CFont {
       for (String word : words) {
         for (int i = 0; i < word.toCharArray().length; i++) {
           char c = word.toCharArray()[i];
-  
+          
           if ((c == '\u00a7') && (i < word.toCharArray().length - 1)) {
             lastColorCode = word.toCharArray()[(i + 1)];
           }
@@ -382,7 +382,7 @@ public class MinecraftFontRenderer extends CFont {
         currentWord = currentWord + c;
       } else {
         finalWords.add(currentWord);
-        currentWord = "\u00a7" + lastColorCode + String.valueOf(c);
+        currentWord = "\u00a7" + lastColorCode + c;
       }
     }
     
@@ -399,17 +399,17 @@ public class MinecraftFontRenderer extends CFont {
       int red = (index >> 2 & 0x1) * 170 + noClue;
       int green = (index >> 1 & 0x1) * 170 + noClue;
       int blue = (index >> 0 & 0x1) * 170 + noClue;
-  
+      
       if (index == 6) {
         red += 85;
       }
-  
+      
       if (index >= 16) {
         red /= 4;
         green /= 4;
         blue /= 4;
       }
-  
+      
       this.colorCode[index] = ((red & 0xFF) << 16 | (green & 0xFF) << 8 | blue & 0xFF);
     }
   }

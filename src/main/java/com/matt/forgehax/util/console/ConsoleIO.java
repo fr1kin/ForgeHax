@@ -13,12 +13,12 @@ import net.minecraft.util.text.TextFormatting;
 
 // TODO: fix memory leak
 public class ConsoleIO implements Globals {
-
+  
   public static final Style HEADING = new Style().setColor(TextFormatting.GRAY).setItalic(true);
-
+  
   private static final ThreadLocal<AtomicInteger> INDENTATION = new ThreadLocal<>();
   private static final int MIN_INDENT = 1;
-
+  
   private static AtomicInteger getOrCreate() {
     AtomicInteger count = INDENTATION.get();
     if (count == null) {
@@ -27,11 +27,11 @@ public class ConsoleIO implements Globals {
     }
     return count;
   }
-
+  
   public static void start() {
     getOrCreate().set(MIN_INDENT);
   }
-
+  
   public static void write(String msg, Style style) {
     String tab = Strings.repeat('>', Math.max(getOrCreate().get(), MIN_INDENT)) + " ";
     if (style == null) {
@@ -40,27 +40,27 @@ public class ConsoleIO implements Globals {
       Helper.printMessageNaked(tab, msg, style); // TODO: use a non-chat console
     }
   }
-
+  
   public static void write(String msg) {
     write(msg, null);
   }
-
+  
   public static void incrementIndent() {
     getOrCreate().incrementAndGet();
   }
-
+  
   public static void decrementIndent() {
     getOrCreate().decrementAndGet();
   }
-
+  
   public static int getIndents() {
     return getOrCreate().get();
   }
-
+  
   public static void setIndents(int indents) {
     getOrCreate().set(indents);
   }
-
+  
   public static void finished() {
     INDENTATION.remove();
   }

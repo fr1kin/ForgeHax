@@ -47,9 +47,9 @@ public class GuiWindowMod extends GuiWindow {
       if (mod.getModCategory().equals(category) && !mod.isHidden()) {
         GuiButton moduleButton = new GuiButton(mod);
         buttonList.add(moduleButton);
-  
+        
         newHeight += GuiButton.height + 1;
-  
+        
         String name = moduleButton.getName();
         int width = SurfaceHelper.getTextWidth(name);
         if (width > maxWidth) {
@@ -105,13 +105,13 @@ public class GuiWindowMod extends GuiWindow {
   public void drawWindow(int mouseX, int mouseY) {
     super.drawWindow(mouseX, mouseY);
     windowY = headerY + 22;
-  
+    
     SurfaceHelper.drawOutlinedRectShaded(
       posX, windowY, width, height, Colors.GRAY.toBuffer(), 80, 3);
     int buttonY = windowY - buttonListOffset + 2;
-  
+    
     int scale = ClickGui.scaledRes.getScaleFactor();
-  
+    
     GL11.glPushMatrix();
     int scissorY = MC.displayHeight - (scale * windowY + scale * height - 3);
     GL11.glScissor(scale * posX, scissorY, scale * width, scale * height - 8);
@@ -128,7 +128,7 @@ public class GuiWindowMod extends GuiWindow {
     }
     GL11.glDisable(GL11.GL_SCISSOR_TEST);
     GL11.glPopMatrix();
-  
+    
     // update variables
     bottomX = posX + width; // set the coords of the bottom right corner for mouse coord testing
     bottomY = windowY + height;

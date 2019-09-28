@@ -11,22 +11,22 @@ public class ToggleMod extends BaseMod {
   public ToggleMod(Category category, String modName, boolean defaultValue, String description) {
     super(category, modName, description);
     this.enabled =
-      getCommandStub()
-        .builders()
-        .<Boolean>newSettingBuilder()
-        .name("enabled")
-        .description("Enables the mod")
-        .defaultTo(defaultValue)
-        .changed(
-          cb -> { // value is set after callback is ran 🤡
-            // do not call anything that might infinitely call this callback
-            if (cb.getTo()) {
-              start();
-            } else {
-              stop();
-            }
-          })
-        .build();
+        getCommandStub()
+            .builders()
+            .<Boolean>newSettingBuilder()
+            .name("enabled")
+            .description("Enables the mod")
+            .defaultTo(defaultValue)
+            .changed(
+                cb -> { // value is set after callback is ran 🤡
+                  // do not call anything that might infinitely call this callback
+                  if (cb.getTo()) {
+                    start();
+                  } else {
+                    stop();
+                  }
+                })
+            .build();
   }
   
   /**

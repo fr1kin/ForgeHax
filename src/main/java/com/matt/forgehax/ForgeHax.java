@@ -26,7 +26,7 @@ public class ForgeHax {
   
   public static String getWelcomeMessage() {
     return String
-      .format("Running ForgeHax v%s\n Type .help in chat for command instructions", MOD_VERSION);
+        .format("Running ForgeHax v%s\n Type .help in chat for command instructions", MOD_VERSION);
   }
   
   @Mod.EventHandler
@@ -42,7 +42,7 @@ public class ForgeHax {
     if (event.getSide() == Side.CLIENT) {
       // add shutdown hook to serialize all binds
       Runtime.getRuntime()
-        .addShutdownHook(new Thread(() -> getModManager().forEach(BaseMod::unload)));
+          .addShutdownHook(new Thread(() -> getModManager().forEach(BaseMod::unload)));
       
       // registerAll mod events
       getModManager().forEach(BaseMod::load);

@@ -20,9 +20,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @RegisterMod
 public class FirstTimeRunningService extends ServiceMod {
-
+  
   private static final Path STARTUP_ONCE = FileManager.getInstance().getBaseResolve("config/.once");
-
+  
   private static final String getOnceFileVersion() {
     if (Files.exists(STARTUP_ONCE)) {
       try {
@@ -32,11 +32,11 @@ public class FirstTimeRunningService extends ServiceMod {
     }
     return Strings.EMPTY;
   }
-
+  
   public FirstTimeRunningService() {
     super("FirstTimeRunningService");
   }
-
+  
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (!Objects.equals(ForgeHax.MOD_VERSION, getOnceFileVersion())) {

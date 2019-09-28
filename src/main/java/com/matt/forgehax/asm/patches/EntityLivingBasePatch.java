@@ -15,19 +15,19 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class EntityLivingBasePatch extends ClassTransformer {
-
+  
   public EntityLivingBasePatch() {
     super(Classes.EntityLivingBase);
   }
-
+  
   @RegisterMethodTransformer
   public class Travel extends MethodTransformer {
-
+    
     @Override
     public ASMMethod getMethod() {
       return Methods.EntityLivingBase_travel;
     }
-
+    
     @Inject(description = "Add hook before first slippery motion calculation")
     public void injectFirst(MethodNode node) {
       // at first underState.getBlock().getSlipperiness(...)
@@ -54,9 +54,9 @@ public class EntityLivingBasePatch extends ClassTransformer {
           ALOAD,
           GETFIELD,
           IFEQ);
-
+      
       Objects.requireNonNull(first, "Could not find first slip motion node");
-
+      
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(new VarInsnNode(ALOAD, 6));
@@ -64,10 +64,10 @@ public class EntityLivingBasePatch extends ClassTransformer {
       list.add(
         ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onEntityBlockSlipApply));
       // top of stack should be a modified or unmodified slippery float
-
+      
       node.instructions.insert(first, list); // insert after
     }
-
+    
     @Inject(description = "Add hook before second slippery motion calculation")
     public void injectSecond(MethodNode node) {
       // at second underState.getBlock().getSlipperiness(...)
@@ -97,9 +97,9 @@ public class EntityLivingBasePatch extends ClassTransformer {
           LDC,
           INVOKESTATIC,
           PUTFIELD);
-
+      
       Objects.requireNonNull(second, "Could not find second slip motion node");
-
+      
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(new VarInsnNode(ALOAD, 8));
@@ -107,7 +107,7 @@ public class EntityLivingBasePatch extends ClassTransformer {
       list.add(
         ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onEntityBlockSlipApply));
       // top of stack should be a modified or unmodified slippery float
-
+      
       node.instructions.insert(second, list); // insert after
     }
   }

@@ -12,11 +12,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @RegisterMod
 public class PigmenAngerCooldownService extends ServiceMod {
-
+  
   public PigmenAngerCooldownService() {
     super("PigmenAngerCooldownService");
   }
-
+  
   @SubscribeEvent
   public void onUpdate(LivingEvent.LivingUpdateEvent event) {
     if (event.getEntityLiving() instanceof EntityPigZombie) {
@@ -26,7 +26,7 @@ public class PigmenAngerCooldownService extends ServiceMod {
         FastReflection.Fields.EntityPigZombie_angerLevel.set(pigZombie, 400);
       } else if (pigZombie.isAngry()) {
         FastReflection.Fields.EntityPigZombie_angerLevel.set(
-          pigZombie, FastReflection.Fields.EntityPigZombie_angerLevel.get(pigZombie) - 1);
+            pigZombie, FastReflection.Fields.EntityPigZombie_angerLevel.get(pigZombie) - 1);
       }
     }
   }

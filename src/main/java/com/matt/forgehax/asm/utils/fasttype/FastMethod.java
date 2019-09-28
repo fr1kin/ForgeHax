@@ -12,18 +12,18 @@ import joptsimple.internal.Strings;
  * Created on 5/25/2017 by fr1kin
  */
 public class FastMethod<V> extends FastType<Method> {
-
+  
   private final Class<?>[] parameters;
-
+  
   public FastMethod(Class<?> insideClass, IName<String> name, Class<?>[] parameters) {
     super(insideClass, name);
     this.parameters = Arrays.copyOf(parameters, parameters.length);
   }
-
+  
   public Class<?>[] getParameters() {
     return parameters;
   }
-
+  
   public <E> V invoke(E instance, V defaultValue, Object... args) {
     try {
       if (attemptLookup()) {
@@ -36,15 +36,15 @@ public class FastMethod<V> extends FastType<Method> {
     }
     return defaultValue;
   }
-
+  
   public <E> V invoke(E instance, Object... args) {
     return invoke(instance, null, args);
   }
-
+  
   public V invokeStatic(Object... args) {
     return invoke(null, null, args);
   }
-
+  
   @Override
   protected Method lookup() throws Exception {
     Objects.requireNonNull(parameters);
@@ -56,7 +56,6 @@ public class FastMethod<V> extends FastType<Method> {
           m.setAccessible(true);
           return m;
         } catch (Exception e) {
-          ;
         }
       }
     }

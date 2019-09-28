@@ -35,7 +35,7 @@ public class HotbarSelectionService extends ServiceMod {
   public ResetFunction setSelected(final int index, boolean reset, Predicate<Long> condition) {
     if (index < 0 || index > LocalPlayerInventory.getHotbarSize() - 1) {
       throw new IllegalArgumentException(
-        "index must be between 0 and " + (LocalPlayerInventory.getHotbarSize() - 1));
+          "index must be between 0 and " + (LocalPlayerInventory.getHotbarSize() - 1));
     }
     
     final int current = selected();
@@ -55,7 +55,7 @@ public class HotbarSelectionService extends ServiceMod {
         
         lastSetIndex = index;
         resetCondition = MoreObjects.firstNonNull(condition, Predicates.alwaysTrue());
-  
+        
         select(index);
       }
       ticksElapsed = 0;

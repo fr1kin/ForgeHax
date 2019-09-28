@@ -25,13 +25,13 @@ public class OptionBuilders {
   
   public static void regex(OptionParser parser) {
     parser.acceptsAll(
-      Arrays.asList("regex", "e"),
-      "searches for blocks by using the argument as a regex expression");
+        Arrays.asList("regex", "e"),
+        "searches for blocks by using the argument as a regex expression");
   }
   
   public static void bounds(OptionParser parser) {
     parser
-      .accepts("bounds", "Will only draw blocks from within the min-max bounds given")
-      .withRequiredArg();
+        .accepts("bounds", "Will only draw blocks from within the min-max bounds given")
+        .withRequiredArg();
   }
 }

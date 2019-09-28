@@ -67,7 +67,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
   private final Set<Command> children = Sets.newHashSet();
   
   protected final Multimap<CallbackType, Consumer<CallbackData>> callbacks =
-    Multimaps.newSetMultimap(Maps.newHashMap(), Sets::newLinkedHashSet);
+      Multimaps.newSetMultimap(Maps.newHashMap(), Sets::newLinkedHashSet);
   
   private final int requiredArgs;
   
@@ -78,12 +78,12 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
     try {
       this.name = (String) data.get(NAME);
       Objects.requireNonNull(this.name, "Command requires name");
-  
+      
       this.description = (String) data.getOrDefault(DESCRIPTION, Strings.EMPTY);
       this.help = (Consumer<ExecuteData>) data.get(HELP);
-  
+      
       Collection<Consumer<ExecuteData>> processors =
-        (Collection<Consumer<ExecuteData>>) data.get(PROCESSORS);
+          (Collection<Consumer<ExecuteData>>) data.get(PROCESSORS);
       if (processors != null) {
         this.processors.addAll(processors);
       }
@@ -100,23 +100,23 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
       if (helpAutoGen) {
         parser.acceptsAll(Arrays.asList("help", "?"), "Help text for options");
       }
-  
+      
       // Execute custom option builder (if it exists)
       Collection<Consumer<OptionParser>> optionBuilders =
-        (Collection<Consumer<OptionParser>>) data.get(OPTIONBUILDERS);
+          (Collection<Consumer<OptionParser>>) data.get(OPTIONBUILDERS);
       if (optionBuilders != null) {
         for (Consumer<OptionParser> c : optionBuilders) {
           c.accept(this.parser);
         }
       }
-  
+      
       // Add any callbacks created by the builder
       Multimap<CallbackType, Consumer<CallbackData>> callbacks =
-        (Multimap<CallbackType, Consumer<CallbackData>>) data.get(CALLBACKS);
+          (Multimap<CallbackType, Consumer<CallbackData>>) data.get(CALLBACKS);
       if (callbacks != null) {
         this.callbacks.putAll(callbacks);
       }
-  
+      
       this.requiredArgs = Math.max(SafeConverter.toInteger(data.getOrDefault(REQUIREDARGS, 0)), 0);
     } catch (Throwable t) {
       throw new CommandBuildException("Failed to build command", t);
@@ -133,8 +133,8 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
   
   public String getAbsoluteName() {
     return (getParent() != null && !getParent().isGlobal())
-      ? (getParent().getAbsoluteName() + "." + getName())
-      : getName();
+        ? (getParent().getAbsoluteName() + "." + getName())
+        : getName();
   }
   
   public String getDescription() {
@@ -150,12 +150,10 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
     try {
       parser.printHelpOn(writer);
     } catch (IOException e) {
-      ;
     } finally {
       try {
         writer.close();
       } catch (IOException e) {
-        ;
       }
     }
     return writer.toString();
@@ -231,7 +229,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
   @SuppressWarnings("unchecked")
   @Nullable
   protected <T extends CallbackData> Consumer<T> addCallback(
-    CallbackType type, Consumer<T> consumer) {
+      CallbackType type, Consumer<T> consumer) {
     return callbacks.put(type, (Consumer<CallbackData>) consumer) ? consumer : null;
   }
   
@@ -244,7 +242,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
   }
   
   protected boolean processHelp(ExecuteData data)
-    throws CommandExecuteException, NullPointerException {
+      throws CommandExecuteException, NullPointerException {
     if (help != null) {
       help.accept(data);
       return true;
@@ -257,7 +255,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
   }
   
   protected boolean processMain(ExecuteData data)
-    throws CommandExecuteException, NullPointerException {
+      throws CommandExecuteException, NullPointerException {
     if (processors != null) {
       for (Consumer<ExecuteData> c : processors) {
         try {
@@ -277,7 +275,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
   }
   
   protected boolean processChildren(@Nonnull String[] args)
-    throws CommandExecuteException, NullPointerException {
+      throws CommandExecuteException, NullPointerException {
     if (args.length > 0) {
       final String lookup = (args[0] != null ? args[0] : Strings.EMPTY).toLowerCase();
       Command child = getChild(lookup);
@@ -286,20 +284,20 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
         return true;
       } else { // no match found, try and infer
         List<Command> results =
-          children
-            .stream()
-            .filter(cmd -> cmd.getName().toLowerCase().startsWith(lookup))
-            .collect(Collectors.toList());
+            children
+                .stream()
+                .filter(cmd -> cmd.getName().toLowerCase().startsWith(lookup))
+                .collect(Collectors.toList());
         
         if (results.size() == 1) { // if found 1 result, use that
           results.get(0).run(CommandHelper.forward(args));
           return true;
         } else if (results.size() > 1) {
           throw new CommandExecuteException(
-            String.format(
-              "Ambiguous command \"%s\": %s",
-              lookup,
-              results.stream().map(Command::getName).collect(Collectors.joining(", "))));
+              String.format(
+                  "Ambiguous command \"%s\": %s",
+                  lookup,
+                  results.stream().map(Command::getName).collect(Collectors.joining(", "))));
         }
       }
     }
@@ -315,7 +313,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
     if (!processChildren(args)) { // attempt to match child commands first
       OptionSet options;
       String[] required;
-  
+      
       if (!preprocessor(args)) {
         return;
       }
@@ -329,7 +327,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
           throw new CommandExecuteException("Missing argument(s)");
         }
         required =
-          Arrays.copyOfRange(args, 0, requiredArgs); // do not pass through option processor
+            Arrays.copyOfRange(args, 0, requiredArgs); // do not pass through option processor
         String[] nargs;
         if (args.length > requiredArgs) {
           nargs = Arrays.copyOfRange(args, requiredArgs, args.length);
@@ -342,7 +340,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
         required = new String[0];
       }
       ExecuteData data = new ExecuteData(this, options, required);
-  
+      
       // only process main if no help was processed
       if (!processHelp(data)) {
         processMain(data);
@@ -374,22 +372,20 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
         writer.beginArray();
         serializable.serialize(writer);
         writer.endArray();
-  
+        
         Files.write(path, sw.toString().getBytes());
       } catch (Throwable t) {
         Helper.printStackTrace(t);
         Globals.LOGGER.warn(
-          String.format("Could not serialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
+            String.format("Could not serialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
       } finally {
         try {
           sw.close();
         } catch (IOException e) {
-          ;
         } finally {
           try {
             writer.close();
           } catch (IOException e) {
-            ;
           }
         }
       }
@@ -412,14 +408,14 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
         try {
           sr = new StringReader(new String(Files.readAllBytes(path)));
           reader = new JsonReader(sr);
-  
+          
           reader.beginArray();
           serializable.deserialize(reader);
           reader.endArray();
         } catch (Throwable t) {
           Helper.printStackTrace(t);
           Globals.LOGGER.warn(
-            String.format("Could not deserialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
+              String.format("Could not deserialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
         } finally {
           if (sr != null) {
             sr.close();
@@ -429,7 +425,6 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
               reader.close();
             }
           } catch (IOException e) {
-            ;
           }
         }
       }
@@ -449,7 +444,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
   @Override
   public boolean equals(Object o) {
     return o instanceof Command
-      && getAbsoluteName().equalsIgnoreCase(((Command) o).getAbsoluteName());
+        && getAbsoluteName().equalsIgnoreCase(((Command) o).getAbsoluteName());
   }
   
   @Override

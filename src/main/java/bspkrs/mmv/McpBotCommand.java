@@ -12,22 +12,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  */
 
 public class McpBotCommand {
-
+  
   public enum BotCommand {
     SF,
     SM,
     SP,
     FSF,
     FSM,
-    FSP;
+    FSP
   }
-
+  
   public enum MemberType {
     FIELD,
     METHOD,
-    PARAM;
+    PARAM
   }
-
+  
   public static BotCommand getCommand(MemberType type, boolean isForced) {
     switch (type) {
       case METHOD:
@@ -38,39 +38,39 @@ public class McpBotCommand {
         return isForced ? BotCommand.FSF : BotCommand.SF;
     }
   }
-
+  
   private final BotCommand command;
   private final String srgName;
   private final String newName;
   private final String comment;
-
+  
   public McpBotCommand(BotCommand command, String srgName, String newName, String comment) {
     this.command = command;
     this.srgName = srgName;
     this.newName = newName;
     this.comment = comment;
   }
-
+  
   public McpBotCommand(BotCommand command, String srgName, String newName) {
     this(command, srgName, newName, "");
   }
-
+  
   public static McpBotCommand getMcpBotCommand(
-    MemberType type, boolean isForced, String srgName, String newName, String comment) {
+      MemberType type, boolean isForced, String srgName, String newName, String comment) {
     return new McpBotCommand(getCommand(type, isForced), srgName, newName, comment);
   }
-
+  
   public BotCommand getCommand() {
     return command;
   }
-
+  
   public String getNewName() {
     return newName;
   }
-
+  
   @Override
   public String toString() {
     return String.format(
-      "!%s %s %s %s", command.toString().toLowerCase(), srgName, newName, comment);
+        "!%s %s %s %s", command.toString().toLowerCase(), srgName, newName, comment);
   }
 }

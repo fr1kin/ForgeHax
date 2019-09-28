@@ -17,13 +17,11 @@ public class ForgeHaxProperties {
       input = ForgeHaxProperties.class.getClassLoader().getResourceAsStream("config.properties");
       CONFIG_PROPERTIES.load(input);
     } catch (Throwable t) {
-      ;
     } finally {
       if (input != null) {
         try {
           input.close();
         } catch (Throwable t) {
-          ;
         }
       }
     }

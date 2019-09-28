@@ -11,17 +11,17 @@ import javax.annotation.Nullable;
 public class SingleName<E> implements IName<E> {
   
   private final E normal;
-
+  
   public SingleName(@Nonnull E normal) {
     Objects.requireNonNull(normal);
     this.normal = normal;
   }
-
+  
   @Override
   public E get() {
     return normal;
   }
-
+  
   @Nullable
   @Override
   public E getByState(State state) {
@@ -32,7 +32,7 @@ public class SingleName<E> implements IName<E> {
         return null;
     }
   }
-
+  
   @Override
   public int getStateCount() {
     return 1;

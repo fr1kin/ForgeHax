@@ -6,22 +6,22 @@ import java.util.Map;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
-
+  
   @Override
   public String[] getASMTransformerClass() {
     return new String[]{ForgeHaxTransformer.class.getName()};
   }
-
+  
   @Override
   public String getModContainerClass() {
     return null;
   }
-
+  
   @Override
   public String getSetupClass() {
     return null;
   }
-
+  
   @Override
   public void injectData(Map<String, Object> data) {
     if (data.containsKey("runtimeDeobfuscationEnabled")) {
@@ -39,7 +39,7 @@ public class ForgeHaxCoreMod implements IFMLLoadingPlugin, ASMCommon {
       }
     }
   }
-
+  
   @Override
   public String getAccessTransformerClass() {
     return null;

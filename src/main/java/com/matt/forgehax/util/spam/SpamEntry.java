@@ -211,9 +211,9 @@ public class SpamEntry implements ISerializableJson {
   @Override
   public boolean equals(Object obj) {
     return (obj instanceof SpamEntry
-      && String.CASE_INSENSITIVE_ORDER.compare(name, ((SpamEntry) obj).name) == 0)
-      || (obj instanceof String
-      && String.CASE_INSENSITIVE_ORDER.compare(name, (String) obj) == 0);
+        && String.CASE_INSENSITIVE_ORDER.compare(name, ((SpamEntry) obj).name) == 0)
+        || (obj instanceof String
+        && String.CASE_INSENSITIVE_ORDER.compare(name, (String) obj) == 0);
   }
   
   @Override

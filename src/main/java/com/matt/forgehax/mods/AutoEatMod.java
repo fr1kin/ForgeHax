@@ -34,7 +34,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AutoEatMod extends ToggleMod {
   
   private static final List<Potion> BAD_POTIONS =
-    Streams.stream(Potion.REGISTRY).filter(Potion::isBadEffect).collect(Collectors.toList());
+      Streams.stream(Potion.REGISTRY).filter(Potion::isBadEffect).collect(Collectors.toList());
   
   enum Sorting {
     POINTS,
@@ -44,36 +44,36 @@ public class AutoEatMod extends ToggleMod {
   }
   
   private final Setting<Sorting> sorting =
-    getCommandStub()
-      .builders()
-      .<Sorting>newSettingEnumBuilder()
-      .name("sorting")
-      .description("Method used to find best food item to use")
-      .defaultTo(Sorting.RATIO)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Sorting>newSettingEnumBuilder()
+          .name("sorting")
+          .description("Method used to find best food item to use")
+          .defaultTo(Sorting.RATIO)
+          .build();
   
   private final Setting<Integer> fail_safe_multiplier =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("fail-safe-multiplier")
-      .description(
-        "Will attempt to eat again after use ticks * multiplier has elapsed. Set to 0 to disable")
-      .defaultTo(10)
-      .min(0)
-      .max(20)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("fail-safe-multiplier")
+          .description(
+              "Will attempt to eat again after use ticks * multiplier has elapsed. Set to 0 to disable")
+          .defaultTo(10)
+          .min(0)
+          .max(20)
+          .build();
   
   private final Setting<Integer> select_wait =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("select-wait")
-      .description(
-        "Number of ticks to wait before starting to eat a food item after switching to it in the hotbar.")
-      .defaultTo(10)
-      .min(0)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("select-wait")
+          .description(
+              "Number of ticks to wait before starting to eat a food item after switching to it in the hotbar.")
+          .defaultTo(10)
+          .min(0)
+          .build();
   
   private ItemFood food = null;
   private boolean eating = false;
@@ -114,8 +114,8 @@ public class AutoEatMod extends ToggleMod {
   private boolean isGoodFood(InvItem inv) {
     PotionEffect pe = Fields.ItemFood_potionId.get(inv.getItem());
     return pe == null || isFishFood(inv)
-      ? !FishType.PUFFERFISH.equals(FishType.byItemStack(inv.getItemStack()))
-      : BAD_POTIONS.stream().filter(Potion::isBadEffect).noneMatch(pe.getPotion()::equals);
+        ? !FishType.PUFFERFISH.equals(FishType.byItemStack(inv.getItemStack()))
+        : BAD_POTIONS.stream().filter(Potion::isBadEffect).noneMatch(pe.getPotion()::equals);
   }
   
   private int getHealAmount(InvItem inv) {
@@ -132,9 +132,9 @@ public class AutoEatMod extends ToggleMod {
   
   private double getSaturationLevel(InvItem inv) {
     return Math.min(
-      getLocalPlayer().getFoodStats().getSaturationLevel()
-        + getHealAmount(inv) * getSaturationAmount(inv) * 2.D,
-      20.D);
+        getLocalPlayer().getFoodStats().getSaturationLevel()
+            + getHealAmount(inv) * getSaturationAmount(inv) * 2.D,
+        20.D);
   }
   
   private double getPreferenceValue(InvItem inv) {
@@ -155,7 +155,7 @@ public class AutoEatMod extends ToggleMod {
   
   private boolean checkFailsafe() {
     return (fail_safe_multiplier.get() == 0
-      || eatingTicks < food.itemUseDuration * fail_safe_multiplier.get());
+        || eatingTicks < food.itemUseDuration * fail_safe_multiplier.get());
   }
   
   @Override
@@ -177,46 +177,46 @@ public class AutoEatMod extends ToggleMod {
     eating = false;
     
     LocalPlayerInventory.getHotbarInventory()
-      .stream()
-      .filter(InvItem::nonEmpty)
-      .filter(this::isFoodItem)
-      .filter(this::isGoodFood)
-      .max(
-        Comparator.comparingDouble(this::getPreferenceValue)
-          .thenComparing(LocalPlayerInventory::getHotbarDistance))
-      .filter(this::shouldEat)
-      .ifPresent(
-        best -> {
-          food = (ItemFood) best.getItem();
-          
-          LocalPlayerInventory.setSelected(best, ticks -> !eating);
-          
-          eating = true;
-          
-          if (!checkFailsafe()) {
-            reset();
-            eating = true;
-            return;
-          }
-          
-          if (currentSelected != best.getIndex()) {
-            MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_SELECT_FOOD));
-            lastHotbarIndex = best.getIndex();
-            selectedTicks = 0;
-          }
-          
-          if (selectedTicks > select_wait.get()) {
-            if (!wasEating) {
-              MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_START));
-            }
-            
-            Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
-            getPlayerController()
-              .processRightClick(getLocalPlayer(), getWorld(), EnumHand.MAIN_HAND);
-            
-            ++eatingTicks;
-          }
-        });
+        .stream()
+        .filter(InvItem::nonEmpty)
+        .filter(this::isFoodItem)
+        .filter(this::isGoodFood)
+        .max(
+            Comparator.comparingDouble(this::getPreferenceValue)
+                .thenComparing(LocalPlayerInventory::getHotbarDistance))
+        .filter(this::shouldEat)
+        .ifPresent(
+            best -> {
+              food = (ItemFood) best.getItem();
+              
+              LocalPlayerInventory.setSelected(best, ticks -> !eating);
+              
+              eating = true;
+              
+              if (!checkFailsafe()) {
+                reset();
+                eating = true;
+                return;
+              }
+              
+              if (currentSelected != best.getIndex()) {
+                MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_SELECT_FOOD));
+                lastHotbarIndex = best.getIndex();
+                selectedTicks = 0;
+              }
+              
+              if (selectedTicks > select_wait.get()) {
+                if (!wasEating) {
+                  MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_START));
+                }
+                
+                Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
+                getPlayerController()
+                    .processRightClick(getLocalPlayer(), getWorld(), EnumHand.MAIN_HAND);
+                
+                ++eatingTicks;
+              }
+            });
     
     if (lastHotbarIndex != -1) {
       if (lastHotbarIndex == LocalPlayerInventory.getSelected().getIndex()) {

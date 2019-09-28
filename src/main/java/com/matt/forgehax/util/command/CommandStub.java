@@ -33,44 +33,44 @@ public class CommandStub extends Command implements IKeyBind, ISerializableJson 
     if (keyCode != -1) {
       bind = new KeyBinding(getAbsoluteName(), keyCode, "ForgeHax");
       ClientRegistry.registerKeyBinding(bind);
-  
+      
       Boolean genOptions = (Boolean) data.getOrDefault(KEYBIND_OPTIONS, true);
       if (genOptions) {
         parser.accepts("bind", "Bind to the given key").withRequiredArg();
         parser.accepts("unbind", "Sets bind to KEY_NONE");
-  
-        this.processors.add(
-          dt -> {
-            if (dt.hasOption("bind")) {
-              String key = dt.getOptionAsString("bind").toUpperCase();
         
-              int kc = Keyboard.getKeyIndex(key);
-              if (Keyboard.getKeyIndex(key) == Keyboard.KEY_NONE) {
-                throw new CommandExecuteException(
-                  String.format("\"%s\" is not a valid key name", key));
+        this.processors.add(
+            dt -> {
+              if (dt.hasOption("bind")) {
+                String key = dt.getOptionAsString("bind").toUpperCase();
+                
+                int kc = Keyboard.getKeyIndex(key);
+                if (Keyboard.getKeyIndex(key) == Keyboard.KEY_NONE) {
+                  throw new CommandExecuteException(
+                      String.format("\"%s\" is not a valid key name", key));
+                }
+                
+                bind(kc);
+                serialize();
+                
+                dt.write(String.format("Bound %s to key %s [code=%d]", getAbsoluteName(), key, kc));
+                dt.stopProcessing();
+              } else if (dt.hasOption("unbind")) {
+                unbind();
+                serialize();
+                
+                dt.write(String.format("Unbound %s", getAbsoluteName()));
+                dt.stopProcessing();
               }
-        
-              bind(kc);
-              serialize();
-        
-              dt.write(String.format("Bound %s to key %s [code=%d]", getAbsoluteName(), key, kc));
-              dt.stopProcessing();
-            } else if (dt.hasOption("unbind")) {
-              unbind();
-              serialize();
-        
-              dt.write(String.format("Unbound %s", getAbsoluteName()));
-              dt.stopProcessing();
-            }
-          });
+            });
         this.processors.add(
-          dt -> {
-            if (!dt.options().hasOptions() && dt.getArgumentCount() > 0) {
-              dt.write(
-                String.format(
-                  "Unknown command \"%s\"", Strings.nullToEmpty(dt.getArgumentAsString(0))));
-            }
-          });
+            dt -> {
+              if (!dt.options().hasOptions() && dt.getArgumentCount() > 0) {
+                dt.write(
+                    String.format(
+                        "Unknown command \"%s\"", Strings.nullToEmpty(dt.getArgumentAsString(0))));
+              }
+            });
       }
     } else {
       bind = null;

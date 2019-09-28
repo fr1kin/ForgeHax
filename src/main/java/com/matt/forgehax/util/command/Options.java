@@ -18,7 +18,7 @@ import java.util.function.Supplier;
  * Created on 6/4/2017 by fr1kin
  */
 public class Options<E extends ISerializableJson> extends Command
-  implements Collection<E>, ISerializableJson {
+    implements Collection<E>, ISerializableJson {
   
   public static final String SUPPLIER = "Options.supplier";
   public static final String FACTORY = "Options.factory";
@@ -35,10 +35,10 @@ public class Options<E extends ISerializableJson> extends Command
     try {
       Supplier<Collection<E>> supplier = (Supplier<Collection<E>>) data.get(SUPPLIER);
       Objects.requireNonNull(supplier, "Missing supplier");
-  
+      
       this.contents = supplier.get();
       this.factory = (Function<String, E>) data.get(FACTORY);
-  
+      
       Supplier<Collection<E>> defaults = (Supplier<Collection<E>>) data.get(DEFAULTS);
       if (defaults != null) {
         this.defaults = supplier.get();
@@ -47,7 +47,7 @@ public class Options<E extends ISerializableJson> extends Command
       } else {
         this.defaults = Collections.emptyList();
       }
-  
+      
     } catch (Throwable t) {
       throw new CommandBuildException("Failed to build options", t);
     }

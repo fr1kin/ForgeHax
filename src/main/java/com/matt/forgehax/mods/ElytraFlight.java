@@ -20,22 +20,22 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ElytraFlight extends ToggleMod {
   
   public final Setting<Boolean> fly_on_enable =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("fly_on_enable")
-      .description("Start flying when enabled")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("fly_on_enable")
+          .description("Start flying when enabled")
+          .defaultTo(false)
+          .build();
   
   public final Setting<Double> speed =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("speed")
-      .description("Movement speed")
-      .defaultTo(0.05D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("speed")
+          .description("Movement speed")
+          .defaultTo(0.05D)
+          .build();
   
   private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getModName());
   
@@ -47,12 +47,12 @@ public class ElytraFlight extends ToggleMod {
   protected void onEnabled() {
     if (fly_on_enable.get()) {
       MC.addScheduledTask(
-        () -> {
-          if (getLocalPlayer() != null && !getLocalPlayer().isElytraFlying()) {
-            getNetworkManager()
-              .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
-          }
-        });
+          () -> {
+            if (getLocalPlayer() != null && !getLocalPlayer().isElytraFlying()) {
+              getNetworkManager()
+                  .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
+            }
+          });
     }
   }
   
@@ -63,7 +63,7 @@ public class ElytraFlight extends ToggleMod {
     if (getLocalPlayer() != null) {
       // Ensure the player starts flying again.
       getNetworkManager()
-        .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
+          .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
     }
   }
   

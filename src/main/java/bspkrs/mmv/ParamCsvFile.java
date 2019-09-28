@@ -40,19 +40,19 @@ import java.util.Scanner;
 import java.util.TreeMap;
 
 public class ParamCsvFile {
-
+  
   private final File file;
   private final Map<String, ParamCsvData> srgParamName2ParamCsvData;
   private boolean isDirty;
   private String headerLine;
-
+  
   public ParamCsvFile(File file) throws IOException {
     this.file = file;
     srgParamName2ParamCsvData = new TreeMap<String, ParamCsvData>();
     readFromFile();
     isDirty = false;
   }
-
+  
   public void readFromFile() throws IOException {
     Scanner in = new Scanner(new BufferedReader(new FileReader(file)));
     try {
@@ -63,57 +63,57 @@ public class ParamCsvFile {
         String mcpName = in.next();
         String side = in.nextLine().substring(1);
         srgParamName2ParamCsvData.put(
-          srgName, new ParamCsvData(srgName, mcpName, Integer.valueOf(side)));
+            srgName, new ParamCsvData(srgName, mcpName, Integer.valueOf(side)));
       }
     } finally {
       in.close();
     }
   }
-
+  
   public void writeToFile() throws IOException {
     if (isDirty) {
       if (file.exists()) {
         File fileBak =
-          new File(
-            file.getAbsolutePath()
-              + "_"
-              + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
-              + ".bak");
+            new File(
+                file.getAbsolutePath()
+                    + "_"
+                    + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
+                    + ".bak");
         file.renameTo(fileBak);
       }
-
+      
       file.createNewFile();
-
+      
       PrintWriter out = new PrintWriter(new FileWriter(file));
       out.println(headerLine);
-  
+      
       for (ParamCsvData data : srgParamName2ParamCsvData.values()) {
         out.println(data.toCsv());
       }
-
+      
       out.close();
-
+      
       isDirty = false;
     }
   }
-
+  
   public boolean hasCsvDataForKey(String srgName) {
     return srgParamName2ParamCsvData.containsKey(srgName);
   }
-
+  
   public ParamCsvData getCsvDataForKey(String srgName) {
     return srgParamName2ParamCsvData.get(srgName);
   }
-
+  
   public void updateCsvDataForKey(String srgName, ParamCsvData csvData) {
     srgParamName2ParamCsvData.put(srgName, csvData);
     isDirty = true;
   }
-
+  
   public boolean isDirty() {
     return isDirty;
   }
-
+  
   public void setIsDirty(boolean bol) {
     isDirty = bol;
   }

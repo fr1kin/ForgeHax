@@ -57,82 +57,82 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
   private BlockPos currentTarget = null;
   
   private final Setting<Boolean> client_angles =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("client-angles")
-      .description("Sort the blocks to break by the clients angle instead of the servers")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("client-angles")
+          .description("Sort the blocks to break by the clients angle instead of the servers")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Boolean> bounded =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("bounded")
-      .description("Bound the nuker to a limited radius from the player")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("bounded")
+          .description("Bound the nuker to a limited radius from the player")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Double> height_upper =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("height-upper")
-      .description("Upper height (Y axis) limit")
-      .defaultTo(10.D)
-      .min(0.D)
-      .max(10.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("height-upper")
+          .description("Upper height (Y axis) limit")
+          .defaultTo(10.D)
+          .min(0.D)
+          .max(10.D)
+          .build();
   private final Setting<Double> height_lower =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("height-lower")
-      .description("Lower height (Y axis) limit")
-      .defaultTo(10.D)
-      .min(0.D)
-      .max(10.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("height-lower")
+          .description("Lower height (Y axis) limit")
+          .defaultTo(10.D)
+          .min(0.D)
+          .max(10.D)
+          .build();
   
   private final Setting<Double> width_upper =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("width-upper")
-      .description("Upper width (X and Z axis) limit")
-      .defaultTo(10.D)
-      .min(0.D)
-      .max(10.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("width-upper")
+          .description("Upper width (X and Z axis) limit")
+          .defaultTo(10.D)
+          .min(0.D)
+          .max(10.D)
+          .build();
   private final Setting<Double> width_lower =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("width-lower")
-      .description("Lower width (X and Z axis) limit")
-      .defaultTo(10.D)
-      .min(0.D)
-      .max(10.D)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("width-lower")
+          .description("Lower width (X and Z axis) limit")
+          .defaultTo(10.D)
+          .min(0.D)
+          .max(10.D)
+          .build();
   
   private final Setting<Boolean> filter_liquids =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("filter-liquids")
-      .description("Will not mine blocks that is a neighbors to a liquid block.")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("filter-liquids")
+          .description("Will not mine blocks that is a neighbors to a liquid block.")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Boolean> y_bias =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("y-bias")
-      .description("Will prefer higher blocks (good for mining sand).")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("y-bias")
+          .description("Will prefer higher blocks (good for mining sand).")
+          .defaultTo(false)
+          .build();
   
   public Nuker() {
     super(Category.PLAYER, "Nuker", false, "Mine blocks around yourself");
@@ -150,20 +150,20 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
     } else {
       Vec3d pos = ub.getCenteredPos().subtract(getLocalPlayer().getPositionVector());
       return pos.x < width_upper.get()
-        && pos.x > -width_lower.get()
-        && pos.y < height_upper.get()
-        && pos.y > -height_lower.get()
-        && pos.z < width_upper.get()
-        && pos.z > -width_lower.get();
+          && pos.x > -width_lower.get()
+          && pos.y < height_upper.get()
+          && pos.y > -height_lower.get()
+          && pos.z < width_upper.get()
+          && pos.z > -width_lower.get();
     }
   }
   
   private boolean isNeighborsLiquid(UniqueBlock ub) {
     return filter_liquids.get()
-      && Arrays.stream(EnumFacing.values())
-      .map(side -> ub.getPos().offset(side))
-      .map(pos -> getWorld().getBlockState(pos).getBlock())
-      .anyMatch(BlockLiquid.class::isInstance);
+        && Arrays.stream(EnumFacing.values())
+        .map(side -> ub.getPos().offset(side))
+        .map(pos -> getWorld().getBlockState(pos).getBlock())
+        .anyMatch(BlockLiquid.class::isInstance);
   }
   
   private double getHeightBias(UniqueBlock ub) {
@@ -194,7 +194,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
   protected void onEnabled() {
     PositionRotationManager.getManager().register(this, PriorityEnum.HIGH);
     printInform(
-      "Select blocks by looking at it and pressing %s", BindingHelper.getIndexName(bindSelect));
+        "Select blocks by looking at it and pressing %s", BindingHelper.getIndexName(bindSelect));
   }
   
   @Override
@@ -207,7 +207,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
     if (bindSelect.isKeyDown() && attackToggle.compareAndSet(false, true)) {
       UniqueBlock info = null;
       RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
-  
+      
       if (tr == null && !targets.isEmpty()) {
         UniqueBlock ub = targets.remove(targets.size() - 1);
         printInform("Removed latest block %s", ub.toString());
@@ -215,7 +215,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
       } else if (tr != null) {
         info = BlockHelper.newUniqueBlock(tr.getBlockPos());
       }
-  
+      
       if (info == null) {
         return;
       }
@@ -224,7 +224,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
         printWarning("Invalid block selected!");
         return;
       }
-  
+      
       if (!targets.contains(info) && targets.add(info)) {
         printInform("Added block %s", info.toString());
       } else if (targets.remove(info)) {
@@ -250,77 +250,77 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
       resetBlockBreaking();
       return;
     }
-  
+    
     final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d dir =
-      client_angles.get()
-        ? LocalPlayerUtils.getDirectionVector()
-        : LocalPlayerUtils.getServerDirectionVector();
+        client_angles.get()
+            ? LocalPlayerUtils.getDirectionVector()
+            : LocalPlayerUtils.getServerDirectionVector();
     
     BlockTraceInfo trace = null;
-  
+    
     if (currentTarget != null) {
       // verify the current target is still valid
       trace =
-        Optional.of(currentTarget)
-          .filter(pos -> !getWorld().isAirBlock(pos))
-          .map(BlockHelper::newUniqueBlock)
-          .filter(this::isTargeting)
-          .filter(this::isInBoundary)
-          .filter(ub -> !isNeighborsLiquid(ub))
-          .map(ub -> BlockHelper.getVisibleBlockSideTrace(eyes, dir, ub.getPos()))
-          .orElse(null);
+          Optional.of(currentTarget)
+              .filter(pos -> !getWorld().isAirBlock(pos))
+              .map(BlockHelper::newUniqueBlock)
+              .filter(this::isTargeting)
+              .filter(this::isInBoundary)
+              .filter(ub -> !isNeighborsLiquid(ub))
+              .map(ub -> BlockHelper.getVisibleBlockSideTrace(eyes, dir, ub.getPos()))
+              .orElse(null);
       if (trace == null) {
         resetBlockBreaking();
       }
     }
-  
+    
     if (currentTarget == null) {
       List<UniqueBlock> blocks =
-        BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
-          .stream()
-          .filter(pos -> !getWorld().isAirBlock(pos))
-          .map(BlockHelper::newUniqueBlock)
-          .filter(this::isTargeting)
-          .filter(this::isInBoundary)
-          .filter(ub -> !isNeighborsLiquid(ub))
-          .sorted(
-            Comparator.comparingDouble(this::getHeightBias)
-              .thenComparing(
-                ub -> VectorUtils.getCrosshairDistance(eyes, dir, ub.getCenteredPos())))
-          .collect(Collectors.toList());
+          BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
+              .stream()
+              .filter(pos -> !getWorld().isAirBlock(pos))
+              .map(BlockHelper::newUniqueBlock)
+              .filter(this::isTargeting)
+              .filter(this::isInBoundary)
+              .filter(ub -> !isNeighborsLiquid(ub))
+              .sorted(
+                  Comparator.comparingDouble(this::getHeightBias)
+                      .thenComparing(
+                          ub -> VectorUtils.getCrosshairDistance(eyes, dir, ub.getCenteredPos())))
+              .collect(Collectors.toList());
       
       if (blocks.isEmpty()) {
         resetBlockBreaking();
         return;
       }
-    
+      
       trace =
-        blocks
-          .stream()
-          .map(ub -> BlockHelper.getVisibleBlockSideTrace(eyes, dir, ub.getPos()))
-          .filter(Objects::nonNull)
-          .findFirst()
-          .orElse(null);
+          blocks
+              .stream()
+              .map(ub -> BlockHelper.getVisibleBlockSideTrace(eyes, dir, ub.getPos()))
+              .filter(Objects::nonNull)
+              .findFirst()
+              .orElse(null);
     }
-  
+    
     if (trace == null) {
       resetBlockBreaking();
       return;
     }
-  
+    
     Angle va = Utils.getLookAtAngles(trace.getHitVec());
     state.setServerAngles(va);
-  
+    
     final BlockTraceInfo tr = trace;
     state.invokeLater(
-      rs -> {
-        if (getPlayerController().onPlayerDamageBlock(tr.getPos(), tr.getOppositeSide())) {
-          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
-          updateBlockBreaking(tr.getPos());
-        } else {
-          resetBlockBreaking();
-        }
-      });
+        rs -> {
+          if (getPlayerController().onPlayerDamageBlock(tr.getPos(), tr.getOppositeSide())) {
+            getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+            updateBlockBreaking(tr.getPos());
+          } else {
+            resetBlockBreaking();
+          }
+        });
   }
 }

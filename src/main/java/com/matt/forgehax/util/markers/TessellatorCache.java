@@ -35,7 +35,7 @@ public class TessellatorCache<E extends Tessellator> implements Globals {
   public boolean free(E tessellator) throws TessellatorCacheFreeException {
     if (!originals.contains(tessellator)) {
       throw new TessellatorCacheFreeException(
-        "Tried to add tessellator that wasn't originally in cache");
+          "Tried to add tessellator that wasn't originally in cache");
     }
     return tessellator != null && cache.offer(tessellator);
   }

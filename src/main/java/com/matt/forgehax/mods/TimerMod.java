@@ -22,28 +22,28 @@ public class TimerMod extends ToggleMod {
   }
   
   public final Setting<Float> factor =
-    getCommandStub()
-      .builders()
-      .<Float>newSettingBuilder()
-      .name("speed")
-      .description("how fast to make the game run")
-      .defaultTo(1f)
-      .min(0f)
-      .success(__ -> {
-        if (this.isEnabled()) {
-          updateTimer();
-        }
-      })
-      .build();
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("speed")
+          .description("how fast to make the game run")
+          .defaultTo(1f)
+          .min(0f)
+          .success(__ -> {
+            if (this.isEnabled()) {
+              updateTimer();
+            }
+          })
+          .build();
   
   public final Setting<Boolean> tpsSync =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("tps-sync")
-      .description("sync timer to tps")
-      .defaultTo(false)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("tps-sync")
+          .description("sync timer to tps")
+          .defaultTo(false)
+          .build();
   
   private final float DEFAULT_SPEED = 1000f / 20; // default speed - 50 ms
   

@@ -15,15 +15,15 @@ public class FullBrightMod extends ToggleMod {
   }
   
   private final Setting<Float> defaultGamma =
-    getCommandStub()
-      .builders()
-      .<Float>newSettingBuilder()
-      .name("gamma")
-      .description("default gamma to revert to")
-      .defaultTo(MC.gameSettings.gammaSetting)
-      .min(0.1F)
-      .max(16F)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("gamma")
+          .description("default gamma to revert to")
+          .defaultTo(MC.gameSettings.gammaSetting)
+          .min(0.1F)
+          .max(16F)
+          .build();
   
   @Override
   public void onEnabled() {

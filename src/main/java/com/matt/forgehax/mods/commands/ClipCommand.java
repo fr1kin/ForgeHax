@@ -23,11 +23,11 @@ import net.minecraft.util.math.Vec3d;
  */
 @RegisterMod
 public class ClipCommand extends CommandMod {
-
+  
   public ClipCommand() {
     super("ClipCommand");
   }
-
+  
   // teleport to absolute position
   private void setPosition(double x, double y, double z) {
     final Entity local = Helper.getRidingOrPlayer();
@@ -40,13 +40,13 @@ public class ClipCommand extends CommandMod {
       getNetworkManager().sendPacket(new CPacketVehicleMove(local));
     }
   }
-
+  
   // teleport vertically by some offset
   private void offsetY(double yOffset) {
     Entity local = Helper.getRidingOrPlayer();
     setPosition(local.posX, local.posY + yOffset, local.posZ);
   }
-
+  
   @RegisterCommand
   public Command clip(CommandBuilders builders) {
     return builders
@@ -64,12 +64,12 @@ public class ClipCommand extends CommandMod {
                   if (getWorld() == null || getLocalPlayer() == null) {
                     return;
                   }
-              
+                  
                   Entity local = getRidingOrPlayer();
                   if (local == null) {
                     return;
                   }
-              
+                  
                   setPosition(0, local.posY + y, 0);
                 });
                 break;
@@ -82,12 +82,12 @@ public class ClipCommand extends CommandMod {
                   if (getWorld() == null || getLocalPlayer() == null) {
                     return;
                   }
-              
+                  
                   Entity local = getRidingOrPlayer();
                   if (local == null) {
                     return;
                   }
-              
+                  
                   setPosition(local.posX + x, local.posY + y, local.posZ + z);
                 });
                 break;
@@ -101,7 +101,7 @@ public class ClipCommand extends CommandMod {
         })
       .build();
   }
-
+  
   @RegisterCommand
   public Command vclip(CommandBuilders builders) {
     return builders.newCommandBuilder()
@@ -118,7 +118,7 @@ public class ClipCommand extends CommandMod {
       })
       .build();
   }
-
+  
   @RegisterCommand
   public Command forward(CommandBuilders builders) {
     return builders.newCommandBuilder()

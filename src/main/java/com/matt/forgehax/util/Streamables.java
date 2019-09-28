@@ -11,11 +11,11 @@ import java.util.stream.StreamSupport;
  * Created on 2/15/2018 by fr1kin
  */
 public class Streamables {
-
+  
   public static <T> Stream<T> enumerationStream(Enumeration<T> enumeration) {
     return StreamSupport.stream(
-      Spliterators.spliteratorUnknownSize(
-        Iterators.forEnumeration(enumeration), Spliterator.ORDERED),
-      false);
+        Spliterators.spliteratorUnknownSize(
+            Iterators.forEnumeration(enumeration), Spliterator.ORDERED),
+        false);
   }
 }
