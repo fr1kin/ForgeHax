@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -21,7 +22,17 @@ public class AutoTotemMod extends ToggleMod {
   public AutoTotemMod() {
     super(Category.COMBAT, "AutoTotem", false, "Automatically move totems to off-hand");
   }
-  
+
+  private final Setting<Boolean> allowGui =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("allow-gui")
+          .description(
+              "Lets AutoTotem work in menus.")
+          .defaultTo(false)
+          .build();
+
   @Override
   public String getDisplayText() {
     final long totemCount =
@@ -37,7 +48,7 @@ public class AutoTotemMod extends ToggleMod {
     if (!getOffhand().isEmpty()) {
       return; // if there's an item in offhand slot
     }
-    if (MC.currentScreen != null) {
+    if (MC.currentScreen != null && !allowGui.getAsBoolean()) {
       return; // if in inventory
     }
     
