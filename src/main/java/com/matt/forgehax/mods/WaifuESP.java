@@ -44,7 +44,7 @@ public class WaifuESP extends ToggleMod {
   private ResourceLocation waifu;
 
   //Satania best girl.
-  private final String waifuUrl = "ttps://raw.githubusercontent.com/forgehax/assets/master/img/Satania.png";
+  private final String waifuUrl = "https://raw.githubusercontent.com/forgehax/assets/master/img/Satania.png";
 
   private final File waifuCache =
       Helper.getFileManager().getBaseResolve("cache/Satania.png").toFile();
