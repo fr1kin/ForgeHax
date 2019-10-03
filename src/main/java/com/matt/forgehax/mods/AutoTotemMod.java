@@ -23,13 +23,13 @@ public class AutoTotemMod extends ToggleMod {
     super(Category.COMBAT, "AutoTotem", false, "Automatically move totems to off-hand");
   }
 
-  private final Setting<Boolean> MenuPatch =
+  private final Setting<Boolean> allowGui =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("MenuPatch")
+          .name("allow-gui")
           .description(
-              "Menu Patch - Lets AutoTotem work in menus.")
+              "Lets AutoTotem work in menus.")
           .defaultTo(false)
           .build();
 
@@ -48,7 +48,7 @@ public class AutoTotemMod extends ToggleMod {
     if (!getOffhand().isEmpty()) {
       return; // if there's an item in offhand slot
     }
-    if (MC.currentScreen != null && !MenuPatch.getAsBoolean()) {
+    if (MC.currentScreen != null && !allowGui.getAsBoolean()) {
       return; // if in inventory
     }
     
