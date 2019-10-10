@@ -1,8 +1,11 @@
 package com.matt.forgehax.mods.managers;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
+
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.LocalPlayerUpdateMovementEvent;
+import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -17,8 +20,11 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.network.play.server.SPacketPlayerPosLook.EnumFlags;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
@@ -218,6 +224,33 @@ public class PositionRotationManager extends ServiceMod {
     
     // update the read-only state
     STATE.setCurrentState(gState);
+  }
+  
+  @SubscribeEvent(priority = EventPriority.HIGHEST)
+  public void onPacketReceived(PacketEvent.Incoming.Pre event) {
+    if(event.getPacket() instanceof SPacketPlayerPosLook) {
+      // when the server sets the rotation we use that instead
+      final SPacketPlayerPosLook packet = event.getPacket();
+      
+      float pitch = packet.getPitch();
+      float yaw = packet.getYaw();
+      
+      Angle va = gState.getClientAngles();
+      
+      if(packet.getFlags().contains(EnumFlags.X_ROT))
+        pitch += va.getPitch();
+      
+      if(packet.getFlags().contains(EnumFlags.Y_ROT))
+        yaw += va.getYaw();
+      
+      gState.setServerAngles(pitch, yaw);
+      gState.setInitialized(true);
+    }
+  }
+  
+  @SubscribeEvent
+  public void onWorldUnload(WorldEvent.Unload event) {
+    gState.setInitialized(false);
   }
   
   public interface MovementUpdateListener {
