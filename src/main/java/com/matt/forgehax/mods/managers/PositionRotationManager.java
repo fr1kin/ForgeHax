@@ -69,7 +69,7 @@ public class PositionRotationManager extends ServiceMod {
   
   private static void setPlayerAngles(EntityPlayerSP player, Angle angles) {
     Angle original = getPlayerAngles(player);
-    Angle diff = angles.normalize().sub(original.normalize());
+    Angle diff = angles.normalize().sub(original.normalize()).normalize();
     player.rotationPitch = Utils.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
     player.rotationYaw = original.getYaw() + diff.getYaw();
   }
@@ -100,6 +100,11 @@ public class PositionRotationManager extends ServiceMod {
   
   @SubscribeEvent
   public void onWorldLoad(WorldEvent.Load event) {
+    gState.setInitialized(false);
+  }
+  
+  @SubscribeEvent
+  public void onWorldUnload(WorldEvent.Unload event) {
     gState.setInitialized(false);
   }
   
@@ -248,11 +253,6 @@ public class PositionRotationManager extends ServiceMod {
     }
   }
   
-  @SubscribeEvent
-  public void onWorldUnload(WorldEvent.Unload event) {
-    gState.setInitialized(false);
-  }
-  
   public interface MovementUpdateListener {
     
     /**
@@ -296,8 +296,7 @@ public class PositionRotationManager extends ServiceMod {
      * @return angle in degrees
      */
     default Angle getRenderClientViewAngles() {
-      return isActive()
-        ? getClientAngles()
+      return isActive() ? getClientAngles()
         : Angle.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
     }
     
@@ -308,8 +307,7 @@ public class PositionRotationManager extends ServiceMod {
      * @return angle in degrees
      */
     default Angle getRenderServerViewAngles() {
-      return isActive()
-        ? getServerAngles()
+      return isActive() ? getServerAngles()
         : Angle.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
     }
     

@@ -7,6 +7,7 @@ import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState;
 import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.common.PriorityEnum;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.AngleHelper;
@@ -27,30 +28,33 @@ public class YawLockMod extends ToggleMod
           .defaultTo(true)
           .build();
   
-  public final Setting<Double> angle =
+  public final Setting<Float> angle =
       getCommandStub()
           .builders()
-          .<Double>newSettingBuilder()
+          .<Float>newSettingBuilder()
           .name("angle")
           .description("Angle to snap too")
-          .defaultTo(0.0D)
-          .min(-180D)
-          .max(180D)
+          .defaultTo(0.f)
+          .min(-180.f)
+          .max(180.f)
           .build();
   
   public YawLockMod() {
     super(Category.PLAYER, "YawLock", false, "Locks yaw to prevent moving into walls");
   }
   
-  private double getYawDirection() {
-    return (int) (Math.round((LocalPlayerUtils.getViewAngles().getYaw() + 1.f) / 45.f) * 45.f);
+  private float getYawDirection(float yaw) {
+    return (int) (Math.round((yaw + 1.f) / 45.f) * 45.f);
   }
   
   private Angle getSnapAngle() {
-    return Angle.degrees(
-        LocalPlayerUtils.getViewAngles().getPitch(),
-        auto.get() ? getYawDirection() : angle.get())
-        .normalize();
+    Angle va = LocalPlayerUtils.getViewAngles();
+    return va.setYaw(auto.get() ? getYawDirection(va.getYaw()) : angle.get());
+  }
+  
+  @Override
+  public String getDebugDisplayText() {
+    return super.getDebugDisplayText() + " [" +  String.format("%.4f", getSnapAngle().getYaw()) + "]";
   }
   
   @Override
@@ -60,30 +64,24 @@ public class YawLockMod extends ToggleMod
         .newCommandBuilder()
         .name("snap")
         .description("Snap once to a certain direction")
-        .processor(
-            data -> {
-              if (getLocalPlayer() == null || getWorld() == null) {
-                return;
-              }
-              
-              final double angle =
-                  data.getArgumentCount() == 0
-                      ? getYawDirection()
-                      : AngleHelper.normalizeInDegrees(
-                          SafeConverter.toDouble(data.getArgumentAsString(0)));
-              
-              PositionRotationManager.getManager()
-                  .registerTemporary(
-                      state ->
-                          state.setViewAngles(
-                              Angle.degrees(state.getClientAngles().getPitch(), angle)));
-            })
+        .processor(data -> MC.addScheduledTask(() -> {
+            if (getLocalPlayer() == null || getWorld() == null) {
+              return;
+            }
+            
+            final float angle = data.getArgumentCount() == 0 ? getSnapAngle().getPitch()
+                : AngleHelper.normalizeInDegrees(
+                    Float.parseFloat(data.getArgumentAsString(0)));
+            
+            PositionRotationManager.getManager().registerTemporary(state
+                -> state.setViewAngles(Angle.degrees(state.getClientAngles().getPitch(), angle)));
+        }))
         .build();
   }
   
   @Override
   protected void onEnabled() {
-    PositionRotationManager.getManager().register(this);
+    PositionRotationManager.getManager().register(this, PriorityEnum.LOWEST);
   }
   
   @Override
@@ -93,6 +91,6 @@ public class YawLockMod extends ToggleMod
   
   @Override
   public void onLocalPlayerMovementUpdate(RotationState.Local state) {
-    state.setClientAngles(getSnapAngle());
+    state.setViewAngles(getSnapAngle());
   }
 }
