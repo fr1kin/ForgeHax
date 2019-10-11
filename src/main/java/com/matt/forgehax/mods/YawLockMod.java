@@ -44,11 +44,11 @@ public class YawLockMod extends ToggleMod
   }
   
   private float getYawDirection(float yaw) {
-    return (int) (Math.round((yaw + 1.f) / 45.f) * 45.f);
+    return Math.round(Math.round((yaw + 1.f) / 45.f) * 45.f);
   }
   
   private Angle getSnapAngle() {
-    Angle va = LocalPlayerUtils.getViewAngles();
+    Angle va = LocalPlayerUtils.getViewAngles().normalize();
     return va.setYaw(auto.get() ? getYawDirection(va.getYaw()) : angle.get());
   }
   
