@@ -109,35 +109,44 @@ task setGameDir() {
   }
 }
 
-task copyJar(type: Copy, dependsOn: [setGameDir]) {
-  def gameDirectory = "$gameDir/mods/" + minecraft.version
+class CopyJarTask extends DefaultTask {
+  @TaskAction
+  protected void exec() {
+    project.copy {
+      final gameDir = project.ext.gameDir;
+      final minecraft = project.minecraft;
+      def modDir = "$gameDir/mods/" + minecraft.version
 
-  // find previous jar (if it exists)
-  def previousJars = fileTree(dir: gameDirectory).matching {
-    include archivesBaseName + '*'
-  }.files
+      // find previous jar (if it exists)
+      def previousJars = project.fileTree(dir: modDir).matching {
+        include project.archivesBaseName + '*'
+      }.files
 
-  // change file name
-  if (previousJars) {
-    // create .backups folder
-    def backupDir = gameDirectory + '/.backups/'
-    file(backupDir).mkdirs()
+      // change file name
+      if (previousJars) {
+        // create .backups folder
+        def backupDir = modDir + '/.backups/'
+        project.file(backupDir).mkdirs()
 
-    for (File previousJar : previousJars) {
-      def n = gameDirectory + '/.backups/' + previousJar.getName() + '.bk'
-      def f = file(n)
-      def i = 1
-      while (f.exists()) {
-        f = file(n + '_' + i)
-        i++
+        for (File previousJar : previousJars) {
+          def n = modDir + '/.backups/' + previousJar.getName() + '.bk'
+          def f = project.file(n)
+          def i = 1
+          while (f.exists()) {
+            f = project.file(n + '_' + i)
+            i++
+          }
+          previousJar.renameTo(f)
+        }
       }
-      previousJar.renameTo(f)
+
+      // copy forgehax jar from libs to forge mod folder
+      from project.jar
+      into "$gameDir/mods/" + minecraft.version
     }
   }
-
-  // copy forgehax jar from libs to forge mod folder
-  from jar
-  into "$gameDir/mods/" + minecraft.version
 }
+
+task copyJar(type: CopyJarTask, dependsOn: [setGameDir])
 
 build.finalizedBy copyJar
