@@ -115,21 +115,21 @@ class CopyJarTask extends DefaultTask {
     project.copy {
       final gameDir = project.ext.gameDir;
       final minecraft = project.minecraft;
-      def modDir = "$gameDir/mods/" + minecraft.version
+      final modDir = "$gameDir/mods/" + minecraft.version
 
       // find previous jar (if it exists)
-      def previousJars = project.fileTree(dir: modDir).matching {
+      final previousJars = project.fileTree(dir: modDir).matching {
         include project.archivesBaseName + '*'
       }.files
 
       // change file name
       if (previousJars) {
         // create .backups folder
-        def backupDir = modDir + '/.backups/'
+        final backupDir = modDir + '/.backups/'
         project.file(backupDir).mkdirs()
 
         for (File previousJar : previousJars) {
-          def n = modDir + '/.backups/' + previousJar.getName() + '.bk'
+          final n = modDir + '/.backups/' + previousJar.getName() + '.bk'
           def f = project.file(n)
           def i = 1
           while (f.exists()) {
