@@ -5,6 +5,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.draw.font.MinecraftFontRenderer;
+import com.matt.forgehax.util.math.AlignHelper;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -177,7 +178,12 @@ public class SurfaceHelper implements Globals {
     float offsetY = getTextHeight() / 2f;
     MC.fontRenderer.drawStringWithShadow(msg, x - offsetX, y - offsetY, color);
   }
-  
+
+  public static void drawTextShadowAlignH(String msg, int x, int y, int color, int alignmask) {
+      final int offsetX = getTextWidth(msg) * AlignHelper.getPosX(alignmask) / 2;
+      MC.fontRenderer.drawStringWithShadow(msg, x - offsetX, y, color);
+  }
+
   public static void drawText(String msg, int x, int y, int color, double scale, boolean shadow) {
     GlStateManager.pushMatrix();
     GlStateManager.disableDepth();
