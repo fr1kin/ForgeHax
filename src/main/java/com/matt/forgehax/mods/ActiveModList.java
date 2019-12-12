@@ -10,26 +10,17 @@ import com.matt.forgehax.util.math.AlignHelper.Align;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
-import com.matt.forgehax.util.mod.ToggleMod;
+import com.matt.forgehax.util.mod.HudMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
-public class ActiveModList extends ToggleMod {
-  
-  private final Setting<Align> alignment =
-      getCommandStub()
-      .builders()
-      .<Align>newSettingEnumBuilder()
-      .name("alignment")
-      .description("align to corner")
-      .defaultTo(Align.TOPLEFT)
-      .build();
+public class ActiveModList extends HudMod {
   
   private final Setting<Boolean> tps_meter =
       getCommandStub()
@@ -78,23 +69,14 @@ public class ActiveModList extends ToggleMod {
           .defaultTo(SortMode.ALPHABETICAL)
           .build();
   
-  private final Setting<Integer> offsetX =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("x-offset")
-          .description("shift on X-axis")
-          .defaultTo(0)
-          .build();
-  
-  private final Setting<Integer> offsetY =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("y-offset")
-          .description("shift on Y-axis")
-          .defaultTo(0)
-          .build();
+  @Override
+  protected Align getDefaultAlignment() { return Align.TOPLEFT; }
+  @Override
+  protected int getDefaultOffsetX() { return 1; }
+  @Override
+  protected int getDefaultOffsetY() { return 1; }
+  @Override
+  protected double getDefaultScale() { return 1d; }
   
   public ActiveModList() {
     super(Category.RENDER, "ActiveMods", true, "Shows list of all active mods");
@@ -150,19 +132,11 @@ public class ActiveModList extends ToggleMod {
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     int align = alignment.get().ordinal();
-    final int dirSignX = AlignHelper.getFlowDirX2(align);
-    final int dirSignY = AlignHelper.getFlowDirY2(align);
-    final int shiftLineBy = (SurfaceHelper.getTextHeight()+1) * dirSignY;
     
-    ScaledResolution scaledRes = new ScaledResolution(MC);
-    int posX = dirSignX + offsetX.get() * dirSignX + (scaledRes.getScaledWidth() * AlignHelper.getPosX(align)) / 2;
-    final AtomicInteger posY = new AtomicInteger(offsetY.get() * dirSignY + scaledRes.getScaledHeight() * AlignHelper.getPosY(align) / 2);
-    
-    if (dirSignY == -1) posY.addAndGet(shiftLineBy); // will also maintain 1px margin to border
+    List<String> text = new ArrayList<>();
     
     if (tps_meter.get()) {
-      SurfaceHelper.drawTextShadowAlignH(generateTickRateText(), posX, posY.get(), Colors.WHITE.toBuffer(), align);
-      posY.addAndGet(shiftLineBy);
+      text.add(generateTickRateText());
     }
     
     if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
@@ -172,8 +146,7 @@ public class ActiveModList extends ToggleMod {
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
           .count();
-      SurfaceHelper.drawTextShadowAlignH(enabledMods + " mods enabled",
-          posX, posY.get(), Colors.WHITE.toBuffer(), align);
+      text.add(enabledMods + " mods enabled");
     } else {
       getModManager()
           .getMods()
@@ -182,12 +155,11 @@ public class ActiveModList extends ToggleMod {
           .filter(mod -> !mod.isHidden())
           .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
           .sorted(sortMode.get().getComparator())
-          .forEach(
-              name -> {
-                SurfaceHelper.drawTextShadowAlignH(">" + name, posX, posY.get(), Colors.WHITE.toBuffer(), align);
-                posY.addAndGet(shiftLineBy);
-              });
+          .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? ">" + name : name + "<"));
     }
+  
+    SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
+        Colors.WHITE.toBuffer(), scale.get(), true, align);
   }
   
   private enum SortMode {

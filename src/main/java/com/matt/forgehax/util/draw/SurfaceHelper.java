@@ -1,11 +1,13 @@
 package com.matt.forgehax.util.draw;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.util.math.AlignHelper.getFlowDirY2;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.draw.font.MinecraftFontRenderer;
 import com.matt.forgehax.util.math.AlignHelper;
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -179,9 +181,53 @@ public class SurfaceHelper implements Globals {
     MC.fontRenderer.drawStringWithShadow(msg, x - offsetX, y - offsetY, color);
   }
 
+  public static void drawTextAlignH(String msg, int x, int y, int color, boolean shadow, int alignmask) {
+    final int offsetX = AlignHelper.alignH(getTextWidth(msg), alignmask);
+    MC.fontRenderer.drawString(msg, x - offsetX, y, color, shadow);
+  }
+  
   public static void drawTextShadowAlignH(String msg, int x, int y, int color, int alignmask) {
-      final int offsetX = getTextWidth(msg) * AlignHelper.getPosX(alignmask) / 2;
-      MC.fontRenderer.drawStringWithShadow(msg, x - offsetX, y, color);
+    drawTextAlignH(msg, x, y, color, true, alignmask);
+  }
+  
+  public static void drawTextAlign(String msg, int x, int y, int color, boolean shadow, int alignmask) {
+    final int offsetX = AlignHelper.alignH(getTextWidth(msg), alignmask);
+    final int offsetY = AlignHelper.alignV(getTextHeight(), alignmask);
+    MC.fontRenderer.drawString(msg, x - offsetX, y - offsetY, color, shadow);
+  }
+  
+  public static void drawTextShadowAlign(String msg, int x, int y, int color, int alignmask) {
+    drawTextAlign(msg, x, y, color, true, alignmask);
+  }
+  
+  public static void drawTextAlign(String msg, int x, int y, int color, double scale, boolean shadow, int alignmask) {
+    final int offsetX = AlignHelper.alignH((int)(getTextWidth(msg)*scale), alignmask);
+    final int offsetY = AlignHelper.alignV((int)(getTextHeight()*scale), alignmask);
+    if (scale != 1.0d) {
+      drawText(msg, x - offsetX, y - offsetY, color, scale, shadow);
+    } else {
+      MC.fontRenderer.drawString(msg, x - offsetX, y - offsetY, color, shadow);
+    }
+  }
+  
+  public static void drawTextAlign(List<String> msgList, int x, int y, int color, double scale, boolean shadow, int alignmask) {
+    GlStateManager.pushMatrix();
+    GlStateManager.disableDepth();
+    GlStateManager.scale(scale, scale, scale);
+    
+    final int offsetY = AlignHelper.alignV((int) (getTextHeight() * scale), alignmask);
+    final int height = (int)(getFlowDirY2(alignmask) * (getTextHeight()+1) * scale);
+    final float invScale = (float)(1 / scale);
+    
+    for (int i = 0; i < msgList.size(); i++) {
+      final int offsetX = AlignHelper.alignH((int) (getTextWidth(msgList.get(i)) * scale), alignmask);
+      
+      MC.fontRenderer.drawString(
+          msgList.get(i), (x - offsetX) * invScale, (y - offsetY + height*i) * invScale, color, shadow);
+    }
+    
+    GlStateManager.enableDepth();
+    GlStateManager.popMatrix();
   }
 
   public static void drawText(String msg, int x, int y, int color, double scale, boolean shadow) {
