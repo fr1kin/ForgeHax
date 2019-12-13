@@ -29,6 +29,9 @@ public class AlignHelper {
     // returns direction relative to center (cartesian)
     public static int getSignumX(int mask) { return mask % 3 - 1; }
     public static int getSignumY(int mask) { return mask / 3 - 1; }
+    
+    public static int alignH(int width, int mask) { return width * getPosX(mask) / 2; }
+    public static int alignV(int height, int mask) { return height * getPosY(mask) / 2; }
 
     public static boolean isLeft(Align mask) { return isLeft(mask.ordinal()); }
     public static boolean isLeft(int mask) { return mask % 3 == 0; }
