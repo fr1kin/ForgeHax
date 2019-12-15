@@ -3,6 +3,7 @@ package com.matt.forgehax.mods;
 import static com.matt.forgehax.Helper.getModManager;
 
 import com.matt.forgehax.mods.services.TickRateService;
+import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.math.AlignHelper;
@@ -15,6 +16,8 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -67,6 +70,15 @@ public class ActiveModList extends HudMod {
           .name("sorting")
           .description("Sorting mode")
           .defaultTo(SortMode.ALPHABETICAL)
+          .build();
+  
+  private final Setting<Boolean> colourSetting =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("colourMode")
+          .description("adds rainbow colours to HUD")
+          .defaultTo(false) // affected users should enable this manually
           .build();
   
   @Override
@@ -129,6 +141,8 @@ public class ActiveModList extends HudMod {
     return builder.toString();
   }
   
+  boolean blinkToTheBlink = false;
+  
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     int align = alignment.get().ordinal();
@@ -157,9 +171,16 @@ public class ActiveModList extends HudMod {
           .sorted(sortMode.get().getComparator())
           .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? ">" + name : name + "<"));
     }
-  
+    
+    Random rand = ThreadLocalRandom.current();
+    int color;
+    if (blinkToTheBlink = !blinkToTheBlink) {
+      color = Color.of(rand.nextInt(64), rand.nextInt(64), rand.nextInt(64)).toBuffer();
+    } else {
+      color = Color.of(rand.nextInt(64)<<2, rand.nextInt(64)<<2, rand.nextInt(64)<<2).toBuffer();
+    }
     SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
-        Colors.WHITE.toBuffer(), scale.get(), true, align);
+        color, scale.get(), true, align);
   }
   
   private enum SortMode {
