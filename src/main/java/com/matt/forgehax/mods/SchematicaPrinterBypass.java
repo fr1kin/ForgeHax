@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @RegisterMod
 public class SchematicaPrinterBypass extends ToggleMod {
-  
+
   public SchematicaPrinterBypass() {
     super(Category.MISC, "PrinterBypass", false, "Set silent angles for schematica printer");
   }
@@ -30,8 +30,5 @@ public class SchematicaPrinterBypass extends ToggleMod {
         .sendPacket(
             new CPacketPlayer.Rotation(
                 lookAngle.getYaw(), lookAngle.getPitch(), getLocalPlayer().onGround));
-    // getLocalPlayer().rotationYaw = getLocalPlayer().prevRotationYaw = (float)lookAngle.getYaw();
-    // getLocalPlayer().rotationPitch = getLocalPlayer().prevRotationPitch =
-    // (float)lookAngle.getPitch();
   }
 }
