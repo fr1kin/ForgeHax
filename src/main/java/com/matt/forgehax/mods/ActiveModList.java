@@ -173,11 +173,14 @@ public class ActiveModList extends HudMod {
     }
     
     Random rand = ThreadLocalRandom.current();
-    int color;
-    if (blinkToTheBlink = !blinkToTheBlink) {
-      color = Color.of(rand.nextInt(64), rand.nextInt(64), rand.nextInt(64)).toBuffer();
-    } else {
-      color = Color.of(rand.nextInt(64)<<2, rand.nextInt(64)<<2, rand.nextInt(64)<<2).toBuffer();
+    int color = Colors.WHITE.toBuffer();
+    if (colourSetting.get()) {
+      if (blinkToTheBlink = !blinkToTheBlink) {
+        color = Color.of(rand.nextInt(64), rand.nextInt(64), rand.nextInt(64)).toBuffer();
+      } else {
+        color = Color.of(rand.nextInt(64) << 2, rand.nextInt(64) << 2, rand.nextInt(64) << 2)
+            .toBuffer();
+      }
     }
     SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
         color, scale.get(), true, align);
