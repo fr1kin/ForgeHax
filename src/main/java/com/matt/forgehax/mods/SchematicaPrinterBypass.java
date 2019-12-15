@@ -10,6 +10,7 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
@@ -21,15 +22,10 @@ public class SchematicaPrinterBypass extends ToggleMod {
   public SchematicaPrinterBypass() {
     super(Category.MISC, "PrinterBypass", false, "Set silent angles for schematica printer");
   }
-  
-  @Override
-  public boolean isHidden() {
-    return true;
-  }
-  
+
   @SubscribeEvent
   public void onPrinterBlockPlace(SchematicaPlaceBlockEvent event) {
-    Angle lookAngle = Utils.getLookAtAngles(event.getVec());
+    Angle lookAngle = Utils.getLookAtAngles(new Vec3d(event.getVec().x + 0.5, event.getVec().y + 0.5, event.getVec().z + 0.5));
     getNetworkManager()
         .sendPacket(
             new CPacketPlayer.Rotation(
