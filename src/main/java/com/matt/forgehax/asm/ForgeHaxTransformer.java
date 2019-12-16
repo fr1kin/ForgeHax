@@ -37,6 +37,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
+import javax.annotation.Resource;
+
+@Resource // will mark this transformer as a legacy transformer and stop mixin from causing problems
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
   
