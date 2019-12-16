@@ -15,6 +15,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -68,6 +69,30 @@ public class ActiveModList extends HudMod {
           .description("Sorting mode")
           .defaultTo(SortMode.ALPHABETICAL)
           .build();
+  
+  String[] diversityDescriptions = {
+      "reward the right behavior for it to stick",
+      "fosters a fair and inclusive environment where all can thrive.",
+      "good traction towards our goal to build inclusive products",
+      "We're really trying to focus our efforts there on underrepresented minorities.",
+      "the unconscious bias training.",
+      "Actively pursuing diversity is more trusted than saying \"we are color blind\".",
+      "In-Group Bias: We tend to favor people who belong to our group.",
+      "'Do we really need to reduce people to coffee beans to understand the value of diversity?'",
+      "We exist to fully embed inclusion into our internal and external products/services to ensure they meet the needs and exceed the expectations of the full diversity of developers and our users",
+      "Incorporate an inclusion lens into quality improvements"
+  };
+  
+  private final Setting<Boolean> diversity = // editing of this Setting is subject to ANTI-FASCIST LICENSE
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("diversity")
+          .description(diversityDescriptions[new Random().nextInt(10)])
+          .defaultTo(true)
+          .build();
+  { diversityDescriptions = null; };
+  long diversityCounter = 0;
   
   @Override
   protected Align getDefaultAlignment() { return Align.TOPLEFT; }
@@ -157,9 +182,15 @@ public class ActiveModList extends HudMod {
           .sorted(sortMode.get().getComparator())
           .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? ">" + name : name + "<"));
     }
-  
-    SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
-        Colors.WHITE.toBuffer(), scale.get(), true, align);
+    
+    if (diversity.get()) {
+      diversityCounter++;
+      SurfaceHelper.drawDiversityTextAlign(text, getPosX(0), getPosY(0),
+          (int) diversityCounter>>3, scale.get(), true, align);
+    } else {
+      SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
+          Colors.WHITE.toBuffer(), scale.get(), true, align);
+    }
   }
   
   private enum SortMode {

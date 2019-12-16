@@ -5,6 +5,7 @@ import static com.matt.forgehax.util.math.AlignHelper.getFlowDirY2;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
+import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.draw.font.MinecraftFontRenderer;
 import com.matt.forgehax.util.math.AlignHelper;
 import java.util.List;
@@ -224,6 +225,40 @@ public class SurfaceHelper implements Globals {
       
       MC.fontRenderer.drawString(
           msgList.get(i), (x - offsetX) * invScale, (y - offsetY + height*i) * invScale, color, shadow);
+    }
+    
+    GlStateManager.enableDepth();
+    GlStateManager.popMatrix();
+  }
+  
+  public static void drawDiversityTextAlign(List<String> msgList, int x, int y, int colorCycle, double scale, boolean shadow, int alignmask) {
+    GlStateManager.pushMatrix();
+    GlStateManager.disableDepth();
+    GlStateManager.scale(scale, scale, scale);
+    /*red = 228
+      orange = 255 140
+      yellow = 255 237
+      green = 0 128 38
+      blue = 0 77 255
+      purple = 117 0 135*/
+    int[] colors = {
+        Color.of(228,0,0).toBuffer(),
+        Color.of(255,140,0).toBuffer(),
+        Color.of(255,237,0).toBuffer(),
+        Color.of(0,128,38).toBuffer(),
+        Color.of(0,77,255).toBuffer(),
+        Color.of(131,0,153).toBuffer()
+    };
+    
+    final int offsetY = AlignHelper.alignV((int) (getTextHeight() * scale), alignmask);
+    final int height = (int)(getFlowDirY2(alignmask) * (getTextHeight()+1) * scale);
+    final float invScale = (float)(1 / scale);
+    
+    for (int i = 0; i < msgList.size(); i++) {
+      final int offsetX = AlignHelper.alignH((int) (getTextWidth(msgList.get(i)) * scale), alignmask);
+      
+      MC.fontRenderer.drawString(
+          msgList.get(i), (x - offsetX) * invScale, (y - offsetY + height*i) * invScale, colors[colorCycle++%6], shadow);
     }
     
     GlStateManager.enableDepth();
