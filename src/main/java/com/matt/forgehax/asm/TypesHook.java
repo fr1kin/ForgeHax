@@ -356,6 +356,7 @@ public interface TypesHook {
         .add(TypesMc.Classes.ItemStack)
         .add(TypesMc.Classes.BlockPos)
         .add(TypesMc.Classes.Vec3d)
+        .add(TypesMc.Classes.EnumFacing)
         .finish()
         .build();
     
