@@ -165,9 +165,9 @@ public class ForgeHaxHooks implements ASMCommon {
       .forgeEvent(SchematicaPlaceBlockEvent.class)
       .build();
   
-  public static void onSchematicaPlaceBlock(ItemStack itemIn, BlockPos posIn, Vec3d vecIn) {
+  public static void onSchematicaPlaceBlock(ItemStack itemIn, BlockPos posIn, Vec3d vecIn, EnumFacing sideIn) {
     if (HOOK_onSchematicaPlaceBlock.reportHook()) {
-      MinecraftForge.EVENT_BUS.post(new SchematicaPlaceBlockEvent(itemIn, posIn, vecIn));
+      MinecraftForge.EVENT_BUS.post(new SchematicaPlaceBlockEvent(itemIn, posIn, vecIn, sideIn));
     }
   }
   
