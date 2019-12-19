@@ -32,6 +32,22 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @RegisterMod
 public class PositionRotationManager extends ServiceMod {
+
+  // copy/pasted from ToggleMod
+  private final Setting<Boolean> enabled = getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("enabled")
+      .description("Enables the mod")
+      .defaultTo(true)
+      .changed(cb -> {
+        if (cb.getTo()) {
+          start();
+        } else {
+          stop();
+        }
+      })
+      .build();
   
   private static final SimpleManagerContainer<MovementUpdateListener> MANAGER =
     new SimpleManagerContainer<>();
