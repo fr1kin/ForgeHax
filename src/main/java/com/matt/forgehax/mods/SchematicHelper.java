@@ -43,6 +43,8 @@ public class SchematicHelper extends ToggleMod {
   
   @SubscribeEvent
   public void onRender(RenderEvent event) {
+    if (!SchematicaHelper.isSchematicaPresent()) return;
+
     final ItemStack heldStack = MC.player.getHeldItemMainhand();
     if (heldStack.isEmpty()) {
       return;
