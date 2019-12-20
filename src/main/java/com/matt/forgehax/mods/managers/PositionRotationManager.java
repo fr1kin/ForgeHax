@@ -40,13 +40,6 @@ public class PositionRotationManager extends ServiceMod {
       .name("enabled")
       .description("Enables the mod")
       .defaultTo(true)
-      .changed(cb -> {
-        if (cb.getTo()) {
-          start();
-        } else {
-          stop();
-        }
-      })
       .build();
   
   private static final SimpleManagerContainer<MovementUpdateListener> MANAGER =
@@ -126,6 +119,8 @@ public class PositionRotationManager extends ServiceMod {
   
   @SubscribeEvent
   public void onMovementUpdatePre(LocalPlayerUpdateMovementEvent.Pre event) {
+    if (!enabled.get()) return;
+
     // updated view angles
     Angle va = getPlayerAngles(event.getLocalPlayer());
     
@@ -231,6 +226,8 @@ public class PositionRotationManager extends ServiceMod {
   
   @SubscribeEvent
   public void onMovementUpdatePost(LocalPlayerUpdateMovementEvent.Post event) {
+    if (!enabled.get()) return;
+
     // reset angles if silent aiming is enabled
     if (gState.isSilent()) {
       setPlayerAngles(event.getLocalPlayer(), gState.getClientAngles().inDegrees().normalize());
@@ -249,6 +246,8 @@ public class PositionRotationManager extends ServiceMod {
   
   @SubscribeEvent(priority = EventPriority.HIGHEST)
   public void onPacketReceived(PacketEvent.Incoming.Pre event) {
+    if (!enabled.get()) return;
+
     if(event.getPacket() instanceof SPacketPlayerPosLook) {
       // when the server sets the rotation we use that instead
       final SPacketPlayerPosLook packet = event.getPacket();
