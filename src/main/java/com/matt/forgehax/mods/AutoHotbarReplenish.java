@@ -57,7 +57,7 @@ public class AutoHotbarReplenish extends ToggleMod {
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("no_gui")
+          .name("no-gui")
           .description("Don't run when a gui is open")
           .defaultTo(true)
           .build();
