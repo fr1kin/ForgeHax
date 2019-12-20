@@ -49,9 +49,17 @@ public class AutoHotbarReplenish extends ToggleMod {
           .builders()
           .<Integer>newSettingBuilder()
           .name("tick-delay")
-          .description(
-              "Number of ticks between each window click packet. 0 will have no limit and a negative value will send n packets per tick")
+          .description("Number of ticks between each window click packet. 0 will have no limit and a negative value will send n packets per tick")
           .defaultTo(1)
+          .build();
+
+  private final Setting<Boolean> no_gui =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("no_gui")
+          .description("Don't run when a gui is open")
+          .defaultTo(true)
           .build();
   
   private TaskChain<Runnable> tasks = TaskChain.empty();
@@ -143,7 +151,7 @@ public class AutoHotbarReplenish extends ToggleMod {
     }
     
     // only process when a gui isn't opened by the player
-    if (MC.currentScreen != null) {
+    if (MC.currentScreen != null && no_gui.get()) {
       return;
     }
     
