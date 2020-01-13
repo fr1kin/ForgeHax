@@ -1,13 +1,13 @@
 [
     {
-      "modid": "forgehax",
-      "name": "ForgeHax",
+      "modid": "tuxclient",
+      "name": "A ForgeHax fork aimed at good support for Linux",
       "description": "Hax 4 forge",
       "version": "${version}",
       "mcversion": "${mcversion}",
-      "url": "https://github.com/fr1kin/ForgeHax",
+      "url": "https://github.com/undevdecatos/ForgeHax",
       "updateUrl": "",
-      "authorList": ["fr1kin", "Babbaj", "Chunkr"],
+      "authorList": ["fr1kin", "Babbaj", "Chunkr", "32Linux"],
       "credits": "get rekt",
       "logoFile": "",
       "screenshots": [],
