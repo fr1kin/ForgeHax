@@ -31,21 +31,10 @@ configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-sourceSets {
-  schematica_api {
-    compileClasspath += main.compileClasspath
-  }
-
-  main {
-    compileClasspath += schematica_api.output
-  }
-}
-
 minecraft {
   version = project.property('forgehax.forge.version')
   runDir = "run"
 
-  // channel_mapping
   mappings = "${project.property('forgehax.mcp.channel')}_${project.property('forgehax.mcp.mapping')}"
 }
 
@@ -53,8 +42,6 @@ dependencies {
   testCompile group: 'junit', name: 'junit', version: '4.12'
   testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
 }
-
-
 
 jar {
   manifest {
@@ -66,24 +53,14 @@ jar {
 }
 
 processResources {
-  // this will ensure that this task is redone when the versions change.
-  inputs.property "version", project.version
-  inputs.property "mcversion", project.minecraft.version
-
-  // replace stuff in mcmod.info, nothing else
-  from(sourceSets.main.resources.srcDirs) {
-    include 'mcmod.info'
-
-    // replace version and mcversion
-    expand 'version': project.version, 'mcversion': project.minecraft.version
+  filesMatching('**/mcmod.info') {
+    it.filter ReplaceTokens, tokens: [
+        version: project.version,
+        mcversion: project.minecraft.version
+    ]
   }
 
-  // copy everything else, thats not the mcmod.info
-  from(sourceSets.main.resources.srcDirs) {
-    exclude 'mcmod.info'
-  }
-
-  filesMatching('**/*.properties') {
+  filesMatching('**/config.properties') {
     it.filter ReplaceTokens, tokens: [
       "forgehax.version"      : project.property("forgehax.version"),
       "forgehax.mc.version"   : project.property("forgehax.mc.version"),
@@ -113,27 +90,24 @@ class CopyJarTask extends DefaultTask {
   @TaskAction
   protected void exec() {
     project.copy {
-      final gameDir = project.ext.gameDir;
-      final minecraft = project.minecraft;
-      final modDir = "$gameDir/mods/" + minecraft.version
+      final mc = "${project.ext.gameDir}/mods/${project.minecraft.version}"
 
       // find previous jar (if it exists)
-      final previousJars = project.fileTree(dir: modDir).matching {
-        include project.archivesBaseName + '*'
+      final previousJars = project.fileTree(dir: mc).matching {
+        include "${project.archivesBaseName}*"
       }.files
 
       // change file name
       if (previousJars) {
         // create .backups folder
-        final backupDir = modDir + '/.backups/'
-        project.file(backupDir).mkdirs()
+        project.file("${mc}/.backups/").mkdirs()
 
         for (File previousJar : previousJars) {
-          final n = modDir + '/.backups/' + previousJar.getName() + '.bk'
+          final n = "${mc}/.backups/${previousJar.getName()}.bk"
           def f = project.file(n)
           def i = 1
           while (f.exists()) {
-            f = project.file(n + '_' + i)
+            f = project.file("${n}_${i}")
             i++
           }
           previousJar.renameTo(f)
@@ -142,7 +116,7 @@ class CopyJarTask extends DefaultTask {
 
       // copy forgehax jar from libs to forge mod folder
       from project.jar
-      into "$gameDir/mods/" + minecraft.version
+      into "${project.ext.gameDir}/mods/${project.minecraft.version}"
     }
   }
 }
