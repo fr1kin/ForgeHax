@@ -1,15 +1,16 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.matt.forgehax.Globals;
+import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraftforge.client.event.MouseEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Mouse;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class ManualDeleteMod extends ToggleMod {
@@ -20,20 +21,17 @@ public class ManualDeleteMod extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onInput(MouseEvent event) {
-    if (getWorld() == null || getLocalPlayer() == null) {
+  public void onInput(InputEvent.MouseInputEvent event) {
+    if (!isInWorld()) {
       return;
     }
-    
-    if (event.getButton() == 2 && Mouse.getEventButtonState()) { // on middle click
-      RayTraceResult aim = MC.objectMouseOver;
-      if (aim == null) {
-        return;
-      }
-      if (aim.typeOfHit == RayTraceResult.Type.ENTITY) {
-        if (aim.entityHit != null) {
-          MC.world.removeEntity(aim.entityHit);
-        }
+
+    if (event.getButton() == 2) { // on middle click
+      RayTraceResult aim = LocalPlayerUtils.getViewTrace();
+
+      if(RayTraceResult.Type.ENTITY.equals(aim.getType()) && aim instanceof EntityRayTraceResult) {
+        EntityRayTraceResult tr = (EntityRayTraceResult) aim;
+        getWorld().removeEntityFromWorld(tr.getEntity().getEntityId());
       }
     }
   }

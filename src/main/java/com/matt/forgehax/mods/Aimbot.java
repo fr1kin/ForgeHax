@@ -1,9 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getPlayerController;
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState;
 import com.matt.forgehax.mods.services.TickRateService;
@@ -20,10 +17,14 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.projectile.Projectile;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
+
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class Aimbot extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
@@ -202,7 +203,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     }
   }
   
-  private boolean canAttack(EntityPlayer localPlayer, Entity target) {
+  private boolean canAttack(ClientPlayerEntity localPlayer, Entity target) {
     final float cdRatio = cooldown_percent.get() / 100F;
     final float cdOffset = cdRatio <= 1F ? 0F : -(localPlayer.getCooldownPeriod() * (cdRatio - 1F));
     return localPlayer.getCooledAttackStrength((float) getLagComp() + cdOffset)
@@ -211,7 +212,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
   
   private Projectile getHeldProjectile() {
-    return Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItem(EnumHand.MAIN_HAND));
+    return Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItem(Hand.MAIN_HAND));
   }
   
   private boolean isHoldingProjectileItem() {
@@ -231,7 +232,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
   
   private Vec3d getAttackPosition(Entity entity) {
-    return EntityUtils.getInterpolatedPos(entity, 1).addVector(0, entity.getEyeHeight() / 2, 0);
+    return EntityUtils.getInterpolatedPos(entity, 1).add(0, entity.getEyeHeight() / 2, 0);
   }
   
   /**
@@ -298,9 +299,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
   
   private Entity findTarget(final Vec3d pos, final Vec3d viewNormal, final Angle angles) {
-    return getWorld()
-        .loadedEntityList
-        .stream()
+    return StreamSupport.stream(getWorld().getAllEntities().spliterator(), false)
         .filter(entity -> filterTarget(pos, viewNormal, angles, entity))
         .min(Comparator.comparingDouble(entity -> selecting(pos, viewNormal, angles, entity)))
         .orElse(null);
@@ -342,11 +341,10 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
       state.setViewAngles(va, silent.get());
       
       if (canAttack(getLocalPlayer(), tar)) {
-        state.invokeLater(
-            rs -> {
-              getPlayerController().attackEntity(getLocalPlayer(), tar);
-              getLocalPlayer().swingArm(EnumHand.MAIN_HAND);
-            });
+        state.invokeLater(rs -> {
+          getPlayerController().attackEntity(getLocalPlayer(), tar);
+          getLocalPlayer().swingArm(Hand.MAIN_HAND);
+        });
       }
     }
   }

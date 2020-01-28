@@ -7,9 +7,9 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.network.play.server.SPacketTimeUpdate;
+import net.minecraft.network.play.server.SUpdateTimePacket;
 import net.minecraft.util.Timer;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created by Babbaj on 1/24/2018.
@@ -65,7 +65,7 @@ public class TimerMod extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketTimeUpdate && tpsSync.getAsBoolean()) {
+    if (event.getPacket() instanceof SUpdateTimePacket && tpsSync.getAsBoolean()) {
       TickRateService.TickRateData data = TickRateService.getTickData();
       if (data.getSampleSize() > 0) {
         TickRateService.TickRateData.CalculationData point = data.getPoint();

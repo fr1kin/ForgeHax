@@ -1,9 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.command.Setting;
@@ -11,15 +8,19 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.function.Predicate;
+
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityEnderCrystal;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.network.play.client.CPacketUseEntity;
-import net.minecraft.util.EnumHand;
+import net.minecraft.entity.item.EnderCrystalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.play.client.CAnimateHandPacket;
+import net.minecraft.network.play.client.CUseEntityPacket;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created on 3/12/2018 by exkerbinator
@@ -31,7 +32,7 @@ public class AutoCrystalMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
-          .name("maxDistance")
+          .name("max-distance")
           .description("maximum distance to detonate crystals")
           .defaultTo(3f)
           .min(0f)
@@ -41,7 +42,7 @@ public class AutoCrystalMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
-          .name("minDistance")
+          .name("min-distance")
           .description("minimum distance to detonate crystals")
           .defaultTo(0f)
           .min(0f)
@@ -51,7 +52,7 @@ public class AutoCrystalMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
-          .name("minHeight")
+          .name("min-height")
           .description("detonate crystals with a relative y coord greater than this value")
           .defaultTo(-5f)
           .build();
@@ -70,7 +71,7 @@ public class AutoCrystalMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("checkEnemy")
+          .name("check-enemy")
           .description("only detonate crystals close to enemy players")
           .defaultTo(true)
           .build();
@@ -79,7 +80,7 @@ public class AutoCrystalMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Float>newSettingBuilder()
-          .name("maxEnemyDistance")
+          .name("max-enemy-distance")
           .description("maximum distance from crystal to enemy")
           .defaultTo(10f)
           .min(0f)
@@ -104,9 +105,7 @@ public class AutoCrystalMod extends ToggleMod {
     Vec3d delta = new Vec3d(dist, dist, dist);
     AxisAlignedBB bb =
         new AxisAlignedBB(e.getPositionVector().subtract(delta), e.getPositionVector().add(delta));
-    return getWorld()
-        .getEntitiesWithinAABB(EntityPlayer.class, bb)
-        .stream()
+    return getWorld().getEntitiesWithinAABB(PlayerEntity.class, bb).stream()
         .filter(p -> !p.isEntityEqual(getLocalPlayer()))
         .anyMatch(p -> e.getDistanceSq(p) < dist * dist);
   }
@@ -125,8 +124,7 @@ public class AutoCrystalMod extends ToggleMod {
               getLocalPlayer().getPositionVector().subtract(delta),
               getLocalPlayer().getPositionVector().add(delta));
       getWorld()
-          .getEntitiesWithinAABB(EntityEnderCrystal.class, bb)
-          .stream()
+          .getEntitiesWithinAABB(EnderCrystalEntity.class, bb).stream()
           // Re-check timer, since it may have been reset in a previous iteration
           .filter(__ -> timer.hasTimeElapsed(delay.get()))
           .filter(
@@ -137,8 +135,8 @@ public class AutoCrystalMod extends ToggleMod {
           .filter(e -> !checkEnemy.get() || enemyWithinDistance(e, maxEnemyDistance.get()))
           .forEach(
               e -> {
-                getNetworkManager().sendPacket(new CPacketUseEntity(e));
-                getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+                sendNetworkPacket(new CUseEntityPacket(e));
+                sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
                 timer.start();
               });
     }

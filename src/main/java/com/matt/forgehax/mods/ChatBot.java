@@ -1,12 +1,11 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getFileManager;
-
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.ChatMessageEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
@@ -29,7 +28,9 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Scanner;
 import joptsimple.internal.Strings;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class ChatBot extends ToggleMod {

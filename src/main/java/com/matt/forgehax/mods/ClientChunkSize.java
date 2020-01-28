@@ -1,10 +1,10 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getFileManager;
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Globals.*;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection.Methods;
+import com.matt.forgehax.events.ClientTickEvent;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -17,13 +17,13 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.concurrent.Executors;
 import java.util.zip.DeflaterOutputStream;
+
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.storage.AnvilChunkLoader;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraft.world.chunk.storage.ChunkLoader;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class ClientChunkSize extends ToggleMod {
@@ -84,73 +84,64 @@ public class ClientChunkSize extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onTick(ClientTickEvent event) {
-    if (getWorld() == null || getLocalPlayer() == null || running) {
+  public void onTick(ClientTickEvent.Pre event) {
+    if (!isInWorld() || running) {
       return;
     }
-    
-    switch (event.phase) {
-      case END: {
-        Chunk chunk = getWorld().getChunkFromBlockCoords(getLocalPlayer().getPosition());
-        if (chunk.isEmpty()) {
-          return;
-        }
-        
-        ChunkPos pos = chunk.getPos();
-        if (!pos.equals(current) || (timer.isStarted() && timer.hasTimeElapsed(1000L))) {
-          // chunk changed, don't show diff between different chunks
-          if (current != null && !pos.equals(current)) {
-            size = previousSize = 0L;
-          }
-          
-          current = pos;
-          running = true;
-          
-          // process size calculation on another thread
-          Executors.defaultThreadFactory()
-              .newThread(
-                  () -> {
-                    try {
-                      final NBTTagCompound root = new NBTTagCompound();
-                      NBTTagCompound level = new NBTTagCompound();
-                      root.setTag("Level", level);
-                      root.setInteger("DataVersion", 1337);
-                      
-                      try {
-                        // this should be done on the main mc thread but it works 99% of the
-                        // time outside it
-                        AnvilChunkLoader loader = new AnvilChunkLoader(DUMMY, null);
-                        Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
-                            loader, chunk, getWorld(), level);
-                      } catch (Throwable t) {
-                        size = -1L;
-                        previousSize = 0L;
-                        return; // couldn't save chunk
-                      }
-                      
-                      DataOutputStream compressed =
-                          new DataOutputStream(
-                              new BufferedOutputStream(
-                                  new DeflaterOutputStream(new ByteArrayOutputStream(8096))));
-                      try {
-                        CompressedStreamTools.write(root, compressed);
-                        previousSize = size;
-                        size = compressed.size();
-                      } catch (IOException e) {
-                        size = -1L;
-                        previousSize = 0L;
-                      }
-                    } finally {
-                      timer.start();
-                      running = false;
-                    }
-                  })
-              .start();
-        }
-        break;
+
+    Chunk chunk = getWorld().getChunkAt(getLocalPlayer().getPosition());
+    if (chunk.isEmpty()) {
+      return;
+    }
+
+    ChunkPos pos = chunk.getPos();
+    if (!pos.equals(current) || (timer.isStarted() && timer.hasTimeElapsed(1000L))) {
+      // chunk changed, don't show diff between different chunks
+      if (current != null && !pos.equals(current)) {
+        size = previousSize = 0L;
       }
-      default:
-        break;
+
+      current = pos;
+      running = true;
+
+      // process size calculation on another thread
+      Executors.defaultThreadFactory()
+          .newThread(
+              () -> {
+                try {
+                  final CompoundNBT root = new CompoundNBT();
+                  CompoundNBT level = new CompoundNBT();
+                  root.put("Level", level);
+                  root.putInt("DataVersion", 1337);
+
+                  try {
+                    // this should be done on the main mc thread but it works 99% of the
+                    // time outside it
+                    ChunkLoader loader = new ChunkLoader(DUMMY, null);
+                    Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
+                        loader, chunk, getWorld(), level);
+                  } catch (Throwable t) {
+                    size = -1L;
+                    previousSize = 0L;
+                    return; // couldn't save chunk
+                  }
+
+                  DataOutputStream compressed = new DataOutputStream(new BufferedOutputStream(
+                      new DeflaterOutputStream(new ByteArrayOutputStream(8096))));
+                  try {
+                    CompressedStreamTools.write(root, compressed);
+                    previousSize = size;
+                    size = compressed.size();
+                  } catch (IOException e) {
+                    size = -1L;
+                    previousSize = 0L;
+                  }
+                } finally {
+                  timer.start();
+                  running = false;
+                }
+              })
+          .start();
     }
   }
 }

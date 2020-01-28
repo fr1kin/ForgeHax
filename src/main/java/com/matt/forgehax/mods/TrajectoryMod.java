@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.util.mod.Category;
@@ -10,11 +9,14 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.projectile.Projectile;
 import com.matt.forgehax.util.projectile.SimulationResult;
 import java.util.Iterator;
-import net.minecraft.client.renderer.GlStateManager;
+
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
+
+import static com.matt.forgehax.Globals.*;
+import static com.mojang.blaze3d.systems.RenderSystem.*;
 
 @RegisterMod
 public class TrajectoryMod extends ToggleMod {
@@ -33,7 +35,7 @@ public class TrajectoryMod extends ToggleMod {
               getLocalPlayer(),
               PositionRotationManager.getState().getRenderServerViewAngles(),
               projectile.getForce(
-                  getLocalPlayer().getHeldItemMainhand().getMaxItemUseDuration()
+                  getLocalPlayer().getHeldItemMainhand().getUseDuration()
                       - getLocalPlayer().getItemInUseCount()),
               0);
       if (result == null) {
@@ -43,8 +45,8 @@ public class TrajectoryMod extends ToggleMod {
       if (result.getPathTraveled().size() > 1) {
         event.setTranslation(getLocalPlayer().getPositionVector());
         
-        GlStateManager.enableDepth();
-        GlStateManager.glLineWidth(2.0f);
+        enableDepthTest();
+        lineWidth(2.0f);
         
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
@@ -65,8 +67,8 @@ public class TrajectoryMod extends ToggleMod {
         event.getTessellator().draw();
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
         
-        GlStateManager.glLineWidth(1.0f);
-        GlStateManager.disableDepth();
+        lineWidth(1.0f);
+        disableDepthTest();
         
         event.resetTranslation();
       }

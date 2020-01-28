@@ -1,6 +1,7 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.services.ChatCommandService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Colors;
@@ -18,28 +19,40 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.renderer.VirtualScreen;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemShulkerBox;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.client.settings.IKeyConflictContext;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
+
+import static com.matt.forgehax.Globals.*;
+import static com.mojang.blaze3d.systems.RenderSystem.*;
 
 @RegisterMod
 public class ShulkerViewer extends ToggleMod {
@@ -112,7 +125,7 @@ public class ShulkerViewer extends ToggleMod {
           .build();
   
   private final KeyBinding lockDownKey =
-      new KeyBinding("ShulkerViewer Lock", Keyboard.KEY_LSHIFT, "ForgeHax");
+      new KeyBinding("ShulkerViewer Lock", GLFW.GLFW_KEY_LEFT_ALT, "ForgeHax");
   
   private final List<GuiShulkerViewer> guiCache =
       Lists.newArrayListWithExpectedSize(CACHE_RESERVE_SIZE);
@@ -136,7 +149,7 @@ public class ShulkerViewer extends ToggleMod {
         new IKeyConflictContext() {
           @Override
           public boolean isActive() {
-            return MC.currentScreen instanceof GuiContainer;
+            return getDisplayScreen() instanceof ContainerScreen;
           }
           
           @Override
@@ -212,6 +225,16 @@ public class ShulkerViewer extends ToggleMod {
   private boolean isInRegion(int x, int y, int width, int height, int testingX, int testingY) {
     return testingX >= x && testingY >= y && testingX <= x + width && testingY <= y + height;
   }
+
+  private boolean isItemShulkerBox(Item item) {
+    return Optional.of(item)
+        .filter(BlockItem.class::isInstance)
+        .map(BlockItem.class::cast)
+        .map(BlockItem::getBlock)
+        .filter(ShulkerBoxBlock.class::isInstance)
+        .isPresent();
+
+  }
   
   @Override
   protected void onEnabled() {
@@ -234,40 +257,40 @@ public class ShulkerViewer extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onKeyboardInput(GuiScreenEvent.KeyboardInputEvent event) {
-    if (Keyboard.getEventKey() == lockDownKey.getKeyCode()) {
-      if (Keyboard.getEventKeyState()) {
-        if (toggle_lock.get()) {
-          if (!isKeySet) {
-            locked = !locked;
-            if (!locked) {
-              updated = false;
-            }
-            isKeySet = true;
+  public void onKeyboardInput(GuiScreenEvent.KeyboardKeyEvent event) {
+    if (event.getKeyCode() == lockDownKey.getKey().getKeyCode()) {
+      // TODO: 1.15 verify this works
+      //if (Keyboard.getEventKeyState())
+      if (toggle_lock.get()) {
+        if (!isKeySet) {
+          locked = !locked;
+          if (!locked) {
+            updated = false;
           }
-        } else {
-          locked = true;
+          isKeySet = true;
         }
       } else {
-        if (toggle_lock.get()) {
-          isKeySet = false;
-        } else {
-          locked = updated = false;
-        }
+        locked = true;
+      }
+    } else {
+      if (toggle_lock.get()) {
+        isKeySet = false;
+      } else {
+        locked = updated = false;
       }
     }
   }
   
   @SubscribeEvent
   public void onPreTooptipRender(RenderTooltipEvent.Pre event) {
-    if (!(MC.currentScreen instanceof GuiContainer) || isModGeneratedToolTip) {
+    if (!(getDisplayScreen() instanceof ContainerScreen) || isModGeneratedToolTip) {
       return;
     }
     
     if (isMouseInShulkerGui) {
       // do not render tool tips that are inside the region of our shulker gui
       event.setCanceled(true);
-    } else if (event.getStack().getItem() instanceof ItemShulkerBox) {
+    } else if (isItemShulkerBox(event.getStack().getItem())) {
       event.setCanceled(true); // do not draw normal tool tip
     }
   }
@@ -281,13 +304,13 @@ public class ShulkerViewer extends ToggleMod {
   
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onRender(GuiScreenEvent.DrawScreenEvent.Post event) {
-    if (!(MC.currentScreen instanceof GuiContainer)) {
+    if (!(getDisplayScreen() instanceof ContainerScreen)) {
       return;
     }
     
     cacheLock.lock();
     try {
-      GuiContainer gui = (GuiContainer) event.getGui();
+      ContainerScreen gui = (ContainerScreen) event.getGui();
       
       if (!isLocked()) {
         // show stats for the item being hovered over
@@ -295,7 +318,8 @@ public class ShulkerViewer extends ToggleMod {
         if (slotUnder == null
             || !slotUnder.getHasStack()
             || slotUnder.getStack().isEmpty()
-            || !(slotUnder.getStack().getItem() instanceof ItemShulkerBox)) {
+            // TODO: 1.15 detect if item is a shulkerbox
+            || !isItemShulkerBox(slotUnder.getStack().getItem())) {
           setInCache(CACHE_HOVERING_INDEX, null);
         } else if (!ItemStack.areItemStacksEqual(
             getInCache(0).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY),
@@ -305,7 +329,7 @@ public class ShulkerViewer extends ToggleMod {
         
         // show stats for held item
         ItemStack stackHeld = LocalPlayerInventory.getInventory().getItemStack();
-        if (stackHeld.isEmpty() || !(stackHeld.getItem() instanceof ItemShulkerBox)) {
+        if (stackHeld.isEmpty() || !isItemShulkerBox(stackHeld.getItem())) {
           setInCache(CACHE_HOLDING_INDEX, null);
         } else if (!ItemStack.areItemStacksEqual(
             getInCache(1).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY),
@@ -341,7 +365,7 @@ public class ShulkerViewer extends ToggleMod {
               ui -> {
                 ui.posX = renderX.get();
                 ui.posY = renderY.get();
-                ui.drawScreen(event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
+                ui.render(event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
                 renderY.set(renderY.get() + SHULKER_GUI_SIZE + 1);
               });
     } finally {
@@ -349,21 +373,20 @@ public class ShulkerViewer extends ToggleMod {
     }
     
     if (help_text.get()) {
-      ScaledResolution resolution = new ScaledResolution(MC);
-      GlStateManager.disableLighting();
-      GlStateManager.disableDepth();
+      disableLighting();
+      disableDepthTest();
       SurfaceHelper.drawTextShadow(
           "Hold "
-              + Keyboard.getKeyName(lockDownKey.getKeyCode())
+              + InputMappings.getKeynameFromKeycode(lockDownKey.getKey().getKeyCode())
               + " to view the tooltips of a Shulker boxes content!",
           5,
-          resolution.getScaledHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 3 - 2,
+          getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 3 - 2,
           Colors.RED.toBuffer(),
           1);
       SurfaceHelper.drawTextShadow(
           "The activation key can be configured under Minecraft's Options -> Controls -> ForgeHax -> ShulkerViewer Lock.",
           5,
-          resolution.getScaledHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 2 - 2,
+          getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 2 - 2,
           Colors.GREEN.toBuffer(),
           1);
       SurfaceHelper.drawTextShadow(
@@ -377,17 +400,17 @@ public class ShulkerViewer extends ToggleMod {
               + help_text.getName()
               + " false\" to disable this help message.",
           5,
-          resolution.getScaledHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) - 2,
+          getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) - 2,
           Colors.YELLOW.toBuffer(),
           1);
-      GlStateManager.enableDepth();
+      enableDepthTest();
     }
     
-    GlStateManager.enableLighting();
-    GlStateManager.color(1.f, 1.f, 1.f, 1.0f);
+    enableLighting();
+    color4f(1.f, 1.f, 1.f, 1.0f);
   }
   
-  class GuiShulkerViewer extends GuiContainer implements Comparable<GuiShulkerViewer> {
+  class GuiShulkerViewer extends ContainerScreen<Container> implements Comparable<GuiShulkerViewer> {
     
     private final ItemStack parentShulker;
     private final int priority;
@@ -396,13 +419,11 @@ public class ShulkerViewer extends ToggleMod {
     public int posY = 0;
     
     public GuiShulkerViewer(Container inventorySlotsIn, ItemStack parentShulker, int priority) {
-      super(inventorySlotsIn);
+      super(inventorySlotsIn, getLocalPlayer().inventory, new StringTextComponent("ShulkerViewer"));
       this.parentShulker = parentShulker;
       this.priority = priority;
-      this.mc = MC;
-      this.fontRenderer = MC.fontRenderer;
-      this.width = MC.displayWidth;
-      this.height = MC.displayHeight;
+      this.width = getScreenWidth();
+      this.height = getScreenHeight();
       this.xSize = 176;
       this.ySize = SHULKER_GUI_SIZE;
     }
@@ -428,15 +449,16 @@ public class ShulkerViewer extends ToggleMod {
     }
     
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void render(int mouseX, int mouseY, float partialTicks) {
       final int DEPTH = 500;
       
       int x = posX;
       int y = posY;
       
-      GlStateManager.enableTexture2D();
-      GlStateManager.disableLighting();
-      GlStateManager.color(
+      enableTexture();
+      disableLighting();
+
+      color4f(
           1.f,
           1.f,
           1.f,
@@ -444,12 +466,9 @@ public class ShulkerViewer extends ToggleMod {
               ? (tooltip_opacity.getAsFloat() / 255.f)
               : (locked_opacity.getAsFloat() / 255.f));
       
-      GlStateManager.enableBlend();
-      GlStateManager.tryBlendFuncSeparate(
-          GlStateManager.SourceFactor.SRC_ALPHA,
-          GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-          GlStateManager.SourceFactor.ONE,
-          GlStateManager.DestFactor.ZERO);
+      enableBlend();
+      blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+          GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
       
       MC.getTextureManager().bindTexture(SHULKER_GUI_TEXTURE);
       
@@ -461,66 +480,67 @@ public class ShulkerViewer extends ToggleMod {
       SurfaceHelper.drawTexturedRect(x, y + 16, 0, 16, 176, 54, DEPTH);
       SurfaceHelper.drawTexturedRect(x, y + 16 + 54, 0, 160, 176, 6, DEPTH);
       
-      GlStateManager.disableDepth();
-      SurfaceHelper.drawText(parentShulker.getDisplayName(), x + 8, y + 6, Colors.BLACK.toBuffer());
-      GlStateManager.enableDepth();
+      disableDepthTest();
+      SurfaceHelper.drawText(parentShulker.getDisplayName().getUnformattedComponentText(), x + 8, y + 6, Colors.BLACK.toBuffer());
+      enableDepthTest();
       
-      RenderHelper.enableGUIStandardItemLighting();
-      GlStateManager.enableRescaleNormal();
-      GlStateManager.enableColorMaterial();
-      GlStateManager.enableLighting();
+      RenderHelper.enableStandardItemLighting();
+      enableRescaleNormal();
+      enableColorMaterial();
+      enableLighting();
       
       Slot hoveringOver = null;
       
       int rx = x + 8;
       int ry = y - 1;
       
-      for (Slot slot : inventorySlots.inventorySlots) {
+      for (Slot slot : container.inventorySlots) {
         if (slot.getHasStack()) {
           int px = rx + slot.xPos;
           int py = ry + slot.yPos;
-          MC.getRenderItem().zLevel = DEPTH + 1;
+          MC.getItemRenderer().zLevel = DEPTH + 1;
           SurfaceHelper.drawItem(slot.getStack(), px, py);
           SurfaceHelper.drawItemOverlay(slot.getStack(), px, py);
-          MC.getRenderItem().zLevel = 0.f;
+          MC.getItemRenderer().zLevel = 0.f;
           if (isPointInRegion(px, py, 16, 16, mouseX, mouseY)) {
             hoveringOver = slot;
           }
         }
       }
       
-      GlStateManager.disableLighting();
+      disableLighting();
       
       if (hoveringOver != null) {
         // background of the gui
-        GlStateManager.disableLighting();
-        GlStateManager.disableDepth();
-        GlStateManager.colorMask(true, true, true, false);
-        this.drawGradientRect(
-            rx + hoveringOver.xPos,
-            ry + hoveringOver.yPos,
-            rx + hoveringOver.xPos + 16,
-            ry + hoveringOver.yPos + 16,
-            -2130706433,
-            -2130706433);
-        GlStateManager.colorMask(true, true, true, true);
+        disableLighting();
+        disableDepthTest();
+        colorMask(true, true, true, false);
+//        this.drawGradientRect(
+//            rx + hoveringOver.xPos,
+//            ry + hoveringOver.yPos,
+//            rx + hoveringOver.xPos + 16,
+//            ry + hoveringOver.yPos + 16,
+//            -2130706433,
+//            -2130706433);
+        // TODO: 1.15 fix rendering gradient
+        colorMask(true, true, true, true);
         
         // tool tip
-        GlStateManager.color(1.f, 1.f, 1.f, 1.0f);
-        GlStateManager.pushMatrix();
+        color4f(1.f, 1.f, 1.f, 1.0f);
+        pushMatrix();
         isModGeneratedToolTip = true;
-        renderToolTip(hoveringOver.getStack(), mouseX + 8, mouseY + 8);
+        renderTooltip(hoveringOver.getStack(), mouseX + 8, mouseY + 8);
         isModGeneratedToolTip = false;
-        GlStateManager.popMatrix();
-        GlStateManager.enableDepth();
+        popMatrix();
+        enableDepthTest();
       }
       
       if (isPointInRegion(this.posX, this.posY, getWidth(), getHeight(), mouseX, mouseY)) {
         isMouseInShulkerGui = true;
       }
       
-      GlStateManager.disableBlend();
-      GlStateManager.color(1.f, 1.f, 1.f, 1.0f);
+      disableBlend();
+      color4f(1.f, 1.f, 1.f, 1.0f);
     }
     
     @Override
@@ -536,15 +556,16 @@ public class ShulkerViewer extends ToggleMod {
   static class ShulkerContainer extends Container {
     
     public ShulkerContainer(ShulkerInventory inventory, int size) {
+      super(ContainerType.GENERIC_9X3, -1); // TODO: 1.15 should the id be -1?
       for (int i = 0; i < size; ++i) {
         int x = i % 9 * 18;
         int y = ((i / 9 + 1) * 18) + 1;
-        addSlotToContainer(new Slot(inventory, i, x, y));
+        addSlot(new Slot(inventory, i, x, y));
       }
     }
     
     @Override
-    public boolean canInteractWith(EntityPlayer playerIn) {
+    public boolean canInteractWith(PlayerEntity playerIn) {
       return false;
     }
   }
@@ -593,21 +614,18 @@ public class ShulkerViewer extends ToggleMod {
     }
     
     @Override
-    public void markDirty() {
-    }
+    public void markDirty() { }
     
     @Override
-    public boolean isUsableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(PlayerEntity player) {
       return false;
     }
     
     @Override
-    public void openInventory(EntityPlayer player) {
-    }
+    public void openInventory(PlayerEntity player) { }
     
     @Override
-    public void closeInventory(EntityPlayer player) {
-    }
+    public void closeInventory(PlayerEntity player) { }
     
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
@@ -615,36 +633,6 @@ public class ShulkerViewer extends ToggleMod {
     }
     
     @Override
-    public int getField(int id) {
-      return 0;
-    }
-    
-    @Override
-    public void setField(int id, int value) {
-    }
-    
-    @Override
-    public int getFieldCount() {
-      return 0;
-    }
-    
-    @Override
-    public void clear() {
-    }
-    
-    @Override
-    public String getName() {
-      return "";
-    }
-    
-    @Override
-    public boolean hasCustomName() {
-      return false;
-    }
-    
-    @Override
-    public ITextComponent getDisplayName() {
-      return new TextComponentString("");
-    }
+    public void clear() { }
   }
 }

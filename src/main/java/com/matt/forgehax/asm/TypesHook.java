@@ -5,7 +5,7 @@ import com.matt.forgehax.asm.utils.asmtype.ASMField;
 import com.matt.forgehax.asm.utils.asmtype.ASMMethod;
 import com.matt.forgehax.asm.utils.asmtype.builders.ASMBuilders;
 import java.util.List;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Created on 5/27/2017 by fr1kin

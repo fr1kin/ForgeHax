@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.Helper;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.asm.utils.fasttype.FastField;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -10,11 +10,14 @@ import com.matt.forgehax.util.key.KeyBindingHandler;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created by Babbaj on 1/30/2018.
@@ -72,27 +75,26 @@ public class AutoKey extends ToggleMod {
         .newCommandBuilder()
         .name("addKey")
         .description("add a key to the active key list - (ex: addKey \"jump\" \"hold\"")
-        .processor(
-            data -> {
-              data.requiredArguments(2);
-              KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
-              if (key == null) {
-                Helper.printMessage("Unknown key: %s", data.getArgumentAsString(0));
-                return;
-              }
-              
-              String mode = data.getArgumentAsString(1);
-              ClickMode clickMode =
-                  Arrays.stream(ClickMode.values())
-                      .filter(m -> m.toString().toLowerCase().contains(mode.toLowerCase()))
-                      .findFirst()
-                      .orElseGet(
-                          () -> {
-                            Helper.printMessage("Unknown mode, defaulting to tap");
-                            return ClickMode.TAP;
-                          });
-              activeKeys.put(key, clickMode);
-            })
+        .processor(data -> {
+          data.requiredArguments(2);
+          KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
+
+          if (key == null) {
+            printError("Unknown key: %s", data.getArgumentAsString(0));
+            return;
+          }
+
+          String mode = data.getArgumentAsString(1);
+          ClickMode clickMode = Arrays.stream(ClickMode.values())
+              .filter(m -> m.toString().toLowerCase().contains(mode.toLowerCase()))
+              .findFirst()
+              .orElseGet(() -> {
+                printError("Unknown mode, defaulting to tap");
+                return ClickMode.TAP;
+              });
+
+          activeKeys.put(key, clickMode);
+        })
         .build();
     
     // remove all keys
@@ -101,14 +103,13 @@ public class AutoKey extends ToggleMod {
         .newCommandBuilder()
         .name("clearKeys")
         .description("clear all the active keys")
-        .processor(
-            data -> {
-              if (data.getArgumentCount() > 0) {
-                Helper.printMessage("Unexpected arguments!");
-                return;
-              }
-              activeKeys.clear();
-            })
+        .processor(data -> {
+            if (data.getArgumentCount() > 0) {
+              printError("Unexpected arguments!");
+              return;
+            }
+            activeKeys.clear();
+        })
         .build();
     
     // remove a single key
@@ -123,9 +124,9 @@ public class AutoKey extends ToggleMod {
               KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
               ClickMode mode = activeKeys.remove(key);
               if (mode != null) {
-                Helper.printMessage("Removed key: %s", key.getBinding().getKeyDescription());
+                printInform("Removed key: %s", key.getBinding().getKeyDescription());
               } else {
-                Helper.printMessage("Unknown key");
+                printInform("Unknown key");
               }
             })
         .build();

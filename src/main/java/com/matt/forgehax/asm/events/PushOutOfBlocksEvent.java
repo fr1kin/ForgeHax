@@ -1,7 +1,7 @@
 package com.matt.forgehax.asm.events;
 
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Created by Babbaj on 8/4/2017.

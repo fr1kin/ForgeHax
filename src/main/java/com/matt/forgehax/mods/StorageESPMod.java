@@ -1,7 +1,8 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Globals.*;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.mod.Category;
@@ -11,18 +12,11 @@ import com.matt.forgehax.util.tesselation.GeometryMasks;
 import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItemFrame;
-import net.minecraft.entity.item.EntityMinecartChest;
-import net.minecraft.item.ItemShulkerBox;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.tileentity.TileEntityDispenser;
-import net.minecraft.tileentity.TileEntityEnderChest;
-import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraft.tileentity.TileEntityHopper;
-import net.minecraft.tileentity.TileEntityShulkerBox;
+import net.minecraft.entity.item.ItemFrameEntity;
+import net.minecraft.entity.item.minecart.ChestMinecartEntity;
+import net.minecraft.tileentity.*;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -36,15 +30,15 @@ public class StorageESPMod extends ToggleMod {
   }
   
   private int getTileEntityColor(TileEntity tileEntity) {
-    if (tileEntity instanceof TileEntityChest
-        || tileEntity instanceof TileEntityDispenser
-        || tileEntity instanceof TileEntityShulkerBox) {
+    if (tileEntity instanceof ChestTileEntity
+        || tileEntity instanceof DispenserTileEntity
+        || tileEntity instanceof ShulkerBoxTileEntity) {
       return Colors.ORANGE.toBuffer();
-    } else if (tileEntity instanceof TileEntityEnderChest) {
+    } else if (tileEntity instanceof EnderChestTileEntity) {
       return Colors.PURPLE.toBuffer();
-    } else if (tileEntity instanceof TileEntityFurnace) {
+    } else if (tileEntity instanceof FurnaceTileEntity) {
       return Colors.GRAY.toBuffer();
-    } else if (tileEntity instanceof TileEntityHopper) {
+    } else if (tileEntity instanceof HopperTileEntity) {
       return Colors.DARK_RED.toBuffer();
     } else {
       return -1;
@@ -52,12 +46,13 @@ public class StorageESPMod extends ToggleMod {
   }
   
   private int getEntityColor(Entity entity) {
-    if (entity instanceof EntityMinecartChest) {
+    if (entity instanceof ChestMinecartEntity) {
       return Colors.ORANGE.toBuffer();
-    } else if (entity instanceof EntityItemFrame
-        && ((EntityItemFrame) entity).getDisplayedItem().getItem() instanceof ItemShulkerBox) {
+    } /*else if (entity instanceof ItemFrameEntity
+        && ((ItemFrameEntity) entity).getDisplayedItem().getItem() instanceof ShulkerBox) {
       return Colors.YELLOW.toBuffer();
-    } else {
+      // TODO: 1.15 detect if item is a shulkerbox
+    }*/ else {
       return -1;
     }
   }
@@ -66,7 +61,7 @@ public class StorageESPMod extends ToggleMod {
   public void onRender(RenderEvent event) {
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
     
-    for (TileEntity tileEntity : getWorld().loadedTileEntityList) {
+    for (TileEntity tileEntity : Globals.getWorld().loadedTileEntityList) {
       BlockPos pos = tileEntity.getPos();
       
       int color = getTileEntityColor(tileEntity);
@@ -75,13 +70,13 @@ public class StorageESPMod extends ToggleMod {
       }
     }
     
-    for (Entity entity : getWorld().loadedEntityList) {
+    for (Entity entity : getWorld().getAllEntities()) {
       BlockPos pos = entity.getPosition();
       int color = getEntityColor(entity);
       if (color != -1) {
         GeometryTessellator.drawCuboid(
             event.getBuffer(),
-            entity instanceof EntityItemFrame ? pos.add(0, -1, 0) : pos,
+            entity instanceof ItemFrameEntity ? pos.add(0, -1, 0) : pos,
             GeometryMasks.Line.ALL,
             color);
       }

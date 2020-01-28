@@ -2,23 +2,22 @@ package com.matt.forgehax.util.math;
 
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
+
+import static com.matt.forgehax.Globals.*;
 
 public class VectorUtils implements Globals {
   // Credits to Gregor and P47R1CK for the 3D vector transformation code
   
-  static Matrix4f modelMatrix = new Matrix4f();
-  static Matrix4f projectionMatrix = new Matrix4f();
+  static Matrix4d modelMatrix = new Matrix4d();
+  static Matrix4d projectionMatrix = new Matrix4d();
   
-  private static void VecTransformCoordinate(Vector4f vec, Matrix4f matrix) {
-    float x = vec.x;
-    float y = vec.y;
-    float z = vec.z;
+  private static void VecTransformCoordinate(Vector4d vec, Matrix4d matrix) {
+    double x = vec.x;
+    double y = vec.y;
+    double z = vec.z;
     vec.x = (x * matrix.m00) + (y * matrix.m10) + (z * matrix.m20) + matrix.m30;
     vec.y = (x * matrix.m01) + (y * matrix.m11) + (z * matrix.m21) + matrix.m31;
     vec.z = (x * matrix.m02) + (y * matrix.m12) + (z * matrix.m22) + matrix.m32;
@@ -34,15 +33,15 @@ public class VectorUtils implements Globals {
     if (view == null) {
       return new Plane(0.D, 0.D, false);
     }
-    
-    Vec3d camPos = FastReflection.Fields.ActiveRenderInfo_position.getStatic();
+
+    Vec3d camPos = getGameRenderer().getActiveRenderInfo().getProjectedView();
     Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
     
-    float vecX = (float) ((camPos.x + eyePos.x) - (float) x);
-    float vecY = (float) ((camPos.y + eyePos.y) - (float) y);
-    float vecZ = (float) ((camPos.z + eyePos.z) - (float) z);
-    
-    Vector4f pos = new Vector4f(vecX, vecY, vecZ, 1.f);
+    double vecX = (camPos.x + eyePos.x) - x;
+    double vecY = (camPos.y + eyePos.y) - y;
+    double vecZ = (camPos.z + eyePos.z) - z;
+
+    Vector4d pos = new Vector4d(vecX, vecY, vecZ, 1.f);
     
     modelMatrix.load(
         FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
@@ -56,21 +55,20 @@ public class VectorUtils implements Globals {
       pos.x *= -100000;
       pos.y *= -100000;
     } else {
-      float invert = 1.f / pos.w;
+      double invert = 1.f / pos.w;
       pos.x *= invert;
       pos.y *= invert;
     }
+
+    double halfWidth = (double) getScreenWidth()/ 2.f;
+    double halfHeight = (double) getScreenHeight() / 2.f;
     
-    ScaledResolution res = new ScaledResolution(MC);
-    float halfWidth = (float) res.getScaledWidth() / 2.f;
-    float halfHeight = (float) res.getScaledHeight() / 2.f;
-    
-    pos.x = halfWidth + (0.5f * pos.x * res.getScaledWidth() + 0.5f);
-    pos.y = halfHeight - (0.5f * pos.y * res.getScaledHeight() + 0.5f);
+    pos.x = halfWidth + (0.5f * pos.x * getScreenWidth() + 0.5f);
+    pos.y = halfHeight - (0.5f * pos.y * getScreenHeight() + 0.5f);
     
     boolean bVisible = true;
     
-    if (pos.x < 0 || pos.y < 0 || pos.x > res.getScaledWidth() || pos.y > res.getScaledHeight()) {
+    if (pos.x < 0 || pos.y < 0 || pos.x > getScreenWidth() || pos.y > getScreenHeight()) {
       bVisible = false;
     }
     

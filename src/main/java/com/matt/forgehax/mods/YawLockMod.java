@@ -1,8 +1,10 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Globals.*;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState;
 import com.matt.forgehax.util.SafeConverter;
@@ -64,8 +66,8 @@ public class YawLockMod extends ToggleMod
         .newCommandBuilder()
         .name("snap")
         .description("Snap once to a certain direction")
-        .processor(data -> MC.addScheduledTask(() -> {
-            if (getLocalPlayer() == null || getWorld() == null) {
+        .processor(data -> addScheduledTask(() -> {
+            if (!isInWorld()) {
               return;
             }
             

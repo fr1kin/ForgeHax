@@ -1,8 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
-import com.matt.forgehax.Helper;
+import com.matt.forgehax.events.ClientTickEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -10,9 +8,10 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class AutoRespawnMod extends ToggleMod {
@@ -35,7 +34,7 @@ public class AutoRespawnMod extends ToggleMod {
   private int deadTicks = 0;
   
   @SubscribeEvent
-  public void onClientTick(ClientTickEvent ev) {
+  public void onClientTick(ClientTickEvent.Post ev) {
     if (isDead) {
       deadTicks++;
       if (deadTicks > delay.getAsInteger()) {
@@ -49,11 +48,12 @@ public class AutoRespawnMod extends ToggleMod {
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (getLocalPlayer().getHealth() <= 0) {
-      if (isDead == false) { // print once
-        Helper.printInform("Died at %.1f, %.1f, %.1f on %s",
-            getLocalPlayer().posX,
-            getLocalPlayer().posY,
-            getLocalPlayer().posZ,
+      // TODO: does this even work???
+      if (!isDead) { // print once
+        printInform("Died at %.1f, %.1f, %.1f on %s",
+            getLocalPlayer().getPosX(),
+            getLocalPlayer().getPosY(),
+            getLocalPlayer().getPosZ(),
             new SimpleDateFormat("HH:mm:ss").format(new Date())
         );
       }

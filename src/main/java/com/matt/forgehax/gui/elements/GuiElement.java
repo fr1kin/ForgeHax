@@ -37,11 +37,11 @@ public class GuiElement {
   }
   
   public int getPosX() {
-    return parentWindow.posX;
+    return (int) parentWindow.posX;
   }
   
   public int getPosY() {
-    return parentWindow.headerY;
+    return (int) parentWindow.headerY;
   }
   
   public boolean isMouseInElement(int mouseX, int mouseY) {

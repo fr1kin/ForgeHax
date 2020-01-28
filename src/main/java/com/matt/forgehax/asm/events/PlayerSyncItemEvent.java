@@ -1,7 +1,7 @@
 package com.matt.forgehax.asm.events;
 
 import net.minecraft.client.multiplayer.PlayerControllerMP;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class PlayerSyncItemEvent extends Event {
   

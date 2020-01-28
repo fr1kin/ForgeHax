@@ -1,13 +1,14 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.printError;
+import static com.matt.forgehax.Globals.*;
 import static com.matt.forgehax.asm.reflection.FastReflection.Fields.GuiDisconnected_message;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.events.ClientWorldEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -28,14 +29,15 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
-import net.minecraft.client.gui.GuiDisconnected;
-import net.minecraft.network.play.server.SPacketChat;
+
+import net.minecraft.client.gui.screen.DisconnectedScreen;
+import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
@@ -283,7 +285,7 @@ public class MatrixNotifications extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onWorldUnload(WorldEvent.Unload event) {
+  public void onWorldUnload(ClientWorldEvent.Load event) {
     once = false;
     position = 0;
     
@@ -294,12 +296,12 @@ public class MatrixNotifications extends ToggleMod {
   
   @SubscribeEvent
   public void onGuiOpened(GuiOpenEvent event) {
-    if (event.getGui() instanceof GuiDisconnected && joined) {
+    if (event.getGui() instanceof DisconnectedScreen && joined) {
       joined = false;
       
       if (on_disconnected.get()) {
         String reason = Optional.ofNullable(GuiDisconnected_message.get(event.getGui()))
-            .map(ITextComponent::getUnformattedText)
+            .map(ITextComponent::getUnformattedComponentText)
             .orElse("");
         if (reason.isEmpty()) {
           notify("Disconnected from %s", serverName);
@@ -312,15 +314,15 @@ public class MatrixNotifications extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketRecieve(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketChat) {
-      SPacketChat packet = event.getPacket();
+    if (event.getPacket() instanceof SChatPacket) {
+      SChatPacket packet = event.getPacket();
       if (packet.getType() == ChatType.SYSTEM) {
         ITextComponent comp = packet.getChatComponent();
         if (comp.getSiblings().size() >= 2) {
-          String text = comp.getSiblings().get(0).getUnformattedText();
+          String text = comp.getSiblings().get(0).getUnformattedComponentText();
           if ("Position in queue: ".equals(text)) {
             try {
-              int pos = Integer.valueOf(comp.getSiblings().get(1).getUnformattedText());
+              int pos = Integer.parseInt(comp.getSiblings().get(1).getUnformattedComponentText());
               if (pos != position) {
                 position = pos;
                 if (on_queue_move.get() && position <= queue_notify_pos.get()) {

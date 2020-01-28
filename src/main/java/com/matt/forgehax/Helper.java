@@ -2,7 +2,6 @@ package com.matt.forgehax;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import com.matt.forgehax.mods.services.MainMenuGuiService.CommandInputGui;
 import com.matt.forgehax.util.FileManager;
 import com.matt.forgehax.util.command.CommandGlobal;
 import com.matt.forgehax.util.mod.loader.ModManager;
@@ -10,90 +9,94 @@ import java.util.Optional;
 import java.util.Scanner;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
-import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.multiplayer.PlayerController;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.*;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Created on 4/25/2017 by fr1kin
  */
+@Deprecated
 public class Helper implements Globals {
-  
+
+  @Deprecated
   public static CommandGlobal getGlobalCommand() {
     return CommandGlobal.getInstance();
   }
-  
+
+  @Deprecated
   public static Minecraft getMinecraft() {
     return MC;
   }
-  
+
+  @Deprecated
   public static ModManager getModManager() {
     return ModManager.getInstance();
   }
-  
+
+  @Deprecated
   public static FileManager getFileManager() {
     return FileManager.getInstance();
   }
-  
+
+  @Deprecated
   public static Logger getLog() {
     return LOGGER;
   }
-  
-  public static EntityPlayerSP getLocalPlayer() {
+
+  @Deprecated
+  public static ClientPlayerEntity getLocalPlayer() {
     return MC.player;
   }
-  
+
+  @Deprecated
   @Nullable
   public static Entity getRidingEntity() {
-    if (getLocalPlayer() != null) {
-      return getLocalPlayer().getRidingEntity();
-    } else {
-      return null;
-    }
+    return getLocalPlayer() == null ? null : getLocalPlayer().getRidingEntity();
   }
-  
-  public static Optional<Entity> getOptionalRidingEntity() {
-    return Optional.ofNullable(getRidingEntity());
-  }
-  
+
+  @Deprecated
   // Returns the riding entity if present, otherwise the local player
   @Nullable
   public static Entity getRidingOrPlayer() {
-    return getRidingEntity() != null ? getRidingEntity() : getLocalPlayer();
+    return Optional.ofNullable(getRidingEntity()).orElse(getLocalPlayer());
   }
-  
+
+  @Deprecated
   @Nullable
-  public static WorldClient getWorld() {
+  public static ClientWorld getWorld() {
     return MC.world;
   }
-  
+
+  @Deprecated
   public static World getWorld(Entity entity) {
     return entity.getEntityWorld();
   }
-  
+
+  @Deprecated
   public static World getWorld(TileEntity tileEntity) {
     return tileEntity.getWorld();
   }
-  
+
+  @Deprecated
   @Nullable
   public static NetworkManager getNetworkManager() {
-    return FMLClientHandler.instance().getClientToServerNetworkManager();
+    return MC.getConnection() != null ? MC.getConnection().getNetworkManager() : null;
   }
-  
-  public static PlayerControllerMP getPlayerController() {
+
+  @Deprecated
+  public static PlayerController getPlayerController() {
     return MC.playerController;
   }
-  
+
+  @Deprecated
   public static void printMessageNaked(
       String startWith, String message, Style firstStyle, Style secondStyle) {
     if (!Strings.isNullOrEmpty(message)) {
@@ -110,8 +113,8 @@ public class Helper implements Globals {
           s2 = cpy;
         }
       } else {
-        TextComponentString string =
-            new TextComponentString(startWith + message.replaceAll("\r", ""));
+        TextComponent string =
+            new StringTextComponent(startWith + message.replaceAll("\r", ""));
         string.setStyle(firstStyle);
         outputMessage(string.getFormattedText());
       }
@@ -120,17 +123,21 @@ public class Helper implements Globals {
   
   // private function that is ultimately used to output the message
   private static void outputMessage(String text) {
+    // TODO:
+    /*
     if (getLocalPlayer() != null) {
-      getLocalPlayer().sendMessage(new TextComponentString(text));
+      getLocalPlayer().sendMessage(new StringTextComponent(text));
     } else if (MC.currentScreen instanceof CommandInputGui) {
       ((CommandInputGui) MC.currentScreen).print(text);
-    }
+    }*/
   }
-  
+
+  @Deprecated
   public static void printMessageNaked(String append, String message, Style style) {
     printMessageNaked(append, message, style, style);
   }
-  
+
+  @Deprecated
   public static void printMessageNaked(String append, String message) {
     printMessageNaked(
         append,
@@ -138,32 +145,32 @@ public class Helper implements Globals {
         new Style().setColor(TextFormatting.WHITE),
         new Style().setColor(TextFormatting.GRAY));
   }
-  
+  @Deprecated
   public static void printMessageNaked(String message) {
     printMessageNaked("", message);
   }
-  
+  @Deprecated
   // Will append '[FH] ' in front
   public static void printMessage(String message) {
     if (!Strings.isNullOrEmpty(message)) {
       printMessageNaked("[FH] " + message);
     }
   }
-  
+  @Deprecated
   public static void printMessage(String format, Object... args) {
     printMessage(String.format(format, args));
   }
   
   private static ITextComponent getFormattedText(String text, TextFormatting color,
       boolean bold, boolean italic) {
-    return new TextComponentString(text.replaceAll("\r", ""))
+    return new StringTextComponent(text.replaceAll("\r", ""))
         .setStyle(new Style()
             .setColor(color)
             .setBold(bold)
             .setItalic(italic)
         );
   }
-  
+  @Deprecated
   public static void printInform(String format, Object... args) {
     outputMessage(
         getFormattedText("[ForgeHax]", TextFormatting.GREEN, true, false)
@@ -173,7 +180,7 @@ public class Helper implements Globals {
             ).getFormattedText()
     );
   }
-  
+  @Deprecated
   public static void printWarning(String format, Object... args) {
     outputMessage(
         getFormattedText("[ForgeHax]", TextFormatting.YELLOW, true, false)
@@ -183,7 +190,7 @@ public class Helper implements Globals {
             ).getFormattedText()
     );
   }
-  
+  @Deprecated
   public static void printError(String format, Object... args) {
     outputMessage(
         getFormattedText("[ForgeHax]", TextFormatting.RED, true, false)
@@ -193,11 +200,11 @@ public class Helper implements Globals {
             ).getFormattedText()
     );
   }
-  
+  @Deprecated
   public static void printStackTrace(Throwable t) {
     getLog().error(Throwables.getStackTraceAsString(t));
   }
-  
+  @Deprecated
   public static void handleThrowable(Throwable t) {
     getLog().error(String.format("[%s] %s",
         t.getClass().getSimpleName(),
@@ -208,30 +215,36 @@ public class Helper implements Globals {
     }
     printStackTrace(t);
   }
-  
+  @Deprecated
+  public static void addScheduledTask(Runnable runnable) {
+    // TODO: add this
+  }
+  @Deprecated
   public static void reloadChunks() {
     // credits to 0x22
     if (getWorld() != null && getLocalPlayer() != null) {
-      MC.addScheduledTask(
+      addScheduledTask(
           () -> {
-            int x = (int) getLocalPlayer().posX;
-            int y = (int) getLocalPlayer().posY;
-            int z = (int) getLocalPlayer().posZ;
+            BlockPos pos = getLocalPlayer().getPosition();
             
             int distance = MC.gameSettings.renderDistanceChunks * 16;
             
-            MC.renderGlobal.markBlockRangeForRenderUpdate(
-                x - distance, y - distance, z - distance, x + distance, y + distance, z + distance);
+            MC.worldRenderer.markBlockRangeForRenderUpdate(
+                pos.getX() - distance,
+                pos.getY() - distance,
+                pos.getZ() - distance,
+                pos.getX() + distance,
+                pos.getY() + distance,
+                pos.getZ() + distance);
           });
     }
   }
-  
+  @Deprecated
   public static void reloadChunksHard() {
-    MC.addScheduledTask(
-        () -> {
-          if (getWorld() != null && getLocalPlayer() != null) {
-            MC.renderGlobal.loadRenderers();
-          }
-        });
+    addScheduledTask(() -> {
+      if (getWorld() != null && getLocalPlayer() != null) {
+        MC.worldRenderer.loadRenderers();
+      }
+    });
   }
 }

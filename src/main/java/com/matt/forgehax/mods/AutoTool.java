@@ -1,9 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-import static net.minecraft.init.Enchantments.EFFICIENCY;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PlayerAttackEntityEvent;
 import com.matt.forgehax.asm.events.PlayerDamageBlockEvent;
 import com.matt.forgehax.util.BlockHelper;
@@ -15,18 +12,24 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.Optional;
-import net.minecraft.block.state.IBlockState;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureAttribute;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.init.Enchantments;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
+import static net.minecraft.enchantment.Enchantments.EFFICIENCY;
 
 @RegisterMod
 public class AutoTool extends ToggleMod {
@@ -91,16 +94,18 @@ public class AutoTool extends ToggleMod {
         || item.getDurability() > durability_threshold.get();
   }
   
-  private boolean isSilkTouchable(InvItem item, IBlockState state, BlockPos pos) {
-    return LocalPlayerInventory.getSelected().getIndex() == item.getIndex()
-        && getEnchantmentLevel(Enchantments.SILK_TOUCH, item) > 0
-        && state.getBlock().canSilkHarvest(getWorld(), pos, state, getLocalPlayer());
+  private boolean isSilkTouchable(InvItem item, BlockState state, BlockPos pos) {
+    // TODO: 1.15 have to figure out if an item can be silk touched by looking it up in the loot tables now
+    return false;
+//    return LocalPlayerInventory.getSelected().getIndex() == item.getIndex()
+//        && getEnchantmentLevel(Enchantments.SILK_TOUCH, item) > 0
+//        && state.getBlock().canSilkHarvest(getWorld(), pos, state, getLocalPlayer());
   }
   
-  private double getDigSpeed(InvItem item, IBlockState state, BlockPos pos) {
+  private double getDigSpeed(InvItem item, BlockState state, BlockPos pos) {
     double str = item.getItemStack().getDestroySpeed(state);
     int eff = getEnchantmentLevel(EFFICIENCY, item);
-    return state.getBlockHardness(getWorld(), pos) > 0.D
+    return state.getPlayerRelativeBlockHardness(getLocalPlayer(), getWorld(), pos) > 0.D
         ? Math.max(str + (str > 1.D ? (eff * eff + 1.D) : 0.D), 0.D)
         : 1.D;
   }
@@ -108,20 +113,21 @@ public class AutoTool extends ToggleMod {
   private double getAttackDamage(InvItem item) {
     return Optional.ofNullable(
         item.getItemStack()
-            .getAttributeModifiers(EntityEquipmentSlot.MAINHAND)
+            .getAttributeModifiers(EquipmentSlotType.MAINHAND)
             .get(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
         .map(at -> at.stream().findAny().map(AttributeModifier::getAmount).orElse(0.D))
         .orElse(0.D);
   }
   
   private double getAttackSpeed(InvItem item) {
-    return Optional.ofNullable(
-        item.getItemStack()
-            .getAttributeModifiers(EntityEquipmentSlot.MAINHAND)
-            .get(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
-        .map(
-            at ->
-                at.stream().findAny().map(AttributeModifier::getAmount).map(Math::abs).orElse(0.D))
+    return Optional.ofNullable(item.getItemStack()
+        .getAttributeModifiers(EquipmentSlotType.MAINHAND)
+        .get(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
+        .map(at -> at.stream()
+            .findAny()
+            .map(AttributeModifier::getAmount)
+            .map(Math::abs)
+            .orElse(0.D))
         .orElse(0.D);
   }
   
@@ -129,10 +135,10 @@ public class AutoTool extends ToggleMod {
     return EnchantmentHelper.getModifierForCreature(
         item.getItemStack(),
         Optional.ofNullable(target)
-            .filter(EntityLivingBase.class::isInstance)
-            .map(EntityLivingBase.class::cast)
-            .map(EntityLivingBase::getCreatureAttribute)
-            .orElse(EnumCreatureAttribute.UNDEFINED));
+            .filter(LivingEntity.class::isInstance)
+            .map(LivingEntity.class::cast)
+            .map(LivingEntity::getCreatureAttribute)
+            .orElse(CreatureAttribute.UNDEFINED));
   }
   
   private double calculateDPS(InvItem item, Entity target) {
@@ -151,7 +157,7 @@ public class AutoTool extends ToggleMod {
       return current;
     }
     
-    final IBlockState state = getWorld().getBlockState(pos);
+    final BlockState state = getWorld().getBlockState(pos);
     return LocalPlayerInventory.getHotbarInventory()
         .stream()
         .filter(this::isDurabilityGood)

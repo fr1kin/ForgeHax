@@ -8,13 +8,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.matt.forgehax.Helper;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.services.ChatCommandService;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.command.ExecuteData;
 import com.matt.forgehax.util.command.Options;
 import com.matt.forgehax.util.command.exception.CommandExecuteException;
+import com.matt.forgehax.util.key.BindingHelper;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.serialization.ISerializableJson;
@@ -30,13 +31,17 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import joptsimple.OptionParser;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.apache.commons.lang3.ArrayUtils;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
+
+import static com.matt.forgehax.Globals.*;
 
 // TODO: hold macros
+/*
 @RegisterMod
 public class MacroCommand extends CommandMod {
   
@@ -59,41 +64,35 @@ public class MacroCommand extends CommandMod {
   
   @SubscribeEvent
   public void onKeyboardEvent(InputEvent.KeyInputEvent event) {
-    MACROS
-      .stream()
-      .filter(macro -> !macro.isAnonymous())
-      .filter(macro -> macro.getBind().isPressed())
-      .forEach(this::executeMacro);
+    MACROS.stream()
+        .filter(macro -> !macro.isAnonymous())
+        .filter(macro -> macro.getBind().isPressed())
+        .forEach(this::executeMacro);
     
     // execute anonymous macros
-    if (Keyboard.getEventKeyState()) { // on press
-      MACROS
-        .stream()
+    MACROS.stream()
         .filter(MacroEntry::isAnonymous)
-        .filter(macro -> macro.getKey() == Keyboard.getEventKey())
+        .filter(macro -> macro.getKey() == event.getKey())
         .forEach(this::executeMacro);
-    }
   }
   
   private void removeMacro(MacroEntry macro) {
     MACROS.remove(macro);
     
     if (macro.name.isPresent()) {
-      MC.gameSettings.keyBindings =
-        ArrayUtils.remove(
-          MC.gameSettings.keyBindings,
-          ArrayUtils.indexOf(MC.gameSettings.keyBindings, macro.getBind()));
+      BindingHelper.removeBinding(macro.getBind());
     }
+
     // remove the category if there are no named macros to prevent crash
     // TODO: fix crash when a category is empty
-    if (MACROS.stream().noneMatch(entry -> !entry.isAnonymous())) {
-      KeyBinding.getKeybinds().remove("Macros");
+    if (MACROS.stream().allMatch(MacroEntry::isAnonymous)) {
+      //KeyBinding.getKeybinds().remove("Macros");
+      //TODO: 1.15
     }
   }
   
   @Override
   public void onLoad() {
-    super.onLoad();
     MACROS.deserializeAll();
     
     MACROS
@@ -111,14 +110,11 @@ public class MacroCommand extends CommandMod {
         
         if (data.hasOption("key")) {
           // remove by key
-          final int key = Keyboard.getKeyIndex(data.getOptionAsString("key").toUpperCase());
+          final int key = InputMappings.getInputByName(data.getOptionAsString("key")).getKeyCode();
           MACROS
             .stream()
             .filter(macro -> macro.getKey() == key)
-            .peek(
-              __ ->
-                Helper.printMessage(
-                  "Removing bind for key \"%s\"", Keyboard.getKeyName(key)))
+            .peek(__ -> printInform("Removing bind for key \"%s\"", key))
             .forEach(this::removeMacro);
         }
         if (data.hasOption("name")) {
@@ -127,7 +123,7 @@ public class MacroCommand extends CommandMod {
           MACROS
             .stream()
             .filter(macro -> macro.getName().map(name::equals).orElseGet(name::isEmpty))
-            .peek(__ -> Helper.printMessage("Removing bind \"%s\"", name))
+            .peek(__ -> printInform("Removing bind \"%s\"", name))
             .forEach(this::removeMacro);
         }
       })
@@ -140,7 +136,7 @@ public class MacroCommand extends CommandMod {
       .description("List all the macros")
       .options(MacroBuilders::fullOption)
       .processor(data -> {
-        Helper.printMessage("Macros (%d):", MACROS.size());
+        printInform("Macros (%d):", MACROS.size());
         for (MacroEntry macro : MACROS) {
           data.write(
             macro.name.map(name -> '\"' + name + '\"').orElse("anonymous") + ": " + Keyboard
@@ -363,3 +359,4 @@ public class MacroCommand extends CommandMod {
     }
   }
 }
+*/

@@ -9,14 +9,11 @@ import com.matt.forgehax.util.tesselation.GeometryMasks;
 import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 @RegisterMod
 public class ChunkBorder extends ToggleMod {
-
-
-
   public ChunkBorder() {
     super(Category.RENDER, "ChunkBorder", false, "Shows a border at the border around the chunk you are in.");
   }

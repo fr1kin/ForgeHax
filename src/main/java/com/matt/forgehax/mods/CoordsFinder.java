@@ -1,11 +1,9 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getFileManager;
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-import static com.matt.forgehax.Helper.printInform;
+import static com.matt.forgehax.Globals.*;
 import static java.util.Objects.isNull;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -17,16 +15,17 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import net.minecraft.client.multiplayer.WorldClient;
+
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.EntityWolf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.network.play.server.SPacketEntityTeleport;
-import net.minecraft.network.play.server.SPacketSoundEffect;
+import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.play.server.SEntityTeleportPacket;
+import net.minecraft.network.play.server.SPlaySoundEffectPacket;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class CoordsFinder extends ToggleMod {
@@ -120,26 +119,27 @@ public class CoordsFinder extends ToggleMod {
   }
   
   private void logCoordsOnMinecraftThread(String name, double x, double y, double z) {
-    MC.addScheduledTask(() -> logCoords(name, x, y, z));
+    addScheduledTask(() -> logCoords(name, x, y, z));
   }
   
-  private boolean pastDistance(EntityPlayer player, BlockPos pos, double dist) {
-    return player.getDistanceSqToCenter(pos) >= Math.pow(dist, 2);
+  private boolean pastDistance(PlayerEntity player, BlockPos pos, double dist) {
+    return player.getDistanceSq(pos.getX(), pos.getY(), pos.getZ()) >= Math.pow(dist, 2);
   }
   
   @SubscribeEvent
   public void onPacketRecieving(PacketEvent.Incoming.Pre event) {
-    EntityPlayer player = getLocalPlayer();
-    WorldClient world = getWorld();
+    PlayerEntity player = getLocalPlayer();
+    ClientWorld world = getWorld();
+
     if (isNull(player) || isNull(world)) {
       return;
     }
     
-    if (logLightning.get() && event.getPacket() instanceof SPacketSoundEffect) {
-      SPacketSoundEffect packet = event.getPacket();
+    if (logLightning.get() && event.getPacket() instanceof SPlaySoundEffectPacket) {
+      SPlaySoundEffectPacket packet = event.getPacket();
       
       // in the SPacketSpawnGlobalEntity constructor, this is only set to 1 if it's a lightning bolt
-      if (packet.getSound() != SoundEvents.ENTITY_LIGHTNING_THUNDER) {
+      if (packet.getSound() != SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER) {
         return;
       }
       
@@ -148,16 +148,16 @@ public class CoordsFinder extends ToggleMod {
       if (pastDistance(player, pos, minLightningDist.get())) {
         logCoordsOnMinecraftThread("Lightning strike", pos.getX(), pos.getY(), pos.getZ());
       }
-    } else if (event.getPacket() instanceof SPacketEntityTeleport) {
-      SPacketEntityTeleport packet = event.getPacket();
+    } else if (event.getPacket() instanceof SEntityTeleportPacket) {
+      SEntityTeleportPacket packet = event.getPacket();
       Entity teleporting = world.getEntityByID(packet.getEntityId());
       BlockPos pos = new BlockPos(packet.getX(), packet.getY(), packet.getZ());
       
-      if (logWolf.get() && teleporting instanceof EntityWolf) {
+      if (logWolf.get() && teleporting instanceof WolfEntity) {
         if (pastDistance(player, pos, minWolfDist.get())) {
           logCoordsOnMinecraftThread("Wolf teleport", packet.getX(), packet.getY(), packet.getZ());
         }
-      } else if (logPlayer.get() && teleporting instanceof EntityPlayer) {
+      } else if (logPlayer.get() && teleporting instanceof PlayerEntity) {
         if (pastDistance(player, pos, minPlayerDist.get())) {
           logCoordsOnMinecraftThread(String.format("Player teleport (%s)", teleporting.getName()),
               packet.getX(), packet.getY(), packet.getZ());

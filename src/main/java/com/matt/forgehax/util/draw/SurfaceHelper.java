@@ -487,7 +487,7 @@ public class SurfaceHelper implements Globals {
     Tessellator.getInstance().draw();
   }
   
-  protected static void drawScaledCustomSizeModalRect(
+  public static void drawScaledCustomSizeModalRect(
       double x,
       double y,
       float u,

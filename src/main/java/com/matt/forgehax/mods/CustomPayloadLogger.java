@@ -1,18 +1,20 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getFileManager;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.network.IPacket;
+import net.minecraft.network.play.client.CCustomPayloadPacket;
+import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.CPacketCustomPayload;
-import net.minecraft.network.play.server.SPacketCustomPayload;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created on 6/1/2017 by fr1kin
@@ -29,9 +31,9 @@ public class CustomPayloadLogger extends ToggleMod {
     super(Category.MISC, "PayloadLogger", false, "Logs custom payloads");
   }
   
-  private void log(Packet packet) {
-    if (packet instanceof SPacketCustomPayload) {
-      SPacketCustomPayload payloadPacket = (SPacketCustomPayload) packet;
+  private void log(IPacket packet) {
+    if (packet instanceof SCustomPayloadPlayPacket) {
+      SCustomPayloadPlayPacket payloadPacket = (SCustomPayloadPlayPacket) packet;
       String input =
           String.format(
               "%s=%s\n",
@@ -44,12 +46,10 @@ public class CustomPayloadLogger extends ToggleMod {
             StandardOpenOption.APPEND);
       } catch (Exception e) {
       }
-    } else if (packet instanceof CPacketCustomPayload) {
-      CPacketCustomPayload payloadPacket = (CPacketCustomPayload) packet;
-      String input =
-          String.format(
-              "%s=%s\n",
-              payloadPacket.getChannelName(), payloadPacket.getBufferData().toString());
+    } else if (packet instanceof CCustomPayloadPacket) {
+      CCustomPayloadPacket payloadPacket = (CCustomPayloadPacket) packet;
+      String input = String.format("%s=%s\n",
+          payloadPacket.getName(), payloadPacket.getInternalData());
       try {
         Files.write(
             CLIENT_PAYLOAD_LOG,

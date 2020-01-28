@@ -1,14 +1,7 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getPlayerController;
-import static com.matt.forgehax.Helper.getWorld;
-import static com.matt.forgehax.Helper.printError;
-import static com.matt.forgehax.Helper.printInform;
-import static com.matt.forgehax.Helper.printWarning;
-
 import com.google.common.collect.Lists;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.BlockControllerProcessEvent;
 import com.matt.forgehax.asm.reflection.FastReflection.Fields;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -35,16 +28,20 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import net.minecraft.block.BlockLiquid;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.network.play.client.CAnimateHandPacket;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class Nuker extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
@@ -160,10 +157,11 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
   
   private boolean isNeighborsLiquid(UniqueBlock ub) {
     return filter_liquids.get()
-        && Arrays.stream(EnumFacing.values())
+        && Arrays.stream(Direction.values())
         .map(side -> ub.getPos().offset(side))
-        .map(pos -> getWorld().getBlockState(pos).getBlock())
-        .anyMatch(BlockLiquid.class::isInstance);
+        .map(getWorld()::getBlockState)
+        .map(BlockState::getMaterial)
+        .anyMatch(Material::isLiquid);
   }
   
   private double getHeightBias(UniqueBlock ub) {
@@ -213,7 +211,8 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
         printInform("Removed latest block %s", ub.toString());
         return;
       } else if (tr != null) {
-        info = BlockHelper.newUniqueBlock(tr.getBlockPos());
+        // TODO: 1.15
+        info = BlockHelper.newUniqueBlock(null);
       }
       
       if (info == null) {
@@ -316,7 +315,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
     state.invokeLater(
         rs -> {
           if (getPlayerController().onPlayerDamageBlock(tr.getPos(), tr.getOppositeSide())) {
-            getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+            getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
             updateBlockBreaking(tr.getPos());
           } else {
             resetBlockBreaking();

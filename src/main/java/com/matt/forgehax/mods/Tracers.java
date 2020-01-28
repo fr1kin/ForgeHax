@@ -1,8 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.color.Colors;
@@ -16,12 +14,19 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Objects;
-import net.minecraft.client.renderer.GlStateManager;
+import java.util.stream.StreamSupport;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
+
+import static com.matt.forgehax.Globals.*;
+import static com.mojang.blaze3d.systems.RenderSystem.*;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glEnd;
 
 /**
  * Created on 8/6/2017 by fr1kin
@@ -107,13 +112,14 @@ public class Tracers extends ToggleMod implements Colors {
   
   @SubscribeEvent
   public void onDrawScreen(Render2DEvent event) {
-    GlStateManager.enableBlend();
-    GlStateManager.tryBlendFuncSeparate(
+
+    enableBlend();
+    blendFuncSeparate(
         GlStateManager.SourceFactor.SRC_ALPHA,
         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
         GlStateManager.SourceFactor.ONE,
         GlStateManager.DestFactor.ZERO);
-    GlStateManager.disableTexture2D();
+    disableTexture();
     
     if (antialias.get()) {
       GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
@@ -124,12 +130,10 @@ public class Tracers extends ToggleMod implements Colors {
     
     final double cx = event.getScreenWidth() / 2.f;
     final double cy = event.getScreenHeight() / 2.f;
-    
-    getWorld()
-        .loadedEntityList
-        .stream()
+
+    StreamSupport.stream(getWorld().getAllEntities().spliterator(), false)
         .filter(entity -> !Objects.equals(entity, getLocalPlayer()))
-        .filter(entity -> entity instanceof EntityLivingBase)
+        .filter(LivingEntity.class::isInstance)
         .map(EntityRelations::new)
         .filter(er -> !er.getRelationship().equals(MobTypeEnum.INVALID))
         .filter(EntityRelations::isOptionEnabled)
@@ -143,13 +147,12 @@ public class Tracers extends ToggleMod implements Colors {
               Plane screenPos = VectorUtils.toScreen(entityPos);
               
               Color color = er.getColor().setAlpha(alpha.get());
-              GlStateManager.color(
-                  color.getRedAsFloat(),
+              color4f(color.getRedAsFloat(),
                   color.getGreenAsFloat(),
                   color.getBlueAsFloat(),
                   color.getAlphaAsFloat());
               
-              GlStateManager.translate(0, 0, er.getDepth());
+              translatef(0, 0, er.getDepth());
               
               if (dm.equals(Mode.BOTH) || dm.equals(Mode.ARROWS)) {
                 if (!screenPos.isVisible()) {
@@ -214,48 +217,48 @@ public class Tracers extends ToggleMod implements Colors {
                   
                   int size = relationship.equals(MobTypeEnum.PLAYER) ? 8 : 5;
                   
-                  GlStateManager.pushMatrix();
+                  pushMatrix();
                   
-                  GlStateManager.translate(x, y, 0);
-                  GlStateManager.rotate((float) ang, 0.f, 0.f, size / 2.f);
+                  translated(x, y, 0);
+                  rotatef((float) ang, 0.f, 0.f, size / 2.f);
                   
-                  GlStateManager.color(
+                  color4f(
                       color.getRedAsFloat(),
                       color.getGreenAsFloat(),
                       color.getBlueAsFloat(),
                       color.getAlphaAsFloat());
                   
-                  GlStateManager.glBegin(GL11.GL_TRIANGLES);
+                  glBegin(GL11.GL_TRIANGLES);
                   {
                     GL11.glVertex2d(0, 0);
                     GL11.glVertex2d(-size, -size);
                     GL11.glVertex2d(-size, size);
                   }
-                  GlStateManager.glEnd();
+                  glEnd();
                   
-                  GlStateManager.popMatrix();
+                  popMatrix();
                 }
               }
               
               if (dm.equals(Mode.BOTH) || dm.equals(Mode.LINES)) {
-                GlStateManager.glBegin(GL11.GL_LINES);
+                glBegin(GL11.GL_LINES);
                 {
                   GL11.glVertex2d(cx, cy);
                   GL11.glVertex2d(screenPos.getX(), screenPos.getY());
                 }
-                GlStateManager.glEnd();
+                glEnd();
               }
               
-              GlStateManager.translate(0, 0, -er.getDepth());
+              translated(0, 0, -er.getDepth());
             });
     
-    GlStateManager.enableTexture2D();
-    GlStateManager.disableBlend();
+    enableTexture();
+    disableBlend();
     
     GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
     GL11.glDisable(GL11.GL_LINE_SMOOTH);
     
-    GlStateManager.color(1.f, 1.f, 1.f, 1.f);
+    color4f(1.f, 1.f, 1.f, 1.f);
   }
   
   private class EntityRelations implements Comparable<EntityRelations> {

@@ -1,12 +1,10 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getModManager;
-import static com.matt.forgehax.Helper.getRidingEntity;
-import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Globals.*;
 import static com.matt.forgehax.util.entity.EntityUtils.isAboveWater;
 import static com.matt.forgehax.util.entity.EntityUtils.isInWater;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.AddCollisionBoxToListEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
@@ -16,14 +14,16 @@ import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityBoat;
-import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.entity.item.BoatEntity;
+import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created by Babbaj on 8/29/2017.
@@ -41,12 +41,14 @@ public class Jesus extends ToggleMod {
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (!getModManager().get(FreecamMod.class).map(BaseMod::isEnabled).orElse(false)) {
-      if (isInWater(getLocalPlayer()) && !getLocalPlayer().isSneaking()) {
-        getLocalPlayer().motionY = 0.1;
+      if (isInWater(getLocalPlayer()) && !getLocalPlayer().isCrouching()) {
+        double velY = 0.1;
         if (getLocalPlayer().getRidingEntity() != null
-            && !(getLocalPlayer().getRidingEntity() instanceof EntityBoat)) {
-          getLocalPlayer().getRidingEntity().motionY = 0.3;
+            && !(getLocalPlayer().getRidingEntity() instanceof BoatEntity)) {
+          velY = 0.3;
         }
+        Vec3d vel = getLocalPlayer().getMotion();
+        getLocalPlayer().setMotion(vel.getX(), velY, vel.getZ());
       }
     }
   }
@@ -54,14 +56,14 @@ public class Jesus extends ToggleMod {
   @SubscribeEvent
   public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
     if (getLocalPlayer() != null
-        && (event.getBlock() instanceof BlockLiquid)
+        && (getWorld().getBlockState(event.getPos()).getMaterial().isLiquid())
         && (EntityUtils.isDrivenByPlayer(event.getEntity())
         || EntityUtils.isLocalPlayer(event.getEntity()))
-        && !(event.getEntity() instanceof EntityBoat)
-        && !getLocalPlayer().isSneaking()
+        && !(event.getEntity() instanceof BoatEntity)
+        && !getLocalPlayer().isCrouching()
         && getLocalPlayer().fallDistance < 3
         && !isInWater(getLocalPlayer())
-        && (isAboveWater(getLocalPlayer(), false) || isAboveWater(getRidingEntity(), false))
+        && (isAboveWater(getLocalPlayer(), false) || isAboveWater(getMountedEntity(), false))
         && isAboveBlock(getLocalPlayer(), event.getPos())) {
       AxisAlignedBB axisalignedbb = WATER_WALK_AA.offset(event.getPos());
       if (event.getEntityBox().intersects(axisalignedbb)) {
@@ -74,7 +76,7 @@ public class Jesus extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketSending(PacketEvent.Outgoing.Pre event) {
-    if (event.getPacket() instanceof CPacketPlayer) {
+    if (event.getPacket() instanceof CPlayerPacket) {
       if (isAboveWater(getLocalPlayer(), true)
           && !isInWater(getLocalPlayer())
           && !isAboveLand(getLocalPlayer())) {
@@ -93,13 +95,12 @@ public class Jesus extends ToggleMod {
       return false;
     }
     
-    double y = entity.posY - 0.01;
+    double y = entity.getPosY() - 0.01;
     
-    for (int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++) {
-      for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
+    for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
+      for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
         BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
-        
-        if (getWorld().getBlockState(pos).getBlock().isFullBlock(getWorld().getBlockState(pos))) {
+        if (VoxelShapes.fullCube().equals(getWorld().getBlockState(pos).getCollisionShape(getWorld(), pos))) {
           return true;
         }
       }
@@ -109,6 +110,6 @@ public class Jesus extends ToggleMod {
   }
   
   private static boolean isAboveBlock(Entity entity, BlockPos pos) {
-    return entity.posY >= pos.getY();
+    return entity.getPosY() >= pos.getY();
   }
 }

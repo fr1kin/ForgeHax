@@ -3,7 +3,7 @@ package com.matt.forgehax.asm.events;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 @Cancelable
 public class ItemStoppedUsedEvent extends Event {

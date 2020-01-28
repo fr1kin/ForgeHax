@@ -1,26 +1,27 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Globals.*;
 import static com.matt.forgehax.util.entity.EntityUtils.isAboveWater;
 import static com.matt.forgehax.util.entity.EntityUtils.isInWater;
 import static net.minecraft.util.math.RayTraceResult.Type;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.util.EnumHand;
+import net.minecraft.item.Items;
+import net.minecraft.network.play.client.CPlayerPacket;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created by Babbaj on 9/4/2017. TODO: check all 4 collision box corners
@@ -68,14 +69,24 @@ public class AutoBucketFallMod extends ToggleMod {
             playerPos.x,
             playerPos.y - preHeight.getAsDouble(),
             playerPos.z); // find the ground before the player is ready to water bucket
+
+    RayTraceContext ctx = new RayTraceContext(playerPos, rayTraceBucket,
+        RayTraceContext.BlockMode.COLLIDER,
+        RayTraceContext.FluidMode.NONE,
+        getLocalPlayer());
+
+    BlockRayTraceResult result = getWorld().rayTraceBlocks(ctx);
+
+    ctx = new RayTraceContext(playerPos, rayTracePre,
+        RayTraceContext.BlockMode.COLLIDER,
+        RayTraceContext.FluidMode.NONE,
+        getLocalPlayer());
+
+    BlockRayTraceResult resultPre = getWorld().rayTraceBlocks(ctx);
     
-    RayTraceResult result = MC.world.rayTraceBlocks(playerPos, rayTraceBucket, true);
-    RayTraceResult resultPre = MC.world.rayTraceBlocks(playerPos, rayTracePre, true);
-    
-    if (resultPre != null
-        && resultPre.typeOfHit.equals(Type.BLOCK)
-        && !(getWorld().getBlockState(resultPre.getBlockPos()).getBlock()
-        instanceof BlockLiquid)) { // set the pitch early to not get cucked by ncp
+    if (Type.BLOCK.equals(resultPre.getType())
+        && !getWorld().getBlockState(resultPre.getPos()).getMaterial().isLiquid()) {
+      // set the pitch early to not get cucked by ncp
       getLocalPlayer().prevRotationPitch = 90f;
       getLocalPlayer().rotationPitch = 90f;
       
@@ -84,28 +95,25 @@ public class AutoBucketFallMod extends ToggleMod {
         bucketSlot = findBucketInv();
       }
       if (bucketSlot > 8) {
-        swap(
-            bucketSlot,
-            getLocalPlayer().inventory.currentItem); // move bucket from inventory to hotbar
+        swap(bucketSlot, getLocalPlayer().inventory.currentItem); // move bucket from inventory to hotbar
       } else {
-        MC.player.inventory.currentItem = bucketSlot;
+        getLocalPlayer().inventory.currentItem = bucketSlot;
       }
     }
     
-    if (result != null
-        && result.typeOfHit.equals(Type.BLOCK)
-        && !(getWorld().getBlockState(result.getBlockPos()).getBlock() instanceof BlockLiquid)) {
-      getNetworkManager()
-          .sendPacket(
-              new CPacketPlayer.Rotation(
-                  getLocalPlayer().rotationYaw,
-                  90,
-                  getLocalPlayer().onGround)); // probably unnecessary but doing it anyways
+    if (Type.BLOCK.equals(result.getType())
+        && !getWorld().getBlockState(result.getPos()).getMaterial().isLiquid()) {
+      sendNetworkPacket(new CPlayerPacket.RotationPacket(
+          getLocalPlayer().rotationYaw,
+          90,
+          getLocalPlayer().onGround));
+
+      // probably unnecessary but doing it anyways
       getLocalPlayer().prevRotationPitch = 90f;
       getLocalPlayer().rotationPitch = 90f;
       
       // printMessage("Attempted to place water bucket");
-      MC.playerController.processRightClick(getLocalPlayer(), getWorld(), EnumHand.MAIN_HAND);
+      getPlayerController().processRightClick(getLocalPlayer(), getWorld(), Hand.MAIN_HAND);
     }
   }
   
@@ -124,11 +132,7 @@ public class AutoBucketFallMod extends ToggleMod {
   }
   
   private void swap(final int slot, final int hotbarNum) {
-    MC.playerController.windowClick(
-        getLocalPlayer().inventoryContainer.windowId,
-        slot,
-        hotbarNum,
-        ClickType.SWAP,
-        getLocalPlayer());
+    getPlayerController().windowClick(LocalPlayerInventory.getContainer().windowId,
+        slot, hotbarNum, ClickType.SWAP, getLocalPlayer());
   }
 }

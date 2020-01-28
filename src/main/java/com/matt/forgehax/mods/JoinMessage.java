@@ -28,10 +28,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created on 7/21/2017 by fr1kin
@@ -212,7 +212,7 @@ public class JoinMessage extends ToggleMod {
     
     if (use_offline.get()) {
       // use offline ID
-      setJoinMessage(EntityPlayerSP.getOfflineUUID(target), event.getSender().getId(), message);
+      setJoinMessage(PlayerEntity.getOfflineUUID(target), event.getSender().getId(), message);
       return; // join message set, stop here
     }
     

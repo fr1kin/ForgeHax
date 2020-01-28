@@ -3,7 +3,7 @@ package com.matt.forgehax.events;
 import com.matt.forgehax.util.entity.PlayerInfo;
 import com.mojang.authlib.GameProfile;
 import java.util.Objects;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Created on 7/18/2017 by fr1kin

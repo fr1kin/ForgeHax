@@ -6,7 +6,7 @@ import com.matt.forgehax.util.command.StubBuilder;
 import com.matt.forgehax.util.command.callbacks.CallbackData;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Created by Babbaj on 9/10/2017.
@@ -30,7 +30,7 @@ public class GuiService extends ServiceMod {
     return builder
       .kpressed(this::onBindPressed)
       .kdown(this::onBindKeyDown)
-      .bind(Keyboard.KEY_RSHIFT) // default to right shift
+      .bind(GLFW.GLFW_KEY_RIGHT_SHIFT) // default to right shift
       ;
   }
 }

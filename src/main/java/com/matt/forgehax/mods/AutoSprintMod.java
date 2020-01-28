@@ -1,14 +1,15 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.key.Bindings;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class AutoSprintMod extends ToggleMod {
@@ -76,7 +77,7 @@ public class AutoSprintMod extends ToggleMod {
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (event.getEntityLiving().moveForward > 0
         && !event.getEntityLiving().collidedHorizontally
-        && !event.getEntityLiving().isSneaking()) {
+        && !event.getEntityLiving().isCrouching()) {
       startSprinting();
     }
   }

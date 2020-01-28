@@ -1,8 +1,9 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Globals.*;
 import static com.matt.forgehax.util.ImageUtils.createResizedCopy;
 
-import com.matt.forgehax.Helper;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.FileManager;
 import com.matt.forgehax.util.mod.Category;
@@ -10,18 +11,16 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Map;
 import javax.imageio.ImageIO;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.item.ItemMap;
+import net.minecraft.item.MapItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
 
 /**
  * Created by Babbaj on 11/6/2017.
  */
-@RegisterMod
+// TODO: 1.15
 public class MapDownloader extends ToggleMod {
   
   private File outputDir;
@@ -29,7 +28,8 @@ public class MapDownloader extends ToggleMod {
   public MapDownloader() {
     super(Category.MISC, "MapDownloader", false, "Saves map items as images");
   }
-  
+
+  /*
   private void saveImage(String fileName, BufferedImage image) {
     
     if (outputDir == null) {
@@ -42,17 +42,17 @@ public class MapDownloader extends ToggleMod {
       File file = new File(outputDir, fileName + ".png");
       ImageIO.write(image, "png", file);
     } catch (Exception e) {
-      Helper.printStackTrace(e);
+      getLogger().error(e);
     }
   }
   
   private void downloadMap(String fileName, Integer scaledRes) {
-    if (MC.player == null || !(MC.player.getHeldItemMainhand().getItem() instanceof ItemMap)) {
+    if (getLocalPlayer() == null || !(getLocalPlayer().getHeldItemMainhand().getItem() instanceof MapItem)) {
       return;
     }
-    
-    ItemMap map = (ItemMap) MC.player.getHeldItemMainhand().getItem();
-    MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);
+
+    MapItem map = (MapItem) getLocalPlayer().getHeldItemMainhand().getItem();
+    MapData heldMapData = map.get(getLocalPlayer().getHeldItemMainhand(), getWorld());
     
     if (fileName == null) {
       fileName = heldMapData.mapName;
@@ -60,7 +60,7 @@ public class MapDownloader extends ToggleMod {
     
     ResourceLocation location = findResourceLocation(heldMapData.mapName);
     if (location == null) {
-      Helper.printMessage("Failed to find ResourceLocation");
+      printError("Failed to find ResourceLocation");
       return;
     }
     
@@ -122,5 +122,5 @@ public class MapDownloader extends ToggleMod {
               downloadMap(fileName, scaledRes);
             })
         .build();
-  }
+  }*/
 }

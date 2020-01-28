@@ -1,20 +1,17 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getWorld;
-import static com.matt.forgehax.Helper.printInform;
-import static com.matt.forgehax.Helper.printWarning;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.play.client.CPacketVehicleMove;
+import net.minecraft.network.play.client.CMoveVehiclePacket;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class RiderDesync extends ToggleMod {
@@ -47,7 +44,7 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("remount")
         .description("Remount entity")
-        .processor(data -> MC.addScheduledTask(() -> {
+        .processor(data -> addScheduledTask(() -> {
           if (!isEnabled()) {
             printWarning("Mod not enabled");
             return;
@@ -62,9 +59,8 @@ public class RiderDesync extends ToggleMod {
             printWarning("No entity mounted");
             return;
           }
-          
-          dismountedEntity.isDead = false;
-          getWorld().spawnEntity(dismountedEntity);
+
+          getWorld().addEntity(dismountedEntity);
           getLocalPlayer().startRiding(dismountedEntity);
           
           printInform("Remounted entity " + dismountedEntity.getName());
@@ -74,7 +70,7 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("dismount")
         .description("Dismount entity")
-        .processor(data -> MC.addScheduledTask(() -> {
+        .processor(data -> addScheduledTask(() -> {
           if (!isEnabled()) {
             printWarning("Mod not enabled");
             return;
@@ -93,8 +89,8 @@ public class RiderDesync extends ToggleMod {
           }
           
           dismountedEntity = mounted;
-          getLocalPlayer().dismountRidingEntity();
-          getWorld().removeEntity(mounted);
+          getLocalPlayer().stopRiding();
+          mounted.remove();
           
           if (auto_update.get()) {
             forceUpdate = true;
@@ -108,7 +104,7 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("force-update")
         .description("Force dismount entity")
-        .processor(data -> MC.addScheduledTask(() -> {
+        .processor(data -> addScheduledTask(() -> {
           if (!isEnabled()) {
             printWarning("Mod not enabled");
             return;
@@ -133,7 +129,7 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("reset")
         .description("Reset the currently stored riding entity")
-        .processor(data -> MC.addScheduledTask(() -> {
+        .processor(data -> addScheduledTask(() -> {
           this.dismountedEntity = null;
           this.forceUpdate = false;
           printInform("Saved riding entity reset");
@@ -143,16 +139,15 @@ public class RiderDesync extends ToggleMod {
   
   @SubscribeEvent
   public void onTick(LocalPlayerUpdateEvent event) {
-    if (dismountedEntity == null || getLocalPlayer().isRiding()) {
+    if (dismountedEntity == null || getMountedEntity() != null) {
       this.dismountedEntity = null;
       this.forceUpdate = false;
       return;
     }
     
     if (forceUpdate && dismountedEntity != null) {
-      dismountedEntity
-          .setPosition(getLocalPlayer().posX, getLocalPlayer().posY, getLocalPlayer().posZ);
-      getNetworkManager().sendPacket(new CPacketVehicleMove(dismountedEntity));
+      dismountedEntity.setPosition(getLocalPlayer().getPosX(), getLocalPlayer().getPosY(), getLocalPlayer().getPosZ());
+      sendNetworkPacket(new CMoveVehiclePacket(dismountedEntity));
     }
   }
   

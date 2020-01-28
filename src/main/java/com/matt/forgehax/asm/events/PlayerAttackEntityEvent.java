@@ -3,7 +3,7 @@ package com.matt.forgehax.asm.events;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class PlayerAttackEntityEvent extends Event {
   

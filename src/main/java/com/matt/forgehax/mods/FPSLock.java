@@ -1,12 +1,14 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.events.ClientTickEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import org.lwjgl.opengl.Display;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.lwjgl.glfw.GLFW;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class FPSLock extends ToggleMod {
@@ -17,7 +19,7 @@ public class FPSLock extends ToggleMod {
           .<Integer>newSettingBuilder()
           .name("default-fps")
           .description("default FPS to revert to")
-          .defaultTo(MC.gameSettings.limitFramerate)
+          .defaultTo(getGameSettings().framerateLimit)
           .min(1)
           .build();
   
@@ -59,7 +61,8 @@ public class FPSLock extends ToggleMod {
   }
   
   private int getFps() {
-    if (no_focus_fps.get() > 0 && !Display.isActive()) {
+    if (no_focus_fps.get() > 0
+        && GLFW.glfwGetWindowAttrib(getMainWindow().getHandle(), GLFW.GLFW_FOCUSED) == GLFW.GLFW_FALSE) {
       return no_focus_fps.get();
     } else if (MC.currentScreen != null) {
       return menu_fps.get() > 0 ? menu_fps.get() : defaultFps.get();
@@ -70,18 +73,11 @@ public class FPSLock extends ToggleMod {
   
   @Override
   protected void onDisabled() {
-    MC.gameSettings.limitFramerate = defaultFps.get();
+    getGameSettings().framerateLimit = defaultFps.get();
   }
   
   @SubscribeEvent
-  void onTick(ClientTickEvent event) {
-    switch (event.phase) {
-      case START:
-        MC.gameSettings.limitFramerate = getFps();
-        break;
-      case END:
-      default:
-        break;
-    }
+  void onTick(ClientTickEvent.Pre event) {
+    getGameSettings().framerateLimit = getFps();
   }
 }

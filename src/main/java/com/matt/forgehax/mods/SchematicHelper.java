@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
@@ -12,19 +13,22 @@ import com.matt.forgehax.util.tesselation.GeometryMasks;
 import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import java.util.Optional;
 import java.util.OptionalInt;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-@RegisterMod
+import static com.matt.forgehax.Globals.*;
+
+// TODO: 1.15 fix this
 public class SchematicHelper extends ToggleMod {
   
   private final Setting<Float> line_width =
@@ -40,29 +44,26 @@ public class SchematicHelper extends ToggleMod {
   public SchematicHelper() {
     super(Category.RENDER, "SchematicHelper", false, "Render box where a block would be placed");
   }
-  
+
+  /*
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     if (!SchematicaHelper.isSchematicaPresent()) return;
 
-    final ItemStack heldStack = MC.player.getHeldItemMainhand();
+    final ItemStack heldStack = getLocalPlayer().getHeldItemMainhand();
     if (heldStack.isEmpty()) {
       return;
     }
-    if (!(heldStack.getItem() instanceof ItemBlock)) {
+    if (!(heldStack.getItem() instanceof BlockItem)) {
       return;
     }
     
-    final Block block = ((ItemBlock) heldStack.getItem()).getBlock();
-    final int metaData = heldStack.getMetadata();
-    
-    // using metadata is gay and not 1.13 compatible but dont know a better way to get blockstate from itemstack
-    final IBlockState heldBlockState = block.getStateFromMeta(metaData);
+    final Block block = ((BlockItem) heldStack.getItem()).getBlock();
     
     getBlockPlacePos().ifPresent(pos ->
         getColor(pos, heldBlockState).ifPresent(color -> {
           event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-          GlStateManager.glLineWidth(line_width.get());
+          GlStateManager.lineWidth(line_width.get());
           
           GeometryTessellator.drawCuboid(event.getBuffer(), pos, GeometryMasks.Line.ALL, color);
           
@@ -72,7 +73,7 @@ public class SchematicHelper extends ToggleMod {
     );
   }
   
-  private static OptionalInt getColor(BlockPos pos, IBlockState heldBlock) {
+  private static OptionalInt getColor(BlockPos pos, BlockState heldBlock) {
     final Optional<Tuple<Schematic, BlockPos>> optSchematic = SchematicaHelper.getOpenSchematic();
     if (optSchematic.isPresent()) {
       final Schematic schematic = optSchematic.get().getFirst();
@@ -96,5 +97,5 @@ public class SchematicHelper extends ToggleMod {
     return Optional.ofNullable(MC.objectMouseOver)
         .filter(result -> result.typeOfHit == RayTraceResult.Type.BLOCK)
         .map(ray -> ray.getBlockPos().offset(ray.sideHit));
-  }
+  }*/
 }

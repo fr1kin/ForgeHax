@@ -1,14 +1,15 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import joptsimple.internal.Strings;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class AutoReply extends ToggleMod {
@@ -46,7 +47,7 @@ public class AutoReply extends ToggleMod {
   
   @SubscribeEvent
   public void onClientChat(ClientChatReceivedEvent event) {
-    String message = (event.getMessage().getUnformattedText());
+    String message = (event.getMessage().getUnformattedComponentText());
     if (message.contains(search.get()) && !message.startsWith(MC.getSession().getUsername())) {
       String append;
       switch (mode.get().toUpperCase()) {

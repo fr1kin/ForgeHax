@@ -1,9 +1,8 @@
 package com.matt.forgehax.mods.services;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.ServiceMod;
@@ -13,7 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import joptsimple.internal.Strings;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.getLocalPlayer;
 
 /**
  * Created on 7/21/2017 by fr1kin
@@ -108,8 +109,7 @@ public class SpamService extends ServiceMod {
           .ifPresent(
               msg -> {
                 getLocalPlayer().sendChatMessage(msg.getMessage());
-                customDelays
-                    .computeIfAbsent(msg.getType(), t -> new AtomicLong(0L))
+                customDelays.computeIfAbsent(msg.getType(), t -> new AtomicLong(0L))
                     .set(System.currentTimeMillis() + msg.getDelay());
                 nextSendMs = System.currentTimeMillis() + delay.get();
                 SENDING.remove(msg);

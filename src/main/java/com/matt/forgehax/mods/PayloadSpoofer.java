@@ -9,10 +9,10 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Scanner;
 import java.util.Set;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.CPacketCustomPayload;
-import net.minecraft.network.play.server.SPacketCustomPayload;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.network.play.client.CCustomPayloadPacket;
+import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created on 6/2/2017 by fr1kin
@@ -48,9 +48,9 @@ public class PayloadSpoofer extends ToggleMod {
   
   @SubscribeEvent(priority = EventPriority.HIGHEST)
   public void onIncomingPacket(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketCustomPayload) {
-      String channel = ((SPacketCustomPayload) event.getPacket()).getChannelName();
-      PacketBuffer packetBuffer = ((SPacketCustomPayload) event.getPacket()).getBufferData();
+    if (event.getPacket() instanceof SCustomPayloadPlayPacket) {
+      String channel = ((SCustomPayloadPlayPacket) event.getPacket()).getChannelName().toString();
+      PacketBuffer packetBuffer = ((SCustomPayloadPlayPacket) event.getPacket()).getBufferData();
       if (isBlockedPacket(channel, packetBuffer)) {
         event.setCanceled(true);
       }
@@ -59,9 +59,9 @@ public class PayloadSpoofer extends ToggleMod {
   
   @SubscribeEvent(priority = EventPriority.HIGHEST)
   public void onOutgoingPacket(PacketEvent.Outgoing.Pre event) {
-    if (event.getPacket() instanceof CPacketCustomPayload) {
-      String channel = ((CPacketCustomPayload) event.getPacket()).getChannelName();
-      PacketBuffer packetBuffer = ((CPacketCustomPayload) event.getPacket()).getBufferData();
+    if (event.getPacket() instanceof CCustomPayloadPacket) {
+      String channel = ((CCustomPayloadPacket) event.getPacket()).getName().toString();
+      PacketBuffer packetBuffer = ((CCustomPayloadPacket) event.getPacket()).getInternalData();
       if (isBlockedPacket(channel, packetBuffer)) {
         event.setCanceled(true);
       }

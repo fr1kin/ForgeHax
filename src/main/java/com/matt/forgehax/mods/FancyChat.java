@@ -1,22 +1,23 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.printError;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.network.play.client.CChatMessagePacket;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 // made by BABBAJ
 
@@ -213,7 +214,7 @@ public class FancyChat extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketSent(PacketEvent.Outgoing.Pre event) {
-    if (event.getPacket() instanceof CPacketChatMessage
+    if (event.getPacket() instanceof CChatMessagePacket
         && !PacketHelper.isIgnored(event.getPacket())) {
       
       boolean is0Arg = false;
@@ -225,7 +226,7 @@ public class FancyChat extends ToggleMod {
       String message;
       String arg1 = "";
       
-      String inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
+      String inputMessage = ((CChatMessagePacket) event.getPacket()).getMessage();
       
       Matcher prefixMatcher = prefixPattern.matcher(inputMessage);
       if (prefixMatcher.find()) {
@@ -271,7 +272,7 @@ public class FancyChat extends ToggleMod {
         }
         
         if (getNetworkManager() != null) {
-          CPacketChatMessage packet = new CPacketChatMessage(messageOut);
+          CChatMessagePacket packet = new CChatMessagePacket(messageOut);
           PacketHelper.ignore(packet);
           getNetworkManager().sendPacket(packet);
           event.setCanceled(true);

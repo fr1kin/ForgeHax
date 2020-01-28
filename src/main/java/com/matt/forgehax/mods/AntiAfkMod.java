@@ -1,12 +1,9 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getModManager;
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getWorld;
-
 import com.google.common.collect.Lists;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.ForgeHaxHooks;
+import com.matt.forgehax.events.DisconnectFromServerEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.mods.services.HotbarSelectionService.ResetFunction;
 import com.matt.forgehax.util.SimpleTimer;
@@ -26,20 +23,21 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemRedstone;
-import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.network.play.client.CPacketPlayerDigging;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Items;
+import net.minecraft.network.play.client.CAnimateHandPacket;
+import net.minecraft.network.play.client.CPlayerDiggingPacket;
+import net.minecraft.network.play.client.CPlayerTryUseItemOnBlockPacket;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.*;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class AntiAfkMod extends ToggleMod {
@@ -176,7 +174,7 @@ public class AntiAfkMod extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+  public void onDisconnect(DisconnectFromServerEvent event) {
     reset();
   }
   
@@ -280,9 +278,14 @@ public class AntiAfkMod extends ToggleMod {
         for (double y : yaws) {
           double[] cc = Angle.degrees(0.f, (float) y).getForwardVector();
           Vec3d target = eye.add(new Vec3d(cc[0], cc[1], cc[2]).normalize().scale(64));
-          
-          RayTraceResult result = getWorld().rayTraceBlocks(eye, target, false, true, false);
-          double distance = result == null ? 64.D : eye.distanceTo(result.hitVec);
+
+          RayTraceContext ctx = new RayTraceContext(eye, target,
+              RayTraceContext.BlockMode.COLLIDER,
+              RayTraceContext.FluidMode.ANY,
+              getLocalPlayer());
+          RayTraceResult result = getWorld().rayTraceBlocks(ctx);
+          double distance = RayTraceResult.Type.MISS.equals(result.getType()) ? 64.D :
+              eye.distanceTo(result.getHitVec());
           if ((distance >= 1.D || lastDistance == -1.D)
               && (distance > lastDistance || Math.random() < 0.20D)) {
             angle = y;
@@ -295,12 +298,8 @@ public class AntiAfkMod extends ToggleMod {
       public void onStop() {
         Bindings.forward.setPressed(false);
         Bindings.forward.unbind();
-        getLocalPlayer().motionX = 0.D;
-        getLocalPlayer().motionY = 0.D;
-        getLocalPlayer().motionZ = 0.D;
-        getModManager()
-            .get(SafeWalkMod.class)
-            .ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled());
+        getLocalPlayer().setMotion(Vec3d.ZERO);
+        getModManager().get(SafeWalkMod.class).ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled());
       }
     },
     SPIN {
@@ -309,9 +308,8 @@ public class AntiAfkMod extends ToggleMod {
       
       @Override
       public void onTick() {
-        setViewAngles(
-            MathHelper.clamp(
-                getLocalPlayer().rotationPitch + MathHelper.cos(ang += 0.1f), -90.f, 90.f),
+        setViewAngles(MathHelper.clamp(
+            getLocalPlayer().rotationPitch + MathHelper.cos(ang += 0.1f), -90.f, 90.f),
             getLocalPlayer().rotationYaw + 1.8f);
       }
       
@@ -338,25 +336,21 @@ public class AntiAfkMod extends ToggleMod {
       RayTraceResult getTraceBelow() { // TODO: fix the trace so i dont have to do witchcraft in
         // getBlockBelow()
         Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
-        return getWorld()
-            .rayTraceBlocks(
-                eyes,
-                eyes.addVector(0, -MC.playerController.getBlockReachDistance(), 0),
-                false,
-                false,
-                false);
+        RayTraceContext ctx = new RayTraceContext(eyes,
+            eyes.add(0, -getPlayerController().getBlockReachDistance(), 0),
+            RayTraceContext.BlockMode.COLLIDER,
+            RayTraceContext.FluidMode.NONE,
+            getLocalPlayer());
+        return getWorld().rayTraceBlocks(ctx);
       }
       
       BlockPos getBlockBelow() {
         RayTraceResult tr = getTraceBelow();
-        return tr == null
-            ? BlockPos.ORIGIN
-            : (getWorld()
-                .getBlockState(tr.getBlockPos().add(0, 1, 0))
+        BlockPos hit = new BlockPos(tr.getHitVec());
+        return RayTraceResult.Type.MISS.equals(tr.getType()) ? BlockPos.ZERO :
+            (getWorld().getBlockState(hit.add(0, 1, 0))
                 .getBlock()
-                .equals(Blocks.REDSTONE_WIRE)
-                ? tr.getBlockPos().add(0, 1, 0)
-                : tr.getBlockPos());
+                .equals(Blocks.REDSTONE_WIRE) ? hit.add(0, 1, 0) : hit);
       }
       
       boolean isPlaced() {
@@ -367,20 +361,15 @@ public class AntiAfkMod extends ToggleMod {
       public void onTick() {
         if (counter++ % (TPS * MULTIPLIER) == 0) {
           if (isPlaced()) {
-            getNetworkManager()
-                .sendPacket(
-                    new CPacketPlayerDigging(
-                        CPacketPlayerDigging.Action.START_DESTROY_BLOCK,
-                        getBlockBelow(),
-                        EnumFacing.UP));
+            sendNetworkPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.START_DESTROY_BLOCK,
+                getBlockBelow(), Direction.UP));
             swingHand();
             return;
           }
-          
           LocalPlayerInventory.InvItem item =
               LocalPlayerInventory.getHotbarInventory()
                   .stream()
-                  .filter(itm -> itm.getItemStack().getItem() instanceof ItemRedstone)
+                  .filter(itm -> ItemGroup.REDSTONE.equals(itm.getItemStack().getItem().getGroup()))
                   .findAny()
                   .orElse(LocalPlayerInventory.InvItem.EMPTY);
           
@@ -390,26 +379,22 @@ public class AntiAfkMod extends ToggleMod {
           
           RayTraceResult result = getTraceBelow();
           
-          if (result == null) {
+          if (RayTraceResult.Type.MISS.equals(result.getType())) {
             return;
           }
-          
-          if (!Blocks.REDSTONE_WIRE.canPlaceBlockAt(getWorld(), result.getBlockPos())) {
+
+          BlockPos hit = new BlockPos(result.getHitVec());
+
+          if (!Blocks.REDSTONE_WIRE.isValidPosition(getWorld().getBlockState(hit), getWorld(), hit)) {
             return; // can't place block
           }
           
           ResetFunction func = LocalPlayerInventory.setSelected(item);
           LocalPlayerInventory.syncSelected();
+
+          BlockRayTraceResult tr = new BlockRayTraceResult(result.getHitVec(), Direction.UP, hit, false);
           
-          getNetworkManager()
-              .sendPacket(
-                  new CPacketPlayerTryUseItemOnBlock(
-                      result.getBlockPos(),
-                      EnumFacing.UP,
-                      EnumHand.MAIN_HAND,
-                      (float) (result.hitVec.x - result.getBlockPos().getX()),
-                      (float) (result.hitVec.y - result.getBlockPos().getY()),
-                      (float) (result.hitVec.z - result.getBlockPos().getZ())));
+          sendNetworkPacket(new CPlayerTryUseItemOnBlockPacket(Hand.MAIN_HAND, tr));
           swingHand();
           
           func.revert();
@@ -435,10 +420,10 @@ public class AntiAfkMod extends ToggleMod {
       
       @Override
       public boolean isRunnable() {
-        return LocalPlayerInventory.getHotbarInventory()
-            .stream()
-            .anyMatch(item -> item.getItemStack().getItem() instanceof ItemRedstone)
-            && (Blocks.REDSTONE_WIRE.canPlaceBlockAt(getWorld(), getBlockBelow()) || isPlaced());
+        BlockPos below = getBlockBelow();
+        return LocalPlayerInventory.getHotbarInventory().stream()
+            .anyMatch(item -> ItemGroup.REDSTONE.equals(item.getItemStack().getItem().getGroup()))
+            && (Blocks.REDSTONE_WIRE.isValidPosition(getWorld().getBlockState(below), getWorld(), below) || isPlaced());
         // return false; // disabled until functional
       }
       
@@ -472,9 +457,9 @@ public class AntiAfkMod extends ToggleMod {
     
     static void swingHand() {
       if (silent) {
-        getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+        getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
       } else {
-        getLocalPlayer().swingArm(EnumHand.MAIN_HAND);
+        getLocalPlayer().swingArm(Hand.MAIN_HAND);
       }
     }
     

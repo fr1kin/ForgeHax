@@ -1,7 +1,6 @@
 package com.matt.forgehax.util.entity;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getRidingEntity;
 import static com.matt.forgehax.Helper.getWorld;
 
 import com.matt.forgehax.Globals;
@@ -238,7 +237,7 @@ public class EntityUtils implements Globals {
   }
   
   public static boolean isDrivenByPlayer(Entity entityIn) {
-    return getLocalPlayer() != null && entityIn != null && entityIn == getRidingEntity();
+    return getLocalPlayer() != null && entityIn != null && entityIn == getMountedEntity();
   }
   
   public static boolean isAboveWater(Entity entity) {

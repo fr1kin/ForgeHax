@@ -1,36 +1,19 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.util.ImageUtils.createResizedCopy;
-import static com.matt.forgehax.util.ImageUtils.getImageFromUrl;
-import static com.matt.forgehax.util.ImageUtils.imageToArray;
-import static com.matt.forgehax.util.MapColors.colorListLength;
-import static com.matt.forgehax.util.MapColors.getColor;
-
-import com.matt.forgehax.Helper;
-import com.matt.forgehax.asm.reflection.FastReflection;
-import com.matt.forgehax.util.color.Color;
-import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
-import com.matt.forgehax.util.mod.loader.RegisterMod;
-import java.awt.image.BufferedImage;
-import java.util.Map;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.item.ItemMap;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.MapData;
 
 /**
  * Created by Babbaj on 8/18/2017.
  */
-@RegisterMod
+// TODO: 1.15 fix this
 public class MapMod extends ToggleMod {
   
   public MapMod() {
     super(Category.MISC, "MapMod", false, "custom map images");
   }
-  
+
+  /*
   private enum Mode {
     DATA,
     TEXTURE
@@ -106,7 +89,7 @@ public class MapMod extends ToggleMod {
       // doing [j][i]
     }
     
-    ItemMap map = (ItemMap) MC.player.getHeldItemMainhand().getItem();
+    MapItem map = (MapItem) MC.player.getHeldItemMainhand().getItem();
     
     MapData heldMapData = map.getMapData(MC.player.getHeldItemMainhand(), MC.world);
     
@@ -172,4 +155,5 @@ public class MapMod extends ToggleMod {
             })
         .build();
   }
+  */
 }

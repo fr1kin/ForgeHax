@@ -43,6 +43,7 @@ import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.potion.Effect;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.EnumFacing;
@@ -529,7 +530,7 @@ public interface FastReflection extends ASMCommon {
     /**
      * ItemFood
      */
-    FastField<PotionEffect> ItemFood_potionId =
+    FastField<Effect> ItemFood_potionId =
       FastTypeBuilder.create()
         .setInsideClass(ItemFood.class)
         .setName("potionId")

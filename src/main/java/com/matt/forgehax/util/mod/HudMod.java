@@ -3,13 +3,13 @@ package com.matt.forgehax.util.mod;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.math.AlignHelper;
 import com.matt.forgehax.util.math.AlignHelper.Align;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.VirtualScreen;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public abstract class HudMod extends ToggleMod {
   
-  protected static ScaledResolution scaledRes = new ScaledResolution(MC);
+  protected static  VirtualScreen  scaledRes = new  VirtualScreen (MC);
   
   protected final Setting<Align> alignment;
   protected final Setting<Integer> offsetX;
@@ -76,6 +76,6 @@ public abstract class HudMod extends ToggleMod {
   
   @SubscribeEvent
   public void onScreenUpdated(GuiScreenEvent.InitGuiEvent.Post ev) {
-    scaledRes = new ScaledResolution(MC);
+    scaledRes = new  VirtualScreen (MC);
   }
 }

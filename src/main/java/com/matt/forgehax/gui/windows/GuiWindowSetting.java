@@ -60,7 +60,7 @@ public class GuiWindowSetting extends GuiWindow {
     }
   }
   
-  public void mouseClicked(int x, int y, int state) {
+  public void mouseClicked(double x, double y, int state) {
     super.mouseClicked(x, y, state);
     if (state == 2 && isMouseInHeader(x, y)) { // delete the window on middle click
       ClickGui.getInstance().windowList.remove(this);
@@ -72,7 +72,7 @@ public class GuiWindowSetting extends GuiWindow {
     }
   }
   
-  public void mouseReleased(int x, int y, int state) {
+  public void mouseReleased(double x, double y, int state) {
     super.mouseReleased(x, y, state);
     for (GuiElement input : inputList) {
       input.mouseReleased(x, y, state);

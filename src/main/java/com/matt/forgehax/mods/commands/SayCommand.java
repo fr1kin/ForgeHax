@@ -1,14 +1,16 @@
 package com.matt.forgehax.mods.commands;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.PacketHelper;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
 import com.matt.forgehax.util.mod.CommandMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.network.play.client.CChatMessagePacket;
+
 import java.util.Arrays;
-import net.minecraft.network.play.client.CPacketChatMessage;
+
+import static com.matt.forgehax.Globals.getLocalPlayer;
 
 @RegisterMod
 public class SayCommand extends CommandMod {
@@ -23,13 +25,10 @@ public class SayCommand extends CommandMod {
       .newCommandBuilder()
       .name("say")
       .description("Send chat message")
-      .options(
-        parser -> {
-          parser.acceptsAll(Arrays.asList("fake", "f"),
-            "Send a fake message that won't be treated as command");
-          parser.acceptsAll(Arrays.asList("local", "l"), "Send message from local chat");
-        }
-      )
+      .options(parser -> {
+        parser.acceptsAll(Arrays.asList("fake", "f"), "Send a fake message that won't be treated as command");
+        parser.acceptsAll(Arrays.asList("local", "l"), "Send message from local chat");
+      })
       .processor(
         data -> {
           boolean fake = data.hasOption("fake");
@@ -44,7 +43,7 @@ public class SayCommand extends CommandMod {
             if (data.hasOption("local")) {
               getLocalPlayer().sendChatMessage(msg);
             } else {
-              PacketHelper.ignoreAndSend(new CPacketChatMessage(msg));
+              PacketHelper.ignoreAndSend(new CChatMessagePacket(msg));
             }
           }
         }

@@ -1,9 +1,5 @@
 package com.matt.forgehax.mods.commands;
 
-import static com.matt.forgehax.Helper.getGlobalCommand;
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getModManager;
-
 import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.CommandBuilders;
@@ -17,6 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created on 6/1/2017 by fr1kin
@@ -34,7 +32,7 @@ public class HelpCommand extends CommandMod {
       .newCommandBuilder()
       .name("save")
       .description("Save all configurations")
-      .processor(data -> getGlobalCommand().serializeAll())
+      .processor(data -> GLOBAL_COMMAND.serializeAll())
       .build();
   }
   
@@ -74,25 +72,21 @@ public class HelpCommand extends CommandMod {
           final String arg = data.getArgumentCount() > 0 ? data.getArgumentAsString(0) : null;
           boolean showDetails = data.hasOption("details");
           boolean showHidden = data.hasOption("hidden");
-          getGlobalCommand()
-            .getChildren()
-            .stream()
-            .sorted(
-              (o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
-            .forEach(
-              command -> {
-                @Nullable BaseMod mod = getModManager().get(command.getName()).orElse(null);
-                if ((Strings.isNullOrEmpty(arg)
-                  || command.getName().toLowerCase().contains(arg.toLowerCase()))
-                  && (mod == null || showHidden || !mod.isHidden())) {
-                  build.append(command.getName());
-                  if (showDetails) {
-                    build.append(" - ");
-                    build.append(command.getDescription());
-                  }
-                  build.append('\n');
+          GLOBAL_COMMAND.getChildren().stream()
+            .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
+            .forEach(command -> {
+              BaseMod mod = getModManager().get(command.getName()).orElse(null);
+              if ((Strings.isNullOrEmpty(arg)
+                || command.getName().toLowerCase().contains(arg.toLowerCase()))
+                && (mod == null || showHidden || !mod.isHidden())) {
+                build.append(command.getName());
+                if (showDetails) {
+                  build.append(" - ");
+                  build.append(command.getDescription());
                 }
-              });
+                build.append('\n');
+              }
+            });
           data.write(build.toString());
           data.markSuccess();
         })
@@ -139,8 +133,7 @@ public class HelpCommand extends CommandMod {
               }
               
               @Override
-              public void onFailure(Throwable t) {
-              }
+              public void onFailure(Throwable t) { }
             });
           data.write(build.toString());
           data.markSuccess();
@@ -238,9 +231,7 @@ public class HelpCommand extends CommandMod {
       .name("clear")
       .description("Clears chat")
       .options(p -> p.acceptsAll(Arrays.asList("all", "a"), "Also clear sent message history"))
-      .processor(d -> MC.addScheduledTask(
-        () -> MC.ingameGUI.getChatGUI().clearChatMessages(d.hasOption("all")))
-      )
+      .processor(d -> addScheduledTask(() -> MC.ingameGUI.getChatGUI().clearChatMessages(d.hasOption("all"))))
       .build();
   }
 }

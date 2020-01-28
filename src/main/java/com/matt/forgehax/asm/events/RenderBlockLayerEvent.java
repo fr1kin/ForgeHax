@@ -2,7 +2,7 @@ package com.matt.forgehax.asm.events;
 
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class RenderBlockLayerEvent extends Event {
   

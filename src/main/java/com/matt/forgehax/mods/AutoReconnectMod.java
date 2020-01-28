@@ -1,24 +1,15 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.Helper;
-import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.events.ClientWorldEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import java.io.IOException;
-import java.util.List;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiDisconnected;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.multiplayer.GuiConnecting;
+
+import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoReconnectMod extends ToggleMod {
@@ -50,45 +41,50 @@ public class AutoReconnectMod extends ToggleMod {
   
   @SubscribeEvent
   public void onGuiOpened(GuiOpenEvent event) {
-    if (!hasAutoLogged) {
-      if (event.getGui() instanceof GuiDisconnected
-          && !(event.getGui() instanceof GuiDisconnectedOverride)) {
-        updateLastConnectedServer();
-        GuiDisconnected disconnected = (GuiDisconnected) event.getGui();
-        event.setGui(
-            new GuiDisconnectedOverride(
-                FastReflection.Fields.GuiDisconnected_parentScreen.get(disconnected),
-                "connect.failed",
-                FastReflection.Fields.GuiDisconnected_message.get(disconnected),
-                FastReflection.Fields.GuiDisconnected_reason.get(disconnected),
-                delay.get()));
-      }
+    if(!hasAutoLogged && event.getGui() instanceof DisconnectedScreen) {
+      DisconnectedScreen screen = (DisconnectedScreen) event.getGui();
+      // TODO: 1.15 add button to screen using reflection
     }
+
+//    if (!hasAutoLogged) {
+//      if (event.getGui() instanceof DisconnectedScreen
+//          && !(event.getGui() instanceof GuiDisconnectedOverride)) {
+//        updateLastConnectedServer();
+//        DisconnectedScreen disconnected = (DisconnectedScreen) event.getGui();
+//        event.setGui(
+//            new GuiDisconnectedOverride(
+//                FastReflection.Fields.GuiDisconnected_parentScreen.get(disconnected),
+//                "connect.failed",
+//                FastReflection.Fields.GuiDisconnected_message.get(disconnected),
+//                FastReflection.Fields.GuiDisconnected_reason.get(disconnected),
+//                delay.get()));
+//      }
+//    }
   }
   
   @SubscribeEvent
-  public void onWorldLoad(WorldEvent.Load event) {
+  public void onWorldLoad(ClientWorldEvent.Load event) {
     // we got on the server or stopped joining, now undo queue
     hasAutoLogged = false; // make mod work when you rejoin
   }
   
   @SubscribeEvent
-  public void onWorldUnload(WorldEvent.Unload event) {
+  public void onWorldUnload(ClientWorldEvent.Unload event) {
     updateLastConnectedServer();
   }
-  
-  public static class GuiDisconnectedOverride extends GuiDisconnected {
+
+  /*
+  public static class GuiDisconnectedOverride extends DisconnectedScreen {
     
-    private GuiScreen parent;
+    private DisconnectedScreen parent;
     private ITextComponent message;
     
     // delay * 1000 = seconds to miliseconds
     private long reconnectTime;
     
-    private GuiButton reconnectButton = null;
+    private Button reconnectButton = null;
     
-    public GuiDisconnectedOverride(
-        GuiScreen screen,
+    public GuiDisconnectedOverride(DisconnectedScreen screen,
         String reasonLocalizationKey,
         ITextComponent chatComp,
         String reason,
@@ -98,17 +94,7 @@ public class AutoReconnectMod extends ToggleMod {
       message = chatComp;
       reconnectTime = System.currentTimeMillis() + (long) (delay * 1000);
       // set variable 'reason' to the previous classes value
-      try {
-        ReflectionHelper.setPrivateValue(
-            GuiDisconnected.class,
-            this,
-            reason,
-            "reason",
-            "field_146306_a",
-            "a"); // TODO: Find obbed mapping name
-      } catch (Exception e) {
-        Helper.printStackTrace(e);
-      }
+      FastReflection.Fields.GuiDisconnected_reason.set(this, reason);
       // parse server return text and find queue pos
     }
     
@@ -171,5 +157,5 @@ public class AutoReconnectMod extends ToggleMod {
         reconnect();
       }
     }
-  }
+  }*/
 }

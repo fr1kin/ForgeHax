@@ -1,11 +1,11 @@
 package com.matt.forgehax.mods.managers;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
 import com.google.common.collect.Lists;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.LocalPlayerUpdateMovementEvent;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.events.ClientWorldEvent;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -18,14 +18,13 @@ import com.matt.forgehax.util.task.TaskChain;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.server.SPacketPlayerPosLook;
-import net.minecraft.network.play.server.SPacketPlayerPosLook.EnumFlags;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.network.play.server.SPlayerLookPacket;
+import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created on 6/15/2017 by fr1kin
@@ -72,21 +71,19 @@ public class PositionRotationManager extends ServiceMod {
   private final RotationState gState = new RotationState();
   private TaskChain<Consumer<ReadableRotationState>> futureTasks = TaskChain.empty();
   
-  private static Angle getPlayerAngles(EntityPlayer player) {
+  private static Angle getPlayerAngles(ClientPlayerEntity player) {
     return Angle.degrees(player.rotationPitch, player.rotationYaw);
   }
   
-  private static void setPlayerAngles(EntityPlayerSP player, Angle angles) {
+  private static void setPlayerAngles(ClientPlayerEntity player, Angle angles) {
     Angle original = getPlayerAngles(player);
     Angle diff = angles.normalize().sub(original.normalize()).normalize();
     player.rotationPitch = Utils.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
     player.rotationYaw = original.getYaw() + diff.getYaw();
   }
   
-  private static void setPlayerPosition(EntityPlayerSP player, Vec3d position) {
-    player.posX = position.x;
-    player.posY = position.y;
-    player.posZ = position.z;
+  private static void setPlayerPosition(ClientPlayerEntity player, Vec3d position) {
+    player.setRawPosition(position.getX(), position.getY(), position.getZ());
   }
   
   private float clampAngle(float from, float to, float clamp) {
@@ -108,12 +105,7 @@ public class PositionRotationManager extends ServiceMod {
   }
   
   @SubscribeEvent
-  public void onWorldLoad(WorldEvent.Load event) {
-    gState.setInitialized(false);
-  }
-  
-  @SubscribeEvent
-  public void onWorldUnload(WorldEvent.Unload event) {
+  public void onWorldLoad(ClientWorldEvent.Load event) {
     gState.setInitialized(false);
   }
   
@@ -248,19 +240,19 @@ public class PositionRotationManager extends ServiceMod {
   public void onPacketReceived(PacketEvent.Incoming.Pre event) {
     if (!enabled.get()) return;
 
-    if(event.getPacket() instanceof SPacketPlayerPosLook) {
+    if(event.getPacket() instanceof SPlayerPositionLookPacket) {
       // when the server sets the rotation we use that instead
-      final SPacketPlayerPosLook packet = event.getPacket();
-      
+      final SPlayerPositionLookPacket packet = event.getPacket();
+
       float pitch = packet.getPitch();
       float yaw = packet.getYaw();
       
       Angle va = gState.getClientAngles();
       
-      if(packet.getFlags().contains(EnumFlags.X_ROT))
+      if(packet.getFlags().contains(SPlayerPositionLookPacket.Flags.X_ROT))
         pitch += va.getPitch();
       
-      if(packet.getFlags().contains(EnumFlags.Y_ROT))
+      if(packet.getFlags().contains(SPlayerPositionLookPacket.Flags.Y_ROT))
         yaw += va.getYaw();
       
       gState.setServerAngles(pitch, yaw);
@@ -285,8 +277,8 @@ public class PositionRotationManager extends ServiceMod {
      *
      * @return local player instance. null if not in a world
      */
-    default EntityPlayerSP getLocalPlayer() {
-      return Helper.getLocalPlayer();
+    default ClientPlayerEntity getLocalPlayer() {
+      return Globals.getLocalPlayer();
     }
     
     /**

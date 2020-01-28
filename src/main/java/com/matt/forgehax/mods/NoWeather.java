@@ -1,19 +1,19 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.events.WorldChangeEvent;
+import com.matt.forgehax.events.ClientWorldEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.network.play.server.SPacketChangeGameState;
+import net.minecraft.network.play.server.SChangeGameStatePacket;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created on 5/16/2017 by fr1kin
@@ -82,7 +82,7 @@ public class NoWeather extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onWorldChange(WorldChangeEvent event) {
+  public void onWorldChange(ClientWorldEvent event) {
     saveState(event.getWorld());
   }
   
@@ -93,9 +93,9 @@ public class NoWeather extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketChangeGameState) {
-      int state = ((SPacketChangeGameState) event.getPacket()).getGameState();
-      float strength = ((SPacketChangeGameState) event.getPacket()).getValue();
+    if (event.getPacket() instanceof SChangeGameStatePacket) {
+      int state = ((SChangeGameStatePacket) event.getPacket()).getGameState();
+      float strength = ((SChangeGameStatePacket) event.getPacket()).getValue();
       boolean isRainState = false;
       switch (state) {
         case 1: // end rain
@@ -120,10 +120,11 @@ public class NoWeather extends ToggleMod {
   @Override
   public String getDisplayText() {
     if (isRaining
-        && showStatus.getAsBoolean() && getWorld() != null && getLocalPlayer() != null) {
+        && showStatus.getAsBoolean()
+        && isInWorld()) {
       Biome biome = getWorld().getBiome(getLocalPlayer().getPosition());
-      boolean canRain = biome.canRain();
-      boolean canSnow = biome.getEnableSnow();
+      boolean canRain = Biome.RainType.RAIN.equals(biome.getPrecipitation());
+      boolean canSnow = Biome.RainType.SNOW.equals(biome.getPrecipitation());
       
       String status;
       

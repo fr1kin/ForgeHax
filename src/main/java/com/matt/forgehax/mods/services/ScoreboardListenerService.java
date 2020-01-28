@@ -1,9 +1,11 @@
 package com.matt.forgehax.mods.services;
 
-import static com.matt.forgehax.Helper.getLog;
+import static com.matt.forgehax.Globals.getLogger;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.events.ConnectToServerEvent;
+import com.matt.forgehax.events.DisconnectFromServerEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
 import com.matt.forgehax.util.SimpleTimer;
 import com.matt.forgehax.util.command.Setting;
@@ -17,13 +19,12 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
-import net.minecraft.network.play.server.SPacketChunkData;
-import net.minecraft.network.play.server.SPacketCustomPayload;
-import net.minecraft.network.play.server.SPacketPlayerListItem;
-import net.minecraft.network.play.server.SPacketPlayerListItem.Action;
+import net.minecraft.network.play.server.SChunkDataPacket;
+import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
+import net.minecraft.network.play.server.SPlayerListItemPacket;
+import net.minecraft.network.play.server.SPlayerListItemPacket.Action;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created on 7/18/2017 by fr1kin
@@ -56,8 +57,7 @@ public class ScoreboardListenerService extends ServiceMod {
     super("ScoreboardListenerService", "Listens for player joining and leaving");
   }
   
-  private void fireEvents(
-      SPacketPlayerListItem.Action action, PlayerInfo info, GameProfile profile) {
+  private void fireEvents(Action action, PlayerInfo info, GameProfile profile) {
     if (ignore || info == null) {
       return;
     }
@@ -74,12 +74,12 @@ public class ScoreboardListenerService extends ServiceMod {
   }
   
   @SubscribeEvent
-  public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
+  public void onClientConnect(ConnectToServerEvent event) {
     ignore = false;
   }
   
   @SubscribeEvent
-  public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+  public void onClientDisconnect(DisconnectFromServerEvent event) {
     ignore = false;
   }
   
@@ -89,10 +89,10 @@ public class ScoreboardListenerService extends ServiceMod {
       ignore = false;
     }
     
-    if (!ignore && event.getPacket() instanceof SPacketCustomPayload) {
+    if (!ignore && event.getPacket() instanceof SCustomPayloadPlayPacket) {
       ignore = true;
       timer.start();
-    } else if (ignore && event.getPacket() instanceof SPacketChunkData) {
+    } else if (ignore && event.getPacket() instanceof SChunkDataPacket) {
       ignore = false;
       timer.reset();
     }
@@ -100,56 +100,39 @@ public class ScoreboardListenerService extends ServiceMod {
   
   @SubscribeEvent
   public void onScoreboardEvent(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketPlayerListItem) {
-      final SPacketPlayerListItem packet = event.getPacket();
-      if (!Action.ADD_PLAYER.equals(packet.getAction())
-          && !Action.REMOVE_PLAYER.equals(packet.getAction())) {
+    if (event.getPacket() instanceof SPlayerListItemPacket) {
+      final SPlayerListItemPacket packet = event.getPacket();
+      if (!Action.ADD_PLAYER.equals(packet.getAction()) && !Action.REMOVE_PLAYER.equals(packet.getAction())) {
         return;
       }
       
-      packet
-          .getEntries()
-          .stream()
+      packet.getEntries().stream()
           .filter(Objects::nonNull)
-          .filter(
-              data ->
-                  !Strings.isNullOrEmpty(data.getProfile().getName())
-                      || data.getProfile().getId() != null)
-          .forEach(
-              data -> {
-                final String name = data.getProfile().getName();
-                final UUID id = data.getProfile().getId();
-                final AtomicInteger retries = new AtomicInteger(this.retries.get());
-                PlayerInfoHelper.registerWithCallback(
-                    id,
-                    name,
-                    new FutureCallback<PlayerInfo>() {
-                      @Override
-                      public void onSuccess(@Nullable PlayerInfo result) {
-                        fireEvents(packet.getAction(), result, data.getProfile());
-                      }
-                      
-                      @Override
-                      public void onFailure(Throwable t) {
-                        if (retries.getAndDecrement() > 0) {
-                          getLog()
-                              .warn(
-                                  "Failed to lookup "
-                                      + name
-                                      + "/"
-                                      + id.toString()
-                                      + ", retrying ("
-                                      + retries.get()
-                                      + ")...");
-                          PlayerInfoHelper.registerWithCallback(
-                              data.getProfile().getId(), name, this);
-                        } else {
-                          t.printStackTrace();
-                          PlayerInfoHelper.generateOfflineWithCallback(name, this);
-                        }
-                      }
-                    });
-              });
+          .filter(data -> !Strings.isNullOrEmpty(data.getProfile().getName()) || data.getProfile().getId() != null)
+          .forEach(data -> {
+            final String name = data.getProfile().getName();
+            final UUID id = data.getProfile().getId();
+            final AtomicInteger retries = new AtomicInteger(this.retries.get());
+            PlayerInfoHelper.registerWithCallback(id, name, new FutureCallback<PlayerInfo>() {
+              @Override
+              public void onSuccess(@Nullable PlayerInfo result) {
+                fireEvents(packet.getAction(), result, data.getProfile());
+              }
+
+              @Override
+              public void onFailure(Throwable t) {
+                if (retries.getAndDecrement() > 0) {
+                  getLogger().warn("Failed to lookup {}/{}, retrying ({})...",
+                      name, id.toString(), retries.get());
+
+                  PlayerInfoHelper.registerWithCallback(data.getProfile().getId(), name, this);
+                } else {
+                  t.printStackTrace();
+                  PlayerInfoHelper.generateOfflineWithCallback(name, this);
+                }
+              }
+            });
+          });
     }
   }
 }

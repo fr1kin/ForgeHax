@@ -1,8 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getRidingEntity;
+import static com.matt.forgehax.Globals.*;
 
 import com.google.common.collect.Lists;
 import com.matt.forgehax.asm.events.PacketEvent;
@@ -12,13 +10,18 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.CPacketPlayer;
+import java.util.stream.Collectors;
+
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.IPacket;
+import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class StepMod extends ToggleMod {
@@ -42,9 +45,9 @@ public class StepMod extends ToggleMod {
           .description("how high you can step")
           .defaultTo(1.2f)
           .min(0f)
-          .changed(__ -> MC.addScheduledTask(() -> {
+          .changed(__ -> addScheduledTask(() -> {
             if (isEnabled()) {
-              EntityPlayer player = getLocalPlayer();
+              PlayerEntity player = getLocalPlayer();
               if (player != null) {
                 updateStepHeight(player);
               }
@@ -67,7 +70,7 @@ public class StepMod extends ToggleMod {
   
   @Override
   protected void onEnabled() {
-    EntityPlayer player = getLocalPlayer();
+    PlayerEntity player = getLocalPlayer();
     if (player != null) {
       wasOnGround = player.onGround;
     }
@@ -75,39 +78,41 @@ public class StepMod extends ToggleMod {
   
   @Override
   public void onDisabled() {
-    EntityPlayer player = getLocalPlayer();
+    PlayerEntity player = getLocalPlayer();
     if (player != null) {
       player.stepHeight = DEFAULT_STEP_HEIGHT;
     }
     
-    if (getRidingEntity() != null) {
-      getRidingEntity().stepHeight = 1;
+    if (getMountedEntity() != null) {
+      getMountedEntity().stepHeight = 1;
     }
   }
   
-  private void updateStepHeight(EntityPlayer player) {
+  private void updateStepHeight(PlayerEntity player) {
     player.stepHeight = player.onGround ? stepHeight.get() : DEFAULT_STEP_HEIGHT;
   }
   
   private boolean wasOnGround = false;
   
-  private void unstep(EntityPlayer player) {
-    AxisAlignedBB range = player.getEntityBoundingBox().expand(0, -stepHeight.get(), 0)
-        .contract(0, player.height, 0);
+  private void unstep(PlayerEntity player) {
+    AxisAlignedBB range = player.getBoundingBox().expand(0, -stepHeight.get(), 0)
+        .contract(0, player.getHeight(), 0);
     
-    if (!player.world.collidesWithAnyBlock(range)) {
+    if (!player.world.checkBlockCollision(range)) {
       return;
     }
     
-    List<AxisAlignedBB> collisionBoxes = player.world.getCollisionBoxes(player, range);
+    List<AxisAlignedBB> collisionBoxes = player.world.getEmptyCollisionShapes(player, range, Collections.emptySet())
+        .map(VoxelShape::getBoundingBox)
+        .collect(Collectors.toList());
     AtomicReference<Double> newY = new AtomicReference<>(0D);
     collisionBoxes.forEach(box -> newY.set(Math.max(newY.get(), box.maxY)));
-    player.setPositionAndUpdate(player.posX, newY.get(), player.posZ);
+    player.setPositionAndUpdate(player.getPosX(), newY.get(), player.getPosZ());
   }
   
-  private void updateUnstep(EntityPlayer player) {
+  private void updateUnstep(PlayerEntity player) {
     try {
-      if (unstep.get() && wasOnGround && !player.onGround && player.motionY <= 0) {
+      if (unstep.get() && wasOnGround && !player.onGround && player.getMotion().getY() <= 0) {
         unstep(player);
       }
     } finally {
@@ -117,7 +122,7 @@ public class StepMod extends ToggleMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+    PlayerEntity player = (PlayerEntity) event.getEntityLiving();
     if (player == null) {
       return;
     }
@@ -125,42 +130,42 @@ public class StepMod extends ToggleMod {
     updateStepHeight(player);
     updateUnstep(player);
     
-    if (getRidingEntity() != null) {
+    if (getMountedEntity() != null) {
       if (entityStep.getAsBoolean()) {
-        getRidingEntity().stepHeight = 256;
+        getMountedEntity().stepHeight = 256;
       } else {
-        getRidingEntity().stepHeight = 1;
+        getMountedEntity().stepHeight = 1;
       }
     }
   }
   
-  private CPacketPlayer previousPositionPacket = null;
+  private CPlayerPacket previousPositionPacket = null;
   
   @SubscribeEvent
   public void onPacketSending(PacketEvent.Outgoing.Pre event) {
-    if (event.getPacket() instanceof CPacketPlayer.Position
-        || event.getPacket() instanceof CPacketPlayer.PositionRotation) {
-      CPacketPlayer packetPlayer = event.getPacket();
+    if (event.getPacket() instanceof CPlayerPacket.PositionPacket
+        || event.getPacket() instanceof CPlayerPacket.PositionRotationPacket) {
+      CPlayerPacket packetPlayer = event.getPacket();
       if (previousPositionPacket != null && !PacketHelper.isIgnored(event.getPacket())) {
         double diffY = packetPlayer.getY(0.f) - previousPositionPacket.getY(0.f);
         // y difference must be positive
         // greater than 1, but less than 1.5
         if (diffY > DEFAULT_STEP_HEIGHT && diffY <= 1.2491870787) {
-          List<Packet> sendList = Lists.newArrayList();
+          List<IPacket> sendList = Lists.newArrayList();
           // if this is true, this must be a step
           // now to send additional packets to get around NCP
           double x = previousPositionPacket.getX(0.D);
           double y = previousPositionPacket.getY(0.D);
           double z = previousPositionPacket.getZ(0.D);
-          sendList.add(new CPacketPlayer.Position(x, y + 0.4199999869D, z, true));
-          sendList.add(new CPacketPlayer.Position(x, y + 0.7531999805D, z, true));
+          sendList.add(new CPlayerPacket.PositionPacket(x, y + 0.4199999869D, z, true));
+          sendList.add(new CPlayerPacket.PositionPacket(x, y + 0.7531999805D, z, true));
           sendList.add(
-              new CPacketPlayer.Position(
+              new CPlayerPacket.PositionPacket(
                   packetPlayer.getX(0.f),
                   packetPlayer.getY(0.f),
                   packetPlayer.getZ(0.f),
                   packetPlayer.isOnGround()));
-          for (Packet toSend : sendList) {
+          for (IPacket toSend : sendList) {
             PacketHelper.ignore(toSend);
             getNetworkManager().sendPacket(toSend);
           }

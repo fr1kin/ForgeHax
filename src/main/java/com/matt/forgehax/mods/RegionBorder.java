@@ -1,5 +1,6 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
@@ -10,8 +11,10 @@ import com.matt.forgehax.util.tesselation.GeometryMasks;
 import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class RegionBorder extends ToggleMod {
@@ -45,7 +48,8 @@ public class RegionBorder extends ToggleMod {
   public void onRender(RenderEvent event) {
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
-    BlockPos from = new BlockPos((((int) MC.player.posX) / 512) * 512, 0, (((int) MC.player.posZ) / 512) * 512);
+    BlockPos from = new BlockPos((((int) getLocalPlayer().getPosX()) / 512) * 512,
+        0, (((int) getLocalPlayer().getPosZ()) / 512) * 512);
     BlockPos to = from.add(511, 256, 511);
 
     int color = Colors.ORANGE.toBuffer();

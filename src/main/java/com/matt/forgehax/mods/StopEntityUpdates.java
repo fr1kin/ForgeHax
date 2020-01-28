@@ -4,8 +4,8 @@ import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.network.play.server.SPacketEntityMetadata;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.network.play.server.SEntityMetadataPacket;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class StopEntityUpdates extends ToggleMod {
@@ -20,7 +20,7 @@ public class StopEntityUpdates extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketIn(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketEntityMetadata) {
+    if (event.getPacket() instanceof SEntityMetadataPacket) {
       event.setCanceled(true);
     }
   }

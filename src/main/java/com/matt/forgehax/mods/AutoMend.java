@@ -9,10 +9,10 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.Comparator;
 import java.util.Optional;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.init.Enchantments;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.ContainerPlayer;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoMend extends ToggleMod {
@@ -31,12 +31,12 @@ public class AutoMend extends ToggleMod {
   }
   
   private boolean isDamaged(InvItem item) {
-    return item.getItemStack().isItemDamaged();
+    return item.getItemStack().isDamaged();
   }
   
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (!(LocalPlayerInventory.getOpenContainer() instanceof ContainerPlayer)) {
+    if (!(LocalPlayerInventory.getOpenContainer() instanceof PlayerContainer)) {
       return;
     }
     
@@ -45,22 +45,19 @@ public class AutoMend extends ToggleMod {
     Optional.of(LocalPlayerInventory.getOffhand())
         .filter(this::isMendable)
         .filter(item -> !isDamaged(item))
-        .ifPresent(
-            offhand ->
-                LocalPlayerInventory.getSlotInventory()
-                    .stream()
-                    .filter(this::isMendable)
-                    .filter(this::isDamaged)
-                    .filter(inv -> inv.getIndex() != current.getIndex())
-                    .max(Comparator.comparingInt(InvItem::getDamage))
-                    .ifPresent(
-                        inv -> {
-                          // pick up
-                          LocalPlayerInventory.sendWindowClick(inv, 0, ClickType.PICKUP);
-                          // place in offhand
-                          LocalPlayerInventory.sendWindowClick(offhand, 0, ClickType.PICKUP);
-                          // place shovel back
-                          LocalPlayerInventory.sendWindowClick(inv, 0, ClickType.PICKUP);
-                        }));
+        .ifPresent(offhand -> LocalPlayerInventory.getSlotInventory()
+            .stream()
+            .filter(this::isMendable)
+            .filter(this::isDamaged)
+            .filter(inv -> inv.getIndex() != current.getIndex())
+            .max(Comparator.comparingInt(InvItem::getDamage))
+            .ifPresent(inv -> {
+              // pick up
+              LocalPlayerInventory.sendWindowClick(inv, 0, ClickType.PICKUP);
+              // place in offhand
+              LocalPlayerInventory.sendWindowClick(offhand, 0, ClickType.PICKUP);
+              // place shovel back
+              LocalPlayerInventory.sendWindowClick(inv, 0, ClickType.PICKUP);
+            }));
   }
 }

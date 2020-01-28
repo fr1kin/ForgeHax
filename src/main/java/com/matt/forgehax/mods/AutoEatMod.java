@@ -1,10 +1,8 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getPlayerController;
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Streams;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.ItemStoppedUsedEvent;
 import com.matt.forgehax.asm.reflection.FastReflection.Fields;
 import com.matt.forgehax.events.ForgeHaxEvent;
@@ -16,25 +14,36 @@ import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import net.minecraft.item.ItemFishFood;
-import net.minecraft.item.ItemFishFood.FishType;
-import net.minecraft.item.ItemFood;
+import java.util.stream.StreamSupport;
+
+import net.minecraft.item.Food;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Items;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.tuple.Pair;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class AutoEatMod extends ToggleMod {
   
-  private static final List<Potion> BAD_POTIONS =
-      Streams.stream(Potion.REGISTRY).filter(Potion::isBadEffect).collect(Collectors.toList());
+  private static final List<Effect> BAD_POTIONS =
+      StreamSupport.stream(ForgeRegistries.POTIONS.spliterator(), false)
+          .filter(effect -> !effect.isBeneficial())
+          .collect(Collectors.toList());
   
   enum Sorting {
     POINTS,
@@ -75,7 +84,7 @@ public class AutoEatMod extends ToggleMod {
           .min(0)
           .build();
   
-  private ItemFood food = null;
+  private Food food = null;
   private boolean eating = false;
   private int eatingTicks = 0;
   private int selectedTicks = 0;
@@ -87,7 +96,7 @@ public class AutoEatMod extends ToggleMod {
   
   private void reset() {
     if (eatingTicks > 0) {
-      MC.addScheduledTask(() -> MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_STOP)));
+      addScheduledTask(() -> MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(Type.EATING_STOP)));
     }
     food = null;
     eating = false;
@@ -96,34 +105,30 @@ public class AutoEatMod extends ToggleMod {
   }
   
   private boolean isFoodItem(InvItem inv) {
-    return inv.getItem() instanceof ItemFood;
+    return ItemGroup.FOOD.equals(inv.getItem().getGroup());
   }
   
   private boolean isFishFood(InvItem inv) {
-    return inv.getItem() instanceof ItemFishFood;
+    return ItemGroup.FOOD.equals(inv.getItem().getGroup());
   }
   
-  private ItemFood toFood(InvItem inv) {
-    return (ItemFood) inv.getItem();
-  }
-  
-  private ItemFishFood toFishFood(InvItem inv) {
-    return (ItemFishFood) inv.getItem();
+  private Food toFood(InvItem inv) {
+    return inv.getItem().getFood();
   }
   
   private boolean isGoodFood(InvItem inv) {
-    PotionEffect pe = Fields.ItemFood_potionId.get(inv.getItem());
-    return pe == null || isFishFood(inv)
-        ? !FishType.PUFFERFISH.equals(FishType.byItemStack(inv.getItemStack()))
-        : BAD_POTIONS.stream().filter(Potion::isBadEffect).noneMatch(pe.getPotion()::equals);
+    return inv.getItem().getFood().getEffects().stream()
+        .map(Pair::getLeft)
+        .map(EffectInstance::getPotion)
+        .anyMatch(BAD_POTIONS::contains);
   }
   
   private int getHealAmount(InvItem inv) {
-    return toFood(inv).getHealAmount(inv.getItemStack());
+    return toFood(inv).getHealing();
   }
   
   private double getSaturationAmount(InvItem inv) {
-    return toFood(inv).getSaturationModifier(inv.getItemStack());
+    return toFood(inv).getSaturation();
   }
   
   private int getHealthLevel(InvItem inv) {
@@ -131,10 +136,8 @@ public class AutoEatMod extends ToggleMod {
   }
   
   private double getSaturationLevel(InvItem inv) {
-    return Math.min(
-        getLocalPlayer().getFoodStats().getSaturationLevel()
-            + getHealAmount(inv) * getSaturationAmount(inv) * 2.D,
-        20.D);
+    return Math.min(getLocalPlayer().getFoodStats().getSaturationLevel()
+            + getHealAmount(inv) * getSaturationAmount(inv) * 2.D, 20.D);
   }
   
   private double getPreferenceValue(InvItem inv) {
@@ -153,9 +156,8 @@ public class AutoEatMod extends ToggleMod {
     return getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv) < 20;
   }
   
-  private boolean checkFailsafe() {
-    return (fail_safe_multiplier.get() == 0
-        || eatingTicks < food.itemUseDuration * fail_safe_multiplier.get());
+  private boolean checkFailsafe() { // TODO: replace 500 with longest food duration
+    return (fail_safe_multiplier.get() == 0 || eatingTicks < 500 * fail_safe_multiplier.get());
   }
   
   @Override
@@ -187,7 +189,7 @@ public class AutoEatMod extends ToggleMod {
         .filter(this::shouldEat)
         .ifPresent(
             best -> {
-              food = (ItemFood) best.getItem();
+              food = best.getItem().getFood();
               
               LocalPlayerInventory.setSelected(best, ticks -> !eating);
               
@@ -211,8 +213,7 @@ public class AutoEatMod extends ToggleMod {
                 }
                 
                 Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
-                getPlayerController()
-                    .processRightClick(getLocalPlayer(), getWorld(), EnumHand.MAIN_HAND);
+                getPlayerController().processRightClick(getLocalPlayer(), getWorld(), Hand.MAIN_HAND);
                 
                 ++eatingTicks;
               }
@@ -244,11 +245,11 @@ public class AutoEatMod extends ToggleMod {
     }
   }
   
-  @SubscribeEvent(priority = EventPriority.HIGHEST)
-  public void onGuiOpened(GuiOpenEvent event) {
-    // process keys and mouse input even if this gui is open
-    if (eating && getWorld() != null && getLocalPlayer() != null && event.getGui() != null) {
-      event.getGui().allowUserInput = true;
-    }
-  }
+//  @SubscribeEvent(priority = EventPriority.HIGHEST)
+//  public void onGuiOpened(GuiOpenEvent event) {
+//    // process keys and mouse input even if this gui is open
+//    if (eating && getWorld() != null && getLocalPlayer() != null && event.getGui() != null) {
+//      event.getGui().allowUserInput = true;
+//    }
+//  } // TODO: 1.15 might need to find alternative
 }

@@ -9,7 +9,7 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created by Babbaj on 10/28/2017.
@@ -41,8 +41,8 @@ public class CompassMod extends ToggleMod {
   
   @SubscribeEvent
   public void onRender(Render2DEvent event) {
-    final double centerX = event.getScreenWidth() / 2;
-    final double centerY = event.getScreenHeight() * 0.8;
+    final double centerX = event.getScreenWidth() / 2.D;
+    final double centerY = event.getScreenHeight() * 0.8D;
     
     for (Direction dir : Direction.values()) {
       double rad = getPosOnCompass(dir);

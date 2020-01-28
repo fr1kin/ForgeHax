@@ -1,13 +1,23 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 buildscript {
+  ext {
+    forgehaxVersion = project.property('forgehax.version')
+
+    minecraftVersion = project.property('forgehax.mc.version')
+    forgeVersion = project.property('forgehax.forge.version')
+
+    mcpVersion = project.property('forgehax.mcp.version')
+    mcpChannel = project.property('forgehax.mcp.channel')
+    mcpMapping = project.property('forgehax.mcp.mapping')
+  }
   repositories {
+    mavenCentral()
     jcenter()
     maven { url "http://files.minecraftforge.net/maven" }
-    maven { url "https://plugins.gradle.org/m2/" }
   }
   dependencies {
-    classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
   }
 }
 
@@ -18,37 +28,59 @@ repositories {
 
 apply plugin: 'java'
 apply plugin: 'idea'
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 
 sourceCompatibility = targetCompatibility = '1.8'
 
 group 'com.matt.forgehax'
-version project.property('forgehax.version')
+version forgehaxVersion
 
-archivesBaseName = "forgehax-" + project.property('forgehax.mc.version')
+archivesBaseName = "forgehax-${version}"
 
 configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 minecraft {
-  version = project.property('forgehax.forge.version')
-  runDir = "run"
+  mappings channel: mcpChannel, version: "${mcpMapping}-${mcpVersion}"
 
-  mappings = "${project.property('forgehax.mcp.channel')}_${project.property('forgehax.mcp.mapping')}"
+  runs {
+    client {
+      workingDirectory project.file('run')
+
+      // Recommended logging data for a userdev environment
+      property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+      // Recommended logging level for the console
+      property 'forge.logging.console.level', 'debug'
+
+      mods {
+        forgehax {
+          source sourceSets.main
+        }
+      }
+    }
+  }
 }
 
 dependencies {
+  minecraft "net.minecraftforge:forge:${forgeVersion}"
+
   testCompile group: 'junit', name: 'junit', version: '4.12'
   testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
 }
 
 jar {
   manifest {
-    attributes(
-      'FMLCorePlugin': 'com.matt.forgehax.asm.ForgeHaxCoreMod',
-      'FMLCorePluginContainsFMLMod': 'true'
-    )
+    attributes([
+        "Specification-Title": "ForgeHax",
+        "Specification-Vendor": "nhackindustries",
+        "Specification-Version": "1",
+        "Implementation-Title": project.name,
+        "Implementation-Version": "${version}",
+        "Implementation-Vendor" :"nhackindustries",
+        "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+    ])
   }
 }
 
@@ -62,12 +94,12 @@ processResources {
 
   filesMatching('**/config.properties') {
     it.filter ReplaceTokens, tokens: [
-      "forgehax.version"      : project.property("forgehax.version"),
-      "forgehax.mc.version"   : project.property("forgehax.mc.version"),
-      "forgehax.forge.version": project.property("forgehax.forge.version"),
-      "forgehax.mcp.version"  : project.property("forgehax.mcp.version"),
-      "forgehax.mcp.channel"  : project.property("forgehax.mcp.channel"),
-      "forgehax.mcp.mapping"  : project.property("forgehax.mcp.mapping")
+      "forgehax.version"      : forgehaxVersion,
+      "forgehax.mc.version"   : minecraftVersion,
+      "forgehax.forge.version": forgeVersion,
+      "forgehax.mcp.version"  : mcpVersion,
+      "forgehax.mcp.channel"  : mcpChannel,
+      "forgehax.mcp.mapping"  : mcpMapping
     ]
   }
 }

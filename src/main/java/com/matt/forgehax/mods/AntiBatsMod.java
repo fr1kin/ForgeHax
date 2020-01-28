@@ -8,33 +8,34 @@ import com.matt.forgehax.util.entity.mobtypes.MobTypeRegistry;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.EntityBat;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.BatEntity;
+import net.minecraft.util.SoundEvents;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AntiBatsMod extends ToggleMod {
   
-  private static final MobType BATS_MOBTYPE =
-      new MobType() {
-        @Override
-        protected PriorityEnum getPriority() {
-          return PriorityEnum.LOW;
-        }
-        
-        @Override
-        public boolean isMobType(Entity entity) {
-          return entity instanceof EntityBat;
-        }
-        
-        @Override
-        protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
-          return MobTypeEnum.INVALID;
-        }
-      };
+  private static final MobType BATS_MOBTYPE = new MobType() {
+    @Override
+    protected PriorityEnum getPriority() {
+      return PriorityEnum.LOW;
+    }
+
+    @Override
+    public boolean isMobType(Entity entity) {
+      return entity instanceof BatEntity;
+    }
+
+    @Override
+    protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
+      return MobTypeEnum.INVALID;
+    }
+  };
   
   public AntiBatsMod() {
     super(Category.RENDER, "AntiBats", false, "666 KILL BATS 666");
@@ -53,8 +54,8 @@ public class AntiBatsMod extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onRenderLiving(RenderLivingEvent.Pre<?> event) {
-    if (event.getEntity() instanceof EntityBat) {
+  public void onRenderLiving(RenderLivingEvent.Pre<? extends LivingEntity, ? extends EntityModel<?>> event) {
+    if (event.getEntity() instanceof BatEntity) {
       event.setCanceled(true);
     }
   }

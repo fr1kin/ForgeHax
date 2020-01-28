@@ -1,18 +1,22 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
+
+import net.minecraft.tileentity.SignTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntitySign;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.client.event.MouseEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Mouse;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created by Babbaj on 9/16/2017.
@@ -25,22 +29,20 @@ public class SignTextMod extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onInput(MouseEvent event) {
-    if (event.getButton() == 2 && Mouse.getEventButtonState()) { // on middle click
-      RayTraceResult result = MC.player.rayTrace(999, 0);
-      if (result == null) {
-        return;
-      }
-      if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
-        TileEntity tileEntity = MC.world.getTileEntity(result.getBlockPos());
+  public void onInput(InputEvent.MouseInputEvent event) {
+    // TODO: 1.15 mouse input
+    if (event.getButton() == 2 /*&& Mouse.getEventButtonState()*/) { // on middle click
+      RayTraceResult result = getLocalPlayer().pick(999, 0, false);
+      if (RayTraceResult.Type.BLOCK.equals(result.getType())) {
+        TileEntity tileEntity = getWorld().getTileEntity(new BlockPos(result.getHitVec()));
         
-        if (tileEntity instanceof TileEntitySign) {
-          TileEntitySign sign = (TileEntitySign) tileEntity;
+        if (tileEntity instanceof SignTileEntity) {
+          SignTileEntity sign = (SignTileEntity) tileEntity;
           
           int signTextLength = 0;
           // find the first line from the bottom that isn't empty
           for (int i = 3; i >= 0; i--) {
-            if (!sign.signText[i].getUnformattedText().isEmpty()) {
+            if (!sign.signText[i].getUnformattedComponentText().isEmpty()) {
               signTextLength = i + 1;
               break;
             }
@@ -58,7 +60,7 @@ public class SignTextMod extends ToggleMod {
           
           String fullText = String.join("\n", lines);
           
-          Helper.printMessage("Copied sign");
+          print("Copied sign");
           setClipboardString(fullText);
         }
       }

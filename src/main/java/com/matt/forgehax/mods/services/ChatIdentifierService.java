@@ -1,8 +1,7 @@
 package com.matt.forgehax.mods.services;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
 import com.google.common.util.concurrent.FutureCallback;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.ChatMessageEvent;
 import com.matt.forgehax.util.entity.PlayerInfo;
@@ -15,10 +14,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.network.play.server.SPacketChat;
+import net.minecraft.client.network.play.NetworkPlayerInfo;
+import net.minecraft.network.play.server.SChatPacket;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.getLocalPlayer;
 
 /**
  * Created on 7/18/2017 by fr1kin
@@ -72,11 +73,11 @@ public class ChatIdentifierService extends ServiceMod {
   public void onChatMessage(PacketEvent.Incoming.Pre event) {
     if (getLocalPlayer() == null || getLocalPlayer().connection == null) {
       return;
-    } else if (event.getPacket() instanceof SPacketChat) {
-      SPacketChat packet = event.getPacket();
-      String message = packet.getChatComponent().getUnformattedText();
+    } else if (event.getPacket() instanceof SChatPacket) {
+      SChatPacket packet = event.getPacket();
+      String message = packet.getChatComponent().getUnformattedComponentText();
       if (!Strings.isNullOrEmpty(message)) {
-        MC.addScheduledTask(() -> {
+        Globals.addScheduledTask(() -> {
           // normal public messages
           if (extract(
               message,
@@ -115,7 +116,7 @@ public class ChatIdentifierService extends ServiceMod {
                         // now get the local player
                         if (sender != null) {
                           PlayerInfoHelper.registerWithCallback(
-                              getLocalPlayer().getName(),
+                              getLocalPlayer().getGameProfile().getName(),
                               new FutureCallback<PlayerInfo>() {
                                 @Override
                                 public void onSuccess(@Nullable PlayerInfo result) {
@@ -128,7 +129,7 @@ public class ChatIdentifierService extends ServiceMod {
                                 @Override
                                 public void onFailure(Throwable t) {
                                   PlayerInfoHelper.generateOfflineWithCallback(
-                                      getLocalPlayer().getName(), this);
+                                      getLocalPlayer().getGameProfile().getName(), this);
                                 }
                               });
                         }
@@ -156,7 +157,7 @@ public class ChatIdentifierService extends ServiceMod {
                         // now get the local player
                         if (receiver != null) {
                           PlayerInfoHelper.registerWithCallback(
-                              getLocalPlayer().getName(),
+                              getLocalPlayer().getGameProfile().getName(),
                               new FutureCallback<PlayerInfo>() {
                                 @Override
                                 public void onSuccess(@Nullable PlayerInfo sender) {
@@ -169,7 +170,7 @@ public class ChatIdentifierService extends ServiceMod {
                                 @Override
                                 public void onFailure(Throwable t) {
                                   PlayerInfoHelper.generateOfflineWithCallback(
-                                      getLocalPlayer().getName(), this);
+                                      getLocalPlayer().getGameProfile().getName(), this);
                                 }
                               });
                         }

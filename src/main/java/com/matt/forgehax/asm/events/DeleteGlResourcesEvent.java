@@ -1,7 +1,7 @@
 package com.matt.forgehax.asm.events;
 
 import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Created on 5/8/2017 by fr1kin

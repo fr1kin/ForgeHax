@@ -1,8 +1,6 @@
 package com.matt.forgehax.util.entity;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getPlayerController;
-import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Globals.*;
 
 import com.google.common.base.Predicates;
 import com.matt.forgehax.Globals;
@@ -10,18 +8,16 @@ import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.services.SneakService;
 import com.matt.forgehax.util.Switch;
 import com.matt.forgehax.util.math.Angle;
+
+import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.PlayerCapabilities;
-import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.entity.player.PlayerAbilities;
+import net.minecraft.util.Direction;
+import net.minecraft.util.EntityPredicates;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.RayTraceResult.Type;
-import net.minecraft.util.math.Vec3d;
 
 /**
  * Class for dealing with the local player only
@@ -40,18 +36,18 @@ public class LocalPlayerUtils implements Globals {
   }
   
   public static Vec3d getVelocity() {
-    return new Vec3d(getLocalPlayer().motionX, getLocalPlayer().motionY, getLocalPlayer().motionZ);
+    return getLocalPlayer().getMotion();
   }
   
   public static boolean isSneaking() {
-    return getLocalPlayer().isSneaking();
+    return getLocalPlayer().isCrouching();
   }
   
   public static boolean setSneaking(boolean sneak) {
     boolean old = isSneaking();
     getLocalPlayer().setSneaking(sneak);
     if (getLocalPlayer().movementInput != null) {
-      getLocalPlayer().movementInput.sneak = sneak;
+      getLocalPlayer().movementInput.field_228350_h_ = sneak;
     }
     return old;
   }
@@ -77,60 +73,52 @@ public class LocalPlayerUtils implements Globals {
   }
   
   public static RayTraceResult getMouseOverBlockTrace() {
-    return Optional.ofNullable(MC.objectMouseOver)
-        .filter(tr -> tr.getBlockPos() != null) // no its not intelliJ
-        .filter(
-            tr ->
-                Type.BLOCK.equals(tr.typeOfHit)
-                    || !Material.AIR.equals(
-                    getWorld().getBlockState(tr.getBlockPos()).getMaterial()))
+    return Optional.ofNullable(getViewTrace())
+        .filter(tr -> Type.BLOCK.equals(tr.getType()))
         .orElse(null);
   }
   
-  public static RayTraceResult getViewTrace(
-      Entity entity, Vec3d direction, float partialTicks, double reach, double reachAttack) {
+  public static RayTraceResult getViewTrace(Entity entity, Vec3d direction,
+      float partialTicks, double reach, double reachAttack) {
     if (entity == null) {
       return null;
     }
     
-    Vec3d eyes = entity.getPositionEyes(partialTicks);
-    RayTraceResult trace = entity.rayTrace(reach, partialTicks);
+    Vec3d eyes = entity.getEyePosition(partialTicks);
+    RayTraceResult trace = entity.pick(reach, partialTicks, false);
     
     Vec3d dir = direction.scale(reach);
     Vec3d lookDir = eyes.add(dir);
     
-    double hitDistance = trace == null ? reachAttack : trace.hitVec.distanceTo(eyes);
+    double hitDistance = Type.MISS.equals(trace.getType()) ? reachAttack : trace.getHitVec().distanceTo(eyes);
     Entity hitEntity = null;
     Vec3d hitEntityVec = null;
     
-    for (Entity ent :
-        getWorld()
-            .getEntitiesInAABBexcluding(
-                entity,
-                entity.getEntityBoundingBox().expand(dir.x, dir.y, dir.y).grow(1.D),
-                Predicates.and(
-                    EntitySelectors.NOT_SPECTATING,
-                    ent -> ent != null && ent.canBeCollidedWith()))) {
-      AxisAlignedBB bb = ent.getEntityBoundingBox().grow(ent.getCollisionBorderSize());
-      RayTraceResult tr = bb.calculateIntercept(eyes, lookDir);
+    for (Entity ent : getWorld().getEntitiesInAABBexcluding(entity,
+        entity.getBoundingBox().expand(dir.x, dir.y, dir.y).grow(1.D),
+        EntityPredicates.NOT_SPECTATING
+            .and(Objects::nonNull)
+            .and(Entity::canBeCollidedWith))) {
+      AxisAlignedBB bb = ent.getBoundingBox().grow(ent.getCollisionBorderSize());
+      Vec3d hitVec = bb.rayTrace(eyes, lookDir).orElse(null);
       if (bb.contains(eyes)) {
         if (hitDistance > 0.D) {
           hitEntity = ent;
-          hitEntityVec = tr == null ? eyes : tr.hitVec;
+          hitEntityVec = hitVec == null ? eyes : hitVec;
           hitDistance = 0.D;
         }
-      } else if (tr != null) {
-        double dist = eyes.distanceTo(tr.hitVec);
+      } else if (hitVec != null) {
+        double dist = eyes.distanceTo(hitVec);
         if (dist < hitDistance || hitDistance == 0.D) {
           if (entity.getLowestRidingEntity() == ent.getLowestRidingEntity()
               && !ent.canRiderInteract()) {
             if (hitDistance == 0.D) {
               hitEntity = ent;
-              hitEntityVec = tr.hitVec;
+              hitEntityVec = hitVec;
             }
           } else {
             hitEntity = ent;
-            hitEntityVec = tr.hitVec;
+            hitEntityVec = hitVec;
             hitDistance = dist;
           }
         }
@@ -138,9 +126,9 @@ public class LocalPlayerUtils implements Globals {
     }
     
     if (hitEntity != null && reach > 3.D && eyes.distanceTo(hitEntityVec) > 3.D) {
-      return new RayTraceResult(Type.MISS, hitEntityVec, EnumFacing.UP, new BlockPos(hitEntityVec));
+      return new BlockRayTraceResult(hitEntityVec, Direction.UP, new BlockPos(hitEntityVec), false);
     } else if (hitEntity != null && trace == null && hitDistance < reachAttack) {
-      return new RayTraceResult(hitEntity, hitEntityVec);
+      return new EntityRayTraceResult(hitEntity, hitEntityVec);
     } else {
       return trace;
     }
@@ -155,29 +143,27 @@ public class LocalPlayerUtils implements Globals {
   private static final Switch FLY_SWITCH = new Switch("PlayerFlying") {
     @Override
     protected void onEnabled() {
-      MC.addScheduledTask(() -> {
-        if (getLocalPlayer() == null || getLocalPlayer().capabilities == null) {
+      addScheduledTask(() -> {
+        if (getLocalPlayer() == null || getLocalPlayer().abilities == null) {
           return;
         }
-        
-        getLocalPlayer().capabilities.allowFlying = true;
-        getLocalPlayer().capabilities.isFlying = true;
+
+        getLocalPlayer().abilities.allowFlying = true;
+        getLocalPlayer().abilities.isFlying = true;
       });
     }
     
     @Override
     protected void onDisabled() {
-      MC.addScheduledTask(() -> {
-        EntityPlayer player = getLocalPlayer();
-        
-        if (player == null || player.capabilities == null) {
+      addScheduledTask(() -> {
+        if (getLocalPlayer() == null || getLocalPlayer().abilities == null) {
           return;
         }
         
-        PlayerCapabilities gmCaps = new PlayerCapabilities();
-        MC.playerController.getCurrentGameType().configurePlayerCapabilities(gmCaps);
+        PlayerAbilities gmCaps = new PlayerAbilities();
+        getPlayerController().getCurrentGameType().configurePlayerCapabilities(gmCaps);
         
-        PlayerCapabilities capabilities = player.capabilities;
+        PlayerAbilities capabilities = getLocalPlayer().abilities;
         capabilities.allowFlying = gmCaps.allowFlying;
         capabilities.isFlying = gmCaps.allowFlying && capabilities.isFlying;
         capabilities.setFlySpeed(gmCaps.getFlySpeed());

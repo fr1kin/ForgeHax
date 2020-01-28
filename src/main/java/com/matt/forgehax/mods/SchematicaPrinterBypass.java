@@ -6,12 +6,12 @@ import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created by Babbaj on 9/20/2017.
@@ -25,13 +25,11 @@ public class SchematicaPrinterBypass extends ToggleMod {
 
   @SubscribeEvent
   public void onPrinterBlockPlace(SchematicaPlaceBlockEvent event) {
-    final BlockPos lookpos = event.getPos().offset(event.getSide());
-    final Vec3d newvec = new Vec3d(lookpos.getX() + 0.5, lookpos.getY() + 0.5, lookpos.getZ() + 0.5);
+    final BlockPos pos = event.getPos().offset(event.getSide());
+    final Vec3d vec = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
 
-    Angle lookAngle = Utils.getLookAtAngles(newvec);
-    getNetworkManager()
-        .sendPacket(
-            new CPacketPlayer.Rotation(
-                lookAngle.getYaw(), lookAngle.getPitch(), getLocalPlayer().onGround));
+    Angle lookAngle = Utils.getLookAtAngles(vec);
+    sendNetworkPacket(new CPlayerPacket.RotationPacket(lookAngle.getYaw(),
+        lookAngle.getPitch(), getLocalPlayer().onGround));
   }
 }

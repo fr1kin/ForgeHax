@@ -1,14 +1,14 @@
 package com.matt.forgehax.mods;
 
 import com.matt.forgehax.asm.reflection.FastReflection;
+import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.MobEffects;
+import net.minecraft.potion.Effects;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AntiEffectsMod extends ToggleMod {
@@ -17,7 +17,7 @@ public class AntiEffectsMod extends ToggleMod {
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("no_particles")
+          .name("no-particles")
           .description("Stops the particle effect from rendering on other entities")
           .defaultTo(true)
           .build();
@@ -27,18 +27,21 @@ public class AntiEffectsMod extends ToggleMod {
   }
   
   @SubscribeEvent
+  public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
+    event.getEntity().setInvisible(false);
+    event.getEntityLiving().removePotionEffect(Effects.NAUSEA);
+    event.getEntityLiving().removePotionEffect(Effects.INVISIBILITY);
+    event.getEntityLiving().removePotionEffect(Effects.BLINDNESS);
+
+    // removes particle effect
+    FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(event.getEntityLiving());
+  }
+
+  @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
-    EntityLivingBase living = event.getEntityLiving();
-    if (living.equals(MC.player)) {
-      living.setInvisible(false);
-      living.removePotionEffect(MobEffects.NAUSEA);
-      living.removePotionEffect(MobEffects.INVISIBILITY);
-      living.removePotionEffect(MobEffects.BLINDNESS);
-      // removes particle effect
-      FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(living);
-    } else if (no_particles.get()) {
-      living.setInvisible(false);
-      FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(living);
+    if(no_particles.get()) {
+      event.getEntity().setInvisible(false);
+      FastReflection.Methods.EntityLivingBase_resetPotionEffectMetadata.invoke(event.getEntityLiving());
     }
   }
 }

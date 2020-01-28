@@ -1,8 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.BlockControllerProcessEvent;
 import com.matt.forgehax.asm.events.LeftClickCounterUpdateEvent;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -12,9 +10,11 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class AutoMine extends ToggleMod {
@@ -43,7 +43,7 @@ public class AutoMine extends ToggleMod {
   
   @SubscribeEvent
   public void onTick(TickEvent.ClientTickEvent event) {
-    if (getLocalPlayer() == null || getWorld() == null) {
+    if (!isInWorld()) {
       return;
     }
     
@@ -65,13 +65,13 @@ public class AutoMine extends ToggleMod {
     }
   }
   
-  @SubscribeEvent(priority = EventPriority.HIGHEST)
-  public void onGuiOpened(GuiOpenEvent event) {
-    // process keys and mouse input even if this gui is open
-    if (getWorld() != null && getLocalPlayer() != null && event.getGui() != null) {
-      event.getGui().allowUserInput = true;
-    }
-  }
+//  @SubscribeEvent(priority = EventPriority.HIGHEST)
+//  public void onGuiOpened(GuiOpenEvent event) {
+//    // process keys and mouse input even if this gui is open
+//    if (getWorld() != null && getLocalPlayer() != null && event.getGui() != null) {
+//      event.getGui().allowUserInput = true;
+//    }
+//  } // TODO: 1.15 might need to update this
   
   @SubscribeEvent
   public void onLeftClickCouterUpdate(LeftClickCounterUpdateEvent event) {

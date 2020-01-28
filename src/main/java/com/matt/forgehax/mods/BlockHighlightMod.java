@@ -5,8 +5,8 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class BlockHighlightMod extends ToggleMod {
@@ -63,8 +63,7 @@ public class BlockHighlightMod extends ToggleMod {
           .build();
   
   public BlockHighlightMod() {
-    super(
-        Category.RENDER, "BlockHighlight", false, "Make selected block bounding box more visible");
+    super(Category.RENDER, "BlockHighlight", false, "Make selected block bounding box more visible");
   }
   
   private float toFloat(int colorVal) {
@@ -73,8 +72,8 @@ public class BlockHighlightMod extends ToggleMod {
   
   @SubscribeEvent
   public void onRenderBoxPre(DrawBlockBoundingBoxEvent.Pre event) {
-    GlStateManager.disableDepth();
-    GlStateManager.glLineWidth(width.get());
+    GlStateManager.disableDepthTest();
+    GlStateManager.lineWidth(width.get());
     event.alpha = toFloat(alpha.get());
     event.red = toFloat(red.get());
     event.green = toFloat(green.get());
@@ -83,6 +82,6 @@ public class BlockHighlightMod extends ToggleMod {
   
   @SubscribeEvent
   public void onRenderBoxPost(DrawBlockBoundingBoxEvent.Post event) {
-    GlStateManager.enableDepth();
+    GlStateManager.enableDepthTest();
   }
 }

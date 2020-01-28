@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
@@ -12,11 +11,15 @@ import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.item.EntityItem;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.stream.StreamSupport;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class ItemESP extends ToggleMod {
@@ -38,27 +41,25 @@ public class ItemESP extends ToggleMod {
   @SubscribeEvent
   public void onRender2D(final Render2DEvent event) {
     GlStateManager.enableBlend();
-    GlStateManager.tryBlendFuncSeparate(
-        GlStateManager.SourceFactor.SRC_ALPHA,
-        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-        GlStateManager.SourceFactor.ONE,
-        GlStateManager.DestFactor.ZERO);
-    GlStateManager.enableTexture2D();
-    GlStateManager.disableDepth();
+    GlStateManager.blendFuncSeparate(
+        GlStateManager.SourceFactor.SRC_ALPHA.param,
+        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param,
+        GlStateManager.SourceFactor.ONE.param,
+        GlStateManager.DestFactor.ZERO.param);
+    GlStateManager.enableTexture();
+    GlStateManager.disableDepthTest();
     
     final double scale = this.scale.get() == 0 ? 1.D : this.scale.get();
-    
-    getWorld()
-        .loadedEntityList
-        .stream()
-        .filter(EntityItem.class::isInstance)
-        .map(EntityItem.class::cast)
+
+    StreamSupport.stream(getWorld().getAllEntities().spliterator(), false)
+        .filter(ItemEntity.class::isInstance)
+        .map(ItemEntity.class::cast)
         .filter(entity -> entity.ticksExisted > 1)
         .forEach(
             entity -> {
               Vec3d bottomPos = EntityUtils.getInterpolatedPos(entity, event.getPartialTicks());
               Vec3d topPos =
-                  bottomPos.addVector(0.D, entity.getRenderBoundingBox().maxY - entity.posY, 0.D);
+                  bottomPos.add(0.D, entity.getRenderBoundingBox().maxY - entity.getPosY(), 0.D);
               
               Plane top = VectorUtils.toScreen(topPos);
               Plane bot = VectorUtils.toScreen(bottomPos);
@@ -71,7 +72,7 @@ public class ItemESP extends ToggleMod {
               double offY = bot.getY() - top.getY();
               
               GlStateManager.pushMatrix();
-              GlStateManager.translate(top.getX() - (offX / 2.D), bot.getY(), 0);
+              GlStateManager.translated(top.getX() - (offX / 2.D), bot.getY(), 0);
               
               ItemStack stack = entity.getItem();
               String text =
@@ -87,7 +88,7 @@ public class ItemESP extends ToggleMod {
               GlStateManager.popMatrix();
             });
     
-    GlStateManager.enableDepth();
+    GlStateManager.enableDepthTest();
     GlStateManager.disableBlend();
   }
 }

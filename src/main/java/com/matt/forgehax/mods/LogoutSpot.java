@@ -1,9 +1,9 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Globals.*;
 
 import com.google.common.collect.Sets;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.PlayerConnectEvent;
@@ -22,12 +22,12 @@ import com.matt.forgehax.util.tesselation.GeometryTessellator;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 @RegisterMod
@@ -107,9 +107,9 @@ public class LogoutSpot extends ToggleMod {
       return;
     }
     
-    EntityPlayer player = getWorld().getPlayerEntityByUUID(event.getPlayerInfo().getId());
+    PlayerEntity player = getWorld().getPlayerByUuid(event.getPlayerInfo().getId());
     if (player != null && getLocalPlayer() != null && !getLocalPlayer().equals(player)) {
-      AxisAlignedBB bb = player.getEntityBoundingBox();
+      AxisAlignedBB bb = player.getBoundingBox();
       synchronized (spots) {
         if (spots.add(
             new LogoutPos(
@@ -195,7 +195,7 @@ public class LogoutSpot extends ToggleMod {
     reset();
   }
   
-  private class LogoutPos {
+  private static class LogoutPos {
     
     final UUID id;
     final String name;

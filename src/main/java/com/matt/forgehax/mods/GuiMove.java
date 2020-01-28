@@ -1,18 +1,22 @@
 package com.matt.forgehax.mods;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.gui.GuiIngameMenu;
-import net.minecraft.client.gui.GuiOptions;
-import net.minecraft.client.gui.GuiScreenOptionsSounds;
-import net.minecraft.client.gui.GuiVideoSettings;
-import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.IngameGui;
+import net.minecraft.client.gui.screen.IngameMenuScreen;
+import net.minecraft.client.gui.screen.OptionsScreen;
+import net.minecraft.client.gui.screen.OptionsSoundsScreen;
+import net.minecraft.client.gui.screen.VideoSettingsScreen;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.util.InputMappings;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created by Babbaj on 9/5/2017.
@@ -27,26 +31,27 @@ public class GuiMove extends ToggleMod {
   @SubscribeEvent
   public void LocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     KeyBinding[] keys = {
-        MC.gameSettings.keyBindForward,
-        MC.gameSettings.keyBindBack,
-        MC.gameSettings.keyBindLeft,
-        MC.gameSettings.keyBindRight,
-        MC.gameSettings.keyBindJump,
-        MC.gameSettings.keyBindSprint
+        getGameSettings().keyBindForward,
+        getGameSettings().keyBindBack,
+        getGameSettings().keyBindLeft,
+        getGameSettings().keyBindRight,
+        getGameSettings().keyBindJump,
+        getGameSettings().keyBindSprint
     };
-    if (MC.currentScreen instanceof GuiOptions
-        || MC.currentScreen instanceof GuiVideoSettings
-        || MC.currentScreen instanceof GuiScreenOptionsSounds
-        || MC.currentScreen instanceof GuiContainer
-        || MC.currentScreen instanceof GuiIngameMenu
-        || MC.currentScreen instanceof ClickGui) {
+    if (getDisplayScreen() instanceof OptionsScreen
+        || getDisplayScreen() instanceof VideoSettingsScreen
+        || getDisplayScreen() instanceof OptionsSoundsScreen
+        || getDisplayScreen() instanceof ContainerScreen
+        || getDisplayScreen() instanceof IngameMenuScreen
+        || getDisplayScreen() instanceof ClickGui) {
       for (KeyBinding bind : keys) {
-        KeyBinding.setKeyBindState(bind.getKeyCode(), Keyboard.isKeyDown(bind.getKeyCode()));
+        KeyBinding.setKeyBindState(bind.getKey(),
+            InputMappings.isKeyDown(getMainWindow().getHandle(), bind.getKey().getKeyCode()));
       }
-    } else if (MC.currentScreen == null) {
+    } else if (getDisplayScreen() == null) {
       for (KeyBinding bind : keys) {
-        if (!Keyboard.isKeyDown(bind.getKeyCode())) {
-          KeyBinding.setKeyBindState(bind.getKeyCode(), false);
+        if(InputMappings.isKeyDown(getMainWindow().getHandle(), bind.getKey().getKeyCode())) {
+          KeyBinding.setKeyBindState(bind.getKey(), false);
         }
       }
     }

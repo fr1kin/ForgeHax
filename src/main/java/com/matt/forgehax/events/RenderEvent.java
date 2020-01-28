@@ -1,9 +1,10 @@
 package com.matt.forgehax.events;
 
 import com.matt.forgehax.util.tesselation.GeometryTessellator;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Created on 5/5/2017 by fr1kin
@@ -33,7 +34,8 @@ public class RenderEvent extends Event {
   }
   
   public void setTranslation(Vec3d translation) {
-    getBuffer().setTranslation(-translation.x, -translation.y, -translation.z);
+    // TODO
+    //getBuffer().setTranslation(-translation.x, -translation.y, -translation.z);
   }
   
   public void resetTranslation() {

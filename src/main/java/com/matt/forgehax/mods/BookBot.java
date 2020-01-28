@@ -1,13 +1,11 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getFileManager;
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.printWarning;
-
 import com.google.common.collect.Lists;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.SafeConverter;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.console.ConsoleIO;
+import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -21,15 +19,17 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Scanner;
 import java.util.function.Consumer;
-import net.minecraft.client.gui.GuiScreenBook;
-import net.minecraft.entity.player.InventoryPlayer;
+
+import net.minecraft.client.gui.screen.EditBookScreen;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemWritableBook;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.item.WritableBookItem;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.CPacketCustomPayload;
-import net.minecraft.util.EnumHand;
+import net.minecraft.network.play.client.CEditBookPacket;
+import net.minecraft.util.Hand;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created on 12/17/2017 by fr1kin
@@ -51,16 +51,14 @@ public class BookBot extends ToggleMod {
           .name("name")
           .description("Name of the book, use {NUMBER} for the number")
           .defaultTo("Book #{NUMBER}")
-          .changed(
-              cb -> {
-                // 3 digits seems like a reasonable upper limit
-                String str = cb.getTo().replaceAll(NUMBER_TOKEN, "XXX");
-                if (str.length() > 32) {
-                  printWarning(
-                      "Final book names longer than 32 letters will cause crashes! Current length (assuming 3 digits): %d",
-                      str.length());
-                }
-              })
+          .changed(cb -> {
+            // 3 digits seems like a reasonable upper limit
+            String str = cb.getTo().replaceAll(NUMBER_TOKEN, "XXX");
+            if (str.length() > 32) {
+              printWarning("Final book names longer than 32 letters will cause crashes!"
+                      + "Current length (assuming 3 digits): %d", str.length());
+            }
+          })
           .build();
   
   private final Setting<String> file =
@@ -197,25 +195,24 @@ public class BookBot extends ToggleMod {
         .newCommandBuilder()
         .name("start")
         .description("Start book bot. Can optionally set the starting position")
-        .processor(
-            data -> {
-              if (writerThread != null) {
-                throw new RuntimeException("BookBot thread already running!");
-              }
-              
-              Integer page = SafeConverter.toInteger(data.getArgument(0), 0);
-              
-              if (writer == null) {
-                writer = loadFile();
-                data.write(String.format("BookBot file \"%s\" loaded successfully", file.get()));
-              }
-              
-              writer.setPage(page);
-              writerThread = new Thread(writer);
-              writer.start();
-              writerThread.start();
-              data.write("BookBot task started");
-            })
+        .processor(data -> {
+          if (writerThread != null) {
+            throw new RuntimeException("BookBot thread already running!");
+          }
+
+          Integer page = SafeConverter.toInteger(data.getArgument(0), 0);
+
+          if (writer == null) {
+            writer = loadFile();
+            data.write(String.format("BookBot file \"%s\" loaded successfully", file.get()));
+          }
+
+          writer.setPage(page);
+          writerThread = new Thread(writer);
+          writer.start();
+          writerThread.start();
+          data.write("BookBot task started");
+        })
         .build();
     
     getCommandStub()
@@ -223,18 +220,17 @@ public class BookBot extends ToggleMod {
         .newCommandBuilder()
         .name("reset")
         .description("Stop the BookBot task")
-        .processor(
-            data -> {
-              if (writer != null) {
-                writer.setFinalListener(
-                    o -> ConsoleIO.write("BookBot task stopped at page " + writer.getPage()));
-                writer.stop();
-                writerThread = null;
-                data.write("Stopping BookBot");
-              } else {
-                data.write("No writer present");
-              }
-            })
+        .processor(data -> {
+          if (writer != null) {
+            writer.setFinalListener(
+                o -> ConsoleIO.write("BookBot task stopped at page " + writer.getPage()));
+            writer.stop();
+            writerThread = null;
+            data.write("Stopping BookBot");
+          } else {
+            data.write("No writer present");
+          }
+        })
         .build();
     
     getCommandStub()
@@ -242,16 +238,15 @@ public class BookBot extends ToggleMod {
         .newCommandBuilder()
         .name("resume")
         .description("Resume the BookBot task")
-        .processor(
-            data -> {
-              if (writer != null) {
-                writerThread = new Thread(writer);
-                writer.start();
-                writerThread.start();
-              } else {
-                data.write("No writer present");
-              }
-            })
+        .processor(data -> {
+          if (writer != null) {
+            writerThread = new Thread(writer);
+            writer.start();
+            writerThread.start();
+          } else {
+            data.write("No writer present");
+          }
+        })
         .build();
     
     getCommandStub()
@@ -259,19 +254,18 @@ public class BookBot extends ToggleMod {
         .newCommandBuilder()
         .name("delete")
         .description("Delete the writer bot instance")
-        .processor(
-            data -> {
-              if (writer != null) {
-                writer.setFinalListener(
-                    o -> ConsoleIO.write("BookBot task stopped at page " + writer.getPage()));
-                writer.stop();
-                writer = null;
-                writerThread = null;
-                data.write("Shutting down BookBot instance");
-              } else {
-                data.write("No writer present");
-              }
-            })
+        .processor(data -> {
+          if (writer != null) {
+            writer.setFinalListener(
+                o -> ConsoleIO.write("BookBot task stopped at page " + writer.getPage()));
+            writer.stop();
+            writer = null;
+            writerThread = null;
+            data.write("Shutting down BookBot instance");
+          } else {
+            data.write("No writer present");
+          }
+        })
         .build();
     
     getCommandStub()
@@ -279,11 +273,10 @@ public class BookBot extends ToggleMod {
         .newCommandBuilder()
         .name("load")
         .description("Load the file into memory")
-        .processor(
-            data -> {
-              writer = loadFile();
-              data.write(String.format("BookBot file \"%s\" loaded successfully", file.get()));
-            })
+        .processor(data -> {
+          writer = loadFile();
+          data.write(String.format("BookBot file \"%s\" loaded successfully", file.get()));
+        })
         .build();
     
     getCommandStub()
@@ -291,36 +284,35 @@ public class BookBot extends ToggleMod {
         .newCommandBuilder()
         .name("save")
         .description("Save the contents to a .book file in the forgehax folder")
-        .processor(
-            data -> {
-              String fname = data.getArgument(0);
-              
-              // optional argument, if not given use name from file variable and rename the
-              // extension to .book
-              if (fname == null || fname.isEmpty()) {
-                fname = file.get();
-                if (!fname.endsWith(".book")) {
-                  fname = fname.substring(0, fname.lastIndexOf('.'));
-                }
-              }
-              if (!fname.endsWith(".book")) {
-                fname += ".book"; // append extension type
-              }
-              
-              if (writer != null) {
-                try (BufferedWriter out = Files.newBufferedWriter(
-                    getFileManager().getBaseResolve(fname),
-                    StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-                  out.write(writer.contents);
-                  data.write("Successfully saved book data");
-                } catch (IOException e) {
-                  data.write("Failed to write file");
-                }
-              } else {
-                data.write("No writer present");
-              }
-            })
+        .processor(data -> {
+          String fname = data.getArgument(0);
+
+          // optional argument, if not given use name from file variable and rename the
+          // extension to .book
+          if (fname == null || fname.isEmpty()) {
+            fname = file.get();
+            if (!fname.endsWith(".book")) {
+              fname = fname.substring(0, fname.lastIndexOf('.'));
+            }
+          }
+          if (!fname.endsWith(".book")) {
+            fname += ".book"; // append extension type
+          }
+
+          if (writer != null) {
+            try (BufferedWriter out = Files.newBufferedWriter(
+                getFileManager().getBaseResolve(fname),
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+              out.write(writer.contents);
+              data.write("Successfully saved book data");
+            } catch (IOException e) {
+              data.write("Failed to write file");
+            }
+          } else {
+            data.write("No writer present");
+          }
+        })
         .build();
   }
   
@@ -423,30 +415,27 @@ public class BookBot extends ToggleMod {
     }
     
     private void sendBook(ItemStack stack) {
-      NBTTagList pages = new NBTTagList(); // page tag list
+      ListNBT pages = new ListNBT(); // page tag list
       
       // copy pages into NBT
       for (int i = 0; i < MAX_PAGES && parser.hasNext(); i++) {
-        pages.appendTag(new NBTTagString(parser.next().trim()));
+        pages.add(StringNBT.valueOf(parser.next().trim()));
         page++;
       }
       
       // set our client side book
-      if (stack.hasTagCompound()) {
-        stack.getTagCompound().setTag("pages", pages);
-      } else {
-        stack.setTagInfo("pages", pages);
-      }
+      stack.setTagInfo("pages", pages);
       
       // publish the book
-      stack.setTagInfo("author", new NBTTagString(getLocalPlayer().getName()));
-      stack.setTagInfo(
-          "title",
-          new NBTTagString(parent.name.get().replaceAll(NUMBER_TOKEN, "" + getBook()).trim()));
+      stack.setTagInfo("author", StringNBT.valueOf(getLocalPlayer().getGameProfile().getName()));
+      stack.setTagInfo("title", StringNBT.valueOf(parent.name.get()
+          .replaceAll(NUMBER_TOKEN, "" + getBook())
+          .trim()));
       
       PacketBuffer buff = new PacketBuffer(Unpooled.buffer());
       buff.writeItemStack(stack);
-      MC.getConnection().sendPacket(new CPacketCustomPayload("MC|BSign", buff));
+      sendNetworkPacket(new CEditBookPacket(stack, true, Hand.MAIN_HAND));
+      //MC.getConnection().sendPacket(new CPacketCustomPayload("MC|BSign", buff));
     }
     
     @Override
@@ -470,11 +459,10 @@ public class BookBot extends ToggleMod {
           // search for empty book
           int slot = -1;
           ItemStack selected = null;
-          for (int i = 0; i < InventoryPlayer.getHotbarSize(); i++) {
+          for (int i = 0; i < LocalPlayerInventory.getHotbarSize(); i++) {
             ItemStack stack = getLocalPlayer().inventory.getStackInSlot(i);
-            if (stack != null
-                && !stack.equals(ItemStack.EMPTY)
-                && stack.getItem() instanceof ItemWritableBook) {
+            if (!stack.equals(ItemStack.EMPTY)
+                && stack.getItem() instanceof WritableBookItem) {
               slot = i;
               selected = stack;
               break;
@@ -498,23 +486,22 @@ public class BookBot extends ToggleMod {
           
           // open the book gui screen
           this.status = Status.OPENING_BOOK;
-          MC.addScheduledTask(() -> getLocalPlayer().openBook(item, EnumHand.MAIN_HAND));
+          addScheduledTask(() -> getLocalPlayer().openBook(item, Hand.MAIN_HAND));
           
           // wait for gui to open
-          while (!(MC.currentScreen instanceof GuiScreenBook)) {
+          while (!(getDisplayScreen() instanceof EditBookScreen)) {
             sleep();
           }
           
           // send book to server
           this.status = Status.WRITING_BOOK;
-          MC.addScheduledTask(
-              () -> {
-                sendBook(item);
-                MC.displayGuiScreen(null);
-              });
+          addScheduledTask(() -> {
+            sendBook(item);
+            setDisplayScreen(null);
+          });
           
           // wait for screen to close
-          while (MC.currentScreen != null) {
+          while (getDisplayScreen() != null) {
             sleep();
           }
         }

@@ -1,19 +1,20 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getRidingEntity;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.passive.AbstractHorse;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created by Babbaj on 9/1/2017.
@@ -53,7 +54,7 @@ public class HorseStats extends ToggleMod {
   
   @Override
   public void onDisabled() {
-    if (getRidingEntity() instanceof AbstractHorse) {
+    if (getMountedEntity() instanceof AbstractHorseEntity) {
       applyStats(jumpHeight.getDefault(), speed.getDefault());
     }
   }
@@ -61,7 +62,7 @@ public class HorseStats extends ToggleMod {
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
     if (EntityUtils.isDrivenByPlayer(event.getEntity())
-        && getRidingEntity() instanceof AbstractHorse) {
+        && getMountedEntity() instanceof AbstractHorseEntity) {
       
       double newSpeed = speed.getAsDouble();
       if (getLocalPlayer().isSprinting()) {
@@ -73,15 +74,15 @@ public class HorseStats extends ToggleMod {
   
   private void applyStats(double newJump, double newSpeed) {
     final IAttribute jump_strength =
-        FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getRidingEntity());
+        FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getMountedEntity());
     final IAttribute movement_speed =
-        FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getRidingEntity());
+        FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getMountedEntity());
     
-    ((EntityLivingBase) getRidingEntity())
-        .getEntityAttribute(jump_strength)
+    ((LivingEntity) getMountedEntity())
+        .getAttribute(jump_strength)
         .setBaseValue(newJump);
-    ((EntityLivingBase) getRidingEntity())
-        .getEntityAttribute(movement_speed)
+    ((LivingEntity) getMountedEntity())
+        .getAttribute(movement_speed)
         .setBaseValue(newSpeed);
   }
 }

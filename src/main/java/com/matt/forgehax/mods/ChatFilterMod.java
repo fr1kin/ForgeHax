@@ -10,8 +10,8 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.serialization.ISerializableJson;
-import net.minecraft.network.play.server.SPacketChat;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.network.play.server.SChatPacket;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.io.IOException;
 import java.util.*;
@@ -39,9 +39,9 @@ public class ChatFilterMod extends ToggleMod {
 
   @SubscribeEvent
   public void onChatMessage(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketChat) {
-      final SPacketChat packet = event.getPacket();
-      final String message = packet.getChatComponent().getUnformattedText();
+    if (event.getPacket() instanceof SChatPacket) {
+      final SChatPacket packet = event.getPacket();
+      final String message = packet.getChatComponent().getUnformattedComponentText();
 
       final boolean shouldFilter = filterList.stream()
           .map(FilterEntry::getRegex)

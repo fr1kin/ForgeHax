@@ -4,11 +4,12 @@ import static com.matt.forgehax.Globals.MC;
 import static com.matt.forgehax.util.color.Colors.GRAY;
 import static com.matt.forgehax.util.color.Colors.WHITE;
 
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import java.io.IOException;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.VirtualScreen;
 
 /**
  * Created by Babbaj on 9/5/2017.
@@ -19,18 +20,15 @@ public abstract class GuiWindow {
   
   private String title;
   
-  public int posX, headerY, windowY;
-  public int bottomX, bottomY;
+  public double posX, headerY, windowY;
+  public double bottomX, bottomY;
   
   // coords of where the window is being dragged from
-  private int dragX, dragY;
+  private double dragX, dragY;
   
   private boolean dragging;
   
-  final int maxHeight =
-    (int)
-      (ClickGui.scaledRes.getScaledHeight()
-        * 0.8); // a window can only take up 80% of the height of the window
+  final int maxHeight = (int) (Globals.getScreenHeight() * 0.8); // a window can only take up 80% of the height of the window
   public int width, height; // width of the window
   
   GuiWindow(String titleIn) {
@@ -47,14 +45,14 @@ public abstract class GuiWindow {
     return title;
   }
   
-  boolean isMouseInHeader(int mouseX, int mouseY) {
+  boolean isMouseInHeader(double mouseX, double mouseY) {
     return (mouseX > posX && mouseX < posX + width && mouseY > headerY && mouseY < headerY + 20);
   }
   
   /**
    * 0 == Left Click 1 == Right Click 2 == Middle Click
    */
-  public void mouseClicked(int mouseX, int mouseY, int state) {
+  public void mouseClicked(double mouseX, double mouseY, int state) {
     if (state != 0) {
       return;
     }
@@ -66,39 +64,36 @@ public abstract class GuiWindow {
     }
   }
   
-  public void mouseReleased(int x, int y, int state) {
+  public void mouseReleased(double x, double y, int state) {
     dragging = false;
   }
   
-  public void handleMouseInput() throws IOException {
-    // scrolling
-  }
+  public void handleMouseInput(double mouseX, double mouseY) {}
+
+  public void mouseScrollEvent() {}
   
-  public void keyTyped(char typedChar, int keyCode) throws IOException {
-    // text input
-  }
+  public void keyTyped(char typedChar, int keyCode) { }
   
   public void drawWindow(int mouseX, int mouseY) {
-    ClickGui.scaledRes = new ScaledResolution(MC);
     if (dragging) {
       posX = mouseX - dragX;
       headerY = mouseY - dragY;
     }
     drawHeader();
     windowY = headerY + 21;
-    SurfaceHelper.drawOutlinedRectShaded(
-      posX, windowY, width, height, GRAY.toBuffer(), 80, 3);
+    SurfaceHelper.drawOutlinedRectShaded((int) posX, (int) windowY, width, height, GRAY.toBuffer(), 80, 3);
   }
-  
-  public void drawTooltip(int mouseX, int mouseY) {
-  }
+
+  public void drawTooltip(int mouseX, int mouseY) { }
   
   public void drawHeader() {
     // draw the title of the window
-    SurfaceHelper.drawOutlinedRectShaded(
-      posX, headerY, width, 20,
-      Color.of(150, 150, 150, 255).toBuffer(), 50, 5);
-    SurfaceHelper.drawTextShadowCentered(
-      getTitle(), posX + width / 2f, headerY + 10, WHITE.toBuffer());
+    SurfaceHelper.drawOutlinedRectShaded((int) posX, (int) headerY,
+        width, 20,
+        Color.of(150, 150, 150, 255).toBuffer(),
+        50, 5);
+    SurfaceHelper.drawTextShadowCentered(getTitle(),
+        (int) posX + width / 2f, (int) headerY + 10,
+        WHITE.toBuffer());
   }
 }

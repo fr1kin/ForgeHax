@@ -1,7 +1,5 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getModManager;
-
 import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
@@ -15,9 +13,12 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import net.minecraft.client.gui.GuiChat;
+
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class ActiveModList extends HudMod {
@@ -139,7 +140,7 @@ public class ActiveModList extends HudMod {
       text.add(generateTickRateText());
     }
     
-    if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
+    if (getDisplayScreen() instanceof ChatScreen || MC.gameSettings.showDebugInfo) {
       long enabledMods = getModManager()
           .getMods()
           .stream()

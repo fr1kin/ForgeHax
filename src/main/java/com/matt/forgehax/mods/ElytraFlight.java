@@ -1,8 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.Switch.Handle;
 import com.matt.forgehax.util.command.Setting;
@@ -10,11 +8,10 @@ import com.matt.forgehax.util.entity.LocalPlayerUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketEntityAction.Action;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.network.play.client.CEntityActionPacket;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class ElytraFlight extends ToggleMod {
@@ -46,13 +43,11 @@ public class ElytraFlight extends ToggleMod {
   @Override
   protected void onEnabled() {
     if (fly_on_enable.get()) {
-      MC.addScheduledTask(
-          () -> {
-            if (getLocalPlayer() != null && !getLocalPlayer().isElytraFlying()) {
-              getNetworkManager()
-                  .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
-            }
-          });
+      addScheduledTask(() -> {
+        if (getLocalPlayer() != null && !getLocalPlayer().isElytraFlying()) {
+          sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
+        }
+      });
     }
   }
   
@@ -62,18 +57,16 @@ public class ElytraFlight extends ToggleMod {
     // Are we still here?
     if (getLocalPlayer() != null) {
       // Ensure the player starts flying again.
-      getNetworkManager()
-          .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
+      sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
     }
   }
   
   @SubscribeEvent
-  @SideOnly(Side.CLIENT)
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     // Enable our flight as soon as the player starts flying his elytra.
     if (getLocalPlayer().isElytraFlying()) {
       flying.enable();
     }
-    getLocalPlayer().capabilities.setFlySpeed(speed.getAsFloat());
+    getLocalPlayer().abilities.setFlySpeed(speed.getAsFloat());
   }
 }

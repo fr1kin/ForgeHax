@@ -1,16 +1,16 @@
 package com.matt.forgehax.mods.services;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Predicates;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.mod.ServiceMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
 import java.util.function.Predicate;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+
+import static com.matt.forgehax.Globals.getLocalPlayer;
+import static com.matt.forgehax.Globals.isInWorld;
 
 @RegisterMod
 public class HotbarSelectionService extends ServiceMod {
@@ -25,7 +25,7 @@ public class HotbarSelectionService extends ServiceMod {
   private long ticksElapsed = -1;
   
   private int lastSetIndex = -1;
-  private Predicate<Long> resetCondition = Predicates.alwaysTrue();
+  private Predicate<Long> resetCondition = ticks -> true;
   
   public HotbarSelectionService() {
     super("HotbarSelectionService");
@@ -54,7 +54,7 @@ public class HotbarSelectionService extends ServiceMod {
         }
         
         lastSetIndex = index;
-        resetCondition = MoreObjects.firstNonNull(condition, Predicates.alwaysTrue());
+        resetCondition = MoreObjects.firstNonNull(condition, ticks -> true);
         
         select(index);
       }
@@ -80,12 +80,12 @@ public class HotbarSelectionService extends ServiceMod {
     originalIndex = -1;
     ticksElapsed = -1;
     lastSetIndex = -1;
-    resetCondition = Predicates.alwaysTrue();
+    resetCondition = ticks -> true;
   }
   
   @SubscribeEvent
-  public void onClientTick(ClientTickEvent event) {
-    if (getWorld() == null || getLocalPlayer() == null) {
+  public void onClientTick(TickEvent.ClientTickEvent event) {
+    if (!isInWorld()) {
       reset();
       return;
     }
@@ -119,7 +119,6 @@ public class HotbarSelectionService extends ServiceMod {
   }
   
   public interface ResetFunction {
-    
     void revert();
   }
 }

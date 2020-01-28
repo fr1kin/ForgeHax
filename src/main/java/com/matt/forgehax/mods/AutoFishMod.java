@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
@@ -9,15 +8,16 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemFishingRod;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketSoundEffect;
+import net.minecraft.item.Items;
+import net.minecraft.network.play.server.SPlaySoundEffectPacket;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created on 9/2/2016 by fr1kin
@@ -63,17 +63,15 @@ public class AutoFishMod extends ToggleMod {
     super(Category.PLAYER, "AutoFish", false, "Auto fish");
   }
   
-  private boolean isCorrectSplashPacket(SPacketSoundEffect packet) {
-    EntityPlayerSP me = getLocalPlayer();
-    return packet.getSound().equals(SoundEvents.ENTITY_BOBBER_SPLASH)
+  private boolean isCorrectSplashPacket(SPlaySoundEffectPacket packet) {
+    ClientPlayerEntity me = getLocalPlayer();
+    return packet.getSound().equals(SoundEvents.ENTITY_FISHING_BOBBER_SPLASH)
         && (me != null
-        && me.fishEntity != null
+        && me.fishingBobber != null
         && (max_sound_distance.get() == 0
         || // disables this check
-        (me.fishEntity
-            .getPositionVector()
-            .distanceTo(new Vec3d(packet.getX(), packet.getY(), packet.getZ()))
-            <= max_sound_distance.get())));
+        (me.fishingBobber.getPositionVector()
+            .distanceTo(new Vec3d(packet.getX(), packet.getY(), packet.getZ())) <= max_sound_distance.get())));
   }
   
   private void rightClick() {
@@ -96,7 +94,7 @@ public class AutoFishMod extends ToggleMod {
   
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    EntityPlayer me = getLocalPlayer();
+    ClientPlayerEntity me = getLocalPlayer();
     ItemStack heldStack = me.getHeldItemMainhand();
     
     // update tick delay if hook is deployed
@@ -107,14 +105,11 @@ public class AutoFishMod extends ToggleMod {
     }
     
     // check if player is holding a fishing rod
-    if (heldStack != null
-        && // item not null (shouldn't be, but I am being safe)
-        heldStack.getItem() instanceof ItemFishingRod // item being held is a fishing rod
-    ) {
+    if (Items.FISHING_ROD.equals(heldStack.getItem())) { // item being held is a fishing rod {
       if (!previouslyHadRodEquipped) {
         ticksCastDelay = casting_delay.get();
         previouslyHadRodEquipped = true;
-      } else if (me.fishEntity == null) { // no hook is deployed
+      } else if (me.fishingBobber == null) { // no hook is deployed
         // cast hook
         rightClick();
       } else { // hook is deployed and rod was not previously equipped
@@ -133,15 +128,15 @@ public class AutoFishMod extends ToggleMod {
   
   @SubscribeEvent
   public void onMouseEvent(InputEvent.MouseInputEvent event) {
-    if (MC.gameSettings.keyBindUseItem.isKeyDown() && ticksHookDeployed > 0) {
+    if (getGameSettings().keyBindUseItem.isKeyDown() && ticksHookDeployed > 0) {
       ticksCastDelay = casting_delay.get();
     }
   }
   
   @SubscribeEvent
   public void onPacketIncoming(PacketEvent.Incoming.Pre event) {
-    if (event.getPacket() instanceof SPacketSoundEffect) {
-      SPacketSoundEffect packet = event.getPacket();
+    if (event.getPacket() instanceof SPlaySoundEffectPacket) {
+      SPlaySoundEffectPacket packet = event.getPacket();
       if (isCorrectSplashPacket(packet)) {
         rightClick();
       }

@@ -1,16 +1,17 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.matt.forgehax.Globals;
+import com.matt.forgehax.events.ClientTickEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.stream.StreamSupport;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class NoRender extends ToggleMod {
@@ -20,19 +21,16 @@ public class NoRender extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onClientTick(ClientTickEvent event) {
-    if (getWorld() == null || getLocalPlayer() == null) {
+  public void onClientTick(ClientTickEvent.Pre event) {
+    if (isInWorld()) {
       return;
     }
-    
-    if (event.phase == TickEvent.Phase.START) {
-      getWorld()
-          .loadedEntityList
-          .stream()
-          .filter(EntityItem.class::isInstance)
-          .map(EntityItem.class::cast)
-          .forEach(Entity::setDead);
-    }
+
+    StreamSupport.stream(getWorld().getAllEntities().spliterator(), false)
+        .filter(ItemEntity.class::isInstance)
+        .map(ItemEntity.class::cast)
+        .map(Entity::getEntityId)
+        .forEach(getWorld()::removeEntityFromWorld);
   }
 }
 

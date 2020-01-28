@@ -1,8 +1,6 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
@@ -13,13 +11,15 @@ import com.matt.forgehax.util.mod.HudMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.entity.EntityPlayerSP;
+
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class CoordsHud extends HudMod {
-  
   public CoordsHud() {
     super(Category.RENDER, "CoordsHUD", false, "Display world coords");
   }
@@ -59,14 +59,12 @@ public class CoordsHud extends HudMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent ev) {
-    if (getWorld() == null) return;
-  
-    EntityPlayerSP player = getLocalPlayer();
-    thisX = player.posX;
-    thisY = player.posY;
-    thisZ = player.posZ;
+    ClientPlayerEntity player = getLocalPlayer();
+    thisX = player.getPosX();
+    thisY = player.getPosY();
+    thisZ = player.getPosZ();
     
-    double thisFactor = getWorld().provider.getMovementFactor();
+    double thisFactor = getWorld().getDimension().getMovementFactor();
     double otherFactor = thisFactor != 1d ? 1d : 8d;
     double travelFactor = thisFactor / otherFactor;
     otherX = thisX * travelFactor;

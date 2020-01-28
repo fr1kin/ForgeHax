@@ -1,15 +1,16 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.gui.GuiSleepMP;
+import net.minecraft.client.gui.screen.SleepInMultiplayerScreen;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class BedModeMod extends ToggleMod {
@@ -26,7 +27,7 @@ public class BedModeMod extends ToggleMod {
   
   @SubscribeEvent
   public void onGuiUpdate(GuiOpenEvent event) {
-    if (event.getGui() instanceof GuiSleepMP) {
+    if (event.getGui() instanceof SleepInMultiplayerScreen) {
       event.setCanceled(true);
     }
   }

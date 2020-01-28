@@ -1,17 +1,11 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getPlayerController;
-import static com.matt.forgehax.Helper.getWorld;
-import static com.matt.forgehax.Helper.printInform;
-import static com.matt.forgehax.Helper.printWarning;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection.Fields;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.events.RenderEvent;
@@ -50,31 +44,35 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
-import net.minecraft.network.play.client.CPacketAnimation;
-import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketEntityAction.Action;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.item.Items;
+import net.minecraft.network.play.client.CAnimateHandPacket;
+import net.minecraft.network.play.client.CEntityActionPacket;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class AutoPlace extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
@@ -103,7 +101,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           .<FacingEntry>newOptionsBuilder()
           .name("sides")
           .description("Sides to place the blocks on")
-          .defaults(() -> Collections.singleton(new FacingEntry(EnumFacing.UP)))
+          .defaults(() -> Collections.singleton(new FacingEntry(Direction.UP)))
           .factory(FacingEntry::new)
           .supplier(Lists::newCopyOnWriteArrayList)
           .build();
@@ -227,63 +225,54 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .anyMatch(side -> BlockHelper.isBlockReplaceable(info.getPos().offset(side)));
   }
   
-  private EnumFacing getBestFacingMatch(final String input) {
-    return Arrays.stream(EnumFacing.values())
+  private Direction getBestFacingMatch(final String input) {
+    return Arrays.stream(Direction.values())
         .filter(side -> side.getName2().toLowerCase().contains(input.toLowerCase()))
-        .min(
-            Comparator.comparing(
-                e -> e.getName2().toLowerCase(),
-                Comparator.<String>comparingInt(
-                    n -> StringUtils.getLevenshteinDistance(n, input.toLowerCase()))
-                    .thenComparing(n -> n.startsWith(input))))
-        .orElseGet(
-            () -> {
-              EnumFacing[] values = EnumFacing.values();
-              try {
-                int index = Integer.valueOf(input);
-                return values[MathHelper.clamp(index, 0, values.length - 1)];
-              } catch (NumberFormatException e) {
-                return values[0];
-              }
-            });
+        .min(Comparator.comparing(e -> e.getName2().toLowerCase(),
+            Comparator.<String>comparingInt(n -> StringUtils.getLevenshteinDistance(n, input.toLowerCase()))
+                .thenComparing(n -> n.startsWith(input))))
+        .orElseGet(() -> {
+          Direction[] values = Direction.values();
+          try {
+            int index = Integer.parseInt(input);
+            return values[MathHelper.clamp(index, 0, values.length - 1)];
+          } catch (NumberFormatException e) {
+            return values[0];
+          }
+        });
   }
   
   private void showInfo(String filter) {
-    MC.addScheduledTask(
-        () -> {
-          if ("selected".startsWith(filter)) {
-            printInform(
-                "Selected item %s",
-                this.selectedItem.getItem().getRegistryName().toString()
-                    + "{"
-                    + this.selectedItem.getMetadata()
-                    + "}");
-          }
-          
-          if ("targets".startsWith(filter)) {
-            printInform(
-                "Targets: %s",
-                this.targets.stream().map(UniqueBlock::toString).collect(Collectors.joining(", ")));
-          }
-          
-          if ("sides".startsWith(filter)) {
-            printInform(
-                "Sides: %s",
-                this.sides
-                    .stream()
-                    .map(FacingEntry::getFacing)
-                    .map(EnumFacing::getName2)
-                    .collect(Collectors.joining(", ")));
-          }
-          
-          if ("whitelist".startsWith(filter)) {
-            printInform("Whitelist: %s", Boolean.toString(whitelist.get()));
-          }
-          
-          if ("check_neighbors".startsWith(filter)) {
-            printInform("Check Neighbors: %s", Boolean.toString(check_neighbors.get()));
-          }
-        });
+    addScheduledTask(() -> {
+      if ("selected".startsWith(filter)) {
+        printInform("Selected item %s",
+            this.selectedItem.getDisplayName().getUnformattedComponentText());
+      }
+
+      if ("targets".startsWith(filter)) {
+        printInform(
+            "Targets: %s",
+            this.targets.stream().map(UniqueBlock::toString).collect(Collectors.joining(", ")));
+      }
+
+      if ("sides".startsWith(filter)) {
+        printInform(
+            "Sides: %s",
+            this.sides
+                .stream()
+                .map(FacingEntry::getFacing)
+                .map(Direction::getName2)
+                .collect(Collectors.joining(", ")));
+      }
+
+      if ("whitelist".startsWith(filter)) {
+        printInform("Whitelist: %s", Boolean.toString(whitelist.get()));
+      }
+
+      if ("check_neighbors".startsWith(filter)) {
+        printInform("Check Neighbors: %s", Boolean.toString(check_neighbors.get()));
+      }
+    });
   }
   
   @Override
@@ -293,13 +282,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .newCommandBuilder()
         .name("reset")
         .description("Reset to the setup process")
-        .processor(
-            data -> {
-              resetToggle.set(true);
-              if (getLocalPlayer() == null && getWorld() == null) {
-                reset();
-              }
-            })
+        .processor(data -> {
+          resetToggle.set(true);
+          if (getLocalPlayer() == null && getWorld() == null) {
+            reset();
+          }
+        })
         .build();
     
     getCommandStub()
@@ -307,11 +295,10 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .newCommandBuilder()
         .name("info")
         .description("Print info about the mod")
-        .processor(
-            data -> {
-              String arg = data.getArgumentCount() > 1 ? data.getArgumentAsString(0) : "";
-              showInfo(arg);
-            })
+        .processor(data -> {
+          String arg = data.getArgumentCount() > 1 ? data.getArgumentAsString(0) : "";
+          showInfo(arg);
+        })
         .build();
     
     sides
@@ -320,30 +307,28 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .name("add")
         .description("Add side to the list")
         .requiredArgs(1)
-        .processor(
-            data -> {
-              final String name = data.getArgumentAsString(0);
-              EnumFacing facing = getBestFacingMatch(name);
-              
-              if ("all".equalsIgnoreCase(name)) {
-                sides.addAll(
-                    Arrays.stream(EnumFacing.values())
-                        .map(FacingEntry::new)
-                        .filter(e -> !sides.contains(e))
-                        .collect(Collectors.toSet()));
-                data.write("Added all sides");
-                data.markSuccess();
-                sides.serializeAll();
-              } else if (sides.get(facing) == null) {
-                sides.add(new FacingEntry(facing));
-                data.write("Added side " + facing.getName2());
-                data.markSuccess();
-                sides.serializeAll();
-              } else {
-                data.write(facing.getName2() + " already exists");
-                data.markFailed();
-              }
-            })
+        .processor(data -> {
+          final String name = data.getArgumentAsString(0);
+          Direction facing = getBestFacingMatch(name);
+
+          if ("all".equalsIgnoreCase(name)) {
+            sides.addAll(Arrays.stream(Direction.values())
+                .map(FacingEntry::new)
+                .filter(e -> !sides.contains(e))
+                .collect(Collectors.toSet()));
+            data.write("Added all sides");
+            data.markSuccess();
+            sides.serializeAll();
+          } else if (sides.get(facing) == null) {
+            sides.add(new FacingEntry(facing));
+            data.write("Added side " + facing.getName2());
+            data.markSuccess();
+            sides.serializeAll();
+          } else {
+            data.write(facing.getName2() + " already exists");
+            data.markFailed();
+          }
+        })
         .build();
     
     sides
@@ -352,25 +337,24 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .name("remove")
         .description("Remove side from the list")
         .requiredArgs(1)
-        .processor(
-            data -> {
-              final String name = data.getArgumentAsString(0);
-              EnumFacing facing = getBestFacingMatch(name);
-              
-              if ("all".equalsIgnoreCase(name)) {
-                sides.clear();
-                data.write("Removed all sides");
-                data.markSuccess();
-                sides.serializeAll();
-              } else if (sides.remove(new FacingEntry(facing))) {
-                data.write("Removed side " + facing.getName2());
-                data.markSuccess();
-                sides.serializeAll();
-              } else {
-                data.write(facing.getName2() + " doesn't exist");
-                data.markFailed();
-              }
-            })
+        .processor(data -> {
+          final String name = data.getArgumentAsString(0);
+          Direction facing = getBestFacingMatch(name);
+
+          if ("all".equalsIgnoreCase(name)) {
+            sides.clear();
+            data.write("Removed all sides");
+            data.markSuccess();
+            sides.serializeAll();
+          } else if (sides.remove(new FacingEntry(facing))) {
+            data.write("Removed side " + facing.getName2());
+            data.markSuccess();
+            sides.serializeAll();
+          } else {
+            data.write(facing.getName2() + " doesn't exist");
+            data.markFailed();
+          }
+        })
         .build();
     
     sides
@@ -378,17 +362,13 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .newCommandBuilder()
         .name("list")
         .description("List all the current added sides")
-        .processor(
-            data -> {
-              data.write(
-                  "Sides: "
-                      + sides
-                      .stream()
-                      .map(FacingEntry::getFacing)
-                      .map(EnumFacing::getName2)
-                      .collect(Collectors.joining(", ")));
-              data.markSuccess();
-            })
+        .processor(data -> {
+          data.write("Sides: " + sides.stream()
+              .map(FacingEntry::getFacing)
+              .map(Direction::getName2)
+              .collect(Collectors.joining(", ")));
+          data.markSuccess();
+        })
         .build();
     
     config
@@ -397,28 +377,26 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .name("save")
         .description("Save current setup")
         .requiredArgs(1)
-        .processor(
-            data -> {
-              String name = data.getArgumentAsString(0);
+        .processor(data -> {
+          String name = data.getArgumentAsString(0);
               
-              if (config.get(name) == null) {
-                PlaceConfigEntry entry = new PlaceConfigEntry(name);
-                entry.setSides(
-                    this.sides.stream().map(FacingEntry::getFacing).collect(Collectors.toSet()));
-                entry.setTargets(this.targets);
-                entry.setSelection(this.selectedItem);
-                entry.setWhitelist(this.whitelist.get());
-                entry.setUse(this.check_neighbors.get());
-                
-                config.add(entry);
-                config.serializeAll();
-                data.write("Saved current config as " + name);
-                data.markSuccess();
-              } else {
-                data.write(name + " is already in check_neighbors!");
-                data.markFailed();
-              }
-            })
+          if (config.get(name) == null) {
+            PlaceConfigEntry entry = new PlaceConfigEntry(name);
+            entry.setSides(this.sides.stream().map(FacingEntry::getFacing).collect(Collectors.toSet()));
+            entry.setTargets(this.targets);
+            entry.setSelection(this.selectedItem);
+            entry.setWhitelist(this.whitelist.get());
+            entry.setUse(this.check_neighbors.get());
+
+            config.add(entry);
+            config.serializeAll();
+            data.write("Saved current config as " + name);
+            data.markSuccess();
+          } else {
+            data.write(name + " is already in check_neighbors!");
+            data.markFailed();
+          }
+        })
         .build();
     
     config
@@ -522,12 +500,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     
     GlStateManager.pushMatrix();
     
-    GlStateManager.disableTexture2D();
+    GlStateManager.disableTexture();
     GlStateManager.enableBlend();
-    GlStateManager.disableAlpha();
-    GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+    GlStateManager.disableAlphaTest();
+    GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
     GlStateManager.shadeModel(GL11.GL_SMOOTH);
-    GlStateManager.disableDepth();
+    GlStateManager.disableDepthTest();
     
     final GeometryTessellator tessellator = event.getTessellator();
     final BufferBuilder builder = tessellator.getBuffer();
@@ -537,8 +515,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     
     renderingBlocks.forEach(
         pos -> {
-          IBlockState state = getWorld().getBlockState(pos);
-          AxisAlignedBB bb = state.getBoundingBox(getWorld(), pos);
+          BlockState state = getWorld().getBlockState(pos);
+          AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).getBoundingBox();
           tessellator.setTranslation(
               (double) pos.getX() - event.getRenderPos().x,
               (double) pos.getY() - event.getRenderPos().y,
@@ -559,8 +537,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     final BlockPos current = this.currentRenderingTarget;
     
     if (current != null) {
-      IBlockState state = getWorld().getBlockState(current);
-      AxisAlignedBB bb = state.getBoundingBox(getWorld(), current);
+      BlockState state = getWorld().getBlockState(current);
+      AxisAlignedBB bb = state.getCollisionShape(getWorld(), current).getBoundingBox();
       tessellator.setTranslation(
           (double) current.getX() - event.getRenderPos().x,
           (double) current.getY() - event.getRenderPos().y,
@@ -582,9 +560,9 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     
     GlStateManager.shadeModel(GL11.GL_FLAT);
     GlStateManager.disableBlend();
-    GlStateManager.enableAlpha();
-    GlStateManager.enableTexture2D();
-    GlStateManager.enableDepth();
+    GlStateManager.enableAlphaTest();
+    GlStateManager.enableTexture();
+    GlStateManager.enableDepthTest();
     GlStateManager.enableCull();
     
     GL11.glDisable(GL11.GL_LINE_SMOOTH);
@@ -604,12 +582,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         }
         
         if (bindSelect.isKeyDown() && bindSelectToggle.compareAndSet(false, true)) {
-          RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
-          if (tr == null) {
+          RayTraceResult tr = LocalPlayerUtils.getViewTrace();
+          if (RayTraceResult.Type.MISS.equals(tr.getType())) {
             return;
           }
           
-          UniqueBlock info = BlockHelper.newUniqueBlock(tr.getBlockPos());
+          UniqueBlock info = BlockHelper.newUniqueBlock(new BlockPos(tr.getHitVec()));
           
           if (info.isInvalid()) {
             printWarning("Invalid block %s", info.toString());
@@ -654,15 +632,9 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             return;
           }
           
-          this.selectedItem =
-              new ItemStack(selected.getItem(), 1, selected.getItemStack().getMetadata());
+          this.selectedItem = new ItemStack(selected.getItem(), 1);
           
-          printInform(
-              "Selected item %s",
-              this.selectedItem.getItem().getRegistryName().toString()
-                  + "{"
-                  + this.selectedItem.getMetadata()
-                  + "}");
+          printInform("Selected item %s", this.selectedItem.getItem().getRegistryName());
           
           stage = Stage.CONFIRM;
           printToggle.set(false);
@@ -717,17 +689,13 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       currentRenderingTarget = null;
     }
     
-    InvItem items =
-        LocalPlayerInventory.getHotbarInventory()
-            .stream()
-            .filter(InvItem::nonNull)
-            .filter(inv -> inv.getItem().equals(selectedItem.getItem()))
-            .filter(
-                item ->
-                    !(item.getItem() instanceof ItemBlock)
-                        || item.getItemStack().getMetadata() == selectedItem.getMetadata())
-            .findFirst()
-            .orElse(InvItem.EMPTY);
+    InvItem items = LocalPlayerInventory.getHotbarInventory().stream()
+        .filter(InvItem::nonNull)
+        .filter(inv -> inv.getItem().equals(selectedItem.getItem()))
+        // TODO: 1.15 find a way to find all placeable blocks
+        .filter(item -> ItemGroup.BUILDING_BLOCKS.equals(item.getItem().getGroup()))
+        .findFirst()
+        .orElse(InvItem.EMPTY);
     
     if (items.isNull()) {
       return;
@@ -740,8 +708,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             : LocalPlayerUtils.getServerDirectionVector();
     
     List<UniqueBlock> blocks =
-        BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
-            .stream()
+        BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance()).stream()
             .filter(pos -> !getWorld().isAirBlock(pos))
             .map(BlockHelper::newUniqueBlock)
             .filter(this::isValidBlock)
@@ -823,31 +790,27 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
           if (sneak) {
             // send start sneaking packet
-            PacketHelper.ignoreAndSend(
-                new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
+            PacketHelper.ignoreAndSend(new CEntityActionPacket(getLocalPlayer(),
+                CEntityActionPacket.Action.PRESS_SHIFT_KEY));
             
             LocalPlayerUtils.setSneakingSuppression(true);
             LocalPlayerUtils.setSneaking(true);
           }
           
-          getPlayerController()
-              .processRightClickBlock(
+          getPlayerController().processRightClick(
                   getLocalPlayer(),
                   getWorld(),
-                  tr.getPos(),
-                  tr.getOppositeSide(),
-                  tr.getHitVec(),
-                  EnumHand.MAIN_HAND);
+                  // TODO: need to actually face the block
+                  Hand.MAIN_HAND);
           
           // stealth send swing packet
-          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+          sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
           
           if (sneak) {
             LocalPlayerUtils.setSneaking(false);
             LocalPlayerUtils.setSneakingSuppression(false);
             
-            getNetworkManager()
-                .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
+            sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
           }
           
           func.revert();
@@ -862,7 +825,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     private final String name;
     
     private final List<UniqueBlock> targets = Lists.newArrayList();
-    private final List<EnumFacing> sides = Lists.newArrayList();
+    private final List<Direction> sides = Lists.newArrayList();
     private ItemStack selection = ItemStack.EMPTY;
     private boolean use = false;
     private boolean whitelist = true;
@@ -888,11 +851,11 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
               .collect(Collectors.toSet())); // collect to set to eliminate duplicates
     }
     
-    public List<EnumFacing> getSides() {
+    public List<Direction> getSides() {
       return Collections.unmodifiableList(sides);
     }
     
-    public void setSides(Collection<EnumFacing> list) {
+    public void setSides(Collection<Direction> list) {
       sides.clear();
       sides.addAll(Sets.newLinkedHashSet(list)); // copy to set to eliminate duplicates
     }
@@ -935,7 +898,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         writer.value(getSelection().getItem().getRegistryName().toString());
         
         writer.name("metadata");
-        writer.value(getSelection().getMetadata());
+        writer.value(-1);
       }
       writer.endObject();
       
@@ -965,7 +928,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       writer.name("sides");
       writer.beginArray();
       {
-        for (EnumFacing side : getSides()) {
+        for (Direction side : getSides()) {
           writer.value(side.getName2());
         }
       }
@@ -984,12 +947,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             reader.beginObject();
             
             reader.nextName();
-            Item item = ItemSword.getByNameOrId(reader.nextString());
+            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(reader.nextString()));
             
             reader.nextName();
             int meta = reader.nextInt();
             
-            setSelection(new ItemStack(MoreObjects.firstNonNull(item, Items.AIR), 1, meta));
+            setSelection(new ItemStack(MoreObjects.firstNonNull(item, Items.AIR), 1));
             
             reader.endObject();
             break;
@@ -1003,7 +966,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
               
               // block
               reader.nextName();
-              Block block = Block.getBlockFromName(reader.nextString());
+              Block block = getBlockRegistry().getValue(new ResourceLocation(reader.nextString()));
               
               // metadata
               reader.nextName();
@@ -1029,12 +992,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           case "sides": {
             reader.beginArray();
             
-            List<EnumFacing> sides = Lists.newArrayList();
+            List<Direction> sides = Lists.newArrayList();
             while (reader.hasNext()) {
               sides.add(
                   Optional.ofNullable(reader.nextString())
-                      .map(EnumFacing::byName)
-                      .orElse(EnumFacing.UP));
+                      .map(Direction::byName)
+                      .orElse(Direction.UP));
             }
             setSides(sides);
             

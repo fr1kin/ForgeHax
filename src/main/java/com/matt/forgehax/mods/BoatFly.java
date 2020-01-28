@@ -1,20 +1,21 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getRidingEntity;
-
+import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.ForgeHaxHooks;
 import com.matt.forgehax.asm.events.RenderBoatEvent;
+import com.matt.forgehax.events.ClientTickEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.util.MovementInput;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class BoatFly extends ToggleMod {
@@ -70,7 +71,7 @@ public class BoatFly extends ToggleMod {
   @SubscribeEvent // disable gravity
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     ForgeHaxHooks.isNoBoatGravityActivated =
-        getRidingEntity() instanceof EntityBoat; // disable gravity if in boat
+        getMountedEntity() instanceof BoatEntity; // disable gravity if in boat
   }
   
   @Override
@@ -96,42 +97,33 @@ public class BoatFly extends ToggleMod {
   }
   
   @SubscribeEvent
-  public void onClientTick(TickEvent.ClientTickEvent event) {
+  public void onClientTick(ClientTickEvent.Pre event) {
     // check if the player is really riding a entity
-    if (MC.player != null && MC.player.getRidingEntity() != null) {
+    if (getLocalPlayer() != null && getMountedEntity() != null) {
       
       ForgeHaxHooks.isNoClampingActivated = noClamp.getAsBoolean();
       ForgeHaxHooks.isNoBoatGravityActivated = noGravity.getAsBoolean();
       ForgeHaxHooks.isBoatSetYawActivated = setYaw.getAsBoolean();
+
+      double velX, velY, velZ;
       
-      if (MC.gameSettings.keyBindJump.isKeyDown()) {
+      if (getGameSettings().keyBindJump.isKeyDown()) {
         // trick the riding entity to think its onground
-        MC.player.getRidingEntity().onGround = false;
-        
+        getMountedEntity().onGround = false;
+
         // teleport up
-        MC.player.getRidingEntity().motionY = MC.gameSettings.keyBindSprint.isKeyDown() ? 5 : 1.5;
+        velY = getGameSettings().keyBindSprint.isKeyDown() ? 5.D : 1.5D;
       } else {
-        MC.player.getRidingEntity().motionY =
-            MC.gameSettings.keyBindSprint.isKeyDown() ? -1.0 : -speedY.getAsDouble();
+        velY = getGameSettings().keyBindSprint.isKeyDown() ? -1.0 : -speedY.getAsDouble();
       }
 
-      /*if ((MC.player.posY <= maintainY.getAsDouble()-5D) && (MC.player.posY > maintainY.getAsDouble()-10D) && maintainY.getAsDouble() != 0D)
-      MC.player.getRidingEntity().setPositionAndUpdate(MC.player.posX, maintainY.getAsDouble(), MC.player.posZ );*/
-      
-      setMoveSpeedEntity(speed.getAsDouble());
-    }
-  }
-  
-  public static void setMoveSpeedEntity(double speed) {
-    if (MC.player != null && MC.player.getRidingEntity() != null) {
-      MovementInput movementInput = MC.player.movementInput;
+      MovementInput movementInput = getLocalPlayer().movementInput;
       double forward = movementInput.moveForward;
       double strafe = movementInput.moveStrafe;
-      float yaw = MC.player.rotationYaw;
-      
+      float yaw = getLocalPlayer().rotationYaw;
+
       if ((forward == 0.0D) && (strafe == 0.0D)) {
-        MC.player.getRidingEntity().motionX = (0.0D);
-        MC.player.getRidingEntity().motionZ = (0.0D);
+        velX = velZ = 0.D;
       } else {
         if (forward != 0.0D) {
           if (strafe > 0.0D) {
@@ -139,22 +131,24 @@ public class BoatFly extends ToggleMod {
           } else if (strafe < 0.0D) {
             yaw += (forward > 0.0D ? 45 : -45);
           }
-          
+
           strafe = 0.0D;
-          
+
           if (forward > 0.0D) {
             forward = 1.0D;
           } else if (forward < 0.0D) {
             forward = -1.0D;
           }
         }
-        MC.player.getRidingEntity().motionX =
-            (forward * speed * Math.cos(Math.toRadians(yaw + 90.0F))
-                + strafe * speed * Math.sin(Math.toRadians(yaw + 90.0F)));
-        MC.player.getRidingEntity().motionZ =
-            (forward * speed * Math.sin(Math.toRadians(yaw + 90.0F))
-                - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0F)));
+
+        double sin = Math.sin(Math.toRadians(yaw + 90.0F));
+        double cos = Math.cos(Math.toRadians(yaw + 90.0F));
+
+        velX = (forward * speed.get() * cos + strafe * speed.get() * sin);
+        velZ = (forward * speed.get() * sin - strafe * speed.get() * cos);
       }
+
+      getMountedEntity().setMotion(velX, velY, velZ);
     }
   }
 }

@@ -1,17 +1,15 @@
 package com.matt.forgehax.mods;
 
-import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.block.material.Material;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static com.matt.forgehax.Globals.*;
 
 @RegisterMod
 public class AntiOverlayMod extends ToggleMod {
@@ -25,8 +23,8 @@ public class AntiOverlayMod extends ToggleMod {
    */
   @SubscribeEvent
   public void onFogRender(EntityViewRenderEvent.FogDensity event) {
-    if (event.getState().getMaterial().equals(Material.WATER)
-        || event.getState().getMaterial().equals(Material.LAVA)) {
+    // TODO: 1.15 make sure this hides liquid fog properly
+    if(isInWorld() && (getLocalPlayer().isInLava() || getLocalPlayer().isInWater())) {
       event.setDensity(0);
       event.setCanceled(true);
     }
@@ -50,10 +48,6 @@ public class AntiOverlayMod extends ToggleMod {
   
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    ItemStack item = FastReflection.Fields.EntityRenderer_itemActivationItem.get(MC.entityRenderer);
-    
-    if (item != null && item.getItem() == Items.TOTEM_OF_UNDYING) {
-      FastReflection.Fields.EntityRenderer_itemActivationItem.set(MC.entityRenderer, null);
-    }
+    // TODO: 1.15 find a new way to remove this overlay
   }
 }

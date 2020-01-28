@@ -1,7 +1,6 @@
 package com.matt.forgehax.util;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Globals.*;
 import static com.matt.forgehax.asm.reflection.FastReflection.Methods.Block_onBlockActivated;
 import static com.matt.forgehax.util.entity.LocalPlayerUtils.isInReach;
 
@@ -19,36 +18,39 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
 public class BlockHelper {
-  
+
+  @Deprecated
   public static UniqueBlock newUniqueBlock(Block block, int metadata, BlockPos pos) {
     return new UniqueBlock(block, metadata, pos);
   }
-  
+
+  @Deprecated
   public static UniqueBlock newUniqueBlock(Block block, int metadata) {
-    return newUniqueBlock(block, metadata, BlockPos.ORIGIN);
+    return newUniqueBlock(block, metadata, BlockPos.ZERO);
   }
-  
+
+  @Deprecated
   public static UniqueBlock newUniqueBlock(BlockPos pos) {
-    IBlockState state = getWorld().getBlockState(pos);
-    Block block = state.getBlock();
-    return newUniqueBlock(block, block.getMetaFromState(state), pos);
+    throw new UnsupportedOperationException();
   }
-  
-  public static BlockTraceInfo newBlockTrace(BlockPos pos, EnumFacing side) {
+
+  @Deprecated
+  public static BlockTraceInfo newBlockTrace(BlockPos pos, Direction side) {
     return new BlockTraceInfo(pos, side);
   }
-  
+
+  @Deprecated
   public static List<BlockPos> getBlocksInRadius(Vec3d pos, double radius) {
     List<BlockPos> list = Lists.newArrayList();
     for (double x = pos.x - radius; x <= pos.x + radius; ++x) {
@@ -60,39 +62,48 @@ public class BlockHelper {
     }
     return list;
   }
-  
+
+  @Deprecated
   public static float getBlockHardness(BlockPos pos) {
-    IBlockState state = getWorld().getBlockState(pos);
+    BlockState state = getWorld().getBlockState(pos);
     return state.getBlockHardness(getWorld(), pos);
   }
-  
+
+  @Deprecated
   public static boolean isBlockReplaceable(BlockPos pos) {
     return getWorld().getBlockState(pos).getMaterial().isReplaceable();
   }
-  
-  public static boolean isTraceClear(Vec3d start, Vec3d end, EnumFacing targetSide) {
-    RayTraceResult tr = getWorld().rayTraceBlocks(start, end, false, true, false);
-    return tr == null
-        || (new BlockPos(end).equals(new BlockPos(tr.hitVec))
-        && targetSide.getOpposite().equals(tr.sideHit));
+
+  @Deprecated
+  public static boolean isTraceClear(Vec3d start, Vec3d end, Direction targetSide) {
+//    RayTraceResult tr = getWorld().rayTraceBlocks(start, end, false, true, false);
+//    return tr == null
+//        || (new BlockPos(end).equals(new BlockPos(tr.hitVec))
+//        && targetSide.getOpposite().equals(tr.sideHit));
+    throw new UnsupportedOperationException();
   }
-  
+
+  @Deprecated
   public static Vec3d getOBBCenter(BlockPos pos) {
-    IBlockState state = getWorld().getBlockState(pos);
-    AxisAlignedBB bb = state.getBoundingBox(getWorld(), pos);
+    BlockState state = getWorld().getBlockState(pos);
+    AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).getBoundingBox();
     return new Vec3d(
         bb.minX + ((bb.maxX - bb.minX) / 2.D),
         bb.minY + ((bb.maxY - bb.minY) / 2.D),
         bb.minZ + ((bb.maxZ - bb.minZ) / 2.D));
   }
-  
+
+  @Deprecated
   public static boolean isBlockPlaceable(BlockPos pos) {
-    IBlockState state = getWorld().getBlockState(pos);
-    return state.getBlock().canCollideCheck(state, false);
+//    BlockState state = getWorld().getBlockState(pos);
+//    state.coll
+//    return state.getBlock().co(state, false);
+    throw new UnsupportedOperationException();
   }
-  
+
+  @Deprecated
   private static BlockTraceInfo getPlaceableBlockSideTrace(
-      Vec3d eyes, Vec3d normal, Stream<EnumFacing> stream, BlockPos pos) {
+      Vec3d eyes, Vec3d normal, Stream<Direction> stream, BlockPos pos) {
     return stream
         .map(side -> newBlockTrace(pos.offset(side), side))
         .filter(info -> isBlockPlaceable(info.getPos()))
@@ -104,25 +115,29 @@ public class BlockHelper {
                     info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenteredPos())))
         .orElse(null);
   }
-  
+
+  @Deprecated
   public static BlockTraceInfo getPlaceableBlockSideTrace(
-      Vec3d eyes, Vec3d normal, EnumSet<EnumFacing> sides, BlockPos pos) {
+      Vec3d eyes, Vec3d normal, EnumSet<Direction> sides, BlockPos pos) {
     return getPlaceableBlockSideTrace(eyes, normal, sides.stream(), pos);
   }
-  
+
+  @Deprecated
   public static BlockTraceInfo getPlaceableBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
-    return getPlaceableBlockSideTrace(eyes, normal, Stream.of(EnumFacing.values()), pos);
+    return getPlaceableBlockSideTrace(eyes, normal, Stream.of(Direction.values()), pos);
   }
-  
-  public static BlockTraceInfo getBlockSideTrace(Vec3d eyes, BlockPos pos, EnumFacing side) {
+
+  @Deprecated
+  public static BlockTraceInfo getBlockSideTrace(Vec3d eyes, BlockPos pos, Direction side) {
     return Optional.of(newBlockTrace(pos, side))
         .filter(tr -> BlockHelper.isTraceClear(eyes, tr.getHitVec(), tr.getSide()))
         .filter(tr -> LocalPlayerUtils.isInReach(eyes, tr.getHitVec()))
         .orElse(null);
   }
-  
+
+  @Deprecated
   public static BlockTraceInfo getVisibleBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
-    return Arrays.stream(EnumFacing.values())
+    return Arrays.stream(Direction.values())
         .map(side -> BlockHelper.getBlockSideTrace(eyes, pos, side.getOpposite()))
         .filter(Objects::nonNull)
         .min(
@@ -130,15 +145,16 @@ public class BlockHelper {
                 i -> VectorUtils.getCrosshairDistance(eyes, normal, i.getCenteredPos())))
         .orElse(null);
   }
-  
+
+  @Deprecated
   public static class BlockTraceInfo {
     
     private final BlockPos pos;
-    private final EnumFacing side;
+    private final Direction side;
     private final Vec3d center;
     private final Vec3d hitVec;
     
-    private BlockTraceInfo(BlockPos pos, EnumFacing side) {
+    private BlockTraceInfo(BlockPos pos, Direction side) {
       this.pos = pos;
       this.side = side;
       Vec3d obb = BlockHelper.getOBBCenter(pos);
@@ -152,11 +168,11 @@ public class BlockHelper {
       return pos;
     }
     
-    public EnumFacing getSide() {
+    public Direction getSide() {
       return side;
     }
     
-    public EnumFacing getOppositeSide() {
+    public Direction getOppositeSide() {
       return side.getOpposite();
     }
     
@@ -168,18 +184,20 @@ public class BlockHelper {
       return center;
     }
     
-    public IBlockState getBlockState() {
+    public BlockState getBlockState() {
       return getWorld().getBlockState(getPos());
     }
     
     public boolean isPlaceable(InvItem item) {
-      if (!(item.getItem() instanceof ItemBlock)) {
+      if (!(item.getItem() instanceof BlockItem)) {
         return true;
       }
-      
-      ItemBlock itemBlock = (ItemBlock) item.getItem();
-      return itemBlock.canPlaceBlockOnSide(
-          getWorld(), getPos(), getOppositeSide(), getLocalPlayer(), item.getItemStack());
+
+      BlockItem itemBlock = (BlockItem) item.getItem();
+      return false;
+      // TODO: 1.15 find alternative
+//      return itemBlock.canPlaceBlockOnSide(getWorld(), getPos(),
+//          getOppositeSide(), getLocalPlayer(), item.getItemStack());
     }
     
     public boolean isSneakRequired() {
@@ -216,7 +234,7 @@ public class BlockHelper {
     }
     
     public ItemStack asItemStack() {
-      return new ItemStack(getBlock(), 1, getMetadata());
+      throw new UnsupportedOperationException();
     }
     
     public boolean isInvalid() {
@@ -224,9 +242,10 @@ public class BlockHelper {
     }
     
     public boolean isEqual(BlockPos pos) {
-      IBlockState state = getWorld().getBlockState(pos);
-      Block bl = state.getBlock();
-      return Objects.equals(getBlock(), bl) && getMetadata() == bl.getMetaFromState(state);
+//      BlockState state = getWorld().getBlockState(pos);
+//      Block bl = state.getBlock();
+//      return Objects.equals(getBlock(), bl) && getMetadata() == bl.getMetaFromState(state);
+      throw new UnsupportedOperationException();
     }
     
     @Override
