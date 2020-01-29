@@ -54,7 +54,9 @@ public class GeometryTessellator extends Tessellator {
   }
   
   public void setTranslation(final double x, final double y, final double z) {
-    getBuffer().setTranslation(x, y, z);
+    throw new UnsupportedOperationException();
+    // TODO: 1.15
+    //getBuffer().setTranslation(x, y, z);
   }
   
   public void beginQuads() {
@@ -112,29 +114,33 @@ public class GeometryTessellator extends Tessellator {
       final int sides,
       final int argb,
       final double delta) {
-    if (buffer.getDrawMode() == -1 || sides == 0) {
-      return;
-    }
-    
+//    if (buffer.getDrawMode() == -1 || sides == 0) {
+//      return;
+//    }
+
     final double x0 = begin.getX() - delta;
     final double y0 = begin.getY() - delta;
     final double z0 = begin.getZ() - delta;
     final double x1 = end.getX() + 1 + delta;
     final double y1 = end.getY() + 1 + delta;
     final double z1 = end.getZ() + 1 + delta;
-    
-    switch (buffer.getDrawMode()) {
-      case GL11.GL_QUADS:
-        drawQuads(buffer, x0, y0, z0, x1, y1, z1, sides, argb);
-        break;
-      
-      case GL11.GL_LINES:
-        drawLines(buffer, x0, y0, z0, x1, y1, z1, sides, argb);
-        break;
-      
-      default:
-        throw new IllegalStateException("Unsupported mode!");
-    }
+
+//    switch (buffer.getDrawMode()) {
+//      case GL11.GL_QUADS:
+//        drawQuads(buffer, x0, y0, z0, x1, y1, z1, sides, argb);
+//        break;
+//
+//      case GL11.GL_LINES:
+//        drawLines(buffer, x0, y0, z0, x1, y1, z1, sides, argb);
+//        break;
+//
+//      default:
+//        throw new IllegalStateException("Unsupported mode!");
+//    }
+
+    drawLines(buffer, x0, y0, z0, x1, y1, z1, sides, argb);
+
+    // TODO: 1.15
   }
   
   public static void drawQuads(

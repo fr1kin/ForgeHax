@@ -2,32 +2,31 @@ package com.matt.forgehax.util.entity;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.ListNBT;
 
 public class EnchantmentUtils {
   
-  public static List<EntityEnchantment> getEnchantments(NBTTagList tags) {
+  public static List<EntityEnchantment> getEnchantments(ListNBT tags) {
     if (tags == null) {
       return null;
     }
     List<EntityEnchantment> list = Lists.newArrayList();
-    for (int i = 0; i < tags.tagCount(); i++) {
-      list.add(
-          new EntityEnchantment(
-              tags.getCompoundTagAt(i).getShort("id"), tags.getCompoundTagAt(i).getShort("lvl")));
+    for (int i = 0; i < tags.size(); i++) {
+      list.add(new EntityEnchantment(
+          tags.getCompound(i).getShort("id"),
+          tags.getCompound(i).getShort("lvl")));
     }
     return list;
   }
   
-  public static List<EntityEnchantment> getEnchantmentsSorted(NBTTagList tags) {
+  public static List<EntityEnchantment> getEnchantmentsSorted(ListNBT tags) {
     List<EntityEnchantment> list = getEnchantments(tags);
     if (list != null) {
-      Collections.sort(list, new EnchantSort());
+      list.sort(new EnchantSort());
     }
     return list;
   }
@@ -105,20 +104,12 @@ public class EnchantmentUtils {
     }
     
     public String getShortName() {
-      int id = Enchantment.getEnchantmentID(enchantment);
-      if (SHORT_ENCHANT_NAMES.containsKey(id)) {
-        if (enchantment.getMaxLevel() <= 1) {
-          return SHORT_ENCHANT_NAMES.get(id);
-        } else {
-          return SHORT_ENCHANT_NAMES.get(id) + this.level;
-        }
-      } else {
-        return toString();
-      }
+      // TODO: 1.15 fix this entire class tbh
+      throw new UnsupportedOperationException();
     }
     
     public String toString() {
-      return enchantment.getTranslatedName(level);
+      return enchantment.getDisplayName(level).getUnformattedComponentText();
     }
   }
 }

@@ -1,5 +1,7 @@
 package com.matt.forgehax.util.color;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import java.util.Objects;
 
 /**
@@ -422,6 +424,14 @@ public abstract class Color {
   public double[] toDoubleArray() {
     float[] array = toFloatArray();
     return new double[]{array[0], array[1], array[2], array[3]};
+  }
+
+  public void glSetColor4f() {
+    RenderSystem.color4f(getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat());
+  }
+
+  public void glSetColor3f() {
+    RenderSystem.color3f(getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat());
   }
   
   @Override

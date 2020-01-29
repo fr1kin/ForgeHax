@@ -1,7 +1,5 @@
 package com.matt.forgehax.util.entity;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -19,7 +17,9 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.UUID;
 import javax.net.ssl.HttpsURLConnection;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.PlayerEntity;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created on 7/22/2017 by fr1kin
@@ -47,7 +47,7 @@ public class PlayerInfo implements Globals, GsonConstant {
     Objects.requireNonNull(id);
     this.id = id;
     this.names = ImmutableList.copyOf(lookupNames(id));
-    this.offlineId = EntityPlayerSP.getOfflineUUID(getName());
+    this.offlineId = PlayerEntity.getOfflineUUID(getName());
     this.isOfflinePlayer = false;
   }
   
@@ -66,12 +66,12 @@ public class PlayerInfo implements Globals, GsonConstant {
     
     this.id = uuid;
     this.names = ImmutableList.copyOf(lookupNames(uuid));
-    this.offlineId = EntityPlayerSP.getOfflineUUID(name);
+    this.offlineId = PlayerEntity.getOfflineUUID(name);
     this.isOfflinePlayer = false;
   }
   
   public PlayerInfo(String name, boolean dummy) {
-    this.id = EntityPlayerSP.getOfflineUUID(name);
+    this.id = PlayerEntity.getOfflineUUID(name);
     this.names = Collections.singletonList(new Name(name));
     this.offlineId = this.id;
     this.isOfflinePlayer = true;
@@ -150,7 +150,7 @@ public class PlayerInfo implements Globals, GsonConstant {
   }
   
   public boolean isLocalPlayer() {
-    return String.CASE_INSENSITIVE_ORDER.compare(getName(), getLocalPlayer().getName()) == 0;
+    return String.CASE_INSENSITIVE_ORDER.compare(getName(), getLocalPlayer().getGameProfile().getName()) == 0;
   }
   
   public boolean matches(UUID otherId) {

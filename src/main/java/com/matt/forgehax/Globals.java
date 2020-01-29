@@ -23,6 +23,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -47,6 +48,15 @@ public interface Globals {
 
   static FileManager getFileManager() {
     return FileManager.getInstance();
+  }
+
+  //
+  // forge
+  //
+
+  static ClassLoader getLauncherClassLoader() {
+    // TODO: 1.15 make sure this is the correct classloader
+    return Thread.currentThread().getContextClassLoader();
   }
   //
   // minecraft
@@ -85,7 +95,7 @@ public interface Globals {
   //
 
   static ClientWorld getWorld() {
-    return getLocalPlayer() == null ? null : getLocalPlayer().worldClient;
+    return Objects.requireNonNull(getLocalPlayer()).worldClient;
   }
 
   static boolean isInWorld() {

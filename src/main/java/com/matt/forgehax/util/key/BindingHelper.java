@@ -8,8 +8,6 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.apache.commons.lang3.ArrayUtils;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
 import static com.matt.forgehax.Globals.getGameSettings;
 
@@ -35,13 +33,8 @@ public class BindingHelper {
   }
   
   public static String getIndexName(int code) {
-    if (MOUSE_CODES.get(code) != null) {
-      return MOUSE_CODES.get(code);
-    } else if (code < 0) {
-      return Mouse.getButtonName(100 + code);
-    } else {
-      return Keyboard.getKeyName(code);
-    }
+    // TODO: 1.15 using mojangs new InputMappings
+    throw new UnsupportedOperationException();
   }
   
   public static String getIndexName(KeyBinding binding) {

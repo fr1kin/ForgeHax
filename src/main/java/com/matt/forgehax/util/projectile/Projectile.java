@@ -1,23 +1,25 @@
 package com.matt.forgehax.util.projectile;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-
 import com.google.common.collect.Lists;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.math.AngleHelper;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.Items;
+import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+
+import static com.matt.forgehax.Globals.*;
 
 /**
  * Created on 6/21/2017 by fr1kin
@@ -167,7 +169,7 @@ public enum Projectile implements IProjectile {
     
     double distanceTraveledSq = 0.D;
     
-    RayTraceResult trace;
+    EntityRayTraceResult trace;
     
     List<Vec3d> points = Lists.newArrayList();
     points.add(shootPos); // add the initial position
@@ -176,16 +178,16 @@ public enum Projectile implements IProjectile {
     Vec3d previous = next;
     
     for (int index = points.size(), n = 0; index < MAX_ITERATIONS; index++) {
-      next = next.addVector(velocityX, velocityY, velocityZ);
+      next = next.add(velocityX, velocityY, velocityZ);
       
       AxisAlignedBB bb = getBoundBox(next);
       trace = rayTraceCheckEntityCollisions(previous, next, bb, velocityX, velocityY, velocityZ);
       
       if (trace != null) {
-        hitEntity = trace.entityHit;
-        distanceTraveledSq += previous.squareDistanceTo(trace.hitVec);
+        hitEntity = trace.getEntity();
+        distanceTraveledSq += previous.squareDistanceTo(trace.getHitVec());
         // add final vector even if index % factor != 0
-        points.add(trace.hitVec);
+        points.add(trace.getHitVec());
         break;
       }
       // only add every nth entry
@@ -307,45 +309,47 @@ public enum Projectile implements IProjectile {
   
   // ####################################################################################################
   
-  private static RayTraceResult rayTraceCheckEntityCollisions(
+  private static EntityRayTraceResult rayTraceCheckEntityCollisions(
       Vec3d start, Vec3d end, AxisAlignedBB bb, double motionX, double motionY, double motionZ) {
-    RayTraceResult trace = getWorld().rayTraceBlocks(start, end, false, true, false);
-    
-    if (trace != null) {
-      end = trace.hitVec;
-    }
-    
-    // now check entity collisions
-    List<Entity> entities =
-        getWorld()
-            .getEntitiesWithinAABBExcludingEntity(
-                getLocalPlayer(), bb.expand(motionX, motionY, motionZ).grow(1.D));
-    
-    double best = 0.D;
-    Vec3d hitPos = Vec3d.ZERO;
-    Entity hitEntity = null;
-    
-    for (Entity entity : entities) {
-      if (entity.canBeCollidedWith()) {
-        float size = entity.getCollisionBorderSize();
-        AxisAlignedBB bbe = entity.getEntityBoundingBox().grow(size);
-        RayTraceResult tr = bbe.calculateIntercept(start, end);
-        if (tr != null) {
-          double distance = start.squareDistanceTo(tr.hitVec);
-          if (distance < best || hitEntity == null) {
-            best = distance;
-            hitPos = tr.hitVec;
-            hitEntity = entity;
-          }
-        }
-      }
-    }
-    
-    if (hitEntity != null) {
-      trace = new RayTraceResult(hitEntity, hitPos);
-    }
-    
-    return trace;
+//    RayTraceResult trace = getWorld().rayTraceBlocks(start, end, false, true, false);
+//
+//    if (trace != null) {
+//      end = trace.hitVec;
+//    }
+//
+//    // now check entity collisions
+//    List<Entity> entities =
+//        getWorld()
+//            .getEntitiesWithinAABBExcludingEntity(
+//                getLocalPlayer(), bb.expand(motionX, motionY, motionZ).grow(1.D));
+//
+//    double best = 0.D;
+//    Vec3d hitPos = Vec3d.ZERO;
+//    Entity hitEntity = null;
+//
+//    for (Entity entity : entities) {
+//      if (entity.canBeCollidedWith()) {
+//        float size = entity.getCollisionBorderSize();
+//        AxisAlignedBB bbe = entity.getEntityBoundingBox().grow(size);
+//        RayTraceResult tr = bbe.calculateIntercept(start, end);
+//        if (tr != null) {
+//          double distance = start.squareDistanceTo(tr.hitVec);
+//          if (distance < best || hitEntity == null) {
+//            best = distance;
+//            hitPos = tr.hitVec;
+//            hitEntity = entity;
+//          }
+//        }
+//      }
+//    }
+//
+//    if (hitEntity != null) {
+//      trace = new RayTraceResult(hitEntity, hitPos);
+//    }
+//
+//    return trace;
+    return ProjectileHelper.rayTraceEntities(getWorld(), getLocalPlayer(), start, end,
+        bb.expand(motionX, motionY, motionZ).grow(1.D), ent -> true);
   }
   
   private static Vec3d getEntityShootPos(Entity entity) {

@@ -23,9 +23,11 @@ as the name is changed.
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.renderer.GlStateManager;
+
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import org.lwjgl.opengl.GL11;
+
+import static com.mojang.blaze3d.systems.RenderSystem.*;
 
 public class MinecraftFontRenderer extends CFont {
   
@@ -93,17 +95,17 @@ public class MinecraftFontRenderer extends CFont {
     
     if (render) {
       GL11.glPushMatrix();
-      GlStateManager.scale(0.5D, 0.5D, 0.5D);
-      GlStateManager.enableBlend();
-      GlStateManager.blendFunc(770, 771);
-      GlStateManager.color(
+      scaled(0.5D, 0.5D, 0.5D);
+      enableBlend();
+      blendFunc(770, 771);
+      color4f(
           (color >> 16 & 0xFF) / 255.0F,
           (color >> 8 & 0xFF) / 255.0F,
           (color & 0xFF) / 255.0F,
           alpha);
       int size = text.length();
-      GlStateManager.enableTexture2D();
-      GlStateManager.bindTexture(tex.getGlTextureId());
+      enableTexture();
+      bindTexture(tex.getGlTextureId());
       
       GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex.getGlTextureId());
       
@@ -125,7 +127,7 @@ public class MinecraftFontRenderer extends CFont {
             randomCase = false;
             underline = false;
             strikethrough = false;
-            GlStateManager.bindTexture(tex.getGlTextureId());
+            bindTexture(tex.getGlTextureId());
             // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
             // tex.getGlTextureId());
             currentData = this.charData;
@@ -139,7 +141,7 @@ public class MinecraftFontRenderer extends CFont {
             }
             
             int colorcode = this.colorCode[colorIndex];
-            GlStateManager.color(
+            color4f(
                 (colorcode >> 16 & 0xFF) / 255.0F,
                 (colorcode >> 8 & 0xFF) / 255.0F,
                 (colorcode & 0xFF) / 255.0F,
@@ -150,12 +152,12 @@ public class MinecraftFontRenderer extends CFont {
             bold = true;
             
             if (italic) {
-              GlStateManager.bindTexture(texItalicBold.getGlTextureId());
+              bindTexture(texItalicBold.getGlTextureId());
               // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
               // texItalicBold.getGlTextureId());
               currentData = this.boldItalicChars;
             } else {
-              GlStateManager.bindTexture(texBold.getGlTextureId());
+              bindTexture(texBold.getGlTextureId());
               // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
               // texBold.getGlTextureId());
               currentData = this.boldChars;
@@ -168,12 +170,12 @@ public class MinecraftFontRenderer extends CFont {
             italic = true;
             
             if (bold) {
-              GlStateManager.bindTexture(texItalicBold.getGlTextureId());
+              bindTexture(texItalicBold.getGlTextureId());
               // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
               // texItalicBold.getGlTextureId());
               currentData = this.boldItalicChars;
             } else {
-              GlStateManager.bindTexture(texItalic.getGlTextureId());
+              bindTexture(texItalic.getGlTextureId());
               // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
               // texItalic.getGlTextureId());
               currentData = this.italicChars;
@@ -184,12 +186,12 @@ public class MinecraftFontRenderer extends CFont {
             randomCase = false;
             underline = false;
             strikethrough = false;
-            GlStateManager.color(
+            color4f(
                 (color >> 16 & 0xFF) / 255.0F,
                 (color >> 8 & 0xFF) / 255.0F,
                 (color & 0xFF) / 255.0F,
                 alpha);
-            GlStateManager.bindTexture(tex.getGlTextureId());
+            bindTexture(tex.getGlTextureId());
             // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
             // tex.getGlTextureId());
             currentData = this.charData;
@@ -204,9 +206,9 @@ public class MinecraftFontRenderer extends CFont {
           if (strikethrough) {
             drawLine(
                 x,
-                y + currentData[character].height / 2,
+                y + currentData[character].height / 2.f,
                 x + currentData[character].width - 8.0D,
-                y + currentData[character].height / 2,
+                y + currentData[character].height / 2.f,
                 1.0F);
           }
           

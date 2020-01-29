@@ -6,7 +6,8 @@ import com.matt.forgehax.util.serialization.ISerializableJson;
 import java.io.IOException;
 import java.util.Objects;
 import javax.annotation.Nullable;
-import net.minecraft.launchwrapper.Launch;
+
+import static com.matt.forgehax.Globals.getLauncherClassLoader;
 
 /**
  * Created on 10/13/2017 by fr1kin
@@ -35,7 +36,7 @@ public class ClassEntry implements ISerializableJson {
   public Class<?> getClassInstance() {
     if (clazz == null) {
       try {
-        clazz = Class.forName(clazzName, true, Launch.classLoader);
+        clazz = Class.forName(clazzName, true, getLauncherClassLoader());
       } catch (Throwable t) {
       }
     }

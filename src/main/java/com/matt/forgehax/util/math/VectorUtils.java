@@ -28,51 +28,53 @@ public class VectorUtils implements Globals {
    * Convert 3D coord into 2D coordinate projected onto the screen
    */
   public static Plane toScreen(double x, double y, double z) {
-    Entity view = MC.getRenderViewEntity();
-    
-    if (view == null) {
-      return new Plane(0.D, 0.D, false);
-    }
-
-    Vec3d camPos = getGameRenderer().getActiveRenderInfo().getProjectedView();
-    Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
-    
-    double vecX = (camPos.x + eyePos.x) - x;
-    double vecY = (camPos.y + eyePos.y) - y;
-    double vecZ = (camPos.z + eyePos.z) - z;
-
-    Vector4d pos = new Vector4d(vecX, vecY, vecZ, 1.f);
-    
-    modelMatrix.load(
-        FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
-    projectionMatrix.load(
-        FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().asReadOnlyBuffer());
-    
-    VecTransformCoordinate(pos, modelMatrix);
-    VecTransformCoordinate(pos, projectionMatrix);
-    
-    if (pos.w > 0.f) {
-      pos.x *= -100000;
-      pos.y *= -100000;
-    } else {
-      double invert = 1.f / pos.w;
-      pos.x *= invert;
-      pos.y *= invert;
-    }
-
-    double halfWidth = (double) getScreenWidth()/ 2.f;
-    double halfHeight = (double) getScreenHeight() / 2.f;
-    
-    pos.x = halfWidth + (0.5f * pos.x * getScreenWidth() + 0.5f);
-    pos.y = halfHeight - (0.5f * pos.y * getScreenHeight() + 0.5f);
-    
-    boolean bVisible = true;
-    
-    if (pos.x < 0 || pos.y < 0 || pos.x > getScreenWidth() || pos.y > getScreenHeight()) {
-      bVisible = false;
-    }
-    
-    return new Plane(pos.x, pos.y, bVisible);
+//    Entity view = MC.getRenderViewEntity();
+//
+//    if (view == null) {
+//      return new Plane(0.D, 0.D, false);
+//    }
+//
+//    Vec3d camPos = getGameRenderer().getActiveRenderInfo().getProjectedView();
+//    Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
+//
+//    double vecX = (camPos.x + eyePos.x) - x;
+//    double vecY = (camPos.y + eyePos.y) - y;
+//    double vecZ = (camPos.z + eyePos.z) - z;
+//
+//    Vector4d pos = new Vector4d(vecX, vecY, vecZ, 1.f);
+//
+//    modelMatrix.load(
+//        FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
+//    projectionMatrix.load(
+//        FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().asReadOnlyBuffer());
+//
+//    VecTransformCoordinate(pos, modelMatrix);
+//    VecTransformCoordinate(pos, projectionMatrix);
+//
+//    if (pos.w > 0.f) {
+//      pos.x *= -100000;
+//      pos.y *= -100000;
+//    } else {
+//      double invert = 1.f / pos.w;
+//      pos.x *= invert;
+//      pos.y *= invert;
+//    }
+//
+//    double halfWidth = (double) getScreenWidth()/ 2.f;
+//    double halfHeight = (double) getScreenHeight() / 2.f;
+//
+//    pos.x = halfWidth + (0.5f * pos.x * getScreenWidth() + 0.5f);
+//    pos.y = halfHeight - (0.5f * pos.y * getScreenHeight() + 0.5f);
+//
+//    boolean bVisible = true;
+//
+//    if (pos.x < 0 || pos.y < 0 || pos.x > getScreenWidth() || pos.y > getScreenHeight()) {
+//      bVisible = false;
+//    }
+//
+//    return new Plane(pos.x, pos.y, bVisible);
+    throw new UnsupportedOperationException();
+    // TODO: 1.15 figure out how to get modelview and projection
   }
   
   public static Plane toScreen(Vec3d vec) {

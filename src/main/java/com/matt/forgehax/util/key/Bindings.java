@@ -1,5 +1,6 @@
 package com.matt.forgehax.util.key;
 
+import static com.matt.forgehax.Globals.*;
 import static java.util.stream.Collectors.toList;
 
 import com.matt.forgehax.Globals;
@@ -8,17 +9,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
-import net.minecraft.client.settings.GameSettings;
+
+import net.minecraft.client.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 
+// TODO: 1.15 delete this
+@Deprecated
 public class Bindings implements Globals {
   
   public static final List<KeyBindingHandler> KEY_LIST = getAllKeys();
   
   @Nullable
   public static KeyBindingHandler getKey(String name) {
-    return Bindings.KEY_LIST
-        .stream()
+    return Bindings.KEY_LIST.stream()
         .filter(k -> k.getBinding().getKeyDescription().toLowerCase().contains(name.toLowerCase()))
         .findFirst()
         .orElse(null);
@@ -54,7 +57,7 @@ public class Bindings implements Globals {
   
   private static KeyBinding getBinding(Field field) {
     try {
-      return (KeyBinding) field.get(MC.gameSettings);
+      return (KeyBinding) field.get(getGameSettings());
     } catch (IllegalAccessException e) {
       e.printStackTrace();
       return null;

@@ -1,7 +1,6 @@
 package com.matt.forgehax.util.draw;
 
 import static com.matt.forgehax.Globals.MC;
-import static com.matt.forgehax.Helper.getLocalPlayer;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
 import static org.lwjgl.opengl.GL11.GL_POLYGON;
@@ -18,15 +17,13 @@ import static org.lwjgl.opengl.GL11.glVertex3d;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.draw.font.MinecraftFontRenderer;
 import java.util.Stack;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
 /**
  * Created on 9/2/2017 by fr1kin
  */
+@Deprecated
 public class SurfaceBuilder {
   
   public static final int COLOR = 1;
@@ -124,16 +121,16 @@ public class SurfaceBuilder {
   }
   
   public SurfaceBuilder push() {
-    GlStateManager.pushMatrix();
-    settings.push(new RenderSettings());
+//    GlStateManager.pushMatrix();
+//    settings.push(new RenderSettings());
     return this;
   }
   
   public SurfaceBuilder pop() {
-    if (!settings.isEmpty()) {
-      settings.pop();
-    }
-    GlStateManager.popMatrix();
+//    if (!settings.isEmpty()) {
+//      settings.pop();
+//    }
+//    GlStateManager.popMatrix();
     return this;
   }
   
@@ -189,7 +186,7 @@ public class SurfaceBuilder {
   }
   
   public SurfaceBuilder width(double width) {
-    GlStateManager.glLineWidth((float) width);
+//    GlStateManager.glLineWidth((float) width);
     return this;
   }
   
@@ -229,12 +226,12 @@ public class SurfaceBuilder {
               shadow);
     } else {
       // use default minecraft font
-      GlStateManager.pushMatrix();
-      GlStateManager.translate(x, y, 0.D);
-      
-      MC.fontRenderer.drawString(text, 0, 0, Color.of(current().getColor4d()).toBuffer(), shadow);
-      
-      GlStateManager.popMatrix();
+//      GlStateManager.pushMatrix();
+//      GlStateManager.translate(x, y, 0.D);
+//
+//      MC.fontRenderer.drawString(text, 0, 0, Color.of(current().getColor4d()).toBuffer(), shadow);
+//
+//      GlStateManager.popMatrix();
     }
     return this;
   }
@@ -253,10 +250,10 @@ public class SurfaceBuilder {
   }
   
   public SurfaceBuilder item(ItemStack stack, double x, double y) {
-    MC.getRenderItem().zLevel = 100.f;
-    SurfaceHelper.renderItemAndEffectIntoGUI(
-        getLocalPlayer(), stack, x, y, current().hasScale() ? current().getScale3d()[0] : 16.D);
-    MC.getRenderItem().zLevel = 0.f;
+//    MC.getRenderItem().zLevel = 100.f;
+//    SurfaceHelper.drawItemAndEffectIntoGUI(
+//        getLocalPlayer(), stack, x, y, current().hasScale() ? current().getScale3d()[0] : 16.D);
+//    MC.getRenderItem().zLevel = 0.f;
     return this;
   }
   
@@ -268,16 +265,6 @@ public class SurfaceBuilder {
         y,
         null,
         current().hasScale() ? current().getScale3d()[0] : 16.D);
-    return this;
-  }
-  
-  public SurfaceBuilder head(ResourceLocation resource, double x, double y) {
-    MC.renderEngine.bindTexture(resource);
-    double scale = current().hasScale() ? current().getScale3d()[0] : 12.D;
-    SurfaceHelper.drawScaledCustomSizeModalRect(
-        (x * (1 / scale)), (y * (1 / scale)), 8.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
-    SurfaceHelper.drawScaledCustomSizeModalRect(
-        (x * (1 / scale)), (y * (1 / scale)), 40.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
     return this;
   }
   
@@ -324,49 +311,49 @@ public class SurfaceBuilder {
   // --------------------
   
   public static void disableTexture2D() {
-    GlStateManager.disableTexture2D();
+    //GlStateManager.disableTexture2D();
   }
   
   public static void enableTexture2D() {
-    GlStateManager.enableTexture2D();
+    //GlStateManager.enableTexture2D();
   }
   
   public static void enableBlend() {
-    GlStateManager.enableBlend();
-    GlStateManager.tryBlendFuncSeparate(
-        GlStateManager.SourceFactor.SRC_ALPHA,
-        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-        GlStateManager.SourceFactor.ONE,
-        GlStateManager.DestFactor.ZERO);
+//    GlStateManager.enableBlend();
+//    GlStateManager.tryBlendFuncSeparate(
+//        GlStateManager.SourceFactor.SRC_ALPHA,
+//        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+//        GlStateManager.SourceFactor.ONE,
+//        GlStateManager.DestFactor.ZERO);
   }
   
   public static void disableBlend() {
-    GlStateManager.disableBlend();
+    //GlStateManager.disableBlend();
   }
   
   public static void enableFontRendering() {
-    GlStateManager.disableDepth();
+    //GlStateManager.disableDepth();
   }
   
   public static void disableFontRendering() {
-    GlStateManager.enableDepth();
+    //GlStateManager.enableDepth();
   }
   
   public static void enableItemRendering() {
-    RenderHelper.enableGUIStandardItemLighting();
-    GlStateManager.disableLighting();
-    GlStateManager.enableRescaleNormal();
-    GlStateManager.enableColorMaterial();
-    GlStateManager.enableLighting();
+//    RenderHelper.enableGUIStandardItemLighting();
+//    GlStateManager.disableLighting();
+//    GlStateManager.enableRescaleNormal();
+//    GlStateManager.enableColorMaterial();
+//    GlStateManager.enableLighting();
   }
   
   public static void disableItemRendering() {
-    GlStateManager.disableLighting();
-    GlStateManager.enableDepth();
+//    GlStateManager.disableLighting();
+//    GlStateManager.enableDepth();
   }
   
   public static void clearColor() {
-    GlStateManager.color(1.f, 1.f, 1.f, 1.f);
+//    GlStateManager.color(1.f, 1.f, 1.f, 1.f);
   }
   
   private static class RenderSettings {

@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods;
 
 import com.google.common.collect.Lists;
-import com.matt.forgehax.Globals;
 import com.matt.forgehax.mods.services.ChatCommandService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.color.Colors;
@@ -21,12 +20,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.renderer.VirtualScreen;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
@@ -34,13 +29,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -476,9 +469,9 @@ public class ShulkerViewer extends ToggleMod {
       // height 16        = top of the gui
       // height 54        = gui item boxes
       // height 6         = bottom of the gui
-      SurfaceHelper.drawTexturedRect(x, y, 0, 0, 176, 16, DEPTH);
-      SurfaceHelper.drawTexturedRect(x, y + 16, 0, 16, 176, 54, DEPTH);
-      SurfaceHelper.drawTexturedRect(x, y + 16 + 54, 0, 160, 176, 6, DEPTH);
+      SurfaceHelper.texturedRect(x, y, 0, 0, 176, 16, DEPTH);
+      SurfaceHelper.texturedRect(x, y + 16, 0, 16, 176, 54, DEPTH);
+      SurfaceHelper.texturedRect(x, y + 16 + 54, 0, 160, 176, 6, DEPTH);
       
       disableDepthTest();
       SurfaceHelper.drawText(parentShulker.getDisplayName().getUnformattedComponentText(), x + 8, y + 6, Colors.BLACK.toBuffer());

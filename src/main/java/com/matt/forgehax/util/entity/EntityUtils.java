@@ -1,8 +1,5 @@
 package com.matt.forgehax.util.entity;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getWorld;
-
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.color.Colors;
@@ -11,17 +8,17 @@ import com.matt.forgehax.util.entity.mobtypes.MobTypeEnum;
 import com.matt.forgehax.util.entity.mobtypes.MobTypeRegistry;
 import java.util.List;
 import java.util.Objects;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.client.entity.AbstractClientPlayer;
+
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.monster.EntityEnderman;
-import net.minecraft.entity.monster.EntityIronGolem;
-import net.minecraft.entity.monster.EntityPigZombie;
-import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.entity.passive.EntityWolf;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.EntityClassification;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.monster.EndermanEntity;
+import net.minecraft.entity.monster.ZombiePigmanEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -29,10 +26,12 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import static com.matt.forgehax.Globals.*;
+
 public class EntityUtils implements Globals {
   
   public static MobTypeEnum getRelationship(Entity entity) {
-    if (entity instanceof AbstractClientPlayer) {
+    if (entity instanceof AbstractClientPlayerEntity) {
       return MobTypeEnum.PLAYER;
     } else {
       // check special cases first
@@ -54,6 +53,10 @@ public class EntityUtils implements Globals {
   
   public static boolean isBatsDisabled = false;
   
+  public static boolean isZombiePimanAggressive(ZombiePigmanEntity entity) {
+    return FastReflection.Fields.EntityPigZombie_angerLevel.get(entity) > 0;
+  }
+  
   /**
    * Checks if the mob could be possibly hostile towards us (we can't detect their attack target
    * easily) Current entities: PigZombie: Aggressive if arms are raised, when arms are put down a
@@ -61,19 +64,19 @@ public class EntityUtils implements Globals {
    * player and the wolf is angry Enderman: Aggressive if making screaming sounds
    */
   public static boolean isMobAggressive(Entity entity) {
-    if (entity instanceof EntityPigZombie) {
+    if (entity instanceof ZombiePigmanEntity) {
       // arms raised = aggressive, angry = either game or we have set the anger cooldown
-      if (((EntityPigZombie) entity).isArmsRaised() || ((EntityPigZombie) entity).isAngry()) {
-        if (!((EntityPigZombie) entity).isAngry()) {
+      if (((ZombiePigmanEntity) entity).isAggressive() || isZombiePimanAggressive((ZombiePigmanEntity) entity)) {
+        if (!isZombiePimanAggressive((ZombiePigmanEntity) entity)) {
           // set pigmens anger to 400 if it hasn't been angered already
           FastReflection.Fields.EntityPigZombie_angerLevel.set(entity, 400);
         }
         return true;
       }
-    } else if (entity instanceof EntityWolf) {
-      return ((EntityWolf) entity).isAngry() && !MC.player.equals(((EntityWolf) entity).getOwner());
-    } else if (entity instanceof EntityEnderman) {
-      return ((EntityEnderman) entity).isScreaming();
+    } else if (entity instanceof WolfEntity) {
+      return ((WolfEntity) entity).isAngry() && !getLocalPlayer().equals(((WolfEntity) entity).getOwner());
+    } else if (entity instanceof EndermanEntity) {
+      return ((EndermanEntity) entity).isScreaming();
     }
     return false;
   }
@@ -82,14 +85,14 @@ public class EntityUtils implements Globals {
    * Check if the mob is an instance of EntityLivingBase
    */
   public static boolean isLiving(Entity entity) {
-    return entity instanceof EntityLivingBase;
+    return entity instanceof LivingEntity;
   }
   
   /**
    * If the entity is a player
    */
   public static boolean isPlayer(Entity entity) {
-    return entity instanceof EntityPlayer;
+    return entity instanceof PlayerEntity;
   }
   
   public static boolean isLocalPlayer(Entity entity) {
@@ -108,27 +111,27 @@ public class EntityUtils implements Globals {
   }
   
   public static boolean isAlive(Entity entity) {
-    return isLiving(entity) && !entity.isDead && ((EntityLivingBase) (entity)).getHealth() > 0;
+    return isLiving(entity) && entity.isAlive() && ((LivingEntity) (entity)).getHealth() > 0;
   }
   
   /**
    * If the mob by default wont attack the player, but will if the player attacks it
    */
   public static boolean isNeutralMob(Entity entity) {
-    return entity instanceof EntityPigZombie
-        || entity instanceof EntityWolf
-        || entity instanceof EntityEnderman;
+    return entity instanceof ZombiePigmanEntity
+        || entity instanceof WolfEntity
+        || entity instanceof EndermanEntity;
   }
   
   /**
    * If the mob is friendly (not aggressive)
    */
   public static boolean isFriendlyMob(Entity entity) {
-    return (entity.isCreatureType(EnumCreatureType.CREATURE, false)
+    return (EntityClassification.CREATURE.equals(entity.getClassification(false))
         && !EntityUtils.isNeutralMob(entity))
-        || (entity.isCreatureType(EnumCreatureType.AMBIENT, false) && !isBatsDisabled)
-        || entity instanceof EntityVillager
-        || entity instanceof EntityIronGolem
+        || (EntityClassification.AMBIENT.equals(entity.getClassification(false)) && !isBatsDisabled)
+        || entity instanceof VillagerEntity
+        || entity instanceof IronGolemEntity
         || (isNeutralMob(entity) && !EntityUtils.isMobAggressive(entity));
   }
   
@@ -136,7 +139,7 @@ public class EntityUtils implements Globals {
    * If the mob is hostile
    */
   public static boolean isHostileMob(Entity entity) {
-    return (entity.isCreatureType(EnumCreatureType.MONSTER, false)
+    return (EntityClassification.MONSTER.equals(entity.getClassification(false))
         && !EntityUtils.isNeutralMob(entity))
         || EntityUtils.isMobAggressive(entity);
   }
@@ -146,9 +149,9 @@ public class EntityUtils implements Globals {
    */
   public static Vec3d getInterpolatedAmount(Entity entity, double x, double y, double z) {
     return new Vec3d(
-        (entity.posX - entity.lastTickPosX) * x,
-        (entity.posY - entity.lastTickPosY) * y,
-        (entity.posZ - entity.lastTickPosZ) * z);
+        (entity.getPosX() - entity.lastTickPosX) * x,
+        (entity.getPosY() - entity.lastTickPosY) * y,
+        (entity.getPosZ() - entity.lastTickPosZ) * z);
   }
   
   public static Vec3d getInterpolatedAmount(Entity entity, Vec3d vec) {
@@ -171,69 +174,23 @@ public class EntityUtils implements Globals {
    * Find the entities interpolated eye position
    */
   public static Vec3d getInterpolatedEyePos(Entity entity, double ticks) {
-    return getInterpolatedPos(entity, ticks).addVector(0, entity.getEyeHeight(), 0);
+    return getInterpolatedPos(entity, ticks).add(0, entity.getEyeHeight(), 0);
   }
   
   /**
    * Get entities eye position
    */
   public static Vec3d getEyePos(Entity entity) {
-    return new Vec3d(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
+    return new Vec3d(entity.getPosX(), entity.getPosY() + entity.getEyeHeight(), entity.getPosZ());
   }
   
   /**
    * Find the center of the entities hit box
    */
   public static Vec3d getOBBCenter(Entity entity) {
-    AxisAlignedBB obb = entity.getEntityBoundingBox();
+    AxisAlignedBB obb = entity.getBoundingBox();
     return new Vec3d(
         (obb.maxX + obb.minX) / 2.D, (obb.maxY + obb.minY) / 2.D, (obb.maxZ + obb.minZ) / 2.D);
-  }
-  
-  /**
-   * Create a trace
-   */
-  public static RayTraceResult traceEntity(
-      World world, Vec3d start, Vec3d end, List<Entity> filter) {
-    RayTraceResult result = null;
-    double hitDistance = -1;
-    
-    for (Entity ent : world.loadedEntityList) {
-      
-      if (filter.contains(ent)) {
-        continue;
-      }
-      
-      double distance = start.distanceTo(ent.getPositionVector());
-      RayTraceResult trace = ent.getEntityBoundingBox().calculateIntercept(start, end);
-      
-      if (trace != null && (hitDistance == -1 || distance < hitDistance)) {
-        hitDistance = distance;
-        result = trace;
-        result.entityHit = ent;
-      }
-    }
-    
-    return result;
-  }
-  
-  /**
-   * Find the entities draw color
-   */
-  public static int getDrawColor(EntityLivingBase living) {
-    if (isPlayer(living)) {
-      if (PlayerUtils.isFriend((EntityPlayer) living)) {
-        return Colors.GREEN.toBuffer();
-      } else {
-        return Colors.RED.toBuffer();
-      }
-    } else if (isHostileMob(living)) {
-      return Colors.ORANGE.toBuffer();
-    } else if (isFriendlyMob(living)) {
-      return Colors.GREEN.toBuffer();
-    } else {
-      return Colors.WHITE.toBuffer();
-    }
   }
   
   public static boolean isDrivenByPlayer(Entity entityIn) {
@@ -250,7 +207,7 @@ public class EntityUtils implements Globals {
     }
     
     double y =
-        entity.posY
+        entity.getPosY()
             - (packet
             ? 0.03
             : (EntityUtils.isPlayer(entity)
@@ -258,11 +215,11 @@ public class EntityUtils implements Globals {
                 : 0.5)); // increasing this seems to flag more in NCP but needs to be increased
     // so the player lands on solid water
     
-    for (int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++) {
-      for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
+    for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
+      for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
         BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
         
-        if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) {
+        if (getWorld().getBlockState(pos).getMaterial().isLiquid()) {
           return true;
         }
       }
@@ -276,13 +233,13 @@ public class EntityUtils implements Globals {
       return false;
     }
     
-    double y = entity.posY + 0.01;
+    double y = entity.getPosY() + 0.01;
     
-    for (int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); x++) {
-      for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); z++) {
+    for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
+      for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
         BlockPos pos = new BlockPos(x, (int) y, z);
         
-        if (getWorld().getBlockState(pos).getBlock() instanceof BlockLiquid) {
+        if (getWorld().getBlockState(pos).getMaterial().isLiquid()) {
           return true;
         }
       }

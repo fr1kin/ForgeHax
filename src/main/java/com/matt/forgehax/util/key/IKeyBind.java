@@ -1,7 +1,7 @@
 package com.matt.forgehax.util.key;
 
 import net.minecraft.client.settings.KeyBinding;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Created on 6/10/2017 by fr1kin
@@ -17,6 +17,6 @@ public interface IKeyBind {
   void onKeyDown();
   
   default void unbind() {
-    bind(Keyboard.KEY_NONE);
+    bind(GLFW.GLFW_FALSE);
   }
 }
