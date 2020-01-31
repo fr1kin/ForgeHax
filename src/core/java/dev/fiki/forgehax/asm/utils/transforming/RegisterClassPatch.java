@@ -1,0 +1,8 @@
+package dev.fiki.forgehax.asm.utils.transforming;
+
+/**
+ * Created on 2/13/2018 by fr1kin
+ */
+public @interface RegisterClassPatch {
+
+}

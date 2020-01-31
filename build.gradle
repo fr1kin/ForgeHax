@@ -2,14 +2,17 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 buildscript {
   ext {
-    forgehaxVersion = project.property('forgehax.version')
+    forgehaxVersion = '2.9.0'
 
-    minecraftVersion = project.property('forgehax.mc.version')
-    forgeVersion = project.property('forgehax.forge.version')
+    minecraftVersion = '1.15.2'
+    forgeVersion = '1.15.2-31.0.1'
 
-    mcpVersion = project.property('forgehax.mcp.version')
-    mcpChannel = project.property('forgehax.mcp.channel')
-    mcpMapping = project.property('forgehax.mcp.mapping')
+    fmlVersion = '2.0.0-milestone.1'
+    lombokVersion = '1.18.10'
+
+    mcpVersion = '1.15.1'
+    mcpChannel = 'snapshot'
+    mcpMapping = '20200126'
   }
   repositories {
     mavenCentral()
@@ -30,15 +33,35 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
 
-sourceCompatibility = targetCompatibility = '1.8'
-
 group 'com.matt.forgehax'
 version forgehaxVersion
 
 archivesBaseName = "forgehax-${version}"
+sourceCompatibility = targetCompatibility = '1.8'
 
 configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+sourceSets {
+  api {
+    compileClasspath += main.compileClasspath
+    //runtimeClasspath += sourceSets.main.runtimeClasspath
+  }
+
+  common {
+    compileClasspath += main.compileClasspath
+    runtimeClasspath += main.runtimeClasspath
+  }
+
+  core {
+    compileClasspath += main.compileClasspath + common.output
+    runtimeClasspath += main.runtimeClasspath
+  }
+
+  main {
+    compileClasspath += api.output + common.output
+  }
 }
 
 minecraft {
@@ -55,7 +78,11 @@ minecraft {
       property 'forge.logging.console.level', 'debug'
 
       mods {
-        forgehax {
+        ForgeHaxCore {
+          source sourceSets.core
+        }
+
+        ForgeHax {
           source sourceSets.main
         }
       }
@@ -64,6 +91,11 @@ minecraft {
 }
 
 dependencies {
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+  coreAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+  commonAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+
   minecraft "net.minecraftforge:forge:${forgeVersion}"
 
   testCompile group: 'junit', name: 'junit', version: '4.12'
@@ -87,8 +119,8 @@ jar {
 processResources {
   filesMatching('**/mcmod.info') {
     it.filter ReplaceTokens, tokens: [
-        version: project.version,
-        mcversion: project.minecraft.version
+        version: forgehaxVersion,
+        mcversion: minecraftVersion
     ]
   }
 
@@ -104,7 +136,6 @@ processResources {
   }
 }
 
-
 task setGameDir() {
   // Check if custom gamedir has been passed, if not use default ones per platform
   if (!project.hasProperty("gameDir")) {
@@ -118,41 +149,41 @@ task setGameDir() {
   }
 }
 
-class CopyJarTask extends DefaultTask {
-  @TaskAction
-  protected void exec() {
-    project.copy {
-      final mc = "${project.ext.gameDir}/mods/${project.minecraft.version}"
-
-      // find previous jar (if it exists)
-      final previousJars = project.fileTree(dir: mc).matching {
-        include "${project.archivesBaseName}*"
-      }.files
-
-      // change file name
-      if (previousJars) {
-        // create .backups folder
-        project.file("${mc}/.backups/").mkdirs()
-
-        for (File previousJar : previousJars) {
-          final n = "${mc}/.backups/${previousJar.getName()}.bk"
-          def f = project.file(n)
-          def i = 1
-          while (f.exists()) {
-            f = project.file("${n}_${i}")
-            i++
-          }
-          previousJar.renameTo(f)
-        }
-      }
-
-      // copy forgehax jar from libs to forge mod folder
-      from project.jar
-      into "${project.ext.gameDir}/mods/${project.minecraft.version}"
-    }
-  }
-}
-
-task copyJar(type: CopyJarTask, dependsOn: [setGameDir])
-
-build.finalizedBy copyJar
+//class CopyJarTask extends DefaultTask {
+//  @TaskAction
+//  protected void exec() {
+//    project.copy {
+//      final mc = "${project.ext.gameDir}/mods/${project.minecraft.version}"
+//
+//      // find previous jar (if it exists)
+//      final previousJars = project.fileTree(dir: mc).matching {
+//        include "${project.archivesBaseName}*"
+//      }.files
+//
+//      // change file name
+//      if (previousJars) {
+//        // create .backups folder
+//        project.file("${mc}/.backups/").mkdirs()
+//
+//        for (File previousJar : previousJars) {
+//          final n = "${mc}/.backups/${previousJar.getName()}.bk"
+//          def f = project.file(n)
+//          def i = 1
+//          while (f.exists()) {
+//            f = project.file("${n}_${i}")
+//            i++
+//          }
+//          previousJar.renameTo(f)
+//        }
+//      }
+//
+//      // copy forgehax jar from libs to forge mod folder
+//      from project.jar
+//      into "${project.ext.gameDir}/mods/${project.minecraft.version}"
+//    }
+//  }
+//}
+//
+//task copyJar(type: CopyJarTask, dependsOn: [setGameDir])
+//
+//build.finalizedBy copyJar

@@ -1,0 +1,42 @@
+package dev.fiki.forgehax.main.mods;
+
+import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.mod.Category;
+import dev.fiki.forgehax.main.util.mod.ToggleMod;
+import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import net.minecraft.network.play.client.CHeldItemChangePacket;
+import net.minecraft.network.play.server.SSetSlotPacket;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+/**
+ * Created by Babbaj on 9/1/2017.
+ */
+@RegisterMod
+public class AntiHeldItemChangeMod extends ToggleMod {
+  
+  public AntiHeldItemChangeMod() {
+    super(
+        Category.PLAYER,
+        "AntiHeldItemChange",
+        false,
+        "prevents the server from changing selected hotbar slot");
+  }
+  
+  @SubscribeEvent
+  public void onPacketReceived(PacketInboundEvent event) {
+    if (event.getPacket() instanceof SSetSlotPacket && Globals.getLocalPlayer() != null) {
+      int currentSlot = Globals.getLocalPlayer().inventory.currentItem;
+      
+      if (((SSetSlotPacket) event.getPacket()).getSlot() != currentSlot) {
+        Globals.sendNetworkPacket(new CHeldItemChangePacket(currentSlot)); // set server's slot back to our slot
+
+        // likely will be eating so stop right clicking
+        FastReflection.Methods.KeyBinding_unPress.invoke(Globals.getGameSettings().keyBindUseItem);
+        
+        event.setCanceled(true);
+      }
+    }
+  }
+}

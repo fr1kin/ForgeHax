@@ -1,0 +1,114 @@
+package dev.fiki.forgehax.main.mods;
+
+import dev.fiki.forgehax.main.util.mod.Category;
+import dev.fiki.forgehax.main.util.mod.ToggleMod;
+
+import java.io.File;
+
+/**
+ * Created by Babbaj on 11/6/2017.
+ */
+// TODO: 1.15
+public class MapDownloader extends ToggleMod {
+  
+  private File outputDir;
+  
+  public MapDownloader() {
+    super(Category.MISC, "MapDownloader", false, "Saves map items as images");
+  }
+
+  /*
+  private void saveImage(String fileName, BufferedImage image) {
+    
+    if (outputDir == null) {
+      outputDir = FileManager.getInstance().getBaseResolve("maps").toFile();
+    }
+    if (!outputDir.exists()) {
+      outputDir.mkdir();
+    }
+    try {
+      File file = new File(outputDir, fileName + ".png");
+      ImageIO.write(image, "png", file);
+    } catch (Exception e) {
+      getLogger().error(e);
+    }
+  }
+  
+  private void downloadMap(String fileName, Integer scaledRes) {
+    if (getLocalPlayer() == null || !(getLocalPlayer().getHeldItemMainhand().getItem() instanceof MapItem)) {
+      return;
+    }
+
+    MapItem map = (MapItem) getLocalPlayer().getHeldItemMainhand().getItem();
+    MapData heldMapData = map.get(getLocalPlayer().getHeldItemMainhand(), getWorld());
+    
+    if (fileName == null) {
+      fileName = heldMapData.mapName;
+    }
+    
+    ResourceLocation location = findResourceLocation(heldMapData.mapName);
+    if (location == null) {
+      printError("Failed to find ResourceLocation");
+      return;
+    }
+    
+    DynamicTexture texture = (DynamicTexture) MC.getTextureManager().getTexture(location);
+    BufferedImage image = dynamicToImage(texture);
+    if (scaledRes != null) {
+      image = createResizedCopy(image, scaledRes, scaledRes, true);
+    }
+    
+    saveImage(fileName, image);
+  }
+  
+  private ResourceLocation findResourceLocation(String name) {
+    Map<ResourceLocation, ITextureObject> mapTextureObjects =
+        FastReflection.Fields.TextureManager_mapTextureObjects.get(MC.getTextureManager());
+    
+    return mapTextureObjects
+        .keySet()
+        .stream()
+        .filter(k -> k.getResourcePath().contains(name))
+        .findFirst()
+        .orElse(null);
+  }
+  
+  // TODO: generalize this
+  private BufferedImage dynamicToImage(DynamicTexture texture) {
+    int[] data = texture.getTextureData();
+    if (data.length != 128 * 128) {
+      return null;
+    }
+    
+    BufferedImage image = new BufferedImage(128, 128, 2);
+    
+    image.setRGB(0, 0, image.getWidth(), image.getHeight(), data, 0, 128);
+    return image;
+  }
+  
+  @Override
+  public void onLoad() {
+    getCommandStub()
+        .builders()
+        .newCommandBuilder()
+        .name("Download")
+        .description("Download the held map as an image")
+        .processor(
+            data -> {
+              data.requiredArguments(0);
+              // do stuff
+              String fileName = data.getArgument(0);
+              Integer scaledRes = null;
+              try {
+                if (data.getArgument(1) != null) {
+                  scaledRes = Integer.valueOf(data.getArgument(1));
+                }
+              } catch (NumberFormatException e) {
+                Helper.printMessage("Failed to parse resolution");
+              }
+              
+              downloadMap(fileName, scaledRes);
+            })
+        .build();
+  }*/
+}
