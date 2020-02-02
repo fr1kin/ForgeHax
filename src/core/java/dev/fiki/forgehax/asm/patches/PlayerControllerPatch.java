@@ -32,7 +32,7 @@ public class PlayerControllerPatch extends ClassTransformer {
       return TypesMc.Methods.PlayerController_syncCurrentPlayItem;
     }
     
-    @Inject(description = "Add callback at top of method")
+    @Inject(value = "Add callback at top of method")
     public void inject(MethodNode node) {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
@@ -50,7 +50,7 @@ public class PlayerControllerPatch extends ClassTransformer {
       return TypesMc.Methods.PlayerController_attackEntity;
     }
     
-    @Inject(description = "Add callback at top of method")
+    @Inject(value = "Add callback at top of method")
     public void inject(MethodNode node) {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
@@ -70,7 +70,7 @@ public class PlayerControllerPatch extends ClassTransformer {
       return TypesMc.Methods.PlayerController_onPlayerDamageBlock;
     }
     
-    @Inject(description = "Add callback at top of method")
+    @Inject(value = "Add callback at top of method")
     public void inject(MethodNode node) {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
@@ -90,7 +90,7 @@ public class PlayerControllerPatch extends ClassTransformer {
       return TypesMc.Methods.PlayerController_onStoppedUsingItem;
     }
     
-    @Inject(description = "Add callback at top of method")
+    @Inject(value = "Add callback at top of method")
     public void inject(MethodNode node) {
       AbstractInsnNode last =
         ASMHelper.findPattern(node.instructions.getFirst(), new int[]{RETURN}, "x");

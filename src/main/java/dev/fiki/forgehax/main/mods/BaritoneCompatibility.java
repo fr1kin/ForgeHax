@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ForgeHaxEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -41,12 +41,12 @@ public class BaritoneCompatibility extends ToggleMod {
   
   private void turnOn() {
     off = false;
-    Globals.getLocalPlayer().sendChatMessage(on_string.get());
+    Common.getLocalPlayer().sendChatMessage(on_string.get());
   }
   
   private void turnOff() {
     off = true;
-    Globals.getLocalPlayer().sendChatMessage(off_string.get());
+    Common.getLocalPlayer().sendChatMessage(off_string.get());
   }
   
   @Override
@@ -63,7 +63,7 @@ public class BaritoneCompatibility extends ToggleMod {
   public void onTick(LocalPlayerUpdateEvent event) {
     if (!once) {
       once = true;
-      BlockPos pos = Globals.getLocalPlayer().getPosition();
+      BlockPos pos = Common.getLocalPlayer().getPosition();
       if (pos.getX() != 0 && pos.getZ() != 0) {
         turnOn();
       }
@@ -72,7 +72,7 @@ public class BaritoneCompatibility extends ToggleMod {
   
   @SubscribeEvent
   public void onEvent(ForgeHaxEvent event) {
-    if (Globals.getLocalPlayer() == null) {
+    if (Common.getLocalPlayer() == null) {
       return;
     }
     

@@ -34,7 +34,7 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
       return TypesMc.Methods.PlayerTabOverlayGui_renderPlayerList;
     }
 
-    @Inject(description = "Add hook to increase the size of the tab list")
+    @Inject(value = "Add hook to increase the size of the tab list")
     public void inject(MethodNode main) {
       AbstractInsnNode subListNode =
           ASMHelper.findPattern(

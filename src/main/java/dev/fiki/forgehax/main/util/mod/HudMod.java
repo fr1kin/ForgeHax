@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.util.mod;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.math.AlignHelper;
 import dev.fiki.forgehax.main.util.math.AlignHelper.Align;
@@ -66,13 +66,13 @@ public abstract class HudMod extends ToggleMod {
   public final int getPosX(int extraOffset) {
     final int align = alignment.get().ordinal();
     final int dirSignX = AlignHelper.getFlowDirX2(align);
-    return (extraOffset + offsetX.get()) * dirSignX + AlignHelper.alignH(Globals.getScreenWidth(), align);
+    return (extraOffset + offsetX.get()) * dirSignX + AlignHelper.alignH(Common.getScreenWidth(), align);
   }
   
   public final int getPosY(int extraOffset) {
     final int align = alignment.get().ordinal();
     final int dirSignY = AlignHelper.getFlowDirY2(align);
-    return (extraOffset + offsetY.get()) * dirSignY + AlignHelper.alignV(Globals.getScreenHeight(), align);
+    return (extraOffset + offsetY.get()) * dirSignY + AlignHelper.alignV(Common.getScreenHeight(), align);
   }
   
   @SubscribeEvent

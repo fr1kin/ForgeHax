@@ -78,17 +78,19 @@ public interface TypesHook {
             .argument(float.class)
             .build();
 
-    ASMMethod ForgeHaxHooks_onSendingPacket =
+    ASMMethod ForgeHaxHooks_onPacketOutbound =
         Classes.ForgeHaxHooks.newChildMethod()
-            .name("onSendingPacket")
+            .name("onPacketOutbound")
             .returns(boolean.class)
+            .argument(TypesMc.Classes.NetworkManager)
             .argument(TypesMc.Classes.Packet)
             .build();
 
-    ASMMethod ForgeHaxHooks_onSentPacket =
+    ASMMethod ForgeHaxHooks_onPacketInbound =
         Classes.ForgeHaxHooks.newChildMethod()
-            .name("onSentPacket")
-            .returns(void.class)
+            .name("onPacketInbound")
+            .returns(boolean.class)
+            .argument(TypesMc.Classes.NetworkManager)
             .argument(TypesMc.Classes.Packet)
             .build();
 

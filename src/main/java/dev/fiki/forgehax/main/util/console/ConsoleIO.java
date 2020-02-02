@@ -1,19 +1,19 @@
 package dev.fiki.forgehax.main.util.console;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import java.util.concurrent.atomic.AtomicInteger;
 import joptsimple.internal.Strings;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
 /**
  * Created on 6/10/2017 by fr1kin
  */
 
 // TODO: fix memory leak
-public class ConsoleIO implements Globals {
+public class ConsoleIO implements Common {
   
   public static final Style HEADING = new Style().setColor(TextFormatting.GRAY).setItalic(true);
   

@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ChatMessageEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
@@ -174,7 +174,7 @@ public class ChatBot extends ToggleMod {
                 data.write("Added new entry \"" + name + "\"");
               }
               
-              Path file = Globals.getFileManager().getBaseResolve(fileN);
+              Path file = Common.getFileManager().getBaseResolve(fileN);
               if (Files.exists(file)) {
                 if (fileN.endsWith(".json")) {
                   try {
@@ -244,7 +244,7 @@ public class ChatBot extends ToggleMod {
                 fileN += ".txt";
               }
               
-              Path file = Globals.getFileManager().getBaseResolve(fileN);
+              Path file = Common.getFileManager().getBaseResolve(fileN);
               
               try {
                 if (!Files.isDirectory(file.getParent())) {

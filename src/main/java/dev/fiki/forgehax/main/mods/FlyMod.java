@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -27,8 +27,8 @@ public class FlyMod extends ToggleMod {
   
   @Override
   public void onDisabled() {
-    if (Objects.nonNull(Globals.getLocalPlayer())) {
-      Globals.getLocalPlayer().noClip = false;
+    if (Objects.nonNull(Common.getLocalPlayer())) {
+      Common.getLocalPlayer().noClip = false;
     }
   }
   
@@ -38,58 +38,58 @@ public class FlyMod extends ToggleMod {
     double xDir = dir[0];
     double zDir = dir[1];
 
-    if ((Globals.getGameSettings().keyBindForward.isKeyDown()
-        || Globals.getGameSettings().keyBindLeft.isKeyDown()
-        || Globals.getGameSettings().keyBindRight.isKeyDown()
-        || Globals.getGameSettings().keyBindBack.isKeyDown())
-        && !Globals.getGameSettings().keyBindJump.isKeyDown()) {
-      Vec3d vel = Globals.getLocalPlayer().getMotion();
-      Globals.getLocalPlayer().setMotion(xDir * 0.26, vel.getY(), zDir * 0.26);
+    if ((Common.getGameSettings().keyBindForward.isKeyDown()
+        || Common.getGameSettings().keyBindLeft.isKeyDown()
+        || Common.getGameSettings().keyBindRight.isKeyDown()
+        || Common.getGameSettings().keyBindBack.isKeyDown())
+        && !Common.getGameSettings().keyBindJump.isKeyDown()) {
+      Vec3d vel = Common.getLocalPlayer().getMotion();
+      Common.getLocalPlayer().setMotion(xDir * 0.26, vel.getY(), zDir * 0.26);
     }
 
-    double posX = Globals.getLocalPlayer().getPosX() + Globals.getLocalPlayer().getMotion().getX();
+    double posX = Common.getLocalPlayer().getPosX() + Common.getLocalPlayer().getMotion().getX();
     double posY =
-        Globals.getLocalPlayer().getPosY()
-            + (Globals.getGameSettings().keyBindJump.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001)
-            - (Globals.getGameSettings().keyBindSneak.isKeyDown()
+        Common.getLocalPlayer().getPosY()
+            + (Common.getGameSettings().keyBindJump.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001)
+            - (Common.getGameSettings().keyBindSneak.isKeyDown()
             ? (zoomies ? 0.0625 : 0.0624)
             : 0.00000002);
-    double posZ = Globals.getLocalPlayer().getPosZ() + Globals.getLocalPlayer().getMotion().getZ();
-    Globals.getNetworkManager()
+    double posZ = Common.getLocalPlayer().getPosZ() + Common.getLocalPlayer().getMotion().getZ();
+    Common.getNetworkManager()
         .sendPacket(
             new CPlayerPacket.PositionRotationPacket(
-                Globals.getLocalPlayer().getPosX() + Globals.getLocalPlayer().getMotion().getX(),
-                Globals.getLocalPlayer().getPosY()
-                    + (Globals.getGameSettings().keyBindJump.isKeyDown()
+                Common.getLocalPlayer().getPosX() + Common.getLocalPlayer().getMotion().getX(),
+                Common.getLocalPlayer().getPosY()
+                    + (Common.getGameSettings().keyBindJump.isKeyDown()
                     ? (zoomies ? 0.0625 : 0.0624)
                     : 0.00000001)
-                    - (Globals.getGameSettings().keyBindSneak.isKeyDown()
+                    - (Common.getGameSettings().keyBindSneak.isKeyDown()
                     ? (zoomies ? 0.0625 : 0.0624)
                     : 0.00000002),
-                Globals.getLocalPlayer().getPosZ() + Globals.getLocalPlayer().getMotion().getZ(),
-                Globals.getLocalPlayer().rotationYaw,
-                Globals.getLocalPlayer().rotationPitch,
+                Common.getLocalPlayer().getPosZ() + Common.getLocalPlayer().getMotion().getZ(),
+                Common.getLocalPlayer().rotationYaw,
+                Common.getLocalPlayer().rotationPitch,
                 false));
-    Globals.getNetworkManager()
+    Common.getNetworkManager()
         .sendPacket(
             new CPlayerPacket.PositionRotationPacket(
-                Globals.getLocalPlayer().getPosX() + Globals.getLocalPlayer().getMotion().getX(),
-                1337 + Globals.getLocalPlayer().getPosY(),
-                Globals.getLocalPlayer().getPosZ() + Globals.getLocalPlayer().getMotion().getZ(),
-                Globals.getLocalPlayer().rotationYaw,
-                Globals.getLocalPlayer().rotationPitch,
+                Common.getLocalPlayer().getPosX() + Common.getLocalPlayer().getMotion().getX(),
+                1337 + Common.getLocalPlayer().getPosY(),
+                Common.getLocalPlayer().getPosZ() + Common.getLocalPlayer().getMotion().getZ(),
+                Common.getLocalPlayer().rotationYaw,
+                Common.getLocalPlayer().rotationPitch,
                 true));
-    Globals.getNetworkManager().sendPacket(new CEntityActionPacket(Globals.getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
-    Globals.getLocalPlayer().setPosition(posX, posY, posZ);
+    Common.getNetworkManager().sendPacket(new CEntityActionPacket(Common.getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
+    Common.getLocalPlayer().setPosition(posX, posY, posZ);
 
     zoomies = !zoomies;
 
-    Globals.getLocalPlayer().setMotion(0.D, 0.D, 0.D);
-    Globals.getLocalPlayer().noClip = true;
+    Common.getLocalPlayer().setMotion(0.D, 0.D, 0.D);
+    Common.getLocalPlayer().noClip = true;
   }
   
   public double[] moveLooking(int ignored) {
-    return new double[]{Globals.getLocalPlayer().rotationYaw * 360 / 360 * 180 / 180, 0};
+    return new double[]{Common.getLocalPlayer().rotationYaw * 360 / 360 * 180 / 180, 0};
   }
   
   @SubscribeEvent

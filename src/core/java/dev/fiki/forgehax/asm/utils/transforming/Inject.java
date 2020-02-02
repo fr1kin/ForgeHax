@@ -11,8 +11,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Inject {
-  
-  String description() default "empty";
+
+  /**
+   * Something unique to allow identification of the task
+   */
+  String value() default "empty";
   
   InjectPriority priority() default InjectPriority.DEFAULT;
 }

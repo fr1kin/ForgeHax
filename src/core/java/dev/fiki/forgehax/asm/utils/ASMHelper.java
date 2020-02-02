@@ -57,6 +57,7 @@ public class ASMHelper {
     BiFunction<AbstractInsnNode, AbstractInsnNode, T> outputFunction) {
     if (start != null) {
       int found = 0;
+      AbstractInsnNode firstFound = null;
       AbstractInsnNode next = start;
       do {
         // Check if node matches the predicate.
@@ -65,6 +66,7 @@ public class ASMHelper {
         final boolean validNode = isValidNode.test(next);
         if (!validNode || nodePredicate.test(found, next)) {
           if (validNode) {
+            if(found == 0) firstFound = next;
             // Increment number of matched opcodes
             found++;
           }
@@ -75,16 +77,12 @@ public class ASMHelper {
           }
           // Reset the number of insns matched
           found = 0;
+          firstFound = null;
         }
         
         // Check if found entire pattern
         if (found >= patternSize) {
-          final AbstractInsnNode end = next;
-          // Go back to top node
-          for (int i = 1; i <= (found - 1); i++) {
-            next = next.getPrevious();
-          }
-          return outputFunction.apply(next, end);
+          return outputFunction.apply(firstFound, next);
         }
         next = next.getNext();
       } while (next != null);

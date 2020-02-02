@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -26,14 +26,14 @@ public class AntiHeldItemChangeMod extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketReceived(PacketInboundEvent event) {
-    if (event.getPacket() instanceof SSetSlotPacket && Globals.getLocalPlayer() != null) {
-      int currentSlot = Globals.getLocalPlayer().inventory.currentItem;
+    if (event.getPacket() instanceof SSetSlotPacket && Common.getLocalPlayer() != null) {
+      int currentSlot = Common.getLocalPlayer().inventory.currentItem;
       
       if (((SSetSlotPacket) event.getPacket()).getSlot() != currentSlot) {
-        Globals.sendNetworkPacket(new CHeldItemChangePacket(currentSlot)); // set server's slot back to our slot
+        Common.sendNetworkPacket(new CHeldItemChangePacket(currentSlot)); // set server's slot back to our slot
 
         // likely will be eating so stop right clicking
-        FastReflection.Methods.KeyBinding_unPress.invoke(Globals.getGameSettings().keyBindUseItem);
+        FastReflection.Methods.KeyBinding_unPress.invoke(Common.getGameSettings().keyBindUseItem);
         
         event.setCanceled(true);
       }

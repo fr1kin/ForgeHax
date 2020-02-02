@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.serialization.GsonConstant;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -19,12 +19,12 @@ import java.util.UUID;
 import javax.net.ssl.HttpsURLConnection;
 import net.minecraft.entity.player.PlayerEntity;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
 /**
  * Created on 7/22/2017 by fr1kin
  */
-public class PlayerInfo implements Globals, GsonConstant {
+public class PlayerInfo implements Common, GsonConstant {
   
   /**
    * The online UUID for this player

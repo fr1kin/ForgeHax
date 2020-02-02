@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.ForgeHaxHooks;
 import dev.fiki.forgehax.common.events.movement.DoBlockCollisionsEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -37,7 +37,7 @@ public class NoSlowdown extends ToggleMod {
   
   @SubscribeEvent
   public void onDoApplyBlockMovement(DoBlockCollisionsEvent event) {
-    if (event.getEntity().equals(Globals.getLocalPlayer())) {
+    if (event.getEntity().equals(Common.getLocalPlayer())) {
       if (Blocks.SOUL_SAND.equals(event.getState().getBlock())) { // soul sand
         event.setCanceled(true);
       }

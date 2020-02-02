@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.util.reflection.fasttype.FastField;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
@@ -78,7 +78,7 @@ public class AutoKey extends ToggleMod {
           KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
 
           if (key == null) {
-            Globals.printError("Unknown key: %s", data.getArgumentAsString(0));
+            Common.printError("Unknown key: %s", data.getArgumentAsString(0));
             return;
           }
 
@@ -87,7 +87,7 @@ public class AutoKey extends ToggleMod {
               .filter(m -> m.toString().toLowerCase().contains(mode.toLowerCase()))
               .findFirst()
               .orElseGet(() -> {
-                Globals.printError("Unknown mode, defaulting to tap");
+                Common.printError("Unknown mode, defaulting to tap");
                 return ClickMode.TAP;
               });
 
@@ -103,7 +103,7 @@ public class AutoKey extends ToggleMod {
         .description("clear all the active keys")
         .processor(data -> {
             if (data.getArgumentCount() > 0) {
-              Globals.printError("Unexpected arguments!");
+              Common.printError("Unexpected arguments!");
               return;
             }
             activeKeys.clear();
@@ -122,9 +122,9 @@ public class AutoKey extends ToggleMod {
               KeyBindingHandler key = Bindings.getKey(data.getArgumentAsString(0));
               ClickMode mode = activeKeys.remove(key);
               if (mode != null) {
-                Globals.printInform("Removed key: %s", key.getBinding().getKeyDescription());
+                Common.printInform("Removed key: %s", key.getBinding().getKeyDescription());
               } else {
-                Globals.printInform("Unknown key");
+                Common.printInform("Unknown key");
               }
             })
         .build();

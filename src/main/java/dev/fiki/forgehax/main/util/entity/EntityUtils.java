@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.util.entity;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.util.entity.mobtypes.MobTypeEnum;
 import dev.fiki.forgehax.main.util.entity.mobtypes.MobTypeRegistry;
@@ -23,9 +23,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
-public class EntityUtils implements Globals {
+public class EntityUtils implements Common {
   
   public static MobTypeEnum getRelationship(Entity entity) {
     if (entity instanceof AbstractClientPlayerEntity) {

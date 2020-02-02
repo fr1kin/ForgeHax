@@ -11,11 +11,7 @@ import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 
 public class BoatEntityPatch extends ClassTransformer {
   
@@ -23,89 +19,77 @@ public class BoatEntityPatch extends ClassTransformer {
     super(TypesMc.Classes.BoatEntity);
   }
   
-  @RegisterMethodTransformer
-  private class UpdateMotion extends MethodTransformer {
-    
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.BoatEntity_updateMotion;
-    }
-    
-    @Inject(description = "Add hook to disable boat gravity")
-    public void inject(MethodNode main) {
-      InsnPattern gravity = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(ALOAD, DUP, GETFIELD, DLOAD, DADD, PUTFIELD)
-          .find(main);
-
-      AbstractInsnNode gravityNode = gravity.getFirst("gravity node");
-      AbstractInsnNode putFieldNode = gravity.getLast("PUTFIELD node");
-      
-      LabelNode newLabelNode = new LabelNode();
-      
-      InsnList insnList = new InsnList();
-      insnList.add(
-        ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoBoatGravityActivated));
-      insnList.add(new JumpInsnNode(IFNE, newLabelNode)); // if nogravity is enabled
-      
-      main.instructions.insertBefore(gravityNode, insnList); // insert if
-      main.instructions.insert(putFieldNode, newLabelNode); // end if
-    }
-  }
-  
-  @RegisterMethodTransformer
-  private class ControlBoat extends MethodTransformer {
-    
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.BoatEntity_controlBoat;
-    }
-    
-    @Inject(description = "Add hooks to disable boat rotation")
-    public void inject(MethodNode main) {
-      InsnPattern first = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(ALOAD, DUP, GETFIELD, LDC, FADD, PUTFIELD)
-          .find(main);
-
-      InsnPattern second = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(ALOAD, DUP, GETFIELD, FCONST_1, FADD, PUTFIELD)
-          .find(main);
-
-      AbstractInsnNode rotationLeftNode = first.getFirst("first node");
-      AbstractInsnNode rotationRightNode = second.getFirst("second node");
-      
-      AbstractInsnNode putFieldNodeLeft = first.getLast(); // get last instruction for left
-      AbstractInsnNode putFieldNodeRight = second.getLast(); // get last instruction for right
-      
-      /*
-       * disable updating deltaRotation for strafing left
-       */
-      LabelNode newLabelNodeLeft = new LabelNode();
-      
-      InsnList insnListLeft = new InsnList();
-      insnListLeft.add(
-        ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isBoatSetYawActivated));
-      insnListLeft.add(new JumpInsnNode(IFNE, newLabelNodeLeft)); // if nogravity is enabled
-      
-      main.instructions.insertBefore(rotationLeftNode, insnListLeft); // insert if
-      main.instructions.insert(putFieldNodeLeft, newLabelNodeLeft); // end if
-      
-      /*
-       * disable updating deltaRotation for strafing right
-       */
-      LabelNode newLabelNodeRight = new LabelNode();
-      
-      InsnList insnListRight = new InsnList();
-      insnListRight.add(
-        ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isBoatSetYawActivated));
-      insnListRight.add(new JumpInsnNode(IFNE, newLabelNodeRight)); // if nogravity is enabled
-      
-      main.instructions.insertBefore(rotationRightNode, insnListRight); // insert if
-      main.instructions.insert(putFieldNodeRight, newLabelNodeRight); // end if
-    }
-  }
+//  @RegisterMethodTransformer
+//  private class ControlBoat extends MethodTransformer {
+//
+//    private boolean isLeftInputDownField(AbstractInsnNode node) {
+//      if(node instanceof FieldInsnNode && node.getOpcode() == GETFIELD) {
+//        FieldInsnNode fld = (FieldInsnNode) node;
+//        return Fields.BoatEntity_leftInputDown.isNameEqual(fld.name);
+//      }
+//      return false;
+//    }
+//
+//    private boolean isRightInputDownField(AbstractInsnNode node) {
+//      if(node instanceof FieldInsnNode && node.getOpcode() == GETFIELD) {
+//        FieldInsnNode fld = (FieldInsnNode) node;
+//        return Fields.BoatEntity_rightInputDown.isNameEqual(fld.name);
+//      }
+//      return false;
+//    }
+//
+//    @Override
+//    public ASMMethod getMethod() {
+//      return TypesMc.Methods.BoatEntity_controlBoat;
+//    }
+//
+//    @Inject(value = "ForgeHaxHooks.isBoatSetYawActivated")
+//    public void inject(MethodNode main) {
+//      InsnPattern leftDownNode = ASMPattern.builder()
+//          .codeOnly()
+//          .opcodes(ALOAD, GETFIELD, IFEQ, ALOAD, DUP, GETFIELD)
+//          //.custom(this::isLeftInputDownField)
+//          .find(main);
+//
+//      InsnPattern second = ASMPattern.builder()
+//          .codeOnly()
+//          .opcode(ALOAD)
+//          .custom(this::isRightInputDownField)
+//          .find(main);
+//
+//      AbstractInsnNode rotationLeftNode = leftDownNode.getFirst("leftInputDown node");
+//      AbstractInsnNode rotationRightNode = second.getFirst("rightInputDown node");
+//
+//      AbstractInsnNode putFieldNodeLeft = leftDownNode.getLast(); // get last instruction for left
+//      AbstractInsnNode putFieldNodeRight = second.getLast(); // get last instruction for right
+//
+//      /*
+//       * disable updating deltaRotation for strafing left
+//       */
+//      LabelNode newLabelNodeLeft = new LabelNode();
+//
+//      InsnList insnListLeft = new InsnList();
+//      insnListLeft.add(
+//        ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isBoatSetYawActivated));
+//      insnListLeft.add(new JumpInsnNode(IFNE, newLabelNodeLeft)); // if nogravity is enabled
+//
+//      main.instructions.insertBefore(rotationLeftNode, insnListLeft); // insert if
+//      main.instructions.insert(putFieldNodeLeft, newLabelNodeLeft); // end if
+//
+//      /*
+//       * disable updating deltaRotation for strafing right
+//       */
+//      LabelNode newLabelNodeRight = new LabelNode();
+//
+//      InsnList insnListRight = new InsnList();
+//      insnListRight.add(
+//        ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isBoatSetYawActivated));
+//      insnListRight.add(new JumpInsnNode(IFNE, newLabelNodeRight)); // if nogravity is enabled
+//
+//      main.instructions.insertBefore(rotationRightNode, insnListRight); // insert if
+//      main.instructions.insert(putFieldNodeRight, newLabelNodeRight); // end if
+//    }
+//  }
   
   @RegisterMethodTransformer
   private class ApplyYawToEntity extends MethodTransformer {
@@ -115,7 +99,7 @@ public class BoatEntityPatch extends ClassTransformer {
       return TypesMc.Methods.BoatEntity_applyYawToEntity;
     }
     
-    @Inject(description = "Disable boat view clamping")
+    @Inject(value = "ForgeHaxHooks.isNoClampingActivated")
     public void inject(MethodNode main) {
       AbstractInsnNode pre = ASMPattern.builder()
           .codeOnly()

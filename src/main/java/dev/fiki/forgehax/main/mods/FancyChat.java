@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -139,7 +139,7 @@ public class FancyChat extends ToggleMod {
                   data.markSuccess();
                   compileMessagePatterns();
                 } catch (PatternSyntaxException e) {
-                  Globals.printError(
+                  Common.printError(
                       String.format(
                           "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
                   data.markFailed();
@@ -163,7 +163,7 @@ public class FancyChat extends ToggleMod {
                   data.markSuccess();
                   compileMessagePatterns();
                 } catch (PatternSyntaxException e) {
-                  Globals.printError(
+                  Common.printError(
                       String.format(
                           "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
                   data.markFailed();
@@ -187,7 +187,7 @@ public class FancyChat extends ToggleMod {
                   data.markSuccess();
                   compileMessagePatterns();
                 } catch (PatternSyntaxException e) {
-                  Globals.printError(
+                  Common.printError(
                       String.format(
                           "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
                   data.markFailed();
@@ -269,10 +269,10 @@ public class FancyChat extends ToggleMod {
           messageOut = prefix + command + " " + arg1 + " " + messageOut;
         }
         
-        if (Globals.getNetworkManager() != null) {
+        if (Common.getNetworkManager() != null) {
           CChatMessagePacket packet = new CChatMessagePacket(messageOut);
           PacketHelper.ignore(packet);
-          Globals.getNetworkManager().sendPacket(packet);
+          Common.getNetworkManager().sendPacket(packet);
           event.setCanceled(true);
         }
       }

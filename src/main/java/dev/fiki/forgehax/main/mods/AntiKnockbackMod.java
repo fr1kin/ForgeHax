@@ -6,7 +6,7 @@ import dev.fiki.forgehax.common.events.movement.PushOutOfBlocksEvent;
 import dev.fiki.forgehax.common.events.movement.WaterMovementEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -161,14 +161,14 @@ public class AntiKnockbackMod extends ToggleMod {
    */
   @SubscribeEvent
   public void onPacketReceived(PacketInboundEvent event) {
-    if (!Globals.isInWorld()) {
+    if (!Common.isInWorld()) {
       return;
     } else if (explosions.get() && event.getPacket() instanceof SExplosionPacket) {
       Vec3d multiplier = getMultiplier();
       Vec3d motion = getPacketMotion(event.getPacket());
       setPacketMotion(event.getPacket(), VectorUtils.multiplyBy(motion, multiplier));
     } else if (velocity.get() && event.getPacket() instanceof SEntityVelocityPacket) {
-      if (((SEntityVelocityPacket) event.getPacket()).getEntityID() == Globals.getLocalPlayer().getEntityId()) {
+      if (((SEntityVelocityPacket) event.getPacket()).getEntityID() == Common.getLocalPlayer().getEntityId()) {
         Vec3d multiplier = getMultiplier();
         if (multiplier.lengthSquared() > 0.D) {
           setPacketMotion(event.getPacket(),
@@ -182,10 +182,10 @@ public class AntiKnockbackMod extends ToggleMod {
       // fuck you popbob for making me need this
       SEntityStatusPacket packet = (SEntityStatusPacket) event.getPacket();
       if (packet.getOpCode() == 31) {
-        Entity offender = packet.getEntity(Globals.getWorld()); // TODO: this is not thread safe
+        Entity offender = packet.getEntity(Common.getWorld()); // TODO: this is not thread safe
         if (offender instanceof FishingBobberEntity) {
           FishingBobberEntity hook = (FishingBobberEntity) offender;
-          if (Globals.getLocalPlayer().equals(hook.caughtEntity)) {
+          if (Common.getLocalPlayer().equals(hook.caughtEntity)) {
             event.setCanceled(true);
           }
         }
@@ -198,7 +198,7 @@ public class AntiKnockbackMod extends ToggleMod {
    */
   @SubscribeEvent
   public void onWaterMovementEvent(WaterMovementEvent event) {
-    if (water.get() && Globals.getLocalPlayer() != null && Globals.getLocalPlayer().equals(event.getEntity())) {
+    if (water.get() && Common.getLocalPlayer() != null && Common.getLocalPlayer().equals(event.getEntity())) {
       addEntityVelocity(
           event.getEntity(),
           VectorUtils.multiplyBy(event.getMovement().normalize().scale(0.014D), getMultiplier()));
@@ -211,7 +211,7 @@ public class AntiKnockbackMod extends ToggleMod {
    */
   @SubscribeEvent
   public void onApplyCollisionMotion(ApplyCollisionMotionEvent event) {
-    if (push.get() && Globals.getLocalPlayer() != null && Globals.getLocalPlayer().equals(event.getEntity())) {
+    if (push.get() && Common.getLocalPlayer() != null && Common.getLocalPlayer().equals(event.getEntity())) {
       addEntityVelocity(
           event.getEntity(),
           VectorUtils.multiplyBy(
@@ -231,8 +231,8 @@ public class AntiKnockbackMod extends ToggleMod {
   @SubscribeEvent
   public void onBlockSlip(EntityBlockSlipApplyEvent event) {
     if (slipping.get()
-        && Globals.getLocalPlayer() != null
-        && Globals.getLocalPlayer().equals(event.getLivingEntity())) {
+        && Common.getLocalPlayer() != null
+        && Common.getLocalPlayer().equals(event.getLivingEntity())) {
       event.setSlipperiness(0.6f);
     }
   }

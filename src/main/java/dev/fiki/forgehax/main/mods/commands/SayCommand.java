@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.commands;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Command;
 import dev.fiki.forgehax.main.util.command.CommandBuilders;
 import dev.fiki.forgehax.main.util.mod.CommandMod;
@@ -34,12 +34,12 @@ public class SayCommand extends CommandMod {
           final int fakePrefix = 0x1F921;
           String msg = data.getArgumentCount() > 0 ? data.getArgumentAsString(0) : "";
           
-          if (Globals.getLocalPlayer() != null) {
+          if (Common.getLocalPlayer() != null) {
             if (fake) {
               msg = new StringBuilder().appendCodePoint(fakePrefix).append(msg).toString();
             }
             if (data.hasOption("local")) {
-              Globals.getLocalPlayer().sendChatMessage(msg);
+              Common.getLocalPlayer().sendChatMessage(msg);
             } else {
               PacketHelper.ignoreAndSend(new CChatMessagePacket(msg));
             }

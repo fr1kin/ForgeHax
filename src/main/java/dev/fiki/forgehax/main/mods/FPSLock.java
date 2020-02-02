@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.ClientTickEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -18,7 +18,7 @@ public class FPSLock extends ToggleMod {
           .<Integer>newSettingBuilder()
           .name("default-fps")
           .description("default FPS to revert to")
-          .defaultTo(Globals.getGameSettings().framerateLimit)
+          .defaultTo(Common.getGameSettings().framerateLimit)
           .min(1)
           .build();
   
@@ -61,9 +61,9 @@ public class FPSLock extends ToggleMod {
   
   private int getFps() {
     if (no_focus_fps.get() > 0
-        && GLFW.glfwGetWindowAttrib(Globals.getMainWindow().getHandle(), GLFW.GLFW_FOCUSED) == GLFW.GLFW_FALSE) {
+        && GLFW.glfwGetWindowAttrib(Common.getMainWindow().getHandle(), GLFW.GLFW_FOCUSED) == GLFW.GLFW_FALSE) {
       return no_focus_fps.get();
-    } else if (Globals.MC.currentScreen != null) {
+    } else if (Common.MC.currentScreen != null) {
       return menu_fps.get() > 0 ? menu_fps.get() : defaultFps.get();
     } else {
       return fps.get() > 0 ? fps.get() : defaultFps.get();
@@ -72,11 +72,11 @@ public class FPSLock extends ToggleMod {
   
   @Override
   protected void onDisabled() {
-    Globals.getGameSettings().framerateLimit = defaultFps.get();
+    Common.getGameSettings().framerateLimit = defaultFps.get();
   }
   
   @SubscribeEvent
   void onTick(ClientTickEvent.Pre event) {
-    Globals.getGameSettings().framerateLimit = getFps();
+    Common.getGameSettings().framerateLimit = getFps();
   }
 }

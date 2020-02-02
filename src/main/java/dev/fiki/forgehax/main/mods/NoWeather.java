@@ -1,7 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -13,7 +12,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
 /**
  * Created on 5/16/2017 by fr1kin

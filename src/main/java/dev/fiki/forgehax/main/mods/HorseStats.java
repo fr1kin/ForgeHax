@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
@@ -51,7 +51,7 @@ public class HorseStats extends ToggleMod {
   
   @Override
   public void onDisabled() {
-    if (Globals.getMountedEntity() instanceof AbstractHorseEntity) {
+    if (Common.getMountedEntity() instanceof AbstractHorseEntity) {
       applyStats(jumpHeight.getDefault(), speed.getDefault());
     }
   }
@@ -59,10 +59,10 @@ public class HorseStats extends ToggleMod {
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
     if (EntityUtils.isDrivenByPlayer(event.getEntity())
-        && Globals.getMountedEntity() instanceof AbstractHorseEntity) {
+        && Common.getMountedEntity() instanceof AbstractHorseEntity) {
       
       double newSpeed = speed.getAsDouble();
-      if (Globals.getLocalPlayer().isSprinting()) {
+      if (Common.getLocalPlayer().isSprinting()) {
         newSpeed *= multiplier.getAsDouble();
       }
       applyStats(jumpHeight.getAsDouble(), newSpeed);
@@ -71,14 +71,14 @@ public class HorseStats extends ToggleMod {
   
   private void applyStats(double newJump, double newSpeed) {
     final IAttribute jump_strength =
-        FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(Globals.getMountedEntity());
+        FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(Common.getMountedEntity());
     final IAttribute movement_speed =
-        FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(Globals.getMountedEntity());
+        FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(Common.getMountedEntity());
     
-    ((LivingEntity) Globals.getMountedEntity())
+    ((LivingEntity) Common.getMountedEntity())
         .getAttribute(jump_strength)
         .setBaseValue(newJump);
-    ((LivingEntity) Globals.getMountedEntity())
+    ((LivingEntity) Common.getMountedEntity())
         .getAttribute(movement_speed)
         .setBaseValue(newSpeed);
   }

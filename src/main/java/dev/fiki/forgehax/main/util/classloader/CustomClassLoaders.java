@@ -48,7 +48,7 @@ public class CustomClassLoaders {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
       try {
-        Path location = getRoot().resolve(asFilePath(name).concat(".class"));
+        Path location = getRoot().resolve(asFilePath(name, "/").concat(".class"));
         if (Files.exists(location)) {
           byte[] classData = Files.readAllBytes(location);
           return defineClass(name, classData, 0, classData.length);

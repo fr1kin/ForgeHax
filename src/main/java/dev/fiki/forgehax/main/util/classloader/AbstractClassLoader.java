@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
 /**
  * Created on 2/13/2018 by fr1kin

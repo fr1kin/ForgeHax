@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
@@ -50,7 +50,7 @@ public class AutoTotemMod extends ToggleMod {
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (!getOffhand().isEmpty() // if there's an item in offhand slot
         // if in inventory
-        || (Globals.getDisplayScreen() != null && !allowGui.getAsBoolean())) {
+        || (Common.getDisplayScreen() != null && !allowGui.getAsBoolean())) {
       return; // if there's an item in offhand slot
     }
     
@@ -61,7 +61,7 @@ public class AutoTotemMod extends ToggleMod {
   }
   
   private void invPickup(final int slot) {
-    Globals.getPlayerController().windowClick(0, slot, 0, ClickType.PICKUP, Globals.getLocalPlayer());
+    Common.getPlayerController().windowClick(0, slot, 0, ClickType.PICKUP, Common.getLocalPlayer());
   }
   
   private OptionalInt findItem(final Item item) {
@@ -74,6 +74,6 @@ public class AutoTotemMod extends ToggleMod {
   }
   
   private ItemStack getOffhand() {
-    return Globals.getLocalPlayer().getItemStackFromSlot(EquipmentSlotType.OFFHAND);
+    return Common.getLocalPlayer().getItemStackFromSlot(EquipmentSlotType.OFFHAND);
   }
 }

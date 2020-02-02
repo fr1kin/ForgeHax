@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -28,22 +28,22 @@ public class TrajectoryMod extends ToggleMod {
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     Projectile projectile =
-        Projectile.getProjectileByItemStack(Globals.getLocalPlayer().getHeldItemMainhand());
+        Projectile.getProjectileByItemStack(Common.getLocalPlayer().getHeldItemMainhand());
     if (!projectile.isNull()) {
       SimulationResult result =
           projectile.getSimulatedTrajectoryFromEntity(
-              Globals.getLocalPlayer(),
+              Common.getLocalPlayer(),
               PositionRotationManager.getState().getRenderServerViewAngles(),
               projectile.getForce(
-                  Globals.getLocalPlayer().getHeldItemMainhand().getUseDuration()
-                      - Globals.getLocalPlayer().getItemInUseCount()),
+                  Common.getLocalPlayer().getHeldItemMainhand().getUseDuration()
+                      - Common.getLocalPlayer().getItemInUseCount()),
               0);
       if (result == null) {
         return;
       }
       
       if (result.getPathTraveled().size() > 1) {
-        event.setTranslation(Globals.getLocalPlayer().getPositionVector());
+        event.setTranslation(Common.getLocalPlayer().getPositionVector());
         
         enableDepthTest();
         lineWidth(2.0f);

@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
@@ -41,9 +41,9 @@ public class ElytraFlight extends ToggleMod {
   @Override
   protected void onEnabled() {
     if (fly_on_enable.get()) {
-      Globals.addScheduledTask(() -> {
-        if (Globals.getLocalPlayer() != null && !Globals.getLocalPlayer().isElytraFlying()) {
-          Globals.sendNetworkPacket(new CEntityActionPacket(Globals.getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
+      Common.addScheduledTask(() -> {
+        if (Common.getLocalPlayer() != null && !Common.getLocalPlayer().isElytraFlying()) {
+          Common.sendNetworkPacket(new CEntityActionPacket(Common.getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
         }
       });
     }
@@ -53,18 +53,18 @@ public class ElytraFlight extends ToggleMod {
   public void onDisabled() {
     flying.disable();
     // Are we still here?
-    if (Globals.getLocalPlayer() != null) {
+    if (Common.getLocalPlayer() != null) {
       // Ensure the player starts flying again.
-      Globals.sendNetworkPacket(new CEntityActionPacket(Globals.getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
+      Common.sendNetworkPacket(new CEntityActionPacket(Common.getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
     }
   }
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     // Enable our flight as soon as the player starts flying his elytra.
-    if (Globals.getLocalPlayer().isElytraFlying()) {
+    if (Common.getLocalPlayer().isElytraFlying()) {
       flying.enable();
     }
-    Globals.getLocalPlayer().abilities.setFlySpeed(speed.getAsFloat());
+    Common.getLocalPlayer().abilities.setFlySpeed(speed.getAsFloat());
   }
 }

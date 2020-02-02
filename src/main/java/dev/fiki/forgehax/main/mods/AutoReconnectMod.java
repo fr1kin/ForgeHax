@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -21,7 +21,7 @@ public class AutoReconnectMod extends ToggleMod {
       false; // used to disable autoreconnecting without disabling the entire mod
   
   public void updateLastConnectedServer() {
-    ServerData data = Globals.MC.getCurrentServerData();
+    ServerData data = Common.MC.getCurrentServerData();
     if (data != null) {
       lastConnectedServer = data;
     }

@@ -1,6 +1,8 @@
 package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
+import dev.fiki.forgehax.asm.utils.ASMPattern;
+import dev.fiki.forgehax.asm.utils.InsnPattern;
 import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
@@ -10,10 +12,7 @@ import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
 import java.util.Objects;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 
 public class MinecraftPatch extends ClassTransformer {
   
@@ -22,60 +21,33 @@ public class MinecraftPatch extends ClassTransformer {
   }
   
   @RegisterMethodTransformer
-  public class SetIngameFocus extends MethodTransformer {
-    
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.Minecraft_setIngameFocus;
-    }
-    
-    @Inject(description = "Add callback before setting leftclick timer")
-    public void inject(MethodNode method) {
-      AbstractInsnNode node =
-        ASMHelper.findPattern(
-          method.instructions.getFirst(),
-          new int[]{SIPUSH, PUTFIELD, 0, 0, 0, RETURN},
-          "xx???x");
-      Objects.requireNonNull(node, "Failed to find SIPUSH node");
-      
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
-      
-      method.instructions.insert(node, list);
-    }
-  }
-  
-  @RegisterMethodTransformer
   public class RunTick extends MethodTransformer {
+
+    private boolean isLeftClickField(AbstractInsnNode node, int opcode) {
+      if(node instanceof FieldInsnNode && node.getOpcode() == opcode) {
+        FieldInsnNode fld = (FieldInsnNode) node;
+        return Fields.Minecraft_leftClickCounter.isNameEqual(fld.name);
+      }
+      return false;
+    }
+
+    private boolean isPutLeftClickField(AbstractInsnNode node) {
+      return isLeftClickField(node, PUTFIELD);
+    }
     
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_runTick;
     }
     
-    @Inject(description = "Add callback before setting leftclick timer")
-    public void inject(MethodNode method) {
-      AbstractInsnNode node =
-        ASMHelper.findPattern(
-          method.instructions.getFirst(),
-          new int[]{
-            SIPUSH,
-            PUTFIELD,
-            0,
-            0,
-            0,
-            ALOAD,
-            GETFIELD,
-            IFNULL,
-            0,
-            0,
-            ALOAD,
-            GETFIELD,
-            INVOKEVIRTUAL
-          },
-          "xx???xxx??xxx");
-      Objects.requireNonNull(node, "Failed to find SIPUSH node");
+    @Inject(value = "ForgeHaxHooks.onLeftClickCounterSet")
+    public void injectFirst(MethodNode method) {
+      // this.leftClickCounter = 10000;
+      AbstractInsnNode node = ASMPattern.builder()
+          .opcodes(SIPUSH)
+          .custom(this::isPutLeftClickField)
+          .find(method)
+          .getFirst();
       
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
@@ -93,7 +65,7 @@ public class MinecraftPatch extends ClassTransformer {
       return Methods.Minecraft_sendClickBlockToController;
     }
     
-    @Inject(description = "Add hook to set left click")
+    @Inject(value = "ForgeHaxHooks::onSendClickBlockToController")
     public void inject(MethodNode method) {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));

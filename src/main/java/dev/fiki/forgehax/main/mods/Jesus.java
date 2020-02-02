@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
@@ -34,15 +34,15 @@ public class Jesus extends ToggleMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (!Globals.getModManager().get(FreecamMod.class).map(BaseMod::isEnabled).orElse(false)) {
-      if (EntityUtils.isInWater(Globals.getLocalPlayer()) && !Globals.getLocalPlayer().isCrouching()) {
+    if (!Common.getModManager().get(FreecamMod.class).map(BaseMod::isEnabled).orElse(false)) {
+      if (EntityUtils.isInWater(Common.getLocalPlayer()) && !Common.getLocalPlayer().isCrouching()) {
         double velY = 0.1;
-        if (Globals.getLocalPlayer().getRidingEntity() != null
-            && !(Globals.getLocalPlayer().getRidingEntity() instanceof BoatEntity)) {
+        if (Common.getLocalPlayer().getRidingEntity() != null
+            && !(Common.getLocalPlayer().getRidingEntity() instanceof BoatEntity)) {
           velY = 0.3;
         }
-        Vec3d vel = Globals.getLocalPlayer().getMotion();
-        Globals.getLocalPlayer().setMotion(vel.getX(), velY, vel.getZ());
+        Vec3d vel = Common.getLocalPlayer().getMotion();
+        Common.getLocalPlayer().setMotion(vel.getX(), velY, vel.getZ());
       }
     }
   }
@@ -72,10 +72,10 @@ public class Jesus extends ToggleMod {
   @SubscribeEvent
   public void onPacketSending(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CPlayerPacket) {
-      if (EntityUtils.isAboveWater(Globals.getLocalPlayer(), true)
-          && !EntityUtils.isInWater(Globals.getLocalPlayer())
-          && !isAboveLand(Globals.getLocalPlayer())) {
-        int ticks = Globals.getLocalPlayer().ticksExisted % 2;
+      if (EntityUtils.isAboveWater(Common.getLocalPlayer(), true)
+          && !EntityUtils.isInWater(Common.getLocalPlayer())
+          && !isAboveLand(Common.getLocalPlayer())) {
+        int ticks = Common.getLocalPlayer().ticksExisted % 2;
         double y = FastReflection.Fields.CPacketPlayer_y.get(event.getPacket());
         if (ticks == 0) {
           FastReflection.Fields.CPacketPlayer_y.set(event.getPacket(), y + 0.02D);
@@ -95,7 +95,7 @@ public class Jesus extends ToggleMod {
     for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
       for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
         BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
-        if (VoxelShapes.fullCube().equals(Globals.getWorld().getBlockState(pos).getCollisionShape(Globals.getWorld(), pos))) {
+        if (VoxelShapes.fullCube().equals(Common.getWorld().getBlockState(pos).getCollisionShape(Common.getWorld(), pos))) {
           return true;
         }
       }

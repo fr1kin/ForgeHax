@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -131,8 +131,8 @@ public class Tracers extends ToggleMod implements Colors {
     final double cx = event.getScreenWidth() / 2.f;
     final double cy = event.getScreenHeight() / 2.f;
 
-    StreamSupport.stream(Globals.getWorld().getAllEntities().spliterator(), false)
-        .filter(entity -> !Objects.equals(entity, Globals.getLocalPlayer()))
+    StreamSupport.stream(Common.getWorld().getAllEntities().spliterator(), false)
+        .filter(entity -> !Objects.equals(entity, Common.getLocalPlayer()))
         .filter(LivingEntity.class::isInstance)
         .map(EntityRelations::new)
         .filter(er -> !er.getRelationship().equals(MobTypeEnum.INVALID))
@@ -143,7 +143,7 @@ public class Tracers extends ToggleMod implements Colors {
               MobTypeEnum relationship = er.getRelationship();
               
               Vec3d entityPos =
-                  EntityUtils.getInterpolatedEyePos(entity, Globals.MC.getRenderPartialTicks());
+                  EntityUtils.getInterpolatedEyePos(entity, Common.MC.getRenderPartialTicks());
               Plane screenPos = VectorUtils.toScreen(entityPos);
               
               Color color = er.getColor().setAlpha(alpha.get());

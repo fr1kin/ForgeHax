@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.util.entity;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.services.SneakService;
 import dev.fiki.forgehax.main.util.Switch;
@@ -21,7 +21,7 @@ import net.minecraft.util.math.RayTraceResult.Type;
 /**
  * Class for dealing with the local player only
  */
-public class LocalPlayerUtils implements Globals {
+public class LocalPlayerUtils implements Common {
   
   /**
    * Gets the players current view angles

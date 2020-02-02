@@ -25,7 +25,7 @@ public class StubBuilder extends BaseCommandBuilder<StubBuilder, CommandStub> {
   }
   
   public StubBuilder bind() {
-    return bind(GLFW.GLFW_FALSE);
+    return bind(0);
   }
   
   public StubBuilder nobind() {

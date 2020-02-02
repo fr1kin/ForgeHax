@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -40,20 +40,20 @@ public class AutoRespawnMod extends ToggleMod {
       if (deadTicks > delay.getAsInteger()) {
         deadTicks = 0;
         isDead = false;
-        Globals.getLocalPlayer().respawnPlayer();
+        Common.getLocalPlayer().respawnPlayer();
       }
     }
   }
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (Globals.getLocalPlayer().getHealth() <= 0) {
+    if (Common.getLocalPlayer().getHealth() <= 0) {
       // TODO: does this even work???
       if (!isDead) { // print once
-        Globals.printInform("Died at %.1f, %.1f, %.1f on %s",
-            Globals.getLocalPlayer().getPosX(),
-            Globals.getLocalPlayer().getPosY(),
-            Globals.getLocalPlayer().getPosZ(),
+        Common.printInform("Died at %.1f, %.1f, %.1f on %s",
+            Common.getLocalPlayer().getPosX(),
+            Common.getLocalPlayer().getPosY(),
+            Common.getLocalPlayer().getPosZ(),
             new SimpleDateFormat("HH:mm:ss").format(new Date())
         );
       }

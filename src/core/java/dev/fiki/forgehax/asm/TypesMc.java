@@ -254,16 +254,25 @@ public interface TypesMc {
   }
 
   interface Fields {
-    ASMField RenderGlobal_viewFrustum =
-        Classes.WorldRenderer.newChildField()
-            .mcp("viewFrustum")
-            .type(Classes.ViewFrustum)
+    ASMField Minecraft_leftClickCounter =
+        Classes.Minecraft.newChildField()
+            .mcp("leftClickCounter")
+            .srg("field_71429_W")
+            .type(int.class)
             .build();
 
-    ASMField RenderGlobal_renderDispatcher =
-        Classes.WorldRenderer.newChildField()
-            .mcp("renderDispatcher")
-            .type(Classes.ChunkRenderDispatcher)
+    ASMField BoatEntity_leftInputDown =
+        Classes.BoatEntity.newChildField()
+            .mcp("leftInputDown")
+            .srg("field_184480_az")
+            .type(boolean.class)
+            .build();
+
+    ASMField BoatEntity_rightInputDown =
+        Classes.BoatEntity.newChildField()
+            .mcp("rightInputDown")
+            .srg("field_184459_aA")
+            .type(boolean.class)
             .build();
   }
 

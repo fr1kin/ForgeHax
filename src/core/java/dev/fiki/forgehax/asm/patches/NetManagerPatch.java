@@ -1,5 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
+import dev.fiki.forgehax.asm.utils.ASMPattern;
+import dev.fiki.forgehax.asm.utils.InsnPattern;
 import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
@@ -7,8 +9,6 @@ import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
-
-import java.util.Objects;
 
 import dev.fiki.forgehax.asm.TypesMc;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -32,50 +32,31 @@ public class NetManagerPatch extends ClassTransformer {
       return TypesMc.Methods.NetworkManager_dispatchPacket;
     }
     
-    @Inject(description = "Add pre and post hooks that allow method to be disabled")
+    @Inject(value = "ForgeHaxHooks::onPacketOutbound")
     public void inject(MethodNode main) {
-      AbstractInsnNode preNode =
-        ASMHelper.findPattern(
-          main.instructions.getFirst(),
-          new int[]{
-            ALOAD,
-            ALOAD,
-            IF_ACMPEQ,
-            ALOAD,
-            INSTANCEOF,
-            IFNE,
-            0x00,
-            0x00,
-            ALOAD,
-            ALOAD,
-            INVOKEVIRTUAL
-          },
-          "xxxxxx??xxx");
-      AbstractInsnNode postNode =
-        ASMHelper.findPattern(
-          main.instructions.getFirst(),
-          new int[]{
-            POP, 0x00, 0x00, GOTO, 0x00, 0x00, 0x00, ALOAD, GETFIELD, INVOKEINTERFACE, NEW, DUP
-          },
-          "x??x???xxxxx");
-      
-      Objects.requireNonNull(preNode, "Find pattern failed for preNode");
-      Objects.requireNonNull(postNode, "Find pattern failed for postNode");
-      
-      LabelNode endJump = new LabelNode();
-      
-      InsnList insnPre = new InsnList();
-      insnPre.add(new VarInsnNode(ALOAD, 1));
-      insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendingPacket));
-      insnPre.add(new JumpInsnNode(IFNE, endJump));
-      
-      InsnList insnPost = new InsnList();
-      insnPost.add(new VarInsnNode(ALOAD, 1));
-      insnPost.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSentPacket));
-      insnPost.add(endJump);
-      
-      main.instructions.insertBefore(preNode, insnPre);
-      main.instructions.insert(postNode, insnPost);
+      // get node at the very top
+      AbstractInsnNode top = main.instructions.getFirst();
+
+      // get the return node
+      AbstractInsnNode ret = ASMPattern.builder()
+          .codeOnly()
+          .opcode(RETURN)
+          .find(main)
+          .getFirst("could not find return node");
+
+      LabelNode jmp = new LabelNode();
+
+      // call event before all other code
+      InsnList pre = new InsnList();
+      pre.add(new VarInsnNode(ALOAD, 0)); // network manager
+      pre.add(new VarInsnNode(ALOAD, 1)); // packet
+      pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPacketOutbound));
+      pre.add(new JumpInsnNode(IFNE, jmp));
+
+      // add just below the first node (which should be a label node)
+      main.instructions.insert(top, pre);
+      // add just before the return node
+      main.instructions.insertBefore(ret, jmp);
     }
   }
   
@@ -87,38 +68,40 @@ public class NetManagerPatch extends ClassTransformer {
       return TypesMc.Methods.NetworkManager_channelRead0;
     }
     
-    @Inject(description = "Add pre and post hook that allows the method to be disabled")
+    @Inject(value = "ForgeHaxHooks::onPacketInbound")
     public void inject(MethodNode main) {
-      AbstractInsnNode preNode =
-        ASMHelper.findPattern(
-          main.instructions.getFirst(),
-          new int[]{ALOAD, ALOAD, GETFIELD, INVOKEINTERFACE},
-          "xxxx");
-      AbstractInsnNode postNode =
-        ASMHelper.findPattern(
-          main.instructions.getFirst(),
-          new int[]{
-            INVOKEINTERFACE, 0x00, 0x00, GOTO,
-          },
-          "x??x");
-      
-      Objects.requireNonNull(preNode, "Find pattern failed for preNode");
-      Objects.requireNonNull(postNode, "Find pattern failed for postNode");
-      
-      LabelNode endJump = new LabelNode();
-      
-      InsnList insnPre = new InsnList();
-      insnPre.add(new VarInsnNode(ALOAD, 2));
-      insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPreReceived));
-      insnPre.add(new JumpInsnNode(IFNE, endJump));
-      
-      InsnList insnPost = new InsnList();
-      insnPost.add(new VarInsnNode(ALOAD, 2));
-      insnPost.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPostReceived));
-      insnPost.add(endJump);
-      
-      main.instructions.insertBefore(preNode, insnPre);
-      main.instructions.insert(postNode, insnPost);
+      // try {
+      // >FIRST<
+      // processPacket(...
+      InsnPattern node = ASMPattern.builder()
+          .codeOnly()
+          .opcodes(ALOAD, ALOAD, GETFIELD, INVOKESTATIC)
+          .find(main);
+
+      AbstractInsnNode first = node.getFirst("could not find node above ::processPacket call");
+
+      // get the return node
+      // dont add jump after ::processPacket because there is a field that increments
+      // if ThreadQuickExitException is not thrown (which is nearly always)
+      AbstractInsnNode ret = ASMPattern.builder()
+          .codeOnly()
+          .opcodes(RETURN)
+          .find(main)
+          .getFirst("could not find return node");
+
+      LabelNode jmp = new LabelNode();
+
+      // call event before all other code
+      InsnList pre = new InsnList();
+      pre.add(new VarInsnNode(ALOAD, 0)); // network manager
+      pre.add(new VarInsnNode(ALOAD, 2)); // packet
+      pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPacketInbound));
+      pre.add(new JumpInsnNode(IFNE, jmp));
+
+      // add just below the first node (which should be a label node)
+      main.instructions.insertBefore(first, pre);
+      // add just before the return node
+      main.instructions.insertBefore(ret, jmp);
     }
   }
 }

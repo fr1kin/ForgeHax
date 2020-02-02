@@ -30,7 +30,7 @@ public class SchematicPrinterPatch extends ClassTransformer {
       return TypesSpecial.Methods.SchematicPrinter_placeBlock;
     }
     
-    @Inject(description = "Add hook for schematica block placing event")
+    @Inject(value = "Add hook for schematica block placing event")
     public void inject(MethodNode main) {
       AbstractInsnNode start = main.instructions.getFirst();
       

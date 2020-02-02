@@ -18,7 +18,7 @@ public class ASMField {
   private ASMType type;
 
   public String getMcp() {
-    return mcp == null ? srg : srg;
+    return mcp == null ? srg : mcp;
   }
 
   public String getName() {
@@ -31,6 +31,14 @@ public class ASMField {
 
   public Type getSrgType() {
     return type.getSrg();
+  }
+
+  public boolean isNameEqual(String other) {
+    return getSrg().equals(other) || getMcp().equals(other);
+  }
+
+  public boolean isTypeEqual(String other) {
+    return getSrgType().getDescriptor().equals(other) || getMcpType().getDescriptor().equals(other);
   }
 
   public static class ASMFieldBuilder {

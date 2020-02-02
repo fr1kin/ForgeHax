@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -49,14 +49,14 @@ public class AutoLog extends ToggleMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (Globals.MC.player != null) {
-      int health = (int) (Globals.MC.player.getHealth() + Globals.MC.player.getAbsorptionAmount());
+    if (Common.MC.player != null) {
+      int health = (int) (Common.MC.player.getHealth() + Common.MC.player.getAbsorptionAmount());
       if (health <= threshold.get()
           || (noTotem.getAsBoolean()
-          && !((Globals.MC.player.getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING)
-          || Globals.MC.player.getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING))) {
+          && !((Common.MC.player.getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING)
+          || Common.MC.player.getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING))) {
         AutoReconnectMod.hasAutoLogged = true;
-        Globals.getNetworkManager().closeChannel(new StringTextComponent("Health too low (" + health + ")"));
+        Common.getNetworkManager().closeChannel(new StringTextComponent("Health too low (" + health + ")"));
         disable();
       }
     }
@@ -69,10 +69,10 @@ public class AutoLog extends ToggleMod {
         AutoReconnectMod.hasAutoLogged = true; // dont automatically reconnect
         UUID id = ((SSpawnPlayerPacket) event.getPacket()).getUniqueId();
         
-        NetworkPlayerInfo info = Globals.MC.getConnection().getPlayerInfo(id);
+        NetworkPlayerInfo info = Common.MC.getConnection().getPlayerInfo(id);
         String name = info != null ? info.getGameProfile().getName() : "(Failed) " + id.toString();
         
-        Globals.getNetworkManager().closeChannel(new StringTextComponent(name + " entered render distance"));
+        Common.getNetworkManager().closeChannel(new StringTextComponent(name + " entered render distance"));
         disable();
       }
     }

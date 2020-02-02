@@ -1,418 +1,295 @@
 package dev.fiki.forgehax.main.util.draw.font;
 
-/*
-       DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-                   Version 2, December 2004
+import com.mojang.blaze3d.systems.RenderSystem;
+import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 
-Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+import java.awt.*;
 
-Everyone is permitted to copy and distribute verbatim or modified
-copies of this license document, and changing it is allowed as long
-as the name is changed.
-
-           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
- 0. You just DO WHAT THE FUCK YOU WANT TO.
-*/
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 
 /**
- * Created by Hexeption on 18/12/2016.
+ * Implementation of the basic font renderer for minecraft.
+ *
+ * @author Halalaboos
+ * @since Nov 23, 2013
  */
+public final class MinecraftFontRenderer extends BasicFontRenderer {
 
-import java.awt.Font;
-import java.util.ArrayList;
-import java.util.List;
+  private final FontData boldFont = new FontData();
 
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import org.lwjgl.opengl.GL11;
+  private final FontData italicFont = new FontData();
 
-import static com.mojang.blaze3d.systems.RenderSystem.*;
+  private final FontData boldItalicFont = new FontData();
 
-public class MinecraftFontRenderer extends CFont {
-  
-  protected CFont.CharData[] boldChars = new CFont.CharData[256];
-  protected CFont.CharData[] italicChars = new CFont.CharData[256];
-  protected CFont.CharData[] boldItalicChars = new CFont.CharData[256];
-  
   private final int[] colorCode = new int[32];
+
   private final String colorcodeIdentifiers = "0123456789abcdefklmnor";
-  
-  public MinecraftFontRenderer(Font font, boolean antiAlias, boolean fractionalMetrics) {
-    super(font, antiAlias, fractionalMetrics);
-    setupMinecraftColorcodes();
-    setupBoldItalicIDs();
-  }
-  
-  public float drawStringWithShadow(String text, double x, double y, int color) {
-    float shadowWidth = drawString(text, x + 1.0D, y + 1.0D, color, true);
-    return Math.max(shadowWidth, drawString(text, x, y, color, false));
-  }
-  
-  public float drawString(String text, float x, float y, int color) {
-    return drawString(text, x, y, color, false);
-  }
-  
-  public float drawCenteredString(String text, float x, float y, int color) {
-    return drawString(text, x - getStringWidth(text) / 2, y, color);
-  }
-  
-  public float drawCenteredStringWithShadow(String text, float x, float y, int color) {
-    float shadowWidth =
-        drawString(text, x - getStringWidth(text) / 2 + 1.0D, y + 1.0D, color, true);
-    return drawString(text, x - getStringWidth(text) / 2, y, color);
-  }
-  
-  public float drawString(String text, double x, double y, int color, boolean shadow) {
-    x -= 1;
-    
-    if (text == null) {
-      return 0.0F;
-    }
-    
-    if (color == 553648127) {
-      color = 16777215;
-    }
-    
-    if ((color & 0xFC000000) == 0) {
-      color |= -16777216;
-    }
-    
-    if (shadow) {
-      color = (color & 0xFCFCFC) >> 2 | color & 0xFF000000;
-    }
-    
-    CFont.CharData[] currentData = this.charData;
-    float alpha = (color >> 24 & 0xFF) / 255.0F;
-    boolean randomCase = false;
-    boolean bold = false;
-    boolean italic = false;
-    boolean strikethrough = false;
-    boolean underline = false;
-    boolean render = true;
-    x *= 2.0D;
-    y = (y - 3.0D) * 2.0D;
-    
-    if (render) {
-      GL11.glPushMatrix();
-      scaled(0.5D, 0.5D, 0.5D);
-      enableBlend();
-      blendFunc(770, 771);
-      color4f(
-          (color >> 16 & 0xFF) / 255.0F,
-          (color >> 8 & 0xFF) / 255.0F,
-          (color & 0xFF) / 255.0F,
-          alpha);
-      int size = text.length();
-      enableTexture();
-      bindTexture(tex.getGlTextureId());
-      
-      GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex.getGlTextureId());
-      
-      for (int i = 0; i < size; i++) {
-        char character = text.charAt(i);
-        
-        if ((character == '\u00a7') && (i < size)) {
-          int colorIndex = 21;
-          
-          try {
-            colorIndex = "0123456789abcdefklmnor".indexOf(text.charAt(i + 1));
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-          
-          if (colorIndex < 16) {
-            bold = false;
-            italic = false;
-            randomCase = false;
-            underline = false;
-            strikethrough = false;
-            bindTexture(tex.getGlTextureId());
-            // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
-            // tex.getGlTextureId());
-            currentData = this.charData;
-            
-            if ((colorIndex < 0) || (colorIndex > 15)) {
-              colorIndex = 15;
-            }
-            
-            if (shadow) {
-              colorIndex += 16;
-            }
-            
-            int colorcode = this.colorCode[colorIndex];
-            color4f(
-                (colorcode >> 16 & 0xFF) / 255.0F,
-                (colorcode >> 8 & 0xFF) / 255.0F,
-                (colorcode & 0xFF) / 255.0F,
-                alpha);
-          } else if (colorIndex == 16) {
-            randomCase = true;
-          } else if (colorIndex == 17) {
-            bold = true;
-            
-            if (italic) {
-              bindTexture(texItalicBold.getGlTextureId());
-              // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
-              // texItalicBold.getGlTextureId());
-              currentData = this.boldItalicChars;
-            } else {
-              bindTexture(texBold.getGlTextureId());
-              // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
-              // texBold.getGlTextureId());
-              currentData = this.boldChars;
-            }
-          } else if (colorIndex == 18) {
-            strikethrough = true;
-          } else if (colorIndex == 19) {
-            underline = true;
-          } else if (colorIndex == 20) {
-            italic = true;
-            
-            if (bold) {
-              bindTexture(texItalicBold.getGlTextureId());
-              // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
-              // texItalicBold.getGlTextureId());
-              currentData = this.boldItalicChars;
-            } else {
-              bindTexture(texItalic.getGlTextureId());
-              // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
-              // texItalic.getGlTextureId());
-              currentData = this.italicChars;
-            }
-          } else if (colorIndex == 21) {
-            bold = false;
-            italic = false;
-            randomCase = false;
-            underline = false;
-            strikethrough = false;
-            color4f(
-                (color >> 16 & 0xFF) / 255.0F,
-                (color >> 8 & 0xFF) / 255.0F,
-                (color & 0xFF) / 255.0F,
-                alpha);
-            bindTexture(tex.getGlTextureId());
-            // GL11.glBindTexture(GL11.GL_TEXTURE_2D,
-            // tex.getGlTextureId());
-            currentData = this.charData;
-          }
-          
-          i++;
-        } else if ((character < currentData.length) && (character >= 0)) {
-          GL11.glBegin(GL11.GL_TRIANGLES);
-          drawChar(currentData, character, (float) x, (float) y);
-          GL11.glEnd();
-          
-          if (strikethrough) {
-            drawLine(
-                x,
-                y + currentData[character].height / 2.f,
-                x + currentData[character].width - 8.0D,
-                y + currentData[character].height / 2.f,
-                1.0F);
-          }
-          
-          if (underline) {
-            drawLine(
-                x,
-                y + currentData[character].height - 2.0D,
-                x + currentData[character].width - 8.0D,
-                y + currentData[character].height - 2.0D,
-                1.0F);
-          }
-          
-          x += currentData[character].width - 8 + this.charOffset;
-        }
-      }
-      
-      GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_DONT_CARE);
-      GL11.glPopMatrix();
-    }
-    
-    return (float) x / 2.0F;
-  }
-  
-  @Override
-  public int getStringWidth(String text) {
-    if (text == null) {
-      return 0;
-    }
-    
-    int width = 0;
-    CFont.CharData[] currentData = this.charData;
-    boolean bold = false;
-    boolean italic = false;
-    int size = text.length();
-    
-    for (int i = 0; i < size; i++) {
-      char character = text.charAt(i);
-      
-      if ((character == '\u00a7') && (i < size)) {
-        int colorIndex = "0123456789abcdefklmnor".indexOf(character);
-        
-        if (colorIndex < 16) {
-          bold = false;
-          italic = false;
-        } else if (colorIndex == 17) {
-          bold = true;
-          
-          if (italic) {
-            currentData = this.boldItalicChars;
-          } else {
-            currentData = this.boldChars;
-          }
-        } else if (colorIndex == 20) {
-          italic = true;
-          
-          if (bold) {
-            currentData = this.boldItalicChars;
-          } else {
-            currentData = this.italicChars;
-          }
-        } else if (colorIndex == 21) {
-          bold = false;
-          italic = false;
-          currentData = this.charData;
-        }
-        
-        i++;
-      } else if ((character < currentData.length) && (character >= 0)) {
-        width += currentData[character].width - 8 + this.charOffset;
-      }
-    }
-    
-    return width / 2;
-  }
-  
-  public void setFont(Font font) {
-    super.setFont(font);
-    setupBoldItalicIDs();
-  }
-  
-  public void setAntiAlias(boolean antiAlias) {
-    super.setAntiAlias(antiAlias);
-    setupBoldItalicIDs();
-  }
-  
-  public void setFractionalMetrics(boolean fractionalMetrics) {
-    super.setFractionalMetrics(fractionalMetrics);
-    setupBoldItalicIDs();
-  }
-  
-  protected DynamicTexture texBold;
-  protected DynamicTexture texItalic;
-  protected DynamicTexture texItalicBold;
-  
-  private void setupBoldItalicIDs() {
-    texBold =
-        setupTexture(
-            this.font.deriveFont(1), this.antiAlias, this.fractionalMetrics, this.boldChars);
-    texItalic =
-        setupTexture(
-            this.font.deriveFont(2), this.antiAlias, this.fractionalMetrics, this.italicChars);
-    texItalicBold =
-        setupTexture(
-            this.font.deriveFont(3), this.antiAlias, this.fractionalMetrics, this.boldItalicChars);
-  }
-  
-  private void drawLine(double x, double y, double x1, double y1, float width) {
-    GL11.glDisable(GL11.GL_TEXTURE_2D);
-    GL11.glLineWidth(width);
-    GL11.glBegin(GL11.GL_LINES);
-    GL11.glVertex2d(x, y);
-    GL11.glVertex2d(x1, y1);
-    GL11.glEnd();
-    GL11.glEnable(GL11.GL_TEXTURE_2D);
-  }
-  
-  public List<String> wrapWords(String text, double width) {
-    List finalWords = new ArrayList();
-    
-    if (getStringWidth(text) > width) {
-      String[] words = text.split(" ");
-      String currentWord = "";
-      char lastColorCode = 65535;
-      
-      for (String word : words) {
-        for (int i = 0; i < word.toCharArray().length; i++) {
-          char c = word.toCharArray()[i];
-          
-          if ((c == '\u00a7') && (i < word.toCharArray().length - 1)) {
-            lastColorCode = word.toCharArray()[(i + 1)];
-          }
-        }
-        
-        if (getStringWidth(currentWord + word + " ") < width) {
-          currentWord = currentWord + word + " ";
-        } else {
-          finalWords.add(currentWord);
-          currentWord = "\u00a7" + lastColorCode + word + " ";
-        }
-      }
-      
-      if (currentWord.length() > 0) {
-        if (getStringWidth(currentWord) < width) {
-          finalWords.add("\u00a7" + lastColorCode + currentWord + " ");
-          currentWord = "";
-        } else {
-          for (String s : formatString(currentWord, width)) {
-            finalWords.add(s);
-          }
-        }
-      }
-    } else {
-      finalWords.add(text);
-    }
-    
-    return finalWords;
-  }
-  
-  public List<String> formatString(String string, double width) {
-    List finalWords = new ArrayList();
-    String currentWord = "";
-    char lastColorCode = 65535;
-    char[] chars = string.toCharArray();
-    
-    for (int i = 0; i < chars.length; i++) {
-      char c = chars[i];
-      
-      if ((c == '\u00a7') && (i < chars.length - 1)) {
-        lastColorCode = chars[(i + 1)];
-      }
-      
-      if (getStringWidth(currentWord + c) < width) {
-        currentWord = currentWord + c;
-      } else {
-        finalWords.add(currentWord);
-        currentWord = "\u00a7" + lastColorCode + c;
-      }
-    }
-    
-    if (currentWord.length() > 0) {
-      finalWords.add(currentWord);
-    }
-    
-    return finalWords;
-  }
-  
-  private void setupMinecraftColorcodes() {
-    for (int index = 0; index < 32; index++) {
-      int noClue = (index >> 3 & 0x1) * 85;
-      int red = (index >> 2 & 0x1) * 170 + noClue;
-      int green = (index >> 1 & 0x1) * 170 + noClue;
-      int blue = (index >> 0 & 0x1) * 170 + noClue;
-      
+
+  public MinecraftFontRenderer() {
+    for (int index = 0; index < 32; ++index) {
+      int noClue = (index >> 3 & 1) * 85;
+      int red = (index >> 2 & 1) * 170 + noClue;
+      int green = (index >> 1 & 1) * 170 + noClue;
+      int blue = (index & 1) * 170 + noClue;
+
       if (index == 6) {
         red += 85;
       }
-      
+
       if (index >= 16) {
         red /= 4;
         green /= 4;
         blue /= 4;
       }
-      
-      this.colorCode[index] = ((red & 0xFF) << 16 | (green & 0xFF) << 8 | blue & 0xFF);
+
+      this.colorCode[index] = (red & 255) << 16 | (green & 255) << 8 | blue & 255;
     }
+  }
+
+  @Override
+  public int drawString(String text, int x, int y, int color) {
+    return drawString(text, x, y, color, false);
+  }
+
+  public int drawStringWithShadow(String text, int x, int y, int color) {
+    return Math.max(drawString(text, x + 1, y + 1, color, true), drawString(text, x, y, color, false));
+  }
+
+  /**
+   * Renders text starting with the middle of the string at the given x, y positions. Includes a shadow effect as well.
+   */
+  public void drawCenteredStringWithShadow(String text, int x, int y, int color) {
+    drawStringWithShadow(text, x - getStringWidth(text) / 2, y - getStringHeight(text) / 2, color);
+  }
+
+  /**
+   * Renders text starting with the middle of the string at the given x, y positions.
+   */
+  public void drawCenteredString(String text, int x, int y, int color) {
+    drawString(text, x - getStringWidth(text) / 2, y - getStringHeight(text) / 2, color);
+  }
+
+  /**
+   * Renders text using the color code rules within the default Minecraft font renderer.
+   */
+  public int drawString(String text, int x, int y, int color, boolean shadow) {
+    if (text == null)
+      return 0;
+    if (color == 553648127)
+      color = 0xFFFFFF;
+
+    if ((color & -67108864) == 0) {
+      color |= -16777216;
+    }
+
+    // Shadow effect
+    if (shadow) {
+      color = (color & 16579836) >> 2 | color & -16777216;
+    }
+
+    // Current rendering information.
+    FontData currentFont = fontData;
+    float alpha = (color >> 24 & 0xff) / 255F;
+    boolean randomCase = false, bold = false,
+        italic = false, strikethrough = false,
+        underline = false;
+
+    // Multiplied positions since we'll be rendering this at half scale (to look nice!)
+    x *= 2F;
+    y *= 2F;
+    RenderSystem.pushMatrix();
+    RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+    RenderSystem.enableAlphaTest();
+    RenderSystem.enableBlend();
+    RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    RenderSystem.color4f((float) (color >> 16 & 255) / 255.0F, (float) (color >> 8 & 255) / 255.0F, (float) (color & 255) / 255.0F, alpha);
+    int size = text.length();
+    currentFont.bind();
+    for (int i = 0; i < size; i++) {
+      char character = text.charAt(i);
+      if (character == '\247' && i < size && i + 1 < size) {
+        int colorIndex = colorcodeIdentifiers.indexOf(text.charAt(i + 1));
+        if (colorIndex < 16) { // coloring
+          bold = false;
+          italic = false;
+          randomCase = false;
+          underline = false;
+          strikethrough = false;
+          currentFont = fontData;
+          currentFont.bind();
+
+          if (colorIndex < 0 || colorIndex > 15) {
+            colorIndex = 15;
+          }
+
+          if (shadow) {
+            colorIndex += 16;
+          }
+
+          int colorcode = colorCode[colorIndex];
+          RenderSystem.color4f((float) (colorcode >> 16 & 255) / 255.0F, (float) (colorcode >> 8 & 255) / 255.0F, (float) (colorcode & 255) / 255.0F, alpha);
+        } else if (colorIndex == 16) { // random case
+          randomCase = true;
+        } else if (colorIndex == 17) { // bold
+          bold = true;
+          if (italic) {
+            currentFont = boldItalicFont;
+            currentFont.bind();
+          } else {
+            currentFont = boldFont;
+            currentFont.bind();
+          }
+        } else if (colorIndex == 18) { // strikethrough
+          strikethrough = true;
+        } else if (colorIndex == 19) { // underline
+          underline = true;
+        } else if (colorIndex == 20) { // italic
+          italic = true;
+          if (bold) {
+            currentFont = boldItalicFont;
+            currentFont.bind();
+          } else {
+            currentFont = italicFont;
+            currentFont.bind();
+          }
+        } else if (colorIndex == 21) { // reset
+          bold = false;
+          italic = false;
+          randomCase = false;
+          underline = false;
+          strikethrough = false;
+          RenderSystem.color4f((float) (color >> 16 & 255) / 255.0F, (float) (color >> 8 & 255) / 255.0F, (float) (color & 255) / 255.0F, alpha);
+          currentFont = fontData;
+          currentFont.bind();
+        }
+        i++;
+      } else {
+        if (currentFont.hasBounds(character)) {
+          if (randomCase) {
+            char newChar = 0;
+            while (currentFont.getCharacterBounds(newChar).width != currentFont.getCharacterBounds(character).width)
+              newChar = (char) (Math.random() * 256);
+            character = newChar;
+          }
+          FontData.CharacterData area = currentFont.getCharacterBounds(character);
+          SurfaceHelper.drawTextureRect(x, y, area.width, area.height,
+              (float) area.x / currentFont.getTextureWidth(),
+              (float) area.y / currentFont.getTextureHeight(),
+              (float) (area.x + area.width) / currentFont.getTextureWidth(),
+              (float) (area.y + area.height) / currentFont.getTextureHeight());
+          if (strikethrough)
+            SurfaceHelper.drawLine(x, y + area.height / 4 + 2, x + area.width / 2, y + area.height / 4 + 2, 1F);
+          if (underline)
+            SurfaceHelper.drawLine(x, y + area.height / 2, x + area.width / 2, y + area.height / 2, 1F);
+          x += area.width + kerning;
+        }
+      }
+    }
+    RenderSystem.popMatrix();
+    return x;
+  }
+
+  /**
+   * @return The height of the text which will be outputted by this font renderer. <br/>
+   * This information can normally be acquired through the {@link FontData} object, but with the MinecraftFontRenderer, multiple {@link FontData}s may be used.
+   */
+  public int getStringHeight(String text) {
+    if (text == null)
+      return 0;
+    int height = 0;
+    FontData currentFont = fontData;
+    boolean bold = false, italic = false;
+    int size = text.length();
+
+    for (int i = 0; i < size; i++) {
+      char character = text.charAt(i);
+      if (character == '\247' && i < size) {
+        int colorIndex = colorcodeIdentifiers.indexOf(character);
+        if (colorIndex < 16) { // coloring
+          bold = false;
+          italic = false;
+        } else if (colorIndex == 17) { // bold
+          bold = true;
+          if (italic)
+            currentFont = boldItalicFont;
+          else
+            currentFont = boldFont;
+        } else if (colorIndex == 20) { // italic
+          italic = true;
+          if (bold)
+            currentFont = boldItalicFont;
+          else
+            currentFont = italicFont;
+        } else if (colorIndex == 21) { // reset
+          bold = false;
+          italic = false;
+          currentFont = fontData;
+        }
+        i++;
+      } else {
+        if (currentFont.hasBounds(character)) {
+          if (currentFont.getCharacterBounds(character).height > height)
+            height = currentFont.getCharacterBounds(character).height;
+        }
+      }
+    }
+    return height / 2;
+  }
+
+  /**
+   * @return The width of the text which will be outputted by this font renderer. <br/>
+   * This information can normally be acquired through the {@link FontData} object, but with the MinecraftFontRenderer, multiple {@link FontData}s may be used.
+   */
+  public int getStringWidth(String text) {
+    if (text == null)
+      return 0;
+    int width = 0;
+    FontData currentFont = fontData;
+    boolean bold = false, italic = false;
+    int size = text.length();
+
+    for (int i = 0; i < size; i++) {
+      char character = text.charAt(i);
+      if (character == '\247' && i < size) {
+        int colorIndex = colorcodeIdentifiers.indexOf(character);
+        if (colorIndex < 16) { // coloring
+          bold = false;
+          italic = false;
+        } else if (colorIndex == 17) { // bold
+          bold = true;
+          if (italic)
+            currentFont = boldItalicFont;
+          else
+            currentFont = boldFont;
+        } else if (colorIndex == 20) { // italic
+          italic = true;
+          if (bold)
+            currentFont = boldItalicFont;
+          else
+            currentFont = italicFont;
+        } else if (colorIndex == 21) { // reset
+          bold = false;
+          italic = false;
+          currentFont = fontData;
+        }
+        i++;
+      } else {
+        if (currentFont.hasBounds(character)) {
+          width += currentFont.getCharacterBounds(character).width + kerning;
+        }
+      }
+    }
+    return width / 2;
+  }
+
+  /**
+   * Applies a new font to the default font data as well as the bold, italic, and the bolditalic font data.
+   */
+  public void setFont(Font font, boolean antialias) {
+    this.fontData.setFont(font, antialias);
+    this.boldFont.setFont(font.deriveFont(Font.BOLD), antialias);
+    this.italicFont.setFont(font.deriveFont(Font.ITALIC), antialias);
+    this.boldItalicFont.setFont(font.deriveFont(Font.BOLD | Font.ITALIC), antialias);
   }
 }

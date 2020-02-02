@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.util.command;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.callbacks.OnChangeCallback;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverterRegistry;
@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  * Created on 6/3/2017 by fr1kin
  */
 public class SettingBuilder<E> extends BaseCommandBuilder<SettingBuilder<E>, Setting<E>>
-    implements Globals {
+    implements Common {
   
   public SettingBuilder<E> changed(Consumer<OnChangeCallback<E>> consumer) {
     getCallbacks(CallbackType.CHANGE).add(consumer);

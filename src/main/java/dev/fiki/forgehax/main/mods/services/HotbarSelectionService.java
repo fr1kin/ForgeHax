@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.services;
 
 import com.google.common.base.MoreObjects;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -83,7 +83,7 @@ public class HotbarSelectionService extends ServiceMod {
   
   @SubscribeEvent
   public void onClientTick(TickEvent.ClientTickEvent event) {
-    if (!Globals.isInWorld()) {
+    if (!Common.isInWorld()) {
       reset();
       return;
     }
@@ -106,14 +106,14 @@ public class HotbarSelectionService extends ServiceMod {
   //
   
   private static void select(int index) {
-    if (Globals.getLocalPlayer() == null) {
+    if (Common.getLocalPlayer() == null) {
       return;
     }
     LocalPlayerInventory.getInventory().currentItem = index;
   }
   
   private static int selected() {
-    return Globals.getLocalPlayer() == null ? -1 : LocalPlayerInventory.getSelected().getIndex();
+    return Common.getLocalPlayer() == null ? -1 : LocalPlayerInventory.getSelected().getIndex();
   }
   
   public interface ResetFunction {

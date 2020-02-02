@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.base.MoreObjects;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -106,8 +106,8 @@ public class ExtraInventory extends ToggleMod {
           
           ItemStack moved =
               getCurrentContainer()
-                  .slotClick(source.slotNumber, 0, ClickType.PICKUP, Globals.getLocalPlayer());
-          Globals.getNetworkManager()
+                  .slotClick(source.slotNumber, 0, ClickType.PICKUP, Common.getLocalPlayer());
+          Common.getNetworkManager()
               .sendPacket(newClickPacket(source.slotNumber, 0, ClickType.PICKUP, moved));
           
           return null; // stop task
@@ -126,8 +126,8 @@ public class ExtraInventory extends ToggleMod {
               
               ItemStack moved =
                   getCurrentContainer()
-                      .slotClick(source.slotNumber, 0, ClickType.PICKUP, Globals.getLocalPlayer());
-              Globals.getNetworkManager()
+                      .slotClick(source.slotNumber, 0, ClickType.PICKUP, Common.getLocalPlayer());
+              Common.getNetworkManager()
                   .sendPacket(newClickPacket(source.slotNumber, 0, ClickType.PICKUP, moved));
               
               final Slot srcCopy2 = copyOfSlot(source); // copy the new source
@@ -140,8 +140,8 @@ public class ExtraInventory extends ToggleMod {
                 
                 final ItemStack moved2 =
                     getCurrentContainer()
-                        .slotClick(dst.slotNumber, 0, ClickType.PICKUP, Globals.getLocalPlayer());
-                Globals.getNetworkManager()
+                        .slotClick(dst.slotNumber, 0, ClickType.PICKUP, Common.getLocalPlayer());
+                Common.getNetworkManager()
                     .sendPacket(newClickPacket(dst.slotNumber, 0, ClickType.PICKUP, moved2));
                 
                 return null; // stop task
@@ -198,9 +198,9 @@ public class ExtraInventory extends ToggleMod {
   
   private void closeGui() {
     if (guiNeedsClose.compareAndSet(true, false)) {
-      if (Globals.getLocalPlayer() != null) {
+      if (Common.getLocalPlayer() != null) {
         guiCloseGuard = true;
-        Globals.getLocalPlayer().closeScreen();
+        Common.getLocalPlayer().closeScreen();
         if (openedGui != null) {
           openedGui.onClose();
           openedGui = null;
@@ -220,7 +220,7 @@ public class ExtraInventory extends ToggleMod {
   
   @Override
   protected void onDisabled() {
-    Globals.addScheduledTask(() -> {
+    Common.addScheduledTask(() -> {
       closeGui();
       reset();
     });
@@ -243,8 +243,8 @@ public class ExtraInventory extends ToggleMod {
               // open and close the gui to create open instance
               
               if (openedGui == null) {
-                Globals.setDisplayScreen(new InventoryScreen(Globals.getLocalPlayer()));
-                Globals.setDisplayScreen(null);
+                Common.setDisplayScreen(new InventoryScreen(Common.getLocalPlayer()));
+                Common.setDisplayScreen(null);
               }
               
               nextClickTask = getSlotSettingTask(best, next);
@@ -294,17 +294,17 @@ public class ExtraInventory extends ToggleMod {
   
   class GuiInventoryWrapper extends InventoryScreen {
     GuiInventoryWrapper() {
-      super(Globals.getLocalPlayer());
+      super(Common.getLocalPlayer());
       // provide anything that doesn't cause a nullpointer exception, will be
       // overwritten anyway
     }
     
     @Override
     public boolean charTyped(char typedChar, int keyCode) {
-      if (isEnabled() && (keyCode == 1 || Globals.getGameSettings().keyBindInventory
+      if (isEnabled() && (keyCode == 1 || Common.getGameSettings().keyBindInventory
           .isActiveAndMatches(InputMappings.getInputByCode(keyCode, 0)))) {
         guiNeedsClose.set(true);
-        Globals.setDisplayScreen(null);
+        Common.setDisplayScreen(null);
         return true;
       } else {
         return super.charTyped(typedChar, keyCode);

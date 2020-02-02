@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -9,7 +9,6 @@ import dev.fiki.forgehax.main.util.draw.SurfaceBuilder;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.draw.font.Fonts;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.entity.mobtypes.MobTypeEnum;
 import dev.fiki.forgehax.main.util.math.Plane;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -30,8 +29,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import static dev.fiki.forgehax.main.util.entity.mobtypes.MobTypeEnum.*;
 
 @RegisterMod
 public class ESP extends ToggleMod implements Fonts {
@@ -92,11 +89,11 @@ public class ESP extends ToggleMod implements Fonts {
   
   @SubscribeEvent(priority = EventPriority.LOW)
   public void onRender2D(final Render2DEvent event) {
-    StreamSupport.stream(Globals.getWorld().getAllEntities().spliterator(), false)
+    StreamSupport.stream(Common.getWorld().getAllEntities().spliterator(), false)
       .filter(EntityUtils::isLiving)
       .filter(
         entity ->
-          !Objects.equals(Globals.getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
+          !Objects.equals(Common.getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
       .filter(EntityUtils::isAlive)
       .filter(EntityUtils::isValidEntity)
       .map(LivingEntity.class::cast)
@@ -213,7 +210,7 @@ public class ESP extends ToggleMod implements Fonts {
           .task(SurfaceBuilder::enableBlend)
           .task(SurfaceBuilder::enableFontRendering)
           .task(SurfaceBuilder::enableTexture2D) // enable texture
-          .fontRenderer(ARIAL)
+//          .fontRenderer(ARIAL)
           .color(Colors.BLACK.toBuffer())
           .text(text, x + 1, y + 1)
           .color(Colors.WHITE.toBuffer())

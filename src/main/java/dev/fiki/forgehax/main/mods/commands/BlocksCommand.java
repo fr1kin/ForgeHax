@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.commands;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Command;
 import dev.fiki.forgehax.main.util.command.CommandBuilders;
 import dev.fiki.forgehax.main.util.mod.CommandMod;
@@ -35,7 +35,7 @@ public class BlocksCommand extends CommandMod {
 
           String find = data.getArgumentAsString(0).toLowerCase();
 
-          data.write(StreamSupport.stream(Globals.getBlockRegistry().spliterator(), false)
+          data.write(StreamSupport.stream(Common.getBlockRegistry().spliterator(), false)
               .map(Block::getRegistryName)
               .filter(Objects::nonNull)
               .map(ResourceLocation::toString)

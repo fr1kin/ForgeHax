@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.gui;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.gui.windows.GuiWindow;
 import dev.fiki.forgehax.main.gui.windows.GuiWindowMod;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -15,7 +15,7 @@ import net.minecraft.util.text.StringTextComponent;
 /**
  * Created by Babbaj on 9/5/2017.
  */
-public class ClickGui extends Screen implements Globals {
+public class ClickGui extends Screen implements Common {
   
   private static ClickGui INSTANCE;
   
@@ -43,10 +43,10 @@ public class ClickGui extends Screen implements Globals {
     // TODO: load from settings
     // TODO: improve this a bit maybe
     for (int i = 0; i < windowList.size(); i++) {
-      int x = (i + 1) * Globals.getScreenWidth() / (windowList.size() + 1)
+      int x = (i + 1) * Common.getScreenWidth() / (windowList.size() + 1)
           - windowList.get(i).width / 2
           - 10;
-      int y = Globals.getScreenHeight() / 15;
+      int y = Common.getScreenHeight() / 15;
       windowList.get(i).setPosition(x, y);
     }
   }
@@ -106,10 +106,10 @@ public class ClickGui extends Screen implements Globals {
 
   @Override
   public void mouseMoved(double mouseX, double mouseY) {
-    int scale = (int) Globals.getMainWindow().getGuiScaleFactor();
+    int scale = (int) Common.getMainWindow().getGuiScaleFactor();
     for (GuiWindow window : Lists.reverse(windowList)) {
       if (isMouseInWindow(
-          mouseX / scale, (Globals.getScreenHeight() - mouseY) / scale, window)) {
+          mouseX / scale, (Common.getScreenHeight() - mouseY) / scale, window)) {
         window.handleMouseInput(mouseX, mouseY);
         break;
       }

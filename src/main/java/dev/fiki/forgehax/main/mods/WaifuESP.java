@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
@@ -48,7 +48,7 @@ public class WaifuESP extends ToggleMod {
   private final String waifuUrl = "https://raw.githubusercontent.com/forgehax/assets/master/img/waifu_v01.png";
   
   private final File waifuCache =
-      Globals.getFileManager().getBaseResolve("cache/waifu.png").toFile();
+      Common.getFileManager().getBaseResolve("cache/waifu.png").toFile();
   
   private <T> BufferedImage getImage(T source, ThrowingFunction<T, BufferedImage> readFunction) {
     try {
@@ -60,7 +60,7 @@ public class WaifuESP extends ToggleMod {
   }
   
   private boolean shouldDraw(LivingEntity entity) {
-    return (!entity.equals(Globals.getLocalPlayer())
+    return (!entity.equals(Common.getLocalPlayer())
         && EntityUtils.isAlive(entity)
         && EntityUtils.isValidEntity(entity)
         && (EntityUtils.isPlayer(entity)));
@@ -72,7 +72,7 @@ public class WaifuESP extends ToggleMod {
       return;
     }
     
-    for (Entity entity : Globals.getWorld().getAllEntities()) {
+    for (Entity entity : Common.getWorld().getAllEntities()) {
       if (EntityUtils.isLiving(entity) && shouldDraw((LivingEntity) entity)) {
         LivingEntity living = (LivingEntity) (entity);
         Vec3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
@@ -90,7 +90,7 @@ public class WaifuESP extends ToggleMod {
           int y = top.y;
           
           // draw waifu
-          Globals.MC.getTextureManager().bindTexture(waifu);
+          Common.MC.getTextureManager().bindTexture(waifu);
           
           RenderSystem.color4f(1.f, 1.f, 1.f, 1.f);
           SurfaceHelper.drawScaledCustomSizeModalRect(
@@ -102,14 +102,14 @@ public class WaifuESP extends ToggleMod {
   
   @SubscribeEvent
   public void onRenderPlayer(RenderPlayerEvent.Pre event) {
-    if (noRenderPlayers.getAsBoolean() && !event.getEntity().equals(Globals.MC.player)) {
+    if (noRenderPlayers.getAsBoolean() && !event.getEntity().equals(Common.MC.player)) {
       event.setCanceled(true);
     }
   }
   
   @Override
   public void onLoad() {
-    Globals.addScheduledTask(
+    Common.addScheduledTask(
         () -> {
           try {
             BufferedImage image;
@@ -126,14 +126,14 @@ public class WaifuESP extends ToggleMod {
               }
             }
             if (image == null) {
-              Globals.LOGGER.warn("Failed to download waifu image");
+              Common.getLogger().warn("Failed to download waifu image");
               return;
             }
 
             // TODO: 1.15 BufferedImage -> NativeImage
             DynamicTexture dynamicTexture = new DynamicTexture(null);
-            dynamicTexture.loadTexture(Globals.MC.getResourceManager());
-            waifu = Globals.MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
+            dynamicTexture.loadTexture(Common.MC.getResourceManager());
+            waifu = Common.MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
           } catch (Exception e) {
             e.printStackTrace();
           }

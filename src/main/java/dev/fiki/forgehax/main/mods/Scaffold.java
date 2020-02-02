@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import static net.minecraft.network.play.client.CEntityActionPacket.*;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
@@ -70,9 +70,9 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
       tickCount = 0;
     }
     
-    BlockPos below = new BlockPos(Globals.getLocalPlayer()).down();
+    BlockPos below = new BlockPos(Common.getLocalPlayer()).down();
     
-    if (!Globals.getWorld().getBlockState(below).getMaterial().isReplaceable()) {
+    if (!Common.getWorld().getBlockState(below).getMaterial().isReplaceable()) {
       return;
     }
     
@@ -90,7 +90,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
       return;
     }
     
-    final Vec3d eyes = EntityUtils.getEyePos(Globals.getLocalPlayer());
+    final Vec3d eyes = EntityUtils.getEyePos(Common.getLocalPlayer());
     final Vec3d dir = LocalPlayerUtils.getViewAngles().getDirectionVector();
     
     BlockTraceInfo trace =
@@ -124,30 +124,30 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
           if (sneak) {
             // send start sneaking packet
             PacketHelper.ignoreAndSend(
-                new CEntityActionPacket(Globals.getLocalPlayer(), Action.PRESS_SHIFT_KEY));
+                new CEntityActionPacket(Common.getLocalPlayer(), Action.PRESS_SHIFT_KEY));
             
             LocalPlayerUtils.setSneaking(true);
             LocalPlayerUtils.setSneakingSuppression(true);
           }
           
-          Globals.getPlayerController()
+          Common.getPlayerController()
               .processRightClick(
-                  Globals.getLocalPlayer(),
-                  Globals.getWorld(),
+                  Common.getLocalPlayer(),
+                  Common.getWorld(),
                   Hand.MAIN_HAND);
           
-          Globals.sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+          Common.sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
           
           if (sneak) {
             LocalPlayerUtils.setSneaking(false);
             LocalPlayerUtils.setSneakingSuppression(false);
             
-            Globals.sendNetworkPacket(new CEntityActionPacket(Globals.getLocalPlayer(), Action.RELEASE_SHIFT_KEY));
+            Common.sendNetworkPacket(new CEntityActionPacket(Common.getLocalPlayer(), Action.RELEASE_SHIFT_KEY));
           }
           
           func.revert();
           
-          FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Globals.MC, 4);
+          FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Common.MC, 4);
           placing = true;
           tickCount = 0;
         });

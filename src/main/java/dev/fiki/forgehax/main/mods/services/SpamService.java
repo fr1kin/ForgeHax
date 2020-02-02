@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods.services;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
@@ -108,7 +108,7 @@ public class SpamService extends ServiceMod {
           .findFirst()
           .ifPresent(
               msg -> {
-                Globals.getLocalPlayer().sendChatMessage(msg.getMessage());
+                Common.getLocalPlayer().sendChatMessage(msg.getMessage());
                 customDelays.computeIfAbsent(msg.getType(), t -> new AtomicLong(0L))
                     .set(System.currentTimeMillis() + msg.getDelay());
                 nextSendMs = System.currentTimeMillis() + delay.get();

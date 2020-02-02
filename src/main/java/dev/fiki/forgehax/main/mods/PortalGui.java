@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -20,6 +20,6 @@ public class PortalGui extends ToggleMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    FastReflection.Fields.Entity_inPortal.set(Globals.getLocalPlayer(), false);
+    FastReflection.Fields.Entity_inPortal.set(Common.getLocalPlayer(), false);
   }
 }

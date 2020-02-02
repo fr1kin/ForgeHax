@@ -51,16 +51,21 @@ sourceSets {
 
   common {
     compileClasspath += main.compileClasspath
-    runtimeClasspath += main.runtimeClasspath
+    //runtimeClasspath += main.runtimeClasspath
   }
 
   core {
     compileClasspath += main.compileClasspath + common.output
-    runtimeClasspath += main.runtimeClasspath
+    //runtimeClasspath += main.runtimeClasspath
   }
 
   main {
     compileClasspath += api.output + common.output
+    //runtimeClasspath += common.output
+  }
+
+  allSourceSets {
+    compileClasspath += main.runtimeClasspath + core.runtimeClasspath + common.runtimeClasspath
   }
 }
 
@@ -75,15 +80,17 @@ minecraft {
       property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
 
       // Recommended logging level for the console
-      property 'forge.logging.console.level', 'debug'
+      property 'forge.logging.console.level', 'info'
+
+      setIdeaModule project.getName() + '_' + sourceSets.allSourceSets.name
 
       mods {
-        ForgeHaxCore {
-          source sourceSets.core
-        }
+//        ForgeHaxCore {
+//          source sourceSets.core
+//        }
 
         ForgeHax {
-          source sourceSets.main
+          sources sourceSets.main, sourceSets.core
         }
       }
     }
@@ -109,7 +116,7 @@ jar {
         "Specification-Vendor": "nhackindustries",
         "Specification-Version": "1",
         "Implementation-Title": project.name,
-        "Implementation-Version": "${version}",
+        "Implementation-Version": "${forgehaxVersion}",
         "Implementation-Vendor" :"nhackindustries",
         "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
     ])
@@ -117,13 +124,6 @@ jar {
 }
 
 processResources {
-  filesMatching('**/mcmod.info') {
-    it.filter ReplaceTokens, tokens: [
-        version: forgehaxVersion,
-        mcversion: minecraftVersion
-    ]
-  }
-
   filesMatching('**/config.properties') {
     it.filter ReplaceTokens, tokens: [
       "forgehax.version"      : forgehaxVersion,

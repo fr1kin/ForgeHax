@@ -1,11 +1,16 @@
 package dev.fiki.forgehax.asm.utils.transforming;
 
+import com.google.common.collect.Sets;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
+
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -32,7 +37,7 @@ public abstract class MethodTransformer implements ITransformer<MethodNode> {
           && MethodNode.class.equals(m.getParameterTypes()[0])) {
           tasks.add(
             new TaskElement(m,
-              m.getAnnotation(Inject.class).description(),
+              m.getAnnotation(Inject.class).value(),
               m.getAnnotation(Inject.class).priority()));
         }
       } catch (Throwable e) {
@@ -57,10 +62,19 @@ public abstract class MethodTransformer implements ITransformer<MethodNode> {
   @Nonnull
   @Override
   public MethodNode transform(MethodNode input, ITransformerVotingContext context) {
+    getLogger().debug("Transforming method {}::{}[{}]",
+        getMethod().getParent().getClassName(),
+        getMethod().getMcp(), getMethod().getMcpDescriptor());
+
     for(MethodTransformer.TaskElement task : tasks) {
       try {
-        task.getMethod().invoke(task, input);
+        task.getMethod().invoke(this, input);
+        getLogger().debug("Successfully transformed task \"{}\"", task.getDescription());
       } catch (Throwable t) {
+        if(t instanceof InvocationTargetException) {
+          // we don't care about the reflection error
+          t = t.getCause();
+        }
         // catch errors
         getLogger().error("Failed to transform task \"{}\" in method {}::{}[{}]",
             task.getDescription(),
@@ -81,10 +95,11 @@ public abstract class MethodTransformer implements ITransformer<MethodNode> {
   @Nonnull
   @Override
   public Set<Target> targets() {
-    return Collections.singleton(ITransformer.Target.targetMethod(
-        getMethod().getParent().getClassName(),
-        getMethod().getSrg(),
-        getMethod().getSrgDescriptor()));
+    return Stream.of(getMethod().toSrgTransformerTarget(), getMethod().toMcpTransformerTarget())
+        .map(DistinctTarget::new)
+        .distinct()
+        .map(DistinctTarget::getTarget)
+        .collect(Collectors.toSet());
   }
 
   @Getter
@@ -102,6 +117,31 @@ public abstract class MethodTransformer implements ITransformer<MethodNode> {
     @Override
     public int compareTo(TaskElement o) {
       return priority.compareTo(o.priority);
+    }
+  }
+
+  @Getter
+  @AllArgsConstructor
+  static class DistinctTarget {
+    private final ITransformer.Target target;
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      DistinctTarget that = (DistinctTarget) o;
+      return Objects.equals(target.getElementName(), that.target.getElementName())
+          && Objects.equals(target.getElementDescriptor(), that.target.getElementDescriptor());
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(target.getElementName(), target.getElementDescriptor());
+    }
+
+    @Override
+    public String toString() {
+      return target.getClassName() + "::" +  target.getElementName() + target.getElementDescriptor();
     }
   }
 }

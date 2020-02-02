@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Sets;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
 import dev.fiki.forgehax.main.events.Render2DEvent;
@@ -102,12 +102,12 @@ public class LogoutSpot extends ToggleMod {
   
   @SubscribeEvent
   public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
-    if (Globals.getWorld() == null) {
+    if (Common.getWorld() == null) {
       return;
     }
     
-    PlayerEntity player = Globals.getWorld().getPlayerByUuid(event.getPlayerInfo().getId());
-    if (player != null && Globals.getLocalPlayer() != null && !Globals.getLocalPlayer().equals(player)) {
+    PlayerEntity player = Common.getWorld().getPlayerByUuid(event.getPlayerInfo().getId());
+    if (player != null && Common.getLocalPlayer() != null && !Common.getLocalPlayer().equals(player)) {
       AxisAlignedBB bb = player.getBoundingBox();
       synchronized (spots) {
         if (spots.add(
@@ -134,7 +134,7 @@ public class LogoutSpot extends ToggleMod {
             Vec3d top = spot.getTopVec();
             Plane upper = VectorUtils.toScreen(top);
             if (upper.isVisible()) {
-              double distance = Globals.getLocalPlayer().getPositionVector().distanceTo(top);
+              double distance = Common.getLocalPlayer().getPositionVector().distanceTo(top);
               String name = String.format("%s (%.1f)", spot.getName(), distance);
               SurfaceHelper.drawTextShadow(
                   name,
@@ -178,7 +178,7 @@ public class LogoutSpot extends ToggleMod {
       synchronized (spots) {
         spots.removeIf(
             pos ->
-                Globals.getLocalPlayer().getPositionVector().distanceTo(pos.getTopVec())
+                Common.getLocalPlayer().getPositionVector().distanceTo(pos.getTopVec())
                     > max_distance.getAsDouble());
       }
     }

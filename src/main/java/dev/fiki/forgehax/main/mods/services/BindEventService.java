@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.CommandStub;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -19,7 +19,7 @@ public class BindEventService extends ServiceMod {
   
   @SubscribeEvent
   public void onKeyboardEvent(InputEvent.KeyInputEvent event) {
-    Globals.GLOBAL_COMMAND.getChildrenDeep().stream()
+    Common.GLOBAL_COMMAND.getChildrenDeep().stream()
         .filter(command -> command instanceof CommandStub)
         .map(command -> (CommandStub) command)
         .filter(stub -> stub.getBind() != null)

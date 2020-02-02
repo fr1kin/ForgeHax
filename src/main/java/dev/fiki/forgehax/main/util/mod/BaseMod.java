@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.util.mod;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Command;
 import dev.fiki.forgehax.main.util.command.ExecuteData;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -11,7 +11,9 @@ import java.util.Collections;
 import joptsimple.internal.Strings;
 import net.minecraftforge.common.MinecraftForge;
 
-public abstract class BaseMod implements Globals {
+import static dev.fiki.forgehax.main.Common.*;
+
+public abstract class BaseMod implements Common {
   
   // name of the mod
   private final String modName;
@@ -31,7 +33,7 @@ public abstract class BaseMod implements Globals {
     this.category = category;
     stubCommand =
         buildStubCommand(
-            Globals.GLOBAL_COMMAND
+            GLOBAL_COMMAND
                 .builders()
                 .newStubBuilder()
                 .name(name)
@@ -76,14 +78,14 @@ public abstract class BaseMod implements Globals {
   protected final void start() {
     if (register()) {
       onEnabled();
-      LOGGER.info(String.format("%s enabled", getModName()));
+      getLogger().debug("{} enabled", getModName());
     }
   }
   
   protected final void stop() {
     if (unregister()) {
       onDisabled();
-      LOGGER.info(String.format("%s disabled", getModName()));
+      getLogger().debug("{} disabled", getModName());
     }
   }
   

@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 import static dev.fiki.forgehax.main.util.reflection.FastReflection.Fields.PlayerController_currentPlayerItem;
 
 public class LocalPlayerInventory {

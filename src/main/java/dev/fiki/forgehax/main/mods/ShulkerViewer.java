@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
@@ -143,7 +143,7 @@ public class ShulkerViewer extends ToggleMod {
         new IKeyConflictContext() {
           @Override
           public boolean isActive() {
-            return Globals.getDisplayScreen() instanceof ContainerScreen;
+            return Common.getDisplayScreen() instanceof ContainerScreen;
           }
           
           @Override
@@ -277,7 +277,7 @@ public class ShulkerViewer extends ToggleMod {
   
   @SubscribeEvent
   public void onPreTooptipRender(RenderTooltipEvent.Pre event) {
-    if (!(Globals.getDisplayScreen() instanceof ContainerScreen) || isModGeneratedToolTip) {
+    if (!(Common.getDisplayScreen() instanceof ContainerScreen) || isModGeneratedToolTip) {
       return;
     }
     
@@ -298,7 +298,7 @@ public class ShulkerViewer extends ToggleMod {
   
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onRender(GuiScreenEvent.DrawScreenEvent.Post event) {
-    if (!(Globals.getDisplayScreen() instanceof ContainerScreen)) {
+    if (!(Common.getDisplayScreen() instanceof ContainerScreen)) {
       return;
     }
     
@@ -374,13 +374,13 @@ public class ShulkerViewer extends ToggleMod {
               + InputMappings.getKeynameFromKeycode(lockDownKey.getKey().getKeyCode())
               + " to view the tooltips of a Shulker boxes content!",
           5,
-          Globals.getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 3 - 2,
+          Common.getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 3 - 2,
           Colors.RED.toBuffer(),
           1);
       SurfaceHelper.drawTextShadow(
           "The activation key can be configured under Minecraft's Options -> Controls -> ForgeHax -> ShulkerViewer Lock.",
           5,
-          Globals.getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 2 - 2,
+          Common.getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 2 - 2,
           Colors.GREEN.toBuffer(),
           1);
       SurfaceHelper.drawTextShadow(
@@ -394,7 +394,7 @@ public class ShulkerViewer extends ToggleMod {
               + help_text.getName()
               + " false\" to disable this help message.",
           5,
-          Globals.getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) - 2,
+          Common.getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) - 2,
           Colors.YELLOW.toBuffer(),
           1);
       enableDepthTest();
@@ -413,11 +413,11 @@ public class ShulkerViewer extends ToggleMod {
     public int posY = 0;
     
     public GuiShulkerViewer(Container inventorySlotsIn, ItemStack parentShulker, int priority) {
-      super(inventorySlotsIn, Globals.getLocalPlayer().inventory, new StringTextComponent("ShulkerViewer"));
+      super(inventorySlotsIn, Common.getLocalPlayer().inventory, new StringTextComponent("ShulkerViewer"));
       this.parentShulker = parentShulker;
       this.priority = priority;
-      this.width = Globals.getScreenWidth();
-      this.height = Globals.getScreenHeight();
+      this.width = Common.getScreenWidth();
+      this.height = Common.getScreenHeight();
       this.xSize = 176;
       this.ySize = SHULKER_GUI_SIZE;
     }
@@ -464,7 +464,7 @@ public class ShulkerViewer extends ToggleMod {
       blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
           GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
       
-      Globals.MC.getTextureManager().bindTexture(SHULKER_GUI_TEXTURE);
+      Common.MC.getTextureManager().bindTexture(SHULKER_GUI_TEXTURE);
       
       // width 176        = width of container
       // height 16        = top of the gui
@@ -492,10 +492,10 @@ public class ShulkerViewer extends ToggleMod {
         if (slot.getHasStack()) {
           int px = rx + slot.xPos;
           int py = ry + slot.yPos;
-          Globals.MC.getItemRenderer().zLevel = DEPTH + 1;
+          Common.MC.getItemRenderer().zLevel = DEPTH + 1;
           SurfaceHelper.drawItem(slot.getStack(), px, py);
           SurfaceHelper.drawItemOverlay(slot.getStack(), px, py);
-          Globals.MC.getItemRenderer().zLevel = 0.f;
+          Common.MC.getItemRenderer().zLevel = 0.f;
           if (isPointInRegion(px, py, 16, 16, mouseX, mouseY)) {
             hoveringOver = slot;
           }

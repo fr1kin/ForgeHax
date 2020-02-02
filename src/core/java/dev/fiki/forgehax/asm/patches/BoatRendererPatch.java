@@ -15,35 +15,31 @@ import org.objectweb.asm.tree.VarInsnNode;
 /**
  * Created by Babbaj on 8/9/2017.
  */
-public class RenderBoatPatch extends ClassTransformer {
+public class BoatRendererPatch extends ClassTransformer {
   
-  public RenderBoatPatch() {
+  public BoatRendererPatch() {
     super(TypesMc.Classes.BoatRenderer);
   }
   
   @RegisterMethodTransformer
-  private class DoRender extends MethodTransformer {
+  private class Render extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.BoatRenderer_render;
     }
     
-    @Inject(description = "Add hook to set boat yaw when it's rendered")
+    @Inject(value = "Add hook to set boat yaw when it's rendered")
     public void inject(MethodNode main) {
       
       InsnList insnList = new InsnList();
       
       insnList.add(new VarInsnNode(ALOAD, 1)); // load the boat entity
-      insnList.add(new VarInsnNode(FLOAD, 8)); // load the boat yaw
-      insnList.add(
-        ASMHelper.call(
-          INVOKESTATIC,
-          TypesHook.Methods
-            .ForgeHaxHooks_onRenderBoat)); // fire the event and get the value(player
-      // rotationYaw) returned by the method in
+      insnList.add(new VarInsnNode(FLOAD, 2)); // load the boat yaw
+      insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onRenderBoat));
+      // fire the event and get the value(player rotationYaw) returned by the method in
       // ForgeHaxHooks
-      insnList.add(new VarInsnNode(FSTORE, 8)); // store it in entityYaw
+      insnList.add(new VarInsnNode(FSTORE, 2)); // store it in entityYaw
       
       main.instructions.insert(insnList); // insert code at the top of the method
     }

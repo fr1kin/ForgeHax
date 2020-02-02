@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -46,8 +46,8 @@ public class RegionBorder extends ToggleMod {
   public void onRender(RenderEvent event) {
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
-    BlockPos from = new BlockPos((((int) Globals.getLocalPlayer().getPosX()) / 512) * 512,
-        0, (((int) Globals.getLocalPlayer().getPosZ()) / 512) * 512);
+    BlockPos from = new BlockPos((((int) Common.getLocalPlayer().getPosX()) / 512) * 512,
+        0, (((int) Common.getLocalPlayer().getPosZ()) / 512) * 512);
     BlockPos to = from.add(511, 256, 511);
 
     int color = Colors.ORANGE.toBuffer();

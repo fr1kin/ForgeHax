@@ -17,6 +17,6 @@ public interface IKeyBind {
   void onKeyDown();
   
   default void unbind() {
-    bind(GLFW.GLFW_FALSE);
+    bind(0);
   }
 }

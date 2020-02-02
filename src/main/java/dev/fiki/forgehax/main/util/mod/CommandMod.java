@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import joptsimple.internal.Strings;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
 /**
  * Created on 6/1/2017 by fr1kin

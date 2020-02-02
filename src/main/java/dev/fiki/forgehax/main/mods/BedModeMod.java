@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -19,8 +19,8 @@ public class BedModeMod extends ToggleMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    FastReflection.Fields.PlayerEntity_sleeping.set(Globals.getLocalPlayer(), false);
-    FastReflection.Fields.PlayerEntity_sleepTimer.set(Globals.getLocalPlayer(), 0);
+    FastReflection.Fields.PlayerEntity_sleeping.set(Common.getLocalPlayer(), false);
+    FastReflection.Fields.PlayerEntity_sleepTimer.set(Common.getLocalPlayer(), 0);
   }
   
   @SubscribeEvent

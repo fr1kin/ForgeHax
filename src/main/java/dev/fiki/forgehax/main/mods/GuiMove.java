@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.gui.ClickGui;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -28,26 +28,26 @@ public class GuiMove extends ToggleMod {
   @SubscribeEvent
   public void LocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     KeyBinding[] keys = {
-        Globals.getGameSettings().keyBindForward,
-        Globals.getGameSettings().keyBindBack,
-        Globals.getGameSettings().keyBindLeft,
-        Globals.getGameSettings().keyBindRight,
-        Globals.getGameSettings().keyBindJump,
-        Globals.getGameSettings().keyBindSprint
+        Common.getGameSettings().keyBindForward,
+        Common.getGameSettings().keyBindBack,
+        Common.getGameSettings().keyBindLeft,
+        Common.getGameSettings().keyBindRight,
+        Common.getGameSettings().keyBindJump,
+        Common.getGameSettings().keyBindSprint
     };
-    if (Globals.getDisplayScreen() instanceof OptionsScreen
-        || Globals.getDisplayScreen() instanceof VideoSettingsScreen
-        || Globals.getDisplayScreen() instanceof OptionsSoundsScreen
-        || Globals.getDisplayScreen() instanceof ContainerScreen
-        || Globals.getDisplayScreen() instanceof IngameMenuScreen
-        || Globals.getDisplayScreen() instanceof ClickGui) {
+    if (Common.getDisplayScreen() instanceof OptionsScreen
+        || Common.getDisplayScreen() instanceof VideoSettingsScreen
+        || Common.getDisplayScreen() instanceof OptionsSoundsScreen
+        || Common.getDisplayScreen() instanceof ContainerScreen
+        || Common.getDisplayScreen() instanceof IngameMenuScreen
+        || Common.getDisplayScreen() instanceof ClickGui) {
       for (KeyBinding bind : keys) {
         KeyBinding.setKeyBindState(bind.getKey(),
-            InputMappings.isKeyDown(Globals.getMainWindow().getHandle(), bind.getKey().getKeyCode()));
+            InputMappings.isKeyDown(Common.getMainWindow().getHandle(), bind.getKey().getKeyCode()));
       }
-    } else if (Globals.getDisplayScreen() == null) {
+    } else if (Common.getDisplayScreen() == null) {
       for (KeyBinding bind : keys) {
-        if(InputMappings.isKeyDown(Globals.getMainWindow().getHandle(), bind.getKey().getKeyCode())) {
+        if(InputMappings.isKeyDown(Common.getMainWindow().getHandle(), bind.getKey().getKeyCode())) {
           KeyBinding.setKeyBindState(bind.getKey(), false);
         }
       }

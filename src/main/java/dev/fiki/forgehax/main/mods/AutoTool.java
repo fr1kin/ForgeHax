@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.PlayerAttackEntityEvent;
 import dev.fiki.forgehax.common.events.PlayerDamageBlockEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -102,7 +102,7 @@ public class AutoTool extends ToggleMod {
   private double getDigSpeed(LocalPlayerInventory.InvItem item, BlockState state, BlockPos pos) {
     double str = item.getItemStack().getDestroySpeed(state);
     int eff = getEnchantmentLevel(EFFICIENCY, item);
-    return state.getPlayerRelativeBlockHardness(Globals.getLocalPlayer(), Globals.getWorld(), pos) > 0.D
+    return state.getPlayerRelativeBlockHardness(Common.getLocalPlayer(), Common.getWorld(), pos) > 0.D
         ? Math.max(str + (str > 1.D ? (eff * eff + 1.D) : 0.D), 0.D)
         : 1.D;
   }
@@ -150,11 +150,11 @@ public class AutoTool extends ToggleMod {
   private LocalPlayerInventory.InvItem getBestTool(BlockPos pos) {
     LocalPlayerInventory.InvItem current = LocalPlayerInventory.getSelected();
     
-    if (!BlockHelper.isBlockPlaceable(pos) || Globals.getWorld().isAirBlock(pos)) {
+    if (!BlockHelper.isBlockPlaceable(pos) || Common.getWorld().isAirBlock(pos)) {
       return current;
     }
     
-    final BlockState state = Globals.getWorld().getBlockState(pos);
+    final BlockState state = Common.getWorld().getBlockState(pos);
     return LocalPlayerInventory.getHotbarInventory()
         .stream()
         .filter(this::isDurabilityGood)
@@ -191,7 +191,7 @@ public class AutoTool extends ToggleMod {
       LocalPlayerInventory.setSelected(
           getBestWeapon(target),
           revert_back.get(),
-          ticks -> Globals.getLocalPlayer().getCooledAttackStrength(0.f) >= 1.f && ticks > 30);
+          ticks -> Common.getLocalPlayer().getCooledAttackStrength(0.f) >= 1.f && ticks > 30);
     }
   }
   

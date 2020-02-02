@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.commands;
 
 import com.google.common.util.concurrent.FutureCallback;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Command;
 import dev.fiki.forgehax.main.util.command.CommandBuilders;
 import dev.fiki.forgehax.main.util.console.ConsoleIO;
@@ -33,7 +33,7 @@ public class HelpCommand extends CommandMod {
       .newCommandBuilder()
       .name("save")
       .description("Save all configurations")
-      .processor(data -> Globals.GLOBAL_COMMAND.serializeAll())
+      .processor(data -> Common.GLOBAL_COMMAND.serializeAll())
       .build();
   }
   
@@ -73,10 +73,10 @@ public class HelpCommand extends CommandMod {
           final String arg = data.getArgumentCount() > 0 ? data.getArgumentAsString(0) : null;
           boolean showDetails = data.hasOption("details");
           boolean showHidden = data.hasOption("hidden");
-          Globals.GLOBAL_COMMAND.getChildren().stream()
+          Common.GLOBAL_COMMAND.getChildren().stream()
             .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
             .forEach(command -> {
-              BaseMod mod = Globals.getModManager().get(command.getName()).orElse(null);
+              BaseMod mod = Common.getModManager().get(command.getName()).orElse(null);
               if ((Strings.isNullOrEmpty(arg)
                 || command.getName().toLowerCase().contains(arg.toLowerCase()))
                 && (mod == null || showHidden || !mod.isHidden())) {
@@ -151,7 +151,7 @@ public class HelpCommand extends CommandMod {
       .processor(
         data -> {
           final StringBuilder build = new StringBuilder();
-          Globals.getModManager()
+          Common.getModManager()
             .getLoadedClasses()
             .stream()
             .sorted(
@@ -215,8 +215,8 @@ public class HelpCommand extends CommandMod {
       .description("Send respawn packet")
       .processor(
         data -> {
-          if (Globals.getLocalPlayer() != null) {
-            Globals.getLocalPlayer().respawnPlayer();
+          if (Common.getLocalPlayer() != null) {
+            Common.getLocalPlayer().respawnPlayer();
             data.write("Respawn packet sent");
           } else {
             data.write("Failed to send respawn packet (player is null)");
@@ -232,7 +232,7 @@ public class HelpCommand extends CommandMod {
       .name("clear")
       .description("Clears chat")
       .options(p -> p.acceptsAll(Arrays.asList("all", "a"), "Also clear sent message history"))
-      .processor(d -> Globals.addScheduledTask(() -> Globals.MC.ingameGUI.getChatGUI().clearChatMessages(d.hasOption("all"))))
+      .processor(d -> Common.addScheduledTask(() -> Common.MC.ingameGUI.getChatGUI().clearChatMessages(d.hasOption("all"))))
       .build();
   }
 }

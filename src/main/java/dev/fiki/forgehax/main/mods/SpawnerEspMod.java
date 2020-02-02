@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -29,7 +29,7 @@ public class SpawnerEspMod extends ToggleMod {
   public void onRender(RenderEvent event) {
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
     
-    for (TileEntity tileEntity : Globals.getWorld().loadedTileEntityList) {
+    for (TileEntity tileEntity : Common.getWorld().loadedTileEntityList) {
       if (tileEntity instanceof MobSpawnerTileEntity) {
         BlockPos pos = tileEntity.getPos();
         GeometryTessellator.drawCuboid(

@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.util.command;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.SafeConverter;
 import dev.fiki.forgehax.main.util.command.exception.CommandExecuteException;
 import dev.fiki.forgehax.main.util.command.exception.MissingEntryException;
@@ -18,7 +18,7 @@ import joptsimple.OptionSet;
 /**
  * Created on 6/6/2017 by fr1kin
  */
-public class ExecuteData implements Globals, ConsoleWriter {
+public class ExecuteData implements Common, ConsoleWriter {
   
   public enum State {
     NONE,
@@ -150,7 +150,7 @@ public class ExecuteData implements Globals, ConsoleWriter {
       Objects.requireNonNull(data);
       return (T) data.getOrDefault(name, defaultValue);
     } catch (Throwable t) {
-      LOGGER.warn(String.format("Cannot find entry named \"%s\"", name));
+      Common.getLogger().warn(String.format("Cannot find entry named \"%s\"", name));
       return defaultValue;
     }
   }

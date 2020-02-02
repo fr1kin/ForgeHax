@@ -1,15 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
-import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.Utils;
-import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created by Babbaj on 9/20/2017.

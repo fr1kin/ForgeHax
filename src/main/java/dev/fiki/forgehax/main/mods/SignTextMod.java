@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -30,9 +30,9 @@ public class SignTextMod extends ToggleMod {
   public void onInput(InputEvent.MouseInputEvent event) {
     // TODO: 1.15 mouse input
     if (event.getButton() == 2 /*&& Mouse.getEventButtonState()*/) { // on middle click
-      RayTraceResult result = Globals.getLocalPlayer().pick(999, 0, false);
+      RayTraceResult result = Common.getLocalPlayer().pick(999, 0, false);
       if (RayTraceResult.Type.BLOCK.equals(result.getType())) {
-        TileEntity tileEntity = Globals.getWorld().getTileEntity(new BlockPos(result.getHitVec()));
+        TileEntity tileEntity = Common.getWorld().getTileEntity(new BlockPos(result.getHitVec()));
         
         if (tileEntity instanceof SignTileEntity) {
           SignTileEntity sign = (SignTileEntity) tileEntity;
@@ -58,7 +58,7 @@ public class SignTextMod extends ToggleMod {
           
           String fullText = String.join("\n", lines);
           
-          Globals.print("Copied sign");
+          Common.print("Copied sign");
           setClipboardString(fullText);
         }
       }

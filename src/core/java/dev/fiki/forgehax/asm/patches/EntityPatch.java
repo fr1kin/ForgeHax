@@ -33,7 +33,7 @@ public class EntityPatch extends ClassTransformer {
       return TypesMc.Methods.Entity_applyEntityCollision;
     }
     
-    @Inject(description = "Add hook to disable push motion")
+    @Inject(value = "Add hook to disable push motion")
     private void inject(MethodNode main) {
       // @ this.addVelocity(-d0, 0.0D, -d1);
       AbstractInsnNode thisEntityPreNode =
@@ -100,7 +100,7 @@ public class EntityPatch extends ClassTransformer {
       return TypesMc.Methods.Entity_move;
     }
     
-    @Inject(description = "Insert flag into statement that performs sneak movement")
+    @Inject(value = "Insert flag into statement that performs sneak movement")
     public void inject(MethodNode main) {
       AbstractInsnNode sneakFlagNode =
         ASMHelper.findPattern(
@@ -143,7 +143,7 @@ public class EntityPatch extends ClassTransformer {
       return TypesMc.Methods.Entity_doBlockCollisions;
     }
     
-    @Inject(description = "Add hook to disable block motion effects")
+    @Inject(value = "Add hook to disable block motion effects")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode =
         ASMHelper.findPattern(

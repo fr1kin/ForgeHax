@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
-import static dev.fiki.forgehax.main.Globals.getLauncherClassLoader;
+import static dev.fiki.forgehax.main.Common.getLauncherClassLoader;
 
 /**
  * Created on 10/13/2017 by fr1kin

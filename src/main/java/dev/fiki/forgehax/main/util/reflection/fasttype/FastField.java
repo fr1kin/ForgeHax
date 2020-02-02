@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import static dev.fiki.forgehax.main.Globals.getLogger;
+import static dev.fiki.forgehax.main.Common.getLogger;
 
 /**
  * Created on 5/25/2017 by fr1kin

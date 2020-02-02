@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
@@ -211,7 +211,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
   
   private Projectile getHeldProjectile() {
-    return Projectile.getProjectileByItemStack(Globals.getLocalPlayer().getHeldItem(Hand.MAIN_HAND));
+    return Projectile.getProjectileByItemStack(Common.getLocalPlayer().getHeldItem(Hand.MAIN_HAND));
   }
   
   private boolean isHoldingProjectileItem() {
@@ -224,9 +224,9 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   
   private boolean isVisible(Entity target) {
     if (isProjectileAimbotActivated() && projectile_trace_check.get()) {
-      return getHeldProjectile().canHitEntity(EntityUtils.getEyePos(Globals.getLocalPlayer()), target);
+      return getHeldProjectile().canHitEntity(EntityUtils.getEyePos(Common.getLocalPlayer()), target);
     } else {
-      return !vis_check.get() || Globals.getLocalPlayer().canEntityBeSeen(target);
+      return !vis_check.get() || Common.getLocalPlayer().canEntityBeSeen(target);
     }
   }
   
@@ -243,7 +243,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
         .filter(EntityUtils::isLiving)
         .filter(EntityUtils::isAlive)
         .filter(EntityUtils::isValidEntity)
-        .filter(ent -> !ent.equals(Globals.getLocalPlayer()))
+        .filter(ent -> !ent.equals(Common.getLocalPlayer()))
         .filter(this::isFiltered)
         .filter(ent -> isInRange(tpos, pos))
         .filter(ent -> isInFov(angles, tpos.subtract(pos)))
@@ -298,7 +298,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
   
   private Entity findTarget(final Vec3d pos, final Vec3d viewNormal, final Angle angles) {
-    return StreamSupport.stream(Globals.getWorld().getAllEntities().spliterator(), false)
+    return StreamSupport.stream(Common.getWorld().getAllEntities().spliterator(), false)
         .filter(entity -> filterTarget(pos, viewNormal, angles, entity))
         .min(Comparator.comparingDouble(entity -> selecting(pos, viewNormal, angles, entity)))
         .orElse(null);
@@ -316,8 +316,8 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   
   @Override
   public void onLocalPlayerMovementUpdate(RotationState.Local state) {
-    Vec3d pos = EntityUtils.getEyePos(Globals.getLocalPlayer());
-    Vec3d look = Globals.getLocalPlayer().getLookVec();
+    Vec3d pos = EntityUtils.getEyePos(Common.getLocalPlayer());
+    Vec3d look = Common.getLocalPlayer().getLookVec();
     Angle angles = AngleHelper.getAngleFacingInDegrees(look);
     
     Entity t = getTarget();
@@ -339,10 +339,10 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
       Angle va = Utils.getLookAtAngles(t).normalize();
       state.setViewAngles(va, silent.get());
       
-      if (canAttack(Globals.getLocalPlayer(), tar)) {
+      if (canAttack(Common.getLocalPlayer(), tar)) {
         state.invokeLater(rs -> {
-          Globals.getPlayerController().attackEntity(Globals.getLocalPlayer(), tar);
-          Globals.getLocalPlayer().swingArm(Hand.MAIN_HAND);
+          Common.getPlayerController().attackEntity(Common.getLocalPlayer(), tar);
+          Common.getLocalPlayer().swingArm(Hand.MAIN_HAND);
         });
       }
     }

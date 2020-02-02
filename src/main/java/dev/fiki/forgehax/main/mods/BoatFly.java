@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.ForgeHaxHooks;
 import dev.fiki.forgehax.common.events.RenderBoatEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -68,7 +68,7 @@ public class BoatFly extends ToggleMod {
   @SubscribeEvent // disable gravity
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     ForgeHaxHooks.isNoBoatGravityActivated =
-        Globals.getMountedEntity() instanceof BoatEntity; // disable gravity if in boat
+        Common.getMountedEntity() instanceof BoatEntity; // disable gravity if in boat
   }
   
   @Override
@@ -87,7 +87,7 @@ public class BoatFly extends ToggleMod {
   @SubscribeEvent
   public void onRenderBoat(RenderBoatEvent event) {
     if (EntityUtils.isDrivenByPlayer(event.getBoat()) && setYaw.getAsBoolean()) {
-      float yaw = Globals.getLocalPlayer().rotationYaw;
+      float yaw = Common.getLocalPlayer().rotationYaw;
       event.getBoat().rotationYaw = yaw;
       event.setYaw(yaw);
     }
@@ -96,7 +96,7 @@ public class BoatFly extends ToggleMod {
   @SubscribeEvent
   public void onClientTick(ClientTickEvent.Pre event) {
     // check if the player is really riding a entity
-    if (Globals.getLocalPlayer() != null && Globals.getMountedEntity() != null) {
+    if (Common.getLocalPlayer() != null && Common.getMountedEntity() != null) {
       
       ForgeHaxHooks.isNoClampingActivated = noClamp.getAsBoolean();
       ForgeHaxHooks.isNoBoatGravityActivated = noGravity.getAsBoolean();
@@ -104,20 +104,20 @@ public class BoatFly extends ToggleMod {
 
       double velX, velY, velZ;
       
-      if (Globals.getGameSettings().keyBindJump.isKeyDown()) {
+      if (Common.getGameSettings().keyBindJump.isKeyDown()) {
         // trick the riding entity to think its onground
-        Globals.getMountedEntity().onGround = false;
+        Common.getMountedEntity().onGround = false;
 
         // teleport up
-        velY = Globals.getGameSettings().keyBindSprint.isKeyDown() ? 5.D : 1.5D;
+        velY = Common.getGameSettings().keyBindSprint.isKeyDown() ? 5.D : 1.5D;
       } else {
-        velY = Globals.getGameSettings().keyBindSprint.isKeyDown() ? -1.0 : -speedY.getAsDouble();
+        velY = Common.getGameSettings().keyBindSprint.isKeyDown() ? -1.0 : -speedY.getAsDouble();
       }
 
-      MovementInput movementInput = Globals.getLocalPlayer().movementInput;
+      MovementInput movementInput = Common.getLocalPlayer().movementInput;
       double forward = movementInput.moveForward;
       double strafe = movementInput.moveStrafe;
-      float yaw = Globals.getLocalPlayer().rotationYaw;
+      float yaw = Common.getLocalPlayer().rotationYaw;
 
       if ((forward == 0.0D) && (strafe == 0.0D)) {
         velX = velZ = 0.D;
@@ -145,7 +145,7 @@ public class BoatFly extends ToggleMod {
         velZ = (forward * speed.get() * sin - strafe * speed.get() * cos);
       }
 
-      Globals.getMountedEntity().setMotion(velX, velY, velZ);
+      Common.getMountedEntity().setMotion(velX, velY, velZ);
     }
   }
 }

@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.util;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
@@ -12,7 +12,7 @@ import javax.imageio.ImageIO;
 /**
  * Created by Babbaj on 11/7/2017.
  */
-public class ImageUtils implements Globals {
+public class ImageUtils implements Common {
   
   public static BufferedImage createResizedCopy(
       Image originalImage, int scaledWidth, int scaledHeight, boolean preserveAlpha) {
@@ -33,7 +33,7 @@ public class ImageUtils implements Globals {
       URL url = new URL(link);
       image = ImageIO.read(url);
     } catch (Exception e) {
-      LOGGER.error("Failed to download Image");
+      Common.getLogger().error("Failed to download Image");
     }
     return image;
   }

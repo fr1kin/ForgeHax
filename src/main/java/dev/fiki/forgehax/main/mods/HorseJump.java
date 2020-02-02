@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -17,6 +17,6 @@ public class HorseJump extends ToggleMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    FastReflection.Fields.ClientPlayerEntity_horseJumpPower.set(Globals.getLocalPlayer(), 1.F);
+    FastReflection.Fields.ClientPlayerEntity_horseJumpPower.set(Common.getLocalPlayer(), 1.F);
   }
 }

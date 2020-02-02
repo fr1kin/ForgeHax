@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -62,7 +62,7 @@ public class CompassMod extends ToggleMod {
   
   private double getY(double rad) {
     final double epicPitch = MathHelper
-        .clamp(Globals.getLocalPlayer().rotationPitch + 30f, -90f, 90f);
+        .clamp(Common.getLocalPlayer().rotationPitch + 30f, -90f, 90f);
     final double pitchRadians = Math.toRadians(epicPitch); // player pitch
     return Math.cos(rad) * Math.sin(pitchRadians) * (scale.getAsDouble() * 10);
   }
@@ -71,7 +71,7 @@ public class CompassMod extends ToggleMod {
   private static double getPosOnCompass(Direction dir) {
     double yaw =
         Math.toRadians(
-            MathHelper.wrapDegrees(Globals.getLocalPlayer().rotationYaw)); // player yaw
+            MathHelper.wrapDegrees(Common.getLocalPlayer().rotationYaw)); // player yaw
     int index = dir.ordinal();
     return yaw + (index * HALF_PI);
   }

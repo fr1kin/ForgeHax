@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -36,11 +36,11 @@ public class AutoWhisperWhenSeen extends ToggleMod {
     if (event.getPacket() instanceof SSpawnPlayerPacket) {
       final SSpawnPlayerPacket packet = (SSpawnPlayerPacket) event.getPacket();
       final UUID id = packet.getUniqueId();
-      Optional.ofNullable(Globals.MC.getConnection().getPlayerInfo(id))
+      Optional.ofNullable(Common.MC.getConnection().getPlayerInfo(id))
         .map(NetworkPlayerInfo::getGameProfile)
         .map(GameProfile::getName)
         .ifPresent(name -> {
-          Globals.getLocalPlayer().sendChatMessage("/w " + name + " " + message.get());
+          Common.getLocalPlayer().sendChatMessage("/w " + name + " " + message.get());
         });
     }
   }

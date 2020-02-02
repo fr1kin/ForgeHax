@@ -32,7 +32,7 @@ public class EntityRendererPatch extends ClassTransformer {
       return TypesMc.Methods.EntityRenderer_hurtCameraEffect;
     }
     
-    @Inject(description = "Add hook that allows the method to be canceled")
+    @Inject(value = "Add hook that allows the method to be canceled")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode = main.instructions.getFirst();
       AbstractInsnNode postNode =

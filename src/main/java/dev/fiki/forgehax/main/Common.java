@@ -25,20 +25,26 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
  * 2 lazy to import static
  */
-public interface Globals {
-  Logger LOGGER = LogManager.getLogger("ForgeHax");
+public interface Common {
   Minecraft MC = Minecraft.getInstance();
   Command GLOBAL_COMMAND = CommandGlobal.getInstance();
 
@@ -47,15 +53,23 @@ public interface Globals {
   //
 
   static Logger getLogger() {
-    return LOGGER;
+    return ForgeHax.getInstance().getLogger();
   }
 
   static ModManager getModManager() {
-    return ModManager.getInstance();
+    return ForgeHax.getInstance().getModManager();
   }
 
   static FileManager getFileManager() {
-    return FileManager.getInstance();
+    return ForgeHax.getInstance().getFileManager();
+  }
+
+  static ForgeHax.ConfigProperties getConfigProperties() {
+    return ForgeHax.getInstance().getConfigProperties();
+  }
+
+  static Path getBaseDirectory() {
+    return ForgeHax.getInstance().getBaseDirectory();
   }
 
   //
@@ -63,8 +77,7 @@ public interface Globals {
   //
 
   static ClassLoader getLauncherClassLoader() {
-    // TODO: 1.15 make sure this is the correct classloader
-    return Thread.currentThread().getContextClassLoader();
+    return FMLLoader.getLaunchClassLoader();
   }
   //
   // minecraft
@@ -103,7 +116,7 @@ public interface Globals {
   //
 
   static ClientWorld getWorld() {
-    return Objects.requireNonNull(getLocalPlayer()).worldClient;
+    return getLocalPlayer() == null ? null : getLocalPlayer().worldClient;
   }
 
   static boolean isInWorld() {
@@ -168,7 +181,7 @@ public interface Globals {
 
   static boolean sendNetworkPacket(IPacket<?> packet) {
     NetworkManager nm = getNetworkManager();
-    if(nm != null) {
+    if (nm != null) {
       nm.sendPacket(packet);
       return true;
     }
@@ -188,19 +201,36 @@ public interface Globals {
   // text output
   //
 
+  static void printColored(TextFormatting formatting, String text) {
+    if(getLocalPlayer() != null) {
+      getLocalPlayer().sendStatusMessage(
+          new StringTextComponent("[ForgeHax]:")
+              .setStyle(new Style()
+                  .setColor(formatting)
+                  .setBold(true))
+              .appendSibling(new StringTextComponent(text)
+                  .setStyle(new Style()
+                      .setColor(TextFormatting.WHITE)
+                      .setBold(false))),
+          false
+      );
+      getLogger().info("ForgeHaxChat: {}", text);
+    }
+  }
+
   static void print(String str, Object... fmt) {
-    // TODO:
+    printColored(TextFormatting.GREEN, String.format(str, fmt));
   }
 
   static void printInform(String str, Object... fmt) {
-    // TODO:
+    print(str, fmt);
   }
 
   static void printWarning(String str, Object... fmt) {
-    // TODO:
+    printColored(TextFormatting.YELLOW, String.format(str, fmt));
   }
 
   static void printError(String str, Object... fmt) {
-    // TODO:
+    printColored(TextFormatting.RED, String.format(str, fmt));
   }
 }

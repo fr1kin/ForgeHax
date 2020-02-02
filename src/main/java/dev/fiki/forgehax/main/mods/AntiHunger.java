@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -21,7 +21,7 @@ public class AntiHunger extends ToggleMod {
   public void onPacketSending(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CPlayerPacket) {
       CPlayerPacket packet = (CPlayerPacket) event.getPacket();
-      if (Globals.getLocalPlayer().fallDistance <= 0.0F && !Globals.getPlayerController().getIsHittingBlock()) {
+      if (Common.getLocalPlayer().fallDistance <= 0.0F && !Common.getPlayerController().getIsHittingBlock()) {
         FastReflection.Fields.CPacketPlayer_onGround.set(packet, false);
       } else {
         FastReflection.Fields.CPacketPlayer_onGround.set(packet, true);

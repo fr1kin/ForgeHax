@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.main.util.key;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 import static java.util.stream.Collectors.toList;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +15,7 @@ import net.minecraft.client.settings.KeyBinding;
 
 // TODO: 1.15 delete this
 @Deprecated
-public class Bindings implements Globals {
+public class Bindings implements Common {
   
   public static final List<KeyBindingHandler> KEY_LIST = getAllKeys();
   

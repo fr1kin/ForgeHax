@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
@@ -139,8 +139,8 @@ public class ActiveModList extends HudMod {
       text.add(generateTickRateText());
     }
     
-    if (Globals.getDisplayScreen() instanceof ChatScreen || Globals.MC.gameSettings.showDebugInfo) {
-      long enabledMods = Globals.getModManager()
+    if (Common.getDisplayScreen() instanceof ChatScreen || Common.MC.gameSettings.showDebugInfo) {
+      long enabledMods = Common.getModManager()
           .getMods()
           .stream()
           .filter(BaseMod::isEnabled)
@@ -148,7 +148,7 @@ public class ActiveModList extends HudMod {
           .count();
       text.add(enabledMods + " mods enabled");
     } else {
-      Globals.getModManager()
+      Common.getModManager()
           .getMods()
           .stream()
           .filter(BaseMod::isEnabled)

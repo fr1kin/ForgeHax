@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.ForgeHaxHooks;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -23,7 +23,7 @@ public class XrayMod extends ToggleMod {
           .changed(
               cb -> {
                 ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (cb.getTo().floatValue() / 255.f);
-                Globals.reloadChunks();
+                Common.reloadChunks();
               })
           .build();
   
@@ -40,7 +40,7 @@ public class XrayMod extends ToggleMod {
 
     ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (this.opacity.getAsFloat() / 255.f);
     ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
-    Globals.reloadChunks();
+    Common.reloadChunks();
     ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable("Xray");
   }
   
@@ -48,7 +48,7 @@ public class XrayMod extends ToggleMod {
   public void onDisabled() {
     ForgeConfig.CLIENT.forgeLightPipelineEnabled.set(previousForgeLightPipelineEnabled);
     ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
-    Globals.reloadChunks();
+    Common.reloadChunks();
     ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("Xray");
   }
   

@@ -13,7 +13,6 @@ import java.util.Objects;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -33,7 +32,7 @@ public class WorldPatch extends ClassTransformer {
       return TypesMc.Methods.World_handleMaterialAcceleration;
     }
     
-    @Inject(description = "Add hook that allows water movement math to be skipped")
+    @Inject(value = "Add hook that allows water movement math to be skipped")
     public void inject(MethodNode method) {
       AbstractInsnNode preNode =
         ASMHelper.findPattern(

@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -44,7 +44,7 @@ public class AntiFireMod extends ToggleMod {
   // TODO: 1.15
   
   private boolean isAbovePlayer(BlockPos pos) {
-    return pos.getY() >= Globals.getLocalPlayer().getPosY();
+    return pos.getY() >= Common.getLocalPlayer().getPosY();
   }
   
   @SubscribeEvent

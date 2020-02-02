@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import dev.fiki.forgehax.common.events.movement.PostPlayerMovementUpdateEvent;
 import dev.fiki.forgehax.common.events.movement.PrePlayerMovementUpdateEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.math.Angle;
@@ -278,7 +278,7 @@ public class PositionRotationManager extends ServiceMod {
      * @return local player instance. null if not in a world
      */
     default ClientPlayerEntity getLocalPlayer() {
-      return Globals.getLocalPlayer();
+      return Common.getLocalPlayer();
     }
     
     /**

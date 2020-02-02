@@ -4,7 +4,7 @@ import static java.util.Objects.isNull;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
@@ -78,7 +78,7 @@ public class VanillaFlyMod extends ToggleMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    PlayerEntity player = Globals.getLocalPlayer();
+    PlayerEntity player = Common.getLocalPlayer();
     if (isNull(player)) {
       return;
     }
@@ -94,7 +94,7 @@ public class VanillaFlyMod extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketSending(PacketOutboundEvent event) {
-    PlayerEntity player = Globals.getLocalPlayer();
+    PlayerEntity player = Common.getLocalPlayer();
     if (isNull(player)) {
       return;
     }
@@ -123,7 +123,7 @@ public class VanillaFlyMod extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketRecieving(PacketInboundEvent event) {
-    PlayerEntity player = Globals.getLocalPlayer();
+    PlayerEntity player = Common.getLocalPlayer();
     if (isNull(player)) {
       return;
     }

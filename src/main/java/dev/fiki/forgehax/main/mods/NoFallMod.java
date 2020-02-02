@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -44,11 +44,11 @@ public class NoFallMod extends ToggleMod {
                 true);
         PacketHelper.ignore(packet);
         PacketHelper.ignore(reposition);
-        Globals.sendNetworkPacket(packet);
-        Globals.sendNetworkPacket(reposition);
+        Common.sendNetworkPacket(packet);
+        Common.sendNetworkPacket(reposition);
         lastFallDistance = 0;
       } else {
-        lastFallDistance = Globals.getLocalPlayer().fallDistance;
+        lastFallDistance = Common.getLocalPlayer().fallDistance;
       }
     }
   }

@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -49,7 +49,7 @@ public class ItemESP extends ToggleMod {
     
     final double scale = this.scale.get() == 0 ? 1.D : this.scale.get();
 
-    StreamSupport.stream(Globals.getWorld().getAllEntities().spliterator(), false)
+    StreamSupport.stream(Common.getWorld().getAllEntities().spliterator(), false)
         .filter(ItemEntity.class::isInstance)
         .map(ItemEntity.class::cast)
         .filter(entity -> entity.ticksExisted > 1)

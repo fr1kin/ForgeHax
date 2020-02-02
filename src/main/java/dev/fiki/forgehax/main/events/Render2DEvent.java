@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.events;
 
-import static dev.fiki.forgehax.main.Globals.MC;
+import static dev.fiki.forgehax.main.Common.MC;
 
 import dev.fiki.forgehax.main.util.draw.SurfaceBuilder;
 import net.minecraftforge.eventbus.api.Event;

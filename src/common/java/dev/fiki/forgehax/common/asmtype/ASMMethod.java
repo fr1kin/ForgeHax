@@ -2,6 +2,7 @@ package dev.fiki.forgehax.common.asmtype;
 
 import java.util.*;
 
+import cpw.mods.modlauncher.api.ITransformer;
 import lombok.*;
 import org.objectweb.asm.Type;
 
@@ -22,7 +23,7 @@ public class ASMMethod {
   private ASMType[] arguments;
 
   public String getMcp() {
-    return mcp == null ? srg : srg;
+    return mcp == null ? srg : mcp;
   }
 
   public String getName() {
@@ -41,6 +42,22 @@ public class ASMMethod {
         Arrays.stream(arguments)
             .map(ASMType::getSrg)
             .toArray(Type[]::new));
+  }
+
+  public boolean isNameEqual(String other) {
+    return getSrg().equals(other) || getMcp().equals(other);
+  }
+
+  public boolean isDescriptorEqual(String other) {
+    return getSrgDescriptor().equals(other) || getMcpDescriptor().equals(other);
+  }
+
+  public ITransformer.Target toMcpTransformerTarget() {
+    return ITransformer.Target.targetMethod(getParent().getClassName(), getMcp(), getMcpDescriptor());
+  }
+
+  public ITransformer.Target toSrgTransformerTarget() {
+    return ITransformer.Target.targetMethod(getParent().getClassName(), getSrg(), getSrgDescriptor());
   }
 
   public static class ASMMethodBuilder {
@@ -110,7 +127,7 @@ public class ASMMethod {
     }
 
     public ASMMethod build() {
-      Objects.requireNonNull(srg, "Missing srg name");
+      //Objects.requireNonNull(srg, "Missing srg name");
       Objects.requireNonNull(returnType, "Missing method return type");
       return new ASMMethod(parent, mcp, srg, returnType, args.toArray(new ASMType[0]));
     }

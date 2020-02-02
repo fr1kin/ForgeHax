@@ -5,7 +5,7 @@ import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.events.ConnectToServerEvent;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.entity.PlayerInfo;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
@@ -122,7 +122,7 @@ public class ScoreboardListenerService extends ServiceMod {
               @Override
               public void onFailure(Throwable t) {
                 if (retries.getAndDecrement() > 0) {
-                  Globals.getLogger().warn("Failed to lookup {}/{}, retrying ({})...",
+                  Common.getLogger().warn("Failed to lookup {}/{}, retrying ({})...",
                       name, id.toString(), retries.get());
 
                   PlayerInfoHelper.registerWithCallback(data.getProfile().getId(), name, this);

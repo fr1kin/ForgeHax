@@ -13,13 +13,6 @@ import java.util.stream.Stream;
  * Created on 5/30/2017 by fr1kin
  */
 public class FileManager {
-  
-  private static final FileManager INSTANCE = new FileManager();
-  
-  public static FileManager getInstance() {
-    return INSTANCE;
-  }
-  
   private static String[] expandPath(String fullPath) {
     return fullPath.split(":?\\\\\\\\|\\/");
   }
@@ -61,8 +54,8 @@ public class FileManager {
   }
   
   private final Path base;
-  
-  private FileManager() {
+
+  public FileManager() {
     base = getMkDirectory(getRoot(), "forgehax");
     // create directories for these common
     getMkDirectory(base, "config");

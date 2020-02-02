@@ -3,8 +3,9 @@ package dev.fiki.forgehax.main.util.key;
 import com.google.common.collect.Maps;
 import java.util.Map;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.apache.commons.lang3.ArrayUtils;
@@ -31,8 +32,7 @@ public class BindingHelper {
   }
   
   public static String getIndexName(int code) {
-    // TODO: 1.15 using mojangs new InputMappings
-    throw new UnsupportedOperationException();
+    return InputMappings.getInputByCode(code, 0).getTranslationKey();
   }
   
   public static String getIndexName(KeyBinding binding) {
@@ -49,10 +49,10 @@ public class BindingHelper {
   }
 
   public static boolean removeBinding(KeyBinding binding) {
-    int i = ArrayUtils.indexOf(Globals.getGameSettings().keyBindings, binding);
+    int i = ArrayUtils.indexOf(Common.getGameSettings().keyBindings, binding);
 
     if(i != -1) {
-      Globals.getGameSettings().keyBindings = ArrayUtils.remove(Globals.getGameSettings().keyBindings, i);
+      Common.getGameSettings().keyBindings = ArrayUtils.remove(Common.getGameSettings().keyBindings, i);
       KeyBinding.resetKeyBindingArrayAndHash();
       return true;
     }

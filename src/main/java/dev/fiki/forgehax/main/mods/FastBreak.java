@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -17,8 +17,8 @@ public class FastBreak extends ToggleMod {
   
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (Globals.getPlayerController() != null) {
-      FastReflection.Fields.PlayerController_blockHitDelay.set(Globals.getPlayerController(), 0);
+    if (Common.getPlayerController() != null) {
+      FastReflection.Fields.PlayerController_blockHitDelay.set(Common.getPlayerController(), 0);
     }
   }
 }

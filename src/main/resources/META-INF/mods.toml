@@ -18,7 +18,7 @@ version="${file.jarVersion}" #mandatory
  # A display name for the mod
 displayName="ForgeHax" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>
-updateJSONURL="https://github.com/fr1kin/ForgeHax" #optional
+#updateJSONURL="https://github.com/fr1kin/ForgeHax" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
 displayURL="fiki.dev" #optional
 # A file name (in the root of the mod JAR) containing a logo for display

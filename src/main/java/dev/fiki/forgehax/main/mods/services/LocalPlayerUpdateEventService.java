@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.services;
 
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,9 +21,9 @@ public class LocalPlayerUpdateEventService extends ServiceMod {
   
   @SubscribeEvent
   public void onUpdate(LivingEvent.LivingUpdateEvent event) {
-    if (Globals.getWorld() != null
+    if (Common.getWorld() != null
         && event.getEntity().getEntityWorld().isRemote
-        && event.getEntityLiving().equals(Globals.getLocalPlayer())) {
+        && event.getEntityLiving().equals(Common.getLocalPlayer())) {
       Event ev = new LocalPlayerUpdateEvent(event.getEntityLiving());
       MinecraftForge.EVENT_BUS.post(ev);
       event.setCanceled(ev.isCanceled());

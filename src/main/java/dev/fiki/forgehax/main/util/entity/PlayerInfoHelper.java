@@ -6,7 +6,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.Immutables;
 import java.io.IOException;
 import java.util.Collections;
@@ -22,7 +22,7 @@ import joptsimple.internal.Strings;
 /**
  * Created on 7/22/2017 by fr1kin
  */
-public class PlayerInfoHelper implements Globals {
+public class PlayerInfoHelper implements Common {
   
   private static final int THREAD_COUNT = 1;
   public static final int MAX_NAME_LENGTH = 16;

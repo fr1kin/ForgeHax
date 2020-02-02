@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.services;
 
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.CommandHelper;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.command.exception.CommandExecuteException;
@@ -64,12 +64,12 @@ public class ChatCommandService extends ServiceMod {
     ConsoleIO.incrementIndent();
     try {
       String[] arguments = CommandHelper.translate(message);
-      Globals.GLOBAL_COMMAND.run(arguments);
+      Common.GLOBAL_COMMAND.run(arguments);
     } catch (Throwable t) {
       if (!(t instanceof CommandExecuteException)) {
         t.printStackTrace();
       }
-      Globals.printError(t.getMessage());
+      Common.printError(t.getMessage());
     }
     ConsoleIO.finished();
   }

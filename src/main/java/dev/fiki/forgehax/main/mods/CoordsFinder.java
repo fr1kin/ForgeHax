@@ -3,7 +3,7 @@ package dev.fiki.forgehax.main.mods;
 import static java.util.Objects.isNull;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -93,7 +93,7 @@ public class CoordsFinder extends ToggleMod {
           .defaultTo(256)
           .build();
   
-  private final Path logPath = Globals.getFileManager().getBaseResolve("logs/coordsfinder.log");
+  private final Path logPath = Common.getFileManager().getBaseResolve("logs/coordsfinder.log");
   private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
   
   public CoordsFinder() {
@@ -106,7 +106,7 @@ public class CoordsFinder extends ToggleMod {
     int iy = MathHelper.floor(y);
     int iz = MathHelper.floor(z);
     
-    Globals.printInform("%s > [x:%d, y:%d, z:%d]", name, ix, iy, iz);
+    Common.printInform("%s > [x:%d, y:%d, z:%d]", name, ix, iy, iz);
     
     try {
       String toWrite = String
@@ -119,7 +119,7 @@ public class CoordsFinder extends ToggleMod {
   }
   
   private void logCoordsOnMinecraftThread(String name, double x, double y, double z) {
-    Globals.addScheduledTask(() -> logCoords(name, x, y, z));
+    Common.addScheduledTask(() -> logCoords(name, x, y, z));
   }
   
   private boolean pastDistance(PlayerEntity player, BlockPos pos, double dist) {
@@ -128,8 +128,8 @@ public class CoordsFinder extends ToggleMod {
   
   @SubscribeEvent
   public void onPacketRecieving(PacketInboundEvent event) {
-    PlayerEntity player = Globals.getLocalPlayer();
-    ClientWorld world = Globals.getWorld();
+    PlayerEntity player = Common.getLocalPlayer();
+    ClientWorld world = Common.getWorld();
 
     if (isNull(player) || isNull(world)) {
       return;

@@ -1,12 +1,10 @@
 package dev.fiki.forgehax.main.gui.elements;
 
 import dev.fiki.forgehax.main.gui.windows.GuiWindowSetting;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
-
-import java.io.IOException;
 
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.StringTextComponent;
@@ -43,7 +41,7 @@ public class GuiTextInput extends GuiElement {
         case GLFW.GLFW_KEY_ENTER:
           isActive = false;
           // setValue(input);
-          Globals.MC.player.sendMessage(new StringTextComponent(input.toString()));
+          Common.MC.player.sendMessage(new StringTextComponent(input.toString()));
           break;
         
         case GLFW.GLFW_KEY_BACKSPACE:

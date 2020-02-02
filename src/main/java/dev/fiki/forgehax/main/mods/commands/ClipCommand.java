@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.commands;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Command;
 import dev.fiki.forgehax.main.util.command.CommandBuilders;
 import dev.fiki.forgehax.main.util.mod.CommandMod;
@@ -24,20 +24,20 @@ public class ClipCommand extends CommandMod {
   
   // teleport to absolute position
   private void setPosition(double x, double y, double z) {
-    Entity ent = Globals.getMountedEntityOrPlayer();
+    Entity ent = Common.getMountedEntityOrPlayer();
     ent.setPositionAndUpdate(x, y, z);
 
     if(ent instanceof ClientPlayerEntity) {
-      Globals.sendNetworkPacket(new CPlayerPacket.PositionPacket(
+      Common.sendNetworkPacket(new CPlayerPacket.PositionPacket(
           ent.getPosX(), ent.getPosY(), ent.getPosZ(), ent.onGround));
     } else {
-      Globals.sendNetworkPacket(new CMoveVehiclePacket(ent));
+      Common.sendNetworkPacket(new CMoveVehiclePacket(ent));
     }
   }
   
   // teleport vertically by some offset
   private void offsetY(double yOffset) {
-    Entity local = Globals.getMountedEntityOrPlayer();
+    Entity local = Common.getMountedEntityOrPlayer();
     setPosition(local.getPosX(), local.getPosY() + yOffset, local.getPosZ());
   }
   
@@ -53,12 +53,12 @@ public class ClipCommand extends CommandMod {
             switch (data.getArgumentCount()) {
               case 1: {
                 final double y = Double.parseDouble(data.getArgumentAsString(0));
-                Globals.addScheduledTask(() -> {
-                  if (Globals.isInWorld()) {
+                Common.addScheduledTask(() -> {
+                  if (Common.isInWorld()) {
                     return;
                   }
                   
-                  Entity local = Globals.getMountedEntityOrPlayer();
+                  Entity local = Common.getMountedEntityOrPlayer();
                   setPosition(0, local.getPosY() + y, 0);
                 });
                 break;
@@ -67,21 +67,21 @@ public class ClipCommand extends CommandMod {
                 final double x = Double.parseDouble(data.getArgumentAsString(0));
                 final double y = Double.parseDouble(data.getArgumentAsString(1));
                 final double z = Double.parseDouble(data.getArgumentAsString(2));
-                Globals.addScheduledTask(() -> {
-                  if (Globals.isInWorld()) {
+                Common.addScheduledTask(() -> {
+                  if (Common.isInWorld()) {
                     return;
                   }
 
-                  Entity local = Globals.getMountedEntityOrPlayer();
+                  Entity local = Common.getMountedEntityOrPlayer();
                   setPosition(local.getPosX() + x, local.getPosY() + y, local.getPosZ() + z);
                 });
                 break;
               }
               default:
-                Globals.printError("Invalid number of arguments: expected 1 or 3");
+                Common.printError("Invalid number of arguments: expected 1 or 3");
             }
           } catch (NumberFormatException e) {
-            Globals.printError("Failed to parse input");
+            Common.printError("Failed to parse input");
           }
         })
       .build();
@@ -94,12 +94,12 @@ public class ClipCommand extends CommandMod {
       .description("Vertical clip")
       .requiredArgs(1)
       .processor(data -> {
-        if (Globals.getWorld() == null || Globals.getLocalPlayer() == null) {
-          Globals.printWarning("Not in game");
+        if (Common.getWorld() == null || Common.getLocalPlayer() == null) {
+          Common.printWarning("Not in game");
           return;
         }
         final double y = SafeConverter.toDouble(data.getArgumentAsString(0));
-        Globals.addScheduledTask(() -> offsetY(y));
+        Common.addScheduledTask(() -> offsetY(y));
       })
       .build();
   }
@@ -111,16 +111,16 @@ public class ClipCommand extends CommandMod {
       .description("Forward clip")
       .requiredArgs(1)
       .processor(data -> {
-        if (Globals.getWorld() == null || Globals.getLocalPlayer() == null) {
-          Globals.printWarning("Not in game");
+        if (Common.getWorld() == null || Common.getLocalPlayer() == null) {
+          Common.printWarning("Not in game");
           return;
         }
         final double units = SafeConverter.toDouble(data.getArgumentAsString(0));
-        Globals.addScheduledTask(() -> {
-          Vec3d dir = Globals.getLocalPlayer().getLookVec().normalize();
-          setPosition(Globals.getLocalPlayer().getPosX() + (dir.x * units),
-              Globals.getLocalPlayer().getPosY(),
-              Globals.getLocalPlayer().getPosZ() + (dir.z * units));
+        Common.addScheduledTask(() -> {
+          Vec3d dir = Common.getLocalPlayer().getLookVec().normalize();
+          setPosition(Common.getLocalPlayer().getPosX() + (dir.x * units),
+              Common.getLocalPlayer().getPosY(),
+              Common.getLocalPlayer().getPosZ() + (dir.z * units));
         });
       })
       .build();

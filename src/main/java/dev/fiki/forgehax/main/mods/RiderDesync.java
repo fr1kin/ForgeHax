@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -42,59 +42,59 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("remount")
         .description("Remount entity")
-        .processor(data -> Globals.addScheduledTask(() -> {
+        .processor(data -> Common.addScheduledTask(() -> {
           if (!isEnabled()) {
-            Globals.printWarning("Mod not enabled");
+            Common.printWarning("Mod not enabled");
             return;
           }
           
-          if (Globals.getLocalPlayer() == null || Globals.getWorld() == null) {
-            Globals.printWarning("Must be ingame to use this command.");
+          if (Common.getLocalPlayer() == null || Common.getWorld() == null) {
+            Common.printWarning("Must be ingame to use this command.");
             return;
           }
           
           if (dismountedEntity == null) {
-            Globals.printWarning("No entity mounted");
+            Common.printWarning("No entity mounted");
             return;
           }
 
-          Globals.getWorld().addEntity(dismountedEntity);
-          Globals.getLocalPlayer().startRiding(dismountedEntity);
+          Common.getWorld().addEntity(dismountedEntity);
+          Common.getLocalPlayer().startRiding(dismountedEntity);
           
-          Globals.printInform("Remounted entity " + dismountedEntity.getName());
+          Common.printInform("Remounted entity " + dismountedEntity.getName());
         }))
         .build();
     
     getCommandStub().builders().newCommandBuilder()
         .name("dismount")
         .description("Dismount entity")
-        .processor(data -> Globals.addScheduledTask(() -> {
+        .processor(data -> Common.addScheduledTask(() -> {
           if (!isEnabled()) {
-            Globals.printWarning("Mod not enabled");
+            Common.printWarning("Mod not enabled");
             return;
           }
           
-          if (Globals.getLocalPlayer() == null || Globals.getWorld() == null) {
-            Globals.printWarning("Must be ingame to use this command.");
+          if (Common.getLocalPlayer() == null || Common.getWorld() == null) {
+            Common.printWarning("Must be ingame to use this command.");
             return;
           }
           
-          Entity mounted = Globals.getLocalPlayer().getRidingEntity();
+          Entity mounted = Common.getLocalPlayer().getRidingEntity();
           
           if (mounted == null) {
-            Globals.printWarning("No entity mounted");
+            Common.printWarning("No entity mounted");
             return;
           }
           
           dismountedEntity = mounted;
-          Globals.getLocalPlayer().stopRiding();
+          Common.getLocalPlayer().stopRiding();
           mounted.remove();
           
           if (auto_update.get()) {
             forceUpdate = true;
-            Globals.printInform("Dismounted entity " + mounted.getName() + " and forcing entity updates");
+            Common.printInform("Dismounted entity " + mounted.getName() + " and forcing entity updates");
           } else {
-            Globals.printInform("Dismounted entity " + mounted.getName());
+            Common.printInform("Dismounted entity " + mounted.getName());
           }
         }))
         .build();
@@ -102,50 +102,50 @@ public class RiderDesync extends ToggleMod {
     getCommandStub().builders().newCommandBuilder()
         .name("force-update")
         .description("Force dismount entity")
-        .processor(data -> Globals.addScheduledTask(() -> {
+        .processor(data -> Common.addScheduledTask(() -> {
           if (!isEnabled()) {
-            Globals.printWarning("Mod not enabled");
+            Common.printWarning("Mod not enabled");
             return;
           }
           
-          if (Globals.getLocalPlayer() == null || Globals.getWorld() == null) {
-            Globals.printWarning("Must be ingame to use this command.");
+          if (Common.getLocalPlayer() == null || Common.getWorld() == null) {
+            Common.printWarning("Must be ingame to use this command.");
             return;
           }
           
           if (dismountedEntity == null) {
-            Globals.printWarning("No entity to force remount");
+            Common.printWarning("No entity to force remount");
             return;
           }
           
           forceUpdate = !forceUpdate;
           
-          Globals.printInform("Force mounted entity = %s", forceUpdate ? "true" : "false");
+          Common.printInform("Force mounted entity = %s", forceUpdate ? "true" : "false");
         }))
         .build();
     
     getCommandStub().builders().newCommandBuilder()
         .name("reset")
         .description("Reset the currently stored riding entity")
-        .processor(data -> Globals.addScheduledTask(() -> {
+        .processor(data -> Common.addScheduledTask(() -> {
           this.dismountedEntity = null;
           this.forceUpdate = false;
-          Globals.printInform("Saved riding entity reset");
+          Common.printInform("Saved riding entity reset");
         }))
         .build();
   }
   
   @SubscribeEvent
   public void onTick(LocalPlayerUpdateEvent event) {
-    if (dismountedEntity == null || Globals.getMountedEntity() != null) {
+    if (dismountedEntity == null || Common.getMountedEntity() != null) {
       this.dismountedEntity = null;
       this.forceUpdate = false;
       return;
     }
     
     if (forceUpdate && dismountedEntity != null) {
-      dismountedEntity.setPosition(Globals.getLocalPlayer().getPosX(), Globals.getLocalPlayer().getPosY(), Globals.getLocalPlayer().getPosZ());
-      Globals.sendNetworkPacket(new CMoveVehiclePacket(dismountedEntity));
+      dismountedEntity.setPosition(Common.getLocalPlayer().getPosX(), Common.getLocalPlayer().getPosY(), Common.getLocalPlayer().getPosZ());
+      Common.sendNetworkPacket(new CMoveVehiclePacket(dismountedEntity));
     }
   }
   

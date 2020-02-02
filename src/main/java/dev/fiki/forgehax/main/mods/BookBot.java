@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.console.ConsoleIO;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
@@ -53,7 +53,7 @@ public class BookBot extends ToggleMod {
             // 3 digits seems like a reasonable upper limit
             String str = cb.getTo().replaceAll(NUMBER_TOKEN, "XXX");
             if (str.length() > 32) {
-              Globals.printWarning("Final book names longer than 32 letters will cause crashes!"
+              Common.printWarning("Final book names longer than 32 letters will cause crashes!"
                       + "Current length (assuming 3 digits): %d", str.length());
             }
           })
@@ -155,7 +155,7 @@ public class BookBot extends ToggleMod {
       throw new RuntimeException("No file name set");
     }
     
-    Path data = Globals.getFileManager().getBaseResolve(file.get());
+    Path data = Common.getFileManager().getBaseResolve(file.get());
     
     if (!Files.exists(data)) {
       throw new RuntimeException("File not found");
@@ -299,7 +299,7 @@ public class BookBot extends ToggleMod {
 
           if (writer != null) {
             try (BufferedWriter out = Files.newBufferedWriter(
-                Globals.getFileManager().getBaseResolve(fname),
+                Common.getFileManager().getBaseResolve(fname),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
               out.write(writer.contents);
@@ -425,14 +425,14 @@ public class BookBot extends ToggleMod {
       stack.setTagInfo("pages", pages);
       
       // publish the book
-      stack.setTagInfo("author", StringNBT.valueOf(Globals.getLocalPlayer().getGameProfile().getName()));
+      stack.setTagInfo("author", StringNBT.valueOf(Common.getLocalPlayer().getGameProfile().getName()));
       stack.setTagInfo("title", StringNBT.valueOf(parent.name.get()
           .replaceAll(NUMBER_TOKEN, "" + getBook())
           .trim()));
       
       PacketBuffer buff = new PacketBuffer(Unpooled.buffer());
       buff.writeItemStack(stack);
-      Globals.sendNetworkPacket(new CEditBookPacket(stack, true, Hand.MAIN_HAND));
+      Common.sendNetworkPacket(new CEditBookPacket(stack, true, Hand.MAIN_HAND));
       //MC.getConnection().sendPacket(new CPacketCustomPayload("MC|BSign", buff));
     }
     
@@ -449,7 +449,7 @@ public class BookBot extends ToggleMod {
           sleep();
           
           // wait for screen
-          if (Globals.MC.currentScreen != null) {
+          if (Common.MC.currentScreen != null) {
             this.status = Status.AWAITING_GUI_CLOSE;
             continue;
           }
@@ -458,7 +458,7 @@ public class BookBot extends ToggleMod {
           int slot = -1;
           ItemStack selected = null;
           for (int i = 0; i < LocalPlayerInventory.getHotbarSize(); i++) {
-            ItemStack stack = Globals.getLocalPlayer().inventory.getStackInSlot(i);
+            ItemStack stack = Common.getLocalPlayer().inventory.getStackInSlot(i);
             if (!stack.equals(ItemStack.EMPTY)
                 && stack.getItem() instanceof WritableBookItem) {
               slot = i;
@@ -474,8 +474,8 @@ public class BookBot extends ToggleMod {
           }
           
           // set selected item to that slot
-          while (Globals.getLocalPlayer().inventory.currentItem != slot) {
-            Globals.getLocalPlayer().inventory.currentItem = slot;
+          while (Common.getLocalPlayer().inventory.currentItem != slot) {
+            Common.getLocalPlayer().inventory.currentItem = slot;
             this.status = Status.CHANGING_HELD_ITEM;
             sleep();
           }
@@ -484,22 +484,22 @@ public class BookBot extends ToggleMod {
           
           // open the book gui screen
           this.status = Status.OPENING_BOOK;
-          Globals.addScheduledTask(() -> Globals.getLocalPlayer().openBook(item, Hand.MAIN_HAND));
+          Common.addScheduledTask(() -> Common.getLocalPlayer().openBook(item, Hand.MAIN_HAND));
           
           // wait for gui to open
-          while (!(Globals.getDisplayScreen() instanceof EditBookScreen)) {
+          while (!(Common.getDisplayScreen() instanceof EditBookScreen)) {
             sleep();
           }
           
           // send book to server
           this.status = Status.WRITING_BOOK;
-          Globals.addScheduledTask(() -> {
+          Common.addScheduledTask(() -> {
             sendBook(item);
-            Globals.setDisplayScreen(null);
+            Common.setDisplayScreen(null);
           });
           
           // wait for screen to close
-          while (Globals.getDisplayScreen() != null) {
+          while (Common.getDisplayScreen() != null) {
             sleep();
           }
         }

@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.ItemStoppedUsedEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ForgeHaxEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -85,7 +85,7 @@ public class AutoEatMod extends ToggleMod {
   
   private void reset() {
     if (eatingTicks > 0) {
-      Globals.addScheduledTask(() -> MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_STOP)));
+      Common.addScheduledTask(() -> MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_STOP)));
     }
     food = null;
     eating = false;
@@ -121,11 +121,11 @@ public class AutoEatMod extends ToggleMod {
   }
   
   private int getHealthLevel(LocalPlayerInventory.InvItem inv) {
-    return Math.min(Globals.getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv), 20);
+    return Math.min(Common.getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv), 20);
   }
   
   private double getSaturationLevel(LocalPlayerInventory.InvItem inv) {
-    return Math.min(Globals.getLocalPlayer().getFoodStats().getSaturationLevel()
+    return Math.min(Common.getLocalPlayer().getFoodStats().getSaturationLevel()
             + getHealAmount(inv) * getSaturationAmount(inv) * 2.D, 20.D);
   }
   
@@ -142,7 +142,7 @@ public class AutoEatMod extends ToggleMod {
   }
   
   private boolean shouldEat(LocalPlayerInventory.InvItem inv) {
-    return Globals.getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv) < 20;
+    return Common.getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv) < 20;
   }
   
   private boolean checkFailsafe() { // TODO: replace 500 with longest food duration
@@ -158,7 +158,7 @@ public class AutoEatMod extends ToggleMod {
   
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (Globals.getLocalPlayer().isCreative()) {
+    if (Common.getLocalPlayer().isCreative()) {
       return;
     }
     
@@ -201,8 +201,8 @@ public class AutoEatMod extends ToggleMod {
                   MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_START));
                 }
                 
-                FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Globals.MC, 4);
-                Globals.getPlayerController().processRightClick(Globals.getLocalPlayer(), Globals.getWorld(), Hand.MAIN_HAND);
+                FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Common.MC, 4);
+                Common.getPlayerController().processRightClick(Common.getLocalPlayer(), Common.getWorld(), Hand.MAIN_HAND);
                 
                 ++eatingTicks;
               }

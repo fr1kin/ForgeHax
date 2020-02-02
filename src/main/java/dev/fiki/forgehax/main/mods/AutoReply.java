@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -46,7 +46,7 @@ public class AutoReply extends ToggleMod {
   @SubscribeEvent
   public void onClientChat(ClientChatReceivedEvent event) {
     String message = (event.getMessage().getUnformattedComponentText());
-    if (message.contains(search.get()) && !message.startsWith(Globals.MC.getSession().getUsername())) {
+    if (message.contains(search.get()) && !message.startsWith(Common.MC.getSession().getUsername())) {
       String append;
       switch (mode.get().toUpperCase()) {
         case "REPLY":
@@ -57,7 +57,7 @@ public class AutoReply extends ToggleMod {
           append = Strings.EMPTY;
           break;
       }
-      Globals.getLocalPlayer().sendChatMessage(append + reply.get());
+      Common.getLocalPlayer().sendChatMessage(append + reply.get());
     }
   }
 }

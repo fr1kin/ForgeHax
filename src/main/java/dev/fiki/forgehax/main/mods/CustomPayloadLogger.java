@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -22,9 +22,9 @@ import java.nio.file.StandardOpenOption;
 public class CustomPayloadLogger extends ToggleMod {
   
   private static final Path CLIENT_PAYLOAD_LOG =
-      Globals.getFileManager().getMkBaseResolve("logs/payload/client2server_payload.log");
+      Common.getFileManager().getMkBaseResolve("logs/payload/client2server_payload.log");
   private static final Path SERVER_PAYLOAD_LOG =
-      Globals.getFileManager().getMkBaseResolve("logs/payload/server2client_payload.log");
+      Common.getFileManager().getMkBaseResolve("logs/payload/server2client_payload.log");
   
   public CustomPayloadLogger() {
     super(Category.MISC, "PayloadLogger", false, "Logs custom payloads");

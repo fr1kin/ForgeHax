@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -62,7 +62,7 @@ public class AutoFishMod extends ToggleMod {
   }
   
   private boolean isCorrectSplashPacket(SPlaySoundEffectPacket packet) {
-    ClientPlayerEntity me = Globals.getLocalPlayer();
+    ClientPlayerEntity me = Common.getLocalPlayer();
     return packet.getSound().equals(SoundEvents.ENTITY_FISHING_BOBBER_SPLASH)
         && (me != null
         && me.fishingBobber != null
@@ -74,7 +74,7 @@ public class AutoFishMod extends ToggleMod {
   
   private void rightClick() {
     if (ticksCastDelay <= 0) { // to prevent the fishing rod from being spammed when in hand
-      FastReflection.Methods.Minecraft_rightClickMouse.invoke(Globals.MC);
+      FastReflection.Methods.Minecraft_rightClickMouse.invoke(Common.MC);
       ticksCastDelay = casting_delay.get();
     }
   }
@@ -92,7 +92,7 @@ public class AutoFishMod extends ToggleMod {
   
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    ClientPlayerEntity me = Globals.getLocalPlayer();
+    ClientPlayerEntity me = Common.getLocalPlayer();
     ItemStack heldStack = me.getHeldItemMainhand();
     
     // update tick delay if hook is deployed
@@ -126,7 +126,7 @@ public class AutoFishMod extends ToggleMod {
   
   @SubscribeEvent
   public void onMouseEvent(InputEvent.MouseInputEvent event) {
-    if (Globals.getGameSettings().keyBindUseItem.isKeyDown() && ticksHookDeployed > 0) {
+    if (Common.getGameSettings().keyBindUseItem.isKeyDown() && ticksHookDeployed > 0) {
       ticksCastDelay = casting_delay.get();
     }
   }

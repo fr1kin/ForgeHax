@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.main.util.math;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import net.minecraft.util.math.Vec3d;
 
-public class VectorUtils implements Globals {
+public class VectorUtils implements Common {
   // Credits to Gregor and P47R1CK for the 3D vector transformation code
   
   static Matrix4d modelMatrix = new Matrix4d();

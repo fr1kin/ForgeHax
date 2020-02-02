@@ -29,7 +29,7 @@ public class LivingEntityPatch extends ClassTransformer {
       return TypesMc.Methods.LivingEntity_travel;
     }
     
-    @Inject(description = "Add hook before first slippery motion calculation")
+    @Inject(value = "ForgeHaxHooks::onEntityBlockSlipApply")
     public void injectFirst(MethodNode node) {
       AbstractInsnNode first = ASMPattern.builder()
           .codeOnly()

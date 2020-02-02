@@ -4,7 +4,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Options;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -80,9 +80,9 @@ public class ChatFilterMod extends ToggleMod {
               try {
                 Pattern.compile(regex);
                 this.filterList.add(new FilterEntry(name, regex));
-                Globals.print("Added regex with name \"%s\"", name);
+                Common.print("Added regex with name \"%s\"", name);
               } catch (PatternSyntaxException ex) {
-                Globals.printError("Invalid regex: " + ex.getMessage());
+                Common.printError("Invalid regex: " + ex.getMessage());
               }
             })
         .build();
@@ -99,9 +99,9 @@ public class ChatFilterMod extends ToggleMod {
 
               final boolean changed = filterList.removeIf(entry -> entry.name.equals(name));
               if (changed) {
-                Globals.print("Removed filter with name \"%s\"", name);
+                Common.print("Removed filter with name \"%s\"", name);
               } else {
-                Globals.print("No filter found with name \"%s\"", name);
+                Common.print("No filter found with name \"%s\"", name);
               }
             })
         .build();
@@ -112,7 +112,7 @@ public class ChatFilterMod extends ToggleMod {
         .name("list")
         .description("List all the filters")
         .processor(data -> {
-          Globals.print("Filters (%d):", filterList.size());
+          Common.print("Filters (%d):", filterList.size());
           for (FilterEntry entry : filterList) {
             data.write(entry.name + ": " + "\"" + entry.regex + "\"");
           }

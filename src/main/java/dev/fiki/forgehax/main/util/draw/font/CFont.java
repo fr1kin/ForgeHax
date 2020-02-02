@@ -27,8 +27,18 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Objects;
+
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.NativeImage;
 import org.lwjgl.opengl.GL11;
+
+import javax.imageio.ImageIO;
+
+import static dev.fiki.forgehax.main.Common.getLogger;
 
 public class CFont {
   
@@ -50,15 +60,17 @@ public class CFont {
   
   protected DynamicTexture setupTexture(
       Font font, boolean antiAlias, boolean fractionalMetrics, CharData[] chars) {
-    BufferedImage img = generateFontImage(font, antiAlias, fractionalMetrics, chars);
-    
-    try {
-      // TODO: 1.15
-//      return new DynamicTexture(img);
-    } catch (Exception e) {
-      e.printStackTrace();
+    try(ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      BufferedImage img = generateFontImage(font, antiAlias, fractionalMetrics, chars);
+      ImageIO.write(img, "png", os);
+      byte[] png = os.toByteArray();
+      ByteBuffer bb = ByteBuffer.allocateDirect(png.length);
+      bb.put(png).clear();
+      NativeImage nm = NativeImage.read(bb.put(png));
+      return new DynamicTexture(Objects.requireNonNull(nm, "Missing font texture"));
+    } catch (IOException e) {
+      getLogger().error(e, e);
     }
-    
     return null;
   }
   

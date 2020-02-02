@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -27,7 +27,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 @RegisterMod
 public class ClientChunkSize extends ToggleMod {
   
-  private static final File DUMMY = Globals.getFileManager().getBaseResolve("dummy").toFile();
+  private static final File DUMMY = Common.getFileManager().getBaseResolve("dummy").toFile();
   
   private final SimpleTimer timer = new SimpleTimer();
   
@@ -84,11 +84,11 @@ public class ClientChunkSize extends ToggleMod {
   
   @SubscribeEvent
   public void onTick(ClientTickEvent.Pre event) {
-    if (!Globals.isInWorld() || running) {
+    if (!Common.isInWorld() || running) {
       return;
     }
 
-    Chunk chunk = Globals.getWorld().getChunkAt(Globals.getLocalPlayer().getPosition());
+    Chunk chunk = Common.getWorld().getChunkAt(Common.getLocalPlayer().getPosition());
     if (chunk.isEmpty()) {
       return;
     }
@@ -118,7 +118,7 @@ public class ClientChunkSize extends ToggleMod {
                     // time outside it
                     ChunkLoader loader = new ChunkLoader(DUMMY, null);
                     FastReflection.Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
-                        loader, chunk, Globals.getWorld(), level);
+                        loader, chunk, Common.getWorld(), level);
                   } catch (Throwable t) {
                     size = -1L;
                     previousSize = 0L;

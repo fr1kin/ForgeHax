@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.key.Bindings;
@@ -47,7 +47,7 @@ public class AutoWalkMod extends ToggleMod {
     }
     
     if (stop_at_unloaded_chunks.get()) {
-      if (Globals.getWorld().isAreaLoaded(Globals.getLocalPlayer().getPosition(), 1)) {
+      if (Common.getWorld().isAreaLoaded(Common.getLocalPlayer().getPosition(), 1)) {
         Bindings.forward.setPressed(false);
       }
     }

@@ -6,7 +6,7 @@ import com.google.common.cache.LoadingCache;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import net.minecraft.network.IPacket;
 
 /**
@@ -30,7 +30,7 @@ public class PacketHelper {
   
   public static void ignoreAndSend(IPacket packet) {
     ignore(packet);
-    Globals.sendNetworkPacket(packet);
+    Common.sendNetworkPacket(packet);
   }
   
   public static boolean isIgnored(IPacket packet) {

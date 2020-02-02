@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.services;
 
 import dev.fiki.forgehax.main.gui.ClickGui;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.StubBuilder;
 import dev.fiki.forgehax.main.util.command.callbacks.CallbackData;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
@@ -20,8 +20,8 @@ public class GuiService extends ServiceMod {
   
   @Override
   public void onBindPressed(CallbackData cb) {
-    if (Globals.getLocalPlayer() != null) {
-      Globals.MC.displayGuiScreen(ClickGui.getInstance());
+    if (Common.getLocalPlayer() != null) {
+      Common.MC.displayGuiScreen(ClickGui.getInstance());
     }
   }
   

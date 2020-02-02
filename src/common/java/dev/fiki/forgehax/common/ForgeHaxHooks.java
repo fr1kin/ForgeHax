@@ -1,7 +1,5 @@
 package dev.fiki.forgehax.common;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import dev.fiki.forgehax.common.events.movement.*;
 import dev.fiki.forgehax.common.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
@@ -18,9 +16,7 @@ import dev.fiki.forgehax.common.events.RenderBoatEvent;
 import dev.fiki.forgehax.common.events.SchematicaPlaceBlockEvent;
 
 import java.nio.ByteOrder;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -35,18 +31,17 @@ import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.IPacket;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 
 public class ForgeHaxHooks {
   
-  private static final List<HookReporter> ALL_REPORTERS = Lists.newArrayList();
+  private static final List<HookReporter> ALL_REPORTERS = new ArrayList<>();
   
   public static List<HookReporter> getReporters() {
     return Collections.unmodifiableList(ALL_REPORTERS);
@@ -126,6 +121,10 @@ public class ForgeHaxHooks {
       return entityYaw;
     }
   }
+
+  public static boolean onBoatApplyGravity(BoatEntity boat) {
+    return true;
+  }
   
   /**
    * onSchematicaPlaceBlock
@@ -161,34 +160,33 @@ public class ForgeHaxHooks {
   /**
    * onSendingPacket
    */
-  public static final HookReporter HOOK_onSendingPacket =
+  public static final HookReporter HOOK_onPacketOutbound =
     newHookReporter()
-      .hook("onSendingPacket")
+      .hook("onPacketOutbound")
       //.dependsOn(TypesMc.Methods.NetworkManager_dispatchPacket)
       //.dependsOn(TypesMc.Methods.NetworkManager$4_run)
       .forgeEvent(PacketOutboundEvent.class)
       .build();
   
-  public static boolean onSendingPacket(IPacket<?> packet) {
-    return HOOK_onSendingPacket.reportHook()
-      && MinecraftForge.EVENT_BUS.post(new PacketOutboundEvent(packet));
+  public static boolean onPacketOutbound(NetworkManager nm, IPacket<?> packet) {
+    return HOOK_onPacketOutbound.reportHook()
+      && MinecraftForge.EVENT_BUS.post(new PacketOutboundEvent(nm, packet));
   }
   
   /**
    * onSentPacket
    */
-  public static final HookReporter HOOK_onSentPacket =
+  public static final HookReporter HOOK_onPacketInbound =
     newHookReporter()
-      .hook("onSentPacket")
+      .hook("onPacketInbound")
       //.dependsOn(TypesMc.Methods.NetworkManager_dispatchPacket)
       //.dependsOn(TypesMc.Methods.NetworkManager$4_run)
       .forgeEvent(PacketInboundEvent.class)
       .build();
   
-  public static void onSentPacket(IPacket<?> packet) {
-    if (HOOK_onSentPacket.reportHook()) {
-      MinecraftForge.EVENT_BUS.post(new PacketInboundEvent(packet));
-    }
+  public static boolean onPacketInbound(NetworkManager nm, IPacket<?> packet) {
+    return HOOK_onPacketInbound.reportHook()
+        && MinecraftForge.EVENT_BUS.post(new PacketInboundEvent(nm, packet));
   }
   
   /**
@@ -297,7 +295,7 @@ public class ForgeHaxHooks {
       //.dependsOn(TypesMc.Methods.Entity_doBlockCollisions)
       .build();
   
-  public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = Sets.newHashSet();
+  public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = new HashSet<>();
   
   public static boolean isBlockFiltered(Entity entity, BlockState state) {
     return HOOK_isBlockFiltered.reportHook()
@@ -326,7 +324,7 @@ public class ForgeHaxHooks {
    */
   public static final HookReporter HOOK_onAddCollisionBoxToList =
     newHookReporter()
-      .hook("onAddCollisionBoxToList")
+      .hook("onGetCollisionShapeEvent")
       //.dependsOn(TypesMc.Methods.Block_addCollisionBoxToList)
       .forgeEvent(GetCollisionShapeEvent.class)
       .build();
@@ -502,9 +500,10 @@ public class ForgeHaxHooks {
       .build();
   
   public static float onEntityBlockSlipApply(float slipperiness,
-      LivingEntity entityLivingBase, BlockState blockStateUnder) {
+      LivingEntity entityLivingBase, BlockPos blockPos) {
     if (HOOK_onEntityBlockSlipApply.reportHook()) {
-      EntityBlockSlipApplyEvent event = new EntityBlockSlipApplyEvent(entityLivingBase, blockStateUnder, slipperiness);
+      EntityBlockSlipApplyEvent event = new EntityBlockSlipApplyEvent(entityLivingBase,
+          entityLivingBase.world.getBlockState(blockPos), slipperiness);
       MinecraftForge.EVENT_BUS.post(event);
       return event.getSlipperiness();
     } else {

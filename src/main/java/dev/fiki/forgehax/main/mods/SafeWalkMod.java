@@ -1,15 +1,12 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.ForgeHaxHooks;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
-import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created on 9/4/2016 by fr1kin
@@ -61,7 +58,7 @@ public class SafeWalkMod extends ToggleMod {
   // TODO: 1.15
   
   private boolean isAbovePlayer(BlockPos pos) {
-    return pos.getY() >= Globals.getLocalPlayer().getPosY();
+    return pos.getY() >= Common.getLocalPlayer().getPosY();
   }
 
   private boolean isAboveBlock(BlockPos pos, int minHeight) {
@@ -74,7 +71,7 @@ public class SafeWalkMod extends ToggleMod {
   }
   
   private boolean hasCollisionBox(BlockPos pos) {
-    return Globals.getWorld().getBlockState(pos).getCollisionShape(Globals.getWorld(), pos).isEmpty();
+    return Common.getWorld().getBlockState(pos).getCollisionShape(Common.getWorld(), pos).isEmpty();
   }
   
   @Override

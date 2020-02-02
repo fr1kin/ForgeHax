@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -20,7 +20,7 @@ public class ManualDeleteMod extends ToggleMod {
   
   @SubscribeEvent
   public void onInput(InputEvent.MouseInputEvent event) {
-    if (!Globals.isInWorld()) {
+    if (!Common.isInWorld()) {
       return;
     }
 
@@ -29,7 +29,7 @@ public class ManualDeleteMod extends ToggleMod {
 
       if(RayTraceResult.Type.ENTITY.equals(aim.getType()) && aim instanceof EntityRayTraceResult) {
         EntityRayTraceResult tr = (EntityRayTraceResult) aim;
-        Globals.getWorld().removeEntityFromWorld(tr.getEntity().getEntityId());
+        Common.getWorld().removeEntityFromWorld(tr.getEntity().getEntityId());
       }
     }
   }

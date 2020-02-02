@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -135,7 +135,7 @@ public class AutoHotbarReplenish extends ToggleMod {
   
   @Override
   protected void onDisabled() {
-    Globals.addScheduledTask(() -> {
+    Common.addScheduledTask(() -> {
       tasks = TaskChain.empty();
       tickCount = 0;
     });
@@ -143,12 +143,12 @@ public class AutoHotbarReplenish extends ToggleMod {
   
   @SubscribeEvent
   public void onTick(TickEvent.ClientTickEvent event) {
-    if (!TickEvent.Phase.START.equals(event.phase) || Globals.getLocalPlayer() == null) {
+    if (!TickEvent.Phase.START.equals(event.phase) || Common.getLocalPlayer() == null) {
       return;
     }
     
     // only process when a gui isn't opened by the player
-    if (Globals.getDisplayScreen() != null && no_gui.get()) {
+    if (Common.getDisplayScreen() != null && no_gui.get()) {
       return;
     }
     
@@ -221,7 +221,7 @@ public class AutoHotbarReplenish extends ToggleMod {
   
   private static void clickWindow(
       int slotIdIn, int usedButtonIn, ClickType modeIn, ItemStack clickedItemIn) {
-    Globals.sendNetworkPacket(new CClickWindowPacket(
+    Common.sendNetworkPacket(new CClickWindowPacket(
         0,
         slotIdIn,
         usedButtonIn,
@@ -237,7 +237,7 @@ public class AutoHotbarReplenish extends ToggleMod {
     ItemStack ret;
     clickWindow(item.getSlotNumber(), usedButtonIn, modeIn,
         ret = LocalPlayerInventory.getOpenContainer().slotClick(item.getSlotNumber(), usedButtonIn,
-            modeIn, Globals.getLocalPlayer()));
+            modeIn, Common.getLocalPlayer()));
     return ret;
   }
 }

@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.gui.windows;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.color.Color;
@@ -22,7 +22,7 @@ public abstract class GuiWindow {
   
   private boolean dragging;
   
-  final int maxHeight = (int) (Globals.getScreenHeight() * 0.8); // a window can only take up 80% of the height of the window
+  final int maxHeight = (int) (Common.getScreenHeight() * 0.8); // a window can only take up 80% of the height of the window
   public int width, height; // width of the window
   
   GuiWindow(String titleIn) {

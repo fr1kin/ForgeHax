@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -32,21 +32,21 @@ public class InstantMessage extends ToggleMod {
   @SubscribeEvent
   public void onPacketIn(PacketInboundEvent event) {
     if (event.getPacket() instanceof SLoginSuccessPacket) {
-      if (Globals.getDisplayScreen() instanceof ConnectingScreen) {
-        ServerData serverData = Globals.MC.getCurrentServerData();
+      if (Common.getDisplayScreen() instanceof ConnectingScreen) {
+        ServerData serverData = Common.MC.getCurrentServerData();
         String serverName = serverData != null ? serverData.serverName : "Unknown";
         String serverIP = serverData != null ? serverData.serverIP : "";
         
-        FastReflection.Fields.ConnectingScreen_networkManager.get(Globals.MC.currentScreen)
+        FastReflection.Fields.ConnectingScreen_networkManager.get(Common.MC.currentScreen)
             .sendPacket(
                 new CChatMessagePacket(
                     message
                         .get()
                         .replace("{SRVNAME}", serverName)
                         .replace("{IP}", serverIP)
-                        .replace("{NAME}", Globals.MC.getSession().getUsername())));
+                        .replace("{NAME}", Common.MC.getSession().getUsername())));
       } else {
-        Globals.getLogger().warn("Did not send message as current screen is not GuiConnecting");
+        Common.getLogger().warn("Did not send message as current screen is not GuiConnecting");
       }
     }
   }

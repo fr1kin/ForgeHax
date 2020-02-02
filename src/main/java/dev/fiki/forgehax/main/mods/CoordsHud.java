@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -58,12 +58,12 @@ public class CoordsHud extends HudMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent ev) {
-    ClientPlayerEntity player = Globals.getLocalPlayer();
+    ClientPlayerEntity player = Common.getLocalPlayer();
     thisX = player.getPosX();
     thisY = player.getPosY();
     thisZ = player.getPosZ();
     
-    double thisFactor = Globals.getWorld().getDimension().getMovementFactor();
+    double thisFactor = Common.getWorld().getDimension().getMovementFactor();
     double otherFactor = thisFactor != 1d ? 1d : 8d;
     double travelFactor = thisFactor / otherFactor;
     otherX = thisX * travelFactor;

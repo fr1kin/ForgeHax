@@ -37,7 +37,7 @@ public class EntityPlayerSPPatch extends ClassTransformer {
       return TypesMc.Methods.ClientPlayerEntity_livingTick;
     }
 
-    @Inject(description = "Add hook to disable the use slowdown effect")
+    @Inject(value = "Add hook to disable the use slowdown effect")
     public void inject(MethodNode main) {
       AbstractInsnNode applySlowdownSpeedNode =
           ASMHelper.findPattern(
@@ -67,7 +67,7 @@ public class EntityPlayerSPPatch extends ClassTransformer {
       return TypesMc.Methods.ClientPlayerEntity_tick;
     }
 
-    @Inject(description = "Add hooks at top and bottom of method")
+    @Inject(value = "Add hooks at top and bottom of method")
     public void inject(MethodNode main) {
       // AbstractInsnNode top =
       //    ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, ALOAD, INVOKEVIRTUAL, IFEQ);
@@ -121,7 +121,7 @@ public class EntityPlayerSPPatch extends ClassTransformer {
       return TypesMc.Methods.ClientPlayerEntity_pushOutOfBlocks;
     }
 
-    @Inject(description = "Add hook to disable pushing out of blocks")
+    @Inject(value = "Add hook to disable pushing out of blocks")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode = main.instructions.getFirst();
       AbstractInsnNode postNode =
@@ -149,7 +149,7 @@ public class EntityPlayerSPPatch extends ClassTransformer {
       return TypesMc.Methods.ClientPlayerEntity_isRowingBoat;
     }
 
-    @Inject(description = "Add hook to override returned value of isRowingBoat")
+    @Inject(value = "Add hook to override returned value of isRowingBoat")
     public void inject(MethodNode main) {
       AbstractInsnNode preNode = main.instructions.getFirst();
 

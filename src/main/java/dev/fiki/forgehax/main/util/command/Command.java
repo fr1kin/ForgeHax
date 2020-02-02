@@ -36,7 +36,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.internal.Strings;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
 /**
  * Created on 5/14/2017 by fr1kin
@@ -412,7 +412,7 @@ public class Command implements Comparable<Command>, ISerializer, GsonConstant {
           reader.endArray();
         } catch (Throwable t) {
           getLogger().error("Deserialization error", t);
-          LOGGER.warn(
+          getLogger().warn(
               String.format("Could not deserialize \"%s\": %s", getAbsoluteName(), t.getMessage()));
         } finally {
           if (sr != null) {

@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
@@ -61,8 +61,8 @@ public class YawLockMod extends ToggleMod
         .newCommandBuilder()
         .name("snap")
         .description("Snap once to a certain direction")
-        .processor(data -> Globals.addScheduledTask(() -> {
-            if (!Globals.isInWorld()) {
+        .processor(data -> Common.addScheduledTask(() -> {
+            if (!Common.isInWorld()) {
               return;
             }
             

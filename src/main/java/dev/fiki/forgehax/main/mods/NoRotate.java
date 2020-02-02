@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -26,7 +26,7 @@ public class NoRotate extends ToggleMod {
   public void onPacketReceived(PacketInboundEvent event) {
     if (event.getPacket() instanceof SPlayerPositionLookPacket) {
       SPlayerPositionLookPacket packet = (SPlayerPositionLookPacket) event.getPacket();
-      if (Globals.getLocalPlayer() != null) {
+      if (Common.getLocalPlayer() != null) {
         Angle angle = LocalPlayerUtils.getViewAngles();
         
         packet.getFlags().removeAll(Arrays.asList(Flags.X_ROT, Flags.Y_ROT));

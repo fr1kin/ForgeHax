@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.util;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
@@ -62,13 +62,13 @@ public class BlockHelper {
 
   @Deprecated
   public static float getBlockHardness(BlockPos pos) {
-    BlockState state = Globals.getWorld().getBlockState(pos);
-    return state.getBlockHardness(Globals.getWorld(), pos);
+    BlockState state = Common.getWorld().getBlockState(pos);
+    return state.getBlockHardness(Common.getWorld(), pos);
   }
 
   @Deprecated
   public static boolean isBlockReplaceable(BlockPos pos) {
-    return Globals.getWorld().getBlockState(pos).getMaterial().isReplaceable();
+    return Common.getWorld().getBlockState(pos).getMaterial().isReplaceable();
   }
 
   @Deprecated
@@ -82,8 +82,8 @@ public class BlockHelper {
 
   @Deprecated
   public static Vec3d getOBBCenter(BlockPos pos) {
-    BlockState state = Globals.getWorld().getBlockState(pos);
-    AxisAlignedBB bb = state.getCollisionShape(Globals.getWorld(), pos).getBoundingBox();
+    BlockState state = Common.getWorld().getBlockState(pos);
+    AxisAlignedBB bb = state.getCollisionShape(Common.getWorld(), pos).getBoundingBox();
     return new Vec3d(
         bb.minX + ((bb.maxX - bb.minX) / 2.D),
         bb.minY + ((bb.maxY - bb.minY) / 2.D),
@@ -182,7 +182,7 @@ public class BlockHelper {
     }
     
     public BlockState getBlockState() {
-      return Globals.getWorld().getBlockState(getPos());
+      return Common.getWorld().getBlockState(getPos());
     }
     
     public boolean isPlaceable(LocalPlayerInventory.InvItem item) {

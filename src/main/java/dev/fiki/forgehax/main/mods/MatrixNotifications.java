@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -198,9 +198,9 @@ public class MatrixNotifications extends ToggleMod {
         }
       } catch (Throwable t) {
         if (t.getCause() instanceof ValidatorException) {
-          Globals.printError("Java JRE outdated. Change games to use the latest JRE.");
+          Common.printError("Java JRE outdated. Change games to use the latest JRE.");
         } else {
-          Globals.printError("Failed to send message to url: " + t.getMessage());
+          Common.printError("Failed to send message to url: " + t.getMessage());
         }
         t.printStackTrace();
       }
@@ -208,13 +208,13 @@ public class MatrixNotifications extends ToggleMod {
   }
   
   private static String getServerName() {
-    return Optional.ofNullable(Globals.MC.getCurrentServerData())
+    return Optional.ofNullable(Common.MC.getCurrentServerData())
         .map(data -> data.serverName)
         .orElse("server");
   }
   
   private static String getUriUuid() {
-    return Optional.of(Globals.MC.getSession().getProfile())
+    return Optional.of(Common.MC.getSession().getProfile())
         .map(GameProfile::getId)
         .map(UUID::toString)
         .map(id -> id.replaceAll("-", ""))
@@ -225,7 +225,7 @@ public class MatrixNotifications extends ToggleMod {
     JsonObject object = new JsonObject();
     object.addProperty("text", message);
     object.addProperty("format", "plain");
-    object.addProperty("displayName", Globals.MC.getSession().getUsername());
+    object.addProperty("displayName", Common.MC.getSession().getUsername());
     
     String id = getUriUuid();
     if (!skin_server_url.get().isEmpty() && id != null) {
@@ -254,11 +254,11 @@ public class MatrixNotifications extends ToggleMod {
     position = 0;
     
     if (url.get().isEmpty()) {
-      Globals.printError("Missing url");
+      Common.printError("Missing url");
     }
     
     if (SOCKET_FACTORY_REGISTRY == null) {
-      Globals.printError(
+      Common.printError(
           "Custom socket factory has not been registered. All host SSL certificates must be trusted with the current JRE");
     }
   }
@@ -271,7 +271,7 @@ public class MatrixNotifications extends ToggleMod {
       once = true;
       
       if (on_connected.get()) {
-        BlockPos pos = Globals.getLocalPlayer().getPosition();
+        BlockPos pos = Common.getLocalPlayer().getPosition();
         if (pos.getX() != 0 && pos.getZ() != 0) {
           ping("Connected to %s", getServerName());
         } else {
@@ -286,7 +286,7 @@ public class MatrixNotifications extends ToggleMod {
     once = false;
     position = 0;
     
-    if (Globals.MC.getCurrentServerData() != null) {
+    if (Common.MC.getCurrentServerData() != null) {
       serverName = getServerName();
     }
   }

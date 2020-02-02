@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.services;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.PacketHelper;
@@ -49,7 +49,7 @@ public class SneakService extends ServiceMod {
     if (event.getPacket() instanceof CEntityActionPacket) {
       CEntityActionPacket packet = (CEntityActionPacket) event.getPacket();
       int id = FastReflection.Fields.CEntityActionPacket_entityID.get(packet);
-      if (Globals.getLocalPlayer().getEntityId() == id
+      if (Common.getLocalPlayer().getEntityId() == id
           && (packet.getAction() == Action.RELEASE_SHIFT_KEY || packet.getAction() == Action.PRESS_SHIFT_KEY)
           && !PacketHelper.isIgnored(packet)) {
         sneakingClient = packet.getAction() == Action.PRESS_SHIFT_KEY;

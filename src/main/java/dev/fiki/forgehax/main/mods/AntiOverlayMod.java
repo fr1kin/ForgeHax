@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.RenderEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -23,7 +23,7 @@ public class AntiOverlayMod extends ToggleMod {
   @SubscribeEvent
   public void onFogRender(EntityViewRenderEvent.FogDensity event) {
     // TODO: 1.15 make sure this hides liquid fog properly
-    if(Globals.isInWorld() && (Globals.getLocalPlayer().isInLava() || Globals.getLocalPlayer().isInWater())) {
+    if(Common.isInWorld() && (Common.getLocalPlayer().isInLava() || Common.getLocalPlayer().isInWater())) {
       event.setDensity(0);
       event.setCanceled(true);
     }

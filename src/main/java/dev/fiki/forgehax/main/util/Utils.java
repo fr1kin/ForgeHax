@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.util;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
@@ -18,9 +18,9 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.Vec3d;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
-public class Utils implements Globals {
+public class Utils implements Common {
   
   public static <E extends Enum<?>> String[] toArray(E[] o) {
     String[] output = new String[o.length];

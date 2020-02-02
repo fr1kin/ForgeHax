@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods.services;
 
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -40,7 +40,7 @@ public class RenderEventService extends ServiceMod {
     
     GlStateManager.lineWidth(1.f);
     
-    Vec3d renderPos = EntityUtils.getInterpolatedPos(Globals.getLocalPlayer(), event.getPartialTicks());
+    Vec3d renderPos = EntityUtils.getInterpolatedPos(Common.getLocalPlayer(), event.getPartialTicks());
     
     RenderEvent e = new RenderEvent(TESSELLATOR, renderPos, event.getPartialTicks());
     e.resetTranslation();

@@ -1,11 +1,11 @@
 package dev.fiki.forgehax.main.util.key;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 
-public class KeyBindingHandler implements Globals {
+public class KeyBindingHandler implements Common {
   
   private static final IKeyConflictContext OVERRIDE_KEYCONFLICT_CONTEXT =
       new IKeyConflictContext() {

@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -21,23 +21,23 @@ public class FullBrightMod extends ToggleMod {
           .<Double>newSettingBuilder()
           .name("gamma")
           .description("default gamma to revert to")
-          .defaultTo(Globals.getGameSettings().gamma)
+          .defaultTo(Common.getGameSettings().gamma)
           .min(0.1D)
           .max(16D)
           .build();
   
   @Override
   public void onEnabled() {
-    Globals.getGameSettings().gamma = 16F;
+    Common.getGameSettings().gamma = 16F;
   }
   
   @Override
   public void onDisabled() {
-    Globals.getGameSettings().gamma = defaultGamma.get();
+    Common.getGameSettings().gamma = defaultGamma.get();
   }
   
   @SubscribeEvent
   public void onClientTick(ClientTickEvent.Pre event) {
-    Globals.getGameSettings().gamma = 16F;
+    Common.getGameSettings().gamma = 16F;
   }
 }

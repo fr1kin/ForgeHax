@@ -31,7 +31,7 @@ public class VisGraphPatch extends ClassTransformer {
       return TypesMc.Methods.VisGraph_setOpaqueCube;
     }
     
-    @Inject(description = "Add hook at the end that can override the return value")
+    @Inject(value = "Add hook at the end that can override the return value")
     public void inject(MethodNode main) {
       AbstractInsnNode top = main.instructions.getFirst();
       AbstractInsnNode bottom =
@@ -61,7 +61,7 @@ public class VisGraphPatch extends ClassTransformer {
     }
     
     @Inject(
-      description =
+      value =
         "Add hook that adds or logic to the jump that checks if setAllVisible(true) should be called"
     )
     public void inject(MethodNode main) {

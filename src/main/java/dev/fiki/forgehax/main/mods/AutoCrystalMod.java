@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -96,21 +96,21 @@ public class AutoCrystalMod extends ToggleMod {
   }
   
   private Predicate<Entity> playerWithinDistance(float dist) {
-    return k -> Globals.getLocalPlayer().getDistanceSq(k) < dist * dist;
+    return k -> Common.getLocalPlayer().getDistanceSq(k) < dist * dist;
   }
   
   private boolean enemyWithinDistance(Entity e, float dist) {
     Vec3d delta = new Vec3d(dist, dist, dist);
     AxisAlignedBB bb =
         new AxisAlignedBB(e.getPositionVector().subtract(delta), e.getPositionVector().add(delta));
-    return Globals.getWorld().getEntitiesWithinAABB(PlayerEntity.class, bb).stream()
-        .filter(p -> !p.isEntityEqual(Globals.getLocalPlayer()))
+    return Common.getWorld().getEntitiesWithinAABB(PlayerEntity.class, bb).stream()
+        .filter(p -> !p.isEntityEqual(Common.getLocalPlayer()))
         .anyMatch(p -> e.getDistanceSq(p) < dist * dist);
   }
   
   @SubscribeEvent
   public void onTick(LocalPlayerUpdateEvent event) {
-    if (Globals.getWorld() != null && Globals.getLocalPlayer() != null) {
+    if (Common.getWorld() != null && Common.getLocalPlayer() != null) {
       // Short-circuit if the timer check will fail
       if (!timer.hasTimeElapsed(delay.get())) {
         return;
@@ -119,22 +119,22 @@ public class AutoCrystalMod extends ToggleMod {
       Vec3d delta = new Vec3d(maxDistance.get(), maxDistance.get(), maxDistance.get());
       AxisAlignedBB bb =
           new AxisAlignedBB(
-              Globals.getLocalPlayer().getPositionVector().subtract(delta),
-              Globals.getLocalPlayer().getPositionVector().add(delta));
-      Globals.getWorld()
+              Common.getLocalPlayer().getPositionVector().subtract(delta),
+              Common.getLocalPlayer().getPositionVector().add(delta));
+      Common.getWorld()
           .getEntitiesWithinAABB(EnderCrystalEntity.class, bb).stream()
           // Re-check timer, since it may have been reset in a previous iteration
           .filter(__ -> timer.hasTimeElapsed(delay.get()))
           .filter(
               e ->
-                  e.getPosition().getY() - Globals.getLocalPlayer().getPosition().getY() >= minHeight.get())
+                  e.getPosition().getY() - Common.getLocalPlayer().getPosition().getY() >= minHeight.get())
           .filter(playerWithinDistance(maxDistance.get()))
           .filter(playerWithinDistance(minDistance.get()).negate())
           .filter(e -> !checkEnemy.get() || enemyWithinDistance(e, maxEnemyDistance.get()))
           .forEach(
               e -> {
-                Globals.sendNetworkPacket(new CUseEntityPacket(e));
-                Globals.sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+                Common.sendNetworkPacket(new CUseEntityPacket(e));
+                Common.sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
                 timer.start();
               });
     }

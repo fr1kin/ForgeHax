@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
@@ -71,7 +71,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 
-import static dev.fiki.forgehax.main.Globals.*;
+import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod
 public class AutoPlace extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
@@ -207,7 +207,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         resetTask.run();
         resetTask = null;
       }
-      Globals.printInform("AutoPlace data has been reset.");
+      Common.printInform("AutoPlace data has been reset.");
     }
   }
   
@@ -242,20 +242,20 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   }
   
   private void showInfo(String filter) {
-    Globals.addScheduledTask(() -> {
+    Common.addScheduledTask(() -> {
       if ("selected".startsWith(filter)) {
-        Globals.printInform("Selected item %s",
+        Common.printInform("Selected item %s",
             this.selectedItem.getDisplayName().getUnformattedComponentText());
       }
 
       if ("targets".startsWith(filter)) {
-        Globals.printInform(
+        Common.printInform(
             "Targets: %s",
             this.targets.stream().map(UniqueBlock::toString).collect(Collectors.joining(", ")));
       }
 
       if ("sides".startsWith(filter)) {
-        Globals.printInform(
+        Common.printInform(
             "Sides: %s",
             this.sides
                 .stream()
@@ -265,11 +265,11 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       }
 
       if ("whitelist".startsWith(filter)) {
-        Globals.printInform("Whitelist: %s", Boolean.toString(whitelist.get()));
+        Common.printInform("Whitelist: %s", Boolean.toString(whitelist.get()));
       }
 
       if ("check_neighbors".startsWith(filter)) {
-        Globals.printInform("Check Neighbors: %s", Boolean.toString(check_neighbors.get()));
+        Common.printInform("Check Neighbors: %s", Boolean.toString(check_neighbors.get()));
       }
     });
   }
@@ -283,7 +283,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .description("Reset to the setup process")
         .processor(data -> {
           resetToggle.set(true);
-          if (Globals.getLocalPlayer() == null && Globals.getWorld() == null) {
+          if (Common.getLocalPlayer() == null && Common.getWorld() == null) {
             reset();
           }
         })
@@ -493,7 +493,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    if (!render.get() || Globals.MC.getRenderViewEntity() == null) {
+    if (!render.get() || Common.MC.getRenderViewEntity() == null) {
       return;
     }
     
@@ -514,8 +514,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     
     renderingBlocks.forEach(
         pos -> {
-          BlockState state = Globals.getWorld().getBlockState(pos);
-          AxisAlignedBB bb = state.getCollisionShape(Globals.getWorld(), pos).getBoundingBox();
+          BlockState state = Common.getWorld().getBlockState(pos);
+          AxisAlignedBB bb = state.getCollisionShape(Common.getWorld(), pos).getBoundingBox();
           tessellator.setTranslation(
               (double) pos.getX() - event.getRenderPos().x,
               (double) pos.getY() - event.getRenderPos().y,
@@ -536,8 +536,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     final BlockPos current = this.currentRenderingTarget;
     
     if (current != null) {
-      BlockState state = Globals.getWorld().getBlockState(current);
-      AxisAlignedBB bb = state.getCollisionShape(Globals.getWorld(), current).getBoundingBox();
+      BlockState state = Common.getWorld().getBlockState(current);
+      AxisAlignedBB bb = state.getCollisionShape(Common.getWorld(), current).getBoundingBox();
       tessellator.setTranslation(
           (double) current.getX() - event.getRenderPos().x,
           (double) current.getY() - event.getRenderPos().y,
@@ -606,7 +606,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         
         if (bindFinish.isKeyDown() && bindFinishToggle.compareAndSet(false, true)) {
           if (targets.isEmpty()) {
-            Globals.printWarning("No items have been selected yet!");
+            Common.printWarning("No items have been selected yet!");
           } else {
             stage = Stage.SELECT_REPLACEMENT;
             printToggle.set(false);
@@ -627,13 +627,13 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           LocalPlayerInventory.InvItem selected = LocalPlayerInventory.getSelected();
           
           if (selected.isNull()) {
-            Globals.printWarning("No item selected!");
+            Common.printWarning("No item selected!");
             return;
           }
           
           this.selectedItem = new ItemStack(selected.getItem(), 1);
           
-          Globals.printInform("Selected item %s", this.selectedItem.getItem().getRegistryName());
+          Common.printInform("Selected item %s", this.selectedItem.getItem().getRegistryName());
           
           stage = Stage.CONFIRM;
           printToggle.set(false);
@@ -644,7 +644,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       }
       case CONFIRM: {
         if (printToggle.compareAndSet(false, true)) {
-          Globals.printInform(
+          Common.printInform(
               "Press %s to begin, or '.%s info' to set the current settings",
               BindingHelper.getIndexName(bindFinish), getModName());
         }
@@ -652,8 +652,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         if (bindFinish.isKeyDown()
             && selectedItem != null
             && bindFinishToggle.compareAndSet(false, true)) {
-          Globals.printInform("Block place process started");
-          Globals.printInform("Type '.%s reset' to restart the process", getModName());
+          Common.printInform("Block place process started");
+          Common.printInform("Type '.%s reset' to restart the process", getModName());
           stage = Stage.READY;
         } else if (!bindFinish.isKeyDown()) {
           bindFinishToggle.set(false);
@@ -662,7 +662,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       }
       case READY: {
         if (bindFinish.isKeyDown() && bindFinishToggle.compareAndSet(false, true)) {
-          Globals.printInform("Block place process paused");
+          Common.printInform("Block place process paused");
           stage = Stage.CONFIRM;
         } else if (!bindFinish.isKeyDown()) {
           bindFinishToggle.set(false);
@@ -679,7 +679,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       currentRenderingTarget = null;
       return;
     }
-    if (cooldown.get() > 0 && FastReflection.Fields.Minecraft_rightClickDelayTimer.get(Globals.MC) > 0) {
+    if (cooldown.get() > 0 && FastReflection.Fields.Minecraft_rightClickDelayTimer.get(Common.MC) > 0) {
       return;
     }
     
@@ -707,8 +707,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             : LocalPlayerUtils.getServerDirectionVector();
     
     List<UniqueBlock> blocks =
-        BlockHelper.getBlocksInRadius(eyes, Globals.getPlayerController().getBlockReachDistance()).stream()
-            .filter(pos -> !Globals.getWorld().isAirBlock(pos))
+        BlockHelper.getBlocksInRadius(eyes, Common.getPlayerController().getBlockReachDistance()).stream()
+            .filter(pos -> !Common.getWorld().isAirBlock(pos))
             .map(BlockHelper::newUniqueBlock)
             .filter(this::isValidBlock)
             .filter(this::isClickable)
@@ -789,33 +789,33 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
           if (sneak) {
             // send start sneaking packet
-            PacketHelper.ignoreAndSend(new CEntityActionPacket(Globals.getLocalPlayer(),
+            PacketHelper.ignoreAndSend(new CEntityActionPacket(Common.getLocalPlayer(),
                 CEntityActionPacket.Action.PRESS_SHIFT_KEY));
             
             LocalPlayerUtils.setSneakingSuppression(true);
             LocalPlayerUtils.setSneaking(true);
           }
           
-          Globals.getPlayerController().processRightClick(
-                  Globals.getLocalPlayer(),
-                  Globals.getWorld(),
+          Common.getPlayerController().processRightClick(
+                  Common.getLocalPlayer(),
+                  Common.getWorld(),
                   // TODO: need to actually face the block
                   Hand.MAIN_HAND);
           
           // stealth send swing packet
-          Globals.sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+          Common.sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
           
           if (sneak) {
             LocalPlayerUtils.setSneaking(false);
             LocalPlayerUtils.setSneakingSuppression(false);
             
-            Globals.sendNetworkPacket(new CEntityActionPacket(Globals.getLocalPlayer(), CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
+            Common.sendNetworkPacket(new CEntityActionPacket(Common.getLocalPlayer(), CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
           }
           
           func.revert();
           
           // set the block place delay
-          FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Globals.MC, cooldown.get());
+          FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Common.MC, cooldown.get());
         });
   }
   
@@ -965,7 +965,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
               
               // block
               reader.nextName();
-              Block block = Globals.getBlockRegistry().getValue(new ResourceLocation(reader.nextString()));
+              Block block = Common.getBlockRegistry().getValue(new ResourceLocation(reader.nextString()));
               
               // metadata
               reader.nextName();

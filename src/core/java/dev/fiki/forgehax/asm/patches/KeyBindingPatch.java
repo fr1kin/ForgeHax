@@ -30,7 +30,7 @@ public class KeyBindingPatch extends ClassTransformer {
       return TypesMc.Methods.KeyBinding_isKeyDown;
     }
     
-    @Inject(description = "Shut down forge's shit for GuiMove")
+    @Inject(value = "Shut down forge's shit for GuiMove")
     public void inject(MethodNode main) {
       AbstractInsnNode node =
         ASMHelper.findPattern(

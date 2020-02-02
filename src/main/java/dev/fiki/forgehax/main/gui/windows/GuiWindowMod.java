@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.gui.windows;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.gui.elements.GuiButton;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
@@ -41,7 +41,7 @@ public class GuiWindowMod extends GuiWindow {
   private void addModsToButtonList() {
     int maxWidth = 0;
     int newHeight = 0;
-    for (BaseMod mod : Globals.getModManager().getMods()) {
+    for (BaseMod mod : Common.getModManager().getMods()) {
       if (mod.getModCategory().equals(category) && !mod.isHidden()) {
         GuiButton moduleButton = new GuiButton(mod);
         buttonList.add(moduleButton);
@@ -60,7 +60,7 @@ public class GuiWindowMod extends GuiWindow {
   }
   
   private void drawModTooltip(BaseMod mod, int xScaled, int yScaled) {
-    int scale = (int) Globals.getMainWindow().getGuiScaleFactor();
+    int scale = (int) Common.getMainWindow().getGuiScaleFactor();
     
     String modName = mod.getModName();
     String modDescription = mod.getModDescription();
@@ -75,11 +75,11 @@ public class GuiWindowMod extends GuiWindow {
     int lineSpacing = 2;
     int tooltipHeight = lineHeight * 2 + lineSpacing + padding * 2;
     
-    if ((tooltipX + tooltipWidth) * scale > Globals.getScreenWidth()) {
+    if ((tooltipX + tooltipWidth) * scale > Common.getScreenWidth()) {
       tooltipX -= tooltipWidth + offset * 2;
     }
     
-    if ((tooltipY + tooltipHeight) * scale > Globals.getScreenHeight()) {
+    if ((tooltipY + tooltipHeight) * scale > Common.getScreenHeight()) {
       tooltipY -= tooltipHeight + offset * 2;
     }
     
@@ -111,10 +111,10 @@ public class GuiWindowMod extends GuiWindow {
 
     int buttonY = (int) windowY - buttonListOffset + 2;
     
-    int scale = (int) Globals.getMainWindow().getGuiScaleFactor();
+    int scale = (int) Common.getMainWindow().getGuiScaleFactor();
     
     GL11.glPushMatrix();
-    int scissorY = Globals.getScreenHeight() - (int)(scale * windowY + scale * height - 3);
+    int scissorY = Common.getScreenHeight() - (int)(scale * windowY + scale * height - 3);
     GL11.glScissor((int)(scale * posX), scissorY, scale * width, scale * height - 8);
     GL11.glEnable(GL11.GL_SCISSOR_TEST);
     for (GuiButton button : buttonList) {
@@ -137,7 +137,7 @@ public class GuiWindowMod extends GuiWindow {
   
   @Override
   public void drawTooltip(int mouseX, int mouseY) {
-    int scale = (int) Globals.getMainWindow().getGuiScaleFactor();
+    int scale = (int) Common.getMainWindow().getGuiScaleFactor();
     
     if (mouseX >= posX && mouseX < bottomX &&
       mouseY >= windowY + (5.f / scale) && mouseY < bottomY - (5.f / scale)) {

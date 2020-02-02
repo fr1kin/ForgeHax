@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.util.draw;
 
-import static dev.fiki.forgehax.main.Globals.MC;
+import static dev.fiki.forgehax.main.Common.MC;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
 import static org.lwjgl.opengl.GL11.GL_POLYGON;
@@ -216,14 +216,14 @@ public class SurfaceBuilder {
   private SurfaceBuilder text(String text, double x, double y, boolean shadow) {
     if (current().hasFontRenderer()) // use custom font renderer
     {
-      current()
-          .getFontRenderer()
-          .drawString(
-              text,
-              x,
-              y + 1 /*TTF font renderer needs to be offset by 1*/,
-              Color.of(current().getColor4d()).toBuffer(),
-              shadow);
+//      current()
+//          .getFontRenderer()
+//          .drawString(
+//              text,
+//              x,
+//              y + 1 /*TTF font renderer needs to be offset by 1*/,
+//              Color.of(current().getColor4d()).toBuffer(),
+//              shadow);
     } else {
       // use default minecraft font
 //      GlStateManager.pushMatrix();
@@ -276,7 +276,7 @@ public class SurfaceBuilder {
   
   public int getFontHeight() {
     return current().hasFontRenderer()
-        ? current().getFontRenderer().getHeight()
+        ? current().getFontRenderer().getStringHeight("")
         : MC.fontRenderer.FONT_HEIGHT;
   }
   

@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.common.ForgeHaxHooks;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
@@ -263,7 +263,7 @@ public class AntiAfkMod extends ToggleMod {
         ForgeHaxHooks.isSafeWalkActivated = true;
         Bindings.forward.bind();
         
-        Vec3d eye = EntityUtils.getEyePos(Globals.getLocalPlayer());
+        Vec3d eye = EntityUtils.getEyePos(Common.getLocalPlayer());
         
         List<Double> yaws = Lists.newArrayList();
         for (int i = 0; i < (360 / DEGREES); ++i) {
@@ -279,8 +279,8 @@ public class AntiAfkMod extends ToggleMod {
           RayTraceContext ctx = new RayTraceContext(eye, target,
               RayTraceContext.BlockMode.COLLIDER,
               RayTraceContext.FluidMode.ANY,
-              Globals.getLocalPlayer());
-          RayTraceResult result = Globals.getWorld().rayTraceBlocks(ctx);
+              Common.getLocalPlayer());
+          RayTraceResult result = Common.getWorld().rayTraceBlocks(ctx);
           double distance = RayTraceResult.Type.MISS.equals(result.getType()) ? 64.D :
               eye.distanceTo(result.getHitVec());
           if ((distance >= 1.D || lastDistance == -1.D)
@@ -295,8 +295,8 @@ public class AntiAfkMod extends ToggleMod {
       public void onStop() {
         Bindings.forward.setPressed(false);
         Bindings.forward.unbind();
-        Globals.getLocalPlayer().setMotion(Vec3d.ZERO);
-        Globals.getModManager().get(SafeWalkMod.class).ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled());
+        Common.getLocalPlayer().setMotion(Vec3d.ZERO);
+        Common.getModManager().get(SafeWalkMod.class).ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled());
       }
     },
     SPIN {
@@ -306,15 +306,15 @@ public class AntiAfkMod extends ToggleMod {
       @Override
       public void onTick() {
         setViewAngles(MathHelper.clamp(
-            Globals.getLocalPlayer().rotationPitch + MathHelper.cos(ang += 0.1f), -90.f, 90.f),
-            Globals.getLocalPlayer().rotationYaw + 1.8f);
+            Common.getLocalPlayer().rotationPitch + MathHelper.cos(ang += 0.1f), -90.f, 90.f),
+            Common.getLocalPlayer().rotationYaw + 1.8f);
       }
       
       @Override
       public void onStart() {
         ang = 0.f;
-        p = Globals.getLocalPlayer().rotationPitch;
-        y = Globals.getLocalPlayer().rotationYaw;
+        p = Common.getLocalPlayer().rotationPitch;
+        y = Common.getLocalPlayer().rotationYaw;
       }
       
       @Override
@@ -332,33 +332,33 @@ public class AntiAfkMod extends ToggleMod {
       
       RayTraceResult getTraceBelow() { // TODO: fix the trace so i dont have to do witchcraft in
         // getBlockBelow()
-        Vec3d eyes = EntityUtils.getEyePos(Globals.getLocalPlayer());
+        Vec3d eyes = EntityUtils.getEyePos(Common.getLocalPlayer());
         RayTraceContext ctx = new RayTraceContext(eyes,
-            eyes.add(0, -Globals.getPlayerController().getBlockReachDistance(), 0),
+            eyes.add(0, -Common.getPlayerController().getBlockReachDistance(), 0),
             RayTraceContext.BlockMode.COLLIDER,
             RayTraceContext.FluidMode.NONE,
-            Globals.getLocalPlayer());
-        return Globals.getWorld().rayTraceBlocks(ctx);
+            Common.getLocalPlayer());
+        return Common.getWorld().rayTraceBlocks(ctx);
       }
       
       BlockPos getBlockBelow() {
         RayTraceResult tr = getTraceBelow();
         BlockPos hit = new BlockPos(tr.getHitVec());
         return RayTraceResult.Type.MISS.equals(tr.getType()) ? BlockPos.ZERO :
-            (Globals.getWorld().getBlockState(hit.add(0, 1, 0))
+            (Common.getWorld().getBlockState(hit.add(0, 1, 0))
                 .getBlock()
                 .equals(Blocks.REDSTONE_WIRE) ? hit.add(0, 1, 0) : hit);
       }
       
       boolean isPlaced() {
-        return Globals.getWorld().getBlockState(getBlockBelow()).getBlock().equals(Blocks.REDSTONE_WIRE);
+        return Common.getWorld().getBlockState(getBlockBelow()).getBlock().equals(Blocks.REDSTONE_WIRE);
       }
       
       @Override
       public void onTick() {
         if (counter++ % (TPS * MULTIPLIER) == 0) {
           if (isPlaced()) {
-            Globals.sendNetworkPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.START_DESTROY_BLOCK,
+            Common.sendNetworkPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.START_DESTROY_BLOCK,
                 getBlockBelow(), Direction.UP));
             swingHand();
             return;
@@ -382,7 +382,7 @@ public class AntiAfkMod extends ToggleMod {
 
           BlockPos hit = new BlockPos(result.getHitVec());
 
-          if (!Blocks.REDSTONE_WIRE.isValidPosition(Globals.getWorld().getBlockState(hit), Globals.getWorld(), hit)) {
+          if (!Blocks.REDSTONE_WIRE.isValidPosition(Common.getWorld().getBlockState(hit), Common.getWorld(), hit)) {
             return; // can't place block
           }
           
@@ -391,7 +391,7 @@ public class AntiAfkMod extends ToggleMod {
 
           BlockRayTraceResult tr = new BlockRayTraceResult(result.getHitVec(), Direction.UP, hit, false);
           
-          Globals.sendNetworkPacket(new CPlayerTryUseItemOnBlockPacket(Hand.MAIN_HAND, tr));
+          Common.sendNetworkPacket(new CPlayerTryUseItemOnBlockPacket(Hand.MAIN_HAND, tr));
           swingHand();
           
           func.revert();
@@ -402,7 +402,7 @@ public class AntiAfkMod extends ToggleMod {
       public void onStart() {
         halting.reset();
         counter = TPS * MULTIPLIER - 1; // start by placing the block
-        p = Globals.getLocalPlayer().rotationPitch;
+        p = Common.getLocalPlayer().rotationPitch;
         
         BlockPos pos = getBlockBelow();
         Vec3d look = new Vec3d(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
@@ -420,7 +420,7 @@ public class AntiAfkMod extends ToggleMod {
         BlockPos below = getBlockBelow();
         return LocalPlayerInventory.getHotbarInventory().stream()
             .anyMatch(item -> ItemGroup.REDSTONE.equals(item.getItemStack().getItem().getGroup()))
-            && (Blocks.REDSTONE_WIRE.isValidPosition(Globals.getWorld().getBlockState(below), Globals.getWorld(), below) || isPlaced());
+            && (Blocks.REDSTONE_WIRE.isValidPosition(Common.getWorld().getBlockState(below), Common.getWorld(), below) || isPlaced());
         // return false; // disabled until functional
       }
       
@@ -454,9 +454,9 @@ public class AntiAfkMod extends ToggleMod {
     
     static void swingHand() {
       if (silent) {
-        Globals.getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+        Common.getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
       } else {
-        Globals.getLocalPlayer().swingArm(Hand.MAIN_HAND);
+        Common.getLocalPlayer().swingArm(Hand.MAIN_HAND);
       }
     }
     

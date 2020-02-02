@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.common.events.LeftClickCounterUpdateEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.key.Bindings;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -39,7 +39,7 @@ public class AutoMine extends ToggleMod {
   
   @SubscribeEvent
   public void onTick(TickEvent.ClientTickEvent event) {
-    if (!Globals.isInWorld()) {
+    if (!Common.isInWorld()) {
       return;
     }
     

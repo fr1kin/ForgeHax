@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -59,7 +59,7 @@ public class StorageESPMod extends ToggleMod {
   public void onRender(RenderEvent event) {
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
     
-    for (TileEntity tileEntity : Globals.getWorld().loadedTileEntityList) {
+    for (TileEntity tileEntity : Common.getWorld().loadedTileEntityList) {
       BlockPos pos = tileEntity.getPos();
       
       int color = getTileEntityColor(tileEntity);
@@ -68,7 +68,7 @@ public class StorageESPMod extends ToggleMod {
       }
     }
     
-    for (Entity entity : Globals.getWorld().getAllEntities()) {
+    for (Entity entity : Common.getWorld().getAllEntities()) {
       BlockPos pos = entity.getPosition();
       int color = getEntityColor(entity);
       if (color != -1) {

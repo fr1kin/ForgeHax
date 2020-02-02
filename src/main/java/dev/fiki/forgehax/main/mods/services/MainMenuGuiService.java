@@ -3,7 +3,7 @@ package dev.fiki.forgehax.main.mods.services;
 import static net.minecraft.util.text.TextFormatting.RED;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
@@ -49,8 +49,7 @@ public class MainMenuGuiService extends ServiceMod {
                 button.y += 24;
               }); // lower the rest of the buttons to make room for ours
       
-      event.getWidgetList()
-          .add(customButton = new Button(
+      event.addWidget(customButton = new Button(
               666, gui.width / 2 - 100,
               gui.height / 4 + 48 + (24 * 3), 24,
               "Command Input", this::onPressed));
@@ -58,7 +57,7 @@ public class MainMenuGuiService extends ServiceMod {
   }
 
   private void onPressed(Button button) {
-    Globals.setDisplayScreen(new CommandInputGui());
+    Common.setDisplayScreen(new CommandInputGui());
   }
   
   private static class CommandInputGui extends Screen {
@@ -85,13 +84,13 @@ public class MainMenuGuiService extends ServiceMod {
     }
 
     private void onBackPressed(Button button) {
-      Globals.closeDisplayScreen();
+      Common.closeDisplayScreen();
     }
 
     @Override
     public void init() {
       //Keyboard.enableRepeatEvents(true);
-      inputField = new TextFieldWidget(Globals.getFontRenderer(),
+      inputField = new TextFieldWidget(Common.getFontRenderer(),
           4, this.height - 12,
           this.width - 4, 12,
           "");
@@ -130,7 +129,7 @@ public class MainMenuGuiService extends ServiceMod {
       messageHistory.stream()
           .limit(100)
           .forEach(str -> {
-            Globals.getFontRenderer().drawString(str, 5, (this.height - 50 - offset.intValue()), Colors.WHITE.toBuffer());
+            Common.getFontRenderer().drawString(str, 5, (this.height - 50 - offset.intValue()), Colors.WHITE.toBuffer());
             offset.addAndGet(10);
           });
     }
@@ -138,7 +137,7 @@ public class MainMenuGuiService extends ServiceMod {
     @Override
     public boolean charTyped(char typedChar, int keyCode) {
       if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-        Globals.closeDisplayScreen();
+        Common.closeDisplayScreen();
       } else if (keyCode != GLFW.GLFW_KEY_ENTER && keyCode != GLFW.GLFW_KEY_KP_ENTER) {
         if (keyCode == GLFW.GLFW_KEY_UP) // up arrow
         {

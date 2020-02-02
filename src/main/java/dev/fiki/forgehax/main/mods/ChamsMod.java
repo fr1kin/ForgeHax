@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -47,7 +47,7 @@ public class ChamsMod extends ToggleMod {
   }
   
   public boolean shouldDraw(LivingEntity entity) {
-    return !entity.equals(Globals.MC.player)
+    return !entity.equals(Common.MC.player)
         && entity.isAlive()
         && ((mobs_hostile.get() && EntityUtils.isHostileMob(entity))
         || // check this first

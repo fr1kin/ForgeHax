@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods.services;
 
 import com.google.common.util.concurrent.FutureCallback;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ChatMessageEvent;
 import dev.fiki.forgehax.main.util.entity.PlayerInfo;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
@@ -52,7 +52,7 @@ public class ChatIdentifierService extends ServiceMod {
         final String messageSender = matcher.group(1);
         final String messageOnly = matcher.group(2);
         if (!Strings.isNullOrEmpty(messageSender)) {
-          for (NetworkPlayerInfo data : Globals.getLocalPlayer().connection.getPlayerInfoMap()) {
+          for (NetworkPlayerInfo data : Common.getLocalPlayer().connection.getPlayerInfoMap()) {
             if (
                 String.CASE_INSENSITIVE_ORDER
                     .compare(messageSender, data.getGameProfile().getName())
@@ -70,13 +70,13 @@ public class ChatIdentifierService extends ServiceMod {
   @SuppressWarnings("Duplicates")
   @SubscribeEvent
   public void onChatMessage(PacketInboundEvent event) {
-    if (Globals.getLocalPlayer() == null || Globals.getLocalPlayer().connection == null) {
+    if (Common.getLocalPlayer() == null || Common.getLocalPlayer().connection == null) {
       return;
     } else if (event.getPacket() instanceof SChatPacket) {
       SChatPacket packet = (SChatPacket) event.getPacket();
       String message = packet.getChatComponent().getUnformattedComponentText();
       if (!Strings.isNullOrEmpty(message)) {
-        Globals.addScheduledTask(() -> {
+        Common.addScheduledTask(() -> {
           // normal public messages
           if (extract(
               message,
@@ -115,7 +115,7 @@ public class ChatIdentifierService extends ServiceMod {
                         // now get the local player
                         if (sender != null) {
                           PlayerInfoHelper.registerWithCallback(
-                              Globals.getLocalPlayer().getGameProfile().getName(),
+                              Common.getLocalPlayer().getGameProfile().getName(),
                               new FutureCallback<PlayerInfo>() {
                                 @Override
                                 public void onSuccess(@Nullable PlayerInfo result) {
@@ -128,7 +128,7 @@ public class ChatIdentifierService extends ServiceMod {
                                 @Override
                                 public void onFailure(Throwable t) {
                                   PlayerInfoHelper.generateOfflineWithCallback(
-                                      Globals.getLocalPlayer().getGameProfile().getName(), this);
+                                      Common.getLocalPlayer().getGameProfile().getName(), this);
                                 }
                               });
                         }
@@ -156,7 +156,7 @@ public class ChatIdentifierService extends ServiceMod {
                         // now get the local player
                         if (receiver != null) {
                           PlayerInfoHelper.registerWithCallback(
-                              Globals.getLocalPlayer().getGameProfile().getName(),
+                              Common.getLocalPlayer().getGameProfile().getName(),
                               new FutureCallback<PlayerInfo>() {
                                 @Override
                                 public void onSuccess(@Nullable PlayerInfo sender) {
@@ -169,7 +169,7 @@ public class ChatIdentifierService extends ServiceMod {
                                 @Override
                                 public void onFailure(Throwable t) {
                                   PlayerInfoHelper.generateOfflineWithCallback(
-                                      Globals.getLocalPlayer().getGameProfile().getName(), this);
+                                      Common.getLocalPlayer().getGameProfile().getName(), this);
                                 }
                               });
                         }

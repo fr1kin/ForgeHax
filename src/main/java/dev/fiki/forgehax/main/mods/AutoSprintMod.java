@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Globals;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.key.Bindings;
@@ -35,8 +35,8 @@ public class AutoSprintMod extends ToggleMod {
   private void startSprinting() {
     switch (mode.get()) {
       case ALWAYS:
-        if (!Globals.getLocalPlayer().collidedHorizontally && !Globals.getLocalPlayer().isSprinting()) {
-          Globals.getLocalPlayer().setSprinting(true);
+        if (!Common.getLocalPlayer().collidedHorizontally && !Common.getLocalPlayer().isSprinting()) {
+          Common.getLocalPlayer().setSprinting(true);
         }
         break;
       default:
