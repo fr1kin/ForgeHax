@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.*;
 import dev.fiki.forgehax.main.util.cmd.argument.ConverterArgument;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
@@ -33,7 +34,7 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
   private static final List<KeyBindingSetting> registry = Lists.newCopyOnWriteArrayList();
 
   @Getter
-  private final KeyBinding keyBinding;
+  private KeyBinding keyBinding;
 
   private Multimap<Class<? extends ICommandListener>, ICommandListener> listeners;
 
@@ -47,15 +48,20 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
       @Singular List<IKeyPressedListener> keyPressedListeners,
       @Singular List<IKeyReleasedListener> keyReleasedListeners) {
     super(parent, name, aliases, description, flags);
-    this.keyBinding = new KeyBinding(keyName,
-        MoreObjects.firstNonNull(keyInput, INPUT_INVALID).getKeyCode(),
-        keyCategory);
-    BindingHelper.addBinding(this.keyBinding);
     addListeners(ISettingValueChanged.class, changedListeners);
     addListeners(IKeyDownListener.class, keyDownListeners);
     addListeners(IKeyPressedListener.class, keyPressedListeners);
     addListeners(IKeyReleasedListener.class, keyReleasedListeners);
     registry.add(this);
+
+    // do this on the main thread
+    Common.addScheduledTask(() -> {
+      this.keyBinding = new KeyBinding(keyName,
+          MoreObjects.firstNonNull(keyInput, INPUT_INVALID).getKeyCode(),
+          keyCategory);
+
+      BindingHelper.addBinding(this.keyBinding);
+    });
   }
 
   public Input getKeyInput() {
