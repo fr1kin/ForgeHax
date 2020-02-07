@@ -6,13 +6,14 @@ import dev.fiki.forgehax.main.events.ConnectToServerEvent;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.entity.PlayerInfo;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.SimpleTimer;
 import com.mojang.authlib.GameProfile;
+
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,32 +32,27 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 @RegisterMod
 public class ScoreboardListenerService extends ServiceMod {
-  
-  private final Setting<Integer> wait =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("wait")
-          .description("Time to wait after joining world")
-          .defaultTo(5000)
-          .build();
-  private final Setting<Integer> retries =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("retries")
-          .description("Number of times to attempt retries on failure")
-          .defaultTo(1)
-          .build();
-  
+
+  private final IntegerSetting wait = newIntegerSetting()
+      .name("wait")
+      .description("Time to wait after joining world")
+      .defaultTo(5000)
+      .build();
+
+  private final IntegerSetting retries = newIntegerSetting()
+      .name("retries")
+      .description("Number of times to attempt retries on failure")
+      .defaultTo(1)
+      .build();
+
   private final SimpleTimer timer = new SimpleTimer();
-  
+
   private boolean ignore = false;
-  
+
   public ScoreboardListenerService() {
     super("ScoreboardListenerService", "Listens for player joining and leaving");
   }
-  
+
   private void fireEvents(Action action, PlayerInfo info, GameProfile profile) {
     if (ignore || info == null) {
       return;
@@ -72,23 +68,23 @@ public class ScoreboardListenerService extends ServiceMod {
       }
     }
   }
-  
+
   @SubscribeEvent
   public void onClientConnect(ConnectToServerEvent event) {
     ignore = false;
   }
-  
+
   @SubscribeEvent
   public void onClientDisconnect(DisconnectFromServerEvent event) {
     ignore = false;
   }
-  
+
   @SubscribeEvent
   public void onPacketIn(PacketInboundEvent event) {
-    if (ignore && timer.isStarted() && timer.hasTimeElapsed(wait.get())) {
+    if (ignore && timer.isStarted() && timer.hasTimeElapsed(wait.getValue())) {
       ignore = false;
     }
-    
+
     if (!ignore && event.getPacket() instanceof SCustomPayloadPlayPacket) {
       ignore = true;
       timer.start();
@@ -97,7 +93,7 @@ public class ScoreboardListenerService extends ServiceMod {
       timer.reset();
     }
   }
-  
+
   @SubscribeEvent
   public void onScoreboardEvent(PacketInboundEvent event) {
     if (event.getPacket() instanceof SPlayerListItemPacket) {
@@ -105,14 +101,14 @@ public class ScoreboardListenerService extends ServiceMod {
       if (!Action.ADD_PLAYER.equals(packet.getAction()) && !Action.REMOVE_PLAYER.equals(packet.getAction())) {
         return;
       }
-      
+
       packet.getEntries().stream()
           .filter(Objects::nonNull)
           .filter(data -> !Strings.isNullOrEmpty(data.getProfile().getName()) || data.getProfile().getId() != null)
           .forEach(data -> {
             final String name = data.getProfile().getName();
             final UUID id = data.getProfile().getId();
-            final AtomicInteger retries = new AtomicInteger(this.retries.get());
+            final AtomicInteger retries = new AtomicInteger(this.retries.getValue());
             PlayerInfoHelper.registerWithCallback(id, name, new FutureCallback<PlayerInfo>() {
               @Override
               public void onSuccess(@Nullable PlayerInfo result) {

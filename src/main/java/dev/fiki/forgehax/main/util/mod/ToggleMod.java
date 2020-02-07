@@ -1,32 +1,30 @@
 package dev.fiki.forgehax.main.util.mod;
 
-import dev.fiki.forgehax.main.util.command.Setting;
-import dev.fiki.forgehax.main.util.command.StubBuilder;
-import dev.fiki.forgehax.main.util.command.callbacks.CallbackData;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import lombok.AccessLevel;
+import lombok.Getter;
+import net.minecraft.client.settings.KeyBinding;
 
-public class ToggleMod extends BaseMod {
-  
-  private final Setting<Boolean> enabled;
+import java.util.Collections;
+
+@Getter
+public class ToggleMod extends KeyBoundMod {
+  private final BooleanSetting enabledSetting;
   
   public ToggleMod(Category category, String modName, boolean defaultValue, String description) {
-    super(category, modName, description);
-    this.enabled =
-        getCommandStub()
-            .builders()
-            .<Boolean>newSettingBuilder()
-            .name("enabled")
-            .description("Enables the mod")
-            .defaultTo(defaultValue)
-            .changed(
-                cb -> { // value is set after callback is ran 🤡
-                  // do not call anything that might infinitely call this callback
-                  if (cb.getTo()) {
-                    start();
-                  } else {
-                    stop();
-                  }
-                })
-            .build();
+    super(category, modName, description, Collections.emptySet());
+    this.enabledSetting = newBooleanSetting()
+        .name("enabled")
+        .description("Enables the mod")
+        .defaultTo(defaultValue)
+        .changedListener((from, to) -> {
+          if(to) {
+            start();
+          } else {
+            stop();
+          }
+        })
+        .build();
   }
   
   /**
@@ -42,27 +40,12 @@ public class ToggleMod extends BaseMod {
   
   @Override
   public void enable() {
-    enabled.set(true);
+    enabledSetting.setValue(true);
   }
   
   @Override
   public void disable() {
-    enabled.set(false);
-  }
-  
-  @Override
-  protected StubBuilder buildStubCommand(StubBuilder builder) {
-    return builder.kpressed(this::onBindPressed).kdown(this::onBindKeyDown).bind();
-  }
-  
-  @Override
-  public String getDebugDisplayText() {
-    return super.getDebugDisplayText();
-  }
-  
-  @Override
-  public boolean isHidden() {
-    return false;
+    enabledSetting.setValue(false);
   }
   
   /**
@@ -70,34 +53,29 @@ public class ToggleMod extends BaseMod {
    */
   @Override
   public final boolean isEnabled() {
-    return enabled.get();
+    return enabledSetting.getValue();
   }
   
   @Override
-  protected void onLoad() {
-  }
+  protected void onLoad() { }
   
   @Override
-  protected void onUnload() {
-  }
+  protected void onUnload() { }
   
   @Override
-  protected void onEnabled() {
-  }
+  protected void onEnabled() { }
   
   @Override
-  protected void onDisabled() {
-  }
-  
-  /**
-   * Toggles the mod
-   */
+  protected void onDisabled() { }
+
   @Override
-  public void onBindPressed(CallbackData cb) {
+  public void onKeyPressed(KeyBinding key) {
     toggle();
   }
-  
+
   @Override
-  protected void onBindKeyDown(CallbackData cb) {
-  }
+  public void onKeyDown(KeyBinding key) { }
+
+  @Override
+  public void onKeyReleased(KeyBinding key) { }
 }

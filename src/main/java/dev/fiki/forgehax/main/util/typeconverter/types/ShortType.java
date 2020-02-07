@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.util.typeconverter.types;
 
-import dev.fiki.forgehax.main.util.SafeConverter;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
 import java.util.Comparator;
 import javax.annotation.Nullable;
@@ -22,11 +21,11 @@ public class ShortType extends TypeConverter<Short> {
   
   @Override
   public Short parse(String value) {
-    return SafeConverter.toShort(value);
+    return Short.parseShort(value);
   }
   
   @Override
-  public String toString(Short value) {
+  public String convert(Short value) {
     return Short.toString(value);
   }
   

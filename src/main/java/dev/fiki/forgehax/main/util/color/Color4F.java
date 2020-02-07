@@ -87,16 +87,4 @@ public class Color4F extends Color {
   public float[] toFloatArray() {
     return Arrays.copyOf(color, color.length);
   }
-  
-  @Override
-  public String toString() {
-    return String.format(
-        "r=%.2f,g=%.2f,b=%.2f,a=%.2f",
-        getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat());
-  }
-  
-  @Override
-  public int hashCode() {
-    return Arrays.hashCode(color);
-  }
 }

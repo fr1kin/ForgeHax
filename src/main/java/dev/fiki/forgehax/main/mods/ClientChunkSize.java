@@ -26,20 +26,20 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class ClientChunkSize extends ToggleMod {
-  
+
   private static final File DUMMY = Common.getFileManager().getBaseResolve("dummy").toFile();
-  
+
   private final SimpleTimer timer = new SimpleTimer();
-  
+
   private boolean running = false;
   private long size = 0L;
   private long previousSize = 0L;
   private ChunkPos current = null;
-  
+
   public ClientChunkSize() {
     super(Category.MISC, "ClientChunkSize", false, "Shows the client-side chunk size in bytes");
   }
-  
+
   private static String toFormattedBytes(long size) {
     NumberFormat format = NumberFormat.getInstance();
     format.setGroupingUsed(true);
@@ -53,7 +53,7 @@ public class ClientChunkSize extends ToggleMod {
       return format.format((double) size / 1000000.D) + " MB";
     }
   }
-  
+
   private static String difference(long size) {
     if (size == 0) {
       return "+0 B";
@@ -64,7 +64,7 @@ public class ClientChunkSize extends ToggleMod {
       return "-" + toFormattedBytes(Math.abs(size));
     }
   }
-  
+
   @Override
   protected void onEnabled() {
     timer.reset();
@@ -72,7 +72,7 @@ public class ClientChunkSize extends ToggleMod {
     size = previousSize = 0L;
     current = null;
   }
-  
+
   @Override
   public String getDisplayText() {
     return super.getDisplayText()
@@ -81,7 +81,7 @@ public class ClientChunkSize extends ToggleMod {
         "[%s | %s]",
         size == -1 ? "<error>" : toFormattedBytes(size), difference(size - previousSize));
   }
-  
+
   @SubscribeEvent
   public void onTick(ClientTickEvent.Pre event) {
     if (!Common.isInWorld() || running) {

@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.util.typeconverter.types;
 
-import dev.fiki.forgehax.main.util.SafeConverter;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
 import java.util.Comparator;
 import javax.annotation.Nullable;
@@ -22,11 +21,11 @@ public class BooleanType extends TypeConverter<Boolean> {
   
   @Override
   public Boolean parse(String value) {
-    return SafeConverter.toBoolean(value);
+    return value.toLowerCase().matches("true|tru|tr|t|enabled|enable|enabl|enab|ena|en|e|on|1");
   }
   
   @Override
-  public String toString(Boolean value) {
+  public String convert(Boolean value) {
     return Boolean.toString(value);
   }
   

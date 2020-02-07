@@ -1,20 +1,15 @@
 package dev.fiki.forgehax.main.util.typeconverter;
 
-import dev.fiki.forgehax.main.util.typeconverter.types.BooleanType;
-import dev.fiki.forgehax.main.util.typeconverter.types.ByteType;
-import dev.fiki.forgehax.main.util.typeconverter.types.CharacterType;
-import dev.fiki.forgehax.main.util.typeconverter.types.DoubleType;
-import dev.fiki.forgehax.main.util.typeconverter.types.FloatType;
-import dev.fiki.forgehax.main.util.typeconverter.types.IntegerType;
-import dev.fiki.forgehax.main.util.typeconverter.types.LongType;
-import dev.fiki.forgehax.main.util.typeconverter.types.ShortType;
-import dev.fiki.forgehax.main.util.typeconverter.types.StringType;
+import dev.fiki.forgehax.main.util.color.Color;
+import dev.fiki.forgehax.main.util.typeconverter.types.*;
+import net.minecraft.client.util.InputMappings;
+
+import java.util.regex.Pattern;
 
 /**
  * Created on 3/23/2017 by fr1kin
  */
 public interface TypeConverters {
-  
   TypeConverter<Boolean> BOOLEAN = new BooleanType();
   TypeConverter<Byte> BYTE = new ByteType();
   TypeConverter<Character> CHARACTER = new CharacterType();
@@ -24,4 +19,9 @@ public interface TypeConverters {
   TypeConverter<Long> LONG = new LongType();
   TypeConverter<Short> SHORT = new ShortType();
   TypeConverter<String> STRING = new StringType();
+  TypeConverter<String> STRING_CASE_INSENSITIVE = new StringType.CaseInsensitive();
+
+  TypeConverter<Color> COLOR = new ColorType();
+  TypeConverter<InputMappings.Input> INPUT = new InputType();
+  TypeConverter<Pattern> PATTERN = new PatternType();
 }

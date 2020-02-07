@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.util.typeconverter.types;
 
-import dev.fiki.forgehax.main.util.SafeConverter;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
 import java.util.Comparator;
 import javax.annotation.Nullable;
@@ -22,11 +21,11 @@ public class ByteType extends TypeConverter<Byte> {
   
   @Override
   public Byte parse(String value) {
-    return SafeConverter.toByte(value);
+    return Byte.parseByte(value);
   }
   
   @Override
-  public String toString(Byte value) {
+  public String convert(Byte value) {
     return Byte.toString(value);
   }
   

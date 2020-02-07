@@ -5,7 +5,8 @@ import dev.fiki.forgehax.common.ForgeHaxHooks;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.key.Bindings;
@@ -38,95 +39,74 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AntiAfkMod extends ToggleMod {
-  
-  private final Setting<Long> delay =
-      getCommandStub()
-          .builders()
-          .<Long>newSettingBuilder()
-          .name("delay")
-          .description("Delay time (in MS) between tasks")
-          .defaultTo(10_000L)
-          .min(0L)
-          .build();
-  private final Setting<Long> runtime =
-      getCommandStub()
-          .builders()
-          .<Long>newSettingBuilder()
-          .name("runtime")
-          .description("Time to run each task")
-          .defaultTo(5_000L)
-          .min(0L)
-          .build();
-  private final Setting<Boolean> silent =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("silent")
-          .description("Make most afk tasks execute without disrupting the players view")
-          .defaultTo(false)
-          .changed(cb -> TaskEnum.setSilent(cb.getTo()))
-          .build();
-  
-  private final Setting<Boolean> swing =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("swing")
-          .description("Swing the players arm")
-          .defaultTo(true)
-          .build();
-  private final Setting<Boolean> walk =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("walk")
-          .description("Walk in different directions")
-          .defaultTo(false)
-          .build();
-  private final Setting<Boolean> spin =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("spin")
-          .description("Spin the players view")
-          .defaultTo(false)
-          .build();
-  private final Setting<Boolean> mine =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("mine")
-          .description(
-              "Place and break a block that is in the players inventory. Only runs if the player has a block that can break in 1 hit and be placed under the player.")
-          .defaultTo(false)
-          .build();
-  
+
+  private final LongSetting delay = newLongSetting()
+      .name("delay")
+      .description("Delay time (in MS) between tasks")
+      .defaultTo(10_000L)
+      .min(0L)
+      .build();
+  private final LongSetting runtime = newLongSetting()
+      .name("runtime")
+      .description("Time to run each task")
+      .defaultTo(5_000L)
+      .min(0L)
+      .build();
+  private final BooleanSetting silent = newBooleanSetting()
+      .name("silent")
+      .description("Make most afk tasks execute without disrupting the players view")
+      .defaultTo(false)
+      .changedListener(((from, to) -> TaskEnum.setSilent(to)))
+      .build();
+
+  private final BooleanSetting swing = newBooleanSetting()
+      .name("swing")
+      .description("Swing the players arm")
+      .defaultTo(true)
+      .build();
+  private final BooleanSetting walk = newBooleanSetting()
+      .name("walk")
+      .description("Walk in different directions")
+      .defaultTo(false)
+      .build();
+  private final BooleanSetting spin = newBooleanSetting()
+      .name("spin")
+      .description("Spin the players view")
+      .defaultTo(false)
+      .build();
+  private final BooleanSetting mine = newBooleanSetting()
+      .name("mine")
+      .description("Place and break a block that is in the players inventory."
+          + "Only runs if the player has a block that can break in 1 hit and be placed under the player.")
+      .defaultTo(false)
+      .build();
+
   private final SimpleTimer timer = new SimpleTimer();
   private final AtomicBoolean ranStop = new AtomicBoolean(false);
-  
+
   private TaskEnum task = TaskEnum.NONE;
-  
+
   public AntiAfkMod() {
     super(Category.PLAYER, "AntiAFK", false, "Swing arm to prevent being afk kicked");
-    
+
     TaskEnum.SWING.setParentSetting(swing);
     TaskEnum.WALK.setParentSetting(walk);
     TaskEnum.SPIN.setParentSetting(spin);
     TaskEnum.MINE.setParentSetting(mine);
   }
-  
+
   private TaskEnum getTask() {
     return task;
   }
-  
+
   private void setTask(TaskEnum task) {
     this.task = task;
   }
-  
+
   private boolean isTaskRunning() {
     return !getTask().equals(TaskEnum.NONE);
   }
-  
+
   private List<TaskEnum> getNextTask() {
     return TaskEnum.ALL
         .stream()
@@ -134,19 +114,19 @@ public class AntiAfkMod extends ToggleMod {
         .filter(TaskEnum::isEnabled)
         .collect(Collectors.toList());
   }
-  
+
   private void reset() {
     timer.reset();
     ranStop.set(false);
     getTask().onStop();
     setTask(TaskEnum.NONE);
   }
-  
+
   @Override
   protected void onLoad() {
-    TaskEnum.setSilent(silent.get());
+    TaskEnum.setSilent(silent.getValue());
   }
-  
+
   @Override
   public String getDebugDisplayText() {
     return super.getDebugDisplayText()
@@ -156,33 +136,33 @@ public class AntiAfkMod extends ToggleMod {
         getTask().name(),
         isTaskRunning() ? "Running" : "Waiting",
         isTaskRunning()
-            ? (SimpleTimer.toFormattedTime(Math.max(runtime.get() - timer.getTimeElapsed(), 0)))
-            : (SimpleTimer.toFormattedTime(Math.max(delay.get() - timer.getTimeElapsed(), 0))));
+            ? (SimpleTimer.toFormattedTime(Math.max(runtime.getValue() - timer.getTimeElapsed(), 0)))
+            : (SimpleTimer.toFormattedTime(Math.max(delay.getValue() - timer.getTimeElapsed(), 0))));
   }
-  
+
   @SubscribeEvent
   public void onKeyboardInput(InputEvent.KeyInputEvent event) {
     reset();
   }
-  
+
   @SubscribeEvent
   public void onMouseEvent(InputEvent.MouseInputEvent event) {
     reset();
   }
-  
+
   @SubscribeEvent
   public void onDisconnect(DisconnectFromServerEvent event) {
     reset();
   }
-  
+
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (!timer.isStarted()) {
       timer.start(); // start timer if it hasn't already
     }
-    
+
     if (!isTaskRunning()) {
-      if (timer.hasTimeElapsed(delay.get())) {
+      if (timer.hasTimeElapsed(delay.getValue())) {
         List<TaskEnum> next = getNextTask();
         if (!next.isEmpty()) { // wait again to check if the task is valid
           setTask(
@@ -192,13 +172,13 @@ public class AntiAfkMod extends ToggleMod {
         timer.start();
       }
     } else {
-      if (timer.hasTimeElapsed(runtime.get())) {
+      if (timer.hasTimeElapsed(runtime.getValue())) {
         boolean prev = ranStop.get();
         if (ranStop.compareAndSet(false, true)) // only run once
         {
           getTask().onStop();
         }
-        
+
         if (getTask().isRunning()) {
           if (prev == ranStop.get()) {
             getTask().onTick(); // only run if this task did not execute onStop() on the same tick
@@ -213,21 +193,21 @@ public class AntiAfkMod extends ToggleMod {
       }
     }
   }
-  
+
   enum TaskEnum implements IAFKTask {
     NONE {
       @Override
       public void onTick() {
       }
-      
+
       @Override
       public void onStart() {
       }
-      
+
       @Override
       public void onStop() {
       }
-      
+
       @Override
       public boolean isRunnable() {
         return false;
@@ -237,11 +217,11 @@ public class AntiAfkMod extends ToggleMod {
       @Override
       public void onTick() {
       }
-      
+
       @Override
       public void onStart() {
       }
-      
+
       @Override
       public void onStop() {
         swingHand();
@@ -249,28 +229,28 @@ public class AntiAfkMod extends ToggleMod {
     },
     WALK {
       static final int DEGREES = 45;
-      
+
       double angle = 0;
-      
+
       @Override
       public void onTick() {
         Bindings.forward.setPressed(true);
         // TODO: reimplement view angle setting
       }
-      
+
       @Override
       public void onStart() {
         ForgeHaxHooks.isSafeWalkActivated = true;
         Bindings.forward.bind();
-        
+
         Vec3d eye = EntityUtils.getEyePos(Common.getLocalPlayer());
-        
+
         List<Double> yaws = Lists.newArrayList();
         for (int i = 0; i < (360 / DEGREES); ++i) {
           yaws.add((i * DEGREES) - 180.D);
         }
         Collections.shuffle(yaws);
-        
+
         double lastDistance = -1.D;
         for (double y : yaws) {
           double[] cc = Angle.degrees(0.f, (float) y).getForwardVector();
@@ -290,7 +270,7 @@ public class AntiAfkMod extends ToggleMod {
           }
         }
       }
-      
+
       @Override
       public void onStop() {
         Bindings.forward.setPressed(false);
@@ -302,21 +282,21 @@ public class AntiAfkMod extends ToggleMod {
     SPIN {
       float ang = 0.f;
       double p,y;
-      
+
       @Override
       public void onTick() {
         setViewAngles(MathHelper.clamp(
             Common.getLocalPlayer().rotationPitch + MathHelper.cos(ang += 0.1f), -90.f, 90.f),
             Common.getLocalPlayer().rotationYaw + 1.8f);
       }
-      
+
       @Override
       public void onStart() {
         ang = 0.f;
         p = Common.getLocalPlayer().rotationPitch;
         y = Common.getLocalPlayer().rotationYaw;
       }
-      
+
       @Override
       public void onStop() {
         setViewAngles(p, y);
@@ -324,12 +304,12 @@ public class AntiAfkMod extends ToggleMod {
     },
     MINE {
       static final int MULTIPLIER = 2;
-      
+
       final SimpleTimer halting = new SimpleTimer();
-      
+
       int counter = 0;
       double p;
-      
+
       RayTraceResult getTraceBelow() { // TODO: fix the trace so i dont have to do witchcraft in
         // getBlockBelow()
         Vec3d eyes = EntityUtils.getEyePos(Common.getLocalPlayer());
@@ -340,7 +320,7 @@ public class AntiAfkMod extends ToggleMod {
             Common.getLocalPlayer());
         return Common.getWorld().rayTraceBlocks(ctx);
       }
-      
+
       BlockPos getBlockBelow() {
         RayTraceResult tr = getTraceBelow();
         BlockPos hit = new BlockPos(tr.getHitVec());
@@ -349,11 +329,11 @@ public class AntiAfkMod extends ToggleMod {
                 .getBlock()
                 .equals(Blocks.REDSTONE_WIRE) ? hit.add(0, 1, 0) : hit);
       }
-      
+
       boolean isPlaced() {
         return Common.getWorld().getBlockState(getBlockBelow()).getBlock().equals(Blocks.REDSTONE_WIRE);
       }
-      
+
       @Override
       public void onTick() {
         if (counter++ % (TPS * MULTIPLIER) == 0) {
@@ -369,13 +349,13 @@ public class AntiAfkMod extends ToggleMod {
                   .filter(itm -> ItemGroup.REDSTONE.equals(itm.getItemStack().getItem().getGroup()))
                   .findAny()
                   .orElse(LocalPlayerInventory.InvItem.EMPTY);
-          
+
           if (item.isNull()) {
             return;
           }
-          
+
           RayTraceResult result = getTraceBelow();
-          
+
           if (RayTraceResult.Type.MISS.equals(result.getType())) {
             return;
           }
@@ -385,36 +365,36 @@ public class AntiAfkMod extends ToggleMod {
           if (!Blocks.REDSTONE_WIRE.isValidPosition(Common.getWorld().getBlockState(hit), Common.getWorld(), hit)) {
             return; // can't place block
           }
-          
+
           ResetFunction func = LocalPlayerInventory.setSelected(item);
           LocalPlayerInventory.syncSelected();
 
           BlockRayTraceResult tr = new BlockRayTraceResult(result.getHitVec(), Direction.UP, hit, false);
-          
+
           Common.sendNetworkPacket(new CPlayerTryUseItemOnBlockPacket(Hand.MAIN_HAND, tr));
           swingHand();
-          
+
           func.revert();
         }
       }
-      
+
       @Override
       public void onStart() {
         halting.reset();
         counter = TPS * MULTIPLIER - 1; // start by placing the block
         p = Common.getLocalPlayer().rotationPitch;
-        
+
         BlockPos pos = getBlockBelow();
         Vec3d look = new Vec3d(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
         Angle va = Utils.getLookAtAngles(look);
         setViewAngles(va.getPitch(), va.getYaw());
       }
-      
+
       @Override
       public void onStop() {
         halting.start();
       }
-      
+
       @Override
       public boolean isRunnable() {
         BlockPos below = getBlockBelow();
@@ -423,35 +403,35 @@ public class AntiAfkMod extends ToggleMod {
             && (Blocks.REDSTONE_WIRE.isValidPosition(Common.getWorld().getBlockState(below), Common.getWorld(), below) || isPlaced());
         // return false; // disabled until functional
       }
-      
+
       @Override
       public boolean isRunning() {
         return (!halting.isStarted() || !halting.hasTimeElapsed(5_000)) && isPlaced();
       }
     },
     ;
-    
-    Setting<Boolean> parentSetting;
-    
+
+    BooleanSetting parentSetting;
+
     TaskEnum() {
     }
-    
-    public void setParentSetting(Setting<Boolean> parentSetting) {
+
+    public void setParentSetting(BooleanSetting parentSetting) {
       this.parentSetting = parentSetting;
     }
-    
+
     public boolean isEnabled() {
       Objects.requireNonNull(parentSetting, "Setting must be set for all tasks in enum");
-      return parentSetting.get();
+      return parentSetting.getValue();
     }
-    
+
     //
     //
     //
-    
+
     static final int TPS = 20;
     static boolean silent = false;
-    
+
     static void swingHand() {
       if (silent) {
         Common.getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
@@ -459,39 +439,39 @@ public class AntiAfkMod extends ToggleMod {
         Common.getLocalPlayer().swingArm(Hand.MAIN_HAND);
       }
     }
-    
+
     static void setViewAngles(double p, double y) {
       /*
       if(silent)
           getNetworkManager().sendPacket(new CPacketPlayer.Rotation((float)p, (float)y, getLocalPlayer().onGround));
       else
           LocalPlayerUtils.setViewAngles(p, y);*/
-      
+
       // TODO: view angle stuff
     }
-    
+
     public static void setSilent(boolean silent) {
       TaskEnum.silent = silent;
     }
-    
+
     //
     //
-    
+
     public static final EnumSet<TaskEnum> ALL = EnumSet.allOf(TaskEnum.class);
   }
-  
+
   interface IAFKTask {
-    
+
     void onTick();
-    
+
     void onStart();
-    
+
     void onStop();
-    
+
     default boolean isRunnable() {
       return true;
     }
-    
+
     default boolean isRunning() {
       return false;
     }

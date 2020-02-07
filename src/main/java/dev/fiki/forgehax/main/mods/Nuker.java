@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import dev.fiki.forgehax.common.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
@@ -46,133 +48,114 @@ import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod
 public class Nuker extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
-  
-  private final KeyBinding bindSelect = new KeyBinding("Nuker Selection", -98, "ForgeHax");
-  
+
   private final List<UniqueBlock> targets = Lists.newArrayList();
   private final AtomicBoolean attackToggle = new AtomicBoolean(false);
-  
+
   private BlockPos currentTarget = null;
-  
-  private final Setting<Boolean> client_angles =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("client-angles")
-          .description("Sort the blocks to break by the clients angle instead of the servers")
-          .defaultTo(false)
-          .build();
-  
-  private final Setting<Boolean> bounded =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("bounded")
-          .description("Bound the nuker to a limited radius from the player")
-          .defaultTo(false)
-          .build();
-  
-  private final Setting<Double> height_upper =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("height-upper")
-          .description("Upper height (Y axis) limit")
-          .defaultTo(10.D)
-          .min(0.D)
-          .max(10.D)
-          .build();
-  private final Setting<Double> height_lower =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("height-lower")
-          .description("Lower height (Y axis) limit")
-          .defaultTo(10.D)
-          .min(0.D)
-          .max(10.D)
-          .build();
-  
-  private final Setting<Double> width_upper =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("width-upper")
-          .description("Upper width (X and Z axis) limit")
-          .defaultTo(10.D)
-          .min(0.D)
-          .max(10.D)
-          .build();
-  private final Setting<Double> width_lower =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("width-lower")
-          .description("Lower width (X and Z axis) limit")
-          .defaultTo(10.D)
-          .min(0.D)
-          .max(10.D)
-          .build();
-  
-  private final Setting<Boolean> filter_liquids =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("filter-liquids")
-          .description("Will not mine blocks that is a neighbors to a liquid block.")
-          .defaultTo(false)
-          .build();
-  
-  private final Setting<Boolean> y_bias =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("y-bias")
-          .description("Will prefer higher blocks (good for mining sand).")
-          .defaultTo(false)
-          .build();
-  
+
+  private final BooleanSetting client_angles = newBooleanSetting()
+      .name("client-angles")
+      .description("Sort the blocks to break by the clients angle instead of the servers")
+      .defaultTo(false)
+      .build();
+
+  private final BooleanSetting bounded = newBooleanSetting()
+      .name("bounded")
+      .description("Bound the nuker to a limited radius from the player")
+      .defaultTo(false)
+      .build();
+
+  private final DoubleSetting height_upper = newDoubleSetting()
+      .name("height-upper")
+      .description("Upper height (Y axis) limit")
+      .defaultTo(10.D)
+      .min(0.D)
+      .max(10.D)
+      .build();
+
+  private final DoubleSetting height_lower = newDoubleSetting()
+      .name("height-lower")
+      .description("Lower height (Y axis) limit")
+      .defaultTo(10.D)
+      .min(0.D)
+      .max(10.D)
+      .build();
+
+  private final DoubleSetting width_upper = newDoubleSetting()
+      .name("width-upper")
+      .description("Upper width (X and Z axis) limit")
+      .defaultTo(10.D)
+      .min(0.D)
+      .max(10.D)
+      .build();
+
+  private final DoubleSetting width_lower = newDoubleSetting()
+      .name("width-lower")
+      .description("Lower width (X and Z axis) limit")
+      .defaultTo(10.D)
+      .min(0.D)
+      .max(10.D)
+      .build();
+
+  private final BooleanSetting filter_liquids = newBooleanSetting()
+      .name("filter-liquids")
+      .description("Will not mine blocks that is a neighbors to a liquid block.")
+      .defaultTo(false)
+      .build();
+
+  private final BooleanSetting y_bias = newBooleanSetting()
+      .name("y-bias")
+      .description("Will prefer higher blocks (good for mining sand).")
+      .defaultTo(false)
+      .build();
+
+  private final KeyBindingSetting selectBind = newKeyBindingSetting()
+      .name("select-bind")
+      .description("Bind for the selection action")
+      .keyName("Nuker Selection")
+      .keyCategory("ForgeHax")
+      .build();
+
   public Nuker() {
     super(Category.PLAYER, "Nuker", false, "Mine blocks around yourself");
-    this.bindSelect.setKeyConflictContext(BindingHelper.getEmptyKeyConflictContext());
-    ClientRegistry.registerKeyBinding(this.bindSelect);
   }
-  
+
   private boolean isTargeting(UniqueBlock ub) {
     return targets.stream().anyMatch(ub::equals);
   }
-  
+
   private boolean isInBoundary(UniqueBlock ub) {
-    if (!bounded.get()) {
+    if (!bounded.getValue()) {
       return true;
     } else {
       Vec3d pos = ub.getCenteredPos().subtract(Common.getLocalPlayer().getPositionVector());
-      return pos.x < width_upper.get()
-          && pos.x > -width_lower.get()
-          && pos.y < height_upper.get()
-          && pos.y > -height_lower.get()
-          && pos.z < width_upper.get()
-          && pos.z > -width_lower.get();
+      return pos.x < width_upper.getValue()
+          && pos.x > -width_lower.getValue()
+          && pos.y < height_upper.getValue()
+          && pos.y > -height_lower.getValue()
+          && pos.z < width_upper.getValue()
+          && pos.z > -width_lower.getValue();
     }
   }
-  
+
   private boolean isNeighborsLiquid(UniqueBlock ub) {
-    return filter_liquids.get()
+    return filter_liquids.getValue()
         && Arrays.stream(Direction.values())
         .map(side -> ub.getPos().offset(side))
         .map(Common.getWorld()::getBlockState)
         .map(BlockState::getMaterial)
         .anyMatch(Material::isLiquid);
   }
-  
+
   private double getHeightBias(UniqueBlock ub) {
-    return !y_bias.get() ? 0.D : -ub.getCenteredPos().y;
+    return !y_bias.getValue() ? 0.D : -ub.getCenteredPos().y;
   }
-  
+
   private float getBlockBreakAmount() {
     return FastReflection.Fields.PlayerController_curBlockDamageMP.get(Common.getPlayerController());
   }
-  
+
   private void updateBlockBreaking(BlockPos target) {
     if (target == null && currentTarget != null) {
       resetBlockBreaking();
@@ -181,32 +164,32 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
       currentTarget = target;
     }
   }
-  
+
   private void resetBlockBreaking() {
     if (currentTarget != null) {
       Common.getPlayerController().resetBlockRemoving();
       currentTarget = null;
     }
   }
-  
+
   @Override
   protected void onEnabled() {
     PositionRotationManager.getManager().register(this, PriorityEnum.HIGH);
     printInform(
-        "Select blocks by looking at it and pressing %s", BindingHelper.getIndexName(bindSelect));
+        "Select blocks by looking at it and pressing %s", selectBind.getKeyInput().getTranslationKey());
   }
-  
+
   @Override
   protected void onDisabled() {
     PositionRotationManager.getManager().unregister(this);
   }
-  
+
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (bindSelect.isKeyDown() && attackToggle.compareAndSet(false, true)) {
+    if (selectBind.isKeyDown() && attackToggle.compareAndSet(false, true)) {
       UniqueBlock info = null;
       RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
-      
+
       if (tr == null && !targets.isEmpty()) {
         UniqueBlock ub = targets.remove(targets.size() - 1);
         printInform("Removed latest block %s", ub.toString());
@@ -215,16 +198,16 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
         // TODO: 1.15
         info = BlockHelper.newUniqueBlock(null);
       }
-      
+
       if (info == null) {
         return;
       }
-      
+
       if (info.isInvalid()) {
         Common.printWarning("Invalid block selected!");
         return;
       }
-      
+
       if (!targets.contains(info) && targets.add(info)) {
         printInform("Added block %s", info.toString());
       } else if (targets.remove(info)) {
@@ -232,33 +215,33 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
       } else {
         printError("Unknown error adding or removing block %s", info.toString());
       }
-    } else if (!bindSelect.isKeyDown()) {
+    } else if (!selectBind.isKeyDown()) {
       attackToggle.set(false);
     }
   }
-  
+
   @SubscribeEvent
   public void onBlockClick(BlockControllerProcessEvent event) {
     if (currentTarget != null) {
       event.setLeftClicked(false); // no block manual breaking while the nuker is running
     }
   }
-  
+
   @Override
   public void onLocalPlayerMovementUpdate(Local state) {
     if (targets.isEmpty()) {
       resetBlockBreaking();
       return;
     }
-    
+
     final Vec3d eyes = EntityUtils.getEyePos(Common.getLocalPlayer());
     final Vec3d dir =
-        client_angles.get()
+        client_angles.getValue()
             ? LocalPlayerUtils.getDirectionVector()
             : LocalPlayerUtils.getServerDirectionVector();
-    
+
     BlockTraceInfo trace = null;
-    
+
     if (currentTarget != null) {
       // verify the current target is still valid
       trace =
@@ -274,7 +257,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
         resetBlockBreaking();
       }
     }
-    
+
     if (currentTarget == null) {
       List<UniqueBlock> blocks =
           BlockHelper.getBlocksInRadius(eyes, Common.getPlayerController().getBlockReachDistance())
@@ -289,12 +272,12 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
                       .thenComparing(
                           ub -> VectorUtils.getCrosshairDistance(eyes, dir, ub.getCenteredPos())))
               .collect(Collectors.toList());
-      
+
       if (blocks.isEmpty()) {
         resetBlockBreaking();
         return;
       }
-      
+
       trace =
           blocks
               .stream()
@@ -303,15 +286,15 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
               .findFirst()
               .orElse(null);
     }
-    
+
     if (trace == null) {
       resetBlockBreaking();
       return;
     }
-    
+
     Angle va = Utils.getLookAtAngles(trace.getHitVec());
     state.setServerAngles(va);
-    
+
     final BlockTraceInfo tr = trace;
     state.invokeLater(
         rs -> {

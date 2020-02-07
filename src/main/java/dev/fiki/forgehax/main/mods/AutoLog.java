@@ -3,7 +3,8 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -15,6 +16,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.UUID;
 
+import static dev.fiki.forgehax.main.Common.*;
+
 @RegisterMod
 public class AutoLog extends ToggleMod {
   
@@ -22,41 +25,34 @@ public class AutoLog extends ToggleMod {
     super(Category.COMBAT, "AutoLog", false, "automatically disconnect");
   }
   
-  public final Setting<Integer> threshold =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
+  public final IntegerSetting threshold = newIntegerSetting()
           .name("threshold")
           .description("health to go down to to disconnect\"")
           .defaultTo(0)
           .build();
-  public final Setting<Boolean> noTotem =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("NoTotem")
+  
+  public final BooleanSetting noTotem = newBooleanSetting()
+          .name("no-totem")
           .description("disconnect if not holding a totem")
           .defaultTo(false)
           .build();
-  public final Setting<Boolean> disconnectOnNewPlayer =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("NewPlayer")
+  
+  public final BooleanSetting disconnectOnNewPlayer = newBooleanSetting()
+          .name("new-player")
           .description("Disconnect if a player enters render distance")
           .defaultTo(false)
           .build();
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (Common.MC.player != null) {
-      int health = (int) (Common.MC.player.getHealth() + Common.MC.player.getAbsorptionAmount());
-      if (health <= threshold.get()
-          || (noTotem.getAsBoolean()
-          && !((Common.MC.player.getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING)
-          || Common.MC.player.getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING))) {
+    if (getLocalPlayer() != null) {
+      int health = (int) (getLocalPlayer().getHealth() + getLocalPlayer().getAbsorptionAmount());
+      if (health <= threshold.getValue()
+          || (noTotem.getValue()
+          && !((getLocalPlayer().getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING)
+          || getLocalPlayer().getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING))) {
         AutoReconnectMod.hasAutoLogged = true;
-        Common.getNetworkManager().closeChannel(new StringTextComponent("Health too low (" + health + ")"));
+        getNetworkManager().closeChannel(new StringTextComponent("Health too low (" + health + ")"));
         disable();
       }
     }
@@ -65,14 +61,14 @@ public class AutoLog extends ToggleMod {
   @SubscribeEvent
   public void onPacketRecieved(PacketInboundEvent event) {
     if (event.getPacket() instanceof SSpawnPlayerPacket) {
-      if (disconnectOnNewPlayer.getAsBoolean()) {
+      if (disconnectOnNewPlayer.getValue()) {
         AutoReconnectMod.hasAutoLogged = true; // dont automatically reconnect
         UUID id = ((SSpawnPlayerPacket) event.getPacket()).getUniqueId();
         
-        NetworkPlayerInfo info = Common.MC.getConnection().getPlayerInfo(id);
+        NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(id);
         String name = info != null ? info.getGameProfile().getName() : "(Failed) " + id.toString();
         
-        Common.getNetworkManager().closeChannel(new StringTextComponent(name + " entered render distance"));
+        getNetworkManager().closeChannel(new StringTextComponent(name + " entered render distance"));
         disable();
       }
     }

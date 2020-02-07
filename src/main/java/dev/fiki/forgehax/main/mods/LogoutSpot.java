@@ -6,8 +6,9 @@ import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
-import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.math.Plane;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
@@ -29,68 +30,60 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import static dev.fiki.forgehax.main.Common.*;
+
 @RegisterMod
 public class LogoutSpot extends ToggleMod {
-  
-  private final Setting<Boolean> render =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("render")
-          .description("Draw a box where the player logged out")
-          .defaultTo(true)
-          .build();
-  private final Setting<Integer> max_distance =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("max-distance")
-          .description("Distance from box before deleting it")
-          .defaultTo(320)
-          .build();
-  private final Setting<Boolean> print_message =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("print-message")
-          .description("Print connect/disconnect messages in chat")
-          .defaultTo(true)
-          .build();
-  
+
+  private final BooleanSetting render = newBooleanSetting()
+      .name("render")
+      .description("Draw a box where the player logged out")
+      .defaultTo(true)
+      .build();
+
+  private final IntegerSetting max_distance = newIntegerSetting()
+      .name("max-distance")
+      .description("Distance from box before deleting it")
+      .defaultTo(320)
+      .build();
+
+  private final BooleanSetting print_message = newBooleanSetting()
+      .name("print-message")
+      .description("Print connect/disconnect messages in chat")
+      .defaultTo(true)
+      .build();
+
+  {
+    newSimpleCommand()
+        .name("clear")
+        .description("Clear cloned players")
+        .executor(args -> reset())
+        .build();
+  }
+
   private final Set<LogoutPos> spots = Sets.newHashSet();
-  
+
   public LogoutSpot() {
     super(Category.RENDER, "LogoutSpot", false, "show where a player logs out");
   }
-  
+
   private void reset() {
     synchronized (spots) {
       spots.clear();
     }
   }
-  
+
   private void printWarning(String fmt, Object... args) {
-    if (print_message.get()) {
+    if (print_message.getValue()) {
       printWarning(fmt, args);
     }
   }
-  
-  @Override
-  public void onLoad() {
-    getCommandStub()
-        .builders()
-        .newCommandBuilder()
-        .name("clear")
-        .description("Clear cloned players")
-        .processor(data -> reset())
-        .build();
-  }
-  
+
   @Override
   protected void onDisabled() {
     reset();
   }
-  
+
   @SubscribeEvent
   public void onPlayerConnect(PlayerConnectEvent.Join event) {
     synchronized (spots) {
@@ -99,15 +92,15 @@ public class LogoutSpot extends ToggleMod {
       }
     }
   }
-  
+
   @SubscribeEvent
   public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
-    if (Common.getWorld() == null) {
+    if (getWorld() == null) {
       return;
     }
-    
-    PlayerEntity player = Common.getWorld().getPlayerByUuid(event.getPlayerInfo().getId());
-    if (player != null && Common.getLocalPlayer() != null && !Common.getLocalPlayer().equals(player)) {
+
+    PlayerEntity player = getWorld().getPlayerByUuid(event.getPlayerInfo().getId());
+    if (player != null && getLocalPlayer() != null && !getLocalPlayer().equals(player)) {
       AxisAlignedBB bb = player.getBoundingBox();
       synchronized (spots) {
         if (spots.add(
@@ -121,20 +114,20 @@ public class LogoutSpot extends ToggleMod {
       }
     }
   }
-  
+
   @SubscribeEvent(priority = EventPriority.LOW)
   public void onRenderGameOverlayEvent(Render2DEvent event) {
-    if (!render.get()) {
+    if (!render.getValue()) {
       return;
     }
-    
+
     synchronized (spots) {
       spots.forEach(
           spot -> {
             Vec3d top = spot.getTopVec();
             Plane upper = VectorUtils.toScreen(top);
             if (upper.isVisible()) {
-              double distance = Common.getLocalPlayer().getPositionVector().distanceTo(top);
+              double distance = getLocalPlayer().getPositionVector().distanceTo(top);
               String name = String.format("%s (%.1f)", spot.getName(), distance);
               SurfaceHelper.drawTextShadow(
                   name,
@@ -145,15 +138,15 @@ public class LogoutSpot extends ToggleMod {
           });
     }
   }
-  
+
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    if (!render.get()) {
+    if (!render.getValue()) {
       return;
     }
-    
+
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-    
+
     synchronized (spots) {
       spots.forEach(
           spot ->
@@ -168,73 +161,71 @@ public class LogoutSpot extends ToggleMod {
                   GeometryMasks.Line.ALL,
                   Colors.RED.toBuffer()));
     }
-    
+
     event.getTessellator().draw();
   }
-  
+
   @SubscribeEvent
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (max_distance.get() > 0) {
+    if (max_distance.getValue() > 0) {
       synchronized (spots) {
-        spots.removeIf(
-            pos ->
-                Common.getLocalPlayer().getPositionVector().distanceTo(pos.getTopVec())
-                    > max_distance.getAsDouble());
+        spots.removeIf(pos -> getLocalPlayer().getPositionVector().distanceTo(pos.getTopVec())
+            > max_distance.getValue());
       }
     }
   }
-  
+
   @SubscribeEvent
   public void onWorldUnload(WorldEvent.Unload event) {
     reset();
   }
-  
+
   @SubscribeEvent
   public void onWorldLoad(WorldEvent.Load event) {
     reset();
   }
-  
+
   private static class LogoutPos {
-    
+
     final UUID id;
     final String name;
     final Vec3d maxs;
     final Vec3d mins;
-    
+
     private LogoutPos(UUID uuid, String name, Vec3d maxs, Vec3d mins) {
       this.id = uuid;
       this.name = name;
       this.maxs = maxs;
       this.mins = mins;
     }
-    
+
     public UUID getId() {
       return id;
     }
-    
+
     public String getName() {
       return name;
     }
-    
+
     public Vec3d getMaxs() {
       return maxs;
     }
-    
+
     public Vec3d getMins() {
       return mins;
     }
-    
+
     public Vec3d getTopVec() {
       return new Vec3d(
           (getMins().x + getMaxs().x) / 2.D, getMaxs().y, (getMins().z + getMaxs().z) / 2.D);
     }
-    
+
     @Override
     public boolean equals(Object other) {
       return this == other
           || (other instanceof LogoutPos && getId().equals(((LogoutPos) other).getId()));
     }
-    
+
     @Override
     public int hashCode() {
       return getId().hashCode();

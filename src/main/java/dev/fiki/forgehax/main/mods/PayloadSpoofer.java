@@ -22,23 +22,23 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 @RegisterMod
 public class PayloadSpoofer extends ToggleMod {
-  
+
   private static final Set<String> IGNORE_LIST = Sets.newHashSet();
-  
+
   static {
     IGNORE_LIST.add("WDL|INIT");
     IGNORE_LIST.add("WDL|CONTROL");
     IGNORE_LIST.add("WDL|REQUEST");
   }
-  
+
   public PayloadSpoofer() {
     super(Category.MISC, "PayloadSpoofer", false, "Will cancel packets sent by some mods");
   }
-  
+
   private boolean isBlockedPacket(String channel, PacketBuffer buffer) {
     if (IGNORE_LIST.contains(channel)) {
       return true;
-    } else if ("REGISTER".equals(channel)) {
+    } else if ("REGISTER" .equals(channel)) {
       Scanner scanner = new Scanner(new String(buffer.array()));
       scanner.useDelimiter("\\u0000");
       if (scanner.hasNext()) {
@@ -48,7 +48,7 @@ public class PayloadSpoofer extends ToggleMod {
     }
     return false;
   }
-  
+
   @SubscribeEvent(priority = EventPriority.HIGHEST)
   public void onIncomingPacket(PacketInboundEvent event) {
     if (event.getPacket() instanceof SCustomPayloadPlayPacket) {
@@ -59,7 +59,7 @@ public class PayloadSpoofer extends ToggleMod {
       }
     }
   }
-  
+
   @SubscribeEvent(priority = EventPriority.HIGHEST)
   public void onOutgoingPacket(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CCustomPayloadPacket) {

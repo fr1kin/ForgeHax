@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -14,35 +14,32 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoReconnectMod extends ToggleMod {
-  
+
   private static ServerData lastConnectedServer;
-  
+
   public static boolean hasAutoLogged =
       false; // used to disable autoreconnecting without disabling the entire mod
-  
+
   public void updateLastConnectedServer() {
     ServerData data = Common.MC.getCurrentServerData();
     if (data != null) {
       lastConnectedServer = data;
     }
   }
-  
-  public final Setting<Double> delay =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("delay")
-          .description("Delay between each reconnect attempt")
-          .defaultTo(5.D)
-          .build();
-  
+
+  public final DoubleSetting delay = newDoubleSetting()
+      .name("delay")
+      .description("Delay between each reconnect attempt")
+      .defaultTo(5.D)
+      .build();
+
   public AutoReconnectMod() {
     super(Category.MISC, "AutoReconnect", false, "Automatically reconnects to server");
   }
-  
+
   @SubscribeEvent
   public void onGuiOpened(GuiOpenEvent event) {
-    if(!hasAutoLogged && event.getGui() instanceof DisconnectedScreen) {
+    if (!hasAutoLogged && event.getGui() instanceof DisconnectedScreen) {
       DisconnectedScreen screen = (DisconnectedScreen) event.getGui();
       // TODO: 1.15 add button to screen using reflection
     }
@@ -62,13 +59,13 @@ public class AutoReconnectMod extends ToggleMod {
 //      }
 //    }
   }
-  
+
   @SubscribeEvent
   public void onWorldLoad(ClientWorldEvent.Load event) {
     // we got on the server or stopped joining, now undo queue
     hasAutoLogged = false; // make mod work when you rejoin
   }
-  
+
   @SubscribeEvent
   public void onWorldUnload(ClientWorldEvent.Unload event) {
     updateLastConnectedServer();

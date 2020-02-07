@@ -1,10 +1,13 @@
 package dev.fiki.forgehax.main.util.entry;
 
 import com.google.common.collect.Lists;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import dev.fiki.forgehax.main.util.serialization.ISerializableJson;
-import java.io.IOException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -13,25 +16,16 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created on 7/21/2017 by fr1kin
  */
-public class CustomMessageEntry implements ISerializableJson {
-  
-  private final UUID player;
+// TODO: 1.15
+public class CustomMessageEntry implements IJsonSerializable {
+
+  @Getter
+  @Setter
+  private UUID player;
   
   private final List<MessageEntry> messages = Lists.newCopyOnWriteArrayList();
   
-  public CustomMessageEntry(UUID name) {
-    this.player = name;
-  }
-  
-  public CustomMessageEntry(String uuid) {
-    this(UUID.fromString(uuid));
-  }
-  
-  /**
-   * The player this join message is for
-   */
-  public UUID getPlayer() {
-    return player;
+  public CustomMessageEntry() {
   }
   
   public List<MessageEntry> getMessages() {
@@ -54,9 +48,10 @@ public class CustomMessageEntry implements ISerializableJson {
   public void addMessage(UUID owner, String message) {
     MessageEntry entry = getEntry(owner);
     if (entry == null) {
-      entry = new MessageEntry(owner);
+      entry = new MessageEntry();
       messages.add(entry);
     }
+    entry.owner = owner;
     entry.setMessage(message);
   }
   
@@ -77,49 +72,40 @@ public class CustomMessageEntry implements ISerializableJson {
       messages.remove(getRandom());
     }
   }
-  
+
   @Override
-  public void serialize(JsonWriter writer) throws IOException {
-    writer.beginObject();
-    
-    writer.name("messages");
-    writer.beginArray();
-    for (MessageEntry entry : messages) {
-      writer.beginObject();
-      writer.name(entry.toString());
-      entry.serialize(writer);
-      writer.endObject();
+  public JsonElement serialize() {
+    JsonObject head = new JsonObject();
+
+    head.addProperty("uuid", getPlayer().toString());
+
+    JsonArray array = new JsonArray();
+
+    for(MessageEntry entry : messages) {
+      JsonObject object = new JsonObject();
+      object.addProperty("owner", entry.getOwner().toString());
+      object.addProperty("message", entry.getMessage());
+      array.add(object);
     }
-    writer.endArray();
-    
-    writer.endObject();
+
+    head.add("messages", array);
+
+    return head;
   }
-  
+
   @Override
-  public void deserialize(JsonReader reader) throws IOException {
-    reader.beginObject();
-    
-    while (reader.hasNext()) {
-      switch (reader.nextName()) {
-        case "messages":
-          reader.beginArray();
-          while (reader.hasNext()) {
-            reader.beginObject();
-            MessageEntry entry = new MessageEntry(UUID.fromString(reader.nextName()));
-            entry.deserialize(reader);
-            messages.add(entry);
-            reader.endObject();
-          }
-          reader.endArray();
-          break;
-        default:
-          break;
-      }
+  public void deserialize(JsonElement json) {
+    JsonObject head = json.getAsJsonObject();
+
+    player = UUID.fromString(head.get("uuid").getAsString());
+
+    for(JsonElement e : head.getAsJsonArray("messages")) {
+      MessageEntry me = new MessageEntry();
+      me.deserialize(e);
+      this.messages.add(me);
     }
-    
-    reader.endObject();
   }
-  
+
   @Override
   public boolean equals(Object obj) {
     return obj == this
@@ -138,14 +124,12 @@ public class CustomMessageEntry implements ISerializableJson {
     return player.toString();
   }
   
-  public static class MessageEntry implements ISerializableJson {
+  public static class MessageEntry implements IJsonSerializable {
     
-    private final UUID owner;
+    private UUID owner;
     private String message;
     
-    public MessageEntry(UUID owner) {
-      this.owner = owner;
-    }
+    public MessageEntry() { }
     
     public UUID getOwner() {
       return owner;
@@ -158,32 +142,23 @@ public class CustomMessageEntry implements ISerializableJson {
     public void setMessage(String message) {
       this.message = message;
     }
-    
+
     @Override
-    public void serialize(JsonWriter writer) throws IOException {
-      writer.beginObject();
-      
-      writer.name("msg");
-      writer.value(message);
-      
-      writer.endObject();
+    public JsonElement serialize() {
+      JsonObject object = new JsonObject();
+      object.addProperty("owner", owner.toString());
+      object.addProperty("message", message);
+      return object;
     }
-    
+
     @Override
-    public void deserialize(JsonReader reader) throws IOException {
-      reader.beginObject();
-      
-      while (reader.hasNext()) {
-        switch (reader.nextName()) {
-          case "msg":
-            setMessage(reader.nextString());
-            break;
-        }
-      }
-      
-      reader.endObject();
+    public void deserialize(JsonElement json) {
+      JsonObject object = json.getAsJsonObject();
+
+      this.owner = UUID.fromString(object.get("owner").getAsString());
+      this.message = object.get("message").getAsString();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
       return (obj instanceof MessageEntry && owner.equals(((MessageEntry) obj).owner))

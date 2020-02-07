@@ -2,7 +2,9 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.PatternSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -19,10 +21,10 @@ import java.util.regex.PatternSyntaxException;
 
 // made by BABBAJ
 
-@RegisterMod
+//@RegisterMod
 public class FancyChat extends ToggleMod {
-  
-  private enum MODE {
+
+  private enum Mode {
     FULL_WIDTH,
     CIRCLE,
     PARENTHESES,
@@ -31,7 +33,7 @@ public class FancyChat extends ToggleMod {
     WAVE,
     RANDOMCASE
   }
-  
+
   private static final String alphabet =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   private static final int[][] FONT = {
@@ -71,12 +73,12 @@ public class FancyChat extends ToggleMod {
           0x2B7, 0x2E3, 0x2B8, 0x1DBB, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39
       }
   };
-  
+
   // Uppercase Lookup for LEET
   private static HashMap<Integer, String> LeetMap = new HashMap<>();
   // Custom probability for rarely used LEET replacements
   private static HashMap<Integer, Integer> LeetProbability = new HashMap<>();
-  
+
   static {
     LeetMap.put(65, "4");
     LeetMap.put(69, "3");
@@ -113,136 +115,68 @@ public class FancyChat extends ToggleMod {
     LeetMap.put(88, "><");
     LeetProbability.put(88, 50);
   }
-  
-  private final Setting<MODE> font =
-      getCommandStub()
-          .builders()
-          .<MODE>newSettingEnumBuilder()
-          .name("font")
-          .description("Font to use")
-          .defaultTo(MODE.FULL_WIDTH)
-          .build();
-  
-  private Pattern prefixPattern;
-  private final Setting<String> prefixRegexp =
-      getCommandStub()
-          .builders()
-          .<String>newSettingBuilder()
-          .name("prefix")
-          .description("Command prefixes (RegExp)")
-          .defaultTo("/|//|\\!")
-          .requiredArgs(1)
-          .processor(
-              data -> {
-                try {
-                  Pattern.compile(data.getArgument(0));
-                  data.markSuccess();
-                  compileMessagePatterns();
-                } catch (PatternSyntaxException e) {
-                  Common.printError(
-                      String.format(
-                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
-                  data.markFailed();
-                }
-              })
-          .build();
-  
-  private Pattern command0ArgPattern;
-  private final Setting<String> command0ArgRegexp =
-      getCommandStub()
-          .builders()
-          .<String>newSettingBuilder()
-          .name("command0Arg")
-          .description("Commands where all text may be changed (RegExp)")
-          .defaultTo("r|reply")
-          .requiredArgs(1)
-          .processor(
-              data -> {
-                try {
-                  Pattern.compile(data.getArgument(0));
-                  data.markSuccess();
-                  compileMessagePatterns();
-                } catch (PatternSyntaxException e) {
-                  Common.printError(
-                      String.format(
-                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
-                  data.markFailed();
-                }
-              })
-          .build();
-  
-  private Pattern command1ArgPattern;
-  private final Setting<String> command1ArgRegexp =
-      getCommandStub()
-          .builders()
-          .<String>newSettingBuilder()
-          .name("command1Arg")
-          .description("Commands where only the first argument may not be changed (RegExp)")
-          .defaultTo("pm|tell|msg|message|w|whisper|nick|mail")
-          .requiredArgs(1)
-          .processor(
-              data -> {
-                try {
-                  Pattern.compile(data.getArgument(0));
-                  data.markSuccess();
-                  compileMessagePatterns();
-                } catch (PatternSyntaxException e) {
-                  Common.printError(
-                      String.format(
-                          "Error in new pattern %s: %s", e.getPattern(), e.getDescription()));
-                  data.markFailed();
-                }
-              })
-          .build();
-  
+
+  private final EnumSetting<Mode> font = newEnumSetting(Mode.class)
+      .name("font")
+      .description("Font to use")
+      .defaultTo(Mode.FULL_WIDTH)
+      .build();
+
+  private final PatternSetting prefixRegexp = newPatternSetting()
+      .name("prefix")
+      .description("Command prefixes (RegExp)")
+      .defaultTo(Pattern.compile("(^/|//|\\!)(\\w+)"))
+      .build();
+
+  private final PatternSetting command0ArgRegexp = newPatternSetting()
+      .name("command0Arg")
+      .description("Commands where all text may be changed (RegExp)")
+      .defaultTo(Pattern.compile("(r|reply)"))
+      .build();
+
+  private final PatternSetting command1ArgRegexp = newPatternSetting()
+      .name("command1Arg")
+      .description("Commands where only the first argument may not be changed (RegExp)")
+      .defaultTo(Pattern.compile("(pm|tell|msg|message|w|whisper|nick|mail)"))
+      .build();
+
   public FancyChat() {
     super(Category.MISC, "FancyChat", false, "meme text");
   }
-  
-  @Override
-  protected void onLoad() {
-    compileMessagePatterns();
-  }
-  
-  private void compileMessagePatterns() {
-    prefixPattern = Pattern.compile("(^" + prefixRegexp.get() + ")(\\w+)");
-    command0ArgPattern = Pattern.compile("(" + command0ArgRegexp.get() + ")");
-    command1ArgPattern = Pattern.compile("(" + command1ArgRegexp.get() + ")");
-  }
-  
+
   @SubscribeEvent
   public void onPacketSent(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CChatMessagePacket
         && !PacketHelper.isIgnored(event.getPacket())) {
-      
+
       boolean is0Arg = false;
       boolean is1Arg = false;
       boolean isIgnore = false;
-      
+
       String prefix = "";
       String command = "";
       String message;
       String arg1 = "";
-      
+
       String inputMessage = ((CChatMessagePacket) event.getPacket()).getMessage();
-      
-      Matcher prefixMatcher = prefixPattern.matcher(inputMessage);
+
+      Matcher prefixMatcher = prefixRegexp.getValue().matcher(inputMessage);
       if (prefixMatcher.find()) {
         prefix = prefixMatcher.group(1);
         command = prefixMatcher.group(2);
-        
-        Matcher cmd0ArgMatcher = command0ArgPattern.matcher(command);
-        Matcher cmd1ArgMatcher = command1ArgPattern.matcher(command);
-        
+
+        Matcher cmd0ArgMatcher = command0ArgRegexp.getValue().matcher(command);
+        Matcher cmd1ArgMatcher = command1ArgRegexp.getValue().matcher(command);
+
         // if command is found, make sure the match is not just a substring
         if (cmd0ArgMatcher.find() && command.length() == cmd0ArgMatcher.group().length()) {
           is0Arg = true;
           message = inputMessage.substring(prefixMatcher.end());
-          
+
         } else if (cmd1ArgMatcher.find() && command.length() == cmd1ArgMatcher.group().length()) {
           is1Arg = true;
           Matcher arg1Matcher = Pattern.compile(" .+? ").matcher(inputMessage);
-          
+
           if (arg1Matcher.find()) {
             arg1 = inputMessage.substring(arg1Matcher.start(), arg1Matcher.end()).trim();
             message = inputMessage.substring(arg1Matcher.end());
@@ -250,7 +184,7 @@ public class FancyChat extends ToggleMod {
             isIgnore = true;
             message = inputMessage;
           }
-          
+
         } else {
           message = inputMessage;
           // Completely ignore all unknown commands
@@ -259,16 +193,16 @@ public class FancyChat extends ToggleMod {
       } else {
         message = inputMessage;
       }
-      
+
       if (!isIgnore) {
         String messageOut = prettify(message);
-        
+
         if (is0Arg) {
           messageOut = prefix + command + " " + messageOut;
         } else if (is1Arg) {
           messageOut = prefix + command + " " + arg1 + " " + messageOut;
         }
-        
+
         if (Common.getNetworkManager() != null) {
           CChatMessagePacket packet = new CChatMessagePacket(messageOut);
           PacketHelper.ignore(packet);
@@ -278,16 +212,16 @@ public class FancyChat extends ToggleMod {
       }
     }
   }
-  
+
   private String makeLeet(String message) {
     char[] messageArray;
-    
+
     message = message.replaceAll("(?i)dude", "d00d").replaceAll("(^|\\s)ph", "$1f");
-    
+
     messageArray = message.toCharArray();
     // match and replace the last only S in a word
     Matcher zMatcher = Pattern.compile("(?<![sS])([sS])(?:[^\\w]|$)").matcher(message);
-    
+
     while (!zMatcher.hitEnd()) {
       if (zMatcher.find()) {
         if (zMatcher.group(1).equals("s")) {
@@ -297,7 +231,7 @@ public class FancyChat extends ToggleMod {
         }
       }
     }
-    
+
     StringBuilder builder = new StringBuilder();
     Random random = new Random();
     for (char c : messageArray) {
@@ -312,17 +246,17 @@ public class FancyChat extends ToggleMod {
         builder.append(c);
       }
     }
-    
+
     return builder.toString();
   }
-  
+
   private String makeWave(String message) {
     char[] messageArray = message.toCharArray();
     ThreadLocalRandom rand = ThreadLocalRandom.current();
     double span = rand.nextDouble(0.4D, 1.3D);
     double xoff = rand.nextDouble(0, 32);
     double yoff = rand.nextDouble(-0.4, 0.6);
-    
+
     for (int i = 0; i < messageArray.length; i++) {
       if (waveCharIsUpper(i, span, xoff, yoff)) {
         messageArray[i] = Character.toUpperCase(messageArray[i]);
@@ -330,11 +264,11 @@ public class FancyChat extends ToggleMod {
     }
     return new String(messageArray);
   }
-  
+
   private String randomCase(String message) {
     char[] messageArray = message.toCharArray();
     ThreadLocalRandom rand = ThreadLocalRandom.current();
-    
+
     for (int i = 0; i < messageArray.length; i++) {
       if (rand.nextBoolean()) {
         messageArray[i] = Character.toUpperCase(messageArray[i]);
@@ -344,17 +278,17 @@ public class FancyChat extends ToggleMod {
     }
     return new String(messageArray);
   }
-  
+
   private boolean waveCharIsUpper(double x, double span, double xoff, double yoff) {
     // defaults: span = 0.4, xoff=0, yoff=-0.5
     return Math.sin(x * span + xoff) + yoff > 0;
   }
-  
-  private String changeAlphabet(String message, MODE fontType) {
+
+  private String changeAlphabet(String message, Mode fontType) {
     char[] messageArray = message.toCharArray();
     int[] currentFont = FONT[fontType.ordinal()];
     int i = 0;
-    
+
     for (char c : messageArray) {
       int letterKey = alphabet.indexOf(c);
       if (letterKey != -1 && (c != (char) 0x3E)) {
@@ -364,9 +298,9 @@ public class FancyChat extends ToggleMod {
     }
     return new String(messageArray);
   }
-  
+
   public String prettify(String message) {
-    switch (font.get()) {
+    switch (font.getValue()) {
       case LEET:
         return makeLeet(message);
       case WAVE:
@@ -374,7 +308,7 @@ public class FancyChat extends ToggleMod {
       case RANDOMCASE:
         return randomCase(message);
       default:
-        return changeAlphabet(message, font.get());
+        return changeAlphabet(message, font.getValue());
     }
   }
 }

@@ -1,9 +1,7 @@
 package dev.fiki.forgehax.main.util.key;
 
-import com.google.common.collect.Maps;
-import java.util.Map;
-
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.settings.IKeyConflictContext;
@@ -12,7 +10,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class BindingHelper {
   
-  private static final Map<Integer, String> MOUSE_CODES = Maps.newHashMap();
   private static final IKeyConflictContext EMPTY = new IKeyConflictContext() {
     @Override
     public boolean isActive() {
@@ -24,19 +21,52 @@ public class BindingHelper {
       return false;
     }
   };
-  
-  static {
-    MOUSE_CODES.put(-100, "MOUSE_LEFT");
-    MOUSE_CODES.put(-99, "MOUSE_RIGHT");
-    MOUSE_CODES.put(-98, "MOUSE_MIDDLE");
+
+  private static String trimInputKeyName(InputMappings.Input input) {
+    int len;
+    if(!InputMappings.Type.MOUSE.equals(input.getType())) {
+      len = (input.getType().getName() + ".").length();
+    } else {
+      len = "key.".length();
+    }
+    return input.getTranslationKey().substring(len);
   }
   
-  public static String getIndexName(int code) {
-    return InputMappings.getInputByCode(code, 0).getTranslationKey();
-  }
+//  public static String getIndexName(int code) {
+//    return Arrays.stream(InputMappings.Type.values())
+//        .map(type -> type.getOrMakeInput(code))
+//        .filter(Objects::nonNull)
+//        .limit(1)
+//        .findAny()
+//        .map(InputMappings.Input::getTranslationKey)
+//        .orElse("unknown");
+//  }
   
-  public static String getIndexName(KeyBinding binding) {
-    return getIndexName(binding.getKey().getKeyCode());
+  public static InputMappings.Input getInputByName(String name) {
+    return FastReflection.Fields.InputMappings_REGISTRY.get(null)
+        .values()
+        .stream()
+        .filter(input -> input.getTranslationKey().equalsIgnoreCase(name)
+            || trimInputKeyName(input).equalsIgnoreCase(name))
+        .findAny()
+        .orElseThrow(() -> new Error("Unknown key: " + name));
+  }
+
+  public static InputMappings.Input getInputByKeyCode(int keyCode) {
+    return FastReflection.Fields.InputMappings_REGISTRY.get(null)
+        .values()
+        .stream()
+        .filter(input -> input.getKeyCode() == keyCode)
+        .findAny()
+        .orElse(getInputUnknown());
+  }
+
+  public static InputMappings.Input getInputUnknown() {
+    return InputMappings.INPUT_INVALID;
+  }
+
+  public static boolean isInputUnknown(InputMappings.Input input) {
+    return getInputUnknown().equals(input);
   }
   
   public static IKeyConflictContext getEmptyKeyConflictContext() {
@@ -58,5 +88,14 @@ public class BindingHelper {
     }
 
     return false;
+  }
+
+  public static KeyBinding getKeyBindByDescription(String desc) {
+    for(KeyBinding kb : Common.getGameSettings().keyBindings) {
+      if(kb.getKeyDescription().equalsIgnoreCase(desc)) {
+        return kb;
+      }
+    }
+    return null;
   }
 }

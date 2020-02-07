@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -19,24 +19,21 @@ import static dev.fiki.forgehax.main.Common.*;
  */
 @RegisterMod
 public class NoWeather extends ToggleMod {
-  
+
   private boolean isRaining = false;
   private float rainStrength = 0.f;
   private float previousRainStrength = 0.f;
-  
+
   public NoWeather() {
     super(Category.WORLD, "NoWeather", false, "Disables weather");
   }
-  
-  private final Setting<Boolean> showStatus =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("hudstatus")
-          .description("show info about suppressed weather")
-          .defaultTo(true)
-          .build();
-  
+
+  private final BooleanSetting showStatus = newBooleanSetting()
+      .name("hud-status")
+      .description("show info about suppressed weather")
+      .defaultTo(true)
+      .build();
+
   private void saveState(World world) {
     if (world != null) {
       setState(world.getWorldInfo().isRaining(), world.rainingStrength, world.prevRainingStrength);
@@ -44,24 +41,24 @@ public class NoWeather extends ToggleMod {
       setState(false, 1.f, 1.f);
     }
   }
-  
+
   private void setState(boolean raining, float rainStrength, float previousRainStrength) {
     this.isRaining = raining;
     setState(rainStrength, previousRainStrength);
   }
-  
+
   private void setState(float rainStrength, float previousRainStrength) {
     this.rainStrength = rainStrength;
     this.previousRainStrength = previousRainStrength;
   }
-  
+
   private void disableRain() {
     if (getWorld() != null) {
       getWorld().getWorldInfo().setRaining(false);
       getWorld().setRainStrength(0.f);
     }
   }
-  
+
   public void resetState() {
     if (getWorld() != null) {
       getWorld().getWorldInfo().setRaining(isRaining);
@@ -69,27 +66,27 @@ public class NoWeather extends ToggleMod {
       getWorld().prevRainingStrength = previousRainStrength;
     }
   }
-  
+
   @Override
   public void onEnabled() {
     saveState(getWorld());
   }
-  
+
   @Override
   public void onDisabled() {
     resetState();
   }
-  
+
   @SubscribeEvent
   public void onWorldChange(ClientWorldEvent event) {
     saveState(event.getWorld());
   }
-  
+
   @SubscribeEvent
   public void onWorldTick(TickEvent.ClientTickEvent event) {
     disableRain();
   }
-  
+
   @SubscribeEvent
   public void onPacketIncoming(PacketInboundEvent event) {
     if (event.getPacket() instanceof SChangeGameStatePacket) {
@@ -115,18 +112,18 @@ public class NoWeather extends ToggleMod {
       }
     }
   }
-  
+
   @Override
   public String getDisplayText() {
     if (isRaining
-        && showStatus.getAsBoolean()
+        && showStatus.getValue()
         && isInWorld()) {
       Biome biome = getWorld().getBiome(getLocalPlayer().getPosition());
       boolean canRain = Biome.RainType.RAIN.equals(biome.getPrecipitation());
       boolean canSnow = Biome.RainType.SNOW.equals(biome.getPrecipitation());
-      
+
       String status;
-      
+
       if (getWorld().isThundering()) {
         status = "[Thunder]";
       } else if (canSnow) {
@@ -136,7 +133,7 @@ public class NoWeather extends ToggleMod {
       } else {
         status = "[Raining]";
       }
-      
+
       return super.getDisplayText() + status;
     } else {
       return super.getDisplayText();

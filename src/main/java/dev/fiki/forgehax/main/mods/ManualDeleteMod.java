@@ -10,26 +10,28 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import static dev.fiki.forgehax.main.Common.*;
+
 @RegisterMod
 public class ManualDeleteMod extends ToggleMod {
-  
+
   public ManualDeleteMod() {
     super(Category.WORLD, "ManualEntityDelete", false,
         "Manually delete entities with middle click");
   }
-  
+
   @SubscribeEvent
   public void onInput(InputEvent.MouseInputEvent event) {
-    if (!Common.isInWorld()) {
+    if (!isInWorld()) {
       return;
     }
 
     if (event.getButton() == 2) { // on middle click
       RayTraceResult aim = LocalPlayerUtils.getViewTrace();
 
-      if(RayTraceResult.Type.ENTITY.equals(aim.getType()) && aim instanceof EntityRayTraceResult) {
+      if (RayTraceResult.Type.ENTITY.equals(aim.getType()) && aim instanceof EntityRayTraceResult) {
         EntityRayTraceResult tr = (EntityRayTraceResult) aim;
-        Common.getWorld().removeEntityFromWorld(tr.getEntity().getEntityId());
+        getWorld().removeEntityFromWorld(tr.getEntity().getEntityId());
       }
     }
   }

@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -12,20 +12,17 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AntiEffectsMod extends ToggleMod {
-  
-  public final Setting<Boolean> no_particles =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("no-particles")
-          .description("Stops the particle effect from rendering on other entities")
-          .defaultTo(true)
-          .build();
-  
+
+  public final BooleanSetting no_particles = newBooleanSetting()
+      .name("no-particles")
+      .description("Stops the particle effect from rendering on other entities")
+      .defaultTo(true)
+      .build();
+
   public AntiEffectsMod() {
     super(Category.RENDER, "AntiPotionEffects", false, "Removes potion effects");
   }
-  
+
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     event.getEntity().setInvisible(false);
@@ -39,7 +36,7 @@ public class AntiEffectsMod extends ToggleMod {
 
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
-    if(no_particles.get()) {
+    if (no_particles.getValue()) {
       event.getEntity().setInvisible(false);
       FastReflection.Methods.LivingEntity_resetPotionEffectMetadata.invoke(event.getEntityLiving());
     }

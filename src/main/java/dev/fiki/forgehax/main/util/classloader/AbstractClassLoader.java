@@ -85,7 +85,8 @@ public abstract class AbstractClassLoader<E> {
         | IllegalAccessException
         | InvocationTargetException
         | NoSuchMethodException e) {
-      getLogger().error(e);
+      getLogger().error("Failed to create new instance of {}", clazz.getSimpleName());
+      getLogger().error(e, e);
       return null;
     }
   }

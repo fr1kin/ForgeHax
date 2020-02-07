@@ -10,11 +10,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class HorseJump extends ToggleMod {
-  
+
   public HorseJump() {
     super(Category.PLAYER, "HorseJump", false, "always max horse jump");
   }
-  
+
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     FastReflection.Fields.ClientPlayerEntity_horseJumpPower.set(Common.getLocalPlayer(), 1.F);

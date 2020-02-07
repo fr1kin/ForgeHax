@@ -13,11 +13,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 @RegisterMod
 public class AntiLevitationMod extends ToggleMod {
-  
+
   public AntiLevitationMod() {
     super(Category.PLAYER, "AntiLevitation", false, "No levitation");
   }
-  
+
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (Common.getLocalPlayer().isPotionActive(Effects.LEVITATION)) {

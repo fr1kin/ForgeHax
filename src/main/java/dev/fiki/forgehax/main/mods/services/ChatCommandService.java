@@ -1,76 +1,64 @@
 package dev.fiki.forgehax.main.mods.services;
 
+import com.google.common.base.MoreObjects;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.CommandHelper;
-import dev.fiki.forgehax.main.util.command.Setting;
-import dev.fiki.forgehax.main.util.command.exception.CommandExecuteException;
-import dev.fiki.forgehax.main.util.console.ConsoleIO;
+import dev.fiki.forgehax.main.util.cmd.execution.CommandExecutor;
+import dev.fiki.forgehax.main.util.cmd.settings.CharacterSetting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.PacketHelper;
 import net.minecraft.network.play.client.CChatMessagePacket;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static dev.fiki.forgehax.main.Common.*;
 
 /**
  * Created on 5/15/2017 by fr1kin
  */
 @RegisterMod
 public class ChatCommandService extends ServiceMod {
-  
   private static Character ACTIVATION_CHARACTER = '.';
-  
+
   public static Character getActivationCharacter() {
     return ACTIVATION_CHARACTER;
   }
-  
-  public final Setting<Character> activationCharacter =
-      getCommandStub()
-          .builders()
-          .<Character>newSettingBuilder()
-          .name("activation_char")
-          .description("Activation character")
-          .defaultTo('.')
-          .changed(cb -> ACTIVATION_CHARACTER = cb.getTo())
-          .build();
-  
+
+  public final CharacterSetting activationCharacter = newCharacterSetting()
+      .name("activation-char")
+      .description("Activation character")
+      .defaultTo('.')
+      .changedListener((from, to) -> ACTIVATION_CHARACTER = to)
+      .build();
+
   public ChatCommandService() {
     super("ChatCommandService", "Listeners for activation key in chat messages typed");
   }
-  
+
   @Override
   protected void onLoad() {
-    ACTIVATION_CHARACTER = activationCharacter.get();
+    ACTIVATION_CHARACTER = activationCharacter.getValue();
   }
-  
+
   @SubscribeEvent
   public void onSendPacket(PacketOutboundEvent event) {
-    if (event.getPacket() instanceof CChatMessagePacket) {
+    if (event.getPacket() instanceof CChatMessagePacket && !PacketHelper.isIgnored(event.getPacket())) {
       String message = ((CChatMessagePacket) event.getPacket()).getMessage();
-      if (!PacketHelper.isIgnored(event.getPacket())
-          && message.startsWith(activationCharacter.getAsString()) && message.length() > 1) {
+      if (message.startsWith(activationCharacter.getValue().toString()) && message.length() > 1) {
         // cut out the . from the message
         String line = message.substring(1);
-        handleCommand(line);
+        print(line);
+        CommandExecutor.builder()
+            .console(getCurrentConsoleOutput())
+            .exceptionHandler(((throwable, output) -> {
+              output.error(MoreObjects.firstNonNull(throwable.getMessage(), throwable.getClass().getSimpleName()));
+              getLogger().debug(throwable, throwable);
+            }))
+            .build()
+            .runLine(line);
+
         event.setCanceled(true);
       }
     }
-  }
-  
-  // to be called from MainMenuGuiService
-  public static void handleCommand(String message) {
-    ConsoleIO.start();
-    ConsoleIO.write(message, ConsoleIO.HEADING);
-    ConsoleIO.incrementIndent();
-    try {
-      String[] arguments = CommandHelper.translate(message);
-      Common.GLOBAL_COMMAND.run(arguments);
-    } catch (Throwable t) {
-      if (!(t instanceof CommandExecuteException)) {
-        t.printStackTrace();
-      }
-      Common.printError(t.getMessage());
-    }
-    ConsoleIO.finished();
   }
 }

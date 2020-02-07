@@ -1,7 +1,6 @@
 package dev.fiki.forgehax.main.util.typeconverter.types;
 
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
-import dev.fiki.forgehax.main.util.SafeConverter;
 
 import java.util.Comparator;
 import javax.annotation.Nullable;
@@ -23,11 +22,11 @@ public class IntegerType extends TypeConverter<Integer> {
   
   @Override
   public Integer parse(String value) {
-    return SafeConverter.toInteger(value);
+    return Integer.parseInt(value);
   }
   
   @Override
-  public String toString(Integer value) {
+  public String convert(Integer value) {
     return Integer.toString(value);
   }
   

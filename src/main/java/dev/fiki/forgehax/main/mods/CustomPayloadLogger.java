@@ -20,16 +20,16 @@ import java.nio.file.StandardOpenOption;
  */
 @RegisterMod
 public class CustomPayloadLogger extends ToggleMod {
-  
+
   private static final Path CLIENT_PAYLOAD_LOG =
       Common.getFileManager().getMkBaseResolve("logs/payload/client2server_payload.log");
   private static final Path SERVER_PAYLOAD_LOG =
       Common.getFileManager().getMkBaseResolve("logs/payload/server2client_payload.log");
-  
+
   public CustomPayloadLogger() {
     super(Category.MISC, "PayloadLogger", false, "Logs custom payloads");
   }
-  
+
   private void log(IPacket packet) {
     if (packet instanceof SCustomPayloadPlayPacket) {
       SCustomPayloadPlayPacket payloadPacket = (SCustomPayloadPlayPacket) packet;
@@ -59,12 +59,12 @@ public class CustomPayloadLogger extends ToggleMod {
       }
     }
   }
-  
+
   @SubscribeEvent
   public void onOutgoingCustomPayload(PacketOutboundEvent event) {
     log(event.getPacket());
   }
-  
+
   @SubscribeEvent
   public void onIncomingCustomPayload(PacketInboundEvent event) {
     log(event.getPacket());

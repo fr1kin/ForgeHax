@@ -21,6 +21,7 @@ public class ChunkBorder extends ToggleMod {
 
   /**
    * to draw the border
+   *
    * @param event
    */
   @SubscribeEvent

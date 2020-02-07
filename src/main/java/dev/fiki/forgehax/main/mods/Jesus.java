@@ -5,7 +5,7 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.mod.BaseMod;
+import dev.fiki.forgehax.main.util.mod.AbstractMod;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -34,7 +34,7 @@ public class Jesus extends ToggleMod {
   
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (!Common.getModManager().get(FreecamMod.class).map(BaseMod::isEnabled).orElse(false)) {
+    if (!Common.getModManager().get(FreecamMod.class).map(AbstractMod::isEnabled).orElse(false)) {
       if (EntityUtils.isInWater(Common.getLocalPlayer()) && !Common.getLocalPlayer().isCrouching()) {
         double velY = 0.1;
         if (Common.getLocalPlayer().getRidingEntity() != null

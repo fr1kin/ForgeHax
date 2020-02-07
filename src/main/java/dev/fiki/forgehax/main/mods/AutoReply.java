@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -11,44 +11,35 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoReply extends ToggleMod {
-  
-  public final Setting<String> reply =
-      getCommandStub()
-          .builders()
-          .<String>newSettingBuilder()
-          .name("reply")
-          .description("Text to reply with")
-          .defaultTo("fuck off newfag")
-          .build();
-  
-  public final Setting<String> mode =
-      getCommandStub()
-          .builders()
-          .<String>newSettingBuilder()
-          .name("mode")
-          .description("Reply or chat")
-          .defaultTo("REPLY")
-          .build();
-  
-  public final Setting<String> search =
-      getCommandStub()
-          .builders()
-          .<String>newSettingBuilder()
-          .name("search")
-          .description("Text to search for in message")
-          .defaultTo("whispers: ")
-          .build();
-  
+
+  public final StringSetting reply = newStringSetting()
+      .name("reply")
+      .description("Text to reply with")
+      .defaultTo("fuck off newfag")
+      .build();
+
+  public final StringSetting mode = newStringSetting()
+      .name("mode")
+      .description("Reply or chat")
+      .defaultTo("REPLY")
+      .build();
+
+  public final StringSetting search = newStringSetting()
+      .name("search")
+      .description("Text to search for in message")
+      .defaultTo("whispers: ")
+      .build();
+
   public AutoReply() {
     super(Category.MISC, "AutoReply", false, "Automatically talk in chat if finds a strings");
   }
-  
+
   @SubscribeEvent
   public void onClientChat(ClientChatReceivedEvent event) {
     String message = (event.getMessage().getUnformattedComponentText());
-    if (message.contains(search.get()) && !message.startsWith(Common.MC.getSession().getUsername())) {
+    if (message.contains(search.getValue()) && !message.startsWith(Common.MC.getSession().getUsername())) {
       String append;
-      switch (mode.get().toUpperCase()) {
+      switch (mode.getValue().toUpperCase()) {
         case "REPLY":
           append = "/r ";
           break;
@@ -57,7 +48,7 @@ public class AutoReply extends ToggleMod {
           append = Strings.EMPTY;
           break;
       }
-      Common.getLocalPlayer().sendChatMessage(append + reply.get());
+      Common.getLocalPlayer().sendChatMessage(append + reply.getValue());
     }
   }
 }

@@ -1,16 +1,13 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 
 // TODO: 1.15 fix this
 public class SchematicHelper extends ToggleMod {
   
-  private final Setting<Float> line_width =
-      getCommandStub()
-          .builders()
-          .<Float>newSettingBuilder()
+  private final FloatSetting line_width = newFloatSetting()
           .name("width")
           .description("Line width")
           .defaultTo(5f)

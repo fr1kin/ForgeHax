@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.util.typeconverter.types;
 
-import dev.fiki.forgehax.main.util.SafeConverter;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
 import java.util.Comparator;
 import javax.annotation.Nullable;
@@ -22,11 +21,11 @@ public class LongType extends TypeConverter<Long> {
   
   @Override
   public Long parse(String value) {
-    return SafeConverter.toLong(value);
+    return Long.parseLong(value);
   }
   
   @Override
-  public String toString(Long value) {
+  public String convert(Long value) {
     return Long.toString(value);
   }
   

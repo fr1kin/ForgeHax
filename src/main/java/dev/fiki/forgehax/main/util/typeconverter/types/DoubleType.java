@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.util.typeconverter.types;
 
-import dev.fiki.forgehax.main.util.SafeConverter;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
 import java.util.Comparator;
 import javax.annotation.Nullable;
@@ -22,11 +21,11 @@ public class DoubleType extends TypeConverter<Double> {
   
   @Override
   public Double parse(String value) {
-    return SafeConverter.toDouble(value);
+    return Double.parseDouble(value);
   }
   
   @Override
-  public String toString(Double value) {
+  public String convert(Double value) {
     return Double.toString(value);
   }
   

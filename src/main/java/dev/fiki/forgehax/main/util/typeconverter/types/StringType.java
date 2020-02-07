@@ -25,18 +25,26 @@ public class StringType extends TypeConverter<String> {
   }
   
   @Override
-  public String toString(String value) {
-    return value != null ? value : "null";
+  public String convert(String value) {
+    return value;
   }
   
   @Nullable
   @Override
   public Comparator<String> comparator() {
-    return new Comparator<String>() {
-      @Override
-      public int compare(String o1, String o2) {
-        return o1.compareTo(o2);
-      }
-    };
+    return String::compareTo;
+  }
+
+  public static class CaseInsensitive extends StringType {
+    @Override
+    public String label() {
+      return "string_case_insensitive";
+    }
+
+    @Nullable
+    @Override
+    public Comparator<String> comparator() {
+      return String::compareToIgnoreCase;
+    }
   }
 }

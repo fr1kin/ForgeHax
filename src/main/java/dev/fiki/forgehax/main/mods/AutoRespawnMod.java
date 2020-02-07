@@ -3,7 +3,7 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -15,36 +15,33 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoRespawnMod extends ToggleMod {
-  
+
   public AutoRespawnMod() {
     super(Category.PLAYER, "AutoRespawn", false, "Auto respawn on death");
   }
-  
-  private final Setting<Integer> delay =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("delay")
-          .description("wait ticks before respawning")
-          .min(0)
-          .defaultTo(50)
-          .build();
-  
+
+  private final IntegerSetting delay = newIntegerSetting()
+      .name("delay")
+      .description("wait ticks before respawning")
+      .min(0)
+      .defaultTo(50)
+      .build();
+
   private boolean isDead = false;
   private int deadTicks = 0;
-  
+
   @SubscribeEvent
   public void onClientTick(ClientTickEvent.Post ev) {
     if (isDead) {
       deadTicks++;
-      if (deadTicks > delay.getAsInteger()) {
+      if (deadTicks > delay.getValue()) {
         deadTicks = 0;
         isDead = false;
         Common.getLocalPlayer().respawnPlayer();
       }
     }
   }
-  
+
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (Common.getLocalPlayer().getHealth() <= 0) {

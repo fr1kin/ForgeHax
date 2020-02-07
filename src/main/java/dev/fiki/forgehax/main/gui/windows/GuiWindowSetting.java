@@ -3,9 +3,8 @@ package dev.fiki.forgehax.main.gui.windows;
 import dev.fiki.forgehax.main.gui.ClickGui;
 import dev.fiki.forgehax.main.gui.elements.GuiElement;
 import dev.fiki.forgehax.main.gui.elements.GuiTextInput;
-import dev.fiki.forgehax.main.util.mod.BaseMod;
+import dev.fiki.forgehax.main.util.mod.AbstractMod;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,10 +16,10 @@ public class GuiWindowSetting extends GuiWindow {
   public List<GuiElement> inputList =
     new ArrayList<>(); // list of toggles, sliders, text inputs, etc.
   
-  private BaseMod mod;
+  private AbstractMod mod;
   
-  public GuiWindowSetting(BaseMod modIn, int x, int y) {
-    super(modIn.getModName() + " Settings");
+  public GuiWindowSetting(AbstractMod modIn, int x, int y) {
+    super(modIn.getName() + " Settings");
     this.mod = modIn;
     initializeInputs();
   }
@@ -33,10 +32,10 @@ public class GuiWindowSetting extends GuiWindow {
   }
   
   public String getModName() {
-    return mod.getModName();
+    return mod.getName();
   }
   
-  public BaseMod getMod() {
+  public AbstractMod getMod() {
     return this.mod;
   }
   

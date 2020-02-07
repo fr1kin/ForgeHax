@@ -1,37 +1,31 @@
 package dev.fiki.forgehax.main.mods;
 
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Options;
+import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingSet;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.serialization.ISerializableJson;
+import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
 import net.minecraft.network.play.server.SChatPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
-@RegisterMod
+// TODO: 1.15 fix this
+
+//@RegisterMod
 public class ChatFilterMod extends ToggleMod {
   private final Map<String, Pattern> patternCache = new WeakHashMap<>();
 
-  private final Options<FilterEntry> filterList =
-      getCommandStub()
-          .builders()
-          .<FilterEntry>newOptionsBuilder()
-          .name("filters")
-          .description("Saved filter config")
-          .factory(FilterEntry::new)
-          .supplier(MemeSet::new)
-          .build();
+  private final CustomSettingSet<FilterEntry> filterList = newCustomSettingSet(FilterEntry.class)
+      .name("filters")
+      .description("Saved filter config")
+      .valueSupplier(FilterEntry::new)
+      .supplier(MemeSet::new)
+      .build();
 
   public ChatFilterMod() {
     super(Category.MISC, "ChatFilter", false, "Filter chat by regex");
@@ -60,107 +54,87 @@ public class ChatFilterMod extends ToggleMod {
   }
 
 
-  @Override
-  protected void onLoad() {
-    super.onLoad();
-    filterList.deserializeAll();
+//  @Override
+//  protected void onLoad() {
+//    super.onLoad();
+//    filterList.deserializeAll();
+//
+//    // TODO: allow flags
+//    getCommandStub()
+//        .builders()
+//        .newCommandBuilder()
+//        .name("filter")
+//        .description("filter <name> <regex>")
+//        .processor(
+//            data -> {
+//              data.requiredArguments(2);
+//              final String name = data.getArgumentAsString(0);
+//              final String regex = data.getArgumentAsString(1);
+//
+//              try {
+//                Pattern.compile(regex);
+//                this.filterList.add(new FilterEntry(name, regex));
+//                Common.print("Added regex with name \"%s\"", name);
+//              } catch (PatternSyntaxException ex) {
+//                Common.printError("Invalid regex: " + ex.getMessage());
+//              }
+//            })
+//        .build();
+//
+//    getCommandStub()
+//        .builders()
+//        .newCommandBuilder()
+//        .name("remove")
+//        .description("remove a filter by name")
+//        .processor(
+//            data -> {
+//              data.requiredArguments(1);
+//              final String name = data.getArgumentAsString(0);
+//
+//              final boolean changed = filterList.removeIf(entry -> entry.name.equals(name));
+//              if (changed) {
+//                Common.print("Removed filter with name \"%s\"", name);
+//              } else {
+//                Common.print("No filter found with name \"%s\"", name);
+//              }
+//            })
+//        .build();
+//
+//    getCommandStub()
+//        .builders()
+//        .newCommandBuilder()
+//        .name("list")
+//        .description("List all the filters")
+//        .processor(data -> {
+//          Common.print("Filters (%d):", filterList.size());
+//          for (FilterEntry entry : filterList) {
+//            data.write(entry.name + ": " + "\"" + entry.regex + "\"");
+//          }
+//        })
+//        .build();
+//  }
 
-    // TODO: allow flags
-    getCommandStub()
-        .builders()
-        .newCommandBuilder()
-        .name("filter")
-        .description("filter <name> <regex>")
-        .processor(
-            data -> {
-              data.requiredArguments(2);
-              final String name = data.getArgumentAsString(0);
-              final String regex = data.getArgumentAsString(1);
 
-              try {
-                Pattern.compile(regex);
-                this.filterList.add(new FilterEntry(name, regex));
-                Common.print("Added regex with name \"%s\"", name);
-              } catch (PatternSyntaxException ex) {
-                Common.printError("Invalid regex: " + ex.getMessage());
-              }
-            })
-        .build();
-
-    getCommandStub()
-        .builders()
-        .newCommandBuilder()
-        .name("remove")
-        .description("remove a filter by name")
-        .processor(
-            data -> {
-              data.requiredArguments(1);
-              final String name = data.getArgumentAsString(0);
-
-              final boolean changed = filterList.removeIf(entry -> entry.name.equals(name));
-              if (changed) {
-                Common.print("Removed filter with name \"%s\"", name);
-              } else {
-                Common.print("No filter found with name \"%s\"", name);
-              }
-            })
-        .build();
-
-    getCommandStub()
-        .builders()
-        .newCommandBuilder()
-        .name("list")
-        .description("List all the filters")
-        .processor(data -> {
-          Common.print("Filters (%d):", filterList.size());
-          for (FilterEntry entry : filterList) {
-            data.write(entry.name + ": " + "\"" + entry.regex + "\"");
-          }
-        })
-        .build();
-  }
-
-
-  private static class FilterEntry implements ISerializableJson {
-    final String name;
+  private static class FilterEntry implements IJsonSerializable {
+    private String name;
     private String regex;
-
-    FilterEntry(String name) {
-      this.name = name;
-    }
-
-    FilterEntry(String name, String regex) {
-      this(name);
-      this.regex = regex;
-    }
 
     public String getRegex() {
       return this.regex;
     }
 
     @Override
-    public void serialize(JsonWriter writer) throws IOException {
-      writer.value(this.regex);
+    public JsonElement serialize() {
+      return new JsonPrimitive(this.regex);
     }
 
     @Override
-    public void deserialize(JsonReader reader)  {
-      this.regex  = new JsonParser().parse(reader).getAsString();
+    public void deserialize(JsonElement json) {
+      this.regex = json.getAsString();
     }
-
-    @Override
-    public String getUniqueHeader() {
-      return this.name;
-    }
-
-    @Override
-    public String toString() {
-      return getUniqueHeader();
-    }
-
   }
 
-  private static class MemeSet implements Collection<FilterEntry> {
+  private static class MemeSet implements Set<FilterEntry> {
     private final Map<String, FilterEntry> map = new HashMap<>();
 
     @Override
@@ -175,7 +149,7 @@ public class ChatFilterMod extends ToggleMod {
 
     @Override
     public boolean contains(Object o) {
-      return map.containsKey(((FilterEntry)o).name);
+      return map.containsKey(((FilterEntry) o).name);
     }
 
     @Override
@@ -200,7 +174,7 @@ public class ChatFilterMod extends ToggleMod {
 
     @Override
     public boolean remove(Object o) {
-      return map.remove(((FilterEntry)o).name) != null;
+      return map.remove(((FilterEntry) o).name) != null;
     }
 
     @Override

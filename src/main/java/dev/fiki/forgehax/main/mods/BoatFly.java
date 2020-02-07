@@ -5,7 +5,8 @@ import dev.fiki.forgehax.common.events.RenderBoatEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -16,61 +17,47 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class BoatFly extends ToggleMod {
-  
-  public final Setting<Double> speed =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("speed")
-          .description("how fast to move")
-          .defaultTo(5.0D)
-          .build();
-  /*public final Setting<Double> maintainY = getCommandStub().builders().<Double>newSettingBuilder()
-  .name("YLevel").description("automatically teleport back up to this Y level").defaultTo(0.0D).build();*/
-  public final Setting<Double> speedY =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("FallSpeed")
-          .description("how slowly to fall")
-          .defaultTo(0.033D)
-          .build();
-  
-  public final Setting<Boolean> setYaw =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("SetYaw")
-          .description("set the boat yaw")
-          .defaultTo(true)
-          .build();
-  public final Setting<Boolean> noClamp =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("NoClamp")
-          .description("clamp view angles")
-          .defaultTo(true)
-          .build();
-  public final Setting<Boolean> noGravity =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("NoGravity")
-          .description("disable boat gravity")
-          .defaultTo(true)
-          .build();
-  
+
+  public final DoubleSetting speed = newDoubleSetting()
+      .name("speed")
+      .description("how fast to move")
+      .defaultTo(5.0D)
+      .build();
+
+  public final DoubleSetting speedY = newDoubleSetting()
+      .name("fall-speed")
+      .description("how slowly to fall")
+      .defaultTo(0.033D)
+      .build();
+
+  public final BooleanSetting setYaw = newBooleanSetting()
+      .name("set-yaw")
+      .description("set the boat yaw")
+      .defaultTo(true)
+      .build();
+
+  public final BooleanSetting noClamp = newBooleanSetting()
+      .name("no-clamp")
+      .description("clamp view angles")
+      .defaultTo(true)
+      .build();
+
+  public final BooleanSetting noGravity = newBooleanSetting()
+      .name("no-gravity")
+      .description("disable boat gravity")
+      .defaultTo(true)
+      .build();
+
   public BoatFly() {
     super(Category.MISC, "BoatFly", false, "Boathax");
   }
-  
+
   @SubscribeEvent // disable gravity
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     ForgeHaxHooks.isNoBoatGravityActivated =
         Common.getMountedEntity() instanceof BoatEntity; // disable gravity if in boat
   }
-  
+
   @Override
   public void onDisabled() {
     // ForgeHaxHooks.isNoClampingActivated = false; // disable view clamping
@@ -78,32 +65,32 @@ public class BoatFly extends ToggleMod {
     ForgeHaxHooks.isBoatSetYawActivated = false;
     // ForgeHaxHooks.isNotRowingBoatActivated = false; // items always usable - can not be disabled
   }
-  
+
   @Override
   public void onLoad() {
-    ForgeHaxHooks.isNoClampingActivated = noClamp.getAsBoolean();
+    ForgeHaxHooks.isNoClampingActivated = noClamp.getValue();
   }
-  
+
   @SubscribeEvent
   public void onRenderBoat(RenderBoatEvent event) {
-    if (EntityUtils.isDrivenByPlayer(event.getBoat()) && setYaw.getAsBoolean()) {
+    if (EntityUtils.isDrivenByPlayer(event.getBoat()) && setYaw.getValue()) {
       float yaw = Common.getLocalPlayer().rotationYaw;
       event.getBoat().rotationYaw = yaw;
       event.setYaw(yaw);
     }
   }
-  
+
   @SubscribeEvent
   public void onClientTick(ClientTickEvent.Pre event) {
     // check if the player is really riding a entity
     if (Common.getLocalPlayer() != null && Common.getMountedEntity() != null) {
-      
-      ForgeHaxHooks.isNoClampingActivated = noClamp.getAsBoolean();
-      ForgeHaxHooks.isNoBoatGravityActivated = noGravity.getAsBoolean();
-      ForgeHaxHooks.isBoatSetYawActivated = setYaw.getAsBoolean();
+
+      ForgeHaxHooks.isNoClampingActivated = noClamp.getValue();
+      ForgeHaxHooks.isNoBoatGravityActivated = noGravity.getValue();
+      ForgeHaxHooks.isBoatSetYawActivated = setYaw.getValue();
 
       double velX, velY, velZ;
-      
+
       if (Common.getGameSettings().keyBindJump.isKeyDown()) {
         // trick the riding entity to think its onground
         Common.getMountedEntity().onGround = false;
@@ -111,7 +98,7 @@ public class BoatFly extends ToggleMod {
         // teleport up
         velY = Common.getGameSettings().keyBindSprint.isKeyDown() ? 5.D : 1.5D;
       } else {
-        velY = Common.getGameSettings().keyBindSprint.isKeyDown() ? -1.0 : -speedY.getAsDouble();
+        velY = Common.getGameSettings().keyBindSprint.isKeyDown() ? -1.0 : -speedY.getValue();
       }
 
       MovementInput movementInput = Common.getLocalPlayer().movementInput;
@@ -141,8 +128,8 @@ public class BoatFly extends ToggleMod {
         double sin = Math.sin(Math.toRadians(yaw + 90.0F));
         double cos = Math.cos(Math.toRadians(yaw + 90.0F));
 
-        velX = (forward * speed.get() * cos + strafe * speed.get() * sin);
-        velZ = (forward * speed.get() * sin - strafe * speed.get() * cos);
+        velX = (forward * speed.getValue() * cos + strafe * speed.getValue() * sin);
+        velZ = (forward * speed.getValue() * sin - strafe * speed.getValue() * cos);
       }
 
       Common.getMountedEntity().setMotion(velX, velY, velZ);

@@ -77,5 +77,7 @@ public class TypeConverterRegistry {
     registerAll(TypeConverters.LONG, long.class);
     registerAll(TypeConverters.SHORT, short.class);
     register(TypeConverters.STRING);
+    register(TypeConverters.COLOR);
+    register(TypeConverters.INPUT);
   }
 }

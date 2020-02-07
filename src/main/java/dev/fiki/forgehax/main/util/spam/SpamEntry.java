@@ -1,10 +1,10 @@
 package dev.fiki.forgehax.main.util.spam;
 
 import com.google.common.collect.Lists;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import dev.fiki.forgehax.main.util.serialization.ISerializableJson;
-import java.io.IOException;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -13,19 +13,19 @@ import joptsimple.internal.Strings;
 /**
  * Created on 7/18/2017 by fr1kin
  */
-public class SpamEntry implements ISerializableJson {
+public class SpamEntry implements IJsonSerializable {
   
   /**
    * A unique name used to identify this entry
    */
-  private final String name;
+  private String name;
   
   /**
    * List of messages (no duplicates allowed)
    */
   private final List<String> messages = Lists.newCopyOnWriteArrayList();
   
-  private boolean enabled = true;
+  private boolean enabled = false;
   
   /**
    * Keyword that triggers this
@@ -47,9 +47,7 @@ public class SpamEntry implements ISerializableJson {
    */
   private long delay = 0;
   
-  public SpamEntry(String name) {
-    this.name = name;
-  }
+  public SpamEntry() { }
   
   public void add(String msg) {
     if (!Strings.isNullOrEmpty(msg) && !messages.contains(msg)) {
@@ -142,71 +140,31 @@ public class SpamEntry implements ISerializableJson {
   public boolean isEmpty() {
     return messages.isEmpty();
   }
-  
+
   @Override
-  public void serialize(JsonWriter writer) throws IOException {
-    writer.beginObject();
-    
-    writer.name("enabled");
-    writer.value(enabled);
-    
-    writer.name("keyword");
-    writer.value(keyword);
-    
-    writer.name("type");
-    writer.value(type.name());
-    
-    writer.name("trigger");
-    writer.value(trigger.name());
-    
-    writer.name("delay");
-    writer.value(getDelay());
-    
-    writer.name("messages");
-    writer.beginArray();
-    for (String msg : messages) {
-      writer.value(msg);
-    }
-    writer.endArray();
-    
-    writer.endObject();
+  public JsonElement serialize() {
+    JsonObject object = new JsonObject();
+
+    object.addProperty("name", getName());
+    object.addProperty("enabled", isEnabled());
+    object.addProperty("keyword", getKeyword());
+    object.addProperty("type", getType().name());
+    object.addProperty("trigger", getTrigger().name());
+
+    return object;
   }
-  
+
   @Override
-  public void deserialize(JsonReader reader) throws IOException {
-    reader.beginObject();
-    
-    while (reader.hasNext()) {
-      switch (reader.nextName()) {
-        case "enabled":
-          setEnabled(reader.nextBoolean());
-          break;
-        case "keyword":
-          setKeyword(reader.nextString());
-          break;
-        case "type":
-          setType(reader.nextString());
-          break;
-        case "trigger":
-          setTrigger(reader.nextString());
-          break;
-        case "delay":
-          setDelay(reader.nextLong());
-          break;
-        case "messages":
-          reader.beginArray();
-          while (reader.hasNext()) {
-            add(reader.nextString());
-          }
-          reader.endArray();
-          break;
-        default:
-          break;
-      }
-    }
-    
-    reader.endObject();
+  public void deserialize(JsonElement json) {
+    JsonObject object = json.getAsJsonObject();
+
+    this.name = object.get("name").getAsString();
+    this.enabled = object.get("enabled").getAsBoolean();
+    this.keyword = object.get("keyword").getAsString();
+    this.type = SpamType.valueOf(object.get("type").getAsString());
+    this.trigger = SpamTrigger.valueOf(object.get("trigger").getAsString());
   }
+
   
   @Override
   public boolean equals(Object obj) {

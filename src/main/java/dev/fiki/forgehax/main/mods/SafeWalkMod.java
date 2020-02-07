@@ -2,7 +2,8 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.ForgeHaxHooks;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -13,28 +14,23 @@ import net.minecraft.util.math.BlockPos;
  */
 @RegisterMod
 public class SafeWalkMod extends ToggleMod {
-  
+
   public SafeWalkMod() {
     super(Category.PLAYER, "SafeWalk", false, "Prevents you from falling off blocks");
   }
-  
-  private final Setting<Boolean> collisions =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("collisions")
-          .description("Give air collision boxes")
-          .defaultTo(false)
-          .build();
-  private final Setting<Integer> min_height =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("min-height")
-          .description("Minimum height above ground for collisions")
-          .defaultTo(15)
-          .build();
-  
+
+  private final BooleanSetting collisions = newBooleanSetting()
+      .name("collisions")
+      .description("Give air collision boxes")
+      .defaultTo(false)
+      .build();
+
+  private final IntegerSetting min_height = newIntegerSetting()
+      .name("min-height")
+      .description("Minimum height above ground for collisions")
+      .defaultTo(15)
+      .build();
+
 //  @SubscribeEvent
 //  public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
 //    if (!collisions.get()) {
@@ -56,7 +52,7 @@ public class SafeWalkMod extends ToggleMod {
 //    }
 //  }
   // TODO: 1.15
-  
+
   private boolean isAbovePlayer(BlockPos pos) {
     return pos.getY() >= Common.getLocalPlayer().getPosY();
   }
@@ -69,16 +65,16 @@ public class SafeWalkMod extends ToggleMod {
     }
     return false;
   }
-  
+
   private boolean hasCollisionBox(BlockPos pos) {
     return Common.getWorld().getBlockState(pos).getCollisionShape(Common.getWorld(), pos).isEmpty();
   }
-  
+
   @Override
   public void onEnabled() {
     ForgeHaxHooks.isSafeWalkActivated = true;
   }
-  
+
   @Override
   public void onDisabled() {
     ForgeHaxHooks.isSafeWalkActivated = false;

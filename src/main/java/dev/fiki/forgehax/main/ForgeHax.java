@@ -3,7 +3,9 @@ package dev.fiki.forgehax.main;
 import com.google.common.base.Strings;
 import dev.fiki.forgehax.common.LoggerProvider;
 import dev.fiki.forgehax.main.util.FileManager;
-import dev.fiki.forgehax.main.util.mod.BaseMod;
+import dev.fiki.forgehax.main.util.cmd.RootCommand;
+import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
+import dev.fiki.forgehax.main.util.mod.AbstractMod;
 import dev.fiki.forgehax.main.util.mod.loader.ModManager;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,6 +20,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Mod("forgehax")
 @Getter
@@ -31,8 +35,13 @@ public class ForgeHax {
 
   private ConfigProperties configProperties;
 
+  private RootCommand rootCommand;
   private ModManager modManager;
   private FileManager fileManager;
+
+  private ExecutorService asyncExecutorService;
+
+  private IConsole currentConsole;
 
   public ForgeHax() {
     instance = this;
@@ -53,8 +62,15 @@ public class ForgeHax {
     try {
       configProperties = new ConfigProperties();
 
+      rootCommand = new RootCommand();
+      rootCommand.setConfigDir(getBaseDirectory().resolve("config"));
+
       modManager = new ModManager();
       fileManager = new FileManager();
+
+      asyncExecutorService = Executors.newSingleThreadExecutor();
+
+      currentConsole = GAME_CONSOLE_OUTPUT;
 
       if(!getModManager().searchPackage("dev.fiki.forgehax.main.mods")) {
         logger.error("Could not find any mods to load. Verify the right package is listed");
@@ -64,16 +80,16 @@ public class ForgeHax {
       }
 
       if(!getModManager().searchPluginDirectory(getBaseDirectory().resolve("plugins"))) {
-        logger.info("No plugins loaded");
+        logger.info("No plugins loaded (this is fine)");
       }
 
       getModManager().loadAll();
 
       // add shutdown hook to serialize all binds
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> getModManager().forEach(BaseMod::unload)));
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> getModManager().forEach(AbstractMod::unload)));
 
       // registerAll mod events
-      getModManager().forEach(BaseMod::load);
+      getModManager().forEach(AbstractMod::load);
     } catch (Throwable t) {
       getLogger().error("Fatal error loading ForgeHax!");
       getLogger().error(t, t);
@@ -82,6 +98,23 @@ public class ForgeHax {
       throw t;
     }
   }
+
+  private static final IConsole GAME_CONSOLE_OUTPUT = new IConsole() {
+    @Override
+    public void inform(String message, Object... args) {
+      Common.printInform(message, args);
+    }
+
+    @Override
+    public void warn(String message, Object... args) {
+      Common.printWarning(message, args);
+    }
+
+    @Override
+    public void error(String message, Object... args) {
+      Common.printError(message, args);
+    }
+  };
 
   public class ConfigProperties {
     private Properties properties = new Properties();

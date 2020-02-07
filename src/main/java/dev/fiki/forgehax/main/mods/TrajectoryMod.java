@@ -20,11 +20,11 @@ import static com.mojang.blaze3d.systems.RenderSystem.*;
 
 @RegisterMod
 public class TrajectoryMod extends ToggleMod {
-  
+
   public TrajectoryMod() {
     super(Category.RENDER, "Trajectory", false, "Draws projectile trajectory");
   }
-  
+
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     Projectile projectile =
@@ -41,16 +41,16 @@ public class TrajectoryMod extends ToggleMod {
       if (result == null) {
         return;
       }
-      
+
       if (result.getPathTraveled().size() > 1) {
         event.setTranslation(Common.getLocalPlayer().getPositionVector());
-        
+
         enableDepthTest();
         lineWidth(2.0f);
-        
+
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-        
+
         Iterator<Vec3d> it = result.getPathTraveled().iterator();
         Vec3d previous = it.next();
         while (it.hasNext()) {
@@ -63,13 +63,13 @@ public class TrajectoryMod extends ToggleMod {
           event.getBuffer().pos(next.x, next.y, next.z).color(255, 255, 255, 255).endVertex();
           previous = next;
         }
-        
+
         event.getTessellator().draw();
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
-        
+
         lineWidth(1.0f);
         disableDepthTest();
-        
+
         event.resetTranslation();
       }
     }

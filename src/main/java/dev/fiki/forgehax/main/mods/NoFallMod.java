@@ -12,13 +12,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class NoFallMod extends ToggleMod {
-  
+
   public NoFallMod() {
     super(Category.PLAYER, "NoFall", false, "Prevents fall damage from being taken");
   }
-  
+
   private float lastFallDistance = 0;
-  
+
   @SubscribeEvent
   public void onPacketSend(PacketInboundEvent event) {
     if (event.getPacket() instanceof CPlayerPacket

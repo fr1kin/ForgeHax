@@ -12,23 +12,23 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AntiOverlayMod extends ToggleMod {
-  
+
   public AntiOverlayMod() {
     super(Category.PLAYER, "AntiOverlay", false, "Removes screen overlays");
   }
-  
+
   /**
    * Disables water/lava fog
    */
   @SubscribeEvent
   public void onFogRender(EntityViewRenderEvent.FogDensity event) {
     // TODO: 1.15 make sure this hides liquid fog properly
-    if(Common.isInWorld() && (Common.getLocalPlayer().isInLava() || Common.getLocalPlayer().isInWater())) {
+    if (Common.isInWorld() && (Common.getLocalPlayer().isInLava() || Common.getLocalPlayer().isInWater())) {
       event.setDensity(0);
       event.setCanceled(true);
     }
   }
-  
+
   /**
    * Disables screen overlays
    */
@@ -36,7 +36,7 @@ public class AntiOverlayMod extends ToggleMod {
   public void onRenderBlockOverlay(RenderBlockOverlayEvent event) {
     event.setCanceled(true);
   }
-  
+
   @SubscribeEvent
   public void onRenderGameOverlay(RenderGameOverlayEvent event) {
     if (event.getType().equals(RenderGameOverlayEvent.ElementType.HELMET)
@@ -44,7 +44,7 @@ public class AntiOverlayMod extends ToggleMod {
       event.setCanceled(true);
     }
   }
-  
+
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     // TODO: 1.15 find a new way to remove this overlay

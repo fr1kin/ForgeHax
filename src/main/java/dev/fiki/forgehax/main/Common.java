@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main;
 
-import dev.fiki.forgehax.main.util.command.Command;
-import dev.fiki.forgehax.main.util.command.CommandGlobal;
+import dev.fiki.forgehax.main.util.cmd.RootCommand;
+import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
 import dev.fiki.forgehax.main.util.mod.loader.ModManager;
 import dev.fiki.forgehax.main.util.FileManager;
 import net.minecraft.block.Block;
@@ -40,13 +40,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 
-/**
- * 2 lazy to import static
- */
 public interface Common {
   Minecraft MC = Minecraft.getInstance();
-  Command GLOBAL_COMMAND = CommandGlobal.getInstance();
 
   //
   // forgehax
@@ -54,6 +51,10 @@ public interface Common {
 
   static Logger getLogger() {
     return ForgeHax.getInstance().getLogger();
+  }
+
+  static RootCommand getRootCommand() {
+    return ForgeHax.getInstance().getRootCommand();
   }
 
   static ModManager getModManager() {
@@ -72,6 +73,10 @@ public interface Common {
     return ForgeHax.getInstance().getBaseDirectory();
   }
 
+  static IConsole getCurrentConsoleOutput() {
+    return ForgeHax.getInstance().getCurrentConsole();
+  }
+
   //
   // forge
   //
@@ -79,6 +84,7 @@ public interface Common {
   static ClassLoader getLauncherClassLoader() {
     return FMLLoader.getLaunchClassLoader();
   }
+
   //
   // minecraft
   //
@@ -192,9 +198,20 @@ public interface Common {
   // scheduler
   //
 
-  static void addScheduledTask(Runnable runnable) {
-    // TODO: scheduler
+  static Executor getMainThreadExecutor() {
+    return MC;
+  }
 
+  static Executor getAsyncThreadExecutor() {
+    return ForgeHax.getInstance().getAsyncExecutorService();
+  }
+
+  static void addScheduledTask(Runnable runnable) {
+    getMainThreadExecutor().execute(runnable);
+  }
+
+  static void addAsyncScheduledTask(Runnable runnable) {
+    getAsyncThreadExecutor().execute(runnable);
   }
 
   //
@@ -202,28 +219,24 @@ public interface Common {
   //
 
   static void printColored(TextFormatting formatting, String text) {
-    if(getLocalPlayer() != null) {
+    if (getLocalPlayer() != null) {
       getLocalPlayer().sendStatusMessage(
-          new StringTextComponent("[ForgeHax]:")
+          new StringTextComponent("> ")
               .setStyle(new Style()
-                  .setColor(formatting)
-                  .setBold(true))
-              .appendSibling(new StringTextComponent(text)
-                  .setStyle(new Style()
-                      .setColor(TextFormatting.WHITE)
-                      .setBold(false))),
-          false
-      );
-      getLogger().info("ForgeHaxChat: {}", text);
+                  .setColor(formatting))
+          .appendSibling(new StringTextComponent(text)
+              .setStyle(new Style().setColor(TextFormatting.WHITE)))
+          , false);
+      getLogger().info("ForgeHax command issued: {}", text);
     }
   }
 
   static void print(String str, Object... fmt) {
-    printColored(TextFormatting.GREEN, String.format(str, fmt));
+    printColored(TextFormatting.GRAY, String.format(str, fmt));
   }
 
   static void printInform(String str, Object... fmt) {
-    print(str, fmt);
+    printColored(TextFormatting.GREEN, String.format(str, fmt));
   }
 
   static void printWarning(String str, Object... fmt) {

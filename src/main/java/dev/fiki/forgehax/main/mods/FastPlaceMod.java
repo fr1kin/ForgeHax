@@ -13,11 +13,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 @RegisterMod
 public class FastPlaceMod extends ToggleMod {
-  
+
   public FastPlaceMod() {
     super(Category.PLAYER, "FastPlace", false, "Fast place");
   }
-  
+
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Common.MC, 0);

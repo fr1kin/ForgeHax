@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 /**
  * Created on 3/23/2017 by fr1kin
  */
-public abstract class TypeConverter<E> {
+public abstract class TypeConverter<E> implements IConverter<E> {
   
   public abstract String label();
   
@@ -24,11 +24,11 @@ public abstract class TypeConverter<E> {
     }
   }
   
-  public abstract String toString(E value);
+  public abstract String convert(E value);
   
   public String toString(E value, @Nonnull String defaultTo) {
     try {
-      return toString(value);
+      return convert(value);
     } catch (Throwable t) {
       return defaultTo;
     }

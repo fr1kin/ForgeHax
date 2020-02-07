@@ -4,7 +4,8 @@ import dev.fiki.forgehax.common.events.ItemStoppedUsedEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ForgeHaxEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -28,61 +29,51 @@ import org.apache.commons.lang3.tuple.Pair;
 
 @RegisterMod
 public class AutoEatMod extends ToggleMod {
-  
+
   private static final List<Effect> BAD_POTIONS =
       StreamSupport.stream(ForgeRegistries.POTIONS.spliterator(), false)
           .filter(effect -> !effect.isBeneficial())
           .collect(Collectors.toList());
-  
+
   enum Sorting {
     POINTS,
     SATURATION,
     RATIO,
     ;
   }
-  
-  private final Setting<Sorting> sorting =
-      getCommandStub()
-          .builders()
-          .<Sorting>newSettingEnumBuilder()
-          .name("sorting")
-          .description("Method used to find best food item to use")
-          .defaultTo(Sorting.RATIO)
-          .build();
-  
-  private final Setting<Integer> fail_safe_multiplier =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("fail-safe-multiplier")
-          .description(
-              "Will attempt to eat again after use ticks * multiplier has elapsed. Set to 0 to disable")
-          .defaultTo(10)
-          .min(0)
-          .max(20)
-          .build();
-  
-  private final Setting<Integer> select_wait =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("select-wait")
-          .description(
-              "Number of ticks to wait before starting to eat a food item after switching to it in the hotbar.")
-          .defaultTo(10)
-          .min(0)
-          .build();
-  
+
+  private final EnumSetting<Sorting> sorting = newEnumSetting(Sorting.class)
+      .name("sorting")
+      .description("Method used to find best food item to use")
+      .defaultTo(Sorting.RATIO)
+      .build();
+
+  private final IntegerSetting fail_safe_multiplier = newIntegerSetting()
+      .name("fail-safe-multiplier")
+      .description(
+          "Will attempt to eat again after use ticks * multiplier has elapsed. Set to 0 to disable")
+      .defaultTo(10)
+      .min(0)
+      .max(20)
+      .build();
+
+  private final IntegerSetting select_wait = newIntegerSetting()
+      .name("select-wait")
+      .description("Number of ticks to wait before starting to eat a food item after switching to it in the hotbar.")
+      .defaultTo(10)
+      .min(0)
+      .build();
+
   private Food food = null;
   private boolean eating = false;
   private int eatingTicks = 0;
   private int selectedTicks = 0;
   private int lastHotbarIndex = -1;
-  
+
   public AutoEatMod() {
     super(Category.PLAYER, "AutoEat", false, "Auto eats when you get hungry");
   }
-  
+
   private void reset() {
     if (eatingTicks > 0) {
       Common.addScheduledTask(() -> MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_STOP)));
@@ -92,45 +83,45 @@ public class AutoEatMod extends ToggleMod {
     eatingTicks = 0;
     selectedTicks = 0;
   }
-  
+
   private boolean isFoodItem(LocalPlayerInventory.InvItem inv) {
     return ItemGroup.FOOD.equals(inv.getItem().getGroup());
   }
-  
+
   private boolean isFishFood(LocalPlayerInventory.InvItem inv) {
     return ItemGroup.FOOD.equals(inv.getItem().getGroup());
   }
-  
+
   private Food toFood(LocalPlayerInventory.InvItem inv) {
     return inv.getItem().getFood();
   }
-  
+
   private boolean isGoodFood(LocalPlayerInventory.InvItem inv) {
     return inv.getItem().getFood().getEffects().stream()
         .map(Pair::getLeft)
         .map(EffectInstance::getPotion)
         .anyMatch(BAD_POTIONS::contains);
   }
-  
+
   private int getHealAmount(LocalPlayerInventory.InvItem inv) {
     return toFood(inv).getHealing();
   }
-  
+
   private double getSaturationAmount(LocalPlayerInventory.InvItem inv) {
     return toFood(inv).getSaturation();
   }
-  
+
   private int getHealthLevel(LocalPlayerInventory.InvItem inv) {
     return Math.min(Common.getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv), 20);
   }
-  
+
   private double getSaturationLevel(LocalPlayerInventory.InvItem inv) {
     return Math.min(Common.getLocalPlayer().getFoodStats().getSaturationLevel()
-            + getHealAmount(inv) * getSaturationAmount(inv) * 2.D, 20.D);
+        + getHealAmount(inv) * getSaturationAmount(inv) * 2.D, 20.D);
   }
-  
+
   private double getPreferenceValue(LocalPlayerInventory.InvItem inv) {
-    switch (sorting.get()) {
+    switch (sorting.getValue()) {
       case POINTS:
         return getHealAmount(inv);
       case SATURATION:
@@ -140,33 +131,33 @@ public class AutoEatMod extends ToggleMod {
         return (getHealAmount(inv) * getSaturationAmount(inv) * 2.D) / getHealAmount(inv);
     }
   }
-  
+
   private boolean shouldEat(LocalPlayerInventory.InvItem inv) {
     return Common.getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv) < 20;
   }
-  
+
   private boolean checkFailsafe() { // TODO: replace 500 with longest food duration
-    return (fail_safe_multiplier.get() == 0 || eatingTicks < 500 * fail_safe_multiplier.get());
+    return (fail_safe_multiplier.getValue() == 0 || eatingTicks < 500 * fail_safe_multiplier.getValue());
   }
-  
+
   @Override
   protected void onEnabled() {
     reset();
     selectedTicks = 0;
     lastHotbarIndex = -1;
   }
-  
+
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (Common.getLocalPlayer().isCreative()) {
       return;
     }
-    
+
     int currentSelected = LocalPlayerInventory.getSelected().getIndex();
-    
+
     boolean wasEating = eating;
     eating = false;
-    
+
     LocalPlayerInventory.getHotbarInventory()
         .stream()
         .filter(LocalPlayerInventory.InvItem::nonEmpty)
@@ -179,35 +170,35 @@ public class AutoEatMod extends ToggleMod {
         .ifPresent(
             best -> {
               food = best.getItem().getFood();
-              
+
               LocalPlayerInventory.setSelected(best, ticks -> !eating);
-              
+
               eating = true;
-              
+
               if (!checkFailsafe()) {
                 reset();
                 eating = true;
                 return;
               }
-              
+
               if (currentSelected != best.getIndex()) {
                 MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_SELECT_FOOD));
                 lastHotbarIndex = best.getIndex();
                 selectedTicks = 0;
               }
-              
-              if (selectedTicks > select_wait.get()) {
+
+              if (selectedTicks > select_wait.getValue()) {
                 if (!wasEating) {
                   MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_START));
                 }
-                
+
                 FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Common.MC, 4);
                 Common.getPlayerController().processRightClick(Common.getLocalPlayer(), Common.getWorld(), Hand.MAIN_HAND);
-                
+
                 ++eatingTicks;
               }
             });
-    
+
     if (lastHotbarIndex != -1) {
       if (lastHotbarIndex == LocalPlayerInventory.getSelected().getIndex()) {
         selectedTicks++;
@@ -215,14 +206,14 @@ public class AutoEatMod extends ToggleMod {
         selectedTicks = 0;
       }
     }
-    
+
     lastHotbarIndex = LocalPlayerInventory.getSelected().getIndex();
-    
+
     if (wasEating && !eating) {
       reset();
     }
   }
-  
+
   @SubscribeEvent
   public void onStopUse(ItemStoppedUsedEvent event) {
     if (food != null && eating && eatingTicks > 0) {
@@ -233,7 +224,7 @@ public class AutoEatMod extends ToggleMod {
       }
     }
   }
-  
+
 //  @SubscribeEvent(priority = EventPriority.HIGHEST)
 //  public void onGuiOpened(GuiOpenEvent event) {
 //    // process keys and mouse input even if this gui is open

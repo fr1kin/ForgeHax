@@ -3,7 +3,8 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.common.events.PlayerAttackEntityEvent;
 import dev.fiki.forgehax.common.events.PlayerDamageBlockEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -30,67 +31,54 @@ import static net.minecraft.enchantment.Enchantments.EFFICIENCY;
 
 @RegisterMod
 public class AutoTool extends ToggleMod {
-  
+
   private static AutoTool instance = null;
-  
+
   public static AutoTool getInstance() {
     return instance;
   }
-  
-  private final Setting<Boolean> tools =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("tools")
-          .description("Enables AutoTool when tools")
-          .defaultTo(true)
-          .build();
-  
-  private final Setting<Boolean> weapons =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("weapons")
-          .description("Enables AutoTool for weapons")
-          .defaultTo(true)
-          .build();
-  
-  private final Setting<Boolean> revert_back =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("revert-back")
-          .description("Revert back to the previous item")
-          .defaultTo(true)
-          .build();
-  
-  private final Setting<Integer> durability_threshold =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("durability-threshold")
-          .description(
-              "Will filter out items with a damage equal to or less than the threshold. Set to 0 to disable.")
-          .defaultTo(0)
-          .min(0)
-          .max((int) Short.MAX_VALUE)
-          .build();
-  
+
+  private final BooleanSetting tools = newBooleanSetting()
+      .name("tools")
+      .description("Enables AutoTool when tools")
+      .defaultTo(true)
+      .build();
+
+  private final BooleanSetting weapons = newBooleanSetting()
+      .name("weapons")
+      .description("Enables AutoTool for weapons")
+      .defaultTo(true)
+      .build();
+
+  private final BooleanSetting revert_back = newBooleanSetting()
+      .name("revert-back")
+      .description("Revert back to the previous item")
+      .defaultTo(true)
+      .build();
+
+  private final IntegerSetting durability_threshold = newIntegerSetting()
+      .name("durability-threshold")
+      .description("Will filter out items with a damage equal to or less than the threshold. Set to 0 to disable.")
+      .defaultTo(0)
+      .min(0)
+      .max((int) Short.MAX_VALUE)
+      .build();
+
   public AutoTool() {
     super(Category.PLAYER, "AutoTool", false, "Automatically switch to the best tool");
     instance = this;
   }
-  
+
   private boolean isInvincible(LocalPlayerInventory.InvItem item) {
     return item.isNull() || !item.getItem().isDamageable();
   }
-  
+
   private boolean isDurabilityGood(LocalPlayerInventory.InvItem item) {
-    return durability_threshold.get() < 1
+    return durability_threshold.getValue() < 1
         || isInvincible(item)
-        || item.getDurability() > durability_threshold.get();
+        || item.getDurability() > durability_threshold.getValue();
   }
-  
+
   private boolean isSilkTouchable(LocalPlayerInventory.InvItem item, BlockState state, BlockPos pos) {
     // TODO: 1.15 have to figure out if an item can be silk touched by looking it up in the loot tables now
     return false;
@@ -98,7 +86,7 @@ public class AutoTool extends ToggleMod {
 //        && getEnchantmentLevel(Enchantments.SILK_TOUCH, item) > 0
 //        && state.getBlock().canSilkHarvest(getWorld(), pos, state, getLocalPlayer());
   }
-  
+
   private double getDigSpeed(LocalPlayerInventory.InvItem item, BlockState state, BlockPos pos) {
     double str = item.getItemStack().getDestroySpeed(state);
     int eff = getEnchantmentLevel(EFFICIENCY, item);
@@ -106,7 +94,7 @@ public class AutoTool extends ToggleMod {
         ? Math.max(str + (str > 1.D ? (eff * eff + 1.D) : 0.D), 0.D)
         : 1.D;
   }
-  
+
   private double getAttackDamage(LocalPlayerInventory.InvItem item) {
     return Optional.ofNullable(
         item.getItemStack()
@@ -115,7 +103,7 @@ public class AutoTool extends ToggleMod {
         .map(at -> at.stream().findAny().map(AttributeModifier::getAmount).orElse(0.D))
         .orElse(0.D);
   }
-  
+
   private double getAttackSpeed(LocalPlayerInventory.InvItem item) {
     return Optional.ofNullable(item.getItemStack()
         .getAttributeModifiers(EquipmentSlotType.MAINHAND)
@@ -127,7 +115,7 @@ public class AutoTool extends ToggleMod {
             .orElse(0.D))
         .orElse(0.D);
   }
-  
+
   private double getEntityAttackModifier(LocalPlayerInventory.InvItem item, Entity target) {
     return EnchantmentHelper.getModifierForCreature(
         item.getItemStack(),
@@ -137,23 +125,23 @@ public class AutoTool extends ToggleMod {
             .map(LivingEntity::getCreatureAttribute)
             .orElse(CreatureAttribute.UNDEFINED));
   }
-  
+
   private double calculateDPS(LocalPlayerInventory.InvItem item, Entity target) {
     return (getAttackDamage(item) + 1.D + getEntityAttackModifier(item, target))
         / (getAttackSpeed(item) + 1.D);
   }
-  
+
   private int getEnchantmentLevel(Enchantment enchantment, LocalPlayerInventory.InvItem item) {
     return EnchantmentHelper.getEnchantmentLevel(enchantment, item.getItemStack());
   }
-  
+
   private LocalPlayerInventory.InvItem getBestTool(BlockPos pos) {
     LocalPlayerInventory.InvItem current = LocalPlayerInventory.getSelected();
-    
+
     if (!BlockHelper.isBlockPlaceable(pos) || Common.getWorld().isAirBlock(pos)) {
       return current;
     }
-    
+
     final BlockState state = Common.getWorld().getBlockState(pos);
     return LocalPlayerInventory.getHotbarInventory()
         .stream()
@@ -165,7 +153,7 @@ public class AutoTool extends ToggleMod {
                 .thenComparing(LocalPlayerInventory::getHotbarDistance))
         .orElse(current);
   }
-  
+
   private LocalPlayerInventory.InvItem getBestWeapon(Entity target) {
     LocalPlayerInventory.InvItem current = LocalPlayerInventory.getSelected();
     return LocalPlayerInventory.getHotbarInventory()
@@ -179,27 +167,27 @@ public class AutoTool extends ToggleMod {
                 .thenComparing(LocalPlayerInventory::getHotbarDistance))
         .orElse(current);
   }
-  
+
   public void selectBestTool(BlockPos pos) {
-    if (isEnabled() && tools.get()) {
-      LocalPlayerInventory.setSelected(getBestTool(pos), revert_back.get(), ticks -> ticks > 5);
+    if (isEnabled() && tools.getValue()) {
+      LocalPlayerInventory.setSelected(getBestTool(pos), revert_back.getValue(), ticks -> ticks > 5);
     }
   }
-  
+
   public void selectBestWeapon(Entity target) {
-    if (isEnabled() && weapons.get()) {
+    if (isEnabled() && weapons.getValue()) {
       LocalPlayerInventory.setSelected(
           getBestWeapon(target),
-          revert_back.get(),
+          revert_back.getValue(),
           ticks -> Common.getLocalPlayer().getCooledAttackStrength(0.f) >= 1.f && ticks > 30);
     }
   }
-  
+
   @SubscribeEvent
   public void onBlockBreak(PlayerDamageBlockEvent event) {
     selectBestTool(event.getPos());
   }
-  
+
   @SubscribeEvent
   public void onAttackEntity(PlayerAttackEntityEvent event) {
     selectBestWeapon(event.getVictim());

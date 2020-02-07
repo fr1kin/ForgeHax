@@ -3,9 +3,9 @@ package dev.fiki.forgehax.main.gui.elements;
 import dev.fiki.forgehax.main.gui.windows.GuiWindowSetting;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.color.Colors;
-import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 
+import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
@@ -22,7 +22,7 @@ public class GuiTextInput extends GuiElement {
   private int selectedIndex = -1;
   private StringBuilder input = new StringBuilder();
   
-  public GuiTextInput(Setting settingIn, GuiWindowSetting parent) {
+  public GuiTextInput(ToggleMod settingIn, GuiWindowSetting parent) {
     super(settingIn, parent);
     height = 12;
   }
@@ -99,6 +99,7 @@ public class GuiTextInput extends GuiElement {
   }
   
   private void setValue(String in) {
-    setting.set(in);
+    // TODO: 1.15
+    //mod.getEnabledSetting().setValue(in);
   }
 }

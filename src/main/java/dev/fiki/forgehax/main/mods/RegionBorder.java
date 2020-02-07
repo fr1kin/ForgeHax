@@ -2,8 +2,9 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.RenderEvent;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
-import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -18,20 +19,18 @@ import org.lwjgl.opengl.GL11;
 public class RegionBorder extends ToggleMod {
 
 
-  private final Setting<Integer> chunkDistance =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
+  private final IntegerSetting chunkDistance = newIntegerSetting()
       .name("chunk-distance")
-      .description("how many chunks in front of the region the border should be drawn. I you don't want it just set it to 0 so it is like the normal region border.")
+      .description("how many chunks in front of the region the border should be drawn."
+          + " I you don't want it just set it to 0 so it is like the normal region border.")
       .defaultTo(5)
       .build();
 
-  private final Setting<Boolean> drawRegionBorder = getCommandStub().builders().<Boolean>newSettingBuilder()
-    .name("draw-region-border")
-    .description("whether you even want to draw the actual region border.")
-    .defaultTo(true)
-    .build();
+  private final BooleanSetting drawRegionBorder = newBooleanSetting()
+      .name("draw-region-border")
+      .description("whether you even want to draw the actual region border.")
+      .defaultTo(true)
+      .build();
 
 
   public RegionBorder() {
@@ -40,6 +39,7 @@ public class RegionBorder extends ToggleMod {
 
   /**
    * to draw the border
+   *
    * @param event
    */
   @SubscribeEvent
@@ -51,11 +51,11 @@ public class RegionBorder extends ToggleMod {
     BlockPos to = from.add(511, 256, 511);
 
     int color = Colors.ORANGE.toBuffer();
-    if(drawRegionBorder.getAsBoolean()) {
+    if (drawRegionBorder.getValue()) {
       GeometryTessellator.drawCuboid(event.getBuffer(), from, to, GeometryMasks.Line.ALL, color);
     }
 
-    final int chunkDistanceSetting = chunkDistance.getAsInteger() * 16;
+    final int chunkDistanceSetting = chunkDistance.getValue() * 16;
     from = from.add(chunkDistanceSetting, 0, chunkDistanceSetting);
     to = to.add(-chunkDistanceSetting, 0, -chunkDistanceSetting);
 

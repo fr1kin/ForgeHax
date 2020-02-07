@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.spam.SpamMessage;
@@ -48,15 +48,12 @@ public class SpamService extends ServiceMod {
     return SENDING.isEmpty();
   }
   
-  public final Setting<Long> delay =
-      getCommandStub()
-          .builders()
-          .<Long>newSettingBuilder()
+  public final LongSetting delay = newLongSetting()
           .name("delay")
           .description("Delay between each message in ms")
           .defaultTo(5000L)
-          .changed(
-              cb -> {
+          .changedListener(
+              (from, to) -> {
                 nextSendMs = 0L;
               })
           .build();
@@ -67,27 +64,24 @@ public class SpamService extends ServiceMod {
   private long nextSendMs = 0L;
   
   private Map<String, AtomicLong> customDelays = Maps.newConcurrentMap();
-  
-  public SpamService() {
-    super("SpamService");
-  }
-  
-  @Override
-  protected void onLoad() {
-    getCommandStub()
-        .builders()
-        .newCommandBuilder()
+
+  {
+    newSimpleCommand()
         .name("reset")
         .description("Resets spam delay and send list")
-        .processor(
-            data -> {
+        .executor(
+            args -> {
               nextSendMs = Long.MAX_VALUE;
               SENDING.clear();
               customDelays.clear();
               nextSendMs = 0;
-              data.write("Reset chat spam");
+              args.inform("Reset chat spam");
             })
         .build();
+  }
+  
+  public SpamService() {
+    super("SpamService");
   }
   
   @SubscribeEvent
@@ -111,7 +105,7 @@ public class SpamService extends ServiceMod {
                 Common.getLocalPlayer().sendChatMessage(msg.getMessage());
                 customDelays.computeIfAbsent(msg.getType(), t -> new AtomicLong(0L))
                     .set(System.currentTimeMillis() + msg.getDelay());
-                nextSendMs = System.currentTimeMillis() + delay.get();
+                nextSendMs = System.currentTimeMillis() + delay.getValue();
                 SENDING.remove(msg);
               });
     }

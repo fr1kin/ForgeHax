@@ -1,8 +1,13 @@
 package dev.fiki.forgehax.main.util.mod;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * Created on 9/4/2017 by fr1kin
  */
+@Getter
+@AllArgsConstructor
 public enum Category {
   NONE("", ""),
   COMBAT("Combat", "Combat related mods"),
@@ -12,20 +17,7 @@ public enum Category {
   MISC("Misc", "Miscellaneous"),
   SERVICE("Service", "Background mods"),
   ;
-  
+
   private String prettyName;
   private String description;
-  
-  Category(String prettyName, String description) {
-    this.prettyName = prettyName;
-    this.description = description;
-  }
-  
-  public String getPrettyName() {
-    return prettyName;
-  }
-  
-  public String getDescription() {
-    return description;
-  }
 }

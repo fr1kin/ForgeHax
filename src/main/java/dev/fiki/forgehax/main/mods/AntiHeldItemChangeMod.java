@@ -15,26 +15,25 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 @RegisterMod
 public class AntiHeldItemChangeMod extends ToggleMod {
-  
+
   public AntiHeldItemChangeMod() {
-    super(
-        Category.PLAYER,
+    super(Category.PLAYER,
         "AntiHeldItemChange",
         false,
         "prevents the server from changing selected hotbar slot");
   }
-  
+
   @SubscribeEvent
   public void onPacketReceived(PacketInboundEvent event) {
     if (event.getPacket() instanceof SSetSlotPacket && Common.getLocalPlayer() != null) {
       int currentSlot = Common.getLocalPlayer().inventory.currentItem;
-      
+
       if (((SSetSlotPacket) event.getPacket()).getSlot() != currentSlot) {
         Common.sendNetworkPacket(new CHeldItemChangePacket(currentSlot)); // set server's slot back to our slot
 
         // likely will be eating so stop right clicking
         FastReflection.Methods.KeyBinding_unPress.invoke(Common.getGameSettings().keyBindUseItem);
-        
+
         event.setCanceled(true);
       }
     }

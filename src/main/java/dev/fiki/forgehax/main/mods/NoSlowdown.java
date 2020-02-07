@@ -12,11 +12,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class NoSlowdown extends ToggleMod {
-  
+
   public NoSlowdown() {
     super(Category.PLAYER, "NoSlowDown", false, "Disables block slowdown");
   }
-  
+
   @Override
   public void onEnabled() {
     ForgeHaxHooks.isNoSlowDownActivated = true;
@@ -25,7 +25,7 @@ public class NoSlowdown extends ToggleMod {
     } catch (Exception e) {
     }
   }
-  
+
   @Override
   public void onDisabled() {
     ForgeHaxHooks.isNoSlowDownActivated = false;
@@ -34,7 +34,7 @@ public class NoSlowdown extends ToggleMod {
     } catch (Exception e) {
     }
   }
-  
+
   @SubscribeEvent
   public void onDoApplyBlockMovement(DoBlockCollisionsEvent event) {
     if (event.getEntity().equals(Common.getLocalPlayer())) {

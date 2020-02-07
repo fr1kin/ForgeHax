@@ -23,11 +23,11 @@ public class CharacterType extends TypeConverter<Character> {
   
   @Override
   public Character parse(String value) {
-    return Strings.isNullOrEmpty(value) ? '\0' : value.charAt(0);
+    return value.charAt(0);
   }
   
   @Override
-  public String toString(Character value) {
+  public String convert(Character value) {
     return Character.toString(value);
   }
   

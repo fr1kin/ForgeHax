@@ -4,7 +4,7 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.gui.elements.GuiButton;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
-import dev.fiki.forgehax.main.util.mod.BaseMod;
+import dev.fiki.forgehax.main.util.mod.AbstractMod;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.color.Color;
 
@@ -41,8 +41,8 @@ public class GuiWindowMod extends GuiWindow {
   private void addModsToButtonList() {
     int maxWidth = 0;
     int newHeight = 0;
-    for (BaseMod mod : Common.getModManager().getMods()) {
-      if (mod.getModCategory().equals(category) && !mod.isHidden()) {
+    for (AbstractMod mod : Common.getModManager().getMods()) {
+      if (mod.getCategory().equals(category) && !mod.isHidden()) {
         GuiButton moduleButton = new GuiButton(mod);
         buttonList.add(moduleButton);
         
@@ -59,11 +59,11 @@ public class GuiWindowMod extends GuiWindow {
     width = maxWidth + 15; // set the width of window to the width of the longest mod name
   }
   
-  private void drawModTooltip(BaseMod mod, int xScaled, int yScaled) {
+  private void drawModTooltip(AbstractMod mod, int xScaled, int yScaled) {
     int scale = (int) Common.getMainWindow().getGuiScaleFactor();
     
-    String modName = mod.getModName();
-    String modDescription = mod.getModDescription();
+    String modName = mod.getName();
+    String modDescription = mod.getDescription();
     int offset = 2;
     int tooltipX = xScaled / scale + offset;
     int tooltipY = yScaled / scale + offset;

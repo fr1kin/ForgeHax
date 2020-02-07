@@ -435,13 +435,17 @@ public abstract class Color {
   }
   
   @Override
-  public abstract String toString();
+  public String toString() {
+    return getRed() + " " + getGreen() + " " + getBlue() + " " + getAlpha();
+  }
   
   @Override
-  public abstract int hashCode();
+  public int hashCode() {
+    return toBuffer();
+  }
   
   @Override
   public boolean equals(Object obj) {
-    return this == obj || (obj instanceof Color && hashCode() == obj.hashCode());
+    return this == obj || (obj instanceof Color && toBuffer() == ((Color) obj).toBuffer());
   }
 }

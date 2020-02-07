@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.gui.elements;
 
-import dev.fiki.forgehax.main.util.mod.BaseMod;
+import dev.fiki.forgehax.main.util.mod.AbstractMod;
 import dev.fiki.forgehax.main.util.color.Color;
 
 /**
@@ -8,7 +8,7 @@ import dev.fiki.forgehax.main.util.color.Color;
  */
 public class GuiButton {
   
-  private final BaseMod mod;
+  private final AbstractMod mod;
   
   private static final int COLOR_ENABLED = Color.of(65, 65, 65, 200).toBuffer();
   private static final int COLOR_DISABLED = Color.of(100, 100, 100, 150).toBuffer();
@@ -18,7 +18,7 @@ public class GuiButton {
   
   public int x, y; // used to get the area they can be clicked in
   
-  public GuiButton(BaseMod modIn) {
+  public GuiButton(AbstractMod modIn) {
     this.mod = modIn;
   }
   
@@ -40,10 +40,10 @@ public class GuiButton {
   }
   
   public String getName() {
-    return mod.getModName();
+    return mod.getName();
   }
   
-  public BaseMod getMod() {
+  public AbstractMod getMod() {
     return this.mod;
   }
   

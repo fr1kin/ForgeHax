@@ -1,9 +1,12 @@
 package dev.fiki.forgehax.main.mods.services;
 
+import static dev.fiki.forgehax.main.Common.getLogger;
 import static net.minecraft.util.text.TextFormatting.RED;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.cmd.execution.CommandExecutor;
+import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
@@ -200,12 +203,34 @@ public class MainMenuGuiService extends ServiceMod {
       }
     }
     
-    private void runCommand(String s) {
+    private void runCommand(String line) {
       try {
         // TODO: Future client api
         switch (mode) {
           case FORGEHAX:
-            ChatCommandService.handleCommand(s);
+            CommandExecutor.builder()
+                .console(new IConsole() {
+                  @Override
+                  public void inform(String message, Object... args) {
+                    print(String.format(message, args));
+                  }
+
+                  @Override
+                  public void warn(String message, Object... args) {
+                    print(String.format(message, args));
+                  }
+
+                  @Override
+                  public void error(String message, Object... args) {
+                    print(String.format(message, args));
+                  }
+                })
+                .exceptionHandler(((throwable, output) -> {
+                  output.error("Error: %s", throwable.getMessage());
+                  getLogger().error(throwable, throwable);
+                }))
+                .build()
+                .runLine(line);
             break;
           case FUTURE:
             print(RED + "Unsupported");

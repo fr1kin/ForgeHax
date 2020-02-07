@@ -14,44 +14,44 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoMine extends ToggleMod {
-  
+
   private boolean pressed = false;
-  
+
   public AutoMine() {
     super(Category.PLAYER, "AutoMine", false, "Auto mine blocks");
   }
-  
+
   private void setPressed(boolean state) {
     Bindings.attack.setPressed(state);
     pressed = state;
   }
-  
+
   @Override
   protected void onEnabled() {
     Bindings.attack.bind();
   }
-  
+
   @Override
   protected void onDisabled() {
     setPressed(false);
     Bindings.attack.unbind();
   }
-  
+
   @SubscribeEvent
   public void onTick(TickEvent.ClientTickEvent event) {
     if (!Common.isInWorld()) {
       return;
     }
-    
+
     switch (event.phase) {
       case START: {
         RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
-        
+
         if (tr == null) {
           setPressed(false);
           return;
         }
-        
+
         setPressed(true);
         break;
       }
@@ -60,7 +60,7 @@ public class AutoMine extends ToggleMod {
         break;
     }
   }
-  
+
 //  @SubscribeEvent(priority = EventPriority.HIGHEST)
 //  public void onGuiOpened(GuiOpenEvent event) {
 //    // process keys and mouse input even if this gui is open
@@ -68,13 +68,13 @@ public class AutoMine extends ToggleMod {
 //      event.getGui().allowUserInput = true;
 //    }
 //  } // TODO: 1.15 might need to update this
-  
+
   @SubscribeEvent
   public void onLeftClickCouterUpdate(LeftClickCounterUpdateEvent event) {
     // prevent the leftClickCounter from changing
     event.setCanceled(true);
   }
-  
+
   @SubscribeEvent
   public void onBlockCounterUpdate(BlockControllerProcessEvent event) {
     // bug fix - left click is actually false after processing the key bindings

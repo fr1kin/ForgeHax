@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -13,20 +13,17 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AntiFireMod extends ToggleMod {
-  
+
+  private final BooleanSetting collisions = newBooleanSetting()
+      .name("collisions")
+      .description("Give fire collision boxes")
+      .defaultTo(false)
+      .build();
+
   public AntiFireMod() {
     super(Category.PLAYER, "AntiFire", false, "Removes fire");
   }
-  
-  private final Setting<Boolean> collisions =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("collisions")
-          .description("Give fire collision boxes")
-          .defaultTo(false)
-          .build();
-  
+
 //  @SubscribeEvent
 //  public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
 //    if (!collisions.get()) {
@@ -42,11 +39,11 @@ public class AntiFireMod extends ToggleMod {
 //    }
 //  }
   // TODO: 1.15
-  
+
   private boolean isAbovePlayer(BlockPos pos) {
     return pos.getY() >= Common.getLocalPlayer().getPosY();
   }
-  
+
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     event.getEntityLiving().extinguish();

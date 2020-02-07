@@ -11,6 +11,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.stream.StreamSupport;
 
+import static dev.fiki.forgehax.main.Common.*;
+
 @RegisterMod
 public class NoRender extends ToggleMod {
   
@@ -20,15 +22,15 @@ public class NoRender extends ToggleMod {
   
   @SubscribeEvent
   public void onClientTick(ClientTickEvent.Pre event) {
-    if (Common.isInWorld()) {
+    if (isInWorld()) {
       return;
     }
 
-    StreamSupport.stream(Common.getWorld().getAllEntities().spliterator(), false)
+    StreamSupport.stream(getWorld().getAllEntities().spliterator(), false)
         .filter(ItemEntity.class::isInstance)
         .map(ItemEntity.class::cast)
         .map(Entity::getEntityId)
-        .forEach(Common.getWorld()::removeEntityFromWorld);
+        .forEach(getWorld()::removeEntityFromWorld);
   }
 }
 

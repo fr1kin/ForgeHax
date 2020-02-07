@@ -1,9 +1,7 @@
 package dev.fiki.forgehax.main.gui.elements;
 
 import dev.fiki.forgehax.main.gui.windows.GuiWindowSetting;
-import dev.fiki.forgehax.main.util.command.Setting;
-
-import java.io.IOException;
+import dev.fiki.forgehax.main.util.mod.ToggleMod;
 
 /**
  * Created by Babbaj on 9/6/2017.
@@ -16,11 +14,11 @@ public class GuiElement {
   public int subX, subY; // coords of the element relative to the parent window
   public int x, y; // coords of the element posX + subX
   
-  public Setting setting;
+  public ToggleMod mod;
   
-  public GuiElement(Setting settingIn, GuiWindowSetting parent) {
+  public GuiElement(ToggleMod settingIn, GuiWindowSetting parent) {
     this.parentWindow = parent;
-    this.setting = settingIn;
+    this.mod = settingIn;
   }
   
   public void mouseClicked(int x, int y, int state) {

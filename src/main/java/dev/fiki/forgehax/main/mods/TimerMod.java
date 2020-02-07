@@ -1,9 +1,10 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -17,56 +18,50 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 @RegisterMod
 public class TimerMod extends ToggleMod {
-  
+
   public TimerMod() {
     super(Category.MISC, "Timer", false, "Speed up game time");
   }
-  
-  public final Setting<Float> factor =
-      getCommandStub()
-          .builders()
-          .<Float>newSettingBuilder()
-          .name("speed")
-          .description("how fast to make the game run")
-          .defaultTo(1f)
-          .min(0f)
-          .success(__ -> {
-            if (this.isEnabled()) {
-              updateTimer();
-            }
-          })
-          .build();
-  
-  public final Setting<Boolean> tpsSync =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("tps-sync")
-          .description("sync timer to tps")
-          .defaultTo(false)
-          .build();
-  
+
+  public final FloatSetting factor = newFloatSetting()
+      .name("speed")
+      .description("how fast to make the game run")
+      .defaultTo(1f)
+      .min(0f)
+      .changedListener((from, to) -> {
+        if (this.isEnabled()) {
+          updateTimer();
+        }
+      })
+      .build();
+
+  public final BooleanSetting tpsSync = newBooleanSetting()
+      .name("tps-sync")
+      .description("sync timer to tps")
+      .defaultTo(false)
+      .build();
+
   private final float DEFAULT_SPEED = 1000f / 20; // default speed - 50 ms
-  
+
   @Override
   public void onEnabled() {
     updateTimer();
   }
-  
+
   @Override
   public void onDisabled() {
     setSpeed(DEFAULT_SPEED);
   }
-  
+
   private void updateTimer() {
-    if (!tpsSync.getAsBoolean()) {
-      setSpeed(DEFAULT_SPEED / factor.getAsFloat());
+    if (!tpsSync.getValue()) {
+      setSpeed(DEFAULT_SPEED / factor.getValue());
     }
   }
-  
+
   @SubscribeEvent
   public void onPacketPreceived(PacketInboundEvent event) {
-    if (event.getPacket() instanceof SUpdateTimePacket && tpsSync.getAsBoolean()) {
+    if (event.getPacket() instanceof SUpdateTimePacket && tpsSync.getValue()) {
       TickRateService.TickRateData data = TickRateService.getTickData();
       if (data.getSampleSize() > 0) {
         TickRateService.TickRateData.CalculationData point = data.getPoint();
@@ -76,22 +71,22 @@ public class TimerMod extends ToggleMod {
       updateTimer();
     }
   }
-  
+
   private void setSpeed(float value) {
     Timer timer = FastReflection.Fields.Minecraft_timer.get(Common.MC);
     FastReflection.Fields.Timer_tickLength.set(timer, value);
   }
-  
+
   @Override
   public String getDisplayText() {
-    if (tpsSync.getAsBoolean()) {
+    if (tpsSync.getValue()) {
       TickRateService.TickRateData data = TickRateService.getTickData();
       if (data.getSampleSize() > 0) {
         TickRateService.TickRateData.CalculationData point = data.getPoint();
         return String.format("%s[%.2f]", super.getDisplayText(), point.getAverage() / 20);
       }
     } else {
-      return String.format("%s[%.2f]", super.getDisplayText(), factor.get());
+      return String.format("%s[%.2f]", super.getDisplayText(), factor.getValue());
     }
     return super.getDisplayText();
   }

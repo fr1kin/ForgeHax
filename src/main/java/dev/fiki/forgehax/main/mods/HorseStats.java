@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import dev.fiki.forgehax.main.util.command.Setting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -13,72 +13,66 @@ import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import static dev.fiki.forgehax.main.Common.*;
+
 /**
  * Created by Babbaj on 9/1/2017.
  */
 @RegisterMod
 public class HorseStats extends ToggleMod {
-  
+
   public HorseStats() {
     super(Category.PLAYER, "HorseStats", false, "Change the stats of your horse");
   }
-  
-  private final Setting<Double> jumpHeight =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("JumpHeight")
-          .description("Modified horse jump height attribute. Default: 1")
-          .defaultTo(1.0D)
-          .build();
-  private final Setting<Double> speed =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("Speed")
-          .description("Modified horse speed attribute. Default: 0.3375")
-          .defaultTo(0.3375D)
-          .build();
-  
-  private final Setting<Double> multiplier =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("multiplier")
-          .description("multiplier while sprinting")
-          .defaultTo(1.0D)
-          .build();
-  
+
+  private final DoubleSetting jumpHeight = newDoubleSetting()
+      .name("jump-height")
+      .description("Modified horse jump height attribute. Default: 1")
+      .defaultTo(1.0D)
+      .build();
+
+  private final DoubleSetting speed = newDoubleSetting()
+      .name("speed")
+      .description("Modified horse speed attribute. Default: 0.3375")
+      .defaultTo(0.3375D)
+      .build();
+
+  private final DoubleSetting multiplier = newDoubleSetting()
+      .name("multiplier")
+      .description("multiplier while sprinting")
+      .defaultTo(1.0D)
+      .build();
+
   @Override
   public void onDisabled() {
-    if (Common.getMountedEntity() instanceof AbstractHorseEntity) {
-      applyStats(jumpHeight.getDefault(), speed.getDefault());
+    if (getMountedEntity() instanceof AbstractHorseEntity) {
+      applyStats(jumpHeight.getDefaultValue(), speed.getDefaultValue());
     }
   }
-  
+
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
     if (EntityUtils.isDrivenByPlayer(event.getEntity())
-        && Common.getMountedEntity() instanceof AbstractHorseEntity) {
-      
-      double newSpeed = speed.getAsDouble();
-      if (Common.getLocalPlayer().isSprinting()) {
-        newSpeed *= multiplier.getAsDouble();
+        && getMountedEntity() instanceof AbstractHorseEntity) {
+
+      double newSpeed = speed.getValue();
+      if (getLocalPlayer().isSprinting()) {
+        newSpeed *= multiplier.getValue();
       }
-      applyStats(jumpHeight.getAsDouble(), newSpeed);
+      applyStats(jumpHeight.getValue(), newSpeed);
     }
   }
-  
+
   private void applyStats(double newJump, double newSpeed) {
     final IAttribute jump_strength =
-        FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(Common.getMountedEntity());
+        FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getMountedEntity());
     final IAttribute movement_speed =
-        FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(Common.getMountedEntity());
-    
-    ((LivingEntity) Common.getMountedEntity())
+        FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getMountedEntity());
+
+    ((LivingEntity) getMountedEntity())
         .getAttribute(jump_strength)
         .setBaseValue(newJump);
-    ((LivingEntity) Common.getMountedEntity())
+    ((LivingEntity) getMountedEntity())
         .getAttribute(movement_speed)
         .setBaseValue(newSpeed);
   }

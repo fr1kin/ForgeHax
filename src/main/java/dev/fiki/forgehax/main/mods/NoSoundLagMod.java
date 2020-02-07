@@ -15,7 +15,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class NoSoundLagMod extends ToggleMod {
-  
+
   private static final Set<SoundEvent> BLACKLIST = Sets.newHashSet(
       SoundEvents.ITEM_ARMOR_EQUIP_GENERIC,
       SoundEvents.ITEM_ARMOR_EQUIP_ELYTRA,
@@ -26,11 +26,11 @@ public class NoSoundLagMod extends ToggleMod {
       SoundEvents.ITEM_ARMOR_EQUIP_LEATHER,
       SoundEvents.ITEM_ARMOR_EQUIP_TURTLE
   );
-  
+
   public NoSoundLagMod() {
     super(Category.MISC, "NoSoundLag", false, "lag exploit fix");
   }
-  
+
   @SubscribeEvent
   public void onPacketReceived(PacketInboundEvent event) {
     if (event.getPacket() instanceof SPlaySoundEffectPacket) {
@@ -38,7 +38,7 @@ public class NoSoundLagMod extends ToggleMod {
       if (BLACKLIST.contains(packet.getSound())) {
         event.setCanceled(true);
       }
-      
+
     }
   }
 }

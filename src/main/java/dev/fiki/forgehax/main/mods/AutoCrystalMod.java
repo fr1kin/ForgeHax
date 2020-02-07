@@ -2,7 +2,9 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -25,80 +27,62 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 @RegisterMod
 public class AutoCrystalMod extends ToggleMod {
-  
-  public final Setting<Float> maxDistance =
-      getCommandStub()
-          .builders()
-          .<Float>newSettingBuilder()
-          .name("max-distance")
-          .description("maximum distance to detonate crystals")
-          .defaultTo(3f)
-          .min(0f)
-          .build();
-  
-  public final Setting<Float> minDistance =
-      getCommandStub()
-          .builders()
-          .<Float>newSettingBuilder()
-          .name("min-distance")
-          .description("minimum distance to detonate crystals")
-          .defaultTo(0f)
-          .min(0f)
-          .build();
-  
-  public final Setting<Float> minHeight =
-      getCommandStub()
-          .builders()
-          .<Float>newSettingBuilder()
-          .name("min-height")
-          .description("detonate crystals with a relative y coord greater than this value")
-          .defaultTo(-5f)
-          .build();
-  
-  public final Setting<Integer> delay =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("delay")
-          .description("delay between detonations in ms")
-          .defaultTo(10)
-          .min(0)
-          .build();
-  
-  public final Setting<Boolean> checkEnemy =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("check-enemy")
-          .description("only detonate crystals close to enemy players")
-          .defaultTo(true)
-          .build();
-  
-  public final Setting<Float> maxEnemyDistance =
-      getCommandStub()
-          .builders()
-          .<Float>newSettingBuilder()
-          .name("max-enemy-distance")
-          .description("maximum distance from crystal to enemy")
-          .defaultTo(10f)
-          .min(0f)
-          .build();
-  
+
+  public final FloatSetting maxDistance = newFloatSetting()
+      .name("max-distance")
+      .description("maximum distance to detonate crystals")
+      .defaultTo(3f)
+      .min(0f)
+      .build();
+
+  public final FloatSetting minDistance = newFloatSetting()
+      .name("min-distance")
+      .description("minimum distance to detonate crystals")
+      .defaultTo(0f)
+      .min(0f)
+      .build();
+
+  public final FloatSetting minHeight = newFloatSetting()
+      .name("min-height")
+      .description("detonate crystals with a relative y coord greater than this value")
+      .defaultTo(-5f)
+      .build();
+
+  public final IntegerSetting delay = newIntegerSetting()
+      .name("delay")
+      .description("delay between detonations in ms")
+      .defaultTo(10)
+      .min(0)
+      .build();
+
+  public final BooleanSetting checkEnemy = newBooleanSetting()
+      .name("check-enemy")
+      .description("only detonate crystals close to enemy players")
+      .defaultTo(true)
+      .build();
+
+  public final FloatSetting maxEnemyDistance = newFloatSetting()
+      .name("max-enemy-distance")
+      .description("maximum distance from crystal to enemy")
+      .defaultTo(10f)
+      .min(0f)
+      .build();
+
   public AutoCrystalMod() {
     super(Category.COMBAT, "AutoCrystal", false, "Automatically detonates nearby end crystals");
   }
-  
+
   private SimpleTimer timer = new SimpleTimer();
-  
+
   @Override
   public void onEnabled() {
     timer.start();
   }
-  
+
   private Predicate<Entity> playerWithinDistance(float dist) {
     return k -> Common.getLocalPlayer().getDistanceSq(k) < dist * dist;
   }
-  
+
   private boolean enemyWithinDistance(Entity e, float dist) {
     Vec3d delta = new Vec3d(dist, dist, dist);
     AxisAlignedBB bb =
@@ -107,16 +91,16 @@ public class AutoCrystalMod extends ToggleMod {
         .filter(p -> !p.isEntityEqual(Common.getLocalPlayer()))
         .anyMatch(p -> e.getDistanceSq(p) < dist * dist);
   }
-  
+
   @SubscribeEvent
   public void onTick(LocalPlayerUpdateEvent event) {
     if (Common.getWorld() != null && Common.getLocalPlayer() != null) {
       // Short-circuit if the timer check will fail
-      if (!timer.hasTimeElapsed(delay.get())) {
+      if (!timer.hasTimeElapsed(delay.getValue())) {
         return;
       }
-      
-      Vec3d delta = new Vec3d(maxDistance.get(), maxDistance.get(), maxDistance.get());
+
+      Vec3d delta = new Vec3d(maxDistance.getValue(), maxDistance.getValue(), maxDistance.getValue());
       AxisAlignedBB bb =
           new AxisAlignedBB(
               Common.getLocalPlayer().getPositionVector().subtract(delta),
@@ -124,13 +108,13 @@ public class AutoCrystalMod extends ToggleMod {
       Common.getWorld()
           .getEntitiesWithinAABB(EnderCrystalEntity.class, bb).stream()
           // Re-check timer, since it may have been reset in a previous iteration
-          .filter(__ -> timer.hasTimeElapsed(delay.get()))
+          .filter(__ -> timer.hasTimeElapsed(delay.getValue()))
           .filter(
               e ->
-                  e.getPosition().getY() - Common.getLocalPlayer().getPosition().getY() >= minHeight.get())
-          .filter(playerWithinDistance(maxDistance.get()))
-          .filter(playerWithinDistance(minDistance.get()).negate())
-          .filter(e -> !checkEnemy.get() || enemyWithinDistance(e, maxEnemyDistance.get()))
+                  e.getPosition().getY() - Common.getLocalPlayer().getPosition().getY() >= minHeight.getValue())
+          .filter(playerWithinDistance(maxDistance.getValue()))
+          .filter(playerWithinDistance(minDistance.getValue()).negate())
+          .filter(e -> !checkEnemy.getValue() || enemyWithinDistance(e, maxEnemyDistance.getValue()))
           .forEach(
               e -> {
                 Common.sendNetworkPacket(new CUseEntityPacket(e));

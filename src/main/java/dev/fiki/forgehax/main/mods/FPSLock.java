@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -11,46 +11,35 @@ import org.lwjgl.glfw.GLFW;
 
 @RegisterMod
 public class FPSLock extends ToggleMod {
-  
-  private final Setting<Integer> defaultFps =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("default-fps")
-          .description("default FPS to revert to")
-          .defaultTo(Common.getGameSettings().framerateLimit)
-          .min(1)
-          .build();
-  
-  private final Setting<Integer> fps =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("fps")
-          .description("FPS to use when the world is loaded. Set to 0 to disable.")
-          .min(0)
-          .defaultTo(0)
-          .build();
-  private final Setting<Integer> menu_fps =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("menu-fps")
-          .description("FPS when the GUI is opened. Set to 0 to disable.")
-          .min(0)
-          .defaultTo(60)
-          .build();
-  
-  private final Setting<Integer> no_focus_fps =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("no-focus-fps")
-          .description("FPS when the game window doesn't have focus. Set to 0 to disable.")
-          .min(0)
-          .defaultTo(3)
-          .build();
-  
+
+  private final IntegerSetting defaultFps = newIntegerSetting()
+      .name("default-fps")
+      .description("default FPS to revert to")
+      .defaultTo(Common.getGameSettings().framerateLimit)
+      .min(1)
+      .build();
+
+  private final IntegerSetting fps = newIntegerSetting()
+      .name("fps")
+      .description("FPS to use when the world is loaded. Set to 0 to disable.")
+      .min(0)
+      .defaultTo(0)
+      .build();
+
+  private final IntegerSetting menu_fps = newIntegerSetting()
+      .name("menu-fps")
+      .description("FPS when the GUI is opened. Set to 0 to disable.")
+      .min(0)
+      .defaultTo(60)
+      .build();
+
+  private final IntegerSetting no_focus_fps = newIntegerSetting()
+      .name("no-focus-fps")
+      .description("FPS when the game window doesn't have focus. Set to 0 to disable.")
+      .min(0)
+      .defaultTo(3)
+      .build();
+
   public FPSLock() {
     super(
         Category.MISC,
@@ -58,23 +47,23 @@ public class FPSLock extends ToggleMod {
         false,
         "Lock the fps to a lower-than-allowed value, and restore when disabled");
   }
-  
+
   private int getFps() {
-    if (no_focus_fps.get() > 0
+    if (no_focus_fps.getValue() > 0
         && GLFW.glfwGetWindowAttrib(Common.getMainWindow().getHandle(), GLFW.GLFW_FOCUSED) == GLFW.GLFW_FALSE) {
-      return no_focus_fps.get();
+      return no_focus_fps.getValue();
     } else if (Common.MC.currentScreen != null) {
-      return menu_fps.get() > 0 ? menu_fps.get() : defaultFps.get();
+      return menu_fps.getValue() > 0 ? menu_fps.getValue() : defaultFps.getValue();
     } else {
-      return fps.get() > 0 ? fps.get() : defaultFps.get();
+      return fps.getValue() > 0 ? fps.getValue() : defaultFps.getValue();
     }
   }
-  
+
   @Override
   protected void onDisabled() {
-    Common.getGameSettings().framerateLimit = defaultFps.get();
+    Common.getGameSettings().framerateLimit = defaultFps.getValue();
   }
-  
+
   @SubscribeEvent
   void onTick(ClientTickEvent.Pre event) {
     Common.getGameSettings().framerateLimit = getFps();

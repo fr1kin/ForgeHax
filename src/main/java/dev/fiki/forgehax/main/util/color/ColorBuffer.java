@@ -85,14 +85,4 @@ public class ColorBuffer extends Color {
   public float[] toFloatArray() {
     return new float[]{getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat()};
   }
-  
-  @Override
-  public int hashCode() {
-    return Integer.hashCode(buffer);
-  }
-  
-  @Override
-  public String toString() {
-    return String.format("r=%d,g=%d,b=%d,a=%d", getRed(), getGreen(), getBlue(), getAlpha());
-  }
 }

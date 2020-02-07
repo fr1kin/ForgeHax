@@ -1,7 +1,6 @@
 package dev.fiki.forgehax.main.util.typeconverter.types;
 
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
-import dev.fiki.forgehax.main.util.SafeConverter;
 
 import java.util.Comparator;
 import javax.annotation.Nullable;
@@ -23,11 +22,11 @@ public class FloatType extends TypeConverter<Float> {
   
   @Override
   public Float parse(String value) {
-    return SafeConverter.toFloat(value);
+    return Float.parseFloat(value);
   }
   
   @Override
-  public String toString(Float value) {
+  public String convert(Float value) {
     return Float.toString(value);
   }
   

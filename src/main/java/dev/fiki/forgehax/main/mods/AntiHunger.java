@@ -12,7 +12,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AntiHunger extends ToggleMod {
-  
+
   public AntiHunger() {
     super(Category.PLAYER, "AntiHunger", false, "Don't use hunger for travelling");
   }
@@ -27,7 +27,7 @@ public class AntiHunger extends ToggleMod {
         FastReflection.Fields.CPacketPlayer_onGround.set(packet, true);
       }
     }
-    
+
     if (event.getPacket() instanceof CEntityActionPacket) {
       CEntityActionPacket packet = (CEntityActionPacket) event.getPacket();
       if (packet.getAction() == CEntityActionPacket.Action.START_SPRINTING

@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.key.Bindings;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -11,29 +11,26 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoSprintMod extends ToggleMod {
-  
+
   private boolean isBound = false;
-  
+
   enum Modes {
     ALWAYS,
     LEGIT
   }
-  
-  public final Setting<Modes> mode =
-      getCommandStub()
-          .builders()
-          .<Modes>newSettingEnumBuilder()
-          .name("mode")
-          .description("Sprint mode")
-          .defaultTo(Modes.ALWAYS)
-          .build();
-  
+
+  public final EnumSetting<Modes> mode = newEnumSetting(Modes.class)
+      .name("mode")
+      .description("Sprint mode")
+      .defaultTo(Modes.ALWAYS)
+      .build();
+
   public AutoSprintMod() {
     super(Category.PLAYER, "AutoSprint", false, "Automatically sprints");
   }
-  
+
   private void startSprinting() {
-    switch (mode.get()) {
+    switch (mode.getValue()) {
       case ALWAYS:
         if (!Common.getLocalPlayer().collidedHorizontally && !Common.getLocalPlayer().isSprinting()) {
           Common.getLocalPlayer().setSprinting(true);
@@ -51,7 +48,7 @@ public class AutoSprintMod extends ToggleMod {
         break;
     }
   }
-  
+
   private void stopSprinting() {
     if (isBound) {
       Bindings.sprint.setPressed(false);
@@ -59,7 +56,7 @@ public class AutoSprintMod extends ToggleMod {
       isBound = false;
     }
   }
-  
+
   /**
    * Stop sprinting when the mod is disabled
    */
@@ -67,7 +64,7 @@ public class AutoSprintMod extends ToggleMod {
   public void onDisabled() {
     stopSprinting();
   }
-  
+
   /**
    * Start sprinting every update tick
    */

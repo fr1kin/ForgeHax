@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -506,6 +507,17 @@ public interface FastReflection {
             .parent(ToolItem.class)
             .mcp("attackSpeed")
             .srg("field_185065_c")
+            .build();
+
+    /**
+     * InputMappings
+     */
+
+    FastField<Map<String, InputMappings.Input>> InputMappings_REGISTRY =
+        FastField.builder()
+            .parent(InputMappings.Input.class)
+            .mcp("REGISTRY")
+            .srg("field_199875_d")
             .build();
   }
 

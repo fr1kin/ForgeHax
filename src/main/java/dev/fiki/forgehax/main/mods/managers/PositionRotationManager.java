@@ -6,7 +6,8 @@ import dev.fiki.forgehax.common.events.movement.PrePlayerMovementUpdateEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
-import dev.fiki.forgehax.main.util.command.Setting;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
@@ -33,12 +34,18 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class PositionRotationManager extends ServiceMod {
 
   // copy/pasted from ToggleMod
-  private final Setting<Boolean> enabled = getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
+  private final BooleanSetting enabled = newBooleanSetting()
       .name("enabled")
       .description("Enables the mod")
       .defaultTo(true)
+      .build();
+
+  public final DoubleSetting smooth = newDoubleSetting()
+      .name("smooth")
+      .description("Angle smoothing for bypassing anti-cheats. Set to 0 to disable")
+      .defaultTo(45.D)
+      .min(0.D)
+      .max(180.D)
       .build();
   
   private static final SimpleManagerContainer<MovementUpdateListener> MANAGER =
@@ -56,17 +63,6 @@ public class PositionRotationManager extends ServiceMod {
   public PositionRotationManager() {
     super("PositionRotationManager");
   }
-  
-  public final Setting<Double> smooth =
-    getCommandStub()
-      .builders()
-      .<Double>newSettingBuilder()
-      .name("smooth")
-      .description("Angle smoothing for bypassing anti-cheats. Set to 0 to disable")
-      .defaultTo(45.D)
-      .min(0.D)
-      .max(180.D)
-      .build();
   
   private final RotationState gState = new RotationState();
   private TaskChain<Consumer<ReadableRotationState>> futureTasks = TaskChain.empty();
@@ -111,7 +107,7 @@ public class PositionRotationManager extends ServiceMod {
   
   @SubscribeEvent
   public void onMovementUpdatePre(PrePlayerMovementUpdateEvent event) {
-    if (!enabled.get()) return;
+    if (!enabled.getValue()) return;
 
     // updated view angles
     Angle va = getPlayerAngles(event.getLocalPlayer());
@@ -192,15 +188,15 @@ public class PositionRotationManager extends ServiceMod {
       getManager().begin(gs.getListener());
     }
     
-    if (smooth.get() > 0.D) {
+    if (smooth.getValue() > 0.D) {
       // the current angles the server thinks we are looking at
       Angle start = gState.getServerAngles();
       // the angles we want to look at
       Angle dest = gs.getServerAngles();
       
-      gs.setServerAngles(clampAngle(start, dest, smooth.getAsFloat()));
+      gs.setServerAngles(clampAngle(start, dest, smooth.getValue().floatValue()));
       
-      if (getRotationCount(start, dest, smooth.getAsFloat()) <= 1.f) {
+      if (getRotationCount(start, dest, smooth.getValue().floatValue()) <= 1.f) {
         futureTasks = ls != null ? ls.getFutureTasks() : TaskChain.empty();
       } else {
         futureTasks = TaskChain.empty();
@@ -218,7 +214,7 @@ public class PositionRotationManager extends ServiceMod {
   
   @SubscribeEvent
   public void onMovementUpdatePost(PostPlayerMovementUpdateEvent event) {
-    if (!enabled.get()) return;
+    if (!enabled.getValue()) return;
 
     // reset angles if silent aiming is enabled
     if (gState.isSilent()) {
@@ -238,7 +234,7 @@ public class PositionRotationManager extends ServiceMod {
   
   @SubscribeEvent(priority = EventPriority.HIGHEST)
   public void onPacketReceived(PacketInboundEvent event) {
-    if (!enabled.get()) return;
+    if (!enabled.getValue()) return;
 
     if(event.getPacket() instanceof SPlayerPositionLookPacket) {
       // when the server sets the rotation we use that instead

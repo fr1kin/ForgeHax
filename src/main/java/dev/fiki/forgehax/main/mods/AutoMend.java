@@ -17,7 +17,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AutoMend extends ToggleMod {
-  
+
   public AutoMend() {
     super(
         Category.PLAYER,
@@ -25,24 +25,24 @@ public class AutoMend extends ToggleMod {
         false,
         "Automatically swap item in offhand with another valid item once its fully repaired");
   }
-  
+
   private boolean isMendable(LocalPlayerInventory.InvItem item) {
     return item.isItemDamageable()
         && EnchantmentHelper.getEnchantmentLevel(Enchantments.MENDING, item.getItemStack()) > 0;
   }
-  
+
   private boolean isDamaged(LocalPlayerInventory.InvItem item) {
     return item.getItemStack().isDamaged();
   }
-  
+
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (!(LocalPlayerInventory.getOpenContainer() instanceof PlayerContainer)) {
       return;
     }
-    
+
     LocalPlayerInventory.InvItem current = LocalPlayerInventory.getSelected();
-    
+
     Optional.of(LocalPlayerInventory.getOffhand())
         .filter(this::isMendable)
         .filter(item -> !isDamaged(item))

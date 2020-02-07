@@ -22,11 +22,11 @@ import org.lwjgl.opengl.GL11;
  */
 @RegisterMod
 public class StorageESPMod extends ToggleMod {
-  
+
   public StorageESPMod() {
     super(Category.RENDER, "StorageESP", false, "Shows storage");
   }
-  
+
   private int getTileEntityColor(TileEntity tileEntity) {
     if (tileEntity instanceof ChestTileEntity
         || tileEntity instanceof DispenserTileEntity
@@ -42,7 +42,7 @@ public class StorageESPMod extends ToggleMod {
       return -1;
     }
   }
-  
+
   private int getEntityColor(Entity entity) {
     if (entity instanceof ChestMinecartEntity) {
       return Colors.ORANGE.toBuffer();
@@ -54,20 +54,20 @@ public class StorageESPMod extends ToggleMod {
       return -1;
     }
   }
-  
+
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-    
+
     for (TileEntity tileEntity : Common.getWorld().loadedTileEntityList) {
       BlockPos pos = tileEntity.getPos();
-      
+
       int color = getTileEntityColor(tileEntity);
       if (color != -1) {
         GeometryTessellator.drawCuboid(event.getBuffer(), pos, GeometryMasks.Line.ALL, color);
       }
     }
-    
+
     for (Entity entity : Common.getWorld().getAllEntities()) {
       BlockPos pos = entity.getPosition();
       int color = getEntityColor(entity);
@@ -79,7 +79,7 @@ public class StorageESPMod extends ToggleMod {
             color);
       }
     }
-    
+
     event.getTessellator().draw();
   }
 }
