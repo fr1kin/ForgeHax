@@ -69,9 +69,10 @@ public abstract class AbstractSetting<E> extends AbstractCommand implements ISet
     // update only if no listener returns false and the value is different
     if ((getConverter().comparator() != null && getConverter().comparator().compare(value, getValue()) != 0)
         || !Objects.equals(value, getValue())) {
+      final E newValue = value;
       final E oldValue = this.value;
       this.value = value;
-      getListeners(ISettingValueChanged.class).forEach(l -> l.onValueChanged(oldValue, getValue()));
+      invokeListeners(ISettingValueChanged.class, l -> l.onValueChanged(oldValue, newValue));
       callUpdateListeners();
       return true;
     }

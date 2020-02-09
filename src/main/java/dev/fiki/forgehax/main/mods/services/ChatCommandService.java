@@ -2,6 +2,7 @@ package dev.fiki.forgehax.main.mods.services;
 
 import com.google.common.base.MoreObjects;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.main.util.TextComponentBuilder;
 import dev.fiki.forgehax.main.util.cmd.execution.CommandExecutor;
 import dev.fiki.forgehax.main.util.cmd.settings.CharacterSetting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
@@ -47,7 +48,13 @@ public class ChatCommandService extends ServiceMod {
       if (message.startsWith(activationCharacter.getValue().toString()) && message.length() > 1) {
         // cut out the . from the message
         String line = message.substring(1);
-        print(line);
+        printMessage(TextComponentBuilder.builder()
+            .color(TextFormatting.GRAY)
+            .text("> ")
+            .text(line)
+            .italic(true)
+            .build());
+
         CommandExecutor.builder()
             .console(getCurrentConsoleOutput())
             .exceptionHandler(((throwable, output) -> {

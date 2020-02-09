@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
@@ -78,11 +79,7 @@ public class ActiveModList extends HudMod {
 
   public ActiveModList() {
     super(Category.RENDER, "ActiveMods", true, "Shows list of all active mods");
-  }
-
-  @Override
-  public boolean isHidden() {
-    return true;
+    addFlag(EnumFlag.HIDDEN);
   }
 
   private String generateTickRateText() {

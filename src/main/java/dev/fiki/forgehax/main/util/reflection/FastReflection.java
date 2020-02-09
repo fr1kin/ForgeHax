@@ -15,7 +15,10 @@ import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.EditSignScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.multiplayer.PlayerController;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -60,6 +63,17 @@ public interface FastReflection {
   // FIELDS
   // ****************************************
   interface Fields {
+
+    /**
+     * ActiveRenderInfo
+     */
+
+    FastField<Vector3f> ActiveRenderInfo_left =
+        FastField.builder()
+            .parent(ActiveRenderInfo.class)
+            .mcp("left")
+            .srg("field_216796_h")
+            .build();
 
     /**
      * CPlayerPacket
@@ -551,6 +565,20 @@ public interface FastReflection {
             .mcp("resetPotionEffectMetadata")
             .srg("func_175133_bi")
             .noArguments()
+            .build();
+
+    /**
+     * GameRenderer
+     */
+
+    FastMethod<Double> GameRenderer_getFOVModifier =
+        FastMethod.builder()
+            .parent(GameRenderer.class)
+            .mcp("getFOVModifier")
+            .srg("func_215311_a")
+            .argument(ActiveRenderInfo.class)
+            .argument(float.class)
+            .argument(boolean.class)
             .build();
 
     /**

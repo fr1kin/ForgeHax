@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main;
 
+import dev.fiki.forgehax.main.util.TextComponentBuilder;
 import dev.fiki.forgehax.main.util.cmd.RootCommand;
 import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
 import dev.fiki.forgehax.main.util.mod.loader.ModManager;
@@ -25,10 +26,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -218,16 +216,21 @@ public interface Common {
   // text output
   //
 
+  static void printMessage(ITextComponent component) {
+    if(getLocalPlayer() != null) {
+      getLocalPlayer().sendStatusMessage(component, false);
+    }
+  }
+
   static void printColored(TextFormatting formatting, String text) {
     if (getLocalPlayer() != null) {
-      getLocalPlayer().sendStatusMessage(
-          new StringTextComponent("> ")
-              .setStyle(new Style()
-                  .setColor(formatting))
-          .appendSibling(new StringTextComponent(text)
-              .setStyle(new Style().setColor(TextFormatting.WHITE)))
-          , false);
-      getLogger().info("ForgeHax command issued: {}", text);
+      printMessage(TextComponentBuilder.builder()
+          .color(formatting)
+          .text("> ")
+          .color(TextFormatting.WHITE)
+          .text(text)
+          .build());
+      getLogger().info("ForgeHax message: {}", text);
     }
   }
 

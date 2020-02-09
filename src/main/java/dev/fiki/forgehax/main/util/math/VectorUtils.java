@@ -1,79 +1,105 @@
 package dev.fiki.forgehax.main.util.math;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.renderer.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL11;
 
+import java.nio.FloatBuffer;
+
+import static dev.fiki.forgehax.main.Common.*;
+
+@Getter
 public class VectorUtils implements Common {
   // Credits to Gregor and P47R1CK for the 3D vector transformation code
-  
-  static Matrix4d modelMatrix = new Matrix4d();
-  static Matrix4d projectionMatrix = new Matrix4d();
-  
-  private static void VecTransformCoordinate(Vector4d vec, Matrix4d matrix) {
-    double x = vec.x;
-    double y = vec.y;
-    double z = vec.z;
-    vec.x = (x * matrix.m00) + (y * matrix.m10) + (z * matrix.m20) + matrix.m30;
-    vec.y = (x * matrix.m01) + (y * matrix.m11) + (z * matrix.m21) + matrix.m31;
-    vec.z = (x * matrix.m02) + (y * matrix.m12) + (z * matrix.m22) + matrix.m32;
-    vec.w = (x * matrix.m03) + (y * matrix.m13) + (z * matrix.m23) + matrix.m33;
+
+//    if(dot > 0) {
+//      return new Plane(0.D, 0.D, false);
+//    }
+//
+//    // vertical fov
+//    double fov = FastReflection.Methods.GameRenderer_getFOVModifier.invoke(getGameRenderer(),
+//        getGameRenderer().getActiveRenderInfo(), MC.getRenderPartialTicks(), true);
+//
+//    double frameWidth = getMainWindow().getFramebufferWidth();
+//    double frameHeight = getMainWindow().getFramebufferHeight();
+//
+//    // aspect ratio (w/h)
+//    double aspectRatio = frameWidth / frameHeight;
+//
+//    // horizontal fov
+//    //double fovHorizontal = Math.atan(aspectRatio * Math.tan(Math.toRadians(fov) / 2.f));
+//    double fovVertical = Math.toRadians(getGameSettings().fov - (fov - 70));
+//    double fovHorizontal = (1.d / Math.tan(fovVertical / 2.d));
+//
+//    double d = (screenHeight) / fovHorizontal;
+//
+//    double scalar = d / dot;
+//    Vec3d projection = dir.scale(scalar);
+//
+//    double pointX = 0.5f * screenWidth + right.dotProduct(projection);
+//    double pointY = 0.5f * screenHeight - up.dotProduct(projection);
+
+  private static Matrix4f projectionMatrix = new Matrix4f();
+  private static Matrix4f viewMatrix = new Matrix4f();
+  private static Matrix4f projectionViewMatrix = new Matrix4f();
+
+  public static void setProjectionViewMatrix(Matrix4f projection, Matrix4f view) {
+    projectionMatrix = projection.copy();
+    viewMatrix = view.copy();
+
+    projectionViewMatrix = projectionMatrix.copy();
+    projectionViewMatrix.multiply(viewMatrix);
+  }
+
+  private static Vec3d projectViewFromEntity(Vec3d camPos, Entity entity, double partialTicks) {
+    double d0 = entity.prevPosX + (entity.getPosX() - entity.prevPosX) * partialTicks;
+    double d1 = entity.prevPosY + (entity.getPosY() - entity.prevPosY) * partialTicks;
+    double d2 = entity.prevPosZ + (entity.getPosZ() - entity.prevPosZ) * partialTicks;
+    double d3 = d0 + camPos.getX();
+    double d4 = d1 + camPos.getY();
+    double d5 = d2 + camPos.getZ();
+    return new Vec3d(
+        entity.prevPosX + (entity.getPosX() - entity.prevPosX) * partialTicks,
+        entity.prevPosY + (entity.getPosY() - entity.prevPosY) * partialTicks,
+        entity.prevPosZ + (entity.getPosZ() - entity.prevPosZ) * partialTicks
+    );
   }
   
   /**
    * Convert 3D coord into 2D coordinate projected onto the screen
    */
-  public static Plane toScreen(double x, double y, double z) {
-//    Entity view = MC.getRenderViewEntity();
-//
-//    if (view == null) {
-//      return new Plane(0.D, 0.D, false);
-//    }
-//
-//    Vec3d camPos = getGameRenderer().getActiveRenderInfo().getProjectedView();
-//    Vec3d eyePos = ActiveRenderInfo.projectViewFromEntity(view, MC.getRenderPartialTicks());
-//
-//    double vecX = (camPos.x + eyePos.x) - x;
-//    double vecY = (camPos.y + eyePos.y) - y;
-//    double vecZ = (camPos.z + eyePos.z) - z;
-//
-//    Vector4d pos = new Vector4d(vecX, vecY, vecZ, 1.f);
-//
-//    modelMatrix.load(
-//        FastReflection.Fields.ActiveRenderInfo_MODELVIEW.getStatic().asReadOnlyBuffer());
-//    projectionMatrix.load(
-//        FastReflection.Fields.ActiveRenderInfo_PROJECTION.getStatic().asReadOnlyBuffer());
-//
-//    VecTransformCoordinate(pos, modelMatrix);
-//    VecTransformCoordinate(pos, projectionMatrix);
-//
-//    if (pos.w > 0.f) {
-//      pos.x *= -100000;
-//      pos.y *= -100000;
-//    } else {
-//      double invert = 1.f / pos.w;
-//      pos.x *= invert;
-//      pos.y *= invert;
-//    }
-//
-//    double halfWidth = (double) getScreenWidth()/ 2.f;
-//    double halfHeight = (double) getScreenHeight() / 2.f;
-//
-//    pos.x = halfWidth + (0.5f * pos.x * getScreenWidth() + 0.5f);
-//    pos.y = halfHeight - (0.5f * pos.y * getScreenHeight() + 0.5f);
-//
-//    boolean bVisible = true;
-//
-//    if (pos.x < 0 || pos.y < 0 || pos.x > getScreenWidth() || pos.y > getScreenHeight()) {
-//      bVisible = false;
-//    }
-//
-//    return new Plane(pos.x, pos.y, bVisible);
-    throw new UnsupportedOperationException();
-    // TODO: 1.15 figure out how to get modelview and projection
+  public static Plane toScreen(Vec3d vector) {
+    final double screenWidth = getScreenWidth();
+    final double screenHeight = getScreenHeight();
+
+    Vec3d camera = getGameRenderer().getActiveRenderInfo().getProjectedView();
+    Vec3d dir = camera.subtract(vector);
+
+    Vector4f pos = new Vector4f((float) dir.getX(), (float) dir.getY(), (float) dir.getZ(), 1.f);
+
+    pos.transform(projectionViewMatrix);
+    double w = pos.getW();
+    pos.perspectiveDivide();
+
+    double halfWidth = screenWidth / 2.d;
+    double halfHeight = screenHeight / 2.d;
+
+    double pointX = (halfWidth * pos.getX()) + (pos.getX() + halfWidth);
+    double pointY = -(halfHeight * pos.getY()) + (pos.getY() + halfHeight);
+
+    return new Plane(pointX, pointY, w < 0.1d);
   }
   
-  public static Plane toScreen(Vec3d vec) {
-    return toScreen(vec.x, vec.y, vec.z);
+  public static Plane toScreen(double x, double y, double z) {
+    return toScreen(new Vec3d(x, y, z));
   }
   
   @Deprecated

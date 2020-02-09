@@ -242,6 +242,11 @@ public interface TypesMc {
             .className("com/mojang/blaze3d/matrix/MatrixStack")
             .build();
 
+    ASMClass Matrix4f =
+        ASMClass.builder()
+            .className("net/minecraft/client/renderer/Matrix4f")
+            .build();
+
     ASMClass IRenderTypeBuffer =
         ASMClass.builder()
             .className("net/minecraft/client/renderer/IRenderTypeBuffer")
@@ -250,6 +255,11 @@ public interface TypesMc {
     ASMClass ISelectionContext =
         ASMClass.builder()
             .className("net/minecraft/util/math/shapes/ISelectionContext")
+            .build();
+
+    ASMClass GameRenderer =
+        ASMClass.builder()
+            .className("net/minecraft/client/renderer/GameRenderer")
             .build();
   }
 
@@ -653,6 +663,16 @@ public interface TypesMc {
             .srg("func_78766_c")
             .returnsVoid()
             .argument(Classes.PlayerEntity)
+            .build();
+
+    ASMMethod GameRenderer_renderWorld =
+        Classes.GameRenderer.newChildMethod()
+            .name("renderWorld")
+            .srg("func_228378_a_")
+            .returnsVoid()
+            .argument(float.class)
+            .argument(long.class)
+            .argument(Classes.MatrixStack)
             .build();
   }
 }

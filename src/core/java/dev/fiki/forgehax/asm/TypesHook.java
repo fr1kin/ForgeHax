@@ -70,12 +70,19 @@ public interface TypesHook {
   }
 
   interface Methods {
-
     ASMMethod ForgeHaxHooks_onHurtcamEffect =
         Classes.ForgeHaxHooks.newChildMethod()
             .name("onHurtcamEffect")
             .returns(boolean.class)
-            .argument(float.class)
+            .noArguments()
+            .build();
+
+    ASMMethod ForgeHaxHooks_onSetupProjectionViewMatrix =
+        Classes.ForgeHaxHooks.newChildMethod()
+            .name("onSetupProjectionViewMatrix")
+            .returnsVoid()
+            .argument(TypesMc.Classes.MatrixStack)
+            .argument(TypesMc.Classes.Matrix4f)
             .build();
 
     ASMMethod ForgeHaxHooks_onPacketOutbound =

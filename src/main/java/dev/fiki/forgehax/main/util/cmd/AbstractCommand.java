@@ -2,12 +2,14 @@ package dev.fiki.forgehax.main.util.cmd;
 
 import com.google.common.collect.ImmutableSet;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.main.util.cmd.listener.IUpdateConfiguration;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 @Getter
 public abstract class AbstractCommand implements ICommand {
@@ -42,8 +44,13 @@ public abstract class AbstractCommand implements ICommand {
 
   protected void init() { }
 
+  protected <T extends ICommandListener> void invokeListeners(Class<T> type, Consumer<T> call) {
+    CommandHelper.getExecutor(this)
+        .execute(() -> getListeners(type).forEach(call));
+  }
+
   protected void callUpdateListeners() {
-    getListeners(IUpdateConfiguration.class).forEach(l -> l.onUpdate(this));
+    invokeListeners(IUpdateConfiguration.class, l -> l.onUpdate(this));
   }
 
   @Override

@@ -33,7 +33,6 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
         .build()
         .getLogger();
 
-
     logger.info("ForgeHaxCore initializing");
   }
 
@@ -59,6 +58,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
         new EntityPatch(),
         new EntityPlayerSPPatch(),
         new EntityRendererPatch(),
+        new GameRendererPatch(),
         new KeyBindingPatch(),
         new MinecraftPatch(),
         new NetManagerPatch(),

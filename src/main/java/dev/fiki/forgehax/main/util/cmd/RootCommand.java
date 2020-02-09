@@ -134,7 +134,7 @@ public class RootCommand extends AbstractParentCommand {
   }
 
   private void deserialize(ICommand command, Path config, JsonParser parser) {
-    if(!Files.exists(config) ||!Files.isRegularFile(config)) {
+    if(!Files.exists(config)) {
       return;
     }
 

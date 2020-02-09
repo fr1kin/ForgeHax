@@ -110,9 +110,10 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
   @Override
   public boolean setValue(Input value) {
     if(!Objects.equals(getValue(), value)) {
+      final Input newValue = value;
       final Input oldValue = getValue();
       getKeyBinding().bind(value);
-      getListeners(ISettingValueChanged.class).forEach(l -> l.onValueChanged(oldValue, getValue()));
+      invokeListeners(ISettingValueChanged.class, l -> l.onValueChanged(oldValue, newValue));
       callUpdateListeners();
       return true;
     }
