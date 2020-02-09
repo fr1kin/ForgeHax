@@ -3,10 +3,10 @@ package dev.fiki.forgehax.asm;
 import cpw.mods.modlauncher.api.*;
 import dev.fiki.forgehax.asm.patches.*;
 import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.ITransformerProvider;
 import dev.fiki.forgehax.common.LoggerProvider;
 import lombok.Getter;
 import org.apache.logging.log4j.Logger;
-import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
 import java.util.Set;
@@ -72,27 +72,8 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
         // this map below can be commented out to use classtransformers instead
         .map(ClassTransformer::getMethodTransformers)
         .flatMap(List::stream)
-        .filter(mt -> mt.getMethod().getSrg() != null) // temporary
-        // cpws code doesn't check super classes, so we have to wrap our instance
-        .map(mt -> new ITransformer<MethodNode>() {
-          @Nonnull
-          @Override
-          public MethodNode transform(MethodNode input, ITransformerVotingContext context) {
-            return mt.transform(input, context);
-          }
-
-          @Nonnull
-          @Override
-          public TransformerVoteResult castVote(ITransformerVotingContext context) {
-            return mt.castVote(context);
-          }
-
-          @Nonnull
-          @Override
-          public Set<Target> targets() {
-            return mt.targets();
-          }
-        })
+        .filter(mt -> mt.getMethod().getSrg() != null) // TODO: remove deprecated patches
+        .map(ITransformerProvider::toMethodNodeTransformer)
         .collect(Collectors.toList());
   }
 }

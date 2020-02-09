@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.asm.utils.transforming;
 
-import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
 import dev.fiki.forgehax.asm.TypesMc;
@@ -21,7 +20,7 @@ import javax.annotation.Nonnull;
 import static dev.fiki.forgehax.asm.ASMCommon.*;
 
 @Getter
-public abstract class ClassTransformer implements ITransformer<ClassNode>, TypesMc, Opcodes, ASMHelper.MagicOpcodes {
+public abstract class ClassTransformer implements ITransformerProvider<ClassNode>, TypesMc, Opcodes, ASMHelper.MagicOpcodes {
   
   private final ASMClass transformingClass;
   private final List<MethodTransformer> methodTransformers = new ArrayList<>();

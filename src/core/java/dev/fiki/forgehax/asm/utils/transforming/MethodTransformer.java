@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.asm.utils.transforming;
 
-import com.google.common.collect.Sets;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
@@ -24,7 +23,7 @@ import static dev.fiki.forgehax.asm.ASMCommon.getLogger;
 /**
  * Created on 5/2/2017 by fr1kin
  */
-public abstract class MethodTransformer implements ITransformer<MethodNode> {
+public abstract class MethodTransformer implements ITransformerProvider<MethodNode> {
   
   private final Queue<TaskElement> tasks = new PriorityQueue<>();
   
