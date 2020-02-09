@@ -58,20 +58,6 @@ public class VectorUtils implements Common {
     projectionViewMatrix = projectionMatrix.copy();
     projectionViewMatrix.multiply(viewMatrix);
   }
-
-  private static Vec3d projectViewFromEntity(Vec3d camPos, Entity entity, double partialTicks) {
-    double d0 = entity.prevPosX + (entity.getPosX() - entity.prevPosX) * partialTicks;
-    double d1 = entity.prevPosY + (entity.getPosY() - entity.prevPosY) * partialTicks;
-    double d2 = entity.prevPosZ + (entity.getPosZ() - entity.prevPosZ) * partialTicks;
-    double d3 = d0 + camPos.getX();
-    double d4 = d1 + camPos.getY();
-    double d5 = d2 + camPos.getZ();
-    return new Vec3d(
-        entity.prevPosX + (entity.getPosX() - entity.prevPosX) * partialTicks,
-        entity.prevPosY + (entity.getPosY() - entity.prevPosY) * partialTicks,
-        entity.prevPosZ + (entity.getPosZ() - entity.prevPosZ) * partialTicks
-    );
-  }
   
   /**
    * Convert 3D coord into 2D coordinate projected onto the screen

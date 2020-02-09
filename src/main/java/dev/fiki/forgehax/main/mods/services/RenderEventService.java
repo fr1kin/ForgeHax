@@ -19,8 +19,6 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import static dev.fiki.forgehax.main.Common.getGameRenderer;
-
 /**
  * Created on 6/14/2017 by fr1kin
  */
@@ -40,7 +38,6 @@ public class RenderEventService extends ServiceMod {
 
   @SubscribeEvent
   public void onRenderWorld(RenderWorldLastEvent event) {
-    RenderSystem.pushMatrix();
     RenderSystem.disableTexture();
     RenderSystem.enableBlend();
     RenderSystem.disableAlphaTest();
@@ -64,7 +61,6 @@ public class RenderEventService extends ServiceMod {
     RenderSystem.enableTexture();
     RenderSystem.enableDepthTest();
     RenderSystem.enableCull();
-    RenderSystem.popMatrix();
   }
 
   @SubscribeEvent(priority = EventPriority.LOW)
