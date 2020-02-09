@@ -50,6 +50,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
 
   @Nonnull
   @Override
+  @Deprecated
   public List<ITransformer> transformers() {
     return Stream.of(
         new BlockPatch(),
