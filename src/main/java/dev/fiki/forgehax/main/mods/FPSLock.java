@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -65,7 +65,7 @@ public class FPSLock extends ToggleMod {
   }
 
   @SubscribeEvent
-  void onTick(ClientTickEvent.Pre event) {
+  void onTick(PreClientTickEvent event) {
     Common.getGameSettings().framerateLimit = getFps();
   }
 }

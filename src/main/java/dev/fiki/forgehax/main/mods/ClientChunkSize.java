@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.events.ClientTickEvent;
+import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -83,7 +83,7 @@ public class ClientChunkSize extends ToggleMod {
   }
 
   @SubscribeEvent
-  public void onTick(ClientTickEvent.Pre event) {
+  public void onTick(PreClientTickEvent event) {
     if (!Common.isInWorld() || running) {
       return;
     }

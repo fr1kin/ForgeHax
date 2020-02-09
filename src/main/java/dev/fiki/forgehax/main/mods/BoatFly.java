@@ -3,8 +3,8 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.common.ForgeHaxHooks;
 import dev.fiki.forgehax.common.events.RenderBoatEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
@@ -81,7 +81,7 @@ public class BoatFly extends ToggleMod {
   }
 
   @SubscribeEvent
-  public void onClientTick(ClientTickEvent.Pre event) {
+  public void onClientTick(PreClientTickEvent event) {
     // check if the player is really riding a entity
     if (Common.getLocalPlayer() != null && Common.getMountedEntity() != null) {
 

@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.events.ClientTickEvent;
+import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -34,7 +34,7 @@ public class FullBrightMod extends ToggleMod {
   }
 
   @SubscribeEvent
-  public void onClientTick(ClientTickEvent.Pre event) {
+  public void onClientTick(PreClientTickEvent event) {
     Common.getGameSettings().gamma = 16F;
   }
 }

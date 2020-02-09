@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.events.ClientTickEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.events.PostClientTickEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -31,7 +31,7 @@ public class AutoRespawnMod extends ToggleMod {
   private int deadTicks = 0;
 
   @SubscribeEvent
-  public void onClientTick(ClientTickEvent.Post ev) {
+  public void onClientTick(PostClientTickEvent ev) {
     if (isDead) {
       deadTicks++;
       if (deadTicks > delay.getValue()) {
