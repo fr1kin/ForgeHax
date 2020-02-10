@@ -5,6 +5,7 @@ import dev.fiki.forgehax.common.events.movement.EntityBlockSlipApplyEvent;
 import dev.fiki.forgehax.common.events.movement.PushOutOfBlocksEvent;
 import dev.fiki.forgehax.common.events.movement.WaterMovementEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
@@ -21,6 +22,10 @@ import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.network.play.server.SExplosionPacket;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.ConcurrentModificationException;
+
+import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod
 public class AntiKnockbackMod extends ToggleMod {
@@ -132,14 +137,14 @@ public class AntiKnockbackMod extends ToggleMod {
    */
   @SubscribeEvent
   public void onPacketReceived(PacketInboundEvent event) {
-    if (!Common.isInWorld()) {
+    if (!isInWorld()) {
       return;
     } else if (explosions.getValue() && event.getPacket() instanceof SExplosionPacket) {
       Vec3d multiplier = getMultiplier();
       Vec3d motion = getPacketMotion(event.getPacket());
       setPacketMotion(event.getPacket(), VectorUtils.multiplyBy(motion, multiplier));
     } else if (velocity.getValue() && event.getPacket() instanceof SEntityVelocityPacket) {
-      if (((SEntityVelocityPacket) event.getPacket()).getEntityID() == Common.getLocalPlayer().getEntityId()) {
+      if (((SEntityVelocityPacket) event.getPacket()).getEntityID() == getLocalPlayer().getEntityId()) {
         Vec3d multiplier = getMultiplier();
         if (multiplier.lengthSquared() > 0.D) {
           setPacketMotion(event.getPacket(),
@@ -153,12 +158,17 @@ public class AntiKnockbackMod extends ToggleMod {
       // fuck you popbob for making me need this
       SEntityStatusPacket packet = (SEntityStatusPacket) event.getPacket();
       if (packet.getOpCode() == 31) {
-        Entity offender = packet.getEntity(Common.getWorld()); // TODO: this is not thread safe
-        if (offender instanceof FishingBobberEntity) {
-          FishingBobberEntity hook = (FishingBobberEntity) offender;
-          if (Common.getLocalPlayer().equals(hook.caughtEntity)) {
-            event.setCanceled(true);
+        try {
+          Entity offender = packet.getEntity(getWorld());
+          if (offender instanceof FishingBobberEntity) {
+            FishingBobberEntity hook = (FishingBobberEntity) offender;
+            if (getLocalPlayer().equals(hook.caughtEntity)) {
+              event.setCanceled(true);
+            }
           }
+        } catch (ConcurrentModificationException e) {
+          getLogger().warn("ConcurrentModificationException caused by packet::getEntity");
+          event.setCanceled(true);
         }
       }
     }
@@ -169,7 +179,7 @@ public class AntiKnockbackMod extends ToggleMod {
    */
   @SubscribeEvent
   public void onWaterMovementEvent(WaterMovementEvent event) {
-    if (water.getValue() && Common.getLocalPlayer() != null && Common.getLocalPlayer().equals(event.getEntity())) {
+    if (water.getValue() && getLocalPlayer() != null && getLocalPlayer().equals(event.getEntity())) {
       addEntityVelocity(
           event.getEntity(),
           VectorUtils.multiplyBy(event.getMovement().normalize().scale(0.014D), getMultiplier()));
@@ -182,7 +192,7 @@ public class AntiKnockbackMod extends ToggleMod {
    */
   @SubscribeEvent
   public void onApplyCollisionMotion(ApplyCollisionMotionEvent event) {
-    if (push.getValue() && Common.getLocalPlayer() != null && Common.getLocalPlayer().equals(event.getEntity())) {
+    if (push.getValue() && getLocalPlayer() != null && getLocalPlayer().equals(event.getEntity())) {
       addEntityVelocity(
           event.getEntity(),
           VectorUtils.multiplyBy(
@@ -202,8 +212,8 @@ public class AntiKnockbackMod extends ToggleMod {
   @SubscribeEvent
   public void onBlockSlip(EntityBlockSlipApplyEvent event) {
     if (slipping.getValue()
-        && Common.getLocalPlayer() != null
-        && Common.getLocalPlayer().equals(event.getLivingEntity())) {
+        && getLocalPlayer() != null
+        && getLocalPlayer().equals(event.getLivingEntity())) {
       event.setSlipperiness(0.6f);
     }
   }

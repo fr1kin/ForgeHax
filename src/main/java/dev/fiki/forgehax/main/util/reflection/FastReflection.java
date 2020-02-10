@@ -76,6 +76,16 @@ public interface FastReflection {
             .build();
 
     /**
+     * SEntityStatusPacket
+     */
+
+    FastField<Integer> SEntityStatusPacket_entityId =
+        FastField.builder()
+            .mcp("entityId")
+            .srg("field_149164_a")
+            .build();
+
+    /**
      * CPlayerPacket
      */
     FastField<Float> CPacketPlayer_pitch =
