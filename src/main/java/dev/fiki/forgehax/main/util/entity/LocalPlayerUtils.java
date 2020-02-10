@@ -38,6 +38,11 @@ public class LocalPlayerUtils implements Common {
   public static Vec3d getVelocity() {
     return getLocalPlayer().getMotion();
   }
+
+  public static void setViewAngles(float pitch, float yaw) {
+    getLocalPlayer().rotationPitch = pitch;
+    getLocalPlayer().rotationYaw = yaw;
+  }
   
   public static boolean isSneaking() {
     return getLocalPlayer().isCrouching();
