@@ -136,8 +136,17 @@ public class AutoEatMod extends ToggleMod {
     return Common.getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv) < 20;
   }
 
-  private boolean checkFailsafe() { // TODO: replace 500 with longest food duration
-    return (fail_safe_multiplier.getValue() == 0 || eatingTicks < 500 * fail_safe_multiplier.getValue());
+  private int getLongestEatingTicks(Food food) {
+    return food.getEffects().stream()
+        .map(Pair::getKey)
+        .map(EffectInstance::getDuration)
+        .max(Integer::compareTo)
+        .orElse(20);
+  }
+
+  private boolean checkFailsafe() {
+    return (fail_safe_multiplier.getValue() == 0
+        || eatingTicks < getLongestEatingTicks(food) * fail_safe_multiplier.getValue());
   }
 
   @Override
