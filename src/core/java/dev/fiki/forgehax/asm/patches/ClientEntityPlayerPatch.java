@@ -21,7 +21,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 /**
  * Created on 11/13/2016 by fr1kin
  */
-public class EntityPlayerSPPatch {
+public class ClientEntityPlayerPatch {
 
   @RegisterTransformer
   public static class ApplyLivingUpdate extends MethodTransformer {
@@ -118,8 +118,11 @@ public class EntityPlayerSPPatch {
     @Override
     public void transform(MethodNode main) {
       AbstractInsnNode preNode = main.instructions.getFirst();
-      AbstractInsnNode postNode =
-          ASMHelper.findPattern(main.instructions.getFirst(), new int[]{ICONST_0, IRETURN}, "xx");
+      AbstractInsnNode postNode = ASMPattern.builder()
+          .codeOnly()
+          .opcode(RETURN)
+          .find(main)
+          .getFirst();
 
       Objects.requireNonNull(preNode, "Find pattern failed for pre node");
       Objects.requireNonNull(postNode, "Find pattern failed for post node");

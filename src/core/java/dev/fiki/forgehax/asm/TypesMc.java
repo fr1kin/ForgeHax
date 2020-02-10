@@ -153,7 +153,7 @@ public interface TypesMc {
 
     ASMClass ClientPlayerEntity =
         ASMClass.builder()
-            .className("ClientPlayerEntity")
+            .className("net/minecraft/client/entity/player/ClientPlayerEntity")
             .build();
 
     ASMClass BoatEntity =
