@@ -99,7 +99,6 @@ public class GuiTextInput extends GuiElement {
   }
   
   private void setValue(String in) {
-    // TODO: 1.15
-    //mod.getEnabledSetting().setValue(in);
+    mod.getEnabledSetting().setValueRaw(in);
   }
 }

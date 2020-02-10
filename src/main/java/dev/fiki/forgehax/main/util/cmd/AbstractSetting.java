@@ -81,6 +81,11 @@ public abstract class AbstractSetting<E> extends AbstractCommand implements ISet
   }
 
   @Override
+  public boolean setValueRaw(String value) {
+    return setValue(getConverter().parse(value));
+  }
+
+  @Override
   public List<IArgument<?>> getArguments() {
     return Collections.singletonList(ConverterArgument.<E>builder()
         .converter(getConverter())

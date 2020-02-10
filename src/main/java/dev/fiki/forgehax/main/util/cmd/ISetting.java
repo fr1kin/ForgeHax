@@ -7,6 +7,7 @@ import dev.fiki.forgehax.main.util.typeconverter.IConverter;
 public interface ISetting<E> extends ICommand, IJsonSerializable {
   E getValue();
   boolean setValue(E value);
+  boolean setValueRaw(String value);
 
   E getDefaultValue();
   default boolean setValueToDefault() {

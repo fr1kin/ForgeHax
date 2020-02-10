@@ -121,6 +121,11 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
   }
 
   @Override
+  public boolean setValueRaw(String value) {
+    return setValue(TypeConverters.INPUT.parse(value));
+  }
+
+  @Override
   public Input getDefaultValue() {
     return getKeyBinding().getDefault();
   }
