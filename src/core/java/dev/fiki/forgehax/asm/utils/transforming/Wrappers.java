@@ -17,13 +17,13 @@ import java.util.stream.Stream;
 
 public class Wrappers {
 
-    // TODO: only wrap if necessary
+
     @SuppressWarnings("unchecked")
     public static <T> ITransformer<T> createWrapper(ITransformer<T> transformer, RegisterTransformer annotation) {
-        Optional<ParameterizedType> parameterizedType =  Stream.of(transformer.getClass().getGenericInterfaces())
+        /*Optional<ParameterizedType> parameterizedType =  Stream.of(transformer.getClass().getGenericInterfaces())
                 .filter(type -> type instanceof ParameterizedType)
                 .map(type -> (ParameterizedType)type)
-                .filter(pType -> pType.getRawType().equals(Wrappers.class) || pType.getRawType().equals(ITransformer.class))
+                .filter(pType -> pType.getRawType().equals(ITransformer.class))
                 .findFirst();
 
         Type nodeType = parameterizedType
@@ -31,13 +31,23 @@ public class Wrappers {
                 .orElseGet(annotation::nodeType);
 
         TransformTargetLabel.LabelType labelType = TransformTargetLabel.LabelType.getTypeFor(nodeType)
-            .orElseThrow(() -> new IllegalStateException("Class " + transformer.getClass() + " attempted to implement transformer for invalid node type"));
+            .orElseThrow(() -> new IllegalStateException("Class " + transformer.getClass() + " attempted to implement transformer for invalid node type " + nodeType));
+
         switch (labelType) {
             case FIELD: return  (ITransformer<T>)  new FieldTransformerWrapper((ITransformer<FieldNode>)transformer);
             case METHOD: return (ITransformer<T>) new MethodTransformerWrapper((ITransformer<MethodNode>)transformer);
             case CLASS: return  (ITransformer<T>)  new ClassTransformerWrapper((ITransformer<ClassNode>)transformer);
 
             default: throw new IllegalStateException("??? " + transformer.getClass());
+        }*/
+        if (transformer instanceof MethodTransformer) {
+          return (ITransformer<T>)new MethodTransformerWrapper((ITransformer<MethodNode>)transformer);
+        } else if (transformer instanceof ClassTransformer) {
+          return (ITransformer<T>)new ClassTransformerWrapper((ITransformer<ClassNode>)transformer);
+        } /*else if (transformer instanceof MethodTransformer) {
+          return (ITransformer<T>)new MethodTransformerWrapper((ITransformer<MethodNode>)transformer);
+        }*/ else {
+          throw new IllegalArgumentException("xd");
         }
 
     }

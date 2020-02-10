@@ -421,6 +421,7 @@ public interface TypesMc {
     ASMMethod EntityRenderer_hurtCameraEffect =
         Classes.EntityRenderer.newChildMethod()
             .mcp("hurtCameraEffect")
+            .srg("troll")
             .returnsVoid()
             .argument(float.class)
             .build();
@@ -558,6 +559,7 @@ public interface TypesMc {
     ASMMethod World_handleMaterialAcceleration =
         Classes.World.newChildMethod()
             .mcp("handleMaterialAcceleration")
+            .srg("troll")
             .returns(boolean.class)
             .argument(Classes.AxisAlignedBB)
             .argument(Classes.Material)

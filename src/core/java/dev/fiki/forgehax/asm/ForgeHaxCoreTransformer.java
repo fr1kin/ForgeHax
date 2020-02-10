@@ -81,11 +81,11 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
           if (!hasNoArgConstructor(inner)) // TODO: check if class is not static, most likely reason for this to happen
             throw new IllegalStateException(inner.getSimpleName() + " does not have a 0 arg constructor");
         })
-        .map(inner -> Wrappers.createWrapper((ITransformer)this.newInstance(inner), inner.getDeclaredAnnotation(RegisterTransformer.class)))
+        .map(inner -> Wrappers.createWrapper((ITransformer)newInstance(inner), inner.getDeclaredAnnotation(RegisterTransformer.class)))
         .collect(Collectors.toList());
   }
 
-  private <T> T newInstance(Class<T> clazz) {
+  private static <T> T newInstance(Class<T> clazz) {
     try {
       return clazz.newInstance();
     } catch (ReflectiveOperationException ex) {
