@@ -96,7 +96,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
     try {
       return clazz.getDeclaredConstructor() != null;
     } catch (NoSuchMethodException ex) {
-      getLogger().warn("Class \"{}\" has not zero-argument constructor!", clazz.getSimpleName());
+      getLogger().warn("Class \"{}\" has no zero-argument constructor!", clazz.getSimpleName());
     }
     return false;
   }
