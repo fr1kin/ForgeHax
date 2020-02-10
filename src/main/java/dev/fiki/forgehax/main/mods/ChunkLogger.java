@@ -23,11 +23,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Created on 10/12/2017 by fr1kin
@@ -161,7 +163,7 @@ public class ChunkLogger extends ToggleMod {
       return;
     }
 
-    event.getTessellator().beginLines();
+    event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
     List<ChunkData> copy;
     chunkLock.lock();

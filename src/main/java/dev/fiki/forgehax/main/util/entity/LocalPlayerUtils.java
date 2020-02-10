@@ -27,7 +27,8 @@ public class LocalPlayerUtils implements Common {
    * Gets the players current view angles
    */
   public static Angle getViewAngles() {
-    return PositionRotationManager.getState().getRenderClientViewAngles();
+    return Angle.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
+    //return PositionRotationManager.getState().getRenderClientViewAngles();
   }
   
   public static Angle getServerViewAngles() {

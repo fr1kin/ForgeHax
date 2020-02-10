@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import dev.fiki.forgehax.main.Common;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.cmd.argument.NullArgument;
@@ -41,11 +41,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -173,7 +174,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         resetTask.run();
         resetTask = null;
       }
-      Common.printInform("AutoPlace data has been reset.");
+      printInform("AutoPlace data has been reset.");
     }
   }
 
@@ -206,20 +207,20 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   }
 
   private void showInfo(String filter) {
-    Common.addScheduledTask(() -> {
+    addScheduledTask(() -> {
       if ("selected".startsWith(filter)) {
-        Common.printInform("Selected item %s",
+        printInform("Selected item %s",
             this.selectedItem.getDisplayName().getUnformattedComponentText());
       }
 
       if ("targets".startsWith(filter)) {
-        Common.printInform(
+        printInform(
             "Targets: %s",
             this.targets.stream().map(UniqueBlock::toString).collect(Collectors.joining(", ")));
       }
 
       if ("sides".startsWith(filter)) {
-        Common.printInform(
+        printInform(
             "Sides: %s",
             this.sides.stream()
                 .map(Direction::getName2)
@@ -227,11 +228,11 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       }
 
       if ("whitelist".startsWith(filter)) {
-        Common.printInform("Whitelist: %s", Boolean.toString(whitelist.getValue()));
+        printInform("Whitelist: %s", Boolean.toString(whitelist.getValue()));
       }
 
       if ("check_neighbors".startsWith(filter)) {
-        Common.printInform("Check Neighbors: %s", Boolean.toString(check_neighbors.getValue()));
+        printInform("Check Neighbors: %s", Boolean.toString(check_neighbors.getValue()));
       }
     });
   }
@@ -455,41 +456,39 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
 
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    if (!render.getValue() || Common.MC.getRenderViewEntity() == null) {
+    if (!render.getValue() || MC.getRenderViewEntity() == null) {
       return;
     }
 
-    GlStateManager.pushMatrix();
+    RenderSystem.pushMatrix();
 
-    GlStateManager.disableTexture();
-    GlStateManager.enableBlend();
-    GlStateManager.disableAlphaTest();
-    GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-    GlStateManager.shadeModel(GL11.GL_SMOOTH);
-    GlStateManager.disableDepthTest();
+    RenderSystem.disableTexture();
+    RenderSystem.enableBlend();
+    RenderSystem.disableAlphaTest();
+    RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+    RenderSystem.shadeModel(GL11.GL_SMOOTH);
+    RenderSystem.disableDepthTest();
 
-    final GeometryTessellator tessellator = event.getTessellator();
+    final Tessellator tessellator = event.getTessellator();
     final BufferBuilder builder = tessellator.getBuffer();
 
-    tessellator.beginLines();
-    tessellator.setTranslation(0, 0, 0);
+    builder.begin(GL11.GL_LINE, DefaultVertexFormats.POSITION_COLOR);
 
     renderingBlocks.forEach(
         pos -> {
-          BlockState state = Common.getWorld().getBlockState(pos);
-          AxisAlignedBB bb = state.getCollisionShape(Common.getWorld(), pos).getBoundingBox();
-          tessellator.setTranslation(
-              (double) pos.getX() - event.getRenderPos().x,
-              (double) pos.getY() - event.getRenderPos().y,
-              (double) pos.getZ() - event.getRenderPos().z);
+          BlockState state = getWorld().getBlockState(pos);
+          AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).getBoundingBox();
+          double offsetX = (double) pos.getX() - event.getProjectionPos().x;
+          double offsetY = (double) pos.getY() - event.getProjectionPos().y;
+          double offsetZ = (double) pos.getZ() - event.getProjectionPos().z;
           GeometryTessellator.drawLines(
               builder,
-              bb.minX,
-              bb.minY,
-              bb.minZ,
-              bb.maxX,
-              bb.maxY,
-              bb.maxZ,
+              offsetX + bb.minX,
+              offsetY + bb.minY,
+              offsetZ + bb.minZ,
+              offsetX + bb.maxX,
+              offsetY + bb.maxY,
+              offsetZ + bb.maxZ,
               GeometryMasks.Line.ALL,
               Colors.GREEN.setAlpha(150).toBuffer());
         });
@@ -498,36 +497,34 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     final BlockPos current = this.currentRenderingTarget;
 
     if (current != null) {
-      BlockState state = Common.getWorld().getBlockState(current);
-      AxisAlignedBB bb = state.getCollisionShape(Common.getWorld(), current).getBoundingBox();
-      tessellator.setTranslation(
-          (double) current.getX() - event.getRenderPos().x,
-          (double) current.getY() - event.getRenderPos().y,
-          (double) current.getZ() - event.getRenderPos().z);
+      BlockState state = getWorld().getBlockState(current);
+      AxisAlignedBB bb = state.getCollisionShape(getWorld(), current).getBoundingBox();
+      double offsetX = (double) current.getX() - event.getProjectionPos().x;
+      double offsetY = (double) current.getY() - event.getProjectionPos().y;
+      double offsetZ = (double) current.getZ() - event.getProjectionPos().z;
       GeometryTessellator.drawLines(
           builder,
-          bb.minX,
-          bb.minY,
-          bb.minZ,
-          bb.maxX,
-          bb.maxY,
-          bb.maxZ,
+          offsetX + bb.minX,
+          offsetY + bb.minY,
+          offsetZ + bb.minZ,
+          offsetX + bb.maxX,
+          offsetY + bb.maxY,
+          offsetZ + bb.maxZ,
           GeometryMasks.Line.ALL,
           Colors.RED.setAlpha(150).toBuffer());
     }
 
     tessellator.draw();
-    tessellator.setTranslation(0, 0, 0);
-
-    GlStateManager.shadeModel(GL11.GL_FLAT);
-    GlStateManager.disableBlend();
-    GlStateManager.enableAlphaTest();
-    GlStateManager.enableTexture();
-    GlStateManager.enableDepthTest();
-    GlStateManager.enableCull();
+    
+    RenderSystem.shadeModel(GL11.GL_FLAT);
+    RenderSystem.disableBlend();
+    RenderSystem.enableAlphaTest();
+    RenderSystem.enableTexture();
+    RenderSystem.enableDepthTest();
+    RenderSystem.enableCull();
 
     GL11.glDisable(GL11.GL_LINE_SMOOTH);
-    GlStateManager.popMatrix();
+    RenderSystem.popMatrix();
   }
 
   @SubscribeEvent
@@ -568,7 +565,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
 
         if (bindFinish.isKeyDown() && bindFinishToggle.compareAndSet(false, true)) {
           if (targets.isEmpty()) {
-            Common.printWarning("No items have been selected yet!");
+            printWarning("No items have been selected yet!");
           } else {
             stage = Stage.SELECT_REPLACEMENT;
             printToggle.set(false);
@@ -589,13 +586,13 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           LocalPlayerInventory.InvItem selected = LocalPlayerInventory.getSelected();
 
           if (selected.isNull()) {
-            Common.printWarning("No item selected!");
+            printWarning("No item selected!");
             return;
           }
 
           this.selectedItem = new ItemStack(selected.getItem(), 1);
 
-          Common.printInform("Selected item %s", this.selectedItem.getItem().getRegistryName());
+          printInform("Selected item %s", this.selectedItem.getItem().getRegistryName());
 
           stage = Stage.CONFIRM;
           printToggle.set(false);
@@ -606,7 +603,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       }
       case CONFIRM: {
         if (printToggle.compareAndSet(false, true)) {
-          Common.printInform(
+          printInform(
               "Press %s to begin, or '.%s info' to set the current settings",
               bindFinish.getTranslationKey(), getName());
         }
@@ -614,8 +611,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         if (bindFinish.isKeyDown()
             && selectedItem != null
             && bindFinishToggle.compareAndSet(false, true)) {
-          Common.printInform("Block place process started");
-          Common.printInform("Type '.%s reset' to restart the process", getName());
+          printInform("Block place process started");
+          printInform("Type '.%s reset' to restart the process", getName());
           stage = Stage.READY;
         } else if (!bindFinish.isKeyDown()) {
           bindFinishToggle.set(false);
@@ -624,7 +621,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       }
       case READY: {
         if (bindFinish.isKeyDown() && bindFinishToggle.compareAndSet(false, true)) {
-          Common.printInform("Block place process paused");
+          printInform("Block place process paused");
           stage = Stage.CONFIRM;
         } else if (!bindFinish.isKeyDown()) {
           bindFinishToggle.set(false);
@@ -641,7 +638,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       currentRenderingTarget = null;
       return;
     }
-    if (cooldown.getValue() > 0 && FastReflection.Fields.Minecraft_rightClickDelayTimer.get(Common.MC) > 0) {
+    if (cooldown.getValue() > 0 && FastReflection.Fields.Minecraft_rightClickDelayTimer.get(MC) > 0) {
       return;
     }
 
@@ -669,8 +666,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             : LocalPlayerUtils.getServerDirectionVector();
 
     List<UniqueBlock> blocks =
-        BlockHelper.getBlocksInRadius(eyes, Common.getPlayerController().getBlockReachDistance()).stream()
-            .filter(pos -> !Common.getWorld().isAirBlock(pos))
+        BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance()).stream()
+            .filter(pos -> !getWorld().isAirBlock(pos))
             .map(BlockHelper::newUniqueBlock)
             .filter(this::isValidBlock)
             .filter(this::isClickable)
@@ -747,33 +744,33 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
           if (sneak) {
             // send start sneaking packet
-            PacketHelper.ignoreAndSend(new CEntityActionPacket(Common.getLocalPlayer(),
+            PacketHelper.ignoreAndSend(new CEntityActionPacket(getLocalPlayer(),
                 CEntityActionPacket.Action.PRESS_SHIFT_KEY));
 
             LocalPlayerUtils.setSneakingSuppression(true);
             LocalPlayerUtils.setSneaking(true);
           }
 
-          Common.getPlayerController().processRightClick(
-              Common.getLocalPlayer(),
-              Common.getWorld(),
+          getPlayerController().processRightClick(
+              getLocalPlayer(),
+              getWorld(),
               // TODO: need to actually face the block
               Hand.MAIN_HAND);
 
           // stealth send swing packet
-          Common.sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+          sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
 
           if (sneak) {
             LocalPlayerUtils.setSneaking(false);
             LocalPlayerUtils.setSneakingSuppression(false);
 
-            Common.sendNetworkPacket(new CEntityActionPacket(Common.getLocalPlayer(), CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
+            sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
           }
 
           func.revert();
 
           // set the block place delay
-          FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Common.MC, cooldown.getValue());
+          FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, cooldown.getValue());
         });
   }
 

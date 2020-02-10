@@ -16,7 +16,6 @@ import java.nio.FloatBuffer;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@Getter
 public class VectorUtils implements Common {
   // Credits to Gregor and P47R1CK for the 3D vector transformation code
 
@@ -47,8 +46,11 @@ public class VectorUtils implements Common {
 //    double pointX = 0.5f * screenWidth + right.dotProduct(projection);
 //    double pointY = 0.5f * screenHeight - up.dotProduct(projection);
 
+  @Getter
   private static Matrix4f projectionMatrix = new Matrix4f();
+  @Getter
   private static Matrix4f viewMatrix = new Matrix4f();
+  @Getter
   private static Matrix4f projectionViewMatrix = new Matrix4f();
 
   public static void setProjectionViewMatrix(Matrix4f projection, Matrix4f view) {

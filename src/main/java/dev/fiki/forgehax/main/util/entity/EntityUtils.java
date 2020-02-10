@@ -163,8 +163,17 @@ public class EntityUtils implements Common {
    * Find the entities interpolated position
    */
   public static Vec3d getInterpolatedPos(Entity entity, double ticks) {
-    return new Vec3d(entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ)
-        .add(getInterpolatedAmount(entity, ticks));
+    double x = MathHelper.lerp(ticks, entity.lastTickPosX, entity.getPosX());
+    double y = MathHelper.lerp(ticks, entity.lastTickPosY, entity.getPosY());
+    double z = MathHelper.lerp(ticks, entity.lastTickPosZ, entity.getPosZ());
+    return new Vec3d(x, y, z);
+  }
+
+  public static Vec3d getInterpolatedPos(Entity entity, Vec3d start, double ticks) {
+    double x = MathHelper.lerp(ticks, entity.lastTickPosX, start.getX());
+    double y = MathHelper.lerp(ticks, entity.lastTickPosY, start.getY());
+    double z = MathHelper.lerp(ticks, entity.lastTickPosZ, start.getZ());
+    return new Vec3d(x, y, z);
   }
   
   /**
