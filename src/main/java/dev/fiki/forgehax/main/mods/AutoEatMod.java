@@ -175,41 +175,39 @@ public class AutoEatMod extends ToggleMod {
         .filter(LocalPlayerInventory.InvItem::nonEmpty)
         .filter(this::isFoodItem)
         .filter(this::isGoodFood)
-        .max(
-            Comparator.comparingDouble(this::getPreferenceValue)
-                .thenComparing(LocalPlayerInventory::getHotbarDistance))
+        .max(Comparator.comparingDouble(this::getPreferenceValue)
+            .thenComparing(LocalPlayerInventory::getHotbarDistance))
         .filter(this::shouldEat)
-        .ifPresent(
-            best -> {
-              food = best.getItem().getFood();
+        .ifPresent(best -> {
+          food = best.getItem().getFood();
 
-              LocalPlayerInventory.setSelected(best, ticks -> !eating);
+          LocalPlayerInventory.setSelected(best, ticks -> !eating);
 
-              eating = true;
+          eating = true;
 
-              if (!checkFailsafe()) {
-                reset();
-                eating = true;
-                return;
-              }
+          if (!checkFailsafe()) {
+            reset();
+            eating = true;
+            return;
+          }
 
-              if (currentSelected != best.getIndex()) {
-                MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_SELECT_FOOD));
-                lastHotbarIndex = best.getIndex();
-                selectedTicks = 0;
-              }
+          if (currentSelected != best.getIndex()) {
+            MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_SELECT_FOOD));
+            lastHotbarIndex = best.getIndex();
+            selectedTicks = 0;
+          }
 
-              if (selectedTicks > select_wait.getValue()) {
-                if (!wasEating) {
-                  MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_START));
-                }
+          if (selectedTicks > select_wait.getValue()) {
+            if (!wasEating) {
+              MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_START));
+            }
 
-                FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
-                getPlayerController().processRightClick(getLocalPlayer(), getWorld(), Hand.MAIN_HAND);
+            FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
+            getPlayerController().processRightClick(getLocalPlayer(), getWorld(), Hand.MAIN_HAND);
 
-                ++eatingTicks;
-              }
-            });
+            ++eatingTicks;
+          }
+        });
 
     if (lastHotbarIndex != -1) {
       if (lastHotbarIndex == LocalPlayerInventory.getSelected().getIndex()) {
@@ -236,12 +234,4 @@ public class AutoEatMod extends ToggleMod {
       }
     }
   }
-
-//  @SubscribeEvent(priority = EventPriority.HIGHEST)
-//  public void onGuiOpened(GuiOpenEvent event) {
-//    // process keys and mouse input even if this gui is open
-//    if (eating && getWorld() != null && getLocalPlayer() != null && event.getGui() != null) {
-//      event.getGui().allowUserInput = true;
-//    }
-//  } // TODO: 1.15 might need to find alternative
 }

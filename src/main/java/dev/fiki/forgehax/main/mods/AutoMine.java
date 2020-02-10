@@ -61,14 +61,6 @@ public class AutoMine extends ToggleMod {
     }
   }
 
-//  @SubscribeEvent(priority = EventPriority.HIGHEST)
-//  public void onGuiOpened(GuiOpenEvent event) {
-//    // process keys and mouse input even if this gui is open
-//    if (getWorld() != null && getLocalPlayer() != null && event.getGui() != null) {
-//      event.getGui().allowUserInput = true;
-//    }
-//  } // TODO: 1.15 might need to update this
-
   @SubscribeEvent
   public void onLeftClickCouterUpdate(LeftClickCounterUpdateEvent event) {
     // prevent the leftClickCounter from changing
