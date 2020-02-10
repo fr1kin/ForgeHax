@@ -53,9 +53,11 @@ public class MainMenuGuiService extends ServiceMod {
               }); // lower the rest of the buttons to make room for ours
       
       event.addWidget(customButton = new Button(
-              666, gui.width / 2 - 100,
-              gui.height / 4 + 48 + (24 * 3), 24,
-              "Command Input", this::onPressed));
+          gui.width / 2 - 100, // x
+          gui.height / 4 + 48 + (24 * 3), // y
+          200,
+          20,
+          "Command Input", this::onPressed));
     }
   }
 
