@@ -6,8 +6,10 @@ import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.Wrappers;
 import dev.fiki.forgehax.common.LoggerProvider;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.Logger;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,17 +39,17 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
   }
 
   @Override
-  public void beginScanning(IEnvironment environment) {}
+  public void beginScanning(IEnvironment environment) {
+  }
 
   @Override
   public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
-    if(otherServices.stream()
+    if (otherServices.stream()
         .map(String::toLowerCase)
         .anyMatch(str -> str.contains("mixin"))) {
       logger.warn("ForgeHaxCore found Mixin. Some patches may not apply.");
     }
   }
-
 
   @Nonnull
   @Override
@@ -58,7 +60,6 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
         LivingEntityPatch.class,
         EntityPatch.class,
         EntityPlayerSPPatch.class,
-        EntityRendererPatch.class,
         GameRendererPatch.class,
         KeyBindingPatch.class,
         MinecraftPatch.class,
@@ -74,31 +75,29 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
 
   @SuppressWarnings("unchecked")
   private List<ITransformer> getTransformersForClasses(Class<?>... patches) {
-    return (List<ITransformer>)Stream.of(patches) // epic cast because compiler bug??
+    return (List<ITransformer>) Stream.of(patches) // epic cast because compiler bug??
         .flatMap(clazz -> Stream.concat(Stream.of(clazz), Stream.of(clazz.getDeclaredClasses())))
-        .filter(inner -> inner.isAnnotationPresent(RegisterTransformer.class))
-        .peek(inner -> {
-          if (!hasNoArgConstructor(inner)) // TODO: check if class is not static, most likely reason for this to happen
-            throw new IllegalStateException(inner.getSimpleName() + " does not have a 0 arg constructor");
-        })
-        .map(inner -> Wrappers.createWrapper((ITransformer)newInstance(inner), inner.getDeclaredAnnotation(RegisterTransformer.class)))
+        .filter(clazz -> clazz.isAnnotationPresent(RegisterTransformer.class))
+        .filter(ForgeHaxCoreTransformer::requiresZeroArgConstructor)
+        .map(ForgeHaxCoreTransformer::newInstance)
+        .map(ITransformer.class::cast)
+        .map(Wrappers::createWrapper)
         .collect(Collectors.toList());
   }
 
+  @SneakyThrows
   private static <T> T newInstance(Class<T> clazz) {
-    try {
-      return clazz.newInstance();
-    } catch (ReflectiveOperationException ex) {
-      throw new RuntimeException(ex);
-    }
+    Constructor<T> constructor = clazz.getDeclaredConstructor();
+    constructor.setAccessible(true);
+    return constructor.newInstance();
   }
 
-  private boolean hasNoArgConstructor(Class<?> clazz) {
+  private static boolean requiresZeroArgConstructor(Class<?> clazz) {
     try {
-      clazz.getDeclaredConstructor();
-      return true;
+      return clazz.getDeclaredConstructor() != null;
     } catch (NoSuchMethodException ex) {
-      return false;
+      getLogger().warn("Class \"{}\" has not zero-argument constructor!", clazz.getSimpleName());
     }
+    return false;
   }
 }

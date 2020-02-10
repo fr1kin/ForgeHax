@@ -16,7 +16,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 public class BoatRendererPatch  {
   
 
-  @RegisterTransformer
+  @RegisterTransformer("ForgeHaxHooks::onRenderBoat")
   public static class Render extends MethodTransformer {
     
     @Override

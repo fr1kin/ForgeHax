@@ -12,7 +12,7 @@ import org.objectweb.asm.tree.*;
 
 public class BoatEntityPatch {
 
-  
+
 //  @RegisterTransformer("ForgeHaxHooks.isBoatSetYawActivated")
 //  public static class ControlBoat extends MethodTransformer {
 //
@@ -84,10 +84,10 @@ public class BoatEntityPatch {
 //      main.instructions.insert(putFieldNodeRight, newLabelNodeRight); // end if
 //    }
 //  }
-  
+
   @RegisterTransformer("ForgeHaxHooks.isNoClampingActivated")
   public static class ApplyYawToEntity extends MethodTransformer {
-    
+
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.BoatEntity_applyYawToEntity;
@@ -102,14 +102,14 @@ public class BoatEntityPatch {
           .getFirst("");
 
       AbstractInsnNode post = pre.getNext().getNext().getNext(); //INVOKESTATIC
-      
+
       InsnList insnList = new InsnList();
-      
+
       LabelNode jump = new LabelNode();
-      
+
       insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoClampingActivated));
       insnList.add(new JumpInsnNode(IFNE, jump)); // if nogravity is enabled
-      
+
       main.instructions.insert(pre, insnList);
       main.instructions.insert(post, jump);
     }

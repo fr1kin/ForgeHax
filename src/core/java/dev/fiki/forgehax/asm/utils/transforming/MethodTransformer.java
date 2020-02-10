@@ -27,36 +27,32 @@ import static dev.fiki.forgehax.asm.ASMCommon.getLogger;
  */
 public abstract class MethodTransformer implements ITransformer<MethodNode>, TypesMc, Opcodes, ASMHelper.MagicOpcodes {
 
-  
   public abstract ASMMethod getMethod();
-  public abstract void transform(MethodNode method);
 
+  public abstract void transform(MethodNode method);
 
   @Nonnull
   @Override
   public MethodNode transform(MethodNode input, ITransformerVotingContext context) {
-    // TODO: if this is null use the class name for the desc or something
-    final @Nullable RegisterTransformer annotation = this.getClass().getAnnotation(RegisterTransformer.class);
+    final String description = getClass().isAnnotationPresent(RegisterTransformer.class)
+        ? getClass().getAnnotation(RegisterTransformer.class).value()
+        : getClass().getSimpleName();
 
     getLogger().debug("Transforming method {}::{}[{}]",
         getMethod().getParent().getClassName(),
         getMethod().getMcp(), getMethod().getMcpDescriptor());
 
-      try {
-        this.transform(input);
-        getLogger().debug("Successfully transformed task \"{}\"", annotation.value());
-      } catch (Throwable t) {
-        if(t instanceof InvocationTargetException) {
-          // we don't care about the reflection error
-          t = t.getCause();
-        }
-        // catch errors
-        getLogger().error("Failed to transform task \"{}\" in method {}::{}[{}]",
-            annotation.value(),
-            getMethod().getParent().getClassName(),
-            getMethod().getMcp(), getMethod().getMcpDescriptor());
-        getLogger().error(t, t);
-      }
+    try {
+      this.transform(input);
+      getLogger().debug("Successfully transformed method \"{}\"", description);
+    } catch (Throwable t) {
+      // catch errors
+      getLogger().error("Failed to transform task \"{}\" in method {}::{}[{}]",
+          description,
+          getMethod().getParent().getClassName(),
+          getMethod().getMcp(), getMethod().getMcpDescriptor());
+      getLogger().error(t, t);
+    }
 
     return input;
   }
@@ -99,7 +95,7 @@ public abstract class MethodTransformer implements ITransformer<MethodNode>, Typ
 
     @Override
     public String toString() {
-      return target.getClassName() + "::" +  target.getElementName() + target.getElementDescriptor();
+      return target.getClassName() + "::" + target.getElementName() + target.getElementDescriptor();
     }
   }
 }

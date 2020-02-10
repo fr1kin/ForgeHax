@@ -10,7 +10,7 @@ import org.objectweb.asm.tree.*;
 
 public class GameRendererPatch {
 
-  @RegisterTransformer
+  @RegisterTransformer("ForgeHaxHooks::onHurtcamEffect")
   public static class Hurtcam extends MethodTransformer {
     @Override
     public ASMMethod getMethod() {
@@ -51,7 +51,7 @@ public class GameRendererPatch {
 
   }
 
-  @RegisterTransformer
+  @RegisterTransformer("ForgeHaxHooks::onSetupProjectionViewMatrix")
   public static class ProjectionViewSetup extends MethodTransformer {
 
     @Override

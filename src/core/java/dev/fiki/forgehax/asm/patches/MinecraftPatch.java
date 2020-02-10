@@ -13,13 +13,13 @@ import org.objectweb.asm.tree.*;
 import static dev.fiki.forgehax.asm.TypesMc.Fields.Minecraft_leftClickCounter;
 
 public class MinecraftPatch {
-  
 
-  @RegisterTransformer
+
+  @RegisterTransformer("ForgeHaxHooks::onLeftClickCounterSet")
   public static class RunTick extends MethodTransformer {
 
     private boolean isLeftClickField(AbstractInsnNode node, int opcode) {
-      if(node instanceof FieldInsnNode && node.getOpcode() == opcode) {
+      if (node instanceof FieldInsnNode && node.getOpcode() == opcode) {
         FieldInsnNode fld = (FieldInsnNode) node;
         return Minecraft_leftClickCounter.isNameEqual(fld.name);
       }
@@ -29,7 +29,7 @@ public class MinecraftPatch {
     private boolean isPutLeftClickField(AbstractInsnNode node) {
       return isLeftClickField(node, PUTFIELD);
     }
-    
+
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_runTick;
@@ -43,18 +43,18 @@ public class MinecraftPatch {
           .custom(this::isPutLeftClickField)
           .find(method)
           .getFirst();
-      
+
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
-      
+
       method.instructions.insert(node, list);
     }
   }
-  
-  @RegisterTransformer
+
+  @RegisterTransformer("ForgeHaxHooks::onSendClickBlockToController")
   public static class SendClickBlockToController extends MethodTransformer {
-    
+
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_sendClickBlockToController;
@@ -66,10 +66,10 @@ public class MinecraftPatch {
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(new VarInsnNode(ILOAD, 1));
       list.add(
-        ASMHelper.call(
-          INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendClickBlockToController));
+          ASMHelper.call(
+              INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendClickBlockToController));
       list.add(new VarInsnNode(ISTORE, 1));
-      
+
       method.instructions.insert(list);
     }
   }

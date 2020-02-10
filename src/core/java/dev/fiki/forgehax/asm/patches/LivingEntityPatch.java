@@ -15,9 +15,9 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 public class LivingEntityPatch {
 
-  @RegisterTransformer
+  @RegisterTransformer("ForgeHaxHooks::onEntityBlockSlipApply")
   public static class Travel extends MethodTransformer {
-    
+
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.LivingEntity_travel;

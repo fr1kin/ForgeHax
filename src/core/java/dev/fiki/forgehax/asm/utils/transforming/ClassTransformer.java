@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.asm.utils.transforming;
 
+import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
 import dev.fiki.forgehax.asm.TypesMc;
@@ -20,8 +21,8 @@ import javax.annotation.Nonnull;
 import static dev.fiki.forgehax.asm.ASMCommon.*;
 
 @Getter
-public abstract class ClassTransformer implements ITransformerProvider<ClassNode>, TypesMc, Opcodes, ASMHelper.MagicOpcodes {
-  
+public abstract class ClassTransformer implements ITransformer<ClassNode>, TypesMc, Opcodes, ASMHelper.MagicOpcodes {
+
   private final ASMClass transformingClass;
 
   public ClassTransformer(ASMClass clazz) {
@@ -33,12 +34,29 @@ public abstract class ClassTransformer implements ITransformerProvider<ClassNode
     return transformingClass.getClassName();
   }
 
-  /*@Nonnull
+  @Nonnull
   @Override
   public ClassNode transform(ClassNode node, ITransformerVotingContext ctx) {
+    final String description = getClass().isAnnotationPresent(RegisterTransformer.class)
+        ? getClass().getAnnotation(RegisterTransformer.class).value()
+        : getClass().getSimpleName();
+
+    getLogger().debug("Transforming class {}", getTransformingClassName());
+
+    try {
+      this.transform(node);
+      getLogger().debug("Successfully transformed class \"{}\"", description);
+    } catch (Throwable t) {
+      // catch errors
+      getLogger().error("Failed to transform task \"{}\" in class {}",
+          description, getTransformingClassName());
+      getLogger().error(t, t);
+    }
 
     return node;
-  }*/
+  }
+
+  public abstract void transform(ClassNode node);
 
   @Nonnull
   @Override

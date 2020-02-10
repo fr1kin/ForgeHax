@@ -20,9 +20,8 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class PlayerTabOverlayPatch {
 
-
-  @RegisterTransformer
-  public static class RenderPlayerlist_renderIcon extends MethodTransformer {
+  @RegisterTransformer("ForgeHaxHooks::doIncreaseTabListSize")
+  public static class RenderPlayerListRenderIcon extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {

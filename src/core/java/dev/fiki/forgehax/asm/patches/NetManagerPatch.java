@@ -17,11 +17,10 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class NetManagerPatch {
-  
 
-  @RegisterTransformer
+  @RegisterTransformer("ForgeHaxHooks::onPacketOutbound")
   public static class DispatchPacket extends MethodTransformer {
-    
+
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.NetworkManager_dispatchPacket;
@@ -54,10 +53,10 @@ public class NetManagerPatch {
       main.instructions.insertBefore(ret, jmp);
     }
   }
-  
-  @RegisterTransformer
+
+  @RegisterTransformer("ForgeHaxHooks::onPacketInbound")
   public static class ChannelRead0 extends MethodTransformer {
-    
+
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.NetworkManager_channelRead0;

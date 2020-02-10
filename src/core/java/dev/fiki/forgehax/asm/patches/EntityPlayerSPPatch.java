@@ -21,8 +21,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 /**
  * Created on 11/13/2016 by fr1kin
  */
-public class EntityPlayerSPPatch  {
-
+public class EntityPlayerSPPatch {
 
   @RegisterTransformer
   public static class ApplyLivingUpdate extends MethodTransformer {

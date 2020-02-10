@@ -4,6 +4,7 @@ import cpw.mods.modlauncher.TransformTargetLabel;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
+import lombok.AllArgsConstructor;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -16,48 +17,21 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class Wrappers {
-
-
-    @SuppressWarnings("unchecked")
-    public static <T> ITransformer<T> createWrapper(ITransformer<T> transformer, RegisterTransformer annotation) {
-        /*Optional<ParameterizedType> parameterizedType =  Stream.of(transformer.getClass().getGenericInterfaces())
-                .filter(type -> type instanceof ParameterizedType)
-                .map(type -> (ParameterizedType)type)
-                .filter(pType -> pType.getRawType().equals(ITransformer.class))
-                .findFirst();
-
-        Type nodeType = parameterizedType
-                .map(pType -> pType.getActualTypeArguments()[0])
-                .orElseGet(annotation::nodeType);
-
-        TransformTargetLabel.LabelType labelType = TransformTargetLabel.LabelType.getTypeFor(nodeType)
-            .orElseThrow(() -> new IllegalStateException("Class " + transformer.getClass() + " attempted to implement transformer for invalid node type " + nodeType));
-
-        switch (labelType) {
-            case FIELD: return  (ITransformer<T>)  new FieldTransformerWrapper((ITransformer<FieldNode>)transformer);
-            case METHOD: return (ITransformer<T>) new MethodTransformerWrapper((ITransformer<MethodNode>)transformer);
-            case CLASS: return  (ITransformer<T>)  new ClassTransformerWrapper((ITransformer<ClassNode>)transformer);
-
-            default: throw new IllegalStateException("??? " + transformer.getClass());
-        }*/
-        if (transformer instanceof MethodTransformer) {
-          return (ITransformer<T>)new MethodTransformerWrapper((ITransformer<MethodNode>)transformer);
-        } else if (transformer instanceof ClassTransformer) {
-          return (ITransformer<T>)new ClassTransformerWrapper((ITransformer<ClassNode>)transformer);
-        } /*else if (transformer instanceof MethodTransformer) {
-          return (ITransformer<T>)new MethodTransformerWrapper((ITransformer<MethodNode>)transformer);
-        }*/ else {
-          throw new IllegalArgumentException("xd");
-        }
-
+  @SuppressWarnings("unchecked")
+  public static <T> ITransformer<T> createWrapper(ITransformer<T> transformer) {
+    if (transformer instanceof MethodTransformer) {
+      return (ITransformer<T>) new MethodTransformerWrapper((ITransformer<MethodNode>) transformer);
+    } else if (transformer instanceof ClassTransformer) {
+      return (ITransformer<T>) new ClassTransformerWrapper((ITransformer<ClassNode>) transformer);
+    } else {
+      throw new IllegalArgumentException("Class \"" + transformer.getClass().getSimpleName() + " is not supported.");
     }
 
+  }
+
+  @AllArgsConstructor
   private static class ClassTransformerWrapper implements ITransformer<ClassNode> {
     private final ITransformer<ClassNode> impl;
-
-    public ClassTransformerWrapper(ITransformer<ClassNode> impl) {
-      this.impl = impl;
-    }
 
     @Nonnull
     @Override
@@ -78,12 +52,9 @@ public class Wrappers {
     }
   }
 
+  @AllArgsConstructor
   private static class FieldTransformerWrapper implements ITransformer<FieldNode> {
     private final ITransformer<FieldNode> impl;
-
-    public FieldTransformerWrapper(ITransformer<FieldNode> impl) {
-      this.impl = impl;
-    }
 
     @Nonnull
     @Override
@@ -104,12 +75,9 @@ public class Wrappers {
     }
   }
 
+  @AllArgsConstructor
   private static class MethodTransformerWrapper implements ITransformer<MethodNode> {
     private final ITransformer<MethodNode> impl;
-
-    public MethodTransformerWrapper(ITransformer<MethodNode> impl) {
-      this.impl = impl;
-    }
 
     @Nonnull
     @Override

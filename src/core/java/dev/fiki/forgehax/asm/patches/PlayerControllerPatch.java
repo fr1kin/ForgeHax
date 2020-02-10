@@ -17,11 +17,10 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class PlayerControllerPatch {
-  
 
-  @RegisterTransformer
+  @RegisterTransformer("ForgeHaxHooks::onPlayerItemSync")
   public static class SyncCurrentPlayItem extends MethodTransformer {
-    
+
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.PlayerController_syncCurrentPlayItem;
@@ -32,14 +31,14 @@ public class PlayerControllerPatch {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerItemSync));
-      
+
       node.instructions.insert(list);
     }
   }
-  
-  @RegisterTransformer
+
+  @RegisterTransformer("ForgeHaxHooks::onPlayerAttackEntity")
   public static class AttackEntity extends MethodTransformer {
-    
+
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.PlayerController_attackEntity;
@@ -52,14 +51,14 @@ public class PlayerControllerPatch {
       list.add(new VarInsnNode(ALOAD, 1));
       list.add(new VarInsnNode(ALOAD, 2));
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerAttackEntity));
-      
+
       node.instructions.insert(list);
     }
   }
-  
-  @RegisterTransformer
+
+  @RegisterTransformer("ForgeHaxHooks::onPlayerBreakingBlock")
   public static class OnPlayerDamageBlock extends MethodTransformer {
-    
+
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.PlayerController_onPlayerDamageBlock;
@@ -72,14 +71,14 @@ public class PlayerControllerPatch {
       list.add(new VarInsnNode(ALOAD, 1));
       list.add(new VarInsnNode(ALOAD, 2));
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerBreakingBlock));
-      
+
       node.instructions.insert(list);
     }
   }
-  
-  @RegisterTransformer
+
+  @RegisterTransformer("ForgeHaxHooks::onPlayerStopUse")
   public static class OnStoppedUsingItem extends MethodTransformer {
-    
+
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.PlayerController_onStoppedUsingItem;
@@ -88,18 +87,18 @@ public class PlayerControllerPatch {
     @Override
     public void transform(MethodNode node) {
       AbstractInsnNode last =
-        ASMHelper.findPattern(node.instructions.getFirst(), new int[]{RETURN}, "x");
-      
+          ASMHelper.findPattern(node.instructions.getFirst(), new int[]{RETURN}, "x");
+
       Objects.requireNonNull(last, "Could not find RET opcode");
-      
+
       LabelNode label = new LabelNode();
-      
+
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(new VarInsnNode(ALOAD, 1));
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerStopUse));
       list.add(new JumpInsnNode(IFNE, label));
-      
+
       node.instructions.insert(list);
       node.instructions.insertBefore(last, label);
     }
