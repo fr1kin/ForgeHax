@@ -2,10 +2,8 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
@@ -18,22 +16,19 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class PlayerControllerPatch extends ClassTransformer {
+public class PlayerControllerPatch {
   
-  public PlayerControllerPatch() {
-    super(Classes.PlayerController);
-  }
-  
-  @RegisterMethodTransformer
-  public class SyncCurrentPlayItem extends MethodTransformer {
+
+  @RegisterTransformer
+  public static class SyncCurrentPlayItem extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.PlayerController_syncCurrentPlayItem;
     }
-    
-    @Inject(value = "Add callback at top of method")
-    public void inject(MethodNode node) {
+
+    @Override
+    public void transform(MethodNode node) {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerItemSync));
@@ -42,16 +37,16 @@ public class PlayerControllerPatch extends ClassTransformer {
     }
   }
   
-  @RegisterMethodTransformer
-  public class AttackEntity extends MethodTransformer {
+  @RegisterTransformer
+  public static class AttackEntity extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.PlayerController_attackEntity;
     }
-    
-    @Inject(value = "Add callback at top of method")
-    public void inject(MethodNode node) {
+
+    @Override
+    public void transform(MethodNode node) {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(new VarInsnNode(ALOAD, 1));
@@ -62,16 +57,16 @@ public class PlayerControllerPatch extends ClassTransformer {
     }
   }
   
-  @RegisterMethodTransformer
-  public class OnPlayerDamageBlock extends MethodTransformer {
+  @RegisterTransformer
+  public static class OnPlayerDamageBlock extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.PlayerController_onPlayerDamageBlock;
     }
-    
-    @Inject(value = "Add callback at top of method")
-    public void inject(MethodNode node) {
+
+    @Override
+    public void transform(MethodNode node) {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(new VarInsnNode(ALOAD, 1));
@@ -82,16 +77,16 @@ public class PlayerControllerPatch extends ClassTransformer {
     }
   }
   
-  @RegisterMethodTransformer
-  public class OnStoppedUsingItem extends MethodTransformer {
+  @RegisterTransformer
+  public static class OnStoppedUsingItem extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.PlayerController_onStoppedUsingItem;
     }
-    
-    @Inject(value = "Add callback at top of method")
-    public void inject(MethodNode node) {
+
+    @Override
+    public void transform(MethodNode node) {
       AbstractInsnNode last =
         ASMHelper.findPattern(node.instructions.getFirst(), new int[]{RETURN}, "x");
       

@@ -2,10 +2,8 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
@@ -17,22 +15,19 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class VisGraphPatch extends ClassTransformer {
+public class VisGraphPatch {
   
-  public VisGraphPatch() {
-    super(TypesMc.Classes.VisGraph);
-  }
-  
-  @RegisterMethodTransformer
-  private class SetOpaqueCube extends MethodTransformer {
+
+  @RegisterTransformer
+  private static class SetOpaqueCube extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.VisGraph_setOpaqueCube;
     }
-    
-    @Inject(value = "Add hook at the end that can override the return value")
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode top = main.instructions.getFirst();
       AbstractInsnNode bottom =
         ASMHelper.findPattern(main.instructions.getFirst(), new int[]{RETURN}, "x");
@@ -52,19 +47,16 @@ public class VisGraphPatch extends ClassTransformer {
     }
   }
   
-  @RegisterMethodTransformer
-  private class ComputeVisibility extends MethodTransformer {
+  @RegisterTransformer
+  private static class ComputeVisibility extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.VisGraph_computeVisibility;
     }
-    
-    @Inject(
-      value =
-        "Add hook that adds or logic to the jump that checks if setAllVisible(true) should be called"
-    )
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode node =
         ASMHelper.findPattern(main.instructions.getFirst(), new int[]{SIPUSH, IF_ICMPGE}, "xx");
       

@@ -1,30 +1,24 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.TypesMc;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import org.objectweb.asm.tree.*;
 
-public class BlockPatch extends ClassTransformer {
-  
-  public BlockPatch() {
-    super(TypesMc.Classes.Block);
-  }
+public class BlockPatch  {
+
 
   // REMOVED in 1.15
-//  @RegisterMethodTransformer
-//  private class CanRenderInLayer extends MethodTransformer {
+//  @RegisterTransformer("Changes in layer code so that we can change it")
+//  private static class CanRenderInLayer extends MethodTransformer {
 //
 //    @Override
 //    public ASMMethod getMethod() {
 //      return TypesMc.Methods.Block_canRenderInLayer;
 //    }
 //
-//    @Inject(description = "Changes in layer code so that we can change it")
-//    public void inject(MethodNode main) {
+//    @Override
+//    public void transform(MethodNode main) {
 //      AbstractInsnNode node =
 //        ASMHelper.findPattern(main.instructions.getFirst(), new int[]{INVOKEVIRTUAL}, "x");
 //
@@ -49,18 +43,16 @@ public class BlockPatch extends ClassTransformer {
 //  }
 
   // REMOVED in 1.15
-//  @RegisterMethodTransformer
-//  private class AddCollisionBoxToList extends MethodTransformer {
+//  @RegisterTransformer("Redirects method to our hook and allows the vanilla code to be canceled from executing")
+//  private static class AddCollisionBoxToList extends MethodTransformer {
 //
 //    @Override
 //    public ASMMethod getMethod() {
 //      return TypesMc.Methods.Block_addCollisionBoxToList;
 //    }
 //
-//    @Inject(
-//      description =
-//        "Redirects method to our hook and allows the vanilla code to be canceled from executing")
-//    public void inject(MethodNode main) {
+//    @Override
+//    public void transform(MethodNode main) {
 //      AbstractInsnNode node = main.instructions.getFirst();
 //      AbstractInsnNode end =
 //        ASMHelper.findPattern(main.instructions.getFirst(), new int[]{RETURN}, "x");
@@ -89,7 +81,7 @@ public class BlockPatch extends ClassTransformer {
 //  }
 
 
-  @RegisterMethodTransformer
+  @RegisterTransformer
   public static class GetCollisionShape extends MethodTransformer {
 
     @Override
@@ -97,7 +89,7 @@ public class BlockPatch extends ClassTransformer {
       return Methods.Block_getCollisionShape;
     }
 
-    @Inject
+    @Override
     public void transform(MethodNode method) {
       // TODO: 1.15 maybe
 //      AbstractInsnNode node = method.instructions.getFirst();

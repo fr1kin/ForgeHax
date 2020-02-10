@@ -1,10 +1,8 @@
 package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
@@ -18,22 +16,18 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class EntityRendererPatch extends ClassTransformer {
+public class EntityRendererPatch {
   
-  public EntityRendererPatch() {
-    super(TypesMc.Classes.EntityRenderer);
-  }
-  
-  @RegisterMethodTransformer
-  private class HurtCameraEffect extends MethodTransformer {
+  @RegisterTransformer
+  private static class HurtCameraEffect extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.EntityRenderer_hurtCameraEffect;
     }
-    
-    @Inject(value = "Add hook that allows the method to be canceled")
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode preNode = main.instructions.getFirst();
       AbstractInsnNode postNode =
         ASMHelper.findPattern(main.instructions.getFirst(), new int[]{RETURN}, "x");

@@ -2,11 +2,11 @@ package dev.fiki.forgehax.asm;
 
 import cpw.mods.modlauncher.api.*;
 import dev.fiki.forgehax.asm.patches.*;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.Wrappers;
 import dev.fiki.forgehax.common.LoggerProvider;
 import lombok.Getter;
 import org.apache.logging.log4j.Logger;
-import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
 import java.util.Set;
@@ -48,51 +48,57 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
     }
   }
 
+
   @Nonnull
   @Override
-  @Deprecated
   public List<ITransformer> transformers() {
-    return Stream.of(
-        new BlockPatch(),
-        new BoatEntityPatch(),
-        new LivingEntityPatch(),
-        new EntityPatch(),
-        new EntityPlayerSPPatch(),
-        new EntityRendererPatch(),
-        new GameRendererPatch(),
-        new KeyBindingPatch(),
-        new MinecraftPatch(),
-        new NetManagerPatch(),
-        new PlayerControllerPatch(),
-        new PlayerTabOverlayPatch(),
-        new BoatRendererPatch(),
-        new WorldRendererPatch(),
-        new VisGraphPatch(),
-        new WorldPatch())
-        // this map below can be commented out to use classtransformers instead
-        .map(ClassTransformer::getMethodTransformers)
-        .flatMap(List::stream)
-        .filter(mt -> mt.getMethod().getSrg() != null) // temporary
-        // cpws code doesn't check super classes, so we have to wrap our instance
-        .map(mt -> new ITransformer<MethodNode>() {
-          @Nonnull
-          @Override
-          public MethodNode transform(MethodNode input, ITransformerVotingContext context) {
-            return mt.transform(input, context);
-          }
+    return getTransformersForClasses(
+        BlockPatch.class,
+        BoatEntityPatch.class,
+        LivingEntityPatch.class,
+        EntityPatch.class,
+        EntityPlayerSPPatch.class,
+        EntityRendererPatch.class,
+        GameRendererPatch.class,
+        KeyBindingPatch.class,
+        MinecraftPatch.class,
+        NetManagerPatch.class,
+        PlayerControllerPatch.class,
+        PlayerTabOverlayPatch.class,
+        BoatRendererPatch.class,
+        WorldRendererPatch.class,
+        VisGraphPatch.class,
+        WorldPatch.class
+    );
+  }
 
-          @Nonnull
-          @Override
-          public TransformerVoteResult castVote(ITransformerVotingContext context) {
-            return mt.castVote(context);
-          }
-
-          @Nonnull
-          @Override
-          public Set<Target> targets() {
-            return mt.targets();
-          }
+  @SuppressWarnings("unchecked")
+  private List<ITransformer> getTransformersForClasses(Class<?>... patches) {
+    return (List<ITransformer>)Stream.of(patches) // epic cast because compiler bug??
+        .flatMap(clazz -> Stream.concat(Stream.of(clazz), Stream.of(clazz.getDeclaredClasses())))
+        .filter(inner -> inner.isAnnotationPresent(RegisterTransformer.class))
+        .peek(inner -> {
+          if (!hasNoArgConstructor(inner)) // TODO: check if class is not static, most likely reason for this to happen
+            throw new IllegalStateException(inner.getSimpleName() + " does not have a 0 arg constructor");
         })
+        .map(inner -> Wrappers.createWrapper((ITransformer)this.newInstance(inner), inner.getDeclaredAnnotation(RegisterTransformer.class)))
         .collect(Collectors.toList());
+  }
+
+  private <T> T newInstance(Class<T> clazz) {
+    try {
+      return clazz.newInstance();
+    } catch (ReflectiveOperationException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  private boolean hasNoArgConstructor(Class<?> clazz) {
+    try {
+      clazz.getDeclaredConstructor();
+      return true;
+    } catch (NoSuchMethodException ex) {
+      return false;
+    }
   }
 }

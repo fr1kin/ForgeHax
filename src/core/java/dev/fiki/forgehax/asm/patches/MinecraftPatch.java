@@ -1,32 +1,27 @@
 package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
+import dev.fiki.forgehax.asm.TypesMc;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
-import dev.fiki.forgehax.asm.utils.InsnPattern;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
-import java.util.Objects;
-
 import org.objectweb.asm.tree.*;
 
-public class MinecraftPatch extends ClassTransformer {
+import static dev.fiki.forgehax.asm.TypesMc.Fields.Minecraft_leftClickCounter;
+
+public class MinecraftPatch {
   
-  public MinecraftPatch() {
-    super(Classes.Minecraft);
-  }
-  
-  @RegisterMethodTransformer
-  public class RunTick extends MethodTransformer {
+
+  @RegisterTransformer
+  public static class RunTick extends MethodTransformer {
 
     private boolean isLeftClickField(AbstractInsnNode node, int opcode) {
       if(node instanceof FieldInsnNode && node.getOpcode() == opcode) {
         FieldInsnNode fld = (FieldInsnNode) node;
-        return Fields.Minecraft_leftClickCounter.isNameEqual(fld.name);
+        return Minecraft_leftClickCounter.isNameEqual(fld.name);
       }
       return false;
     }
@@ -39,9 +34,9 @@ public class MinecraftPatch extends ClassTransformer {
     public ASMMethod getMethod() {
       return Methods.Minecraft_runTick;
     }
-    
-    @Inject(value = "ForgeHaxHooks.onLeftClickCounterSet")
-    public void injectFirst(MethodNode method) {
+
+    @Override
+    public void transform(MethodNode method) {
       // this.leftClickCounter = 10000;
       AbstractInsnNode node = ASMPattern.builder()
           .opcodes(SIPUSH)
@@ -57,16 +52,16 @@ public class MinecraftPatch extends ClassTransformer {
     }
   }
   
-  @RegisterMethodTransformer
-  public class SendClickBlockToController extends MethodTransformer {
+  @RegisterTransformer
+  public static class SendClickBlockToController extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return Methods.Minecraft_sendClickBlockToController;
     }
-    
-    @Inject(value = "ForgeHaxHooks::onSendClickBlockToController")
-    public void inject(MethodNode method) {
+
+    @Override
+    public void transform(MethodNode method) {
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
       list.add(new VarInsnNode(ILOAD, 1));

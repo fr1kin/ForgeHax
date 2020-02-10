@@ -1,9 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
@@ -16,22 +14,18 @@ import org.objectweb.asm.tree.MethodNode;
 /**
  * Created by Babbaj on 9/5/2017.
  */
-public class KeyBindingPatch extends ClassTransformer {
-  
-  public KeyBindingPatch() {
-    super(TypesMc.Classes.KeyBinding);
-  }
-  
-  @RegisterMethodTransformer
-  private class IsKeyDown extends MethodTransformer {
+public class KeyBindingPatch {
+
+  @RegisterTransformer
+  private static class IsKeyDown extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.KeyBinding_isKeyDown;
     }
-    
-    @Inject(value = "Shut down forge's shit for GuiMove")
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode node =
         ASMHelper.findPattern(
           main.instructions.getFirst(), new int[]{ALOAD, GETFIELD, IFEQ}, "xxx");

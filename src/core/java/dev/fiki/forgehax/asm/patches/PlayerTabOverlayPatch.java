@@ -2,10 +2,8 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
@@ -20,22 +18,19 @@ import org.objectweb.asm.tree.MethodNode;
 /**
  * Created by Babbaj on 8/9/2017. thanks 086 :3
  */
-public class PlayerTabOverlayPatch extends ClassTransformer {
+public class PlayerTabOverlayPatch {
 
-  public PlayerTabOverlayPatch() {
-    super(TypesMc.Classes.PlayerTabOverlayGui);
-  }
 
-  @RegisterMethodTransformer
-  private class RenderPlayerlist_renderIcon extends MethodTransformer {
+  @RegisterTransformer
+  private static class RenderPlayerlist_renderIcon extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.PlayerTabOverlayGui_renderPlayerList;
     }
 
-    @Inject(value = "Add hook to increase the size of the tab list")
-    public void inject(MethodNode main) {
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode subListNode =
           ASMHelper.findPattern(
               main.instructions.getFirst(),

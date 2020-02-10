@@ -1,10 +1,8 @@
 package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
@@ -23,22 +21,19 @@ import org.objectweb.asm.tree.VarInsnNode;
 /**
  * Created on 11/13/2016 by fr1kin
  */
-public class EntityPlayerSPPatch extends ClassTransformer {
+public class EntityPlayerSPPatch  {
 
-  public EntityPlayerSPPatch() {
-    super(TypesMc.Classes.ClientPlayerEntity);
-  }
 
-  @RegisterMethodTransformer
-  private class ApplyLivingUpdate extends MethodTransformer {
+  @RegisterTransformer
+  private static class ApplyLivingUpdate extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.ClientPlayerEntity_livingTick;
     }
 
-    @Inject(value = "Add hook to disable the use slowdown effect")
-    public void inject(MethodNode main) {
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode applySlowdownSpeedNode =
           ASMHelper.findPattern(
               main.instructions.getFirst(),
@@ -59,16 +54,16 @@ public class EntityPlayerSPPatch extends ClassTransformer {
     }
   }
 
-  @RegisterMethodTransformer
-  private class OnUpdate extends MethodTransformer {
+  @RegisterTransformer
+  private static class OnUpdate extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.ClientPlayerEntity_tick;
     }
 
-    @Inject(value = "Add hooks at top and bottom of method")
-    public void inject(MethodNode main) {
+    @Override
+    public void transform(MethodNode main) {
       // AbstractInsnNode top =
       //    ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, ALOAD, INVOKEVIRTUAL, IFEQ);
       AbstractInsnNode top =
@@ -113,16 +108,16 @@ public class EntityPlayerSPPatch extends ClassTransformer {
     }
   }
 
-  @RegisterMethodTransformer
-  private class pushOutOfBlocks extends MethodTransformer {
+  @RegisterTransformer
+  private static class pushOutOfBlocks extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.ClientPlayerEntity_pushOutOfBlocks;
     }
 
-    @Inject(value = "Add hook to disable pushing out of blocks")
-    public void inject(MethodNode main) {
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode preNode = main.instructions.getFirst();
       AbstractInsnNode postNode =
           ASMHelper.findPattern(main.instructions.getFirst(), new int[]{ICONST_0, IRETURN}, "xx");
@@ -141,16 +136,16 @@ public class EntityPlayerSPPatch extends ClassTransformer {
     }
   }
 
-  @RegisterMethodTransformer
-  private class RowingBoat extends MethodTransformer {
+  @RegisterTransformer
+  private static class RowingBoat extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.ClientPlayerEntity_isRowingBoat;
     }
 
-    @Inject(value = "Add hook to override returned value of isRowingBoat")
-    public void inject(MethodNode main) {
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode preNode = main.instructions.getFirst();
 
       Objects.requireNonNull(preNode, "Find pattern failed for pre node");
