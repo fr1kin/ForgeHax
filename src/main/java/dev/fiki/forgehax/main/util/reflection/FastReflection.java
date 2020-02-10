@@ -433,14 +433,14 @@ public interface FastReflection {
             .build();
 
     /**
-     * EntityRenderer
+     * GameRenderer
      */
 
-    @Deprecated
-    FastField<ItemStack> EntityRenderer_itemActivationItem =
+    FastField<ItemStack> GameRenderer_itemActivationItem =
         FastField.builder()
-            .parent(EntityRenderer.class)
+            .parent(GameRenderer.class)
             .mcp("itemActivationItem")
+            .srg("field_190566_ab")
             .build();
 
     /**
