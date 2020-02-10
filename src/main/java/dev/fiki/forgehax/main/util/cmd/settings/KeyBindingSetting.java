@@ -97,6 +97,10 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
     return getKeyBinding().isPressed();
   }
 
+  public String getKeyName() {
+    return getKeyInput().getTranslationKey();
+  }
+
   @Override
   protected void init() {
     this.listeners = Multimaps.newListMultimap(Maps.newConcurrentMap(), Lists::newCopyOnWriteArrayList);

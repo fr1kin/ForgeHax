@@ -2,12 +2,15 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.gson.JsonElement;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.cmd.argument.NullArgument;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingList;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingList;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.main.util.color.Colors;
@@ -18,6 +21,7 @@ import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
 import dev.fiki.forgehax.main.util.tesselation.GeometryMasks;
 import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
@@ -48,6 +52,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -77,14 +82,6 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     READY,
     ;
   }
-
-  // TODO: fix
-  private final SimpleSettingList<PlaceConfigEntry> config = newSimpleSettingList(PlaceConfigEntry.class)
-      .name("config")
-      .description("Saved selection configs")
-      .argument(new NullArgument<>())
-      .supplier(Lists::newCopyOnWriteArrayList)
-      .build();
 
   private final SimpleSettingSet<Direction> sides = newSimpleSettingEnumSet(Direction.class)
       .name("sides")
@@ -135,11 +132,24 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       .defaultTo(false)
       .build();
 
+  private final KeyBindingSetting bindSelect = newKeyBindingSetting()
+      .name("select-bind")
+      .description("Bind for selection")
+      .keyName("AutoPlace Select")
+      .keyCategory("ForgeHax")
+      .key("mouse.left")
+      .build();
+
+  private final KeyBindingSetting bindFinish = newKeyBindingSetting()
+      .name("finish-bind")
+      .description("Bind for finishing")
+      .keyName("AutoPlace Finish")
+      .keyCategory("ForgeHax")
+      .key("mouse.middle")
+      .build();
+
   private final Set<BlockPos> renderingBlocks = Sets.newConcurrentHashSet();
   private BlockPos currentRenderingTarget = null;
-
-  private final KeyBinding bindSelect = new KeyBinding("AutoPlace Selection", -100, "ForgeHax");
-  private final KeyBinding bindFinish = new KeyBinding("AutoPlace Finished", -98, "ForgeHax");
 
   private final AtomicBoolean bindSelectToggle = new AtomicBoolean(false);
   private final AtomicBoolean bindFinishToggle = new AtomicBoolean(false);
@@ -156,12 +166,6 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
 
   public AutoPlace() {
     super(Category.PLAYER, "AutoPlace", false, "Automatically place blocks on top of other blocks");
-
-    this.bindSelect.setKeyConflictContext(BindingHelper.getEmptyKeyConflictContext());
-    this.bindFinish.setKeyConflictContext(BindingHelper.getEmptyKeyConflictContext());
-
-    ClientRegistry.registerKeyBinding(this.bindSelect);
-    ClientRegistry.registerKeyBinding(this.bindFinish);
   }
 
   private void reset() {
@@ -236,212 +240,6 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       }
     });
   }
-
-//  @Override
-//  protected void onLoad() {
-//    getCommandStub()
-//        .builders()
-//        .newCommandBuilder()
-//        .name("reset")
-//        .description("Reset to the setup process")
-//        .processor(data -> {
-//          resetToggle.set(true);
-//          if (Common.getLocalPlayer() == null && Common.getWorld() == null) {
-//            reset();
-//          }
-//        })
-//        .build();
-//
-//    getCommandStub()
-//        .builders()
-//        .newCommandBuilder()
-//        .name("info")
-//        .description("Print info about the mod")
-//        .processor(data -> {
-//          String arg = data.getArgumentCount() > 1 ? data.getArgumentAsString(0) : "";
-//          showInfo(arg);
-//        })
-//        .build();
-//
-//    sides
-//        .builders()
-//        .newCommandBuilder()
-//        .name("add")
-//        .description("Add side to the list")
-//        .requiredArgs(1)
-//        .processor(data -> {
-//          final String name = data.getArgumentAsString(0);
-//          Direction facing = getBestFacingMatch(name);
-//
-//          if ("all".equalsIgnoreCase(name)) {
-//            sides.addAll(Arrays.stream(Direction.values())
-//                .map(FacingEntry::new)
-//                .filter(e -> !sides.contains(e))
-//                .collect(Collectors.toSet()));
-//            data.write("Added all sides");
-//            data.markSuccess();
-//            sides.serializeAll();
-//          } else if (sides.get(facing) == null) {
-//            sides.add(new FacingEntry(facing));
-//            data.write("Added side " + facing.getName2());
-//            data.markSuccess();
-//            sides.serializeAll();
-//          } else {
-//            data.write(facing.getName2() + " already exists");
-//            data.markFailed();
-//          }
-//        })
-//        .build();
-//
-//    sides
-//        .builders()
-//        .newCommandBuilder()
-//        .name("remove")
-//        .description("Remove side from the list")
-//        .requiredArgs(1)
-//        .processor(data -> {
-//          final String name = data.getArgumentAsString(0);
-//          Direction facing = getBestFacingMatch(name);
-//
-//          if ("all".equalsIgnoreCase(name)) {
-//            sides.clear();
-//            data.write("Removed all sides");
-//            data.markSuccess();
-//            sides.serializeAll();
-//          } else if (sides.remove(new FacingEntry(facing))) {
-//            data.write("Removed side " + facing.getName2());
-//            data.markSuccess();
-//            sides.serializeAll();
-//          } else {
-//            data.write(facing.getName2() + " doesn't exist");
-//            data.markFailed();
-//          }
-//        })
-//        .build();
-//
-//    sides
-//        .builders()
-//        .newCommandBuilder()
-//        .name("list")
-//        .description("List all the current added sides")
-//        .processor(data -> {
-//          data.write("Sides: " + sides.stream()
-//              .map(FacingEntry::getFacing)
-//              .map(Direction::getName2)
-//              .collect(Collectors.joining(", ")));
-//          data.markSuccess();
-//        })
-//        .build();
-//
-//    config
-//        .builders()
-//        .newCommandBuilder()
-//        .name("save")
-//        .description("Save current setup")
-//        .requiredArgs(1)
-//        .processor(data -> {
-//          String name = data.getArgumentAsString(0);
-//
-//          if (config.get(name) == null) {
-//            PlaceConfigEntry entry = new PlaceConfigEntry(name);
-//            entry.setSides(this.sides.stream().map(FacingEntry::getFacing).collect(Collectors.toSet()));
-//            entry.setTargets(this.targets);
-//            entry.setSelection(this.selectedItem);
-//            entry.setWhitelist(this.whitelist.getValue());
-//            entry.setUse(this.check_neighbors.getValue());
-//
-//            config.add(entry);
-//            config.serializeAll();
-//            data.write("Saved current config as " + name);
-//            data.markSuccess();
-//          } else {
-//            data.write(name + " is already in check_neighbors!");
-//            data.markFailed();
-//          }
-//        })
-//        .build();
-//
-//    config
-//        .builders()
-//        .newCommandBuilder()
-//        .name("load")
-//        .description("Load config")
-//        .requiredArgs(1)
-//        .processor(
-//            data -> {
-//              String name = data.getArgumentAsString(0);
-//
-//              PlaceConfigEntry entry = config.get(name);
-//              if (entry != null) {
-//                data.write(name + " loaded");
-//                resetTask =
-//                    () -> {
-//                      this.targets.clear();
-//                      this.targets.addAll(entry.getTargets());
-//
-//                      this.sides.clear();
-//                      this.sides.addAll(
-//                          entry
-//                              .getSides()
-//                              .stream()
-//                              .map(FacingEntry::new)
-//                              .collect(Collectors.toSet()));
-//
-//                      this.selectedItem = entry.getSelection();
-//
-//                      this.whitelist.set(entry.isWhitelist());
-//                      this.check_neighbors.set(entry.isUse());
-//
-//                      this.stage = Stage.CONFIRM;
-//
-//                      this.getCommandStub().serializeAll();
-//                    };
-//                this.resetToggle.set(true);
-//              } else {
-//                data.write(name + " doesn't exist!");
-//                data.markFailed();
-//              }
-//            })
-//        .build();
-//
-//    config
-//        .builders()
-//        .newCommandBuilder()
-//        .name("delete")
-//        .description("Delete a configuration")
-//        .requiredArgs(1)
-//        .processor(
-//            data -> {
-//              String name = data.getArgumentAsString(0);
-//
-//              if (config.remove(new PlaceConfigEntry(name))) {
-//                config.serializeAll();
-//                data.write("Deleted config " + name);
-//                data.markSuccess();
-//              } else {
-//                data.write(name + " doesn't exist!");
-//                data.markFailed();
-//              }
-//            })
-//        .build();
-//
-//    config
-//        .builders()
-//        .newCommandBuilder()
-//        .name("list")
-//        .description("List all the current configs")
-//        .processor(
-//            data -> {
-//              data.write(
-//                  "Configs: "
-//                      + config
-//                      .stream()
-//                      .map(PlaceConfigEntry::getName)
-//                      .collect(Collectors.joining(", ")));
-//              data.markSuccess();
-//            })
-//        .build();
-//  }
 
   @Override
   protected void onEnabled() {
@@ -535,8 +333,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       case SELECT_BLOCKS: {
         if (printToggle.compareAndSet(false, true)) {
           targets.clear();
-          printInform("Select blocks by pressing %s", bindSelect.getTranslationKey());
-          printInform("Finish this stage by pressing %s", bindFinish.getTranslationKey());
+          printInform("Select blocks by pressing %s", bindSelect.getKeyName());
+          printInform("Finish this stage by pressing %s", bindFinish.getKeyName());
         }
 
         if (bindSelect.isKeyDown() && bindSelectToggle.compareAndSet(false, true)) {
@@ -579,7 +377,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         if (printToggle.compareAndSet(false, true)) {
           printInform(
               "Hover over the block in your hot bar you want to place and press %s to select",
-              bindSelect.getTranslationKey());
+              bindSelect.getKeyName());
         }
 
         if (bindSelect.isKeyDown() && bindSelectToggle.compareAndSet(false, true)) {
@@ -605,7 +403,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         if (printToggle.compareAndSet(false, true)) {
           printInform(
               "Press %s to begin, or '.%s info' to set the current settings",
-              bindFinish.getTranslationKey(), getName());
+              bindFinish.getKeyName(), getName());
         }
 
         if (bindFinish.isKeyDown()
@@ -651,7 +449,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         .filter(LocalPlayerInventory.InvItem::nonNull)
         .filter(inv -> inv.getItem().equals(selectedItem.getItem()))
         // TODO: 1.15 find a way to find all placeable blocks
-        .filter(item -> ItemGroup.BUILDING_BLOCKS.equals(item.getItem().getGroup()))
+        .filter(inv -> inv.getItem() instanceof BlockItem)
         .findFirst()
         .orElse(LocalPlayerInventory.InvItem.EMPTY);
 
@@ -772,86 +570,5 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           // set the block place delay
           FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, cooldown.getValue());
         });
-  }
-
-  private static class PlaceConfigEntry {
-
-    private final String name;
-
-    private final List<UniqueBlock> targets = Lists.newArrayList();
-    private final List<Direction> sides = Lists.newArrayList();
-    private ItemStack selection = ItemStack.EMPTY;
-    private boolean use = false;
-    private boolean whitelist = true;
-
-    private PlaceConfigEntry(String name) {
-      Objects.requireNonNull(name);
-      this.name = name;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public List<UniqueBlock> getTargets() {
-      return Collections.unmodifiableList(targets);
-    }
-
-    public void setTargets(Collection<UniqueBlock> list) {
-      targets.clear();
-      targets.addAll(
-          list.stream()
-              .filter(info -> !Blocks.AIR.equals(info.getBlock()))
-              .collect(Collectors.toSet())); // collect to set to eliminate duplicates
-    }
-
-    public List<Direction> getSides() {
-      return Collections.unmodifiableList(sides);
-    }
-
-    public void setSides(Collection<Direction> list) {
-      sides.clear();
-      sides.addAll(Sets.newLinkedHashSet(list)); // copy to set to eliminate duplicates
-    }
-
-    public ItemStack getSelection() {
-      return selection;
-    }
-
-    public void setSelection(ItemStack selection) {
-      this.selection =
-          Optional.ofNullable(selection)
-              .filter(s -> !Items.AIR.equals(s.getItem()))
-              .orElse(ItemStack.EMPTY);
-    }
-
-    public boolean isUse() {
-      return use;
-    }
-
-    public void setUse(boolean use) {
-      this.use = use;
-    }
-
-    public boolean isWhitelist() {
-      return whitelist;
-    }
-
-    public void setWhitelist(boolean whitelist) {
-      this.whitelist = whitelist;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      return this == obj
-          || (obj instanceof PlaceConfigEntry
-          && getName().equalsIgnoreCase(((PlaceConfigEntry) obj).getName()))
-          || (obj instanceof String && getName().equalsIgnoreCase((String) obj));
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
   }
 }
