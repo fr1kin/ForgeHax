@@ -17,7 +17,7 @@ import org.objectweb.asm.tree.MethodNode;
 public class KeyBindingPatch {
 
   @RegisterTransformer
-  private static class IsKeyDown extends MethodTransformer {
+  public static class IsKeyDown extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {

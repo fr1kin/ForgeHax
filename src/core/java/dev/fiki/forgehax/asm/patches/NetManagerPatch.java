@@ -20,7 +20,7 @@ public class NetManagerPatch {
   
 
   @RegisterTransformer
-  private static class DispatchPacket extends MethodTransformer {
+  public static class DispatchPacket extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
@@ -56,7 +56,7 @@ public class NetManagerPatch {
   }
   
   @RegisterTransformer
-  private static class ChannelRead0 extends MethodTransformer {
+  public static class ChannelRead0 extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {

@@ -10,7 +10,7 @@ public class BlockPatch  {
 
   // REMOVED in 1.15
 //  @RegisterTransformer("Changes in layer code so that we can change it")
-//  private static class CanRenderInLayer extends MethodTransformer {
+//  public static class CanRenderInLayer extends MethodTransformer {
 //
 //    @Override
 //    public ASMMethod getMethod() {
@@ -44,7 +44,7 @@ public class BlockPatch  {
 
   // REMOVED in 1.15
 //  @RegisterTransformer("Redirects method to our hook and allows the vanilla code to be canceled from executing")
-//  private static class AddCollisionBoxToList extends MethodTransformer {
+//  public static class AddCollisionBoxToList extends MethodTransformer {
 //
 //    @Override
 //    public ASMMethod getMethod() {

@@ -17,7 +17,7 @@ public class BoatRendererPatch  {
   
 
   @RegisterTransformer
-  private static class Render extends MethodTransformer {
+  public static class Render extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {

@@ -6,7 +6,7 @@ public class WorldRendererPatch {
   
 
 //  @RegisterTransformer("Add hook at the top of the method")
-//  private static class DrawBoundingBox extends MethodTransformer {
+//  public static class DrawBoundingBox extends MethodTransformer {
 //
 //    @Override
 //    public ASMMethod getMethod() {

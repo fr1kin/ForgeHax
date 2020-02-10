@@ -20,7 +20,7 @@ public class WorldPatch {
   
 
   @RegisterTransformer
-  private static class HandleMaterialAcceleration extends MethodTransformer {
+  public static class HandleMaterialAcceleration extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {

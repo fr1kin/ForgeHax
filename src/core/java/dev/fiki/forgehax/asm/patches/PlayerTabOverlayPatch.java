@@ -22,7 +22,7 @@ public class PlayerTabOverlayPatch {
 
 
   @RegisterTransformer
-  private static class RenderPlayerlist_renderIcon extends MethodTransformer {
+  public static class RenderPlayerlist_renderIcon extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {

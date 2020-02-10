@@ -25,7 +25,7 @@ public class EntityPlayerSPPatch  {
 
 
   @RegisterTransformer
-  private static class ApplyLivingUpdate extends MethodTransformer {
+  public static class ApplyLivingUpdate extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {
@@ -55,7 +55,7 @@ public class EntityPlayerSPPatch  {
   }
 
   @RegisterTransformer
-  private static class OnUpdate extends MethodTransformer {
+  public static class OnUpdate extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {
@@ -109,7 +109,7 @@ public class EntityPlayerSPPatch  {
   }
 
   @RegisterTransformer
-  private static class pushOutOfBlocks extends MethodTransformer {
+  public static class pushOutOfBlocks extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {
@@ -137,7 +137,7 @@ public class EntityPlayerSPPatch  {
   }
 
   @RegisterTransformer
-  private static class RowingBoat extends MethodTransformer {
+  public static class RowingBoat extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {

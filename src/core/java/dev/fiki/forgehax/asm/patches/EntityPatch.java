@@ -21,7 +21,7 @@ public class EntityPatch  {
   
 
   @RegisterTransformer
-  private static class ApplyEntityCollision extends MethodTransformer {
+  public static class ApplyEntityCollision extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
@@ -88,7 +88,7 @@ public class EntityPatch  {
   }
   
   @RegisterTransformer
-  private static class Move extends MethodTransformer {
+  public static class Move extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
@@ -131,7 +131,7 @@ public class EntityPatch  {
   }
   
   @RegisterTransformer
-  private static class DoBlockCollisions extends MethodTransformer {
+  public static class DoBlockCollisions extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {

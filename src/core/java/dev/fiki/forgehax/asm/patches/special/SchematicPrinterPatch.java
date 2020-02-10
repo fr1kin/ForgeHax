@@ -18,7 +18,7 @@ public class SchematicPrinterPatch {
   
 
   @RegisterTransformer
-  private static class PlaceBlock extends MethodTransformer {
+  public static class PlaceBlock extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {

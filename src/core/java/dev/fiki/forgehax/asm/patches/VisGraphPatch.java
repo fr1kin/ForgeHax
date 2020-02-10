@@ -19,7 +19,7 @@ public class VisGraphPatch {
   
 
   @RegisterTransformer
-  private static class SetOpaqueCube extends MethodTransformer {
+  public static class SetOpaqueCube extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
@@ -48,7 +48,7 @@ public class VisGraphPatch {
   }
   
   @RegisterTransformer
-  private static class ComputeVisibility extends MethodTransformer {
+  public static class ComputeVisibility extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {

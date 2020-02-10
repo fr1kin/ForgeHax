@@ -11,7 +11,7 @@ import org.objectweb.asm.tree.*;
 public class GameRendererPatch {
 
   @RegisterTransformer
-  private static class Hurtcam extends MethodTransformer {
+  public static class Hurtcam extends MethodTransformer {
     @Override
     public ASMMethod getMethod() {
       return Methods.GameRenderer_renderWorld;
@@ -52,7 +52,7 @@ public class GameRendererPatch {
   }
 
   @RegisterTransformer
-  private static class ProjectionViewSetup extends MethodTransformer {
+  public static class ProjectionViewSetup extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {

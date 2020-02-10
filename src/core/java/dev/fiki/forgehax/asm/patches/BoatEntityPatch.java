@@ -14,7 +14,7 @@ public class BoatEntityPatch {
 
   
 //  @RegisterTransformer("ForgeHaxHooks.isBoatSetYawActivated")
-//  private static class ControlBoat extends MethodTransformer {
+//  public static class ControlBoat extends MethodTransformer {
 //
 //    private boolean isLeftInputDownField(AbstractInsnNode node) {
 //      if(node instanceof FieldInsnNode && node.getOpcode() == GETFIELD) {
@@ -86,7 +86,7 @@ public class BoatEntityPatch {
 //  }
   
   @RegisterTransformer("ForgeHaxHooks.isNoClampingActivated")
-  private static class ApplyYawToEntity extends MethodTransformer {
+  public static class ApplyYawToEntity extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {

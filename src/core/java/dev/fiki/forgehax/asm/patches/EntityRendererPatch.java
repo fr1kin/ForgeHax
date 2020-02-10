@@ -19,7 +19,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 public class EntityRendererPatch {
   
   @RegisterTransformer
-  private static class HurtCameraEffect extends MethodTransformer {
+  public static class HurtCameraEffect extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
