@@ -90,7 +90,7 @@ minecraft {
 //        }
 
         ForgeHax {
-          sources sourceSets.main, sourceSets.core
+          sources sourceSets.main, sourceSets.core, sourceSets.common
         }
       }
     }
