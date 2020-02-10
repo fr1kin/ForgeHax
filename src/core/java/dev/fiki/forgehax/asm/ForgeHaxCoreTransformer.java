@@ -2,8 +2,8 @@ package dev.fiki.forgehax.asm;
 
 import cpw.mods.modlauncher.api.*;
 import dev.fiki.forgehax.asm.patches.*;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.ITransformerProvider;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.Wrappers;
 import dev.fiki.forgehax.common.LoggerProvider;
 import lombok.Getter;
 import org.apache.logging.log4j.Logger;
@@ -48,32 +48,57 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
     }
   }
 
+
   @Nonnull
   @Override
-  @Deprecated
   public List<ITransformer> transformers() {
-    return Stream.of(
-        new BlockPatch(),
-        new BoatEntityPatch(),
-        new LivingEntityPatch(),
-        new EntityPatch(),
-        new EntityPlayerSPPatch(),
-        new EntityRendererPatch(),
-        new GameRendererPatch(),
-        new KeyBindingPatch(),
-        new MinecraftPatch(),
-        new NetManagerPatch(),
-        new PlayerControllerPatch(),
-        new PlayerTabOverlayPatch(),
-        new BoatRendererPatch(),
-        new WorldRendererPatch(),
-        new VisGraphPatch(),
-        new WorldPatch())
-        // this map below can be commented out to use classtransformers instead
-        .map(ClassTransformer::getMethodTransformers)
-        .flatMap(List::stream)
-        .filter(mt -> mt.getMethod().getSrg() != null) // TODO: remove deprecated patches
-        .map(ITransformerProvider::toMethodNodeTransformer)
+    return getTransformersForClasses(
+        BlockPatch.class,
+        BoatEntityPatch.class,
+        LivingEntityPatch.class,
+        EntityPatch.class,
+        EntityPlayerSPPatch.class,
+        EntityRendererPatch.class,
+        GameRendererPatch.class,
+        KeyBindingPatch.class,
+        MinecraftPatch.class,
+        NetManagerPatch.class,
+        PlayerControllerPatch.class,
+        PlayerTabOverlayPatch.class,
+        BoatRendererPatch.class,
+        WorldRendererPatch.class,
+        VisGraphPatch.class,
+        WorldPatch.class
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<ITransformer> getTransformersForClasses(Class<?>... patches) {
+    return (List<ITransformer>)Stream.of(patches) // epic cast because compiler bug??
+        .flatMap(clazz -> Stream.concat(Stream.of(clazz), Stream.of(clazz.getDeclaredClasses())))
+        .filter(inner -> inner.isAnnotationPresent(RegisterTransformer.class))
+        .peek(inner -> {
+          if (!hasNoArgConstructor(inner)) // TODO: check if class is not static, most likely reason for this to happen
+            throw new IllegalStateException(inner.getSimpleName() + " does not have a 0 arg constructor");
+        })
+        .map(inner -> Wrappers.createWrapper((ITransformer)newInstance(inner), inner.getDeclaredAnnotation(RegisterTransformer.class)))
         .collect(Collectors.toList());
+  }
+
+  private static <T> T newInstance(Class<T> clazz) {
+    try {
+      return clazz.newInstance();
+    } catch (ReflectiveOperationException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  private boolean hasNoArgConstructor(Class<?> clazz) {
+    try {
+      clazz.getDeclaredConstructor();
+      return true;
+    } catch (NoSuchMethodException ex) {
+      return false;
+    }
   }
 }

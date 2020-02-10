@@ -1,24 +1,20 @@
 package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesMc;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
 
-public class WorldRendererPatch extends ClassTransformer {
+public class WorldRendererPatch {
   
-  public WorldRendererPatch() {
-    super(TypesMc.Classes.WorldRenderer);
-  }
-  
-//  @RegisterMethodTransformer
-//  private class DrawBoundingBox extends MethodTransformer {
+
+//  @RegisterTransformer("Add hook at the top of the method")
+//  public static class DrawBoundingBox extends MethodTransformer {
 //
 //    @Override
 //    public ASMMethod getMethod() {
 //      return TypesMc.Methods.WorldRenderer_drawBoundingBox;
 //    }
 //
-//    @Inject(description = "Add hook at the top of the method")
-//    public void inject(MethodNode main) {
+//    @Override
+//    public void transform(MethodNode main) {
 //      AbstractInsnNode start = main.instructions.getFirst();
 //      AbstractInsnNode end = ASMHelper.findPattern(start, RETURN);
 //

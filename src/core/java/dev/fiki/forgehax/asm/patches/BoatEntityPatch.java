@@ -3,24 +3,18 @@ package dev.fiki.forgehax.asm.patches;
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
-import dev.fiki.forgehax.asm.utils.InsnPattern;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
 import org.objectweb.asm.tree.*;
 
-public class BoatEntityPatch extends ClassTransformer {
+public class BoatEntityPatch {
+
   
-  public BoatEntityPatch() {
-    super(TypesMc.Classes.BoatEntity);
-  }
-  
-//  @RegisterMethodTransformer
-//  private class ControlBoat extends MethodTransformer {
+//  @RegisterTransformer("ForgeHaxHooks.isBoatSetYawActivated")
+//  public static class ControlBoat extends MethodTransformer {
 //
 //    private boolean isLeftInputDownField(AbstractInsnNode node) {
 //      if(node instanceof FieldInsnNode && node.getOpcode() == GETFIELD) {
@@ -43,8 +37,8 @@ public class BoatEntityPatch extends ClassTransformer {
 //      return TypesMc.Methods.BoatEntity_controlBoat;
 //    }
 //
-//    @Inject(value = "ForgeHaxHooks.isBoatSetYawActivated")
-//    public void inject(MethodNode main) {
+//    @Override
+//    public void transform(MethodNode main) {
 //      InsnPattern leftDownNode = ASMPattern.builder()
 //          .codeOnly()
 //          .opcodes(ALOAD, GETFIELD, IFEQ, ALOAD, DUP, GETFIELD)
@@ -91,16 +85,16 @@ public class BoatEntityPatch extends ClassTransformer {
 //    }
 //  }
   
-  @RegisterMethodTransformer
-  private class ApplyYawToEntity extends MethodTransformer {
+  @RegisterTransformer("ForgeHaxHooks.isNoClampingActivated")
+  public static class ApplyYawToEntity extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.BoatEntity_applyYawToEntity;
     }
-    
-    @Inject(value = "ForgeHaxHooks.isNoClampingActivated")
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode pre = ASMPattern.builder()
           .codeOnly()
           .opcodes(FLOAD, LDC, LDC, INVOKESTATIC, FSTORE)

@@ -3,10 +3,8 @@ package dev.fiki.forgehax.asm.patches;
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
@@ -15,22 +13,18 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class LivingEntityPatch extends ClassTransformer {
-  
-  public LivingEntityPatch() {
-    super(TypesMc.Classes.LivingEntity);
-  }
-  
-  @RegisterMethodTransformer
-  public class Travel extends MethodTransformer {
+public class LivingEntityPatch {
+
+  @RegisterTransformer
+  public static class Travel extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.LivingEntity_travel;
     }
-    
-    @Inject(value = "ForgeHaxHooks::onEntityBlockSlipApply")
-    public void injectFirst(MethodNode node) {
+
+    @Override
+    public void transform(MethodNode node) {
       AbstractInsnNode first = ASMPattern.builder()
           .codeOnly()
           // float f5 = this.world.getBlockState(....

@@ -2,10 +2,8 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
@@ -18,22 +16,19 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class WorldPatch extends ClassTransformer {
+public class WorldPatch {
   
-  public WorldPatch() {
-    super(TypesMc.Classes.World);
-  }
-  
-  @RegisterMethodTransformer
-  private class HandleMaterialAcceleration extends MethodTransformer {
+
+  @RegisterTransformer
+  public static class HandleMaterialAcceleration extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.World_handleMaterialAcceleration;
     }
-    
-    @Inject(value = "Add hook that allows water movement math to be skipped")
-    public void inject(MethodNode method) {
+
+    @Override
+    public void transform(MethodNode method) {
       AbstractInsnNode preNode =
         ASMHelper.findPattern(
           method.instructions.getFirst(),

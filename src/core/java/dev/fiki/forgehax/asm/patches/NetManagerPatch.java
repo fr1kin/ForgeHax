@@ -2,10 +2,8 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.InsnPattern;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
@@ -18,22 +16,19 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class NetManagerPatch extends ClassTransformer {
+public class NetManagerPatch {
   
-  public NetManagerPatch() {
-    super(TypesMc.Classes.NetworkManager);
-  }
-  
-  @RegisterMethodTransformer
-  private class DispatchPacket extends MethodTransformer {
+
+  @RegisterTransformer
+  public static class DispatchPacket extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.NetworkManager_dispatchPacket;
     }
-    
-    @Inject(value = "ForgeHaxHooks::onPacketOutbound")
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       // get node at the very top
       AbstractInsnNode top = main.instructions.getFirst();
 
@@ -60,16 +55,16 @@ public class NetManagerPatch extends ClassTransformer {
     }
   }
   
-  @RegisterMethodTransformer
-  private class ChannelRead0 extends MethodTransformer {
+  @RegisterTransformer
+  public static class ChannelRead0 extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.NetworkManager_channelRead0;
     }
-    
-    @Inject(value = "ForgeHaxHooks::onPacketInbound")
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       // try {
       // >FIRST<
       // processPacket(...

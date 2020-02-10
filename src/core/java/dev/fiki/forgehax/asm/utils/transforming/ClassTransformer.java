@@ -23,75 +23,22 @@ import static dev.fiki.forgehax.asm.ASMCommon.*;
 public abstract class ClassTransformer implements ITransformerProvider<ClassNode>, TypesMc, Opcodes, ASMHelper.MagicOpcodes {
   
   private final ASMClass transformingClass;
-  private final List<MethodTransformer> methodTransformers = new ArrayList<>();
-  
+
   public ClassTransformer(ASMClass clazz) {
     this.transformingClass = clazz;
-    for (Class<?> c : getClass().getDeclaredClasses()) {
-      try {
-        if (c.isAnnotationPresent(RegisterMethodTransformer.class)
-          && MethodTransformer.class.isAssignableFrom(c)) {
-          Constructor<?> constructor;
-          try {
-            constructor = c.getDeclaredConstructor(getClass());
-            constructor.setAccessible(true);
-            MethodTransformer t = (MethodTransformer) constructor.newInstance(this);
-            registerMethodPatch(t);
-          } catch (NoSuchMethodException e) {
-            constructor = c.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            MethodTransformer t = (MethodTransformer) constructor.newInstance();
-            registerMethodPatch(t);
-          }
-        }
-      } catch (Throwable e) {
-        getLogger().error("Exception thrown while generating method transformer list in {}",
-            getTransformingClassName());
-        getLogger().error(e, e);
-      }
-    }
+
   }
-  
-  public void registerMethodPatch(MethodTransformer transformer) {
-    methodTransformers.add(transformer);
-  }
-  
+
   public String getTransformingClassName() {
     return transformingClass.getClassName();
   }
 
-  @Nonnull
+  /*@Nonnull
   @Override
-  public final ClassNode transform(ClassNode node, ITransformerVotingContext ctx) {
-    for (final MethodNode methodNode : node.methods) {
-      Iterator<MethodTransformer> it = methodTransformers.listIterator();
-      while (it.hasNext()) {
-        MethodTransformer transformer = it.next();
-        ASMMethod target = transformer.getMethod();
-        // find a method that has a matching name and descriptor
-        // check both mcp and srg mappings. i don't believe obfuscated mappings are of any worry anymore
-        if ((methodNode.name.equals(target.getMcp()) && methodNode.desc.equals(target.getMcpDescriptor()))
-            || (methodNode.name.equals(target.getSrg()) && methodNode.desc.equals(target.getSrgDescriptor()))) {
-          // matching method has been found
-          // loop through all the method transformer tasks and invoke them
-          for(MethodTransformer.TaskElement task : transformer.getTasks()) {
-            try {
-              task.getMethod().invoke(task, methodNode);
-            } catch (Throwable t) {
-              // catch errors
-              getLogger().error("Failed to transform task \"{}\" in method {}::{}[{}]",
-                  task.getDescription(),
-                  getTransformingClassName(), target.getMcp(), target.getMcpDescriptor());
-              getLogger().error(t, t);
-            }
-          }
-          // remove method from list
-          it.remove();
-        }
-      }
-    }
+  public ClassNode transform(ClassNode node, ITransformerVotingContext ctx) {
+
     return node;
-  }
+  }*/
 
   @Nonnull
   @Override

@@ -2,10 +2,8 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 import org.objectweb.asm.tree.InsnList;
@@ -15,22 +13,19 @@ import org.objectweb.asm.tree.VarInsnNode;
 /**
  * Created by Babbaj on 8/9/2017.
  */
-public class BoatRendererPatch extends ClassTransformer {
+public class BoatRendererPatch  {
   
-  public BoatRendererPatch() {
-    super(TypesMc.Classes.BoatRenderer);
-  }
-  
-  @RegisterMethodTransformer
-  private class Render extends MethodTransformer {
+
+  @RegisterTransformer
+  public static class Render extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.BoatRenderer_render;
     }
-    
-    @Inject(value = "Add hook to set boat yaw when it's rendered")
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       
       InsnList insnList = new InsnList();
       

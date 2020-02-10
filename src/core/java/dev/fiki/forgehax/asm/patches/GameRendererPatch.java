@@ -3,27 +3,22 @@ package dev.fiki.forgehax.asm.patches;
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 import org.objectweb.asm.tree.*;
 
-public class GameRendererPatch extends ClassTransformer {
-  public GameRendererPatch() {
-    super(Classes.GameRenderer);
-  }
+public class GameRendererPatch {
 
-  @RegisterMethodTransformer
-  private class RenderWorld extends MethodTransformer {
+  @RegisterTransformer
+  public static class Hurtcam extends MethodTransformer {
     @Override
     public ASMMethod getMethod() {
       return Methods.GameRenderer_renderWorld;
     }
 
-    @Inject("ForgeHaxHooks::onHurtcamEffect")
-    public void addHurtcamDetour(MethodNode node) {
+    @Override
+    public void transform(MethodNode node) {
       AbstractInsnNode hurtcamCall = ASMPattern.builder()
           .codeOnly()
           // this::getProjectionMatrix
@@ -54,8 +49,18 @@ public class GameRendererPatch extends ClassTransformer {
       node.instructions.insert(hurtcamCall, jmp);
     }
 
-    @Inject("ForgeHax::onSetupProjectionViewMatrix")
-    public void addProjectionViewMatrixSetupEvent(MethodNode node) {
+  }
+
+  @RegisterTransformer
+  public static class ProjectionViewSetup extends MethodTransformer {
+
+    @Override
+    public ASMMethod getMethod() {
+      return Methods.GameRenderer_renderWorld;
+    }
+
+    @Override
+    public void transform(MethodNode node) {
       AbstractInsnNode beforeViewVectorCall = ASMPattern.builder()
           .codeOnly()
           .opcodes(ALOAD, GETFIELD, GETFIELD, ALOAD, FLOAD, LLOAD, ILOAD, ALOAD, ALOAD, ALOAD, GETFIELD, ALOAD, INVOKEVIRTUAL)

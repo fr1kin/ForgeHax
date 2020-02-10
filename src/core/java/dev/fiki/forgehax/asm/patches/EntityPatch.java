@@ -2,10 +2,8 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
-import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterMethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
@@ -19,22 +17,19 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class EntityPatch extends ClassTransformer {
+public class EntityPatch  {
   
-  public EntityPatch() {
-    super(TypesMc.Classes.Entity);
-  }
-  
-  @RegisterMethodTransformer
-  private class ApplyEntityCollision extends MethodTransformer {
+
+  @RegisterTransformer
+  public static class ApplyEntityCollision extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.Entity_applyEntityCollision;
     }
-    
-    @Inject(value = "Add hook to disable push motion")
-    private void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       // @ this.addVelocity(-d0, 0.0D, -d1);
       AbstractInsnNode thisEntityPreNode =
         ASMHelper.findPattern(
@@ -92,16 +87,16 @@ public class EntityPatch extends ClassTransformer {
     }
   }
   
-  @RegisterMethodTransformer
-  private class Move extends MethodTransformer {
+  @RegisterTransformer
+  public static class Move extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.Entity_move;
     }
-    
-    @Inject(value = "Insert flag into statement that performs sneak movement")
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode sneakFlagNode =
         ASMHelper.findPattern(
           main.instructions.getFirst(),
@@ -135,16 +130,16 @@ public class EntityPatch extends ClassTransformer {
     }
   }
   
-  @RegisterMethodTransformer
-  private class DoBlockCollisions extends MethodTransformer {
+  @RegisterTransformer
+  public static class DoBlockCollisions extends MethodTransformer {
     
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.Entity_doBlockCollisions;
     }
-    
-    @Inject(value = "Add hook to disable block motion effects")
-    public void inject(MethodNode main) {
+
+    @Override
+    public void transform(MethodNode main) {
       AbstractInsnNode preNode =
         ASMHelper.findPattern(
           main.instructions.getFirst(),

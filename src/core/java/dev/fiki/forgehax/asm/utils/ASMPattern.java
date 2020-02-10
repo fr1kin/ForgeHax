@@ -78,6 +78,7 @@ public class ASMPattern {
       return this;
     }
 
+    // cringe
     public Builder codeOnly() {
       return ignoreFrames().ignoreLabels().ignoreLineNumbers();
     }
