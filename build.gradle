@@ -82,6 +82,8 @@ minecraft {
       // Recommended logging level for the console
       property 'forge.logging.console.level', 'info'
 
+      property 'forgehax.logging.level', 'debug'
+
       setIdeaModule project.getName() + '_' + sourceSets.allSourceSets.name
 
       mods {
