@@ -87,10 +87,6 @@ minecraft {
       setIdeaModule project.getName() + '_' + sourceSets.allSourceSets.name
 
       mods {
-//        ForgeHaxCore {
-//          source sourceSets.core
-//        }
-
         ForgeHax {
           sources sourceSets.main, sourceSets.core, sourceSets.common
         }
