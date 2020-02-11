@@ -1,7 +1,9 @@
 package dev.fiki.forgehax.main.mods;
 
+import static dev.fiki.forgehax.main.Common.*;
 import static net.minecraft.network.play.client.CEntityActionPacket.*;
 
+import com.google.common.collect.Lists;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
@@ -23,21 +25,22 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.network.play.client.CAnimateHandPacket;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
 @RegisterMod
 public class Scaffold extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
-
-  private static final EnumSet<Direction> NEIGHBORS =
-      EnumSet.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
+  private final EnumSet<Direction> horizontal = EnumSet.copyOf(Lists.newArrayList(Direction.Plane.HORIZONTAL));
 
   private int tickCount = 0;
   private boolean placing = false;
@@ -70,9 +73,9 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
       tickCount = 0;
     }
 
-    BlockPos below = new BlockPos(Common.getLocalPlayer()).down();
+    BlockPos below = getLocalPlayer().getPosition().down();
 
-    if (!Common.getWorld().getBlockState(below).getMaterial().isReplaceable()) {
+    if (!getWorld().getBlockState(below).getMaterial().isReplaceable()) {
       return;
     }
 
@@ -81,8 +84,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
             .stream()
             .filter(LocalPlayerInventory.InvItem::nonNull)
             .filter(item -> item.getItem() instanceof BlockItem)
-            //.filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().getCollisionShape())
-            // TODO: 1.15 find way to detect if its a full block
+            .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isOpaqueCube(getWorld(), BlockPos.ZERO))
             .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
             .orElse(LocalPlayerInventory.InvItem.EMPTY);
 
@@ -90,23 +92,20 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
       return;
     }
 
-    final Vec3d eyes = EntityUtils.getEyePos(Common.getLocalPlayer());
-    final Vec3d dir = LocalPlayerUtils.getViewAngles().getDirectionVector();
+    final Vec3d eyes = getLocalPlayer().getEyePosition(1.f);
+    final Vec3d dir = getLocalPlayer().getLookVec().normalize();
 
     BlockTraceInfo trace =
         Optional.ofNullable(BlockHelper.getPlaceableBlockSideTrace(eyes, dir, below))
             .filter(tr -> tr.isPlaceable(items))
-            .orElseGet(
-                () ->
-                    NEIGHBORS
-                        .stream()
-                        .map(below::offset)
-                        .filter(BlockHelper::isBlockReplaceable)
-                        .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
-                        .filter(Objects::nonNull)
-                        .filter(tr -> tr.isPlaceable(items))
-                        .max(Comparator.comparing(BlockTraceInfo::isSneakRequired))
-                        .orElse(null));
+            .orElseGet(() -> horizontal.stream()
+                .map(below::offset)
+                .filter(BlockHelper::isBlockReplaceable)
+                .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
+                .filter(Objects::nonNull)
+                .filter(tr -> tr.isPlaceable(items))
+                .max(Comparator.comparing(BlockTraceInfo::isSneakRequired))
+                .orElse(null));
 
     if (trace == null) {
       return;
@@ -116,40 +115,41 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     state.setServerAngles(previousAngles = Utils.getLookAtAngles(hit));
 
     final BlockTraceInfo tr = trace;
-    state.invokeLater(
-        rs -> {
-          ResetFunction func = LocalPlayerInventory.setSelected(items);
+    state.invokeLater(rs -> {
+      ResetFunction func = LocalPlayerInventory.setSelected(items);
 
-          boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
-          if (sneak) {
-            // send start sneaking packet
-            PacketHelper.ignoreAndSend(
-                new CEntityActionPacket(Common.getLocalPlayer(), Action.PRESS_SHIFT_KEY));
+      boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
+      if (sneak) {
+        // send start sneaking packet
+        PacketHelper.ignoreAndSend(
+            new CEntityActionPacket(getLocalPlayer(), Action.PRESS_SHIFT_KEY));
 
-            LocalPlayerUtils.setSneaking(true);
-            LocalPlayerUtils.setSneakingSuppression(true);
-          }
+        LocalPlayerUtils.setSneaking(true);
+        LocalPlayerUtils.setSneakingSuppression(true);
+      }
 
-          Common.getPlayerController()
-              .processRightClick(
-                  Common.getLocalPlayer(),
-                  Common.getWorld(),
-                  Hand.MAIN_HAND);
+      if (getPlayerController()
+          .func_217292_a(
+              getLocalPlayer(),
+              getWorld(),
+              Hand.MAIN_HAND,
+              new BlockRayTraceResult(tr.getHitVec(), tr.getOppositeSide(), tr.getPos(), false))
+          .isSuccessOrConsume()) {
+        sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+      }
 
-          Common.sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+      if (sneak) {
+        LocalPlayerUtils.setSneaking(false);
+        LocalPlayerUtils.setSneakingSuppression(false);
 
-          if (sneak) {
-            LocalPlayerUtils.setSneaking(false);
-            LocalPlayerUtils.setSneakingSuppression(false);
+        sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), Action.RELEASE_SHIFT_KEY));
+      }
 
-            Common.sendNetworkPacket(new CEntityActionPacket(Common.getLocalPlayer(), Action.RELEASE_SHIFT_KEY));
-          }
+      func.revert();
 
-          func.revert();
-
-          FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Common.MC, 4);
-          placing = true;
-          tickCount = 0;
-        });
+      FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
+      placing = true;
+      tickCount = 0;
+    });
   }
 }

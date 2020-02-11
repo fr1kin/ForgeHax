@@ -2,16 +2,12 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.gson.JsonElement;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
-import dev.fiki.forgehax.main.util.cmd.argument.NullArgument;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingList;
-import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingList;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
@@ -21,7 +17,6 @@ import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
 import dev.fiki.forgehax.main.util.tesselation.GeometryMasks;
 import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
@@ -32,41 +27,28 @@ import dev.fiki.forgehax.main.util.BlockHelper.BlockTraceInfo;
 import dev.fiki.forgehax.main.util.BlockHelper.UniqueBlock;
 import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.Utils;
-import dev.fiki.forgehax.main.util.key.BindingHelper;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.play.client.CAnimateHandPacket;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -313,7 +295,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     }
 
     tessellator.draw();
-    
+
     RenderSystem.shadeModel(GL11.GL_FLAT);
     RenderSystem.disableBlend();
     RenderSystem.enableAlphaTest();
@@ -338,12 +320,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         }
 
         if (bindSelect.isKeyDown() && bindSelectToggle.compareAndSet(false, true)) {
-          RayTraceResult tr = LocalPlayerUtils.getViewTrace();
+          BlockRayTraceResult tr = LocalPlayerUtils.getBlockViewTrace();
           if (RayTraceResult.Type.MISS.equals(tr.getType())) {
             return;
           }
 
-          UniqueBlock info = BlockHelper.newUniqueBlock(new BlockPos(tr.getHitVec()));
+          UniqueBlock info = BlockHelper.newUniqueBlock(tr.getPos());
 
           if (info.isInvalid()) {
             printWarning("Invalid block %s", info.toString());
@@ -448,8 +430,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     LocalPlayerInventory.InvItem items = LocalPlayerInventory.getHotbarInventory().stream()
         .filter(LocalPlayerInventory.InvItem::nonNull)
         .filter(inv -> inv.getItem().equals(selectedItem.getItem()))
-        // TODO: 1.15 find a way to find all placeable blocks
-        .filter(inv -> inv.getItem() instanceof BlockItem)
+        .filter(inv -> BlockHelper.isItemBlockPlaceable(inv.getItem()))
         .findFirst()
         .orElse(LocalPlayerInventory.InvItem.EMPTY);
 
@@ -457,7 +438,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       return;
     }
 
-    final Vec3d eyes = LocalPlayerUtils.getEyePos();
+    final Vec3d eyes = getLocalPlayer().getEyePosition(1.f);
     final Vec3d dir =
         client_angles.getValue()
             ? LocalPlayerUtils.getDirectionVector()
@@ -469,11 +450,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
             .map(BlockHelper::newUniqueBlock)
             .filter(this::isValidBlock)
             .filter(this::isClickable)
-            .sorted(
-                Comparator.comparingDouble(
-                    info ->
-                        VectorUtils.getCrosshairDistance(
-                            eyes, dir, BlockHelper.getOBBCenter(info.getPos()))))
+            .sorted(Comparator.comparingDouble(info ->
+                VectorUtils.getCrosshairDistance(eyes, dir, BlockHelper.getOBBCenter(info.getPos()))))
             .collect(Collectors.toList());
 
     if (blocks.isEmpty()) {
@@ -498,26 +476,20 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       if (!check_neighbors.getValue()) {
         trace =
             sides.stream()
-                .map(side -> BlockHelper.getBlockSideTrace(eyes, at.getPos(), side.getOpposite()))
+                .map(side -> BlockHelper.getBlockSideTrace(eyes, at.getPos(), side))
                 .filter(Objects::nonNull)
                 .filter(tr -> tr.isPlaceable(items))
-                .max(
-                    Comparator.comparing(BlockTraceInfo::isSneakRequired)
-                        .thenComparing(
-                            i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
+                .max(Comparator.comparing(BlockTraceInfo::isSneakRequired)
+                    .thenComparing(i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenterPos())))
                 .orElse(null);
       } else {
         trace =
             sides.stream()
-                .map(
-                    side ->
-                        BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().offset(side)))
+                .map(side -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().offset(side)))
                 .filter(Objects::nonNull)
                 .filter(tr -> tr.isPlaceable(items))
-                .max(
-                    Comparator.comparing(BlockTraceInfo::isSneakRequired)
-                        .thenComparing(
-                            i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenteredPos())))
+                .max(Comparator.comparing(BlockTraceInfo::isSneakRequired)
+                    .thenComparing(i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenterPos())))
                 .orElse(null);
       }
     } while (trace == null);
@@ -535,40 +507,39 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     state.setViewAngles(va, silent.getValue());
 
     final BlockTraceInfo tr = trace;
-    state.invokeLater(
-        rs -> {
-          ResetFunction func = LocalPlayerInventory.setSelected(items);
+    state.invokeLater(rs -> {
+      ResetFunction func = LocalPlayerInventory.setSelected(items);
 
-          boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
-          if (sneak) {
-            // send start sneaking packet
-            PacketHelper.ignoreAndSend(new CEntityActionPacket(getLocalPlayer(),
-                CEntityActionPacket.Action.PRESS_SHIFT_KEY));
+      boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
+      if (sneak) {
+        // send start sneaking packet
+        PacketHelper.ignoreAndSend(new CEntityActionPacket(getLocalPlayer(),
+            CEntityActionPacket.Action.PRESS_SHIFT_KEY));
 
-            LocalPlayerUtils.setSneakingSuppression(true);
-            LocalPlayerUtils.setSneaking(true);
-          }
+        LocalPlayerUtils.setSneakingSuppression(true);
+        LocalPlayerUtils.setSneaking(true);
+      }
 
-          getPlayerController().processRightClick(
-              getLocalPlayer(),
-              getWorld(),
-              // TODO: need to actually face the block
-              Hand.MAIN_HAND);
+      if (getPlayerController().func_217292_a(
+          getLocalPlayer(),
+          getWorld(),
+          Hand.MAIN_HAND,
+          new BlockRayTraceResult(tr.getHitVec(), tr.getOppositeSide(), tr.getPos(), false)).isSuccessOrConsume()) {
+        // stealth send swing packet
+        sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+      }
 
-          // stealth send swing packet
-          sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+      if (sneak) {
+        LocalPlayerUtils.setSneaking(false);
+        LocalPlayerUtils.setSneakingSuppression(false);
 
-          if (sneak) {
-            LocalPlayerUtils.setSneaking(false);
-            LocalPlayerUtils.setSneakingSuppression(false);
+        sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
+      }
 
-            sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
-          }
+      func.revert();
 
-          func.revert();
-
-          // set the block place delay
-          FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, cooldown.getValue());
-        });
+      // set the block place delay
+      FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, cooldown.getValue());
+    });
   }
 }

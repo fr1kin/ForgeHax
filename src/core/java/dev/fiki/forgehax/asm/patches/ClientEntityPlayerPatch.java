@@ -10,20 +10,14 @@ import dev.fiki.forgehax.common.asmtype.ASMMethod;
 import java.util.Objects;
 
 import dev.fiki.forgehax.asm.TypesMc;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 
 /**
  * Created on 11/13/2016 by fr1kin
  */
 public class ClientEntityPlayerPatch {
 
-  @RegisterTransformer
+  @RegisterTransformer("ForgeHaxHooks.isNoSlowDownActivated")
   public static class ApplyLivingUpdate extends MethodTransformer {
 
     @Override
@@ -53,8 +47,16 @@ public class ClientEntityPlayerPatch {
     }
   }
 
-  @RegisterTransformer
-  public static class OnUpdate extends MethodTransformer {
+  @RegisterTransformer("ForgeHaxHooks::onUpdateWalkingPlayer(Pre|Post)")
+  public static class Tick extends MethodTransformer {
+
+    private boolean isOnWalkingUpdateCall(AbstractInsnNode node) {
+      if(node instanceof MethodInsnNode) {
+        MethodInsnNode mn = (MethodInsnNode) node;
+        return Methods.ClientPlayerEntity_onUpdateWalkingPlayer.isNameEqual(mn.name);
+      }
+      return false;
+    }
 
     @Override
     public ASMMethod getMethod() {
@@ -63,52 +65,36 @@ public class ClientEntityPlayerPatch {
 
     @Override
     public void transform(MethodNode main) {
-      // AbstractInsnNode top =
-      //    ASMHelper.findPattern(main, INVOKESPECIAL, NONE, NONE, ALOAD, INVOKEVIRTUAL, IFEQ);
-      AbstractInsnNode top =
-          new ASMPattern.Builder()
-              .codeOnly()
-              .opcodes(INVOKESPECIAL, ALOAD, INVOKEVIRTUAL, IFEQ)
-              .build()
-              .test(main)
-              .getFirst();
-
-      AbstractInsnNode afterRiding = ASMHelper.findPattern(main, GOTO);
-      AbstractInsnNode afterWalking =
-          ASMHelper.findPattern(main, INVOKESPECIAL, ASMHelper.MagicOpcodes.NONE, ASMHelper.MagicOpcodes.NONE, ASMHelper.MagicOpcodes.NONE, RETURN);
-      AbstractInsnNode ret = ASMHelper.findPattern(main, RETURN);
-
-      Objects.requireNonNull(top, "Find pattern failed for top node");
-      Objects.requireNonNull(afterRiding, "Find pattern failed for afterRiding node");
-      Objects.requireNonNull(afterWalking, "Find pattern failed for afterWalking node");
+      // <pre>
+      // this.onUpdateWalkingPlayer();
+      // <post>
+      // skip label
+      AbstractInsnNode walkingUpdateCall = ASMPattern.builder()
+          .custom(this::isOnWalkingUpdateCall)
+          .find(main)
+          .getFirst("could not find node to onUpdateWalkingPlayer");
 
       LabelNode jmp = new LabelNode();
 
       InsnList pre = new InsnList();
-      pre.add(new VarInsnNode(ALOAD, 0));
-      pre.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPre));
+      pre.add(new VarInsnNode(ALOAD, 0)); // this*
+      pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPre));
       pre.add(new JumpInsnNode(IFNE, jmp));
 
-      InsnList postRiding = new InsnList();
-      postRiding.add(new VarInsnNode(ALOAD, 0));
-      postRiding.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
+      InsnList post = new InsnList();
+      post.add(new VarInsnNode(ALOAD, 0)); // this*
+      post.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
+      post.add(jmp);
 
-      InsnList postWalking = new InsnList();
-      postWalking.add(new VarInsnNode(ALOAD, 0));
-      postWalking.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
-
-      main.instructions.insert(top, pre);
-      main.instructions.insertBefore(afterRiding, postRiding);
-      main.instructions.insert(afterWalking, postWalking);
-      main.instructions.insertBefore(ret, jmp);
+      // insert above ALOAD
+      main.instructions.insertBefore(walkingUpdateCall.getPrevious(), pre);
+      // insert below call
+      main.instructions.insert(walkingUpdateCall, post);
     }
   }
 
   @RegisterTransformer
-  public static class pushOutOfBlocks extends MethodTransformer {
+  public static class PushOutOfBlocks extends MethodTransformer {
 
     @Override
     public ASMMethod getMethod() {
@@ -138,7 +124,7 @@ public class ClientEntityPlayerPatch {
     }
   }
 
-  @RegisterTransformer
+  @RegisterTransformer("ClientPlayerEntity.isRowingBoat")
   public static class RowingBoat extends MethodTransformer {
 
     @Override

@@ -80,7 +80,7 @@ public class LocalPlayerUtils implements Common {
   
   public static BlockRayTraceResult getBlockViewTrace() {
     Vec3d start = getLocalPlayer().getEyePosition(1.f);
-    Vec3d end = getLocalPlayer().getLook(1.f).normalize().scale(getBlockReach());
+    Vec3d end = start.add(getLocalPlayer().getLook(1.f).normalize().scale(getBlockReach()));
     RayTraceContext ctx = new RayTraceContext(start, end, RayTraceContext.BlockMode.OUTLINE,
         RayTraceContext.FluidMode.NONE, getLocalPlayer());
     return getWorld().rayTraceBlocks(ctx);
