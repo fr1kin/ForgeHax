@@ -132,7 +132,6 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
     if (!bounded.getValue()) {
       return true;
     } else {
-      // TODO: 1.15
       Vec3d pos = ub.getCenteredPos().subtract(getLocalPlayer().getPositionVector());
       return pos.x < width_upper.getValue()
           && pos.x > -width_lower.getValue()
