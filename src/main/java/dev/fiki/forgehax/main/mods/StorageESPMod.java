@@ -8,21 +8,24 @@ import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.tesselation.GeometryMasks;
 import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
+import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.item.minecart.ChestMinecartEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
+
+import static dev.fiki.forgehax.main.Common.*;
 
 /**
  * Created on 9/4/2016 by fr1kin
  */
 @RegisterMod
 public class StorageESPMod extends ToggleMod {
-
   public StorageESPMod() {
     super(Category.RENDER, "StorageESP", false, "Shows storage");
   }
@@ -46,20 +49,23 @@ public class StorageESPMod extends ToggleMod {
   private int getEntityColor(Entity entity) {
     if (entity instanceof ChestMinecartEntity) {
       return Colors.ORANGE.toBuffer();
-    } /*else if (entity instanceof ItemFrameEntity
-        && ((ItemFrameEntity) entity).getDisplayedItem().getItem() instanceof ShulkerBox) {
-      return Colors.YELLOW.toBuffer();
-      // TODO: 1.15 detect if item is a shulkerbox
-    }*/ else {
-      return -1;
+    } else if (entity instanceof ItemFrameEntity) {
+      ItemFrameEntity frameEntity = (ItemFrameEntity) entity;
+      if(frameEntity.getDisplayedItem().getItem() instanceof BlockItem) {
+        BlockItem blockItem = (BlockItem) frameEntity.getDisplayedItem().getItem();
+        if(blockItem.getBlock() instanceof ShulkerBoxBlock) {
+          return Colors.YELLOW.toBuffer();
+        }
+      }
     }
+    return -1;
   }
 
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
-    for (TileEntity tileEntity : Common.getWorld().loadedTileEntityList) {
+    for (TileEntity tileEntity : getWorld().loadedTileEntityList) {
       BlockPos pos = tileEntity.getPos();
 
       int color = getTileEntityColor(tileEntity);
@@ -68,7 +74,7 @@ public class StorageESPMod extends ToggleMod {
       }
     }
 
-    for (Entity entity : Common.getWorld().getAllEntities()) {
+    for (Entity entity : getWorld().getAllEntities()) {
       BlockPos pos = entity.getPosition();
       int color = getEntityColor(entity);
       if (color != -1) {
