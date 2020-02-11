@@ -34,6 +34,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -119,6 +120,7 @@ public interface Common {
   // client world
   //
 
+  @Nonnull // just to get the IDE to shutup
   static ClientWorld getWorld() {
     return getLocalPlayer() == null ? null : getLocalPlayer().worldClient;
   }

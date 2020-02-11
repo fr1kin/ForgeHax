@@ -5,6 +5,7 @@ import static dev.fiki.forgehax.main.Common.*;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.services.SneakService;
+import dev.fiki.forgehax.main.util.BlockHelper;
 import dev.fiki.forgehax.main.util.Switch;
 import dev.fiki.forgehax.main.util.math.Angle;
 
@@ -77,10 +78,12 @@ public class LocalPlayerUtils implements Common {
     return MC.objectMouseOver;
   }
   
-  public static RayTraceResult getMouseOverBlockTrace() {
-    return Optional.ofNullable(getViewTrace())
-        .filter(tr -> Type.BLOCK.equals(tr.getType()))
-        .orElse(null);
+  public static BlockRayTraceResult getBlockViewTrace() {
+    Vec3d start = getLocalPlayer().getEyePosition(1.f);
+    Vec3d end = getLocalPlayer().getLook(1.f).normalize().scale(getBlockReach());
+    RayTraceContext ctx = new RayTraceContext(start, end, RayTraceContext.BlockMode.OUTLINE,
+        RayTraceContext.FluidMode.NONE, getLocalPlayer());
+    return getWorld().rayTraceBlocks(ctx);
   }
   
   public static RayTraceResult getViewTrace(Entity entity, Vec3d direction,
@@ -138,11 +141,13 @@ public class LocalPlayerUtils implements Common {
       return trace;
     }
   }
+
+  public static double getBlockReach() {
+    return getPlayerController().getBlockReachDistance();
+  }
   
   public static boolean isInReach(Vec3d start, Vec3d end) {
-    return start.squareDistanceTo(end)
-        < getPlayerController().getBlockReachDistance()
-        * getPlayerController().getBlockReachDistance();
+    return start.squareDistanceTo(end) < getBlockReach() * getBlockReach();
   }
   
   private static final Switch FLY_SWITCH = new Switch("PlayerFlying") {

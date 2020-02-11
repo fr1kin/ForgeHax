@@ -32,13 +32,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.play.client.CAnimateHandPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -49,7 +52,7 @@ import static dev.fiki.forgehax.main.Common.*;
 @RegisterMod
 public class Nuker extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
 
-  private final List<UniqueBlock> targets = Lists.newArrayList();
+  private final List<Block> targets = Lists.newArrayList();
   private final AtomicBoolean attackToggle = new AtomicBoolean(false);
 
   private BlockPos currentTarget = null;
@@ -121,15 +124,16 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
     super(Category.PLAYER, "Nuker", false, "Mine blocks around yourself");
   }
 
-  private boolean isTargeting(UniqueBlock ub) {
-    return targets.stream().anyMatch(ub::equals);
+  private boolean isTargeting(UniqueBlock block) {
+    return targets.stream().anyMatch(b -> b.equals(block.getBlock()));
   }
 
   private boolean isInBoundary(UniqueBlock ub) {
     if (!bounded.getValue()) {
       return true;
     } else {
-      Vec3d pos = ub.getCenteredPos().subtract(Common.getLocalPlayer().getPositionVector());
+      // TODO: 1.15
+      Vec3d pos = ub.getCenteredPos().subtract(getLocalPlayer().getPositionVector());
       return pos.x < width_upper.getValue()
           && pos.x > -width_lower.getValue()
           && pos.y < height_upper.getValue()
@@ -143,7 +147,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
     return filter_liquids.getValue()
         && Arrays.stream(Direction.values())
         .map(side -> ub.getPos().offset(side))
-        .map(Common.getWorld()::getBlockState)
+        .map(getWorld()::getBlockState)
         .map(BlockState::getMaterial)
         .anyMatch(Material::isLiquid);
   }
@@ -153,21 +157,21 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
   }
 
   private float getBlockBreakAmount() {
-    return FastReflection.Fields.PlayerController_curBlockDamageMP.get(Common.getPlayerController());
+    return FastReflection.Fields.PlayerController_curBlockDamageMP.get(getPlayerController());
   }
 
   private void updateBlockBreaking(BlockPos target) {
     if (target == null && currentTarget != null) {
       resetBlockBreaking();
     } else if (target != null && currentTarget == null) {
-      Common.getPlayerController().resetBlockRemoving();
+      getPlayerController().resetBlockRemoving();
       currentTarget = target;
     }
   }
 
   private void resetBlockBreaking() {
     if (currentTarget != null) {
-      Common.getPlayerController().resetBlockRemoving();
+      getPlayerController().resetBlockRemoving();
       currentTarget = null;
     }
   }
@@ -175,8 +179,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
   @Override
   protected void onEnabled() {
     PositionRotationManager.getManager().register(this, PriorityEnum.HIGH);
-    printInform(
-        "Select blocks by looking at it and pressing %s", selectBind.getKeyInput().getTranslationKey());
+    printInform("Select blocks by looking at it and pressing %s", selectBind.getKeyName());
   }
 
   @Override
@@ -187,24 +190,21 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (selectBind.isKeyDown() && attackToggle.compareAndSet(false, true)) {
-      UniqueBlock info = null;
-      RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
+      Block info = Blocks.AIR;
+      BlockRayTraceResult tr = LocalPlayerUtils.getBlockViewTrace();
 
-      if (tr == null && !targets.isEmpty()) {
-        UniqueBlock ub = targets.remove(targets.size() - 1);
+      getLogger().info(tr);
+
+      if (RayTraceResult.Type.MISS.equals(tr.getType()) && !targets.isEmpty()) {
+        Block ub = targets.remove(targets.size() - 1);
         printInform("Removed latest block %s", ub.toString());
         return;
-      } else if (tr != null) {
-        // TODO: 1.15
-        info = BlockHelper.newUniqueBlock(null);
+      } else if (RayTraceResult.Type.BLOCK.equals(tr.getType())) {
+        info = getWorld().getBlockState(tr.getPos()).getBlock();
       }
 
-      if (info == null) {
-        return;
-      }
-
-      if (info.isInvalid()) {
-        Common.printWarning("Invalid block selected!");
+      if (Blocks.AIR.equals(info)) {
+        printWarning("Invalid block selected!");
         return;
       }
 
@@ -234,7 +234,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
       return;
     }
 
-    final Vec3d eyes = EntityUtils.getEyePos(Common.getLocalPlayer());
+    final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
     final Vec3d dir =
         client_angles.getValue()
             ? LocalPlayerUtils.getDirectionVector()
@@ -246,7 +246,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
       // verify the current target is still valid
       trace =
           Optional.of(currentTarget)
-              .filter(pos -> !Common.getWorld().isAirBlock(pos))
+              .filter(pos -> !getWorld().isAirBlock(pos))
               .map(BlockHelper::newUniqueBlock)
               .filter(this::isTargeting)
               .filter(this::isInBoundary)
@@ -260,9 +260,9 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
 
     if (currentTarget == null) {
       List<UniqueBlock> blocks =
-          BlockHelper.getBlocksInRadius(eyes, Common.getPlayerController().getBlockReachDistance())
+          BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
               .stream()
-              .filter(pos -> !Common.getWorld().isAirBlock(pos))
+              .filter(pos -> !getWorld().isAirBlock(pos))
               .map(BlockHelper::newUniqueBlock)
               .filter(this::isTargeting)
               .filter(this::isInBoundary)
@@ -298,8 +298,8 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
     final BlockTraceInfo tr = trace;
     state.invokeLater(
         rs -> {
-          if (Common.getPlayerController().onPlayerDamageBlock(tr.getPos(), tr.getOppositeSide())) {
-            Common.getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+          if (getPlayerController().onPlayerDamageBlock(tr.getPos(), tr.getOppositeSide())) {
+            getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
             updateBlockBreaking(tr.getPos());
           } else {
             resetBlockBreaking();

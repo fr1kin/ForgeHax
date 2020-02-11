@@ -45,7 +45,7 @@ public class AutoMine extends ToggleMod {
 
     switch (event.phase) {
       case START: {
-        RayTraceResult tr = LocalPlayerUtils.getMouseOverBlockTrace();
+        RayTraceResult tr = LocalPlayerUtils.getBlockViewTrace();
 
         if (tr == null) {
           setPressed(false);
