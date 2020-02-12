@@ -1,11 +1,13 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
+import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -17,19 +19,23 @@ import dev.fiki.forgehax.main.util.Utils;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
@@ -37,18 +43,22 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.RecipeItemHelper;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
-import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.gui.GuiUtils;
 import org.lwjgl.glfw.GLFW;
 
-import static com.mojang.blaze3d.systems.RenderSystem.*;
+import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod
 public class ShulkerViewer extends ToggleMod {
@@ -107,6 +117,8 @@ public class ShulkerViewer extends ToggleMod {
       .keyName("ShulkerViewer Hold")
       .keyCategory("ForgeHax")
       .keyCode(GLFW.GLFW_KEY_LEFT_ALT)
+      .keyPressedListener(this::onLockPressed)
+      .keyReleasedListener(this::onLockReleased)
       .build();
 
   private final List<GuiShulkerViewer> guiCache =
@@ -225,34 +237,31 @@ public class ShulkerViewer extends ToggleMod {
     return super.getDebugDisplayText() + " " + String.format("[size = %d]", guiCache.size());
   }
 
-  @SubscribeEvent
-  public void onKeyboardInput(GuiScreenEvent.KeyboardKeyEvent event) {
-    if (event.getKeyCode() == lockDownKey.getKeyInput().getKeyCode()) {
-      // TODO: 1.15 verify this works
-      //if (Keyboard.getEventKeyState())
-      if (toggle_lock.getValue()) {
-        if (!isKeySet) {
-          locked = !locked;
-          if (!locked) {
-            updated = false;
-          }
-          isKeySet = true;
+  private void onLockPressed(KeyBinding binding) {
+    if (toggle_lock.getValue()) {
+      if (!isKeySet) {
+        locked = !locked;
+        if (!locked) {
+          updated = false;
         }
-      } else {
-        locked = true;
+        isKeySet = true;
       }
     } else {
-      if (toggle_lock.getValue()) {
-        isKeySet = false;
-      } else {
-        locked = updated = false;
-      }
+      locked = true;
+    }
+  }
+
+  private void onLockReleased(KeyBinding binding) {
+    if (toggle_lock.getValue()) {
+      isKeySet = false;
+    } else {
+      locked = updated = false;
     }
   }
 
   @SubscribeEvent
   public void onPreTooptipRender(RenderTooltipEvent.Pre event) {
-    if (!(Common.getDisplayScreen() instanceof ContainerScreen) || isModGeneratedToolTip) {
+    if (!(getDisplayScreen() instanceof ContainerScreen) || isModGeneratedToolTip) {
       return;
     }
 
@@ -273,7 +282,7 @@ public class ShulkerViewer extends ToggleMod {
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onRender(GuiScreenEvent.DrawScreenEvent.Post event) {
-    if (!(Common.getDisplayScreen() instanceof ContainerScreen)) {
+    if (!(getDisplayScreen() instanceof ContainerScreen)) {
       return;
     }
 
@@ -326,36 +335,36 @@ public class ShulkerViewer extends ToggleMod {
 
       isMouseInShulkerGui = false; // recheck
 
-      guiCache
-          .stream()
+      guiCache.stream()
           .filter(Objects::nonNull)
           .sorted()
-          .forEach(
-              ui -> {
-                ui.posX = renderX.get();
-                ui.posY = renderY.get();
-                ui.render(event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
-                renderY.set(renderY.get() + SHULKER_GUI_SIZE + 1);
-              });
+          .forEach(ui -> {
+            ui.posX = renderX.get();
+            ui.posY = renderY.get();
+            ui.render(event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
+            renderY.set(renderY.get() + SHULKER_GUI_SIZE + 1);
+          });
     } finally {
       cacheLock.unlock();
     }
 
     if (help_text.getValue()) {
-      disableLighting();
-      disableDepthTest();
+      RenderSystem.disableLighting();
+      RenderSystem.disableDepthTest();
+
+
       SurfaceHelper.drawTextShadow(
           "Hold "
               + lockDownKey.getKeyInput().getTranslationKey()
               + " to view the tooltips of a Shulker boxes content!",
           5,
-          Common.getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 3 - 2,
+          getScreenHeight() - (int) (SurfaceHelper.getStringHeight() + 2) * 3 - 2,
           Colors.RED.toBuffer(),
           1);
       SurfaceHelper.drawTextShadow(
           "The activation key can be configured under Minecraft's Options -> Controls -> ForgeHax -> ShulkerViewer Lock.",
           5,
-          Common.getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) * 2 - 2,
+          getScreenHeight() - (int) (SurfaceHelper.getStringHeight() + 2) * 2 - 2,
           Colors.GREEN.toBuffer(),
           1);
       SurfaceHelper.drawTextShadow(
@@ -369,14 +378,15 @@ public class ShulkerViewer extends ToggleMod {
               + help_text.getName()
               + " false\" to disable this help message.",
           5,
-          Common.getScreenHeight() - (int) (SurfaceHelper.getStringHeight(null) + 2) - 2,
+          getScreenHeight() - (int) (SurfaceHelper.getStringHeight() + 2) - 2,
           Colors.YELLOW.toBuffer(),
           1);
-      enableDepthTest();
+
+      RenderSystem.enableDepthTest();
     }
 
-    enableLighting();
-    color4f(1.f, 1.f, 1.f, 1.0f);
+    RenderSystem.enableLighting();
+    RenderSystem.color4f(1.f, 1.f, 1.f, 1.0f);
   }
 
   class GuiShulkerViewer extends ContainerScreen<Container> implements Comparable<GuiShulkerViewer> {
@@ -388,11 +398,13 @@ public class ShulkerViewer extends ToggleMod {
     public int posY = 0;
 
     public GuiShulkerViewer(Container inventorySlotsIn, ItemStack parentShulker, int priority) {
-      super(inventorySlotsIn, Common.getLocalPlayer().inventory, new StringTextComponent("ShulkerViewer"));
+      super(inventorySlotsIn, new FakePlayerInventory(), new StringTextComponent("ShulkerViewer"));
+      this.minecraft = MC;
+      this.font = getFontRenderer();
       this.parentShulker = parentShulker;
       this.priority = priority;
-      this.width = Common.getScreenWidth();
-      this.height = Common.getScreenHeight();
+      this.width = getScreenWidth();
+      this.height = getScreenHeight();
       this.xSize = 176;
       this.ySize = SHULKER_GUI_SIZE;
     }
@@ -424,10 +436,10 @@ public class ShulkerViewer extends ToggleMod {
       int x = posX;
       int y = posY;
 
-      enableTexture();
-      disableLighting();
+      RenderSystem.enableTexture();
+      RenderSystem.disableLighting();
 
-      color4f(
+      RenderSystem.color4f(
           1.f,
           1.f,
           1.f,
@@ -435,28 +447,49 @@ public class ShulkerViewer extends ToggleMod {
               ? (tooltip_opacity.getValue() / 255.f)
               : (locked_opacity.getValue() / 255.f));
 
-      enableBlend();
-      blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-          GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+      RenderSystem.enableBlend();
+      RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+          GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+          GlStateManager.SourceFactor.ONE,
+          GlStateManager.DestFactor.ZERO);
 
-      Common.MC.getTextureManager().bindTexture(SHULKER_GUI_TEXTURE);
+      MC.getTextureManager().bindTexture(SHULKER_GUI_TEXTURE);
+
+      RenderSystem.enableBlend();
+      RenderSystem.enableTexture();
+      RenderSystem.defaultBlendFunc();
 
       // width 176        = width of container
       // height 16        = top of the gui
       // height 54        = gui item boxes
       // height 6         = bottom of the gui
-      SurfaceHelper.texturedRect(x, y, 0, 0, 176, 16, DEPTH);
-      SurfaceHelper.texturedRect(x, y + 16, 0, 16, 176, 54, DEPTH);
-      SurfaceHelper.texturedRect(x, y + 16 + 54, 0, 160, 176, 6, DEPTH);
+      GuiUtils.drawTexturedModalRect(x, y, 0, 0, 176, 16, DEPTH);
+      GuiUtils.drawTexturedModalRect(x, y + 16, 0, 16, 176, 54, DEPTH);
+      GuiUtils.drawTexturedModalRect(x, y + 16 + 54, 0, 160, 176, 6, DEPTH);
 
-      disableDepthTest();
-      SurfaceHelper.drawText(parentShulker.getDisplayName().getUnformattedComponentText(), x + 8, y + 6, Colors.BLACK.toBuffer());
-      enableDepthTest();
+      RenderSystem.enableTexture();
+      RenderSystem.disableDepthTest();
+      RenderSystem.enableAlphaTest();
+
+      RenderSystem.enableColorMaterial();
+
+      RenderSystem.pushMatrix();
+      RenderSystem.translated(0, 0, DEPTH);
+
+      SurfaceHelper.drawText(parentShulker.getDisplayName().getFormattedText(),
+          x + 8, y + 6, Colors.BLACK.toBuffer());
+
+      RenderSystem.popMatrix();
+
+//      getFontRenderer().drawString(parentShulker.getDisplayName().getFormattedText(),
+//          x + 8, y + 6, Colors.BLACK.toBuffer());
+
+      RenderSystem.enableDepthTest();
 
       RenderHelper.enableStandardItemLighting();
-      enableRescaleNormal();
-      enableColorMaterial();
-      enableLighting();
+      RenderSystem.enableRescaleNormal();
+      RenderSystem.enableColorMaterial();
+      RenderSystem.enableLighting();
 
       Slot hoveringOver = null;
 
@@ -467,49 +500,63 @@ public class ShulkerViewer extends ToggleMod {
         if (slot.getHasStack()) {
           int px = rx + slot.xPos;
           int py = ry + slot.yPos;
-          Common.MC.getItemRenderer().zLevel = DEPTH + 1;
-          SurfaceHelper.drawItem(slot.getStack(), px, py);
-          SurfaceHelper.drawItemOverlay(slot.getStack(), px, py);
-          Common.MC.getItemRenderer().zLevel = 0.f;
           if (isPointInRegion(px, py, 16, 16, mouseX, mouseY)) {
             hoveringOver = slot;
+
+            RenderSystem.disableLighting();
+            RenderSystem.disableDepthTest();
+            RenderSystem.colorMask(true, true, true, false);
+
+            GuiUtils.drawGradientRect(
+                DEPTH,
+                rx + hoveringOver.xPos,
+                ry + hoveringOver.yPos,
+                rx + hoveringOver.xPos + 16,
+                ry + hoveringOver.yPos + 16,
+                Colors.WHITE.setAlpha(200).toBuffer(),
+                Colors.WHITE.setAlpha(200).toBuffer());
+
+            RenderSystem.enableLighting();
+            RenderSystem.enableDepthTest();
           }
+
+          SurfaceHelper.setItemRendererDepth(DEPTH + 1);
+          SurfaceHelper.drawItem(slot.getStack(), px, py);
+          SurfaceHelper.drawItemOverlay(slot.getStack(), px, py);
+          SurfaceHelper.setItemRendererDepth(0.f);
         }
       }
 
-      disableLighting();
+      RenderSystem.disableLighting();
 
       if (hoveringOver != null) {
-        // background of the gui
-        disableLighting();
-        disableDepthTest();
-        colorMask(true, true, true, false);
-//        this.drawGradientRect(
-//            rx + hoveringOver.xPos,
-//            ry + hoveringOver.yPos,
-//            rx + hoveringOver.xPos + 16,
-//            ry + hoveringOver.yPos + 16,
-//            -2130706433,
-//            -2130706433);
-        // TODO: 1.15 fix rendering gradient
-        colorMask(true, true, true, true);
-
         // tool tip
-        color4f(1.f, 1.f, 1.f, 1.0f);
-        pushMatrix();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.color4f(1.f, 1.f, 1.f, 1.0f);
+
+        RenderSystem.pushMatrix();
+        RenderSystem.translated(0, 0, DEPTH);
+
         isModGeneratedToolTip = true;
-        renderTooltip(hoveringOver.getStack(), mouseX + 8, mouseY + 8);
-        isModGeneratedToolTip = false;
-        popMatrix();
-        enableDepthTest();
+        try {
+          ItemStack stack = hoveringOver.getStack();
+          GuiUtils.preItemToolTip(stack);
+          renderTooltip(stack, mouseX + 8, mouseY + 8);
+          GuiUtils.postItemToolTip();
+        } finally {
+          isModGeneratedToolTip = false;
+        }
+
+        RenderSystem.popMatrix();
+        RenderSystem.enableDepthTest();
       }
 
       if (isPointInRegion(this.posX, this.posY, getWidth(), getHeight(), mouseX, mouseY)) {
         isMouseInShulkerGui = true;
       }
 
-      disableBlend();
-      color4f(1.f, 1.f, 1.f, 1.0f);
+      RenderSystem.disableBlend();
+      RenderSystem.color4f(1.f, 1.f, 1.f, 1.0f);
     }
 
     @Override
@@ -606,6 +653,228 @@ public class ShulkerViewer extends ToggleMod {
 
     @Override
     public void clear() {
+    }
+  }
+
+  private static class FakePlayerInventory extends PlayerInventory {
+
+    public FakePlayerInventory() {
+      super(null);
+    }
+
+    @Override
+    public ItemStack getCurrentItem() {
+      return ItemStack.EMPTY;
+    }
+
+    @Override
+    public int getFirstEmptyStack() {
+      return 0;
+    }
+
+    @Override
+    public void setPickedItemStack(ItemStack stack) { }
+
+    @Override
+    public void pickItem(int index) { }
+
+    @Override
+    public int getSlotFor(ItemStack stack) {
+      return 0;
+    }
+
+    @Override
+    public int findSlotMatchingUnusedItem(ItemStack p_194014_1_) {
+      return 0;
+    }
+
+    @Override
+    public int getBestHotbarSlot() {
+      return 0;
+    }
+
+    @Override
+    public void changeCurrentItem(double direction) { }
+
+    @Override
+    public int clearMatchingItems(Predicate<ItemStack> p_195408_1_, int count) {
+      return 0;
+    }
+
+    @Override
+    public int storeItemStack(ItemStack itemStackIn) {
+      return 0;
+    }
+
+    @Override
+    public void tick() { }
+
+    @Override
+    public boolean addItemStackToInventory(ItemStack itemStackIn) {
+      return false;
+    }
+
+    @Override
+    public boolean add(int slotIn, ItemStack stack) {
+      return false;
+    }
+
+    @Override
+    public void placeItemBackInInventory(World worldIn, ItemStack stack) { }
+
+    @Override
+    public ItemStack decrStackSize(int index, int count) {
+      return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void deleteStack(ItemStack stack) { }
+
+    @Override
+    public ItemStack removeStackFromSlot(int index) {
+      return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void setInventorySlotContents(int index, ItemStack stack) { }
+
+    @Override
+    public float getDestroySpeed(BlockState state) {
+      return 1.f;
+    }
+
+    @Override
+    public ListNBT write(ListNBT nbtTagListIn) {
+      return nbtTagListIn;
+    }
+
+    @Override
+    public void read(ListNBT nbtTagListIn) {
+    }
+
+    @Override
+    public int getSizeInventory() {
+      return 0;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return true;
+    }
+
+    @Override
+    public ItemStack getStackInSlot(int index) {
+      return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ITextComponent getName() {
+      return new StringTextComponent("FakeInventory");
+    }
+
+    @Override
+    public boolean canHarvestBlock(BlockState state) {
+      return false;
+    }
+
+    @Override
+    public ItemStack armorItemInSlot(int slotIn) {
+      return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void damageArmor(float damage) {
+    }
+
+    @Override
+    public void dropAllItems() {
+    }
+
+    @Override
+    public void markDirty() {
+    }
+
+    @Override
+    public int getTimesChanged() {
+      return 0;
+    }
+
+    @Override
+    public void setItemStack(ItemStack itemStackIn) {
+    }
+
+    @Override
+    public ItemStack getItemStack() {
+      return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean isUsableByPlayer(PlayerEntity player) {
+      return false;
+    }
+
+    @Override
+    public boolean hasItemStack(ItemStack itemStackIn) {
+      return false;
+    }
+
+    @Override
+    public boolean hasTag(Tag<Item> itemTag) {
+      return false;
+    }
+
+    @Override
+    public void copyInventory(PlayerInventory playerInventory) {
+    }
+
+    @Override
+    public void clear() {
+    }
+
+    @Override
+    public void accountStacks(RecipeItemHelper p_201571_1_) {
+    }
+
+    @Override
+    public int getInventoryStackLimit() {
+      return 0;
+    }
+
+    @Override
+    public void openInventory(PlayerEntity player) { }
+
+    @Override
+    public void closeInventory(PlayerEntity player) { }
+
+    @Override
+    public boolean isItemValidForSlot(int index, ItemStack stack) {
+      return false;
+    }
+
+    @Override
+    public int count(Item itemIn) {
+      return 0;
+    }
+
+    @Override
+    public boolean hasAny(Set<Item> set) {
+      return false;
+    }
+
+    @Override
+    public boolean hasCustomName() {
+      return false;
+    }
+
+    @Override
+    public ITextComponent getDisplayName() {
+      return new StringTextComponent("FakeInventory");
+    }
+
+    @Nullable
+    @Override
+    public ITextComponent getCustomName() {
+      return new StringTextComponent("FakeInventory");
     }
   }
 }

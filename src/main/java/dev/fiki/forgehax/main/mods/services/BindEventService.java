@@ -25,17 +25,17 @@ public class BindEventService extends ServiceMod {
 
   private void updateBindings(KeyBindingSetting setting, int keyCode, int keyAction) {
     if (keyCode == setting.getKeyCode()) {
-      int pressTime = FastReflection.Fields.KeyBinding_pressTime.get(setting.getKeyBinding());
+//      int pressTime = FastReflection.Fields.KeyBinding_pressTime.get(setting.getKeyBinding());
       switch (keyAction) {
         case GLFW.GLFW_PRESS:
         case GLFW.GLFW_REPEAT:
           setting.getKeyBinding().setPressed(true);
-          if(pressTime > 1) {
-            setting.getListeners(IKeyDownListener.class)
-                .forEach(l -> l.onKeyDown(setting.getKeyBinding()));
-          } else {
+          if(setting.getKeyBinding().isPressed()) {
             setting.getListeners(IKeyPressedListener.class)
                 .forEach(l -> l.onKeyPressed(setting.getKeyBinding()));
+          } else if(setting.isKeyDown()) {
+            setting.getListeners(IKeyDownListener.class)
+                .forEach(l -> l.onKeyDown(setting.getKeyBinding()));
           }
           break;
         case GLFW.GLFW_RELEASE:

@@ -258,13 +258,10 @@ public class SurfaceBuilder {
   }
   
   public SurfaceBuilder itemOverlay(ItemStack stack, double x, double y) {
-    SurfaceHelper.renderItemOverlayIntoGUI(
-        MC.fontRenderer,
+    SurfaceHelper.drawItemOverlay(
         stack,
-        x,
-        y,
-        null,
-        current().hasScale() ? current().getScale3d()[0] : 16.D);
+        (int)x,
+        (int)y);
     return this;
   }
   

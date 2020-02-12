@@ -10,6 +10,8 @@ import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.main.util.color.Colors;
+import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
+import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.math.Angle;
@@ -17,7 +19,7 @@ import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.tesselation.GeometryMasks;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
@@ -37,7 +39,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -249,28 +250,16 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     RenderSystem.shadeModel(GL11.GL_SMOOTH);
     RenderSystem.disableDepthTest();
 
-    final Tessellator tessellator = event.getTessellator();
-    final BufferBuilder builder = tessellator.getBuffer();
+    final BufferBuilderEx builder = event.getBuffer();
+    final Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
 
-    builder.begin(GL11.GL_LINE, DefaultVertexFormats.POSITION_COLOR);
+    builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
-    renderingBlocks.forEach(
-        pos -> {
+    renderingBlocks.forEach(pos -> {
           BlockState state = getWorld().getBlockState(pos);
           AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).getBoundingBox();
-          double offsetX = (double) pos.getX() - event.getProjectionPos().x;
-          double offsetY = (double) pos.getY() - event.getProjectionPos().y;
-          double offsetZ = (double) pos.getZ() - event.getProjectionPos().z;
-          GeometryTessellator.drawLines(
-              builder,
-              offsetX + bb.minX,
-              offsetY + bb.minY,
-              offsetZ + bb.minZ,
-              offsetX + bb.maxX,
-              offsetY + bb.maxY,
-              offsetZ + bb.maxZ,
-              GeometryMasks.Line.ALL,
-              Colors.GREEN.setAlpha(150).toBuffer());
+          builder.setTranslation(new Vec3d(pos).subtract(renderPos));
+          builder.appendOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.GREEN.setAlpha(150));
         });
 
     // poz
@@ -279,22 +268,11 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     if (current != null) {
       BlockState state = getWorld().getBlockState(current);
       AxisAlignedBB bb = state.getCollisionShape(getWorld(), current).getBoundingBox();
-      double offsetX = (double) current.getX() - event.getProjectionPos().x;
-      double offsetY = (double) current.getY() - event.getProjectionPos().y;
-      double offsetZ = (double) current.getZ() - event.getProjectionPos().z;
-      GeometryTessellator.drawLines(
-          builder,
-          offsetX + bb.minX,
-          offsetY + bb.minY,
-          offsetZ + bb.minZ,
-          offsetX + bb.maxX,
-          offsetY + bb.maxY,
-          offsetZ + bb.maxZ,
-          GeometryMasks.Line.ALL,
-          Colors.RED.setAlpha(150).toBuffer());
+      builder.setTranslation(new Vec3d(current).subtract(renderPos));
+      builder.appendOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.RED.setAlpha(150));
     }
 
-    tessellator.draw();
+    builder.draw();
 
     RenderSystem.shadeModel(GL11.GL_FLAT);
     RenderSystem.disableBlend();

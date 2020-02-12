@@ -26,6 +26,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -40,6 +41,8 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public interface Common {
   Minecraft MC = Minecraft.getInstance();
@@ -90,6 +93,16 @@ public interface Common {
 
   static GameSettings getGameSettings() {
     return MC.gameSettings;
+  }
+
+  static Stream<Entity> worldEntities() {
+    return !isInWorld() ? Stream.empty()
+        : StreamSupport.stream(getWorld().getAllEntities().spliterator(), false);
+  }
+
+  static Stream<TileEntity> worldTileEntities() {
+    return !isInWorld() ? Stream.empty()
+        : getWorld().loadedTileEntityList.stream();
   }
 
   //

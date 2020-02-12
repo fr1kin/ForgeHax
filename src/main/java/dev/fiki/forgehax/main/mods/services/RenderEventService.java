@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.common.events.render.ProjectionViewMatrixSetupEvent;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -49,11 +48,10 @@ public class RenderEventService extends ServiceMod {
 
     RenderSystem.lineWidth(1.f);
 
-    //Vec3d renderPos = EntityUtils.getInterpolatedPos(Common.getLocalPlayer(), event.getPartialTicks());
-    Vec3d renderPos = getGameRenderer().getActiveRenderInfo().getProjectedView();
+    Vec3d projectedView = getGameRenderer().getActiveRenderInfo().getProjectedView();
 
     RenderEvent e = new RenderEvent(event.getMatrixStack(), Tessellator.getInstance(),
-        renderPos, event.getPartialTicks());
+        projectedView, event.getPartialTicks());
     MinecraftForge.EVENT_BUS.post(e);
 
     RenderSystem.lineWidth(1.f);
@@ -71,7 +69,7 @@ public class RenderEventService extends ServiceMod {
   @SubscribeEvent(priority = EventPriority.LOW)
   public void onRenderGameOverlayEvent(final RenderGameOverlayEvent.Text event) {
     if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
-      MinecraftForge.EVENT_BUS.post(new Render2DEvent(event.getPartialTicks()));
+      MinecraftForge.EVENT_BUS.post(new Render2DEvent(Tessellator.getInstance(), event.getPartialTicks()));
       RenderSystem.color4f(1.f, 1.f, 1.f, 1.f); // reset color
     }
   }

@@ -1,12 +1,13 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.RenderEvent;
+import dev.fiki.forgehax.main.util.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
+import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.tesselation.GeometryMasks;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
@@ -22,6 +23,11 @@ import static dev.fiki.forgehax.main.Common.*;
  */
 @RegisterMod
 public class SpawnerEspMod extends ToggleMod {
+  private final ColorSetting spawnerColor = newColorSetting()
+      .name("spawner-color")
+      .description("Color for Spawners")
+      .defaultTo(Colors.RED)
+      .build();
 
   public SpawnerEspMod() {
     super(Category.RENDER, "SpawnerESP", false, "Spawner esp");
@@ -29,16 +35,14 @@ public class SpawnerEspMod extends ToggleMod {
 
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+    BufferBuilderEx buffer = event.getBuffer();
+    buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
-    for (TileEntity tileEntity : getWorld().loadedTileEntityList) {
-      if (tileEntity instanceof MobSpawnerTileEntity) {
-        BlockPos pos = tileEntity.getPos();
-        GeometryTessellator.drawCuboid(
-            event.getBuffer(), pos, GeometryMasks.Line.ALL, Colors.RED.toBuffer());
-      }
-    }
+    worldTileEntities()
+        .filter(MobSpawnerTileEntity.class::isInstance)
+        .forEach(ent -> buffer.appendOutlinedCuboid(ent.getRenderBoundingBox(),
+            GeometryMasks.Line.ALL, spawnerColor.getValue()));
 
-    event.getTessellator().draw();
+    buffer.draw();
   }
 }

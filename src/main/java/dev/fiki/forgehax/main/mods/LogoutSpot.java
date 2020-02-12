@@ -1,7 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Sets;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
 import dev.fiki.forgehax.main.events.Render2DEvent;
@@ -9,13 +8,14 @@ import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
+import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.math.Plane;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.tesselation.GeometryMasks;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
 
 import java.util.Set;
@@ -95,7 +95,7 @@ public class LogoutSpot extends ToggleMod {
 
   @SubscribeEvent
   public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
-    if (getWorld() == null) {
+    if (!isInWorld()) {
       return;
     }
 
@@ -122,20 +122,19 @@ public class LogoutSpot extends ToggleMod {
     }
 
     synchronized (spots) {
-      spots.forEach(
-          spot -> {
-            Vec3d top = spot.getTopVec();
-            Plane upper = VectorUtils.toScreen(top);
-            if (upper.isVisible()) {
-              double distance = getLocalPlayer().getPositionVector().distanceTo(top);
-              String name = String.format("%s (%.1f)", spot.getName(), distance);
-              SurfaceHelper.drawTextShadow(
-                  name,
-                  (int) upper.getX() - (SurfaceHelper.getTextWidth(name) / 2),
-                  (int) upper.getY() - (SurfaceHelper.getTextHeight() + 1),
-                  Colors.RED.toBuffer());
-            }
-          });
+      spots.forEach(spot -> {
+        Vec3d top = spot.getTopVec();
+        Plane upper = VectorUtils.toScreen(top);
+        if (upper.isVisible()) {
+          double distance = getLocalPlayer().getPositionVector().distanceTo(top);
+          String name = String.format("%s (%.1f)", spot.getName(), distance);
+          SurfaceHelper.drawTextShadow(
+              name,
+              (int) upper.getX() - (SurfaceHelper.getStringWidth(name) / 2.f),
+              (int) upper.getY() - (SurfaceHelper.getStringHeight() + 1),
+              Colors.RED.toBuffer());
+        }
+      });
     }
   }
 
@@ -145,24 +144,15 @@ public class LogoutSpot extends ToggleMod {
       return;
     }
 
-    event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+    BufferBuilderEx builder = event.getBuffer();
+    builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
     synchronized (spots) {
-      spots.forEach(
-          spot ->
-              GeometryTessellator.drawLines(
-                  event.getBuffer(),
-                  spot.getMins().x,
-                  spot.getMins().y,
-                  spot.getMins().z,
-                  spot.getMaxs().x,
-                  spot.getMaxs().y,
-                  spot.getMaxs().z,
-                  GeometryMasks.Line.ALL,
-                  Colors.RED.toBuffer()));
+      spots.forEach(spot -> builder.appendOutlinedCuboid(spot.getMins(), spot.getMaxs(),
+          GeometryMasks.Line.ALL, Colors.RED));
     }
 
-    event.getTessellator().draw();
+    builder.draw();
   }
 
   @SubscribeEvent
@@ -186,7 +176,6 @@ public class LogoutSpot extends ToggleMod {
   }
 
   private static class LogoutPos {
-
     final UUID id;
     final String name;
     final Vec3d maxs;

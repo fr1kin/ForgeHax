@@ -24,6 +24,7 @@ package dev.fiki.forgehax.main.util.tesselation;
    SOFTWARE.
 */
 
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;

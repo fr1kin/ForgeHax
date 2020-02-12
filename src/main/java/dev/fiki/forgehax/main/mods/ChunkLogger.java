@@ -10,10 +10,11 @@ import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
+import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.tesselation.GeometryMasks;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
 
 import java.util.List;
@@ -163,7 +164,8 @@ public class ChunkLogger extends ToggleMod {
       return;
     }
 
-    event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+    BufferBuilderEx builder = event.getBuffer();
+    builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
     List<ChunkData> copy;
     chunkLock.lock();
@@ -173,43 +175,28 @@ public class ChunkLogger extends ToggleMod {
       chunkLock.unlock();
     }
 
-    copy.forEach(
-        chunk -> {
-          switch (show_only.getValue()) {
-            case NEW_ONLY:
-              if (!chunk.isNewChunk()) {
-                return;
-              }
-              break;
-            case OLD_ONLY:
-              if (chunk.isNewChunk()) {
-                return;
-              }
-              break;
-            case ALL:
-            default:
-              break;
+    copy.forEach(chunk -> {
+      switch (show_only.getValue()) {
+        case NEW_ONLY:
+          if (!chunk.isNewChunk()) {
+            return;
           }
+          break;
+        case OLD_ONLY:
+          if (chunk.isNewChunk()) {
+            return;
+          }
+          break;
+        case ALL:
+        default:
+          break;
+      }
 
-          int color = chunk.isNewChunk() ? Colors.WHITE.toBuffer() : Colors.RED.toBuffer();
+      builder.appendOutlinedCuboid(chunk.bbox, GeometryMasks.Quad.ALL,
+          chunk.isNewChunk() ? Colors.WHITE : Colors.RED);
+    });
 
-          GeometryTessellator.drawQuads(
-              event.getBuffer(),
-              chunk.bbox.minX,
-              chunk.bbox.minY,
-              chunk.bbox.minZ,
-              chunk.bbox.maxX,
-              chunk.bbox.maxY,
-              chunk.bbox.maxZ,
-              GeometryMasks.Quad.ALL,
-              color);
-        });
-
-    event.getTessellator().draw();
-  }
-
-  private interface ChunkLoadThread extends Callable<Object> {
-
+    builder.draw();
   }
 
   private class ChunkData {

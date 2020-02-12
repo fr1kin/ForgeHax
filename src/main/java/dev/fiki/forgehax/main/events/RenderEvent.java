@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.events;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import dev.fiki.forgehax.main.util.tesselation.BufferBuilderEx;
+import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.client.renderer.Tessellator;
@@ -13,26 +13,19 @@ import net.minecraftforge.eventbus.api.Event;
  */
 @Getter
 public class RenderEvent extends Event {
-
   private final MatrixStack matrixStack;
-  private final Tessellator tessellator;
-  private final Vec3d projectionPos;
+  private final Vec3d projectedPos;
   private final float partialTicks;
+  private final BufferBuilderEx buffer;
 
-  @Getter(AccessLevel.NONE)
-  private BufferBuilderEx bufferBuilderEx;
-
-  public RenderEvent(MatrixStack matrixStack, Tessellator tessellator, Vec3d projectionPos, float partialTicks) {
+  public RenderEvent(MatrixStack matrixStack, Tessellator tessellator, Vec3d projectedPos, float partialTicks) {
     this.matrixStack = matrixStack;
-    this.tessellator = tessellator;
-    this.projectionPos = projectionPos;
+    this.buffer = new BufferBuilderEx(tessellator);
+    this.projectedPos = projectedPos;
     this.partialTicks = partialTicks;
   }
 
-  public BufferBuilderEx getBuffer() {
-    if(bufferBuilderEx == null) {
-      bufferBuilderEx = new BufferBuilderEx(tessellator.getBuffer());
-    }
-    return bufferBuilderEx;
+  public Tessellator getTessellator() {
+    return buffer.getTessellator();
   }
 }

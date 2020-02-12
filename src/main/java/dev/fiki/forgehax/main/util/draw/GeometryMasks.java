@@ -1,4 +1,4 @@
-package dev.fiki.forgehax.main.util.tesselation;
+package dev.fiki.forgehax.main.util.draw;
 
 /*
    The MIT License (MIT)
