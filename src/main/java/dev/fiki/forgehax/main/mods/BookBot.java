@@ -6,7 +6,6 @@ import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
-import dev.fiki.forgehax.main.util.console.ConsoleIO;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -142,7 +141,7 @@ public class BookBot extends ToggleMod {
         .executor(args -> {
           if (writer != null) {
             writer.setFinalListener(
-                o -> ConsoleIO.write("BookBot task stopped at page " + writer.getPage()));
+                o -> args.inform("BookBot task stopped at page " + writer.getPage()));
             writer.stop();
             writer = null;
             writerThread = null;
