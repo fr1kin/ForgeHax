@@ -56,8 +56,8 @@ public class RootCommand extends AbstractParentCommand {
       // IParentCommand cannot extend IJsonSerializable
       JsonObject next = new JsonObject();
 
-      for (ICommand cmd : ((IParentCommand) command).getChildren()) {
-        serializeCommand(cmd, next);
+      for (ICommand child : ((IParentCommand) command).getChildren()) {
+        serializeCommand(child, next);
       }
 
       if (next.size() > 0) {
@@ -73,21 +73,18 @@ public class RootCommand extends AbstractParentCommand {
     }
   }
 
-  private void deserializeCommand(ICommand command, JsonObject head) {
-    if (command instanceof IParentCommand) {
-      for (ICommand cmd : ((IParentCommand) command).getChildren()) {
-        if(head.has(cmd.getName())) {
-          JsonElement next = head.get(cmd.getName());
-          if(next.isJsonObject()) {
-            deserializeCommand(cmd, next.getAsJsonObject());
-          } else {
-            getLogger().warn("Expected JsonObject, got {}", next.getClass().getSimpleName());
-          }
+  private void deserializeCommand(ICommand command, JsonElement element) {
+    if (command instanceof IParentCommand && element.isJsonObject()) {
+      JsonObject head = element.getAsJsonObject();
+      for (ICommand child : ((IParentCommand) command).getChildren()) {
+        if(head.has(child.getName())) {
+          JsonElement next = head.get(child.getName());
+          deserializeCommand(child, next);
         }
       }
     } else if (command instanceof IJsonSerializable) {
       try {
-        ((IJsonSerializable) command).deserialize(head.get(command.getName()));
+        ((IJsonSerializable) command).deserialize(element);
       } catch (Throwable t) {
         getLogger().warn("Could not deserialize \"{}\"", command.getName());
         getLogger().warn(t, t);
@@ -138,17 +135,14 @@ public class RootCommand extends AbstractParentCommand {
       return;
     }
 
-    JsonObject head;
     try {
       JsonElement e = parser.parse(new String(Files.readAllBytes(config), StandardCharsets.UTF_8));
-      head = e.getAsJsonObject();
+      JsonObject head = e.getAsJsonObject();
+      deserializeCommand(command, head.get(command.getName()));
     } catch (IOException e) {
       getLogger().warn("Failed to read json config \"{}\"", command.getName());
       getLogger().warn(e, e);
-      return;
     }
-
-    deserializeCommand(command, head);
   }
 
   public void deserialize(ICommand command) {
