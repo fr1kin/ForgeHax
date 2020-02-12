@@ -1,10 +1,9 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.*;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.key.Bindings;
+import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -24,6 +23,9 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
+
+import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getGameSettings;
 
 @RegisterMod
 public class Aimbot extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
@@ -159,11 +161,11 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     final float cdOffset = cdRatio <= 1F ? 0F : -(localPlayer.getCooldownPeriod() * (cdRatio - 1F));
     return localPlayer.getCooledAttackStrength((float) getLagComp() + cdOffset)
         >= (Math.min(1F, cdRatio))
-        && (auto_attack.getValue() || Bindings.attack.getBinding().isKeyDown()); // need to work on this
+        && (auto_attack.getValue() || getGameSettings().keyBindAttack.isKeyDown()); // need to work on this
   }
 
   private Projectile getHeldProjectile() {
-    return Projectile.getProjectileByItemStack(Common.getLocalPlayer().getHeldItem(Hand.MAIN_HAND));
+    return Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItem(Hand.MAIN_HAND));
   }
 
   private boolean isHoldingProjectileItem() {
@@ -176,9 +178,9 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
 
   private boolean isVisible(Entity target) {
     if (isProjectileAimbotActivated() && projectile_trace_check.getValue()) {
-      return getHeldProjectile().canHitEntity(EntityUtils.getEyePos(Common.getLocalPlayer()), target);
+      return getHeldProjectile().canHitEntity(EntityUtils.getEyePos(getLocalPlayer()), target);
     } else {
-      return !vis_check.getValue() || Common.getLocalPlayer().canEntityBeSeen(target);
+      return !vis_check.getValue() || getLocalPlayer().canEntityBeSeen(target);
     }
   }
 
@@ -195,7 +197,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
         .filter(EntityUtils::isLiving)
         .filter(EntityUtils::isAlive)
         .filter(EntityUtils::isValidEntity)
-        .filter(ent -> !ent.equals(Common.getLocalPlayer()))
+        .filter(ent -> !ent.equals(getLocalPlayer()))
         .filter(this::isFiltered)
         .filter(ent -> isInRange(tpos, pos))
         .filter(ent -> isInFov(angles, tpos.subtract(pos)))
@@ -250,7 +252,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
 
   private Entity findTarget(final Vec3d pos, final Vec3d viewNormal, final Angle angles) {
-    return StreamSupport.stream(Common.getWorld().getAllEntities().spliterator(), false)
+    return StreamSupport.stream(getWorld().getAllEntities().spliterator(), false)
         .filter(entity -> filterTarget(pos, viewNormal, angles, entity))
         .min(Comparator.comparingDouble(entity -> selecting(pos, viewNormal, angles, entity)))
         .orElse(null);
@@ -259,17 +261,19 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   @Override
   protected void onEnabled() {
     PositionRotationManager.getManager().register(this, PriorityEnum.HIGHEST);
+    BindingHelper.disableContextHandler(getGameSettings().keyBindAttack);
   }
 
   @Override
   public void onDisabled() {
     PositionRotationManager.getManager().unregister(this);
+    BindingHelper.restoreContextHandler(getGameSettings().keyBindAttack);
   }
 
   @Override
   public void onLocalPlayerMovementUpdate(RotationState.Local state) {
-    Vec3d pos = EntityUtils.getEyePos(Common.getLocalPlayer());
-    Vec3d look = Common.getLocalPlayer().getLookVec();
+    Vec3d pos = EntityUtils.getEyePos(getLocalPlayer());
+    Vec3d look = getLocalPlayer().getLookVec();
     Angle angles = AngleHelper.getAngleFacingInDegrees(look);
 
     Entity t = getTarget();
@@ -291,10 +295,10 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
       Angle va = Utils.getLookAtAngles(t).normalize();
       state.setViewAngles(va, silent.getValue());
 
-      if (canAttack(Common.getLocalPlayer(), tar)) {
+      if (canAttack(getLocalPlayer(), tar)) {
         state.invokeLater(rs -> {
-          Common.getPlayerController().attackEntity(Common.getLocalPlayer(), tar);
-          Common.getLocalPlayer().swingArm(Hand.MAIN_HAND);
+          getPlayerController().attackEntity(getLocalPlayer(), tar);
+          getLocalPlayer().swingArm(Hand.MAIN_HAND);
         });
       }
     }

@@ -2,15 +2,17 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.common.events.LeftClickCounterUpdateEvent;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
-import dev.fiki.forgehax.main.util.key.Bindings;
+import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getGameSettings;
 
 @RegisterMod
 public class AutoMine extends ToggleMod {
@@ -22,24 +24,24 @@ public class AutoMine extends ToggleMod {
   }
 
   private void setPressed(boolean state) {
-    Bindings.attack.setPressed(state);
+    getGameSettings().keyBindAttack.setPressed(state);
     pressed = state;
   }
 
   @Override
   protected void onEnabled() {
-    Bindings.attack.bind();
+    BindingHelper.disableContextHandler(getGameSettings().keyBindAttack);
   }
 
   @Override
   protected void onDisabled() {
     setPressed(false);
-    Bindings.attack.unbind();
+    BindingHelper.restoreContextHandler(getGameSettings().keyBindAttack);
   }
 
   @SubscribeEvent
   public void onTick(TickEvent.ClientTickEvent event) {
-    if (!Common.isInWorld()) {
+    if (!isInWorld()) {
       return;
     }
 
@@ -47,7 +49,7 @@ public class AutoMine extends ToggleMod {
       case START: {
         RayTraceResult tr = LocalPlayerUtils.getBlockViewTrace();
 
-        if (tr == null) {
+        if (RayTraceResult.Type.MISS.equals(tr.getType())) {
           setPressed(false);
           return;
         }

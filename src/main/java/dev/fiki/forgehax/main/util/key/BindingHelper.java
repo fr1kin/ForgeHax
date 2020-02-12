@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main.util.key;
 
+import com.google.common.collect.Sets;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
@@ -7,13 +8,13 @@ import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import static dev.fiki.forgehax.main.Common.*;
 
 public class BindingHelper {
+
+  private static final Set<BindHandle> KEYS_HANDLES = Sets.newHashSet();
 
   static {
     // cause key input class to load
@@ -24,7 +25,7 @@ public class BindingHelper {
   private static final IKeyConflictContext EMPTY = new IKeyConflictContext() {
     @Override
     public boolean isActive() {
-      return false;
+      return true;
     }
 
     @Override
@@ -33,16 +34,57 @@ public class BindingHelper {
     }
   };
 
-  public static KeysHandle disableContextHandlers(Collection<KeyBinding> keys) {
-    return new KeysHandle(keys);
+  private static BindHandle getBindHandle(KeyBinding key) {
+    for(BindHandle handle : KEYS_HANDLES) {
+      if(handle.getKey() == key) {
+        return handle;
+      }
+    }
+    return null;
   }
 
-  public static KeysHandle disableContextHandlers(KeyBinding... keys) {
-    return disableContextHandlers(Arrays.asList(keys));
+  public static void restoreContextHandlers(Collection<KeyBinding> keys) {
+    for(KeyBinding key : keys) {
+      BindHandle handle = getBindHandle(key);
+      if(handle != null) {
+        handle.restoreContext();
+        // not being used anymore
+        if(handle.isRestored()) {
+          KEYS_HANDLES.remove(handle);
+        }
+      }
+    }
   }
 
-  public static KeysHandle disableContextHandler(KeyBinding key) {
-    return disableContextHandlers(Collections.singleton(key));
+  public static void restoreContextHandlers(KeyBinding... keys) {
+    restoreContextHandlers(Arrays.asList(keys));
+  }
+
+  public static void restoreContextHandler(KeyBinding key) {
+    restoreContextHandlers(Collections.singleton(key));
+  }
+
+  public static void disableContextHandlers(Collection<KeyBinding> keys) {
+    for(KeyBinding key : keys) {
+      BindHandle handle = getBindHandle(key);
+
+      // create a new handle if one does not exist
+      if(handle == null) {
+        handle = new BindHandle(key);
+        KEYS_HANDLES.add(handle);
+      }
+
+      // replace the current context handler
+      handle.disableContext();
+    }
+  }
+
+  public static void disableContextHandlers(KeyBinding... keys) {
+    disableContextHandlers(Arrays.asList(keys));
+  }
+
+  public static void disableContextHandler(KeyBinding key) {
+    disableContextHandlers(Collections.singleton(key));
   }
 
   private static String trimInputKeyName(InputMappings.Input input) {

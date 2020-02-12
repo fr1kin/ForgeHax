@@ -2,7 +2,6 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.common.ForgeHaxHooks;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
@@ -10,7 +9,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
-import dev.fiki.forgehax.main.util.key.Bindings;
+import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -240,14 +239,15 @@ public class AntiAfkMod extends ToggleMod {
 
       @Override
       public void onTick() {
-        Bindings.forward.setPressed(true);
+        getGameSettings().keyBindForward.setPressed(true);
         // TODO: reimplement view angle setting
       }
 
       @Override
       public void onStart() {
         ForgeHaxHooks.isSafeWalkActivated = true;
-        Bindings.forward.bind();
+
+        BindingHelper.disableContextHandler(getGameSettings().keyBindForward);
 
         Vec3d eye = EntityUtils.getEyePos(getLocalPlayer());
 
@@ -279,8 +279,7 @@ public class AntiAfkMod extends ToggleMod {
 
       @Override
       public void onStop() {
-        Bindings.forward.setPressed(false);
-        Bindings.forward.unbind();
+        BindingHelper.restoreContextHandler(getGameSettings().keyBindForward);
         getLocalPlayer().setMotion(Vec3d.ZERO);
         getModManager().get(SafeWalkMod.class).ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled());
       }

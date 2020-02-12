@@ -2,12 +2,9 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
-import dev.fiki.forgehax.main.util.key.Bindings;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -22,6 +19,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getGameSettings;
 
 /**
  * Created on 9/3/2016 by fr1kin
@@ -51,68 +51,68 @@ public class FreecamMod extends ToggleMod {
 
   @Override
   public void onEnabled() {
-    if (!Common.isInWorld()) {
+    if (!isInWorld()) {
       return;
     }
 
-    if (isRidingEntity = Common.getLocalPlayer().getRidingEntity() != null) {
-      ridingEntity = Common.getLocalPlayer().getRidingEntity();
-      Common.getLocalPlayer().stopRiding();
+    if (isRidingEntity = getLocalPlayer().getRidingEntity() != null) {
+      ridingEntity = getLocalPlayer().getRidingEntity();
+      getLocalPlayer().stopRiding();
     } else {
-      pos = Common.getLocalPlayer().getPositionVector();
+      pos = getLocalPlayer().getPositionVector();
     }
 
     angle = LocalPlayerUtils.getViewAngles();
 
-    originalPlayer = new RemoteClientPlayerEntity(Common.getWorld(), Common.MC.getSession().getProfile());
-    originalPlayer.copyLocationAndAnglesFrom(Common.getLocalPlayer());
-    originalPlayer.rotationYawHead = Common.getLocalPlayer().rotationYawHead;
+    originalPlayer = new RemoteClientPlayerEntity(getWorld(), MC.getSession().getProfile());
+    originalPlayer.copyLocationAndAnglesFrom(getLocalPlayer());
+    originalPlayer.rotationYawHead = getLocalPlayer().rotationYawHead;
     //originalPlayer.inventory = getLocalPlayer().inventory;
     //originalPlayer.container = getLocalPlayer().container;
 
-    Common.getWorld().addEntity(-100, originalPlayer);
+    getWorld().addEntity(-100, originalPlayer);
   }
 
   @Override
   public void onDisabled() {
     flying.disable();
 
-    if (Common.getLocalPlayer() == null || originalPlayer == null) {
+    if (getLocalPlayer() == null || originalPlayer == null) {
       return;
     }
 
-    Common.getLocalPlayer().setPositionAndRotation(pos.x, pos.y, pos.z, angle.getYaw(), angle.getPitch());
-    Common.getWorld().removeEntityFromWorld(-100);
+    getLocalPlayer().setPositionAndRotation(pos.x, pos.y, pos.z, angle.getYaw(), angle.getPitch());
+    getWorld().removeEntityFromWorld(-100);
     originalPlayer = null;
 
-    Common.getLocalPlayer().noClip = false;
-    Common.getLocalPlayer().setVelocity(0, 0, 0);
+    getLocalPlayer().noClip = false;
+    getLocalPlayer().setVelocity(0, 0, 0);
 
     if (isRidingEntity) {
-      Common.getLocalPlayer().startRiding(ridingEntity, true);
+      getLocalPlayer().startRiding(ridingEntity, true);
       ridingEntity = null;
     }
   }
 
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (Common.getLocalPlayer() == null) {
+    if (getLocalPlayer() == null) {
       return;
     }
 
     flying.enable();
-    Common.getLocalPlayer().abilities.setFlySpeed(speed.getValue());
-    Common.getLocalPlayer().noClip = true;
-    Common.getLocalPlayer().onGround = false;
-    Common.getLocalPlayer().fallDistance = 0;
+    getLocalPlayer().abilities.setFlySpeed(speed.getValue());
+    getLocalPlayer().noClip = true;
+    getLocalPlayer().onGround = false;
+    getLocalPlayer().fallDistance = 0;
 
-    if (!Bindings.forward.isPressed()
-        && !Bindings.back.isPressed()
-        && !Bindings.left.isPressed()
-        && !Bindings.right.isPressed()
-        && !Bindings.jump.isPressed()
-        && !Bindings.sneak.isPressed()) {
-      Common.getLocalPlayer().setVelocity(0, 0, 0);
+    if (!getGameSettings().keyBindForward.isPressed()
+        && !getGameSettings().keyBindBack.isPressed()
+        && !getGameSettings().keyBindLeft.isPressed()
+        && !getGameSettings().keyBindRight.isPressed()
+        && !getGameSettings().keyBindJump.isPressed()
+        && !getGameSettings().keyBindSneak.isPressed()) {
+      getLocalPlayer().setVelocity(0, 0, 0);
     }
   }
 
@@ -125,7 +125,7 @@ public class FreecamMod extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketReceived(PacketInboundEvent event) {
-    if (originalPlayer == null || Common.getLocalPlayer() == null) {
+    if (originalPlayer == null || getLocalPlayer() == null) {
       return;
     }
 
@@ -139,19 +139,19 @@ public class FreecamMod extends ToggleMod {
 
   @SubscribeEvent
   public void onWorldLoad(WorldEvent.Load event) {
-    if (originalPlayer == null || Common.getLocalPlayer() == null) {
+    if (originalPlayer == null || getLocalPlayer() == null) {
       return;
     }
 
-    pos = Common.getLocalPlayer().getPositionVector();
+    pos = getLocalPlayer().getPositionVector();
     angle = LocalPlayerUtils.getViewAngles();
   }
 
   @SubscribeEvent
   public void onEntityRender(RenderLivingEvent.Pre<?, ?> event) {
     if (originalPlayer != null
-        && Common.getLocalPlayer() != null
-        && Common.getLocalPlayer().equals(event.getEntity())) {
+        && getLocalPlayer() != null
+        && getLocalPlayer().equals(event.getEntity())) {
       event.setCanceled(true);
     }
   }

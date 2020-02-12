@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main.util.key;
 
+import com.google.common.base.MoreObjects;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +25,8 @@ public class KeyBindingEx extends KeyBinding {
       int keyCode,
       String category,
       IBindChangeCallback changeCallback) {
-    super(description, conflictContext, type, keyCode, category);
+    super(description, MoreObjects.firstNonNull(conflictContext, BindingHelper.getEmptyKeyConflictContext()),
+        type, keyCode, category);
     this.changeCallback = changeCallback;
   }
 
