@@ -12,7 +12,10 @@ import lombok.Getter;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.impl.Log4jContextFactory;
+import org.apache.logging.log4j.spi.LoggerContextFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,24 +75,24 @@ public class ForgeHax {
 
       currentConsole = GAME_CONSOLE_OUTPUT;
 
-      if(!getModManager().searchPackage("dev.fiki.forgehax.main.mods")) {
+      if (!getModManager().searchPackage("dev.fiki.forgehax.main.mods")) {
         logger.error("Could not find any mods to load. Verify the right package is listed");
 
         // ForgeHax won't do anything without mods so stop loading here
         return;
       }
 
-      if(!getModManager().searchPluginDirectory(getBaseDirectory().resolve("plugins"))) {
+      if (!getModManager().searchPluginDirectory(getBaseDirectory().resolve("plugins"))) {
         logger.info("No plugins loaded (this is fine)");
       }
 
       getModManager().loadAll();
 
-      // add shutdown hook to serialize all binds
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> getModManager().forEach(AbstractMod::unload)));
-
       // registerAll mod events
       getModManager().forEach(AbstractMod::load);
+
+      // add shutdown hook to serialize all settings and
+      LoggerProvider.addShutdownHook(this::shutdown);
     } catch (Throwable t) {
       getLogger().error("Fatal error loading ForgeHax!");
       getLogger().error(t, t);
@@ -97,6 +100,10 @@ public class ForgeHax {
       // rethrow so forge warns the client about the errors
       throw t;
     }
+  }
+
+  private void shutdown() {
+    getModManager().forEach(AbstractMod::unload);
   }
 
   private static final IConsole GAME_CONSOLE_OUTPUT = new IConsole() {
@@ -120,7 +127,7 @@ public class ForgeHax {
     private Properties properties = new Properties();
 
     private ConfigProperties() {
-      try(InputStream is = getClass().getResourceAsStream("config.properties")) {
+      try (InputStream is = getClass().getResourceAsStream("config.properties")) {
         Objects.requireNonNull(is, "Could not find resource config.properties");
         properties.load(is);
       } catch (NullPointerException e) {
