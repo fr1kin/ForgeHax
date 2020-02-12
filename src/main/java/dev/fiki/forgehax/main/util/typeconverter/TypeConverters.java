@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.util.typeconverter;
 
 import dev.fiki.forgehax.main.util.color.Color;
+import dev.fiki.forgehax.main.util.key.KeyInput;
 import dev.fiki.forgehax.main.util.typeconverter.types.*;
 import net.minecraft.client.util.InputMappings;
 
@@ -23,5 +24,6 @@ public interface TypeConverters {
 
   TypeConverter<Color> COLOR = new ColorType();
   TypeConverter<InputMappings.Input> INPUT = new InputType();
+  TypeConverter<KeyInput> KEY_INPUT = new KeyInputType();
   TypeConverter<Pattern> PATTERN = new PatternType();
 }

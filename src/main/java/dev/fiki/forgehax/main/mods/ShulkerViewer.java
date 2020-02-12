@@ -2,14 +2,14 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
-import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
+import dev.fiki.forgehax.main.util.key.KeyInput;
+import dev.fiki.forgehax.main.util.key.KeyInputs;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -32,7 +32,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -112,11 +111,11 @@ public class ShulkerViewer extends ToggleMod {
       .build();
 
   private final KeyBindingSetting lockDownKey = newKeyBindingSetting()
-      .name("lock-bind")
+      .name("hold-bind")
       .description("Bind for holding down the shulker view tooltip")
-      .keyName("ShulkerViewer Hold")
+      .keyName("Hold")
       .keyCategory("ForgeHax")
-      .keyCode(GLFW.GLFW_KEY_LEFT_ALT)
+      .key(KeyInputs.KEY_LEFT_ALT)
       .keyPressedListener(this::onLockPressed)
       .keyReleasedListener(this::onLockReleased)
       .build();
@@ -355,7 +354,7 @@ public class ShulkerViewer extends ToggleMod {
 
       SurfaceHelper.drawTextShadow(
           "Hold "
-              + lockDownKey.getKeyInput().getTranslationKey()
+              + lockDownKey.getKeyName()
               + " to view the tooltips of a Shulker boxes content!",
           5,
           getScreenHeight() - (int) (SurfaceHelper.getStringHeight() + 2) * 3 - 2,

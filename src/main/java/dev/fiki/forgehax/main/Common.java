@@ -211,6 +211,12 @@ public interface Common {
   // scheduler
   //
 
+  static void requiresMainThreadExecution() {
+    if(!MC.isOnExecutionThread()) {
+      throw new IllegalStateException("Must be executed on main thread!");
+    }
+  }
+
   static Executor getMainThreadExecutor() {
     return MC;
   }

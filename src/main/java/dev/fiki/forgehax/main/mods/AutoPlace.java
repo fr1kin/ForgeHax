@@ -14,13 +14,13 @@ import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
+import dev.fiki.forgehax.main.util.key.KeyInputs;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.draw.GeometryMasks;
-import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.mods.services.HotbarSelectionService.ResetFunction;
@@ -40,8 +40,6 @@ import java.util.stream.Collectors;
 
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CAnimateHandPacket;
@@ -51,6 +49,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.StringUtils;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 import static dev.fiki.forgehax.main.Common.*;
@@ -118,17 +117,17 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   private final KeyBindingSetting bindSelect = newKeyBindingSetting()
       .name("select-bind")
       .description("Bind for selection")
-      .keyName("AutoPlace Select")
-      .keyCategory("ForgeHax")
-      .key("mouse.left")
+      .keyName("Select")
+      .defaultKeyCategory()
+      .key(KeyInputs.MOUSE_LEFT)
       .build();
 
   private final KeyBindingSetting bindFinish = newKeyBindingSetting()
       .name("finish-bind")
       .description("Bind for finishing")
-      .keyName("AutoPlace Finish")
-      .keyCategory("ForgeHax")
-      .key("mouse.middle")
+      .keyName("Finish")
+      .defaultKeyCategory()
+      .key(KeyInputs.MOUSE_RIGHT)
       .build();
 
   private final Set<BlockPos> renderingBlocks = Sets.newConcurrentHashSet();

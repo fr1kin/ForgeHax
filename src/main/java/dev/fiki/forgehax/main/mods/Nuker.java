@@ -10,6 +10,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
+import dev.fiki.forgehax.main.util.key.KeyInputs;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -116,8 +117,9 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
   private final KeyBindingSetting selectBind = newKeyBindingSetting()
       .name("select-bind")
       .description("Bind for the selection action")
-      .keyName("Nuker Selection")
-      .keyCategory("ForgeHax")
+      .keyName("Selection")
+      .defaultKeyCategory()
+      .key(KeyInputs.MOUSE_LEFT)
       .build();
 
   public Nuker() {

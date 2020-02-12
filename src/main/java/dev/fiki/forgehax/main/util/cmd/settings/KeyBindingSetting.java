@@ -1,10 +1,7 @@
 package dev.fiki.forgehax.main.util.cmd.settings;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
+import com.google.common.collect.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import dev.fiki.forgehax.main.Common;
@@ -15,7 +12,9 @@ import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
 import dev.fiki.forgehax.main.util.key.BindingHelper;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.key.KeyBindingEx;
+import dev.fiki.forgehax.main.util.key.KeyInput;
+import dev.fiki.forgehax.main.util.key.KeyInputs;
 import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverters;
 import lombok.Builder;
@@ -27,14 +26,15 @@ import net.minecraft.client.util.InputMappings;
 
 import java.util.*;
 
+import static dev.fiki.forgehax.main.Common.*;
 import static net.minecraft.client.util.InputMappings.*;
 
-public class KeyBindingSetting extends AbstractCommand implements ISetting<Input>, IJsonSerializable {
+public class KeyBindingSetting extends AbstractCommand implements ISetting<KeyInput>, IJsonSerializable {
   @Getter
   private static final List<KeyBindingSetting> registry = Lists.newCopyOnWriteArrayList();
 
   @Getter
-  private KeyBinding keyBinding;
+  private KeyBindingEx keyBinding;
 
   private Multimap<Class<? extends ICommandListener>, ICommandListener> listeners;
 
@@ -42,63 +42,94 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
   public KeyBindingSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
       @Singular Set<EnumFlag> flags,
-      @NonNull String keyName, Input keyInput, @NonNull String keyCategory,
-      @Singular List<ISettingValueChanged<Input>> changedListeners,
+      @NonNull String keyName, @NonNull KeyInput key, @NonNull String keyCategory,
+      @Singular List<ISettingValueChanged<KeyInput>> changedListeners,
       @Singular List<IKeyDownListener> keyDownListeners,
       @Singular List<IKeyPressedListener> keyPressedListeners,
       @Singular List<IKeyReleasedListener> keyReleasedListeners) {
     super(parent, name, aliases, description, flags);
+
+    // register all listeners
     addListeners(ISettingValueChanged.class, changedListeners);
     addListeners(IKeyDownListener.class, keyDownListeners);
     addListeners(IKeyPressedListener.class, keyPressedListeners);
     addListeners(IKeyReleasedListener.class, keyReleasedListeners);
+
+    // all listeners should be called on the main thread
+    addFlag(EnumFlag.EXECUTOR_MAIN_THREAD);
+
+    // add this to the list of registered keybind settings
     registry.add(this);
 
-    // do this on the main thread
-    Common.addScheduledTask(() -> {
-      this.keyBinding = new KeyBinding(keyName,
-          MoreObjects.firstNonNull(keyInput, INPUT_INVALID).getKeyCode(),
-          keyCategory);
+    // KeyBinding will mutate non-thread safe maps and collections so all
+    // code must be ran on the main thread
+    addScheduledTask(() -> {
+      this.keyBinding = KeyBindingEx.builder()
+          .type(key.getType())
+          .description(keyName)
+          .category(keyCategory)
+          .keyCode(key.getCode())
+          .changeCallback(this::onExternalChanged)
+          .build();
 
       BindingHelper.addBinding(this.keyBinding);
     });
   }
 
-  public Input getKeyInput() {
-    return getKeyBinding().getKey();
+  private void onExternalChanged(Input value) {
+    addScheduledTask(() -> bind(value));
   }
 
-  public void setKeyInput(Input input) {
-    Objects.requireNonNull(input, "missing input");
-    getKeyBinding().bind(input);
+  public Type getType() {
+    return getValue().getType();
+  }
+
+  public KeyInput getKeyInput() {
+    return KeyInput.getKeyInputByCode(getKeyCode());
+  }
+
+  private boolean bind(final Input value) {
+    final Input currentValue = getKeyInput().getInputMapping();
+    if(!Objects.equals(currentValue, value)) {
+      getKeyBinding().setBind(value);
+      BindingHelper.updateKeyBindings();
+      invokeListeners(ISettingValueChanged.class, l -> l.onValueChanged(currentValue, value));
+      callUpdateListeners();
+      return true;
+    }
+    return false;
+  }
+
+  public void bind(int keyCode) {
+    bind(KeyInput.getKeyInputByCode(keyCode).getInputMapping());
+  }
+
+  public void unbind() {
+    bind(INPUT_INVALID);
   }
 
   public int getKeyCode() {
-    return getKeyInput().getKeyCode();
-  }
-
-  public void setKeyCode(int keyCode) {
-    setKeyInput(BindingHelper.getInputByKeyCode(keyCode));
-  }
-
-  public Input getDefaultKeyInput() {
-    return getKeyBinding().getDefault();
-  }
-
-  public void setKeyInvalid() {
-    setKeyInput(INPUT_INVALID);
+    return getKeyBinding().getKey().getKeyCode();
   }
 
   public boolean isKeyDown() {
-    return FastReflection.Fields.KeyBinding_pressed.get(getKeyBinding());
+    return getKeyBinding().isKeyDown();
+  }
+
+  public boolean isKeyDownUnchecked() {
+    return getKeyBinding().isKeyDownUnchecked();
   }
 
   public boolean isPressed() {
     return getKeyBinding().isPressed();
   }
 
+  public int getKeyPressedTime() {
+    return getKeyBinding().getKeyPressedTime();
+  }
+
   public String getKeyName() {
-    return getKeyInput().getTranslationKey();
+    return getKeyInput().getName();
   }
 
   @Override
@@ -107,47 +138,39 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
   }
 
   @Override
-  public Input getValue() {
-    return getKeyInput();
+  public KeyInput getValue() {
+    return KeyInput.getKeyInputByCode(getKeyBinding().getKey().getKeyCode());
   }
 
   @Override
-  public boolean setValue(Input value) {
-    if(!Objects.equals(getValue(), value)) {
-      final Input newValue = value;
-      final Input oldValue = getValue();
-      getKeyBinding().bind(value);
-      invokeListeners(ISettingValueChanged.class, l -> l.onValueChanged(oldValue, newValue));
-      callUpdateListeners();
-      return true;
-    }
-    return false;
+  public boolean setValue(KeyInput value) {
+    return bind(value.getInputMapping());
   }
 
   @Override
   public boolean setValueRaw(String value) {
-    return setValue(TypeConverters.INPUT.parse(value));
+    return setValue(TypeConverters.KEY_INPUT.parse(value));
   }
 
   @Override
-  public Input getDefaultValue() {
-    return getKeyBinding().getDefault();
+  public KeyInput getDefaultValue() {
+    return KeyInput.getKeyInputByCode(getKeyBinding().getKey().getKeyCode());
   }
 
   @Override
-  public Input getMinValue() {
+  public KeyInput getMinValue() {
     return null;
   }
 
   @Override
-  public Input getMaxValue() {
+  public KeyInput getMaxValue() {
     return null;
   }
 
   @Override
   public List<IArgument<?>> getArguments() {
-    return Collections.singletonList(ConverterArgument.<Input>builder()
-        .converter(TypeConverters.INPUT)
+    return Collections.singletonList(ConverterArgument.<KeyInput>builder()
+        .converter(TypeConverters.KEY_INPUT)
         .defaultValue(getDefaultValue())
         .minArgumentsConsumed(1)
         .maxArgumentsConsumed(1)
@@ -156,7 +179,7 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
 
   @Override
   public ICommand onExecute(ArgumentList args) {
-    if(setValue(args.<Input>getFirst().getValue())) {
+    if(setValue(args.<KeyInput>getFirst().getValue())) {
       args.inform("%s = %s", getFullName(), args.<Input>getFirst().getStringValue());
     }
     return null;
@@ -176,13 +199,18 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
 
   @Override
   public JsonElement serialize() {
-    return new JsonPrimitive(TypeConverters.INPUT.convert(getValue()));
+    return new JsonPrimitive(TypeConverters.KEY_INPUT.convert(getValue()));
   }
 
   @Override
   public void deserialize(JsonElement json) {
     if(json.isJsonPrimitive()) {
-      getKeyBinding().bind(TypeConverters.INPUT.parse(json.getAsString()));
+      Input input = Objects.requireNonNull(TypeConverters.KEY_INPUT.parse(json.getAsString()), "key input")
+          .getInputMapping();
+      Objects.requireNonNull(input, "input");
+      // dont use our ::bind method because we don't want to call the listeners
+      // use addScheduledTask because ::getKeyBinding may be null still
+      addScheduledTask(() -> Objects.requireNonNull(getKeyBinding(), "keyBinding still null").bind(input));
     } else {
       throw new IllegalArgumentException("expected JsonPrimitive, got " + json.getClass().getSimpleName());
     }
@@ -190,7 +218,7 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
 
   @Override
   public String toString() {
-    return getName() + " = " + TypeConverters.INPUT.convert(getValue());
+    return getName() + " = " + getKeyName();
   }
 
   public interface IKeyDownListener extends ICommandListener {
@@ -206,12 +234,31 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<Input
   }
 
   public static class KeyBindingSettingBuilder {
-    public KeyBindingSettingBuilder keyCode(int keyCode) {
-      return keyInput(BindingHelper.getInputByKeyCode(keyCode));
+    public KeyBindingSettingBuilder keyInputByCode(int keyCode) {
+      return key(KeyInput.getKeyInputByCode(keyCode));
     }
 
-    public KeyBindingSettingBuilder key(String key) {
-      return keyInput(BindingHelper.getInputByName(key));
+    public KeyBindingSettingBuilder keyInputByName(String key) {
+      return key(KeyInput.getKeyInputByName(key));
+    }
+
+    public KeyBindingSettingBuilder defaultKeyCategory() {
+      return keyCategory("ForgeHax");
+    }
+
+    public KeyBindingSettingBuilder keyName(String name) {
+      this.keyName = (parent == null
+          ? name
+          : (parent.getName() + " " + name)).trim();
+      return this;
+    }
+
+    public KeyBindingSettingBuilder defaultKeyName() {
+      return keyName("");
+    }
+
+    public KeyBindingSettingBuilder unbound() {
+      return key(KeyInputs.UNBOUND);
     }
   }
 }

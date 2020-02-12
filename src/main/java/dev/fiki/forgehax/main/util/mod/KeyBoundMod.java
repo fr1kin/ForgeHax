@@ -2,6 +2,7 @@ package dev.fiki.forgehax.main.util.mod;
 
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
+import dev.fiki.forgehax.main.util.key.KeyInputs;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.client.settings.KeyBinding;
@@ -17,8 +18,9 @@ public abstract class KeyBoundMod extends AbstractMod {
     this.keyBindingSetting = newKeyBindingSetting()
         .name("bind")
         .description("Key bind to enable the mod")
-        .keyName(name)
-        .keyCategory("ForgeHax")
+        .unbound()
+        .defaultKeyName()
+        .defaultKeyCategory()
         .keyDownListener(this::onKeyDown)
         .keyPressedListener(this::onKeyPressed)
         .keyReleasedListener(this::onKeyReleased)

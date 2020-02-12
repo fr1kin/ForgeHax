@@ -5,6 +5,7 @@ import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 
+@Deprecated
 public class KeyBindingHandler implements Common {
   
   private static final IKeyConflictContext OVERRIDE_KEYCONFLICT_CONTEXT =

@@ -6,6 +6,7 @@ import org.lwjgl.glfw.GLFW;
 /**
  * Created on 6/10/2017 by fr1kin
  */
+@Deprecated
 public interface IKeyBind {
   
   void bind(int keyCode);

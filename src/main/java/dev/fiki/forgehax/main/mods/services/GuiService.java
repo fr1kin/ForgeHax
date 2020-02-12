@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods.services;
 
 import dev.fiki.forgehax.main.gui.ClickGui;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
+import dev.fiki.forgehax.main.util.key.KeyInputs;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraft.client.settings.KeyBinding;
@@ -20,8 +20,8 @@ public class GuiService extends ServiceMod {
       .name("bind")
       .description("Bind to open the gui")
       .keyName("GUI")
-      .keyCategory("ForgeHax")
-      .keyCode(GLFW.GLFW_KEY_RIGHT_SHIFT)
+      .defaultKeyCategory()
+      .key(KeyInputs.KEY_RIGHT_SHIFT)
       .keyPressedListener(this::onBindPressed)
       .build();
   
