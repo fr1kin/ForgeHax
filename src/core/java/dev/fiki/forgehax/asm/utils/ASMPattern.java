@@ -4,12 +4,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FrameNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+
+import org.objectweb.asm.tree.*;
 
 public class ASMPattern {
 
@@ -107,6 +103,10 @@ public class ASMPattern {
         throw new IllegalStateException("Attempting to find a label with flag IGNORE_LABELS");
       }
       return add(insn -> insn instanceof LabelNode);
+    }
+
+    public Builder constant(Object value) {
+      return add(insn -> insn instanceof LdcInsnNode && ((LdcInsnNode)insn).cst.equals(value));
     }
     
     public <T extends AbstractInsnNode> Builder custom(Predicate<T> predicate) {

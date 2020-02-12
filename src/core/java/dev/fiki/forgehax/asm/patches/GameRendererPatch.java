@@ -6,6 +6,8 @@ import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.common.events.NearClippingPlaneEvent;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 public class GameRendererPatch {
@@ -75,6 +77,34 @@ public class GameRendererPatch {
       // do not call if hurtcam event cancels execution
 
       node.instructions.insertBefore(beforeViewVectorCall, list);
+    }
+  }
+
+  @RegisterTransformer("ForgeHaxHooks::nearClippingPlane")
+  public static class GetProjectionMatrix extends MethodTransformer {
+    @Override
+    public ASMMethod getMethod() {
+      return Methods.GameRenderer_getProjectionMatrix;
+    }
+
+    @Override
+    public void transform(MethodNode node) {
+      LdcInsnNode nearPlaneNum = ASMPattern.builder().codeOnly()
+          .constant(0.05F)
+          .find(node)
+          .getFirst("Failed to find near plane constant");
+
+      final InsnList eventAargs = new InsnList(); eventAargs.add(new LdcInsnNode(nearPlaneNum.cst));
+      final InsnList newEvent = ASMHelper.newInstance(Type.getInternalName(NearClippingPlaneEvent.class), "(F)V", eventAargs);
+
+      final InsnList list = new InsnList();
+      list.add(newEvent);
+      list.add(new InsnNode(DUP));
+      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_fireEvent_v));
+      list.add(new FieldInsnNode(GETFIELD, Type.getInternalName(NearClippingPlaneEvent.class), "value", "F"));
+
+      node.instructions.insert(nearPlaneNum, list);
+      node.instructions.remove(nearPlaneNum);
     }
   }
 }

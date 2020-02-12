@@ -261,6 +261,11 @@ public interface TypesMc {
         ASMClass.builder()
             .className("net/minecraft/client/renderer/GameRenderer")
             .build();
+
+    ASMClass ActiveRenderInfo =
+        ASMClass.builder()
+            .className("net/minecraft/client/renderer/ActiveRenderInfo")
+            .build();
   }
 
   interface Fields {
@@ -675,6 +680,16 @@ public interface TypesMc {
             .argument(float.class)
             .argument(long.class)
             .argument(Classes.MatrixStack)
+            .build();
+
+    ASMMethod GameRenderer_getProjectionMatrix =
+        Classes.GameRenderer.newChildMethod()
+            .name("getProjectionMatrix")
+            .srg("func_228382_a_")
+            .returns(Classes.Matrix4f)
+            .argument(Classes.ActiveRenderInfo)
+            .argument(float.class)
+            .argument(boolean.class)
             .build();
   }
 }

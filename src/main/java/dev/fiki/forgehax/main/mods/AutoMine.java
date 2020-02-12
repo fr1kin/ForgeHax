@@ -64,7 +64,7 @@ public class AutoMine extends ToggleMod {
   @SubscribeEvent
   public void onLeftClickCouterUpdate(LeftClickCounterUpdateEvent event) {
     // prevent the leftClickCounter from changing
-    event.setCanceled(true);
+    //event.setCanceled(true);
   }
 
   @SubscribeEvent

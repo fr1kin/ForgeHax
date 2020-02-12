@@ -9,6 +9,7 @@ import net.minecraftforge.eventbus.api.Event;
 
 @Getter
 @AllArgsConstructor
+@Cancelable
 public class LeftClickCounterUpdateEvent extends Event {
   private final Minecraft minecraft;
 
