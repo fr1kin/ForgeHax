@@ -7,15 +7,13 @@ import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.*;
-
 @RegisterMod
 public class CutAwayWorld extends ToggleMod {
 
-  private final FloatSetting dist = newFloatSetting()
-      .name("dist")
-      .description("near plane value")
-      .defaultTo(1.5F)
+  private final FloatSetting distance = newFloatSetting()
+      .name("distance")
+      .description("Near plane distance")
+      .defaultTo(5.5f)
       .build();
 
   public CutAwayWorld() {
@@ -25,6 +23,6 @@ public class CutAwayWorld extends ToggleMod {
 
   @SubscribeEvent
   public void nearPlaneEvent(NearClippingPlaneEvent event) {
-    event.value = dist.getValue();
+    event.value = distance.getValue();
   }
 }
