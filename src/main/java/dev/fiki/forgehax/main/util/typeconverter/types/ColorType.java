@@ -28,10 +28,14 @@ public class ColorType extends TypeConverter<Color> {
         return Colors.GREEN;
       case "blue":
         return Colors.BLUE;
+      case "cyan":
+        return Colors.CYAN;
       case "orange":
         return Colors.ORANGE;
       case "purple":
         return Colors.PURPLE;
+      case "magenta":
+        return Colors.MAGENTA;
       case "gray":
       case "grey":
         return Colors.GRAY;
