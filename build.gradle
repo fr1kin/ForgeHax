@@ -5,7 +5,7 @@ buildscript {
     forgehaxVersion = '2.9.0'
 
     minecraftVersion = '1.15.2'
-    forgeVersion = '1.15.2-31.0.1'
+    forgeVersion = '1.15.2-31.1.0'
 
     fmlVersion = '2.0.0-milestone.1'
     lombokVersion = '1.18.10'
