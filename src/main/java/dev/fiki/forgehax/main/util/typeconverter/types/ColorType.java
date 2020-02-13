@@ -41,7 +41,7 @@ public class ColorType extends TypeConverter<Color> {
         return Colors.DARK_RED;
       default:
         if(value.startsWith("0x")) {
-          return Color.of(Integer.parseInt(value.substring(2), 16));
+          return Color.of(Integer.parseUnsignedInt(value.substring(2), 16));
         } else {
           String[] ss = value.split(" ");
 
