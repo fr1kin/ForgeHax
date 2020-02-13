@@ -72,7 +72,7 @@ public interface IParentCommand extends ICommand {
   }
 
   default ColorSetting.ColorSettingBuilder newColorSetting() {
-    return ColorSetting.builder();
+    return ColorSetting.builder().parent(this);
   }
 
   default PatternSetting.PatternSettingBuilder newPatternSetting() {
