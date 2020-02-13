@@ -5,6 +5,7 @@ import static net.minecraft.network.play.client.CEntityActionPacket.*;
 
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
@@ -41,6 +42,12 @@ import net.minecraft.util.math.Vec3d;
 @RegisterMod
 public class Scaffold extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
   private final EnumSet<Direction> horizontal = EnumSet.copyOf(Lists.newArrayList(Direction.Plane.HORIZONTAL));
+
+  private final IntegerSetting delay = newIntegerSetting()
+      .name("delay")
+      .description("Block place delay")
+      .defaultTo(4)
+      .build();
 
   private int tickCount = 0;
   private boolean placing = false;
@@ -147,7 +154,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
 
       func.revert();
 
-      FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
+      FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, delay.getValue());
       placing = true;
       tickCount = 0;
     });
