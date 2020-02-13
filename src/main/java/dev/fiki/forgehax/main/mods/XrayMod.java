@@ -22,7 +22,7 @@ public class XrayMod extends ToggleMod {
       .changedListener(
           (from, to) -> {
             ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (to / 255.f);
-            Common.reloadChunks();
+            Common.reloadChunkSmooth();
           })
       .build();
 
@@ -39,7 +39,7 @@ public class XrayMod extends ToggleMod {
 
     ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (this.opacity.getValue() / 255.f);
     ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
-    Common.reloadChunks();
+    Common.reloadChunkSmooth();
     ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable("Xray");
   }
 
@@ -47,7 +47,7 @@ public class XrayMod extends ToggleMod {
   public void onDisabled() {
     ForgeConfig.CLIENT.forgeLightPipelineEnabled.set(previousForgeLightPipelineEnabled);
     ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
-    Common.reloadChunks();
+    Common.reloadChunkSmooth();
     ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("Xray");
   }
 

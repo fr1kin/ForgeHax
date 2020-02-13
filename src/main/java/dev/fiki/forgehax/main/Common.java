@@ -142,8 +142,30 @@ public interface Common {
     return getWorld() != null;
   }
 
-  static void reloadChunks() {
+  static void reloadChunkSmooth() {
+    addScheduledTask(() -> {
+      if(isInWorld()) {
+        int x = (int) getLocalPlayer().getPosX();
+        int y = (int) getLocalPlayer().getPosY();
+        int z = (int) getLocalPlayer().getPosZ();
 
+        int distance = getGameSettings().renderDistanceChunks * 16;
+
+        getWorldRenderer().markBlockRangeForRenderUpdate(
+            x - distance, y - distance,
+            z - distance, x + distance,
+            y + distance, z + distance
+        );
+      }
+    });
+  }
+
+  static void reloadChunks() {
+    addScheduledTask(() -> {
+      if(isInWorld()) {
+        getWorldRenderer().loadRenderers();
+      }
+    });
   }
 
   //
@@ -160,6 +182,10 @@ public interface Common {
 
   static GameRenderer getGameRenderer() {
     return MC.gameRenderer;
+  }
+
+  static WorldRenderer getWorldRenderer() {
+    return MC.worldRenderer;
   }
 
   static Screen getDisplayScreen() {
