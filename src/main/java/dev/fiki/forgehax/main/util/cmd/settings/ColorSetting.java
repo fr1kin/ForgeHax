@@ -27,4 +27,9 @@ public class ColorSetting extends AbstractSetting<Color> {
   public IConverter<Color> getConverter() {
     return TypeConverters.COLOR;
   }
+
+  @Override
+  protected int getMaxArguments() {
+    return 4;
+  }
 }
