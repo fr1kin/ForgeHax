@@ -2,6 +2,7 @@ package dev.fiki.forgehax.asm;
 
 import cpw.mods.modlauncher.api.*;
 import dev.fiki.forgehax.asm.patches.*;
+import dev.fiki.forgehax.asm.utils.EZ;
 import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.Wrappers;
 import dev.fiki.forgehax.common.LoggerProvider;
@@ -49,6 +50,8 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
         .anyMatch(str -> str.contains("mixin"))) {
       logger.warn("ForgeHaxCore found Mixin. Some patches may not apply.");
     }
+
+    new EZ();
   }
 
   @Nonnull

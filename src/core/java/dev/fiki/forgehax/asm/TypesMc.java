@@ -28,7 +28,7 @@ public interface TypesMc {
 
     ASMClass Entity =
         ASMClass.builder()
-            .className("net/minecraft/Entity")
+            .className("net/minecraft/entity/Entity")
             .build();
 
     ASMClass LivingEntity =
@@ -359,6 +359,14 @@ public interface TypesMc {
             .argument(double.class)
             .argument(double.class)
             .argument(double.class)
+            .build();
+
+    ASMMethod Entity_isSteppingCarefully =
+        Classes.Entity.newChildMethod()
+            .mcp("isSteppingCarefully")
+            .srg("func_226271_bk_")
+            .returns(boolean.class)
+            .noArguments()
             .build();
 
     ASMMethod Entity_doBlockCollisions =

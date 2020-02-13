@@ -22,16 +22,10 @@ import static dev.fiki.forgehax.asm.ASMCommon.*;
 
 @Getter
 public abstract class ClassTransformer implements ITransformer<ClassNode>, TypesMc, Opcodes, ASMHelper.MagicOpcodes {
-
-  private final ASMClass transformingClass;
-
-  public ClassTransformer(ASMClass clazz) {
-    this.transformingClass = clazz;
-
-  }
+  public abstract ASMClass getTransformingClass();
 
   public String getTransformingClassName() {
-    return transformingClass.getClassName();
+    return getTransformingClass().getClassName();
   }
 
   @Nonnull

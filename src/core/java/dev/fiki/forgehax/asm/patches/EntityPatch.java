@@ -2,6 +2,7 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
+import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
@@ -9,16 +10,9 @@ import dev.fiki.forgehax.common.asmtype.ASMMethod;
 
 import java.util.Objects;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 
 public class EntityPatch {
-
 
   @RegisterTransformer("ForgeHaxHooks::onApplyCollisionMotion")
   public static class ApplyEntityCollision extends MethodTransformer {
@@ -87,8 +81,16 @@ public class EntityPatch {
     }
   }
 
-  @RegisterTransformer("ForgeHaxHooks.isSafeWalkActivated")
+  //@RegisterTransformer("ForgeHaxHooks.isSafeWalkActivated")
   public static class Move extends MethodTransformer {
+
+    private boolean isInvokeIsSteppingCarefullyCall(AbstractInsnNode node) {
+      if(node instanceof MethodInsnNode) {
+        MethodInsnNode mn = (MethodInsnNode) node;
+        return Methods.Entity_isSteppingCarefully.isNameEqual(mn.name);
+      }
+      return false;
+    }
 
     @Override
     public ASMMethod getMethod() {
@@ -97,36 +99,28 @@ public class EntityPatch {
 
     @Override
     public void transform(MethodNode main) {
-      AbstractInsnNode sneakFlagNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[]{IFEQ, ALOAD, INSTANCEOF, IFEQ, 0x00, 0x00, LDC, DSTORE},
-              "xxxx??xx");
+      AbstractInsnNode sneakFlagNode = ASMPattern.builder()
+          .find(main)
+          .getFirst("could not find call to Entity::isSteppingCarefully");
 
-      Objects.requireNonNull(sneakFlagNode, "Find pattern failed for sneakFlagNode");
+      AbstractInsnNode _jumpNode = sneakFlagNode.getNext();
 
-      AbstractInsnNode instanceofCheck = sneakFlagNode.getNext();
-      for (int i = 0; i < 3; i++) {
-        instanceofCheck = instanceofCheck.getNext();
-        main.instructions.remove(instanceofCheck.getPrevious());
+      if(!(_jumpNode instanceof JumpInsnNode)) {
+        throw new Error("expected node after INVOKEVIRTUAL to be a jump, but got "
+            + _jumpNode.getClass().getSimpleName());
       }
 
       // the original label to the jump
-      LabelNode jumpToLabel = ((JumpInsnNode) sneakFlagNode).label;
-      // the or statement jump if isSneaking returns false
-      LabelNode orJump = new LabelNode();
-
-      InsnList insnList = new InsnList();
-      insnList.add(
-          new JumpInsnNode(
-              IFNE, orJump)); // if not equal, jump past the ForgeHaxHooks.isSafeWalkActivated
-      insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isSafeWalkActivated));
-      insnList.add(new JumpInsnNode(IFEQ, jumpToLabel));
-      insnList.add(orJump);
-
-      AbstractInsnNode previousNode = sneakFlagNode.getPrevious();
-      main.instructions.remove(sneakFlagNode); // delete IFEQ
-      main.instructions.insert(previousNode, insnList); // insert new instructions
+//      LabelNode skipJump = ((JumpInsnNode) _jumpNode).label;
+//
+//      InsnList insnList = new InsnList();
+//      insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isSafeWalkActivated));
+//      insnList.add(new JumpInsnNode(IFEQ, skipJump));
+//      insnList.add(thatorJump);
+//
+//      AbstractInsnNode previousNode = sneakFlagNode.getPrevious();
+//      main.instructions.remove(sneakFlagNode); // delete IFEQ
+//      main.instructions.insert(previousNode, insnList); // insert new instructions
     }
   }
 
