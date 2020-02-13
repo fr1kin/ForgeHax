@@ -1,6 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.events.RenderEvent;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
@@ -13,6 +15,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -27,12 +30,22 @@ public class SpawnerEspMod extends ToggleMod {
       .defaultTo(Colors.RED)
       .build();
 
+  private final BooleanSetting antiAliasing = newBooleanSetting()
+      .name("anti-aliasing")
+      .description("Makes lines appear smoother. May impact framerate significantly")
+      .defaultTo(false)
+      .build();
+
   public SpawnerEspMod() {
     super(Category.RENDER, "SpawnerESP", false, "Spawner esp");
   }
 
   @SubscribeEvent
   public void onRender(RenderEvent event) {
+    if(spawnerColor.getValue().getAlpha() <= 0) {
+      return;
+    }
+
     BufferBuilderEx buffer = event.getBuffer();
     buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
@@ -49,6 +62,13 @@ public class SpawnerEspMod extends ToggleMod {
           }
         });
 
+    RenderSystem.enableBlend();
+    if(antiAliasing.getValue()) {
+      GL11.glEnable(GL11.GL_LINE_SMOOTH);
+    }
+
     buffer.draw();
+
+    GL11.glDisable(GL11.GL_LINE_SMOOTH);
   }
 }

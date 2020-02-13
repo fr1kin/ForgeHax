@@ -1,6 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.events.RenderEvent;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.color.Colors;
@@ -22,6 +24,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -64,6 +67,12 @@ public class StorageESPMod extends ToggleMod {
       .name("hopper-color")
       .description("Color for Hoppers")
       .defaultTo(Colors.GRAY)
+      .build();
+
+  private final BooleanSetting antiAliasing = newBooleanSetting()
+      .name("anti-aliasing")
+      .description("Makes lines appear smoother. May impact framerate significantly")
+      .defaultTo(false)
       .build();
 
   public StorageESPMod() {
@@ -130,6 +139,13 @@ public class StorageESPMod extends ToggleMod {
       }
     });
 
+    RenderSystem.enableBlend();
+    if(antiAliasing.getValue()) {
+      GL11.glEnable(GL11.GL_LINE_SMOOTH);
+    }
+
     buffer.draw();
+
+    GL11.glDisable(GL11.GL_LINE_SMOOTH);
   }
 }
