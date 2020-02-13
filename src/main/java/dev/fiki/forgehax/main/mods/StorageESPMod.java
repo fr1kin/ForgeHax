@@ -5,11 +5,13 @@ import dev.fiki.forgehax.main.util.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
+import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
@@ -19,7 +21,10 @@ import net.minecraft.entity.item.minecart.FurnaceMinecartEntity;
 import net.minecraft.entity.item.minecart.HopperMinecartEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -107,17 +112,26 @@ public class StorageESPMod extends ToggleMod {
     BufferBuilderEx buffer = event.getBuffer();
     buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
+    buffer.setTranslation(event.getProjectedPos().scale(-1));
+
     worldTileEntities().forEach(ent -> {
       Color color = getTileEntityColor(ent);
       if(color != null && color.getAlpha() > 0) {
-        buffer.appendOutlinedCuboid(ent.getRenderBoundingBox(), GeometryMasks.Line.ALL, color);
+        BlockState state = ent.getBlockState();
+        VoxelShape voxel = state.getCollisionShape(getWorld(), ent.getPos());
+        if(!voxel.isEmpty()) {
+          buffer.appendOutlinedCuboid(voxel.getBoundingBox().offset(ent.getPos()), GeometryMasks.Line.ALL, color);
+        }
       }
     });
 
     worldEntities().forEach(ent -> {
       Color color = getEntityColor(ent);
       if(color != null && color.getAlpha() > 0) {
-        buffer.appendOutlinedCuboid(ent.getRenderBoundingBox(), GeometryMasks.Line.ALL, color);
+        buffer.appendOutlinedCuboid(ent.getBoundingBox()
+            .offset(ent.getPositionVector().scale(-1D))
+            .offset(EntityUtils.getInterpolatedPos(ent, event.getPartialTicks())),
+            GeometryMasks.Line.ALL, color);
       }
     });
 

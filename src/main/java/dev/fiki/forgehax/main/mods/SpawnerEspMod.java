@@ -9,10 +9,12 @@ import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -38,10 +40,18 @@ public class SpawnerEspMod extends ToggleMod {
     BufferBuilderEx buffer = event.getBuffer();
     buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
+    buffer.setTranslation(event.getProjectedPos().scale(-1));
+
     worldTileEntities()
         .filter(MobSpawnerTileEntity.class::isInstance)
-        .forEach(ent -> buffer.appendOutlinedCuboid(ent.getRenderBoundingBox(),
-            GeometryMasks.Line.ALL, spawnerColor.getValue()));
+        .forEach(ent -> {
+          BlockState state = ent.getBlockState();
+          VoxelShape voxel = state.getCollisionShape(getWorld(), ent.getPos());
+          if(!voxel.isEmpty()) {
+            buffer.appendOutlinedCuboid(voxel.getBoundingBox().offset(ent.getPos()),
+                GeometryMasks.Line.ALL, spawnerColor.getValue());
+          }
+        });
 
     buffer.draw();
   }

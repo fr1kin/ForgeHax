@@ -332,7 +332,7 @@ public class BufferBuilderEx extends BufferBuilder {
 
   public BufferBuilderEx appendOutlinedCuboid(AxisAlignedBB bb,
       final int sides, Color color) {
-    return appendOutlinedCuboid(bb.minX, bb.minY, bb.maxX,
+    return appendOutlinedCuboid(bb.minX, bb.minY, bb.minZ,
         bb.maxX, bb.maxY, bb.maxZ, sides, color);
   }
 

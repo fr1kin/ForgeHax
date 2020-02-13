@@ -8,6 +8,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.Event;
 
+import static dev.fiki.forgehax.main.Common.MC;
+
 /**
  * Created on 5/5/2017 by fr1kin
  */
@@ -22,7 +24,7 @@ public class RenderEvent extends Event {
     this.matrixStack = matrixStack;
     this.buffer = new BufferBuilderEx(tessellator);
     this.projectedPos = projectedPos;
-    this.partialTicks = partialTicks;
+    this.partialTicks = MC.getRenderPartialTicks();
   }
 
   public Tessellator getTessellator() {
