@@ -16,7 +16,6 @@ import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.draw.GeometryMasks;
-import dev.fiki.forgehax.main.util.tesselation.GeometryTessellator;
 
 import java.util.Set;
 import java.util.UUID;
@@ -28,7 +27,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.opengl.GL11;
 
 import static dev.fiki.forgehax.main.Common.*;
 
