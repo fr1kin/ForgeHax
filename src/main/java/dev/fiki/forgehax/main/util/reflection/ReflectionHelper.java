@@ -7,37 +7,42 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public class ReflectionHelper {
-  
-  public static <F, T extends F> void copyOf(F from, T to, boolean ignoreFinal)
+  public static <H, T extends H> void copyOf(H host, T target,
+      Class<? extends H> startClass,
+      Class<? extends H> endClass,
+      Predicate<Field> excludes)
     throws NoSuchFieldException, IllegalAccessException {
-    Objects.requireNonNull(from);
-    Objects.requireNonNull(to);
+    Objects.requireNonNull(host);
+    Objects.requireNonNull(target);
     
-    Class<?> clazz = from.getClass();
-    
-    for (Field field : clazz.getDeclaredFields()) {
+    for (Field field : startClass.getDeclaredFields()) {
       makePublic(field);
-      
-      if (isStatic(field) || (ignoreFinal && isFinal(field))) {
+
+      if(isStatic(field) || excludes.test(field)) {
         continue;
-      } else {
+      }
+
+      if(isFinal(field)) {
         makeMutable(field);
       }
       
-      field.set(to, field.get(from));
+      field.set(target, field.get(host));
+    }
+
+    if(!startClass.equals(endClass) && startClass.getSuperclass() != null) {
+      copyOf(host, target, startClass.getSuperclass(), endClass, excludes);
     }
   }
   
-  public static <F, T extends F> void copyOf(F from, T to)
+  public static <H, T extends H> void shallowCopyOf(H host, T target)
     throws NoSuchFieldException, IllegalAccessException {
-    copyOf(from, to, false);
+    copyOf(host, target, host.getClass(), host.getClass(), ReflectionHelper::isFinal);
   }
-  
+
   public static boolean isStatic(Member instance) {
     return (instance.getModifiers() & Modifier.STATIC) != 0;
   }

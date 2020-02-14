@@ -76,7 +76,7 @@ public class ExtraInventory extends ToggleMod {
   private InventoryScreen createGuiWrapper(InventoryScreen gui) {
     try {
       GuiInventoryWrapper wrapper = new GuiInventoryWrapper();
-      ReflectionHelper.copyOf(gui, wrapper); // copy all fields from the provided gui to the wrapper
+      ReflectionHelper.shallowCopyOf(gui, wrapper); // copy all fields from the provided gui to the wrapper
       return wrapper;
     } catch (NoSuchFieldException | IllegalAccessException e) {
       getLogger().error(e, e);

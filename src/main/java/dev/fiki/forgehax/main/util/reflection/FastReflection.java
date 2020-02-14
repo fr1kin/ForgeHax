@@ -15,6 +15,7 @@ import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.EditSignScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.multiplayer.PlayerController;
+import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GameRenderer;
@@ -51,6 +52,7 @@ import net.minecraft.util.Timer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.storage.ChunkLoader;
 
@@ -258,6 +260,7 @@ public interface FastReflection {
     /**
      * ClientPlayerEntity
      */
+
     FastField<Float> ClientPlayerEntity_horseJumpPower =
         FastField.builder()
             .parent(ClientPlayerEntity.class)
@@ -268,11 +271,23 @@ public interface FastReflection {
     /**
      * GuiConnecting
      */
+
     FastField<NetworkManager> ConnectingScreen_networkManager =
         FastField.builder()
             .parent(ConnectingScreen.class)
             .mcp("networkManager")
             .srg("field_146371_g")
+            .build();
+
+    /**
+     * net.minecraft.client.network.play.NetworkPlayerInfo
+     */
+
+    FastField<GameType> NetworkPlayerInfo_gameType =
+        FastField.builder()
+            .parent(NetworkPlayerInfo.class)
+            .mcp("gameType")
+            .srg("field_178866_b")
             .build();
 
     /**
