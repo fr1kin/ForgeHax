@@ -2,9 +2,9 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.entity.mobtypes.MobType;
-import dev.fiki.forgehax.main.util.entity.mobtypes.MobTypeEnum;
-import dev.fiki.forgehax.main.util.entity.mobtypes.MobTypeRegistry;
+import dev.fiki.forgehax.main.util.entity.mobtypes.EntityRelationProvider;
+import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
+import dev.fiki.forgehax.main.util.entity.mobtypes.EntityRelations;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -19,23 +19,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod
 public class AntiBatsMod extends ToggleMod {
-
-  private static final MobType BATS_MOBTYPE = new MobType() {
-    @Override
-    protected PriorityEnum getPriority() {
-      return PriorityEnum.LOW;
-    }
-
-    @Override
-    public boolean isMobType(Entity entity) {
-      return entity instanceof BatEntity;
-    }
-
-    @Override
-    protected MobTypeEnum getMobTypeUnchecked(Entity entity) {
-      return MobTypeEnum.INVALID;
-    }
-  };
+  private static final EntityRelationProvider<BatEntity> BAT_PROVIDER = new BatRelationProvider();
 
   public AntiBatsMod() {
     super(Category.RENDER, "AntiBats", false, "666 KILL BATS 666");
@@ -43,13 +27,13 @@ public class AntiBatsMod extends ToggleMod {
 
   @Override
   public void onEnabled() {
-    MobTypeRegistry.register(BATS_MOBTYPE);
+    EntityRelations.register(BAT_PROVIDER);
     EntityUtils.isBatsDisabled = true;
   }
 
   @Override
   public void onDisabled() {
-    MobTypeRegistry.unregister(BATS_MOBTYPE);
+    EntityRelations.unregister(BAT_PROVIDER);
     EntityUtils.isBatsDisabled = false;
   }
 
@@ -70,6 +54,28 @@ public class AntiBatsMod extends ToggleMod {
       event.setVolume(0.f);
       event.setPitch(0.f);
       event.setCanceled(true);
+    }
+  }
+
+  static class BatRelationProvider extends EntityRelationProvider<BatEntity> {
+    @Override
+    protected PriorityEnum getPriority() {
+      return PriorityEnum.DEFAULT;
+    }
+
+    @Override
+    public boolean isProviderFor(Entity entity) {
+      return entity instanceof BatEntity;
+    }
+
+    @Override
+    public RelationState getDefaultRelationState() {
+      return RelationState.FRIENDLY;
+    }
+
+    @Override
+    public RelationState getCurrentRelationState(BatEntity entity) {
+      return RelationState.INVALID;
     }
   }
 }

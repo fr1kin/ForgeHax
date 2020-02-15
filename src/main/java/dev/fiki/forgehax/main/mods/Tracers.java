@@ -7,7 +7,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.entity.mobtypes.MobTypeEnum;
+import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
 import dev.fiki.forgehax.main.util.math.Plane;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
@@ -116,12 +116,12 @@ public class Tracers extends ToggleMod implements Colors {
         .filter(entity -> !Objects.equals(entity, Common.getLocalPlayer()))
         .filter(LivingEntity.class::isInstance)
         .map(EntityRelations::new)
-        .filter(er -> !er.getRelationship().equals(MobTypeEnum.INVALID))
+        .filter(er -> !er.getRelationship().equals(RelationState.INVALID))
         .filter(EntityRelations::isOptionEnabled)
         .forEach(
             er -> {
               Entity entity = er.getEntity();
-              MobTypeEnum relationship = er.getRelationship();
+              RelationState relationship = er.getRelationship();
 
               Vec3d entityPos =
                   EntityUtils.getInterpolatedEyePos(entity, Common.MC.getRenderPartialTicks());
@@ -196,7 +196,7 @@ public class Tracers extends ToggleMod implements Colors {
 
                   // --------------------
 
-                  int size = relationship.equals(MobTypeEnum.PLAYER) ? 8 : 5;
+                  int size = relationship.equals(RelationState.PLAYER) ? 8 : 5;
 
                   pushMatrix();
 
@@ -245,7 +245,7 @@ public class Tracers extends ToggleMod implements Colors {
   private class EntityRelations implements Comparable<EntityRelations> {
 
     private final Entity entity;
-    private final MobTypeEnum relationship;
+    private final RelationState relationship;
 
     public EntityRelations(Entity entity) {
       Objects.requireNonNull(entity);
@@ -257,7 +257,7 @@ public class Tracers extends ToggleMod implements Colors {
       return entity;
     }
 
-    public MobTypeEnum getRelationship() {
+    public RelationState getRelationship() {
       return relationship;
     }
 

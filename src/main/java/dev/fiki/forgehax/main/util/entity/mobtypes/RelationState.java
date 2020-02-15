@@ -3,7 +3,7 @@ package dev.fiki.forgehax.main.util.entity.mobtypes;
 /**
  * Created on 6/27/2017 by fr1kin
  */
-public enum MobTypeEnum {
+public enum RelationState {
   /**
    * Is a player
    */

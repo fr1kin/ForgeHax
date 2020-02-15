@@ -27,8 +27,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.event.RenderNameplateEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod
 public class ESP extends ToggleMod implements Fonts {
@@ -47,6 +51,15 @@ public class ESP extends ToggleMod implements Fonts {
     DISABLED,
     SIMPLE,
     ENCHANTMENTS
+  }
+
+  public enum RenderSettings {
+    OFF,
+    NAME,
+    HEALTH,
+    HEALTH_BAR,
+    DISTANCE,
+    ;
   }
 
   public final EnumSetting<DrawOptions> players = newEnumSetting(DrawOptions.class)
@@ -71,86 +84,83 @@ public class ESP extends ToggleMod implements Fonts {
     super(Category.RENDER, "ESP", false, "Shows entity locations and info");
   }
 
-//  @SubscribeEvent
-//  public void onRenderPlayerNameTag(RenderLivingEvent.Specials.Pre event) {
-//    if (EntityUtils.isPlayer(event.getEntity())) {
-//      event.setCanceled(true);
-//    }
-//  } // TODO: 1.15 disable nametag rendering
+  @SubscribeEvent
+  public void onRenderPlayerNameTag(RenderNameplateEvent event) {
+    if (EntityUtils.isPlayer(event.getEntity())) {
+      event.setResult(Event.Result.DENY);
+    }
+  }
 
   @SubscribeEvent(priority = EventPriority.LOW)
   public void onRender2D(final Render2DEvent event) {
-    StreamSupport.stream(Common.getWorld().getAllEntities().spliterator(), false)
+    worldEntities()
         .filter(EntityUtils::isLiving)
-        .filter(
-            entity ->
-                !Objects.equals(Common.getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
+        .filter(EntityUtils::notLocalPlayer)
         .filter(EntityUtils::isAlive)
         .filter(EntityUtils::isValidEntity)
         .map(LivingEntity.class::cast)
-        .forEach(
-            living -> {
-              final EnumSetting<DrawOptions> setting;
+        .forEach(living -> {
+          final EnumSetting<DrawOptions> setting;
 
-              switch (EntityUtils.getRelationship(living)) {
-                case PLAYER:
-                  setting = players;
-                  break;
-                case HOSTILE:
-                  setting = mobs_hostile;
-                  break;
-                case NEUTRAL:
-                case FRIENDLY:
-                  setting = mobs_friendly;
-                  break;
-                default:
-                  setting = null;
-                  break;
-              }
+          switch (EntityUtils.getRelationship(living)) {
+            case PLAYER:
+              setting = players;
+              break;
+            case HOSTILE:
+              setting = mobs_hostile;
+              break;
+            case NEUTRAL:
+            case FRIENDLY:
+              setting = mobs_friendly;
+              break;
+            default:
+              setting = null;
+              break;
+          }
 
-              if (setting == null || DrawOptions.DISABLED.equals(setting.getValue())) {
-                return;
-              }
+          if (setting == null || DrawOptions.DISABLED.equals(setting.getValue())) {
+            return;
+          }
 
-              Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
-              Vec3d topPos =
-                  bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.getPosY(), 0.D);
+          Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
+          Vec3d topPos =
+              bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.getPosY(), 0.D);
 
-              Plane top = VectorUtils.toScreen(topPos);
-              Plane bot = VectorUtils.toScreen(bottomPos);
+          Plane top = VectorUtils.toScreen(topPos);
+          Plane bot = VectorUtils.toScreen(bottomPos);
 
-              // stop here if neither are visible
-              if (!top.isVisible() && !bot.isVisible()) {
-                return;
-              }
+          // stop here if neither are visible
+          if (!top.isVisible() && !bot.isVisible()) {
+            return;
+          }
 
-              double topX = top.getX();
-              double topY = top.getY() + 1.D;
-              double botX = bot.getX();
-              double botY = bot.getY() + 1.D;
-              double height = (bot.getY() - top.getY());
-              double width = height;
+          double topX = top.getX();
+          double topY = top.getY() + 1.D;
+          double botX = bot.getX();
+          double botY = bot.getY() + 1.D;
+          double height = (bot.getY() - top.getY());
+          double width = height;
 
-              AtomicDouble offset = new AtomicDouble();
-              TopComponents.REVERSE_VALUES
-                  .stream()
-                  .filter(comp -> comp.valid(setting))
-                  .forEach(
-                      comp -> {
-                        double os = offset.get();
-                        offset.set(
-                            os
-                                + comp.draw(
-                                event.getSurfaceBuilder(),
-                                living,
-                                topX,
-                                topY - os,
-                                botX,
-                                botY,
-                                width,
-                                height));
-                      });
-            });
+          AtomicDouble offset = new AtomicDouble();
+          TopComponents.REVERSE_VALUES
+              .stream()
+              .filter(comp -> comp.valid(setting))
+              .forEach(
+                  comp -> {
+                    double os = offset.get();
+                    offset.set(
+                        os
+                            + comp.draw(
+                            event.getSurfaceBuilder(),
+                            living,
+                            topX,
+                            topY - os,
+                            botX,
+                            botY,
+                            width,
+                            height));
+                  });
+        });
   }
 
   private interface IComponent {
