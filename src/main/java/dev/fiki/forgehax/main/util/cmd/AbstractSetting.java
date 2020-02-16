@@ -21,7 +21,8 @@ import java.util.Objects;
 
 @Getter
 public abstract class AbstractSetting<E> extends AbstractCommand implements ISetting<E> {
-  private Multimap<Class<? extends ICommandListener>, ICommandListener> listeners;
+  private final Multimap<Class<? extends ICommandListener>, ICommandListener> listeners =
+      Multimaps.newListMultimap(Maps.newConcurrentMap(), Lists::newCopyOnWriteArrayList);
 
   private final E defaultValue;
   private final E minValue;
@@ -47,11 +48,6 @@ public abstract class AbstractSetting<E> extends AbstractCommand implements ISet
 
   protected int getMaxArguments() {
     return 1;
-  }
-
-  @Override
-  protected void init() {
-    this.listeners = Multimaps.newListMultimap(Maps.newConcurrentMap(), Lists::newCopyOnWriteArrayList);
   }
 
   @Override

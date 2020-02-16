@@ -33,10 +33,11 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
   @Getter
   private static final List<KeyBindingSetting> registry = Lists.newCopyOnWriteArrayList();
 
+  private final Multimap<Class<? extends ICommandListener>, ICommandListener> listeners =
+      Multimaps.newListMultimap(Maps.newConcurrentMap(), Lists::newCopyOnWriteArrayList);
+
   @Getter
   private KeyBindingEx keyBinding;
-
-  private Multimap<Class<? extends ICommandListener>, ICommandListener> listeners;
 
   @Builder
   public KeyBindingSetting(IParentCommand parent,
@@ -132,11 +133,6 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
 
   public String getKeyName() {
     return getKeyInput().getName();
-  }
-
-  @Override
-  protected void init() {
-    this.listeners = Multimaps.newListMultimap(Maps.newConcurrentMap(), Lists::newCopyOnWriteArrayList);
   }
 
   @Override

@@ -34,8 +34,6 @@ public abstract class AbstractCommand implements ICommand {
     es.addAll(flags);
     this.flags = Collections.synchronizedSet(es);
 
-    this.init();
-
     // set the parent, but don't add it until this object is fully constructed
     this.parent = parent;
   }
@@ -49,8 +47,6 @@ public abstract class AbstractCommand implements ICommand {
       parent.addChild(this);
     }
   }
-
-  protected void init() { }
 
   protected <T extends ICommandListener> void invokeListeners(Class<T> type, Consumer<T> call) {
     CommandHelper.getExecutor(this)
