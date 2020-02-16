@@ -36,6 +36,14 @@ public abstract class AbstractCommand implements ICommand {
 
     this.init();
 
+    // set the parent, but don't add it until this object is fully constructed
+    this.parent = parent;
+  }
+
+  /**
+   * This method should be called when the top most constructor has finished.
+   */
+  protected void onFullyConstructed() {
     if(parent != null) {
       // all this command to the parent
       parent.addChild(this);

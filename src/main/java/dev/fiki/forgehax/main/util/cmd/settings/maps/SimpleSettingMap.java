@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class SimpleSettingMap<K, V> extends AbstractSettingMap<K, V, Map<K, V>> {
+public final class SimpleSettingMap<K, V> extends AbstractSettingMap<K, V, Map<K, V>> {
   @Getter(AccessLevel.PROTECTED)
   private final IArgument<K> keyArgumentConverter;
   @Getter(AccessLevel.PROTECTED)
@@ -98,6 +98,8 @@ public class SimpleSettingMap<K, V> extends AbstractSettingMap<K, V, Map<K, V>> 
           args.inform("Cleared %d entries from the map.", size);
         })
         .build();
+
+    onFullyConstructed();
   }
 
   @Override

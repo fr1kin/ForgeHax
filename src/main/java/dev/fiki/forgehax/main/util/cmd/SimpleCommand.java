@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
-public class SimpleCommand extends AbstractCommand {
+public final class SimpleCommand extends AbstractCommand {
   private final List<IArgument<?>> arguments;
   private final ICommandConsumer executor;
 
@@ -21,6 +21,7 @@ public class SimpleCommand extends AbstractCommand {
     super(parent, name, aliases, description, flags);
     this.arguments = arguments;
     this.executor = executor;
+    onFullyConstructed();
   }
 
   @SneakyThrows

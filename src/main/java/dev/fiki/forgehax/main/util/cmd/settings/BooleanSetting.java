@@ -12,7 +12,7 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public class BooleanSetting extends AbstractSetting<Boolean> {
+public final class BooleanSetting extends AbstractSetting<Boolean> {
   @Builder
   public BooleanSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -20,6 +20,7 @@ public class BooleanSetting extends AbstractSetting<Boolean> {
       @NonNull Boolean defaultTo) {
     super(parent, name, aliases, description, flags, defaultTo, Boolean.FALSE, Boolean.TRUE);
     addListeners(ISettingValueChanged.class, changedListeners);
+    onFullyConstructed();
   }
 
   @Override

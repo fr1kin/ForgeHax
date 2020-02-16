@@ -29,7 +29,7 @@ import java.util.*;
 import static dev.fiki.forgehax.main.Common.*;
 import static net.minecraft.client.util.InputMappings.*;
 
-public class KeyBindingSetting extends AbstractCommand implements ISetting<KeyInput>, IJsonSerializable {
+public final class KeyBindingSetting extends AbstractCommand implements ISetting<KeyInput>, IJsonSerializable {
   @Getter
   private static final List<KeyBindingSetting> registry = Lists.newCopyOnWriteArrayList();
 
@@ -74,6 +74,8 @@ public class KeyBindingSetting extends AbstractCommand implements ISetting<KeyIn
 
       BindingHelper.addBinding(this.keyBinding);
     });
+
+    onFullyConstructed();
   }
 
   private void onExternalChanged(Input value) {

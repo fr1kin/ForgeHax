@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-public class LongSetting extends AbstractSetting<Long> {
+public final class LongSetting extends AbstractSetting<Long> {
   @Builder
   public LongSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -22,6 +22,7 @@ public class LongSetting extends AbstractSetting<Long> {
       @NonNull Long defaultTo, Long min, Long max) {
     super(parent, name, aliases, description, flags, defaultTo, min, max);
     addListeners(ISettingValueChanged.class, changedListeners);
+    onFullyConstructed();
   }
 
   @Override

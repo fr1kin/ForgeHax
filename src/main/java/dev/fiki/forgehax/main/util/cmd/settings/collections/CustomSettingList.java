@@ -4,6 +4,7 @@ import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
 import lombok.Builder;
+import lombok.Singular;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,15 +12,16 @@ import java.util.ListIterator;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class CustomSettingList<E extends IJsonSerializable>
+public final class CustomSettingList<E extends IJsonSerializable>
     extends BaseCustomSettingCollection<E, List<E>> implements List<E> {
   @Builder
   public CustomSettingList(IParentCommand parent,
-      String name, Set<String> aliases, String description,
-      Set<EnumFlag> flags,
-      Supplier<List<E>> supplier,
+      String name, @Singular Set<String> aliases, String description,
+      @Singular Set<EnumFlag> flags,
+      Supplier<List<E>> supplier, @Singular("defaultsTo") Collection<E> defaultTo,
       Supplier<E> valueSupplier) {
-    super(parent, name, aliases, description, flags, supplier, valueSupplier);
+    super(parent, name, aliases, description, flags, supplier, defaultTo, valueSupplier);
+    onFullyConstructed();
   }
 
   @Override

@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class CustomSettingMap<K extends IJsonSerializable, V extends IJsonSerializable>
+public final class CustomSettingMap<K extends IJsonSerializable, V extends IJsonSerializable>
     extends AbstractSettingMap<K, V, Map<K, V>> {
   @Getter(AccessLevel.PROTECTED)
   private final Supplier<K> keySupplier;
@@ -32,6 +32,7 @@ public class CustomSettingMap<K extends IJsonSerializable, V extends IJsonSerial
     super(parent, name, aliases, description, flags, supplier);
     this.keySupplier = keySupplier;
     this.valueSupplier = valueSupplier;
+    onFullyConstructed();
   }
 
   @Override

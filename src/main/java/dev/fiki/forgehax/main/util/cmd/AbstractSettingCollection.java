@@ -19,9 +19,10 @@ public abstract class AbstractSettingCollection<E, L extends Collection<E>>
   public AbstractSettingCollection(IParentCommand parent,
       String name, Set<String> aliases, String description,
       Set<EnumFlag> flags,
-      @NonNull Supplier<L> supplier) {
+      @NonNull Supplier<L> supplier, @NonNull Collection<E> defaultTo) {
     super(parent, name, aliases, description, flags);
     this.wrapping = supplier.get();
+    this.wrapping.addAll(defaultTo);
   }
 
   @Override

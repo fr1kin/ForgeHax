@@ -12,7 +12,7 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public class CharacterSetting extends AbstractSetting<Character> {
+public final class CharacterSetting extends AbstractSetting<Character> {
   @Builder
   public CharacterSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -20,6 +20,7 @@ public class CharacterSetting extends AbstractSetting<Character> {
       @NonNull Character defaultTo, Character min, Character max) {
     super(parent, name, aliases, description, flags, defaultTo, min, max);
     addListeners(ISettingValueChanged.class, changedListeners);
+    onFullyConstructed();
   }
 
   @Override

@@ -13,7 +13,7 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public class ColorSetting extends AbstractSetting<Color> {
+public final class ColorSetting extends AbstractSetting<Color> {
   @Builder
   public ColorSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -21,6 +21,7 @@ public class ColorSetting extends AbstractSetting<Color> {
       @NonNull Color defaultTo) {
     super(parent, name, aliases, description, flags, defaultTo, null, null);
     addListeners(ISettingValueChanged.class, changedListeners);
+    onFullyConstructed();
   }
 
   @Override

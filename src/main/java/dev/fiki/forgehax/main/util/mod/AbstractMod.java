@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main.util.mod;
 
+import dev.fiki.forgehax.main.util.cmd.AbstractParentCommand;
 import dev.fiki.forgehax.main.util.cmd.ICommand;
 import dev.fiki.forgehax.main.util.cmd.ISetting;
 import dev.fiki.forgehax.main.util.cmd.ParentCommand;
@@ -18,13 +19,15 @@ import static dev.fiki.forgehax.main.util.cmd.flag.EnumFlag.HIDDEN;
 import static dev.fiki.forgehax.main.util.cmd.flag.EnumFlag.MOD_REGISTERED;
 
 @Getter
-public abstract class AbstractMod extends ParentCommand {
+public abstract class AbstractMod extends AbstractParentCommand {
   // category of the mod
   private final Category category;
   
   AbstractMod(Category category, String name, String desc, Set<EnumFlag> flags) {
     super(getRootCommand(), name, Collections.emptySet(), desc, flags);
     this.category = category;
+
+    onFullyConstructed();
   }
 
   /**

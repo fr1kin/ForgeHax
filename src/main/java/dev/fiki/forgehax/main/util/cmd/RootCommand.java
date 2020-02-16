@@ -18,11 +18,12 @@ import java.util.Collections;
 
 import static dev.fiki.forgehax.main.Common.getLogger;
 
-public class RootCommand extends AbstractParentCommand {
+public final class RootCommand extends AbstractParentCommand {
   private Path configDir;
 
   public RootCommand() {
     super(null, "root", Collections.emptySet(), "Root most node", Collections.emptySet());
+    onFullyConstructed();
   }
 
   @SneakyThrows
@@ -41,7 +42,7 @@ public class RootCommand extends AbstractParentCommand {
     return getCommandFilePath(command, null);
   }
 
-      private Gson getGson() {
+  private Gson getGson() {
     return new GsonBuilder()
         .setPrettyPrinting()
         .create();
@@ -77,7 +78,7 @@ public class RootCommand extends AbstractParentCommand {
     if (command instanceof IParentCommand && element.isJsonObject()) {
       JsonObject head = element.getAsJsonObject();
       for (ICommand child : ((IParentCommand) command).getChildren()) {
-        if(head.has(child.getName())) {
+        if (head.has(child.getName())) {
           JsonElement next = head.get(child.getName());
           deserializeCommand(child, next);
         }
@@ -113,7 +114,7 @@ public class RootCommand extends AbstractParentCommand {
 
     serializeCommand(command, object);
 
-    if(object.size() <= 0)
+    if (object.size() <= 0)
       return; // nothing to save
 
     String json = gson.toJson(object);
@@ -131,7 +132,7 @@ public class RootCommand extends AbstractParentCommand {
   }
 
   private void deserialize(ICommand command, Path config, JsonParser parser) {
-    if(!Files.exists(config)) {
+    if (!Files.exists(config)) {
       return;
     }
 

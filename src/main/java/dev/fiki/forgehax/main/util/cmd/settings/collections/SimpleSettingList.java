@@ -12,13 +12,15 @@ import java.util.ListIterator;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class SimpleSettingList<E> extends BaseSimpleSettingCollection<E, List<E>> implements List<E> {
+public final class SimpleSettingList<E> extends BaseSimpleSettingCollection<E, List<E>> implements List<E> {
   @Builder
   public SimpleSettingList(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
       @Singular Set<EnumFlag> flags,
-      Supplier<List<E>> supplier, IArgument<E> argument) {
-    super(parent, name, aliases, description, flags, supplier, argument);
+      Supplier<List<E>> supplier, @Singular("defaultsTo") Collection<E> defaultTo,
+      IArgument<E> argument) {
+    super(parent, name, aliases, description, flags, supplier, defaultTo, argument);
+    onFullyConstructed();
   }
 
   @Override

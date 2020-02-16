@@ -10,13 +10,14 @@ import lombok.Builder;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
-public class PatternSetting extends AbstractSetting<Pattern> {
+public final class PatternSetting extends AbstractSetting<Pattern> {
   @Builder
   public PatternSetting(IParentCommand parent,
       String name, Collection<String> aliases, String description,
       Collection<EnumFlag> flags,
       Pattern defaultTo) {
     super(parent, name, aliases, description, flags, defaultTo, null, null);
+    onFullyConstructed();
   }
 
   @Override

@@ -13,7 +13,7 @@ import lombok.Singular;
 import java.util.Collection;
 
 @Getter
-public class EnumSetting<E extends Enum<E>> extends AbstractSetting<E> {
+public final class EnumSetting<E extends Enum<E>> extends AbstractSetting<E> {
   private final IConverter<E> converter;
 
   @Builder
@@ -23,5 +23,6 @@ public class EnumSetting<E extends Enum<E>> extends AbstractSetting<E> {
       @NonNull E defaultTo, E min, E max) {
     super(parent, name, aliases, description, flags, defaultTo, min, max);
     this.converter = new EnumType<>(defaultTo.getDeclaringClass());
+    onFullyConstructed();
   }
 }

@@ -12,7 +12,7 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public class ByteSetting extends AbstractSetting<Byte> {
+public final class ByteSetting extends AbstractSetting<Byte> {
   @Builder
   public ByteSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -20,6 +20,7 @@ public class ByteSetting extends AbstractSetting<Byte> {
       @NonNull Byte defaultTo, Byte min, Byte max) {
     super(parent, name, aliases, description, flags, defaultTo, min, max);
     addListeners(ISettingValueChanged.class, changedListeners);
+    onFullyConstructed();
   }
 
   @Override

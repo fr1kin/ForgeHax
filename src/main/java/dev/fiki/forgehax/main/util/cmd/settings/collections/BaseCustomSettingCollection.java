@@ -22,9 +22,9 @@ class BaseCustomSettingCollection<E extends IJsonSerializable, L extends Collect
   public BaseCustomSettingCollection(IParentCommand parent,
       String name, Set<String> aliases, String description,
       Set<EnumFlag> flags,
-      Supplier<L> supplier,
+      Supplier<L> supplier, Collection<E> defaultTo,
       @NonNull Supplier<E> valueSupplier) {
-    super(parent, name, aliases, description, flags, supplier);
+    super(parent, name, aliases, description, flags, supplier, defaultTo);
     this.valueSupplier = valueSupplier;
   }
 

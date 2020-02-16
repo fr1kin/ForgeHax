@@ -12,7 +12,7 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public class StringSetting extends AbstractSetting<String> {
+public final class StringSetting extends AbstractSetting<String> {
   @Builder
   public StringSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -20,6 +20,7 @@ public class StringSetting extends AbstractSetting<String> {
       @NonNull String defaultTo) {
     super(parent, name, aliases, description, flags, defaultTo, null, null);
     addListeners(ISettingValueChanged.class, changedListeners);
+    onFullyConstructed();
   }
 
   @Override

@@ -20,12 +20,11 @@ class BaseSimpleSettingCollection<E, L extends Collection<E>> extends AbstractSe
   @Getter(AccessLevel.PROTECTED)
   private final IArgument<E> converterArgument;
 
-  public BaseSimpleSettingCollection(IParentCommand parent,
-      String name, Set<String> aliases, String description,
+  public BaseSimpleSettingCollection(IParentCommand parent, String name, Set<String> aliases, String description,
       Set<EnumFlag> flags,
-      Supplier<L> supplier,
+      Supplier<L> supplier, Collection<E> defaultTo,
       @NonNull IArgument<E> argument) {
-    super(parent, name, aliases, description, flags, supplier);
+    super(parent, name, aliases, description, flags, supplier, defaultTo);
     this.converterArgument = argument;
 
     newSimpleCommand()

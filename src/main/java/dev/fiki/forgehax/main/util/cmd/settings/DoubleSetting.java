@@ -12,7 +12,7 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public class DoubleSetting extends AbstractSetting<Double> {
+public final class DoubleSetting extends AbstractSetting<Double> {
   @Builder
   public DoubleSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -20,6 +20,7 @@ public class DoubleSetting extends AbstractSetting<Double> {
       @NonNull Double defaultTo, Double min, Double max) {
     super(parent, name, aliases, description, flags, defaultTo, min, max);
     addListeners(ISettingValueChanged.class, changedListeners);
+    onFullyConstructed();
   }
 
   @Override

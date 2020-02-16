@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-public class ShortSetting extends AbstractSetting<Short> {
+public final class ShortSetting extends AbstractSetting<Short> {
   @Builder
   public ShortSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -21,6 +21,7 @@ public class ShortSetting extends AbstractSetting<Short> {
       @NonNull Short defaultTo, Short min, Short max) {
     super(parent, name, aliases, description, flags, defaultTo, min, max);
     addListeners(ISettingValueChanged.class, changedListeners);
+    onFullyConstructed();
   }
 
   @Override

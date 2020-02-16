@@ -12,7 +12,7 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public class FloatSetting extends AbstractSetting<Float> {
+public final class FloatSetting extends AbstractSetting<Float> {
   @Builder
   public FloatSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -20,6 +20,7 @@ public class FloatSetting extends AbstractSetting<Float> {
       @NonNull Float defaultTo, Float min, Float max) {
     super(parent, name, aliases, description, flags, defaultTo, min, max);
     addListeners(ISettingValueChanged.class, changedListeners);
+    onFullyConstructed();
   }
 
   @Override
