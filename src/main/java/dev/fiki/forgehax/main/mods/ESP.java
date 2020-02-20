@@ -35,6 +35,7 @@ import java.util.*;
 import lombok.*;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.container.PlayerContainer;
@@ -138,12 +139,7 @@ public class ESP extends ToggleMod implements Fonts {
     final double screenHeight = event.getScreenHeight();
 
     final IRenderTypeBuffer.Impl buffers = getBufferProvider().getBufferSource();
-
-    final BufferBuilderEx lines = getBufferProvider().getBuffer(RenderTypeEx.glLines());
     final BufferBuilderEx triangles = getBufferProvider().getBuffer(RenderTypeEx.glTriangle());
-
-    final IRenderTypeBuffer.Impl items = MC.getRenderTypeBuffers().getBufferSource();
-
     final MatrixStack stack = new MatrixStack();
 
     final EquipmentList selfEquipmentList = new EquipmentList(getLocalPlayer());
@@ -369,10 +365,13 @@ public class ESP extends ToggleMod implements Fonts {
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
     RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-    RenderHelper.enableStandardItemLighting();
+    RenderHelper.disableStandardItemLighting();
     RenderHelper.setupGuiFlatDiffuseLighting();
 
-    items.finish();
+    buffers.finish(RenderTypeEx.blockTranslucentCull());
+    buffers.finish(RenderTypeEx.blockCutout());
+    buffers.finish(RenderType.glint());
+    buffers.finish(RenderType.entityGlint());
 
     RenderSystem.enableDepthTest();
     RenderHelper.setupGui3DDiffuseLighting();
