@@ -124,7 +124,7 @@ public class StorageESPMod extends ToggleMod {
         BlockState state = ent.getBlockState();
         VoxelShape voxel = state.getCollisionShape(getWorld(), ent.getPos());
         if(!voxel.isEmpty()) {
-          buffer.appendOutlinedCuboid(voxel.getBoundingBox().offset(ent.getPos()), GeometryMasks.Line.ALL, color);
+          buffer.putOutlinedCuboid(voxel.getBoundingBox().offset(ent.getPos()), GeometryMasks.Line.ALL, color);
         }
       }
     });
@@ -132,7 +132,7 @@ public class StorageESPMod extends ToggleMod {
     worldEntities().forEach(ent -> {
       Color color = getEntityColor(ent);
       if(color != null && color.getAlpha() > 0) {
-        buffer.appendOutlinedCuboid(ent.getBoundingBox()
+        buffer.putOutlinedCuboid(ent.getBoundingBox()
             .offset(ent.getPositionVector().scale(-1D))
             .offset(EntityUtils.getInterpolatedPos(ent, event.getPartialTicks())),
             GeometryMasks.Line.ALL, color);

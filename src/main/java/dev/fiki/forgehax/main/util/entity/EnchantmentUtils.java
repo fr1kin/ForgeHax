@@ -2,41 +2,137 @@ package dev.fiki.forgehax.main.util.entity;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class EnchantmentUtils {
   
-  public static List<EntityEnchantment> getEnchantments(ListNBT tags) {
+  public static List<ItemEnchantment> getEnchantments(ListNBT tags) {
     if (tags == null) {
-      return null;
+      return Collections.emptyList();
     }
-    List<EntityEnchantment> list = Lists.newArrayList();
+
+    List<ItemEnchantment> list = Lists.newArrayList();
     for (int i = 0; i < tags.size(); i++) {
-      list.add(new EntityEnchantment(
-          tags.getCompound(i).getShort("id"),
-          tags.getCompound(i).getShort("lvl")));
+      list.add(new ItemEnchantment(tags.getCompound(i).getString("id"),
+          tags.getCompound(i).getInt("lvl")));
     }
+
     return list;
   }
-  
-  public static List<EntityEnchantment> getEnchantmentsSorted(ListNBT tags) {
-    List<EntityEnchantment> list = getEnchantments(tags);
-    if (list != null) {
-      list.sort(new EnchantSort());
-    }
-    return list;
+
+  public static List<ItemEnchantment> getEnchantments(ItemStack stack) {
+    return getEnchantments(stack.getEnchantmentTagList());
   }
-  
-  // IV.sort(III)
-  
-  public static class EnchantSort implements Comparator<EntityEnchantment> {
+
+  @Getter
+  @AllArgsConstructor
+  public static class ItemEnchantment implements Comparator<ItemEnchantment>, Comparable<ItemEnchantment> {
+    private static final Map<Enchantment, String> SHORT_ENCHANT_NAMES = Maps.newHashMap();
+
+    static {
+      SHORT_ENCHANT_NAMES.put(Enchantments.PROTECTION, "P");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FIRE_PROTECTION, "FP");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FEATHER_FALLING, "FF");
+      SHORT_ENCHANT_NAMES.put(Enchantments.BLAST_PROTECTION, "BP");
+      SHORT_ENCHANT_NAMES.put(Enchantments.PROJECTILE_PROTECTION, "PP");
+      SHORT_ENCHANT_NAMES.put(Enchantments.RESPIRATION, "Re");
+      SHORT_ENCHANT_NAMES.put(Enchantments.AQUA_AFFINITY, "Aq");
+      SHORT_ENCHANT_NAMES.put(Enchantments.THORNS, "Th");
+      SHORT_ENCHANT_NAMES.put(Enchantments.DEPTH_STRIDER, "DS");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FROST_WALKER, "FW");
+      SHORT_ENCHANT_NAMES.put(Enchantments.BINDING_CURSE, "Bind");
+      SHORT_ENCHANT_NAMES.put(Enchantments.SHARPNESS, "Sh");
+      SHORT_ENCHANT_NAMES.put(Enchantments.SMITE, "Sm");
+      SHORT_ENCHANT_NAMES.put(Enchantments.BANE_OF_ARTHROPODS, "BA");
+      SHORT_ENCHANT_NAMES.put(Enchantments.KNOCKBACK, "Kn");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FIRE_ASPECT, "FA");
+      SHORT_ENCHANT_NAMES.put(Enchantments.LOOTING, "Lo");
+      SHORT_ENCHANT_NAMES.put(Enchantments.SWEEPING, "Sw");
+      SHORT_ENCHANT_NAMES.put(Enchantments.EFFICIENCY, "Ef");
+      SHORT_ENCHANT_NAMES.put(Enchantments.SILK_TOUCH, "ST");
+      SHORT_ENCHANT_NAMES.put(Enchantments.UNBREAKING, "Ub");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FORTUNE, "Ft");
+      SHORT_ENCHANT_NAMES.put(Enchantments.POWER, "Po");
+      SHORT_ENCHANT_NAMES.put(Enchantments.PUNCH, "Pu");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FLAME, "Fl");
+      SHORT_ENCHANT_NAMES.put(Enchantments.INFINITY, "Inf");
+      SHORT_ENCHANT_NAMES.put(Enchantments.LUCK_OF_THE_SEA, "LoTS");
+      SHORT_ENCHANT_NAMES.put(Enchantments.LURE, "Lu");
+      SHORT_ENCHANT_NAMES.put(Enchantments.LOYALTY, "Lo");
+      SHORT_ENCHANT_NAMES.put(Enchantments.IMPALING, "Im");
+      SHORT_ENCHANT_NAMES.put(Enchantments.RIPTIDE, "Rt");
+      SHORT_ENCHANT_NAMES.put(Enchantments.CHANNELING, "Ch");
+      SHORT_ENCHANT_NAMES.put(Enchantments.MULTISHOT, "Ms");
+      SHORT_ENCHANT_NAMES.put(Enchantments.QUICK_CHARGE, "Qc");
+      SHORT_ENCHANT_NAMES.put(Enchantments.PIERCING, "Pc");
+      SHORT_ENCHANT_NAMES.put(Enchantments.MENDING, "Me");
+      SHORT_ENCHANT_NAMES.put(Enchantments.VANISHING_CURSE, "Van");
+    }
+
+    private static String createUniqueString(Enchantment enchantment) {
+      ResourceLocation resource = Objects.requireNonNull(ForgeRegistries.ENCHANTMENTS.getKey(enchantment),
+          "unknown enchantment");
+      String name = resource.getPath();
+
+      String[] sections = name.split("_");
+      List<String> strings = Lists.newArrayListWithExpectedSize(sections.length);
+
+      for(String section : sections) {
+        strings.add(String.valueOf(section.charAt(0)).toUpperCase());
+      }
+
+      int charIndex = 0;
+      int sectionIndex = 0;
+
+      while(SHORT_ENCHANT_NAMES.containsValue(String.join("", strings))
+          && sectionIndex < sections.length) {
+        String currentSection = sections[sectionIndex]; // Lure
+        if(currentSection.length() - (1 + charIndex) < 0) {
+          // ran out of characters, go to next section
+          sectionIndex++;
+        } else {
+          // 1 trims the initial character
+          String chars = currentSection.substring(1 + charIndex++);
+          String current = strings.get(sectionIndex);
+          strings.set(sectionIndex, current + String.valueOf(chars.indexOf(0)).toLowerCase());
+        }
+      }
+
+      return String.join("", strings);
+    }
     
+    private final Enchantment enchantment;
+    private final int level;
+    
+    public ItemEnchantment(String id, int level) {
+      this(ForgeRegistries.ENCHANTMENTS.getValue(new ResourceLocation(id)), level);
+    }
+
+    public boolean isMultiLevel() {
+      return getEnchantment().getMaxLevel() > 1;
+    }
+    
+    public String getShortName() {
+      return SHORT_ENCHANT_NAMES.computeIfAbsent(enchantment, ItemEnchantment::createUniqueString);
+    }
+
     @Override
-    public int compare(EntityEnchantment o1, EntityEnchantment o2) {
+    public String toString() {
+      return enchantment.getDisplayName(level).getUnformattedComponentText();
+    }
+
+    @Override
+    public int compare(ItemEnchantment o1, ItemEnchantment o2) {
       int deltaEch1 = o1.getEnchantment().getMaxLevel() - o1.getEnchantment().getMinLevel();
       int deltaEch2 = o2.getEnchantment().getMaxLevel() - o2.getEnchantment().getMinLevel();
       if (deltaEch1 == deltaEch2) {
@@ -47,69 +143,10 @@ public class EnchantmentUtils {
         return -1;
       }
     }
-  }
-  
-  public static class EntityEnchantment {
-    
-    private static final Map<Integer, String> SHORT_ENCHANT_NAMES = Maps.newHashMap();
-    
-    static {
-      SHORT_ENCHANT_NAMES.put(0, "p");
-      SHORT_ENCHANT_NAMES.put(1, "fp");
-      SHORT_ENCHANT_NAMES.put(2, "ff");
-      SHORT_ENCHANT_NAMES.put(3, "bp");
-      SHORT_ENCHANT_NAMES.put(4, "pp");
-      SHORT_ENCHANT_NAMES.put(5, "r");
-      SHORT_ENCHANT_NAMES.put(6, "aa");
-      SHORT_ENCHANT_NAMES.put(7, "th");
-      SHORT_ENCHANT_NAMES.put(8, "ds");
-      SHORT_ENCHANT_NAMES.put(9, "fw");
-      SHORT_ENCHANT_NAMES.put(16, "sh");
-      SHORT_ENCHANT_NAMES.put(17, "sm");
-      SHORT_ENCHANT_NAMES.put(18, "boa");
-      SHORT_ENCHANT_NAMES.put(19, "kb");
-      SHORT_ENCHANT_NAMES.put(20, "fa");
-      SHORT_ENCHANT_NAMES.put(21, "l");
-      SHORT_ENCHANT_NAMES.put(32, "eff");
-      SHORT_ENCHANT_NAMES.put(33, "st");
-      SHORT_ENCHANT_NAMES.put(34, "ub");
-      SHORT_ENCHANT_NAMES.put(35, "for");
-      SHORT_ENCHANT_NAMES.put(48, "pow");
-      SHORT_ENCHANT_NAMES.put(49, "pun");
-      SHORT_ENCHANT_NAMES.put(50, "fl");
-      SHORT_ENCHANT_NAMES.put(51, "inf");
-      SHORT_ENCHANT_NAMES.put(61, "los");
-      SHORT_ENCHANT_NAMES.put(62, "lur");
-      SHORT_ENCHANT_NAMES.put(70, "mend");
-    }
-    
-    private final Enchantment enchantment;
-    private final int level;
-    
-    public EntityEnchantment(int id, int level) {
-      this(Enchantment.getEnchantmentByID(id), level);
-    }
-    
-    public EntityEnchantment(Enchantment enchantment, int level) {
-      this.enchantment = enchantment;
-      this.level = level;
-    }
-    
-    public Enchantment getEnchantment() {
-      return enchantment;
-    }
-    
-    public int getLevel() {
-      return level;
-    }
-    
-    public String getShortName() {
-      // TODO: 1.15 fix this entire class tbh
-      throw new UnsupportedOperationException();
-    }
-    
-    public String toString() {
-      return enchantment.getDisplayName(level).getUnformattedComponentText();
+
+    @Override
+    public int compareTo(ItemEnchantment o) {
+      return compare(this, o);
     }
   }
 }

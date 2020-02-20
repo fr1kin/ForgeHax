@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main;
 import dev.fiki.forgehax.main.util.TextComponentBuilder;
 import dev.fiki.forgehax.main.util.cmd.RootCommand;
 import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
+import dev.fiki.forgehax.main.util.draw.BufferProvider;
 import dev.fiki.forgehax.main.util.mod.loader.ModManager;
 import dev.fiki.forgehax.main.util.FileManager;
 import net.minecraft.block.Block;
@@ -77,6 +78,10 @@ public interface Common {
 
   static IConsole getCurrentConsoleOutput() {
     return ForgeHax.getInstance().getCurrentConsole();
+  }
+
+  static BufferProvider getBufferProvider() {
+    return ForgeHax.getInstance().getBufferProvider();
   }
 
   //

@@ -128,8 +128,8 @@ public class LogoutSpot extends ToggleMod {
           String name = String.format("%s (%.1f)", spot.getName(), distance);
           SurfaceHelper.drawTextShadow(
               name,
-              (int) upper.getX() - (SurfaceHelper.getStringWidth(name) / 2.f),
-              (int) upper.getY() - (SurfaceHelper.getStringHeight() + 1),
+              (float)(upper.getX() - (SurfaceHelper.getStringWidth(name) / 2.f)),
+              (float)(upper.getY() - (SurfaceHelper.getStringHeight() + 1.f)),
               Colors.RED.toBuffer());
         }
       });
@@ -146,7 +146,7 @@ public class LogoutSpot extends ToggleMod {
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
     synchronized (spots) {
-      spots.forEach(spot -> builder.appendOutlinedCuboid(spot.getMins(), spot.getMaxs(),
+      spots.forEach(spot -> builder.putOutlinedCuboid(spot.getMins(), spot.getMaxs(),
           GeometryMasks.Line.ALL, Colors.RED));
     }
 

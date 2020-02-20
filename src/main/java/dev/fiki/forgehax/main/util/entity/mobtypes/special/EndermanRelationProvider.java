@@ -28,6 +28,6 @@ public class EndermanRelationProvider extends EntityRelationProvider<EndermanEnt
 
   @Override
   public RelationState getCurrentRelationState(EndermanEntity entity) {
-    return entity.isScreaming() ? RelationState.HOSTILE : RelationState.NEUTRAL;
+    return entity.isScreaming() ? RelationState.HOSTILE : RelationState.FRIENDLY;
   }
 }

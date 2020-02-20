@@ -57,7 +57,7 @@ public class SpawnerEspMod extends ToggleMod {
           BlockState state = ent.getBlockState();
           VoxelShape voxel = state.getCollisionShape(getWorld(), ent.getPos());
           if(!voxel.isEmpty()) {
-            buffer.appendOutlinedCuboid(voxel.getBoundingBox().offset(ent.getPos()),
+            buffer.putOutlinedCuboid(voxel.getBoundingBox().offset(ent.getPos()),
                 GeometryMasks.Line.ALL, spawnerColor.getValue());
           }
         });

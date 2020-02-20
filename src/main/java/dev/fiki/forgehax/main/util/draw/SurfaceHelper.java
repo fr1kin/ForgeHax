@@ -6,18 +6,35 @@ import static dev.fiki.forgehax.main.util.math.AlignHelper.getFlowDirY2;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexBuilderUtils;
 import dev.fiki.forgehax.main.util.color.Color;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import javax.annotation.Nonnull;
 
 import dev.fiki.forgehax.main.util.math.AlignHelper;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.util.Direction;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -99,26 +116,51 @@ public class SurfaceHelper {
     builder.finishDrawing();
   }
 
-  static IRenderTypeBuffer.Impl _text(@Nonnull BufferBuilder builder,
+  public static void renderString(@Nonnull IRenderTypeBuffer buffer,
       @Nonnull Matrix4f matrix4f,
       @Nonnull String text,
       float x, float y,
-      int color,
+      Color color,
       boolean shadow) {
-    IRenderTypeBuffer.Impl render = IRenderTypeBuffer.getImpl(builder);
     getFontRenderer().renderString(text,
         Math.round(x), Math.round(y),
-        color, shadow,
-        matrix4f, render,
+        color.toBuffer(), shadow,
+        matrix4f, buffer,
         false, 0, 15728880);
+  }
+
+  public static void renderString(@Nonnull IRenderTypeBuffer buffer,
+      @Nonnull String text,
+      float x, float y,
+      Color color,
+      boolean shadow) {
+    renderString(buffer, TransformationMatrix.identity().getMatrix(), text, x, y, color, shadow);
+  }
+
+  public static IRenderTypeBuffer.Impl renderString(@Nonnull BufferBuilder builder,
+      @Nonnull Matrix4f matrix4f,
+      @Nonnull String text,
+      float x, float y,
+      Color color,
+      boolean shadow) {
+    IRenderTypeBuffer.Impl render = IRenderTypeBuffer.getImpl(builder);
+    renderString(render, matrix4f, text, x, y, color, shadow);
     return render;
   }
 
-  public static int getStringWidth(String text) {
+  public static void renderString(@Nonnull BufferBuilder builder,
+      @Nonnull String text,
+      float x, float y,
+      Color color,
+      boolean shadow) {
+    renderString(builder, TransformationMatrix.identity().getMatrix(), text, x, y, color, shadow);
+  }
+
+  public static double getStringWidth(String text) {
     return getFontRenderer().getStringWidth(text);
   }
 
-  public static int getStringHeight() {
+  public static double getStringHeight() {
     return getFontRenderer().FONT_HEIGHT;
   }
 
@@ -127,7 +169,7 @@ public class SurfaceHelper {
     BufferBuilder builder = tessellator.getBuffer();
     Matrix4f matrix4f = TransformationMatrix.identity().getMatrix();
 
-    _text(builder, matrix4f, msg, x, y, color, shadow).finish();
+    renderString(builder, matrix4f, msg, x, y, Color.of(color), shadow).finish();
   }
 
   public static void drawText(String msg, float x, float y, int color) {
@@ -220,7 +262,7 @@ public class SurfaceHelper {
 
   @Deprecated
   public static int getTextHeight() {
-    return getStringHeight();
+    return (int) getStringHeight();
   }
 
   @Deprecated
@@ -238,6 +280,71 @@ public class SurfaceHelper {
 
   public static void setItemRendererDepth(float depth) {
     MC.getItemRenderer().zLevel = depth;
+  }
+
+  private static void renderModel(IBakedModel modelIn, ItemStack stack,
+      int combinedLightIn, int combinedOverlayIn,
+      MatrixStack matrixStackIn, IVertexBuilder bufferIn) {
+    Random random = new Random();
+    long i = 42L;
+
+    for(Direction direction : Direction.values()) {
+      random.setSeed(42L);
+      MC.getItemRenderer().renderQuads(matrixStackIn, bufferIn,
+          modelIn.getQuads(null, direction, random), stack, combinedLightIn, combinedOverlayIn);
+    }
+
+    random.setSeed(42L);
+    MC.getItemRenderer().renderQuads(matrixStackIn, bufferIn,
+        modelIn.getQuads(null, null, random), stack, combinedLightIn, combinedOverlayIn);
+  }
+
+  private static RenderType getRenderType(ItemStack itemStackIn) {
+    Item item = itemStackIn.getItem();
+    if (item instanceof BlockItem) {
+      Block block = ((BlockItem)item).getBlock();
+      return RenderTypeLookup.canRenderInLayer(block.getDefaultState(), RenderType.translucent())
+          ? RenderTypeEx.blockTranslucentCull()
+          : RenderTypeEx.blockCutout();
+    } else {
+      return RenderTypeEx.blockTranslucentCull();
+    }
+  }
+
+  private static IVertexBuilder getBuffer(IRenderTypeBuffer bufferIn, RenderType renderTypeIn, boolean isItemIn, boolean glintIn) {
+    return glintIn ? VertexBuilderUtils.newDelegate(
+        bufferIn.getBuffer(isItemIn
+            ? RenderType.glint()
+            : RenderType.entityGlint()),
+        bufferIn.getBuffer(renderTypeIn))
+        : bufferIn.getBuffer(renderTypeIn);
+  }
+
+  public static void renderItem(LivingEntity living, ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
+    stack.push();
+
+    IBakedModel model = MC.getItemRenderer().getItemModelWithOverrides(itemStack, living.world, living);
+
+    if (Items.TRIDENT.equals(itemStack.getItem())) {
+      model = MC.getItemRenderer().getItemModelMesher().getModelManager()
+          .getModel(new ModelResourceLocation("minecraft:trident#inventory"));
+    }
+
+    model = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(stack, model,
+        ItemCameraTransforms.TransformType.GUI, false);
+
+    stack.translate(-0.5D, -0.5D, -0.5D);
+    if (!model.isBuiltInRenderer()) {
+      RenderType rendertype = getRenderType(itemStack);
+
+      IVertexBuilder builder = ItemRenderer.getBuffer(buffer, rendertype, true, itemStack.hasEffect());
+      renderModel(model, itemStack, 15728880, OverlayTexture.DEFAULT_LIGHT, stack, builder);
+    } else {
+      itemStack.getItem().getItemStackTileEntityRenderer().render(itemStack, stack, buffer,
+          15728880, OverlayTexture.DEFAULT_LIGHT);
+    }
+
+    stack.pop();
   }
 
   public static void drawScaledCustomSizeModalRect(double x, double y,

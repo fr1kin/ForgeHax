@@ -189,7 +189,7 @@ public class ChunkLogger extends ToggleMod {
           break;
       }
 
-      builder.appendOutlinedCuboid(chunk.bbox, GeometryMasks.Quad.ALL,
+      builder.putOutlinedCuboid(chunk.bbox, GeometryMasks.Quad.ALL,
           chunk.isNewChunk() ? Colors.WHITE : Colors.RED);
     });
 

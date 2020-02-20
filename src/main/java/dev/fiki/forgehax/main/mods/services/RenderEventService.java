@@ -50,8 +50,7 @@ public class RenderEventService extends ServiceMod {
 
     Vec3d projectedView = getGameRenderer().getActiveRenderInfo().getProjectedView();
 
-    RenderEvent e = new RenderEvent(event.getMatrixStack(), Tessellator.getInstance(),
-        projectedView, event.getPartialTicks());
+    RenderEvent e = new RenderEvent(event.getMatrixStack(), projectedView, event.getPartialTicks());
     MinecraftForge.EVENT_BUS.post(e);
 
     RenderSystem.lineWidth(1.f);
@@ -69,7 +68,7 @@ public class RenderEventService extends ServiceMod {
   @SubscribeEvent(priority = EventPriority.LOW)
   public void onRenderGameOverlayEvent(final RenderGameOverlayEvent.Text event) {
     if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
-      MinecraftForge.EVENT_BUS.post(new Render2DEvent(Tessellator.getInstance(), event.getPartialTicks()));
+      MinecraftForge.EVENT_BUS.post(new Render2DEvent(event.getPartialTicks()));
       RenderSystem.color4f(1.f, 1.f, 1.f, 1.f); // reset color
     }
   }

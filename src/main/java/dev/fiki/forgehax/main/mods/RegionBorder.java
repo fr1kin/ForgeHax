@@ -49,14 +49,14 @@ public class RegionBorder extends ToggleMod {
     BlockPos to = from.add(511, 256, 511);
 
     if (drawRegionBorder.getValue()) {
-      builder.appendOutlinedCuboid(from, to, GeometryMasks.Line.ALL, Colors.ORANGE);
+      builder.putOutlinedCuboid(from, to, GeometryMasks.Line.ALL, Colors.ORANGE);
     }
 
     final int chunkDistanceSetting = chunkDistance.getValue() * 16;
     from = from.add(chunkDistanceSetting, 0, chunkDistanceSetting);
     to = to.add(-chunkDistanceSetting, 0, -chunkDistanceSetting);
 
-    builder.appendOutlinedCuboid(from, to, GeometryMasks.Line.ALL, Colors.YELLOW);
+    builder.putOutlinedCuboid(from, to, GeometryMasks.Line.ALL, Colors.YELLOW);
 
     builder.draw();
   }

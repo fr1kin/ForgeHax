@@ -418,11 +418,11 @@ public interface FastReflection {
      * BufferBuilder
      */
 
-    FastField<Boolean> BufferBuilder_isDrawing =
+    FastField<Integer> BufferBuilder_drawMode =
         FastField.builder()
             .parent(BufferBuilder.class)
-            .mcp("isDrawing")
-            .srg("field_179010_r")
+            .mcp("drawMode")
+            .srg("field_179006_k")
             .build();
 
     /**

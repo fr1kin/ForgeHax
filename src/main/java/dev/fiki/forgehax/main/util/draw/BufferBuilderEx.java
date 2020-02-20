@@ -4,6 +4,8 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.datafixers.util.Pair;
 import dev.fiki.forgehax.main.util.color.Color;
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.reflection.ReflectionHelper;
 import lombok.Getter;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.BakedQuad;
@@ -22,31 +24,23 @@ import static dev.fiki.forgehax.main.Common.getFontRenderer;
 
 @Getter
 public class BufferBuilderEx extends BufferBuilder {
-  private final Tessellator tessellator;
   private final BufferBuilder original;
 
   private double offsetX;
   private double offsetY;
   private double offsetZ;
 
-  private Matrix4f matrix = null;
-
-  private IRenderTypeBuffer renderTypeBuffer = null;
-
-  public BufferBuilderEx(Tessellator tessellator, BufferBuilder original) {
+  public BufferBuilderEx(BufferBuilder original) {
     super(0);
-    this.tessellator = tessellator;
     this.original = original;
   }
 
   public BufferBuilderEx(Tessellator tessellator) {
-    this(tessellator, tessellator.getBuffer());
+    this(tessellator.getBuffer());
   }
 
   private void onDrawingFinished() {
     offsetX = offsetY = offsetZ = 0.d;
-    matrix = null;
-    renderTypeBuffer = null;
   }
 
   public BufferBuilderEx setTranslation(double x, double y, double z) {
@@ -64,54 +58,71 @@ public class BufferBuilderEx extends BufferBuilder {
     return setTranslation(pos.getX(), pos.getY(), pos.getZ());
   }
 
-  public Matrix4f getMatrixOrIdentity() {
-    return matrix == null ? TransformationMatrix.identity().getMatrix() : matrix;
+  public int getDrawMode() {
+    return FastReflection.Fields.BufferBuilder_drawMode.get(original);
   }
 
-  public BufferBuilderEx setMatrix(Matrix4f matrix) {
-    this.matrix = matrix;
-    return this;
-  }
-
-  public IRenderTypeBuffer getOrCreateRenderTypeBuffer() {
-    return renderTypeBuffer == null
-        ? renderTypeBuffer = IRenderTypeBuffer.getImpl(this)
-        : renderTypeBuffer;
-  }
-
-  public BufferBuilderEx setRenderTypeBuffer(IRenderTypeBuffer renderTypeBuffer) {
-    this.renderTypeBuffer = renderTypeBuffer;
-    return this;
-  }
-
-  public BufferBuilderEx appendLine(float startX, float startY, float endX, float endY, @Nullable Color color) {
+  public BufferBuilderEx putLine(double startX, double startY, double endX, double endY, @Nullable Color color) {
     pos(startX, startY, 0.0D).color(color).endVertex();
     pos(endX, endY, 0.0D).color(color).endVertex();
     return this;
   }
 
-  public BufferBuilderEx appendLine(float startX, float startY, float endX, float endY) {
-    return appendLine(startX, startY, endX, endY, null);
+  public BufferBuilderEx putLine(double startX, double startY, double endX, double endY) {
+    return putLine(startX, startY, endX, endY, null);
   }
 
-  public BufferBuilderEx appendRect(float x, float y, float w, float h, @Nullable Color color) {
-    pos(x, y, 0.0D).color(color).endVertex();
-    pos(x, y + h, 0.0D).color(color).endVertex();
-    pos(x + w, y + h, 0.0D).color(color).endVertex();
-    pos(x + w, y, 0.0D).color(color).endVertex();
+  public BufferBuilderEx putLinesInLoop(double x, double y,
+      double width, double height,
+      @Nullable Color color) {
+    return this
+        .putLine(x, y, x, y + height, color) // troll fix to a troll problem
+        .putLine(x, y, x + width, y, color)
+        .putLine(x, y + height, x + width, y + height, color)
+        .putLine(x + width, y, x + width, y + height, color);
+  }
+
+  public BufferBuilderEx putRect(double x, double y, double w, double h, @Nullable Color color) {
+    switch (getDrawMode()) {
+      case GL11.GL_QUADS:
+        pos(x, y, 0.0D).color(color).endVertex();
+        pos(x, y + h, 0.0D).color(color).endVertex();
+        pos(x + w, y + h, 0.0D).color(color).endVertex();
+        pos(x + w, y, 0.0D).color(color).endVertex();
+        break;
+      case GL11.GL_TRIANGLES:
+        pos(x, y, 0.D).color(color).endVertex();
+        pos(x, y + h, 0.d).color(color).endVertex();
+        pos(x + w, y, 0.d).color(color).endVertex();
+        pos(x, y + h, 0.d).color(color).endVertex();
+        pos(x + w, y + h, 0.d).color(color).endVertex();
+        pos(x + w, y, 0.d).color(color).endVertex();
+        break;
+      default:
+        throw new IllegalStateException("draw mode must be QUADS or TRIANGLES");
+    }
     return this;
   }
 
-  public BufferBuilderEx appendRect(float x, float y, float w, float h) {
-    return appendRect(x, y, w, h, null);
+  public BufferBuilderEx putRect(double x, double y, double w, double h) {
+    return putRect(x, y, w, h, null);
   }
 
-  public BufferBuilderEx appendTexturedRect(float x, float y,
+  public BufferBuilderEx putRectInLoop(double x, double y, double w, double h, double lineSize, @Nullable Color color) {
+    return this
+        .putRect(x, y, w, lineSize, color)
+        .putRect(x + w - lineSize, y, lineSize, h, color)
+        .putRect(x, y, lineSize, h, color)
+        .putRect(x, y + h - lineSize, w, lineSize, color)
+        ;
+  }
+
+  public BufferBuilderEx putTexturedRect(double x, double y,
       float textureX, float textureY,
       float width, float height,
-      float depth, @Nullable Color color) {
+      double depth, @Nullable Color color) {
     pos(x, y + height, depth)
-        .tex(textureX + 0, textureY + height)
+        .tex(textureX + 0.f, textureY + height)
         .color(color)
         .endVertex();
     pos(x + width, y + height, depth)
@@ -129,64 +140,24 @@ public class BufferBuilderEx extends BufferBuilder {
     return this;
   }
 
-  public BufferBuilderEx appendTexturedRect(float x, float y,
+  public BufferBuilderEx putTexturedRect(double x, double y,
       float textureX, float textureY,
       float width, float height,
       float depth) {
-    return appendTexturedRect(x, y, textureX, textureY, width, height, depth, null);
+    return putTexturedRect(x, y, textureX, textureY, width, height, depth, null);
   }
 
-  public void appendGradientRect(float x, float y,
-      float x2, float y2,
+  public BufferBuilderEx putGradientRect(double x, double y,
+      double x2, double y2,
       Color outlineColor, Color shadeColor) {
     pos(x2, y, 0).color(outlineColor).endVertex();
     pos(x, y, 0).color(outlineColor).endVertex();
     pos(x, y2, 0).color(shadeColor).endVertex();
     pos(x2, y2, 0).color(shadeColor).endVertex();
-  }
-
-  /**
-   * If you use any of these make sure you call ::finishString() at the end!
-   */
-  public BufferBuilderEx appendString(@Nonnull IRenderTypeBuffer buffer,
-      @Nonnull String text,
-      float x, float y,
-      @Nonnull Color color,
-      boolean shadow) {
-    getFontRenderer().renderString(text,
-        (int) x, (int) y,
-        color.toBuffer(), shadow,
-        getMatrixOrIdentity(), buffer,
-        false, 0, 15728880);
     return this;
   }
 
-  public BufferBuilderEx appendString(@Nonnull String text,
-      float x, float y,
-      @Nonnull Color color,
-      boolean shadow) {
-    return appendString(getOrCreateRenderTypeBuffer(), text, x, y, color, shadow);
-  }
-
-  public BufferBuilderEx appendString(@Nonnull String text,
-      float x, float y,
-      @Nonnull Color color) {
-    return appendString(text, x, y, color, false);
-  }
-
-  public BufferBuilderEx appendStringWithShadow(@Nonnull String text,
-      float x, float y,
-      @Nonnull Color color) {
-    return appendString(text, x, y, color, true);
-  }
-
-  public void finishString() {
-    if (renderTypeBuffer != null && renderTypeBuffer instanceof IRenderTypeBuffer.Impl) {
-      ((IRenderTypeBuffer.Impl) renderTypeBuffer).finish();
-    }
-  }
-
-  public BufferBuilderEx appendFilledCuboid(final double x0, final double y0, final double z0,
+  public BufferBuilderEx putFilledCuboid(final double x0, final double y0, final double z0,
       final double x1, final double y1, final double z1,
       final int sides, Color color) {
     if ((sides & GeometryMasks.Quad.DOWN) != 0) {
@@ -234,25 +205,25 @@ public class BufferBuilderEx extends BufferBuilder {
     return this;
   }
 
-  public BufferBuilderEx appendFilledCuboid(Vec3d start, Vec3d finish,
+  public BufferBuilderEx putFilledCuboid(Vec3d start, Vec3d finish,
       final int sides, Color color) {
-    return appendFilledCuboid(start.getX(), start.getY(), start.getZ(),
+    return putFilledCuboid(start.getX(), start.getY(), start.getZ(),
         finish.getX(), finish.getY(), finish.getZ(), sides, color);
   }
 
-  public BufferBuilderEx appendFilledCuboid(Vec3i start, Vec3i finish,
+  public BufferBuilderEx putFilledCuboid(Vec3i start, Vec3i finish,
       final int sides, Color color) {
-    return appendFilledCuboid(start.getX(), start.getY(), start.getZ(),
+    return putFilledCuboid(start.getX(), start.getY(), start.getZ(),
         finish.getX(), finish.getY(), finish.getZ(), sides, color);
   }
 
-  public BufferBuilderEx appendFilledCuboid(AxisAlignedBB bb,
+  public BufferBuilderEx putFilledCuboid(AxisAlignedBB bb,
       final int sides, Color color) {
-    return appendFilledCuboid(bb.minX, bb.minY, bb.maxX,
+    return putFilledCuboid(bb.minX, bb.minY, bb.maxX,
         bb.maxX, bb.maxY, bb.maxZ, sides, color);
   }
 
-  public BufferBuilderEx appendOutlinedCuboid(double x0, double y0, double z0,
+  public BufferBuilderEx putOutlinedCuboid(double x0, double y0, double z0,
       double x1, double y1, double z1,
       final int sides, Color color) {
     if ((sides & GeometryMasks.Line.DOWN_WEST) != 0) {
@@ -318,21 +289,21 @@ public class BufferBuilderEx extends BufferBuilder {
     return this;
   }
 
-  public BufferBuilderEx appendOutlinedCuboid(Vec3d start, Vec3d finish,
+  public BufferBuilderEx putOutlinedCuboid(Vec3d start, Vec3d finish,
       final int sides, Color color) {
-    return appendOutlinedCuboid(start.getX(), start.getY(), start.getZ(),
+    return putOutlinedCuboid(start.getX(), start.getY(), start.getZ(),
         finish.getX(), finish.getY(), finish.getZ(), sides, color);
   }
 
-  public BufferBuilderEx appendOutlinedCuboid(Vec3i start, Vec3i finish,
+  public BufferBuilderEx putOutlinedCuboid(Vec3i start, Vec3i finish,
       final int sides, Color color) {
-    return appendOutlinedCuboid(start.getX(), start.getY(), start.getZ(),
+    return putOutlinedCuboid(start.getX(), start.getY(), start.getZ(),
         finish.getX(), finish.getY(), finish.getZ(), sides, color);
   }
 
-  public BufferBuilderEx appendOutlinedCuboid(AxisAlignedBB bb,
+  public BufferBuilderEx putOutlinedCuboid(AxisAlignedBB bb,
       final int sides, Color color) {
-    return appendOutlinedCuboid(bb.minX, bb.minY, bb.minZ,
+    return putOutlinedCuboid(bb.minX, bb.minY, bb.minZ,
         bb.maxX, bb.maxY, bb.maxZ, sides, color);
   }
 
@@ -357,7 +328,8 @@ public class BufferBuilderEx extends BufferBuilder {
   }
 
   public void draw() {
-    tessellator.draw();
+    finishDrawing();
+    WorldVertexBufferUploader.draw(this);
   }
 
   //

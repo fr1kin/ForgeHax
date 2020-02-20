@@ -5,6 +5,7 @@ import dev.fiki.forgehax.common.LoggerProvider;
 import dev.fiki.forgehax.main.util.FileManager;
 import dev.fiki.forgehax.main.util.cmd.RootCommand;
 import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
+import dev.fiki.forgehax.main.util.draw.BufferProvider;
 import dev.fiki.forgehax.main.util.mod.AbstractMod;
 import dev.fiki.forgehax.main.util.mod.loader.ModManager;
 import lombok.AccessLevel;
@@ -46,6 +47,8 @@ public class ForgeHax {
 
   private IConsole currentConsole;
 
+  private BufferProvider bufferProvider;
+
   public ForgeHax() {
     instance = this;
 
@@ -74,6 +77,8 @@ public class ForgeHax {
       asyncExecutorService = Executors.newSingleThreadExecutor();
 
       currentConsole = GAME_CONSOLE_OUTPUT;
+
+      bufferProvider = new BufferProvider();
 
       if (!getModManager().searchPackage("dev.fiki.forgehax.main.mods")) {
         logger.error("Could not find any mods to load. Verify the right package is listed");

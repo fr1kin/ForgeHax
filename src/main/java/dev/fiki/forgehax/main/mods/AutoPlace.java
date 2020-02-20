@@ -49,7 +49,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 import static dev.fiki.forgehax.main.Common.*;
@@ -258,7 +257,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
           BlockState state = getWorld().getBlockState(pos);
           AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).getBoundingBox();
           builder.setTranslation(new Vec3d(pos).subtract(renderPos));
-          builder.appendOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.GREEN.setAlpha(150));
+          builder.putOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.GREEN.setAlpha(150));
         });
 
     // poz
@@ -268,7 +267,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       BlockState state = getWorld().getBlockState(current);
       AxisAlignedBB bb = state.getCollisionShape(getWorld(), current).getBoundingBox();
       builder.setTranslation(new Vec3d(current).subtract(renderPos));
-      builder.appendOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.RED.setAlpha(150));
+      builder.putOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.RED.setAlpha(150));
     }
 
     builder.draw();

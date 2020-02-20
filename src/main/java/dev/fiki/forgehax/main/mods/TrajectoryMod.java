@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.mods;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.RenderEvent;
+import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -57,7 +58,7 @@ public class TrajectoryMod extends ToggleMod {
 
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
-        BufferBuilder buffer = event.getBuffer();
+        BufferBuilderEx buffer = event.getBuffer();
         buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
         Vec3d pos = getGameRenderer().getActiveRenderInfo().getRenderViewEntity().getEyePosition(1.f);
@@ -77,7 +78,7 @@ public class TrajectoryMod extends ToggleMod {
         }
 
 
-        event.getTessellator().draw();
+        buffer.draw();
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
 
         lineWidth(1.0f);

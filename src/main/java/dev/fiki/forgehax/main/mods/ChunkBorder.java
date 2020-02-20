@@ -32,7 +32,7 @@ public class ChunkBorder extends ToggleMod {
     BlockPos from = new BlockPos(getLocalPlayer().chunkCoordX * 16, 0, getLocalPlayer().chunkCoordZ * 16);
     BlockPos to = new BlockPos(from.getX() + 15, 256, from.getZ() + 15);
 
-    builder.appendOutlinedCuboid(from, to, GeometryMasks.Line.ALL, Colors.YELLOW);
+    builder.putOutlinedCuboid(from, to, GeometryMasks.Line.ALL, Colors.YELLOW);
 
     builder.draw();
   }

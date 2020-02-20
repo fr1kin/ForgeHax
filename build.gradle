@@ -8,7 +8,7 @@ buildscript {
     forgeVersion = '1.15.2-31.1.0'
 
     fmlVersion = '2.0.0-milestone.1'
-    lombokVersion = '1.18.10'
+    lombokVersion = '1.18.12'
 
     mcpVersion = '1.15.1'
     mcpChannel = 'snapshot'
@@ -97,9 +97,11 @@ minecraft {
 
 dependencies {
   compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
   coreAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
   commonAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+  allSourceSetsAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
   minecraft "net.minecraftforge:forge:${forgeVersion}"
 
