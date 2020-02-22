@@ -47,7 +47,7 @@ public class ActiveModList extends HudMod {
       .build();
 
   private final BooleanSetting showLag = newBooleanSetting()
-      .name("showLag")
+      .name("show-lag")
       .description("Shows lag time since last tick")
       .defaultTo(true)
       .build();
