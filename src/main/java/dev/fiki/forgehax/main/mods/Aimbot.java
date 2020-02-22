@@ -150,7 +150,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
 
   private double getLagComp() {
     if (lag_compensation.getValue()) {
-      return -(20.D - TickRateService.getTickData().getPoint().getAverage());
+      return -(20.D - TickRateService.getInstance().getTickrate());
     } else {
       return 0.D;
     }

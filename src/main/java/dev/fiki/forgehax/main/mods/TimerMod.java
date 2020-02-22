@@ -62,10 +62,9 @@ public class TimerMod extends ToggleMod {
   @SubscribeEvent
   public void onPacketPreceived(PacketInboundEvent event) {
     if (event.getPacket() instanceof SUpdateTimePacket && tpsSync.getValue()) {
-      TickRateService.TickRateData data = TickRateService.getTickData();
-      if (data.getSampleSize() > 0) {
-        TickRateService.TickRateData.CalculationData point = data.getPoint();
-        setSpeed((float) (DEFAULT_SPEED / (point.getAverage() / 20)));
+      TickRateService monitor = TickRateService.getInstance();
+      if (!monitor.isEmpty()) {
+        setSpeed((float) (DEFAULT_SPEED / (monitor.getTickrate() / 20.f)));
       }
     } else {
       updateTimer();
@@ -80,10 +79,9 @@ public class TimerMod extends ToggleMod {
   @Override
   public String getDisplayText() {
     if (tpsSync.getValue()) {
-      TickRateService.TickRateData data = TickRateService.getTickData();
-      if (data.getSampleSize() > 0) {
-        TickRateService.TickRateData.CalculationData point = data.getPoint();
-        return String.format("%s[%.2f]", super.getDisplayText(), point.getAverage() / 20);
+      TickRateService monitor = TickRateService.getInstance();
+      if (!monitor.isEmpty()) {
+        return String.format("%s[%.2f]", super.getDisplayText(), monitor.getTickrate() / 20);
       }
     } else {
       return String.format("%s[%.2f]", super.getDisplayText(), factor.getValue());

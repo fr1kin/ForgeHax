@@ -3,17 +3,27 @@ package dev.fiki.forgehax.main.mods.services;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.main.events.ClientWorldEvent;
+import dev.fiki.forgehax.main.events.ConnectToServerEvent;
+import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
+import dev.fiki.forgehax.main.util.SimpleTimer;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
+import lombok.Getter;
 import net.minecraft.network.play.server.SUpdateTimePacket;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import javax.annotation.Nullable;
+
+import static dev.fiki.forgehax.main.Common.getLogger;
 
 /**
  * Created on 11/14/2016 by fr1kin
@@ -25,130 +35,160 @@ public class TickRateService extends ServiceMod {
    * Ticks per second maximum and minimum
    */
   public static final double MAX_TICKRATE = 20.D;
-  
   public static final double MIN_TICKRATE = 0.D;
-  
-  /**
-   * Tick rate sample size
-   */
-  public static final int MAXIMUM_SAMPLE_SIZE = 100;
-  
-  private static final TickRateService INSTANCE = new TickRateService();
-  private static final TickRateData TICK_DATA = new TickRateData(MAXIMUM_SAMPLE_SIZE);
-  
-  public static TickRateService getInstance() {
-    return INSTANCE;
+
+  public static double clampTickrate(double rate) {
+    return Math.min(MAX_TICKRATE, Math.max(MIN_TICKRATE, rate));
   }
-  
-  public static TickRateData getTickData() {
-    return TICK_DATA;
-  }
-  
-  private long timeLastTimeUpdate = -1;
-  
-  public long getLastTimeDiff() {
-    if (timeLastTimeUpdate != -1) {
-      return System.currentTimeMillis() - timeLastTimeUpdate;
-    } else {
-      return 0;
-    }
-  }
-  
+
+  @Getter
+  private static TickRateService instance;
+
+  private final IntegerSetting sampleSize = newIntegerSetting()
+      .name("sample-size")
+      .description("Number of ticks to record")
+      .defaultTo(60)
+      .min(1)
+      .changedListener(((from, to) -> updateTickDelayArray(to)))
+      .build();
+
+  private TickrateTimer[] data = new TickrateTimer[sampleSize.getDefaultValue()];
+  private int currentIndex;
+
+  private int currentCount = 0;
+  private long currentTotal = 0;
+  private double currentTickrate;
+
   public TickRateService() {
     super("TickManager", "Records the average tick rate");
+    instance = this;
+  }
+
+  private void resetData() {
+    Arrays.fill(data, null);
+    currentIndex = 0;
+    currentCount = 0;
+    currentTotal = 0;
+    currentTickrate = 0;
+  }
+
+  private void updateTickDelayArray(int newSize) {
+    // its possible (but extremely unlikely) this could cause problems
+    data = new TickrateTimer[newSize];
+    resetData();
+  }
+
+  private double calculateAverage(int count, long total) {
+    if(count != 0) {
+      // prevent dividing by 0
+      return clampTickrate((double) total / (double) count);
+    }
+    return MAX_TICKRATE;
+  }
+
+  private void calculateCurrentTickrate() {
+    int count = 0;
+    long total = 0;
+    for(TickrateTimer timer : data) {
+      if(timer != null && timer.isStopped()) {
+        count++;
+        total += timer.getTickrate();
+      }
+    }
+    currentCount = count;
+    currentTotal = total;
+    currentTickrate = calculateAverage(currentCount, currentTotal);
+  }
+
+  public boolean isEmpty() {
+    return currentCount == 0;
+  }
+
+  public double getTickrate() {
+    return currentTickrate;
+  }
+
+  public double getRealtimeTickrate() {
+    int count = currentCount;
+    long total = currentTotal;
+
+    // add the still running tick monitor to the
+    TickrateTimer timer = data[currentIndex];
+    if(timer.isRunning()) {
+      count++;
+      total += timer.getTickrate();
+    }
+    return calculateAverage(count, total);
+  }
+
+  @Nullable
+  public TickrateTimer getCurrentTimer() {
+    return data[currentIndex];
+  }
+
+  @Override
+  protected void onLoad() {
+    // update data array if the size if different
+    if(data.length != sampleSize.getValue()) {
+      updateTickDelayArray(sampleSize.getValue());
+    }
+  }
+
+  @SubscribeEvent
+  public void onConnect(ConnectToServerEvent event) {
+    // reset all tick data
+    resetData();
+  }
+
+  @SubscribeEvent
+  public void onDisconnect(DisconnectFromServerEvent event) {
+    // reset all tick data
+    resetData();
   }
   
   @SubscribeEvent
-  public void onWorldLoad(WorldEvent.Load event) {
-    timeLastTimeUpdate = -1;
-    TICK_DATA.onWorldLoaded();
-  }
-  
-  @SubscribeEvent
-  public void onPacketPreceived(PacketInboundEvent event) {
+  public void onPacketInbound(PacketInboundEvent event) {
     if (event.getPacket() instanceof SUpdateTimePacket) {
-      long currentTimeMillis = System.currentTimeMillis();
-      if (timeLastTimeUpdate != -1) {
-        TICK_DATA.onTimePacketIncoming(currentTimeMillis - timeLastTimeUpdate);
-      }
-      timeLastTimeUpdate = currentTimeMillis;
-      INSTANCE.timeLastTimeUpdate = timeLastTimeUpdate;
-    }
-  }
-  
-  public static class TickRateData {
-    
-    private final CalculationData EMPTY_DATA = new CalculationData();
-    
-    private final Queue<Double> rates;
-    private final List<CalculationData> data = Lists.newArrayList();
-    
-    private TickRateData(int maxSampleSize) {
-      this.rates = EvictingQueue.create(maxSampleSize);
-      for (int i = 0; i < maxSampleSize; i++) {
-        data.add(new CalculationData());
-      }
-    }
-    
-    private void resetData() {
-      for (CalculationData d : data) {
-        d.reset();
-      }
-    }
-    
-    private void recalculate() {
-      resetData();
-      int size = 0;
-      double total = 0.D;
-      List<Double> in = Lists.newArrayList(rates);
-      Collections.reverse(in);
-      for (Double rate : in) {
-        size++;
-        total += rate;
-        CalculationData d = data.get(size - 1);
-        if (d != null) {
-          d.average = MathHelper.clamp(total / (double) (size), MIN_TICKRATE, MAX_TICKRATE);
+      SimpleTimer timer = data[currentIndex];
+      if(timer == null) {
+        // this is the first time packet the player will receive
+        data[currentIndex] = new TickrateTimer(true);
+        // the new time should be started
+      } else {
+        if(!timer.isStarted()) {
+          // :thinking:
+          getLogger().warn("TickMonitor timer not started, this should not happen!");
+          timer.start();
+        } else {
+          // stop current timer and start the next timer
+          timer.stop();
+          // calculate the current tickrate
+          calculateCurrentTickrate();
+          // move to the next index
+          currentIndex = ++currentIndex % data.length;
+          // create and start the next timer
+          SimpleTimer next = data[currentIndex];
+          if(next == null) {
+            // if no timer object exists currently, create a new one
+            data[currentIndex] = new TickrateTimer(true);
+          } else {
+            // otherwise reset the current only and start it
+            next.reset();
+            next.start();
+          }
         }
       }
     }
-    
-    public CalculationData getPoint(int point) {
-      // clamp between existing data points and 0
-      CalculationData d = data.get(Math.max(Math.min(getSampleSize() - 1, point - 1), 0));
-      return d != null ? d : EMPTY_DATA;
+  }
+
+  public static class TickrateTimer extends SimpleTimer {
+    public TickrateTimer(boolean startOnInit) {
+      super(startOnInit);
     }
-    
-    public CalculationData getPoint() {
-      return getPoint(getSampleSize() - 1);
-    }
-    
-    public int getSampleSize() {
-      return rates.size();
-    }
-    
-    private void onTimePacketIncoming(long difference) {
-      double timeElapsed = ((double) (difference) / 1000.D);
-      rates.offer(MathHelper.clamp(MAX_TICKRATE / timeElapsed, MIN_TICKRATE, MAX_TICKRATE));
-      // recalculate tick rate data
-      recalculate();
-    }
-    
-    private void onWorldLoaded() {
-      rates.clear();
-      resetData();
-    }
-    
-    public class CalculationData {
-      
-      private double average = 0.D;
-      
-      public double getAverage() {
-        return average;
-      }
-      
-      public void reset() {
-        average = 0.D;
-      }
+
+    public double getTickrate() {
+      double timeElapsed = getTimeElapsed() / 1000.D;
+      return clampTickrate(MAX_TICKRATE / timeElapsed);
     }
   }
 }

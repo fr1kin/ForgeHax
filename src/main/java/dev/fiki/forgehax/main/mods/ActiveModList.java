@@ -1,10 +1,12 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.SimpleTimer;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.math.AlignHelper;
@@ -37,12 +39,11 @@ public class ActiveModList extends HudMod {
       .defaultTo(false)
       .build();
 
-  private final IntegerSetting factor = newIntegerSetting()
-      .name("factor")
-      .description("Splitting up the tick rate data")
-      .defaultTo(25)
-      .min(1)
-      .max(100)
+  private final LongSetting timeoutDisplay = newLongSetting()
+      .name("timeout-display")
+      .description("Time required to elapse until lag in ms is shown")
+      .defaultTo(1000L)
+      .min(1L)
       .build();
 
   private final BooleanSetting showLag = newBooleanSetting()
@@ -83,45 +84,26 @@ public class ActiveModList extends HudMod {
   }
 
   private String generateTickRateText() {
-    StringBuilder builder = new StringBuilder("Tick-rate: ");
-    TickRateService.TickRateData data = TickRateService.getTickData();
-    if (data.getSampleSize() <= 0) {
-      builder.append("No tick data");
-    } else {
-      int factor = this.factor.getValue();
-      int sections = data.getSampleSize() / factor;
-      if ((sections * factor) < data.getSampleSize()) {
-        TickRateService.TickRateData.CalculationData point = data.getPoint();
-        builder.append(String.format("%.2f", point.getAverage()));
-        builder.append(" (");
-        builder.append(data.getSampleSize());
-        builder.append(")");
-        if (sections > 0) builder.append(", ");
-      }
-      if (sections > 0) {
-        for (int i = sections; i > 0; i--) {
-          int at = i * factor;
-          TickRateService.TickRateData.CalculationData point = data.getPoint(at);
-          builder.append(String.format("%.2f", point.getAverage()));
-          builder.append(" (");
-          builder.append(at);
-          builder.append(")");
-          if ((i - 1) != 0) builder.append(", ");
+    String text = "Tick-rate: ";
+    TickRateService monitor = TickRateService.getInstance();
+    if(!monitor.isEmpty()) {
+      text += String.format("%1.2f", monitor.getRealtimeTickrate());
+
+      if(showLag.getValue()) {
+        text += " : ";
+        TickRateService.TickrateTimer current = monitor.getCurrentTimer();
+        if (current != null
+            && current.getTimeElapsed() > timeoutDisplay.getValue()) {
+          text += String.format("%01.1fs", (float) (current.getTimeElapsed() - 1000L) / 1000.f);
+        } else {
+          text += "0.0s";
         }
       }
+    } else {
+      text += "<unavailable>";
     }
 
-    if (showLag.getValue()) {
-      long lastTickMs = TickRateService.getInstance().getLastTimeDiff();
-
-      if (lastTickMs < 1000) {
-        builder.append(", 0.0s");
-      } else {
-        builder.append(String.format(", %01.1fs", ((float) (lastTickMs - 1000)) / 1000));
-      }
-    }
-
-    return builder.toString();
+    return text;
   }
 
   @SubscribeEvent

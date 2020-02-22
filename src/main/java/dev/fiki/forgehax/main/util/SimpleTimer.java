@@ -58,6 +58,10 @@ public class SimpleTimer {
   public boolean isStopped() {
     return timeStopped > -1;
   }
+
+  public boolean isRunning() {
+    return isStarted() && !isStopped();
+  }
   
   public long getTimeStarted() {
     return Math.max(timeStarted, 0L);
