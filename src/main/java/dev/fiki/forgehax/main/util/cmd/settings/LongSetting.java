@@ -23,6 +23,11 @@ public final class LongSetting extends NumberSetting<Long> {
   }
 
   @Override
+  public long longValue() {
+    return getValue();
+  }
+
+  @Override
   public IConverter<Long> getConverter() {
     return TypeConverters.LONG;
   }

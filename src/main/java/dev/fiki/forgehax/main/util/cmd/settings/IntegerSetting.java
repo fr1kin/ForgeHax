@@ -23,6 +23,11 @@ public final class IntegerSetting extends NumberSetting<Integer> {
   }
 
   @Override
+  public int intValue() {
+    return getValue();
+  }
+
+  @Override
   public IConverter<Integer> getConverter() {
     return TypeConverters.INTEGER;
   }

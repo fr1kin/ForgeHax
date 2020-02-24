@@ -23,6 +23,11 @@ public final class ByteSetting extends NumberSetting<Byte> {
   }
 
   @Override
+  public byte byteValue() {
+    return getValue();
+  }
+
+  @Override
   public IConverter<Byte> getConverter() {
     return TypeConverters.BYTE;
   }

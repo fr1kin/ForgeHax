@@ -23,6 +23,11 @@ public final class ShortSetting extends NumberSetting<Short> {
   }
 
   @Override
+  public short shortValue() {
+    return getValue();
+  }
+
+  @Override
   public IConverter<Short> getConverter() {
     return TypeConverters.SHORT;
   }

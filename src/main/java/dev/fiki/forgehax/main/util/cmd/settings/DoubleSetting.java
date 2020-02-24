@@ -23,6 +23,11 @@ public final class DoubleSetting extends NumberSetting<Double> {
   }
 
   @Override
+  public double doubleValue() {
+    return floatValue();
+  }
+
+  @Override
   public IConverter<Double> getConverter() {
     return TypeConverters.DOUBLE;
   }

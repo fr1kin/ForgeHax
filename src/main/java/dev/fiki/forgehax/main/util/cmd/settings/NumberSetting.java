@@ -19,26 +19,26 @@ abstract class NumberSetting<E extends Number> extends AbstractSetting<E> {
   }
 
   public int intValue() {
-    return (int) getValue();
+    return getValue() == null ? 0 : getValue().intValue();
   }
 
   public long longValue() {
-    return (long) getValue();
+    return getValue() == null ? 0 : getValue().longValue();
   }
 
   public float floatValue() {
-    return (float) getValue();
+    return getValue() == null ? 0.f : getValue().floatValue();
   }
 
   public double doubleValue() {
-    return (double) getValue();
+    return getValue() == null ? 0.d : getValue().doubleValue();
   }
 
   public byte byteValue() {
-    return (byte) getValue();
+    return (byte) intValue();
   }
 
   public short shortValue() {
-    return (short) getValue();
+    return (short) intValue();
   }
 }

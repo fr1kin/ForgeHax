@@ -23,6 +23,11 @@ public final class FloatSetting extends NumberSetting<Float> {
   }
 
   @Override
+  public float floatValue() {
+    return getValue();
+  }
+
+  @Override
   public IConverter<Float> getConverter() {
     return TypeConverters.FLOAT;
   }
