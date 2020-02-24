@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.util.cmd.settings;
 
-import dev.fiki.forgehax.main.util.cmd.AbstractSetting;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.typeconverter.IConverter;
@@ -9,18 +8,16 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
 
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-public final class LongSetting extends AbstractSetting<Long> {
+public final class LongSetting extends NumberSetting<Long> {
   @Builder
   public LongSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
       @Singular Set<EnumFlag> flags, @Singular List<ISettingValueChanged<Long>> changedListeners,
-      @NonNull Long defaultTo, Long min, Long max) {
-    super(parent, name, aliases, description, flags, defaultTo, min, max);
+      @NonNull Number defaultTo, Number min, Number max) {
+    super(parent, name, aliases, description, flags, defaultTo, min, max, Number::longValue);
     addListeners(ISettingValueChanged.class, changedListeners);
     onFullyConstructed();
   }

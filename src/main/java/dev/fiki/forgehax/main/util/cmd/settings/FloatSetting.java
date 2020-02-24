@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.util.cmd.settings;
 
-import dev.fiki.forgehax.main.util.cmd.AbstractSetting;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.typeconverter.IConverter;
@@ -12,13 +11,13 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public final class FloatSetting extends AbstractSetting<Float> {
+public final class FloatSetting extends NumberSetting<Float> {
   @Builder
   public FloatSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
       @Singular Set<EnumFlag> flags, @Singular List<ISettingValueChanged<Float>> changedListeners,
-      @NonNull Float defaultTo, Float min, Float max) {
-    super(parent, name, aliases, description, flags, defaultTo, min, max);
+      @NonNull Number defaultTo, Number min, Number max) {
+    super(parent, name, aliases, description, flags, defaultTo, min, max, Number::floatValue);
     addListeners(ISettingValueChanged.class, changedListeners);
     onFullyConstructed();
   }
