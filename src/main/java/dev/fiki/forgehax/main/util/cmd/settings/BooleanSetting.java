@@ -27,4 +27,24 @@ public final class BooleanSetting extends AbstractSetting<Boolean> {
   public IConverter<Boolean> getConverter() {
     return TypeConverters.BOOLEAN;
   }
+
+  public boolean isEnabled() {
+    return getValue();
+  }
+
+  public boolean isDisabled() {
+    return !getValue();
+  }
+
+  public boolean enable() {
+    return setValue(true);
+  }
+
+  public boolean disable() {
+    return setValue(false);
+  }
+
+  public boolean toggle() {
+    return setValue(!getValue());
+  }
 }
