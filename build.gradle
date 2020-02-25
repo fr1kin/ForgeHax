@@ -1,11 +1,18 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 buildscript {
   ext {
-    forgehaxVersion = '2.9.0'
+    forgehaxCommit = { ->
+      def out = new ByteArrayOutputStream()
+      exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput out
+      }
+      return out.toString().trim()
+    }()
+
+    forgehaxVersion = "3.0.0-${forgehaxCommit}"
 
     minecraftVersion = '1.15.2'
-    forgeVersion = '1.15.2-31.1.0'
+    forgeVersion = "${minecraftVersion}-31.1.0"
 
     fmlVersion = '2.0.0-milestone.1'
     lombokVersion = '1.18.12'
@@ -33,10 +40,10 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
 
-group 'com.matt.forgehax'
+group 'dev.fiki.forgehax'
 version forgehaxVersion
 
-archivesBaseName = "forgehax-${version}"
+archivesBaseName = "ForgeHax-${minecraftVersion}"
 sourceCompatibility = targetCompatibility = '1.8'
 
 configurations.all {
@@ -46,22 +53,18 @@ configurations.all {
 sourceSets {
   api {
     compileClasspath += main.compileClasspath
-    //runtimeClasspath += sourceSets.main.runtimeClasspath
   }
 
   common {
     compileClasspath += main.compileClasspath
-    //runtimeClasspath += main.runtimeClasspath
   }
 
   core {
     compileClasspath += main.compileClasspath + common.output
-    //runtimeClasspath += main.runtimeClasspath
   }
 
   main {
     compileClasspath += api.output + common.output
-    //runtimeClasspath += common.output
   }
 
   allSourceSets {
@@ -76,12 +79,8 @@ minecraft {
     client {
       workingDirectory project.file('run')
 
-      // Recommended logging data for a userdev environment
       property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-      // Recommended logging level for the console
       property 'forge.logging.console.level', 'info'
-
       property 'forgehax.logging.level', 'debug'
 
       setIdeaModule project.getName() + '_' + sourceSets.allSourceSets.name
@@ -116,7 +115,7 @@ jar {
         "Specification-Vendor"    : "nhackindustries",
         "Specification-Version"   : "1",
         "Implementation-Title"    : project.name,
-        "Implementation-Version"  : "${forgehaxVersion}",
+        "Implementation-Version"  : project.version,
         "Implementation-Vendor"   : "nhackindustries",
         "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
     ])
@@ -128,13 +127,14 @@ jar {
 
 processResources {
   filesMatching('**/config.properties') {
-    it.filter ReplaceTokens, tokens: [
-        "forgehax.version"      : forgehaxVersion,
-        "forgehax.mc.version"   : minecraftVersion,
-        "forgehax.forge.version": forgeVersion,
-        "forgehax.mcp.version"  : mcpVersion,
-        "forgehax.mcp.channel"  : mcpChannel,
-        "forgehax.mcp.mapping"  : mcpMapping
+    //noinspection UnnecessaryQualifiedReference
+    it.filter org.apache.tools.ant.filters.ReplaceTokens, tokens: [
+        "forgehax.version"      : forgehaxVersion.toString(),
+        "forgehax.mc.version"   : minecraftVersion.toString(),
+        "forgehax.forge.version": forgeVersion.toString(),
+        "forgehax.mcp.version"  : mcpVersion.toString(),
+        "forgehax.mcp.channel"  : mcpChannel.toString(),
+        "forgehax.mcp.mapping"  : mcpMapping.toString()
     ]
   }
 }
@@ -152,41 +152,40 @@ task setGameDir() {
   }
 }
 
-//class CopyJarTask extends DefaultTask {
-//  @TaskAction
-//  protected void exec() {
-//    project.copy {
-//      final mc = "${project.ext.gameDir}/mods/${project.minecraft.version}"
-//
-//      // find previous jar (if it exists)
-//      final previousJars = project.fileTree(dir: mc).matching {
-//        include "${project.archivesBaseName}*"
-//      }.files
-//
-//      // change file name
-//      if (previousJars) {
-//        // create .backups folder
-//        project.file("${mc}/.backups/").mkdirs()
-//
-//        for (File previousJar : previousJars) {
-//          final n = "${mc}/.backups/${previousJar.getName()}.bk"
-//          def f = project.file(n)
-//          def i = 1
-//          while (f.exists()) {
-//            f = project.file("${n}_${i}")
-//            i++
-//          }
-//          previousJar.renameTo(f)
-//        }
-//      }
-//
-//      // copy forgehax jar from libs to forge mod folder
-//      from project.jar
-//      into "${project.ext.gameDir}/mods/${project.minecraft.version}"
-//    }
-//  }
-//}
-//
-//task copyJar(type: CopyJarTask, dependsOn: [setGameDir])
-//
-//build.finalizedBy copyJar
+task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
+  doLast {
+    final dir = "${project.ext.gameDir}/mods"
+    final files = { directory, keyword ->
+      project.fileTree(dir: directory).matching {
+        include keyword
+      }.files
+    }
+
+    // delete previous ForgeHax jars
+    files(dir, "${project.archivesBaseName}*.jar").each { file ->
+      file.delete()
+    }
+
+    // get the mod folder dir
+
+    //noinspection UnnecessaryQualifiedReference
+    final folder = java.nio.file.Paths.get(dir.toString())
+    //noinspection UnnecessaryQualifiedReference
+    if (java.nio.file.Files.exists(folder)) {
+      // get all the build artifacts
+
+      files('build/libs', "*.jar").each { file ->
+        // copy the jar
+        // why use this instead of a Copy task? because a Copy task will delete the
+        // jar when gradle clean is ran
+
+        final artifact = file.toPath()
+        //noinspection UnnecessaryQualifiedReference
+        java.nio.file.Files.copy(artifact, folder.resolve(file.getName()))
+      }
+    }
+  }
+}
+
+// run this task after build
+build.finalizedBy copyJar
