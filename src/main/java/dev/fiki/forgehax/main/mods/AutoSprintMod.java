@@ -9,7 +9,6 @@ import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
-import static dev.fiki.forgehax.main.Common.getGameSettings;
 
 @RegisterMod
 public class AutoSprintMod extends ToggleMod {
@@ -74,7 +73,8 @@ public class AutoSprintMod extends ToggleMod {
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (event.getEntityLiving().moveForward > 0
         && !event.getEntityLiving().collidedHorizontally
-        && !event.getEntityLiving().isCrouching()) {
+        && !event.getEntityLiving().isCrouching()
+        && !getModManager().isModEnabled(FreecamMod.class)) {
       startSprinting();
     }
   }
