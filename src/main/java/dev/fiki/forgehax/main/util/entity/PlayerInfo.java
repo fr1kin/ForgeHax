@@ -41,44 +41,15 @@ public class PlayerInfo implements Common, GsonConstant {
 
   private boolean connected = false;
 
-//  public PlayerInfo(UUID id) throws IOException {
-//    Objects.requireNonNull(id);
-//    this.uuid = id;
-//    this.names = ImmutableList.copyOf(getNameHistory(id));
-//    this.offlineId = PlayerEntity.getOfflineUUID(getName());
-//    this.isOfflinePlayer = false;
-//  }
-//
-//  public PlayerInfo(String name) throws IOException, NullPointerException {
-//    Objects.requireNonNull(name);
-//    JsonArray ar = new JsonArray();
-//    ar.add(name);
-//
-//    JsonArray array =
-//        getResources(new URL("https://api.mojang.com/profiles/minecraft"), "POST", ar)
-//            .getAsJsonArray();
-//    JsonObject node = array.get(0).getAsJsonObject();
-//
-//    UUID uuid = PlayerInfoHelper.getIdFromString(node.get("id").getAsString());
-//    Objects.requireNonNull(uuid);
-//
-//    this.uuid = uuid;
-//    this.names = ImmutableList.copyOf(getNameHistory(uuid));
-//    this.offlineId = PlayerEntity.getOfflineUUID(name);
-//    this.isOfflinePlayer = false;
-//  }
-//
-//  public PlayerInfo(String name, boolean dummy) {
-//    this.uuid = PlayerEntity.getOfflineUUID(name);
-//    this.names = Collections.singletonList(new Name(name));
-//    this.offlineId = this.uuid;
-//    this.isOfflinePlayer = true;
-//  }
-
-  public PlayerInfo(String username, UUID uuid, boolean offlinePlayer) {
+  public PlayerInfo(String username, UUID uuid) {
     this.username = username;
     this.uuid = uuid;
-    this.offlinePlayer = offlinePlayer;
+    this.offlinePlayer = username.isEmpty() || uuid.equals(getOfflineId());
+  }
+
+  public PlayerInfo setConnected(boolean connected) {
+    this.connected = connected;
+    return this;
   }
 
   void setNames(Collection<Name> names) {

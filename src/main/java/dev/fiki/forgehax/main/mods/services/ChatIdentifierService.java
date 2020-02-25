@@ -50,8 +50,6 @@ public class ChatIdentifierService extends ServiceMod {
         final String messageOnly = matcher.group(2);
         if (!Strings.isNullOrEmpty(messageSender)) {
           PlayerInfoHelper.getOrCreateByUsername(messageSender)
-              .exceptionally(ex -> PlayerInfoHelper.getOrCreateOffline(messageSender)
-                  .getNow(null))
               .thenAccept(info -> callback.accept(info, messageOnly));
           return true;
         }
@@ -78,8 +76,6 @@ public class ChatIdentifierService extends ServiceMod {
         // private messages to the local player
         if (extract(message, INCOMING_PRIVATE_MESSAGES,
             (info, msg) -> PlayerInfoHelper.getOrCreate(getLocalPlayer().getGameProfile())
-                .exceptionally(ex -> PlayerInfoHelper.getOrCreateOffline(getLocalPlayer().getGameProfile().getName())
-                    .getNow(null))
                 .thenAccept(selfInfo -> MinecraftForge.EVENT_BUS.post(
                     ChatMessageEvent.newPrivateChat(info, selfInfo, msg))))) {
           return;
@@ -88,8 +84,6 @@ public class ChatIdentifierService extends ServiceMod {
         // outgoing pms from local player
         if (extract(message, OUTGOING_PRIVATE_MESSAGES,
             (info, msg) -> PlayerInfoHelper.getOrCreate(getLocalPlayer().getGameProfile())
-                .exceptionally(ex -> PlayerInfoHelper.getOrCreateOffline(getLocalPlayer().getGameProfile().getName())
-                    .getNow(null))
                 .thenAccept(selfInfo -> MinecraftForge.EVENT_BUS.post(
                     ChatMessageEvent.newPrivateChat(selfInfo, info, msg))))) {
           return;

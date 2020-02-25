@@ -3,7 +3,6 @@ package dev.fiki.forgehax.main.util.entity;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import dev.fiki.forgehax.main.Common;
-import joptsimple.internal.Strings;
 import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.*;
@@ -21,24 +20,31 @@ public class PlayerInfoHelper implements Common {
   private static final Map<String, PlayerInfo> NAME_TO_INFO = Maps.newConcurrentMap();
   private static final Map<UUID, PlayerInfo> UUID_TO_INFO = Maps.newConcurrentMap();
   
-  public static PlayerInfo register(String username, UUID uuid, boolean offline) {
-    if (Strings.isNullOrEmpty(username) || username.length() > MAX_NAME_LENGTH) {
+  public static PlayerInfo register(String username, UUID uuid) {
+    Objects.requireNonNull(username, "username is null");
+    if (username.length() > MAX_NAME_LENGTH) {
       throw new IllegalArgumentException("Username is too long!");
     }
 
-    final PlayerInfo info = new PlayerInfo(username, uuid, offline);
-    NAME_TO_INFO.put(username.toLowerCase(), info);
+    final PlayerInfo info = new PlayerInfo(username, uuid);
+    if(!username.isEmpty()) {
+      NAME_TO_INFO.put(username.toLowerCase(), info);
+    }
     UUID_TO_INFO.put(uuid, info);
     UUID_TO_INFO.put(info.getOfflineId(), info);
     return info;
   }
 
   public static PlayerInfo registerOnline(String username, UUID uuid) {
-    return register(username, uuid, false);
+    return register(username, uuid);
   }
 
   public static PlayerInfo registerOffline(String username) {
-    return register(username, PlayerEntity.getOfflineUUID(username), true);
+    return register(username, PlayerEntity.getOfflineUUID(username));
+  }
+
+  public static PlayerInfo registerOffline(UUID uuid) {
+    return register("", uuid);
   }
   
   public static PlayerInfo get(String name) {
@@ -66,7 +72,9 @@ public class PlayerInfoHelper implements Common {
     if(info == null) {
       info = registerOnline(username, uuid);
     }
-    return CompletableFuture.completedFuture(info);
+    return CompletableFuture.completedFuture(info)
+        .exceptionally(ex -> PlayerInfoHelper.getOrCreateOffline(username)
+            .getNow(null));
   }
 
   public static CompletableFuture<PlayerInfo> getOrCreate(GameProfile profile) {
@@ -93,6 +101,7 @@ public class PlayerInfoHelper implements Common {
     PlayerInfo info = get(username);
     if (info == null) {
       return CompletableFuture.supplyAsync(() -> PlayerInfo.getUuidFromName(username), getPooledThreadExecutor())
+          .exceptionally(ex -> PlayerEntity.getOfflineUUID(username))
           .thenApply(uuid -> registerOnline(username, uuid));
     }
     return CompletableFuture.completedFuture(info);
@@ -106,7 +115,8 @@ public class PlayerInfoHelper implements Common {
             PlayerInfo pli = registerOnline(names.get(0).getName(), uuid);
             pli.setNames(names);
             return pli;
-          });
+          })
+          .exceptionally(ex -> registerOffline(uuid));
     }
     return CompletableFuture.completedFuture(info);
   }

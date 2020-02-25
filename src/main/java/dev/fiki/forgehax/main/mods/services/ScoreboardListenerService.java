@@ -7,7 +7,6 @@ import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
 import dev.fiki.forgehax.main.util.SimpleTimer;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.main.util.entity.PlayerInfo;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -71,10 +70,10 @@ public class ScoreboardListenerService extends ServiceMod {
           // provided a profile name and uuid
           for(SPlayerListItemPacket.AddPlayerData data : packet.getEntries()) {
             GameProfile profile = data.getProfile();
-            PlayerInfo info = PlayerInfoHelper.registerOnline(profile.getName(), profile.getId());
-
-            // fire connect event
-            MinecraftForge.EVENT_BUS.post(new PlayerConnectEvent.Join(info, profile));
+            PlayerInfoHelper.getOrCreate(profile)
+                .thenApply(info -> info.setConnected(true))
+                .thenAccept(info -> MinecraftForge.EVENT_BUS.post(
+                    new PlayerConnectEvent.Join(info, info.toGameProfile())));
           }
           break;
         case REMOVE_PLAYER:
@@ -82,6 +81,7 @@ public class ScoreboardListenerService extends ServiceMod {
           for(SPlayerListItemPacket.AddPlayerData data : packet.getEntries()) {
             GameProfile profile = data.getProfile();
             PlayerInfoHelper.getOrCreateByUuid(profile.getId())
+                .thenApply(info -> info.setConnected(false))
                 .thenAccept(info -> MinecraftForge.EVENT_BUS.post(
                     new PlayerConnectEvent.Leave(info, info.toGameProfile())));
           }
