@@ -153,36 +153,21 @@ task setGameDir() {
 }
 
 task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
+  final files = { directory, filter, closure ->
+    new File(directory).eachFileMatch(filter, closure)
+  }
+
   doLast {
-    final dir = "${project.ext.gameDir}/mods"
-    final files = { directory, keyword ->
-      project.fileTree(dir: directory).matching {
-        include keyword
-      }.files
-    }
+    final mods = "${project.ext.gameDir}/mods"
 
-    // delete previous ForgeHax jars
-    files(dir, "${project.archivesBaseName}*.jar").each { file ->
-      file.delete()
-    }
-
-    // get the mod folder dir
-
-    //noinspection UnnecessaryQualifiedReference
-    final folder = java.nio.file.Paths.get(dir.toString())
-    //noinspection UnnecessaryQualifiedReference
-    if (java.nio.file.Files.exists(folder)) {
-      // get all the build artifacts
-
-      files('build/libs', "*.jar").each { file ->
-        // copy the jar
-        // why use this instead of a Copy task? because a Copy task will delete the
-        // jar when gradle clean is ran
-
-        final artifact = file.toPath()
-        //noinspection UnnecessaryQualifiedReference
-        java.nio.file.Files.copy(artifact, folder.resolve(file.getName()))
+    project.copy {
+      // delete previous ForgeHax jars
+      files(mods, ~/ForgeHax-.*\.jar/) { file ->
+        file.delete()
       }
+
+      from project.jar
+      into mods
     }
   }
 }
