@@ -1,23 +1,17 @@
 package dev.fiki.forgehax.main.mods.commands;
 
-import com.google.common.util.concurrent.FutureCallback;
 import com.mojang.authlib.GameProfile;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.AbstractCommand;
+import dev.fiki.forgehax.main.util.cmd.CommandHelper;
 import dev.fiki.forgehax.main.util.cmd.ICommand;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.value.IValue;
 import dev.fiki.forgehax.main.util.mod.CommandMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-
-import joptsimple.internal.Strings;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
+
+import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -36,7 +30,10 @@ public class HelpCommand extends CommandMod {
         .name("save")
         .description("Save all configurations")
         .flag(EnumFlag.EXECUTOR_ASYNC)
-        .executor(args -> getRootCommand().serialize())
+        .executor(args -> {
+          getRootCommand().serialize();
+          args.inform("All configurations saved");
+        })
         .build();
   }
 
@@ -45,7 +42,7 @@ public class HelpCommand extends CommandMod {
         .name("help")
         .description("Help text for mod syntax and command list")
         .executor(args -> {
-          args.inform("Type \".search <optional: containing string>\" for list of mods");
+          args.inform("Type \".find <optional: containing string>\" for list of mods");
           args.inform("Use -? or --help after command to see command options");
           args.inform("See the FAQ for details");
           args.inform("https://github.com/fr1kin/ForgeHax#faq");
@@ -59,10 +56,13 @@ public class HelpCommand extends CommandMod {
         .description("Lists all the mods or all the mods containing the given argument")
         .argument(Arguments.newStringArgument()
             .label("mod")
+            .optional()
+            .defaultValue("")
             .build())
         .executor(args -> {
           IValue<String> modSearch = args.getFirst();
-          args.inform(getRootCommand().getPossibleMatchingChildren(modSearch.getValue()).stream()
+          args.inform(getRootCommand().getPossibleMatchingChildren(modSearch.getValueOrDefault()).stream()
+              .filter(CommandHelper::isVisibleFlag)
               .map(ICommand::getName)
               .collect(Collectors.joining(", ")));
         })

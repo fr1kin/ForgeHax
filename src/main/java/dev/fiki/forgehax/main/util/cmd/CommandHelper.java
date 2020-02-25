@@ -10,6 +10,14 @@ import static dev.fiki.forgehax.main.Common.getAsyncThreadExecutor;
 import static dev.fiki.forgehax.main.Common.getMainThreadExecutor;
 
 public class CommandHelper {
+  public static boolean isHiddenFlag(ICommand command) {
+    return command.containsFlag(EnumFlag.HIDDEN);
+  }
+
+  public static boolean isVisibleFlag(ICommand command) {
+    return !isHiddenFlag(command);
+  }
+
   // [code borrowed from ant.jar] Crack a command line.
   public static String[] parseLine(String toProcess) {
     if (toProcess == null || toProcess.length() == 0) {
