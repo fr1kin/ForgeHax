@@ -1,47 +1,38 @@
 package dev.fiki.forgehax.main;
 
+import dev.fiki.forgehax.main.util.FileManager;
 import dev.fiki.forgehax.main.util.TextComponentBuilder;
 import dev.fiki.forgehax.main.util.cmd.RootCommand;
 import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
 import dev.fiki.forgehax.main.util.draw.BufferProvider;
 import dev.fiki.forgehax.main.util.mod.loader.ModManager;
-import dev.fiki.forgehax.main.util.FileManager;
 import net.minecraft.block.Block;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.overlay.PlayerTabOverlayGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.multiplayer.PlayerController;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.chunk.VisGraph;
-import net.minecraft.client.renderer.entity.BoatRenderer;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.text.*;
-import net.minecraft.world.World;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -254,6 +245,10 @@ public interface Common {
 
   static Executor getAsyncThreadExecutor() {
     return ForgeHax.getInstance().getAsyncExecutorService();
+  }
+
+  static ExecutorService getPooledThreadExecutor() {
+    return ForgeHax.getInstance().getPooledExecutorService();
   }
 
   static void addScheduledTask(Runnable runnable) {

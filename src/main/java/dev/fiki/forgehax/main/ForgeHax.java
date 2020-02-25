@@ -13,10 +13,7 @@ import lombok.Getter;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.impl.Log4jContextFactory;
-import org.apache.logging.log4j.spi.LoggerContextFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +23,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Mod("forgehax")
 @Getter
@@ -44,6 +42,7 @@ public class ForgeHax {
   private FileManager fileManager;
 
   private ExecutorService asyncExecutorService;
+  private ExecutorService pooledExecutorService;
 
   private IConsole currentConsole;
 
@@ -75,6 +74,7 @@ public class ForgeHax {
       fileManager = new FileManager();
 
       asyncExecutorService = Executors.newSingleThreadExecutor();
+      pooledExecutorService = Executors.newFixedThreadPool(4);
 
       currentConsole = GAME_CONSOLE_OUTPUT;
 
@@ -109,6 +109,20 @@ public class ForgeHax {
 
   private void shutdown() {
     getModManager().forEach(AbstractMod::unload);
+
+    shutdownExecutorService(asyncExecutorService);
+    shutdownExecutorService(pooledExecutorService);
+  }
+
+  private void shutdownExecutorService(ExecutorService executorService) {
+    executorService.shutdown();
+    while (!executorService.isShutdown()) {
+      try {
+        executorService.awaitTermination(30, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        logger.error(e, e);
+      }
+    }
   }
 
   private static final IConsole GAME_CONSOLE_OUTPUT = new IConsole() {

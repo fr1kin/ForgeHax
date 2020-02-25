@@ -2,34 +2,29 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.FutureCallback;
 import dev.fiki.forgehax.main.events.ChatMessageEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
+import dev.fiki.forgehax.main.mods.services.SpamService;
+import dev.fiki.forgehax.main.util.ArrayHelper;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingSet;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
-import dev.fiki.forgehax.main.util.entity.PlayerInfo;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
 import dev.fiki.forgehax.main.util.entry.CustomMessageEntry;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.spam.SpamMessage;
 import dev.fiki.forgehax.main.util.spam.SpamTokens;
-import dev.fiki.forgehax.main.mods.services.SpamService;
-import dev.fiki.forgehax.main.util.ArrayHelper;
+import joptsimple.internal.Strings;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.annotation.Nullable;
-
-import joptsimple.internal.Strings;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created on 7/21/2017 by fr1kin
@@ -175,36 +170,30 @@ public class JoinMessage extends ToggleMod {
 
     // setter is not in cooldown
     if (System.currentTimeMillis()
-        < cooldowns.getOrDefault(event.getSender().getId(), new AtomicLong(0L)).get()) {
+        < cooldowns.getOrDefault(event.getSender().getUuid(), new AtomicLong(0L)).get()) {
       debugMessage("Player is currently in a cooldown");
       return;
     }
 
     if (use_offline.getValue()) {
       // use offline ID
-      setJoinMessage(PlayerEntity.getOfflineUUID(target), event.getSender().getId(), message);
+      setJoinMessage(PlayerEntity.getOfflineUUID(target), event.getSender().getUuid(), message);
       return; // join message set, stop here
     }
 
-    PlayerInfoHelper.registerWithCallback(
-        target,
-        new FutureCallback<PlayerInfo>() {
-          @Override
-          public void onSuccess(@Nullable PlayerInfo result) {
-            if (result != null && !result.isOfflinePlayer()) {
-              setJoinMessage(result.getId(), event.getSender().getId(), message);
-            }
-          }
-
-          @Override
-          public void onFailure(Throwable t) {
+    PlayerInfoHelper.getOrCreateByUsername(target)
+        .exceptionally(ex -> PlayerInfoHelper.getOrCreateOffline(target)
+            .getNow(null))
+        .thenAccept(info -> {
+          if (info != null && !info.isOfflinePlayer()) {
+            setJoinMessage(info.getUuid(), event.getSender().getUuid(), message);
           }
         });
   }
 
   @SubscribeEvent
   public void onPlayerConnect(PlayerConnectEvent.Join event) {
-    CustomMessageEntry entry = messages.search(e -> e.getPlayer().equals(event.getPlayerInfo().getId()))
+    CustomMessageEntry entry = messages.search(e -> e.getPlayer().equals(event.getPlayerInfo().getUuid()))
         .orElse(null);
     if (entry != null) {
       // resize if needed

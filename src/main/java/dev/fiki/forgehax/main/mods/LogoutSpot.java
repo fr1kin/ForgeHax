@@ -9,17 +9,13 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.math.Plane;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.draw.GeometryMasks;
-
-import java.util.Set;
-import java.util.UUID;
-
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -27,6 +23,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.Set;
+import java.util.UUID;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -85,7 +84,7 @@ public class LogoutSpot extends ToggleMod {
   @SubscribeEvent
   public void onPlayerConnect(PlayerConnectEvent.Join event) {
     synchronized (spots) {
-      if (spots.removeIf(spot -> spot.getId().equals(event.getPlayerInfo().getId()))) {
+      if (spots.removeIf(spot -> spot.getId().equals(event.getPlayerInfo().getUuid()))) {
         printWarning("%s has joined!", event.getPlayerInfo().getName());
       }
     }
@@ -97,13 +96,13 @@ public class LogoutSpot extends ToggleMod {
       return;
     }
 
-    PlayerEntity player = getWorld().getPlayerByUuid(event.getPlayerInfo().getId());
+    PlayerEntity player = getWorld().getPlayerByUuid(event.getPlayerInfo().getUuid());
     if (player != null && getLocalPlayer() != null && !getLocalPlayer().equals(player)) {
       AxisAlignedBB bb = player.getBoundingBox();
       synchronized (spots) {
         if (spots.add(
             new LogoutPos(
-                event.getPlayerInfo().getId(),
+                event.getPlayerInfo().getUuid(),
                 event.getPlayerInfo().getName(),
                 new Vec3d(bb.maxX, bb.maxY, bb.maxZ),
                 new Vec3d(bb.minX, bb.minY, bb.minZ)))) {

@@ -1,29 +1,21 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Sets;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ChatMessageEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
+import dev.fiki.forgehax.main.mods.services.SpamService;
+import dev.fiki.forgehax.main.util.ArrayHelper;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingSet;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.serialization.GsonConstant;
 import dev.fiki.forgehax.main.util.spam.SpamEntry;
 import dev.fiki.forgehax.main.util.spam.SpamMessage;
 import dev.fiki.forgehax.main.util.spam.SpamTokens;
 import dev.fiki.forgehax.main.util.spam.SpamTrigger;
-import dev.fiki.forgehax.main.mods.services.SpamService;
-import dev.fiki.forgehax.main.util.ArrayHelper;
-
 import joptsimple.internal.Strings;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -330,7 +322,7 @@ public class ChatBot extends ToggleMod {
     }
 
     String[] args = event.getMessage().split(" ");
-    final String sender = event.getSender().getId().toString();
+    final String sender = event.getSender().getUuid().toString();
     final String keyword = ArrayHelper.getOrDefault(args, 0, Strings.EMPTY);
     final String arg = ArrayHelper.getOrDefault(args, 1, Strings.EMPTY);
     spams

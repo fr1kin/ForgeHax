@@ -1,120 +1,87 @@
 package dev.fiki.forgehax.main.util.entity;
 
 import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import com.mojang.authlib.GameProfile;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.Immutables;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import joptsimple.internal.Strings;
+import net.minecraft.entity.player.PlayerEntity;
+
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+import static dev.fiki.forgehax.main.Common.getPooledThreadExecutor;
 
 /**
  * Created on 7/22/2017 by fr1kin
  */
 public class PlayerInfoHelper implements Common {
-  
-  private static final int THREAD_COUNT = 1;
   public static final int MAX_NAME_LENGTH = 16;
-  
-  private static final ListeningExecutorService EXECUTOR_SERVICE =
-      MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(Math.max(THREAD_COUNT, 1)));
   
   private static final Map<String, PlayerInfo> NAME_TO_INFO = Maps.newConcurrentMap();
   private static final Map<UUID, PlayerInfo> UUID_TO_INFO = Maps.newConcurrentMap();
   
-  static {
-    // shut threads down
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread(
-                () -> {
-                  EXECUTOR_SERVICE.shutdown();
-                  while (!EXECUTOR_SERVICE.isShutdown()) {
-                    try {
-                      EXECUTOR_SERVICE.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-                    } catch (InterruptedException e) {
-                    }
-                  }
-                }));
-  }
-  
-  private static PlayerInfo register(String name) throws IOException {
-    if (Strings.isNullOrEmpty(name) || name.length() > MAX_NAME_LENGTH) {
-      return null;
+  public static PlayerInfo register(String username, UUID uuid, boolean offline) {
+    if (Strings.isNullOrEmpty(username) || username.length() > MAX_NAME_LENGTH) {
+      throw new IllegalArgumentException("Username is too long!");
     }
-    PlayerInfo info = new PlayerInfo(name);
-    NAME_TO_INFO.put(info.getName().toLowerCase(), info);
-    UUID_TO_INFO.put(info.getId(), info);
+
+    final PlayerInfo info = new PlayerInfo(username, uuid, offline);
+    NAME_TO_INFO.put(username.toLowerCase(), info);
+    UUID_TO_INFO.put(uuid, info);
+    UUID_TO_INFO.put(info.getOfflineId(), info);
     return info;
   }
-  
-  private static PlayerInfo register(UUID uuid) throws IOException {
-    PlayerInfo info = new PlayerInfo(uuid);
-    NAME_TO_INFO.put(info.getName().toLowerCase(), info);
-    UUID_TO_INFO.put(info.getId(), info);
-    return info;
+
+  public static PlayerInfo registerOnline(String username, UUID uuid) {
+    return register(username, uuid, false);
   }
-  
-  private static PlayerInfo offlineUser(String name) {
-    if (name.length() > MAX_NAME_LENGTH) {
-      return null;
-    }
-    return new PlayerInfo(name, true);
+
+  public static PlayerInfo registerOffline(String username) {
+    return register(username, PlayerEntity.getOfflineUUID(username), true);
   }
   
   public static PlayerInfo get(String name) {
-    return Strings.isNullOrEmpty(name) ? null : NAME_TO_INFO.get(name.toLowerCase());
+    Objects.requireNonNull(name, "username is null");
+    return NAME_TO_INFO.get(name.toLowerCase());
   }
   
   public static PlayerInfo get(UUID uuid) {
-    return uuid == null ? null : UUID_TO_INFO.get(uuid);
+    Objects.requireNonNull(uuid, "uuid is null");
+    return UUID_TO_INFO.get(uuid);
   }
   
-  public static List<PlayerInfo> getPlayers() {
-    return Immutables.copyToList(UUID_TO_INFO.values());
+  public static Collection<PlayerInfo> getPlayers() {
+    return Collections.unmodifiableCollection(UUID_TO_INFO.values());
   }
-  
-  public static List<PlayerInfo> getOnlinePlayers() {
-    return MC.getConnection() == null
-        ? Collections.emptyList()
-        : MC.getConnection()
-            .getPlayerInfoMap()
-            .stream()
-            .map(
-                info -> {
-                  PlayerInfo pl = get(info.getGameProfile().getName());
-                  return pl == null ? offlineUser(info.getGameProfile().getName()) : pl;
-                })
-            .collect(Collectors.toList());
+
+  public static Collection<PlayerInfo> getOnlinePlayers() {
+    return UUID_TO_INFO.values().stream()
+        .filter(PlayerInfo::isConnected)
+        .collect(Collectors.toList());
   }
-  
-  public static PlayerInfo lookup(String name) throws IOException {
-    PlayerInfo info = get(name);
-    if (info == null) {
-      return register(name);
-    } else {
-      return info;
-    }
-  }
-  
-  public static PlayerInfo lookup(UUID uuid) throws IOException {
+
+  public static CompletableFuture<PlayerInfo> getOrCreate(String username, UUID uuid) {
     PlayerInfo info = get(uuid);
-    if (info == null) {
-      return register(uuid);
-    } else {
-      return info;
+    if(info == null) {
+      info = registerOnline(username, uuid);
     }
+    return CompletableFuture.completedFuture(info);
+  }
+
+  public static CompletableFuture<PlayerInfo> getOrCreate(GameProfile profile) {
+    Objects.requireNonNull(profile, "GameProfile is null");
+    Objects.requireNonNull(profile.getId(), "GameProfile.id is null");
+    Objects.requireNonNull(profile.getName(), "GameProfile.name is null");
+    return getOrCreate(profile.getName(), profile.getId());
+  }
+
+  public static CompletableFuture<PlayerInfo> getOrCreateOffline(String username) {
+    PlayerInfo info = get(username);
+    if(info == null) {
+      info = registerOffline(username);
+    }
+    return CompletableFuture.completedFuture(info);
   }
   
   /**
@@ -122,56 +89,26 @@ public class PlayerInfoHelper implements Common {
    *
    * @return true if the player info is being looked up on a separate thread
    */
-  @SuppressWarnings("Duplicates")
-  public static boolean registerWithCallback(
-      final String name, final FutureCallback<PlayerInfo> callback) {
-    PlayerInfo info = get(name);
+  public static CompletableFuture<PlayerInfo> getOrCreateByUsername(final String username) {
+    PlayerInfo info = get(username);
     if (info == null) {
-      Futures.addCallback(EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(name)), callback);
-      return true;
-    } else {
-      Futures.addCallback(Futures.immediateFuture(info), callback);
-      return false;
+      return CompletableFuture.supplyAsync(() -> PlayerInfo.getUuidFromName(username), getPooledThreadExecutor())
+          .thenApply(uuid -> registerOnline(username, uuid));
     }
+    return CompletableFuture.completedFuture(info);
   }
   
-  @SuppressWarnings("Duplicates")
-  public static boolean registerWithCallback(
-      final UUID uuid, final FutureCallback<PlayerInfo> callback) {
+  public static CompletableFuture<PlayerInfo> getOrCreateByUuid(final UUID uuid) {
     PlayerInfo info = get(uuid);
     if (info == null) {
-      Futures.addCallback(EXECUTOR_SERVICE.submit(() -> PlayerInfoHelper.register(uuid)), callback);
-      return true;
-    } else {
-      Futures.addCallback(Futures.immediateFuture(info), callback);
-      return false;
+      return CompletableFuture.supplyAsync(() -> PlayerInfo.getNameHistory(uuid), getPooledThreadExecutor())
+          .thenApply(names -> {
+            PlayerInfo pli = registerOnline(names.get(0).getName(), uuid);
+            pli.setNames(names);
+            return pli;
+          });
     }
-  }
-  
-  public static boolean registerWithCallback(
-      final UUID uuid, final String name, final FutureCallback<PlayerInfo> callback) {
-    return registerWithCallback(
-        uuid,
-        new FutureCallback<PlayerInfo>() {
-          @Override
-          public void onSuccess(@Nullable PlayerInfo result) {
-            callback.onSuccess(
-                result); // uuid successfully found player data, call original onSuccess
-          }
-          
-          @Override
-          public void onFailure(Throwable t) {
-            registerWithCallback(name, callback); // try name instead
-          }
-        });
-  }
-  
-  public static boolean generateOfflineWithCallback(
-      final String name, final FutureCallback<PlayerInfo> callback) {
-    ListenableFuture<PlayerInfo> future =
-        Futures.immediateFuture(PlayerInfoHelper.offlineUser(name));
-    Futures.addCallback(future, callback);
-    return false;
+    return CompletableFuture.completedFuture(info);
   }
   
   public static UUID getIdFromString(String uuid) {

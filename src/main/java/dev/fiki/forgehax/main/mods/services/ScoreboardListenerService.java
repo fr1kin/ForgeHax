@@ -1,29 +1,19 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import com.google.common.util.concurrent.FutureCallback;
+import com.mojang.authlib.GameProfile;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.events.ConnectToServerEvent;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.PlayerConnectEvent;
-import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.SimpleTimer;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.entity.PlayerInfo;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.SimpleTimer;
-import com.mojang.authlib.GameProfile;
-
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nullable;
-
-import joptsimple.internal.Strings;
 import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
 import net.minecraft.network.play.server.SPlayerListItemPacket;
-import net.minecraft.network.play.server.SPlayerListItemPacket.Action;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -39,34 +29,12 @@ public class ScoreboardListenerService extends ServiceMod {
       .defaultTo(5000)
       .build();
 
-  private final IntegerSetting retries = newIntegerSetting()
-      .name("retries")
-      .description("Number of times to attempt retries on failure")
-      .defaultTo(1)
-      .build();
-
   private final SimpleTimer timer = new SimpleTimer();
 
   private boolean ignore = false;
 
   public ScoreboardListenerService() {
-    super("ScoreboardListenerService", "Listens for player joining and leaving");
-  }
-
-  private void fireEvents(Action action, PlayerInfo info, GameProfile profile) {
-    if (ignore || info == null) {
-      return;
-    }
-    switch (action) {
-      case ADD_PLAYER: {
-        MinecraftForge.EVENT_BUS.post(new PlayerConnectEvent.Join(info, profile));
-        break;
-      }
-      case REMOVE_PLAYER: {
-        MinecraftForge.EVENT_BUS.post(new PlayerConnectEvent.Leave(info, profile));
-        break;
-      }
-    }
+    super("ScoreboardListenerService");
   }
 
   @SubscribeEvent
@@ -98,37 +66,27 @@ public class ScoreboardListenerService extends ServiceMod {
   public void onScoreboardEvent(PacketInboundEvent event) {
     if (event.getPacket() instanceof SPlayerListItemPacket) {
       final SPlayerListItemPacket packet = (SPlayerListItemPacket) event.getPacket();
-      if (!Action.ADD_PLAYER.equals(packet.getAction()) && !Action.REMOVE_PLAYER.equals(packet.getAction())) {
-        return;
+      switch (packet.getAction()) {
+        case ADD_PLAYER:
+          // provided a profile name and uuid
+          for(SPlayerListItemPacket.AddPlayerData data : packet.getEntries()) {
+            GameProfile profile = data.getProfile();
+            PlayerInfo info = PlayerInfoHelper.registerOnline(profile.getName(), profile.getId());
+
+            // fire connect event
+            MinecraftForge.EVENT_BUS.post(new PlayerConnectEvent.Join(info, profile));
+          }
+          break;
+        case REMOVE_PLAYER:
+          // only provided the uuid
+          for(SPlayerListItemPacket.AddPlayerData data : packet.getEntries()) {
+            GameProfile profile = data.getProfile();
+            PlayerInfoHelper.getOrCreateByUuid(profile.getId())
+                .thenAccept(info -> MinecraftForge.EVENT_BUS.post(
+                    new PlayerConnectEvent.Leave(info, info.toGameProfile())));
+          }
+          break;
       }
-
-      packet.getEntries().stream()
-          .filter(Objects::nonNull)
-          .filter(data -> !Strings.isNullOrEmpty(data.getProfile().getName()) || data.getProfile().getId() != null)
-          .forEach(data -> {
-            final String name = data.getProfile().getName();
-            final UUID id = data.getProfile().getId();
-            final AtomicInteger retries = new AtomicInteger(this.retries.getValue());
-            PlayerInfoHelper.registerWithCallback(id, name, new FutureCallback<PlayerInfo>() {
-              @Override
-              public void onSuccess(@Nullable PlayerInfo result) {
-                fireEvents(packet.getAction(), result, data.getProfile());
-              }
-
-              @Override
-              public void onFailure(Throwable t) {
-                if (retries.getAndDecrement() > 0) {
-                  Common.getLogger().warn("Failed to lookup {}/{}, retrying ({})...",
-                      name, id.toString(), retries.get());
-
-                  PlayerInfoHelper.registerWithCallback(data.getProfile().getId(), name, this);
-                } else {
-                  t.printStackTrace();
-                  PlayerInfoHelper.generateOfflineWithCallback(name, this);
-                }
-              }
-            });
-          });
     }
   }
 }
