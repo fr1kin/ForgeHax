@@ -1,12 +1,9 @@
 package dev.fiki.forgehax.main.util.entity;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.mojang.authlib.GameProfile;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.serialization.GsonConstant;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -30,7 +27,7 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
  * Created on 7/22/2017 by fr1kin
  */
 @Getter
-public class PlayerInfo implements Common, GsonConstant {
+public class PlayerInfo implements Common {
 
   final List<Name> names = Lists.newCopyOnWriteArrayList();
 
@@ -162,7 +159,7 @@ public class PlayerInfo implements Common, GsonConstant {
 
       if (element != null) {
         DataOutputStream output = new DataOutputStream(connection.getOutputStream());
-        output.writeBytes(GSON.toJson(element));
+        output.writeBytes(new Gson().toJson(element));
         output.close();
       }
 
@@ -175,7 +172,7 @@ public class PlayerInfo implements Common, GsonConstant {
       scanner.close();
 
       String json = builder.toString();
-      data = PARSER.parse(json);
+      data = new JsonParser().parse(json);
     } finally {
       if (connection != null) {
         connection.disconnect();
