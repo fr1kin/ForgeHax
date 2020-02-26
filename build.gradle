@@ -50,6 +50,8 @@ configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
+final isJenkinsBuilding = System.getProperty("jenkins") != null
+
 sourceSets {
   api {
     compileClasspath += main.compileClasspath
@@ -64,7 +66,7 @@ sourceSets {
   }
 
   main {
-    if(System.getProperty("jenkins") != null) {
+    if (isJenkinsBuilding) {
       java {
         exclude 'dev/fiki/forgehax/main/mods/ForgeModListSpoofer.java'
       }
@@ -177,5 +179,7 @@ task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
   }
 }
 
-// run this task after build
-build.finalizedBy copyJar
+if (!isJenkinsBuilding) {
+  // run this task after build
+  build.finalizedBy copyJar
+}
