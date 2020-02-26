@@ -1,14 +1,16 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
+import static dev.fiki.forgehax.main.Common.getPlayerController;
 
 @RegisterMod
 public class AntiHunger extends ToggleMod {
@@ -19,9 +21,15 @@ public class AntiHunger extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketSending(PacketOutboundEvent event) {
+    if(getLocalPlayer() == null || getLocalPlayer().isElytraFlying()) {
+      // this will break elytra flying
+      return;
+    }
+
     if (event.getPacket() instanceof CPlayerPacket) {
       CPlayerPacket packet = (CPlayerPacket) event.getPacket();
-      if (Common.getLocalPlayer().fallDistance <= 0.0F && !Common.getPlayerController().getIsHittingBlock()) {
+      if ((getLocalPlayer().fallDistance <= 0.0F)
+          && !getPlayerController().getIsHittingBlock()) {
         FastReflection.Fields.CPacketPlayer_onGround.set(packet, false);
       } else {
         FastReflection.Fields.CPacketPlayer_onGround.set(packet, true);
