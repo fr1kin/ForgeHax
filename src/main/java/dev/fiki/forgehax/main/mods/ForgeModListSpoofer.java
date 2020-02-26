@@ -53,51 +53,40 @@ public class ForgeModListSpoofer extends ToggleMod {
     addFlag(EnumFlag.HIDDEN);
   }
 
+  private IndexedMessageCodec getCodec() {
+    SimpleChannel handshakeChannel = Objects.requireNonNull(FMLNetworkConstants_handshakeChannel.getStatic(),
+        "Could not find handshake channel");
+    return Objects.requireNonNull(SimpleChannel_indexedCodec.get(handshakeChannel), "Channel Codec is null");
+  }
+
   @SneakyThrows
   @Override
   protected void onEnabled() {
-    SimpleChannel handshakeChannel = FMLNetworkConstants_handshakeChannel.getStatic();
-    Objects.requireNonNull(handshakeChannel, "Could not find handshake channel");
-
     // get channel codec
-    IndexedMessageCodec codec = SimpleChannel_indexedCodec.get(handshakeChannel);
-    Objects.requireNonNull(codec, "Codec is null");
+    IndexedMessageCodec codec = getCodec();
+
+    final Class<?> type = FMLHandshakeMessages.S2CModList.class;
+
+    // get handler by class type
+    Object handler = IndexedMessageCodec_types.get(codec).get(type);
+    Objects.requireNonNull(handler, "Could not find MessageHandler for S2CModList type");
+
+    // keep the old handler
+    oldMessageHandler = handler;
 
     // MessageHandler fields that need to be copied
-    Optional<BiConsumer<Object, PacketBuffer>> encoder = null;
-    Optional<Function<PacketBuffer, Object>> decoder = null;
-    int index = -1;
-    BiConsumer<Object,Supplier<NetworkEvent.Context>> messageConsumer = null;
-    Class<?> messageType = FMLHandshakeMessages.S2CModList.class;
-    Optional<BiConsumer<Object, Integer>> loginIndexSetter = null;
-    Optional<Function<Object, Integer>> loginIndexGetter = null;
+    BiConsumer<Object, PacketBuffer> encoder = MessageHandler_encoder.get(handler).orElse(null);
+    Function<PacketBuffer, Object> decoder = MessageHandler_decoder.get(handler).orElse(null);
+    int index = MessageHandler_index.get(handler);
+    BiConsumer<Object, Supplier<NetworkEvent.Context>> messageConsumer = MessageHandler_messageConsumer.get(handler);
+    Optional<BiConsumer<Object, Integer>> loginIndexSetter = MessageHandler_loginIndexSetter.get(handler);
+    Optional<Function<Object, Integer>> loginIndexGetter = MessageHandler_loginIndexGetter.get(handler);
 
-    // get MessageHandlers
-    for(Object object : IndexedMessageCodec_indicies.get(codec).values()) {
-      Class<?> type = MessageHandler_messageType.get(object);
-      if(FMLHandshakeMessages.S2CModList.class.equals(type)) {
-        oldMessageHandler = object;
-        // copy fields
-        encoder = MessageHandler_encoder.get(object);
-        decoder = MessageHandler_decoder.get(object);
-        index = MessageHandler_index.get(object);
-        messageConsumer = MessageHandler_messageConsumer.get(object);
-        loginIndexSetter = MessageHandler_loginIndexSetter.get(object);
-        loginIndexGetter = MessageHandler_loginIndexGetter.get(object);
-        break;
-      }
-    }
-
-    if(index == -1) {
-      getLogger().warn("Failed to find S2CModList");
-      return;
-    }
-
-    handlerIndex = (short)(index & 0xFF);
+    handlerIndex = (short) (index & 0xFF);
 
     // remove old handler from maps
     IndexedMessageCodec_indicies.get(codec).remove(handlerIndex);
-    IndexedMessageCodec_types.get(codec).remove(messageType);
+    IndexedMessageCodec_types.get(codec).remove(type);
 
     // create new message handler
     Constructor<?> constructor = IndexedMessageCodec_MessageHandler.getInstance()
@@ -106,20 +95,22 @@ public class ForgeModListSpoofer extends ToggleMod {
     constructor.setAccessible(true);
 
     // create new encoder that removes the mod
-    final BiConsumer<Object, PacketBuffer> oldEncoder = encoder.get();
     BiConsumer<Object, PacketBuffer> overrideEncoder = (o, buffer) -> {
-      if(o instanceof FMLHandshakeMessages.S2CModList) {
+      if (o instanceof FMLHandshakeMessages.S2CModList) {
         FMLHandshakeMessages.S2CModList instance = (FMLHandshakeMessages.S2CModList) o;
         instance.getModList().removeAll(spoofing);
       } else {
         getLogger().error("Encoder is trying to encode object that isn't S2CModList");
       }
-      oldEncoder.accept(o, buffer);
+
+      if (encoder != null) {
+        encoder.accept(o, buffer);
+      }
     };
 
     // create message handler with our own encoder
-    Object instance = constructor.newInstance(codec, index, messageType,
-        overrideEncoder, decoder.get(), messageConsumer);
+    Object instance = constructor.newInstance(codec, index, type,
+        overrideEncoder, decoder, messageConsumer);
 
     // set the new MessageHandler's loginIndexSetter/Getter
     MessageHandler_loginIndexSetter.set(instance, loginIndexSetter);
@@ -132,12 +123,8 @@ public class ForgeModListSpoofer extends ToggleMod {
   protected void onDisabled() {
     Objects.requireNonNull(oldMessageHandler, "Old message handler is null");
 
-    SimpleChannel handshakeChannel = FMLNetworkConstants_handshakeChannel.getStatic();
-    Objects.requireNonNull(handshakeChannel, "Could not find handshake channel");
-
     // get channel codec
-    IndexedMessageCodec codec = SimpleChannel_indexedCodec.get(handshakeChannel);
-    Objects.requireNonNull(codec, "Codec is null");
+    IndexedMessageCodec codec = getCodec();
 
     // remove custom handler from maps
     IndexedMessageCodec_indicies.get(codec).remove(handlerIndex);
