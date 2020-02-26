@@ -1,8 +1,9 @@
-package dev.fiki.forgehax.main.util.typeconverter.types;
+package dev.fiki.forgehax.main.util.typeconverter.primitive;
 
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
-import java.util.Comparator;
+
 import javax.annotation.Nullable;
+import java.util.Comparator;
 
 /**
  * Created on 3/23/2017 by fr1kin

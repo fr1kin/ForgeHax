@@ -1,4 +1,4 @@
-package dev.fiki.forgehax.main.util.typeconverter.types;
+package dev.fiki.forgehax.main.util.typeconverter.type;
 
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverter;
 import lombok.AllArgsConstructor;

@@ -4,7 +4,7 @@ import dev.fiki.forgehax.main.util.cmd.AbstractSetting;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.typeconverter.IConverter;
-import dev.fiki.forgehax.main.util.typeconverter.types.EnumType;
+import dev.fiki.forgehax.main.util.typeconverter.type.EnumType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;

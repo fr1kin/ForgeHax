@@ -2,7 +2,11 @@ package dev.fiki.forgehax.main.util.typeconverter;
 
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.key.KeyInput;
-import dev.fiki.forgehax.main.util.typeconverter.types.*;
+import dev.fiki.forgehax.main.util.typeconverter.primitive.*;
+import dev.fiki.forgehax.main.util.typeconverter.type.ColorType;
+import dev.fiki.forgehax.main.util.typeconverter.type.InputType;
+import dev.fiki.forgehax.main.util.typeconverter.type.KeyInputType;
+import dev.fiki.forgehax.main.util.typeconverter.type.PatternType;
 import net.minecraft.client.util.InputMappings;
 
 import java.util.regex.Pattern;

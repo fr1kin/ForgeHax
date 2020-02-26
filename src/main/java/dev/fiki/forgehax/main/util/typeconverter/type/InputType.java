@@ -1,4 +1,4 @@
-package dev.fiki.forgehax.main.util.typeconverter.types;
+package dev.fiki.forgehax.main.util.typeconverter.type;
 
 import com.google.common.base.MoreObjects;
 import dev.fiki.forgehax.main.util.key.BindingHelper;

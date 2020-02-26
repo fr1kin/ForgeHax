@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.util.cmd.argument;
 
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverters;
-import dev.fiki.forgehax.main.util.typeconverter.types.EnumType;
+import dev.fiki.forgehax.main.util.typeconverter.type.EnumType;
 
 public interface Arguments {
   static <T> RawArgument.RawArgumentBuilder<T> newArgument() {
