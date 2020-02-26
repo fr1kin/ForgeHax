@@ -64,6 +64,11 @@ sourceSets {
   }
 
   main {
+    if(System.getProperty("jenkins") != null) {
+      java {
+        exclude 'dev/fiki/forgehax/main/mods/ForgeModListSpoofer.java'
+      }
+    }
     compileClasspath += api.output + common.output
   }
 
