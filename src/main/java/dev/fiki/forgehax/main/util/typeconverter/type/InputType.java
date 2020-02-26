@@ -8,7 +8,7 @@ import net.minecraft.client.util.InputMappings;
 public class InputType extends TypeConverter<InputMappings.Input> {
   @Override
   public String label() {
-    return "keybinding";
+    return "mcinput";
   }
 
   @Override

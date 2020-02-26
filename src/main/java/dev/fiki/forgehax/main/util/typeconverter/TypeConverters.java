@@ -3,11 +3,13 @@ package dev.fiki.forgehax.main.util.typeconverter;
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.key.KeyInput;
 import dev.fiki.forgehax.main.util.typeconverter.primitive.*;
+import dev.fiki.forgehax.main.util.typeconverter.registry.EffectType;
 import dev.fiki.forgehax.main.util.typeconverter.type.ColorType;
 import dev.fiki.forgehax.main.util.typeconverter.type.InputType;
 import dev.fiki.forgehax.main.util.typeconverter.type.KeyInputType;
 import dev.fiki.forgehax.main.util.typeconverter.type.PatternType;
 import net.minecraft.client.util.InputMappings;
+import net.minecraft.potion.Effect;
 
 import java.util.regex.Pattern;
 
@@ -25,6 +27,8 @@ public interface TypeConverters {
   TypeConverter<Short> SHORT = new ShortType();
   TypeConverter<String> STRING = new StringType();
   TypeConverter<String> STRING_CASE_INSENSITIVE = new StringType.CaseInsensitive();
+
+  TypeConverter<Effect> EFFECT = new EffectType();
 
   TypeConverter<Color> COLOR = new ColorType();
   TypeConverter<InputMappings.Input> INPUT = new InputType();

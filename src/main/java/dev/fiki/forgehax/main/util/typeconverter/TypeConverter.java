@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.util.typeconverter;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -8,7 +7,6 @@ import java.util.Objects;
  * Created on 3/23/2017 by fr1kin
  */
 public abstract class TypeConverter<E> implements IConverter<E> {
-  
   public abstract String label();
   
   public abstract Class<E> type();
@@ -17,9 +15,8 @@ public abstract class TypeConverter<E> implements IConverter<E> {
   
   public abstract String convert(E value);
   
-  @Nullable
   public Comparator<E> comparator() {
-    return null;
+    return ((o1, o2) -> 0);
   }
 
   @Override
