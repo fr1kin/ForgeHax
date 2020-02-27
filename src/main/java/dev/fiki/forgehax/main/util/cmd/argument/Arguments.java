@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.util.cmd.argument;
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.typeconverter.TypeConverters;
 import dev.fiki.forgehax.main.util.typeconverter.type.EnumType;
+import net.minecraft.potion.Effect;
 
 public interface Arguments {
   static <T> RawArgument.RawArgumentBuilder<T> newArgument() {
@@ -14,6 +15,10 @@ public interface Arguments {
   }
 
   static <T> ConverterArgument.ConverterArgumentBuilder<T> newConverterArgument() {
+    return ConverterArgument.builder();
+  }
+
+  static <T> ConverterArgument.ConverterArgumentBuilder<T> newConverterArgument(Class<T> clazz) {
     return ConverterArgument.builder();
   }
 
@@ -92,5 +97,12 @@ public interface Arguments {
         .minArgumentsConsumed(1)
         .maxArgumentsConsumed(1)
         .converter(new EnumType<>(contextClass));
+  }
+
+  static ConverterArgument.ConverterArgumentBuilder<Effect> newEffectArgument() {
+    return ConverterArgument.<Effect>builder()
+        .minArgumentsConsumed(1)
+        .maxArgumentsConsumed(1)
+        .converter(TypeConverters.EFFECT);
   }
 }
