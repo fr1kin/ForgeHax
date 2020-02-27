@@ -6,7 +6,6 @@ import dev.fiki.forgehax.main.util.FileManager;
 import dev.fiki.forgehax.main.util.cmd.RootCommand;
 import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
 import dev.fiki.forgehax.main.util.draw.BufferProvider;
-import dev.fiki.forgehax.main.util.mod.AbstractMod;
 import dev.fiki.forgehax.main.util.mod.loader.ModManager;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -80,21 +79,22 @@ public class ForgeHax {
 
       bufferProvider = new BufferProvider();
 
-      if (!getModManager().searchPackage("dev.fiki.forgehax.main.mods")) {
+      if (!modManager.searchPackage("dev.fiki.forgehax.main.mods")) {
         logger.error("Could not find any mods to load. Verify the right package is listed");
 
         // ForgeHax won't do anything without mods so stop loading here
         return;
       }
 
-      if (!getModManager().searchPluginDirectory(getBaseDirectory().resolve("plugins"))) {
+      if (!modManager.searchPluginDirectory(getBaseDirectory().resolve("plugins"))) {
         logger.info("No plugins loaded (this is fine)");
       }
 
-      getModManager().loadAll();
+      // load all mod classes
+      modManager.loadAll();
 
-      // registerAll mod events
-      getModManager().forEach(AbstractMod::load);
+      // load all mod classes
+      modManager.startupMods();
 
       // add shutdown hook to serialize all settings and
       LoggerProvider.addShutdownHook(this::shutdown);
@@ -108,7 +108,7 @@ public class ForgeHax {
   }
 
   private void shutdown() {
-    getModManager().forEach(AbstractMod::unload);
+    modManager.shutdownMods();
 
     shutdownExecutorService(asyncExecutorService);
     shutdownExecutorService(pooledExecutorService);

@@ -21,7 +21,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static dev.fiki.forgehax.main.Common.getLogger;
@@ -208,12 +207,16 @@ public class ModManager extends AbstractClassLoader<AbstractMod> {
   }
 
   public void refresh() {
-    forEach(AbstractMod::unload);
-    forEach(AbstractMod::load);
+    shutdownMods();
+    startupMods();
   }
 
-  public void forEach(final Consumer<AbstractMod> consumer) {
-    active.forEach(consumer);
+  public void startupMods() {
+    active.forEach(AbstractMod::load);
+  }
+
+  public void shutdownMods() {
+    active.forEach(AbstractMod::unload);
   }
 
   @Nullable
