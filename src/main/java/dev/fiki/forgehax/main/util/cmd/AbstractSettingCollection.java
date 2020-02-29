@@ -1,7 +1,5 @@
 package dev.fiki.forgehax.main.util.cmd;
 
-import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
-import dev.fiki.forgehax.main.util.cmd.argument.RawArgument;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,6 +8,7 @@ import lombok.NonNull;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public abstract class AbstractSettingCollection<E, L extends Collection<E>>
     extends AbstractParentCommand implements ISettingCollection<E, L> {
@@ -124,5 +123,15 @@ public abstract class AbstractSettingCollection<E, L extends Collection<E>>
   public void clear() {
     wrapping.clear();
     callUpdateListeners();
+  }
+
+  @Override
+  public String toString() {
+    return getName() +
+        " = [" +
+        wrapping.stream()
+            .map(Objects::toString)
+            .collect(Collectors.joining(", ")) +
+        "]";
   }
 }

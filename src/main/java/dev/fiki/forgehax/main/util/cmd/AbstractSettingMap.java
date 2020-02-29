@@ -1,12 +1,13 @@
 package dev.fiki.forgehax.main.util.cmd;
 
-import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
-import dev.fiki.forgehax.main.util.cmd.argument.RawArgument;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import lombok.NonNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public abstract class AbstractSettingMap<K, V, M extends Map<K, V>>
     extends AbstractParentCommand implements ISettingMap<K, V, M> {
@@ -84,5 +85,15 @@ public abstract class AbstractSettingMap<K, V, M extends Map<K, V>>
   @Override
   public Set<Entry<K, V>> entrySet() {
     return wrapping.entrySet();
+  }
+
+  @Override
+  public String toString() {
+    return getName() +
+        " = {" +
+        wrapping.entrySet().stream()
+            .map(entry -> entry.getKey() + " = " + entry.getValue())
+            .collect(Collectors.joining(", ")) +
+        "}";
   }
 }
