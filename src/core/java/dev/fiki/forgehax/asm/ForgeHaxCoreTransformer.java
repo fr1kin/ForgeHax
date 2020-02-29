@@ -24,14 +24,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
   @Getter
   static Logger logger = null;
 
-  @Nonnull
-  @Override
-  public String name() {
-    return "ForgeHaxCore";
-  }
-
-  @Override
-  public void initialize(IEnvironment environment) {
+  public ForgeHaxCoreTransformer() {
     logger = LoggerProvider.builder()
         .contextClass(ForgeHaxCoreTransformer.class)
         .label("core")
@@ -41,17 +34,20 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
     logger.info("ForgeHaxCore initializing");
   }
 
+  @Nonnull
   @Override
-  public void beginScanning(IEnvironment environment) {
+  public String name() {
+    return "ForgeHaxCore";
   }
 
   @Override
-  public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
-    // ty poozin
-    if(logger == null) {
-      initialize(null);
-    }
+  public void initialize(IEnvironment environment) {}
 
+  @Override
+  public void beginScanning(IEnvironment environment) {}
+
+  @Override
+  public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
     if (otherServices.stream()
         .map(String::toLowerCase)
         .anyMatch(str -> str.contains("mixin"))) {
