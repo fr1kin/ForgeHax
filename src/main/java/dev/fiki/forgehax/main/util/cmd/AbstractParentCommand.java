@@ -1,17 +1,18 @@
 package dev.fiki.forgehax.main.util.cmd;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
-import dev.fiki.forgehax.main.util.cmd.argument.RawArgument;
-import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
+import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import lombok.AllArgsConstructor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class AbstractParentCommand extends AbstractCommand implements IParentCommand {
-  protected final Set<ICommand> children = Collections.synchronizedSet(Sets.newHashSet());
+  protected final Map<String, ICommand> subCommands =
+      Collections.synchronizedMap(Maps.newTreeMap(String.CASE_INSENSITIVE_ORDER));
 
   public AbstractParentCommand(IParentCommand parent,
       String name, Collection<String> aliases, String description,
@@ -19,74 +20,71 @@ public abstract class AbstractParentCommand extends AbstractCommand implements I
     super(parent, name, aliases, description, flags);
   }
 
-  protected ICommand getMatchingCommand(String value) {
-    if (value.isEmpty()) {
-      // not searching for any command, just querying
-      return null;
-    }
-
-    String lvalue = value.toLowerCase();
-    synchronized (children) {
-      List<ICommand> matches = Lists.newArrayList();
-      for (ICommand command : children) {
-        if (value.equalsIgnoreCase(command.getName())) {
-          return command;
-        } else if (command.getName().toLowerCase().startsWith(lvalue)) {
-          matches.add(command);
-        }
-      }
-
-      if (matches.isEmpty()) {
-        throw new IllegalArgumentException("Unknown command");
-      } else if (matches.size() == 1) {
-        return matches.get(0);
-      } else {
-        throw new IllegalArgumentException("Ambiguous command: " +
-            matches.stream()
-                .map(ICommand::getName)
-                .collect(Collectors.joining(", ")));
+  protected void checkForNameConflicts(ICommand command) {
+    for (String name : command.getNameAndAliases()) {
+      ICommand cmd = subCommands.get(name);
+      if (cmd != null) {
+        throw new IllegalArgumentException("Name \"" + name
+            + "\" from command \""
+            + command.getName()
+            + "\" conflicts with existing child command \""
+            + cmd.getName());
       }
     }
   }
 
   @Override
   public Collection<ICommand> getChildren() {
-    return Collections.unmodifiableCollection(children);
+    return Collections.unmodifiableCollection(Sets.newLinkedHashSet(subCommands.values()));
   }
 
   @Override
   public ICommand getChildByName(String command) {
-    synchronized (children) {
-      for (ICommand child : children) {
-        if (child.getName().equalsIgnoreCase(command)) {
-          return child;
-        }
-      }
-      return null;
-    }
+    return subCommands.get(command);
   }
 
   @Override
   public List<ICommand> getPossibleMatchingChildren(String search) {
-    return getChildren().stream()
-        .filter(cmd -> cmd.getName().toLowerCase().startsWith(search.toLowerCase()))
-        .sorted(Comparator.<ICommand, Boolean>comparing(cmd -> cmd.getName().equalsIgnoreCase(search))
-            .thenComparing(cmd -> cmd.getName().compareToIgnoreCase(search)))
-        .collect(Collectors.toList());
+    final String searchLc = search.toLowerCase();
+    ICommand child = getChildByName(search);
+    if (child != null) {
+      // if there is a direct match, then get that
+      return Collections.singletonList(child);
+    } else {
+      // otherwise try and find a list of possible matches
+      return subCommands.entrySet().stream()
+          .filter(entry -> entry.getKey().toLowerCase().startsWith(searchLc))
+          .sorted(Map.Entry.comparingByKey(Comparator.comparingInt(String::length)
+              .thenComparing(String::compareToIgnoreCase)))
+          .map(Map.Entry::getValue)
+          .distinct()
+          .collect(Collectors.toList());
+    }
   }
 
   @Override
   public boolean addChild(ICommand command) {
-    if (children.add(command)) {
-      command.setParent(this);
-      return true;
+    checkForNameConflicts(command);
+
+    // add all known names
+    for (String name : command.getNameAndAliases()) {
+      subCommands.put(name, command);
     }
-    return false;
+
+    // set parent
+    command.setParent(this);
+    return true;
   }
 
   @Override
   public boolean deleteChild(ICommand command) {
-    if (children.remove(command)) {
+    if (containsChild(command)) {
+      // remove all names from the map
+      for (String name : command.getNameAndAliases()) {
+        subCommands.remove(name);
+      }
+
+      // set commands parent to null
       command.setParent(null);
       return true;
     }
@@ -95,18 +93,12 @@ public abstract class AbstractParentCommand extends AbstractCommand implements I
 
   @Override
   public boolean containsChild(ICommand command) {
-    return children.contains(command);
+    return subCommands.containsValue(command);
   }
 
   @Override
   public List<IArgument<?>> getArguments() {
-    return Collections.singletonList(RawArgument.<ICommand>builder()
-        .label("child")
-        .type(ICommand.class)
-        .parser(this::getMatchingCommand)
-        .converter(ICommand::getName)
-        .optional()
-        .build());
+    return Collections.singletonList(new ParentCommandArgument(this, "subcommand"));
   }
 
   @Override
@@ -118,5 +110,66 @@ public abstract class AbstractParentCommand extends AbstractCommand implements I
               .forEach(s -> args.inform(s));
           return null;
         });
+  }
+
+  @AllArgsConstructor
+  public static class ParentCommandArgument implements IArgument<ICommand> {
+    private final IParentCommand command;
+    private final String label;
+
+    @Override
+    public String getLabel() {
+      return label;
+    }
+
+    @Override
+    public ICommand getDefaultValue() {
+      return null;
+    }
+
+    @Override
+    public int getMinArgumentsConsumed() {
+      return 0;
+    }
+
+    @Override
+    public int getMaxArgumentsConsumed() {
+      return 1;
+    }
+
+    @Override
+    public Class<ICommand> type() {
+      return ICommand.class;
+    }
+
+    @Override
+    public ICommand parse(String value) {
+      if (value.isEmpty()) {
+        // not searching
+        return null;
+      }
+
+      List<ICommand> matches = command.getPossibleMatchingChildren(value);
+      if (matches.isEmpty()) {
+        throw new IllegalArgumentException("Unknown command");
+      } else if (matches.size() == 1) {
+        return matches.get(0);
+      } else {
+        throw new IllegalArgumentException("Ambiguous command: " +
+            matches.stream()
+                .map(ICommand::getName)
+                .collect(Collectors.joining(", ")));
+      }
+    }
+
+    @Override
+    public String convert(ICommand value) {
+      return value.getName();
+    }
+
+    @Override
+    public Comparator<ICommand> comparator() {
+      return CommandHelper.commandComparator();
+    }
   }
 }

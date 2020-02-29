@@ -1,10 +1,11 @@
 package dev.fiki.forgehax.main.util.cmd;
 
+import com.google.common.collect.Sets;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
+import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.main.util.cmd.listener.IListenable;
-import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -15,6 +16,18 @@ import java.util.Set;
 public interface ICommand extends IListenable {
   String getName();
   Set<String> getAliases();
+
+  default Set<String> getNameAndAliases() {
+    if(getAliases().isEmpty()) {
+      // most commands wont have aliases
+      return Collections.singleton(getName());
+    } else {
+      Set<String> names = Sets.newHashSet();
+      names.add(getName());
+      names.addAll(getAliases());
+      return names;
+    }
+  }
 
   String getDescription();
 

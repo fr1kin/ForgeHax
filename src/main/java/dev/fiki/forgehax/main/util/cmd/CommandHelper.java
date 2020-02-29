@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.util.cmd;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
 
@@ -10,12 +11,19 @@ import static dev.fiki.forgehax.main.Common.getAsyncThreadExecutor;
 import static dev.fiki.forgehax.main.Common.getMainThreadExecutor;
 
 public class CommandHelper {
+  private static final Comparator<ICommand> COMMAND_COMPARATOR =
+      Comparator.comparing(ICommand::getName, String.CASE_INSENSITIVE_ORDER);
+
   public static boolean isHiddenFlag(ICommand command) {
     return command.containsFlag(EnumFlag.HIDDEN);
   }
 
   public static boolean isVisibleFlag(ICommand command) {
     return !isHiddenFlag(command);
+  }
+
+  public static Comparator<ICommand> commandComparator() {
+    return COMMAND_COMPARATOR;
   }
 
   // [code borrowed from ant.jar] Crack a command line.
