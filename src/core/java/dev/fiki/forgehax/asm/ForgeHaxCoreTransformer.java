@@ -1,6 +1,9 @@
 package dev.fiki.forgehax.asm;
 
-import cpw.mods.modlauncher.api.*;
+import cpw.mods.modlauncher.api.IEnvironment;
+import cpw.mods.modlauncher.api.ITransformationService;
+import cpw.mods.modlauncher.api.ITransformer;
+import cpw.mods.modlauncher.api.IncompatibleEnvironmentException;
 import dev.fiki.forgehax.asm.patches.*;
 import dev.fiki.forgehax.asm.utils.EZ;
 import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
@@ -10,13 +13,12 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
 
 public class ForgeHaxCoreTransformer implements ITransformationService {
   @Getter
@@ -45,6 +47,11 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
 
   @Override
   public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
+    // ty poozin
+    if(logger == null) {
+      initialize(null);
+    }
+
     if (otherServices.stream()
         .map(String::toLowerCase)
         .anyMatch(str -> str.contains("mixin"))) {
