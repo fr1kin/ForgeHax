@@ -1,7 +1,6 @@
 package dev.fiki.forgehax.main.util.mod;
 
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
-import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.client.settings.KeyBinding;
 
@@ -24,6 +23,12 @@ public class ToggleMod extends KeyBoundMod {
             stop();
           }
         })
+        .build();
+
+    newSimpleCommand()
+        .name("toggle")
+        .description("Toggles the mods enable state ")
+        .executor(args -> enabledSetting.setValue(enabledSetting.getValue()))
         .build();
   }
   

@@ -1,16 +1,20 @@
 package dev.fiki.forgehax.main.util.cmd.settings;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.cmd.*;
+import dev.fiki.forgehax.main.util.cmd.AbstractCommand;
+import dev.fiki.forgehax.main.util.cmd.ICommand;
+import dev.fiki.forgehax.main.util.cmd.IParentCommand;
+import dev.fiki.forgehax.main.util.cmd.ISetting;
 import dev.fiki.forgehax.main.util.cmd.argument.ConverterArgument;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
+import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
-import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
 import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.key.KeyBindingEx;
 import dev.fiki.forgehax.main.util.key.KeyInput;
@@ -22,11 +26,10 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Singular;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
 
 import java.util.*;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.addScheduledTask;
 import static net.minecraft.client.util.InputMappings.*;
 
 public final class KeyBindingSetting extends AbstractCommand implements ISetting<KeyInput>, IJsonSerializable {
@@ -125,6 +128,10 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
 
   public boolean isPressed() {
     return getKeyBinding().isPressed();
+  }
+
+  public boolean isUnbound() {
+    return INPUT_INVALID.equals(getKeyBinding().getKey());
   }
 
   public int getKeyPressedTime() {
