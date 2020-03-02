@@ -23,10 +23,19 @@ public class ClipCommand extends CommandMod {
     super("ClipCommand");
   }
 
+  // Entity::setPositionAndUpdate has a pozzed check
+  private static void mcSetPositionAndUpdate(Entity ent, double x, double y, double z) {
+    ent.setLocationAndAngles(x, y, z, ent.rotationYaw, ent.rotationPitch);
+    // update passengers
+    ent.func_226276_cg_().forEach((p_226267_1_) -> {
+      //p_226267_1_.isPositionDirty = true;
+      p_226267_1_.func_226265_a_(Entity::moveForced);
+    });
+  }
+
   // teleport to absolute position
-  private void setPosition(double x, double y, double z) {
-    Entity ent = getMountedEntityOrPlayer();
-    ent.setPositionAndUpdate(x, y, z);
+  private static void setPosition(Entity ent, double x, double y, double z) {
+    mcSetPositionAndUpdate(ent, x, y, z);
 
     if (ent instanceof ClientPlayerEntity) {
       sendNetworkPacket(new CPlayerPacket.PositionPacket(
@@ -39,7 +48,7 @@ public class ClipCommand extends CommandMod {
   // teleport vertically by some offset
   private void offsetY(double yOffset) {
     Entity local = getMountedEntityOrPlayer();
-    setPosition(local.getPosX(), local.getPosY() + yOffset, local.getPosZ());
+    setPosition(local, local.getPosX(), local.getPosY() + yOffset, local.getPosZ());
   }
 
   {
@@ -70,7 +79,7 @@ public class ClipCommand extends CommandMod {
           double z = args.<Double>getThird().getValueOrDefault();
 
           Entity local = getMountedEntityOrPlayer();
-          setPosition(local.getPosX() + x, local.getPosY() + y, local.getPosZ() + z);
+          setPosition(local, local.getPosX() + x, local.getPosY() + y, local.getPosZ() + z);
         })
         .build();
   }
@@ -82,7 +91,7 @@ public class ClipCommand extends CommandMod {
         .argument(Arguments.newDoubleArgument()
             .label("y")
             .build())
-        .flag(EnumFlag.EXECUTOR_MAIN_THREAD)
+        //.flag(EnumFlag.EXECUTOR_MAIN_THREAD)
         .executor(args -> {
           if (!isInWorld()) {
             args.error("Not in world.");
@@ -112,9 +121,10 @@ public class ClipCommand extends CommandMod {
           double offset = args.<Double>getFirst().getValueOrDefault();
 
           Vec3d dir = getLocalPlayer().getLookVec().normalize();
-          setPosition(getLocalPlayer().getPosX() + (dir.x * offset),
-              getLocalPlayer().getPosY(),
-              getLocalPlayer().getPosZ() + (dir.z * offset));
+          final Entity local = getLocalPlayer();
+          setPosition(local, local.getPosX() + (dir.x * offset),
+              local.getPosY(),
+              local.getPosZ() + (dir.z * offset));
         })
         .build();
   }
