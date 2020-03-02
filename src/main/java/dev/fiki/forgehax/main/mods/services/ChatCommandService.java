@@ -11,6 +11,7 @@ import dev.fiki.forgehax.main.util.PacketHelper;
 import net.minecraft.network.play.client.CChatMessagePacket;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.apache.logging.log4j.Level;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -59,7 +60,7 @@ public class ChatCommandService extends ServiceMod {
             .console(getCurrentConsoleOutput())
             .exceptionHandler(((throwable, output) -> {
               output.error(MoreObjects.firstNonNull(throwable.getMessage(), throwable.getClass().getSimpleName()));
-              getLogger().debug(throwable, throwable);
+              getLogger().catching(Level.ERROR, throwable);
             }))
             .build()
             .runLine(line);
