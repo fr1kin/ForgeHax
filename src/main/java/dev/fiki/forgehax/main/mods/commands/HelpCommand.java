@@ -42,10 +42,9 @@ public class HelpCommand extends CommandMod {
         .name("help")
         .description("Help text for mod syntax and command list")
         .executor(args -> {
-          args.inform("Type \".find <optional: containing string>\" for list of mods");
-          args.inform("Use -? or --help after command to see command options");
-          args.inform("See the FAQ for details");
-          args.inform("https://github.com/fr1kin/ForgeHax#faq");
+          args.inform("Type \".find <optional: containing string>\" for list of mods\n" +
+              "See the FAQ for details\n" +
+              "https://github.com/fr1kin/ForgeHax#faq");
         })
         .build();
   }
@@ -53,6 +52,8 @@ public class HelpCommand extends CommandMod {
   {
     newSimpleCommand()
         .name("find")
+        .alias("mods")
+        .alias("list")
         .description("Lists all the mods or all the mods containing the given argument")
         .argument(Arguments.newStringArgument()
             .label("mod")
@@ -61,9 +62,10 @@ public class HelpCommand extends CommandMod {
             .build())
         .executor(args -> {
           IValue<String> modSearch = args.getFirst();
-          args.inform(getRootCommand().getPossibleMatchingChildren(modSearch.getValueOrDefault()).stream()
+          args.inform(getRootCommand().getPossibleMatchingChildren(modSearch.getValue()).stream()
               .filter(CommandHelper::isVisibleFlag)
               .map(ICommand::getName)
+              .sorted(String.CASE_INSENSITIVE_ORDER)
               .collect(Collectors.joining(", ")));
         })
         .build();

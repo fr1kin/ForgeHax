@@ -15,5 +15,6 @@ public interface Colors {
   Color MAGENTA = Color.of(255, 0, 255);
   Color GRAY = Color.of(127, 127, 127);
   Color DARK_RED = Color.of(64, 0, 0);
+  Color DARK_GRAY = Color.of(33, 33, 33);
   Color YELLOW = Color.of(255, 255, 0);
 }

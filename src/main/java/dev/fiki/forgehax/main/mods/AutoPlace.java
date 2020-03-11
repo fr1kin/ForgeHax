@@ -5,22 +5,6 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
-import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
-import dev.fiki.forgehax.main.util.color.Colors;
-import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
-import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
-import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
-import dev.fiki.forgehax.main.util.key.KeyInputs;
-import dev.fiki.forgehax.main.util.math.Angle;
-import dev.fiki.forgehax.main.util.math.VectorUtils;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.mods.services.HotbarSelectionService.ResetFunction;
@@ -29,15 +13,23 @@ import dev.fiki.forgehax.main.util.BlockHelper.BlockTraceInfo;
 import dev.fiki.forgehax.main.util.BlockHelper.UniqueBlock;
 import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.Utils;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
+import dev.fiki.forgehax.main.util.color.Colors;
+import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
+import dev.fiki.forgehax.main.util.entity.EntityUtils;
+import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
+import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
+import dev.fiki.forgehax.main.util.key.KeyConflictContexts;
+import dev.fiki.forgehax.main.util.key.KeyInputs;
+import dev.fiki.forgehax.main.util.math.Angle;
+import dev.fiki.forgehax.main.util.math.VectorUtils;
+import dev.fiki.forgehax.main.util.mod.Category;
+import dev.fiki.forgehax.main.util.mod.ToggleMod;
+import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -50,6 +42,10 @@ import net.minecraft.util.math.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -119,6 +115,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       .keyName("Select")
       .defaultKeyCategory()
       .key(KeyInputs.MOUSE_LEFT)
+      .conflictContext(KeyConflictContexts.inGame())
       .build();
 
   private final KeyBindingSetting bindFinish = newKeyBindingSetting()
@@ -127,6 +124,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       .keyName("Finish")
       .defaultKeyCategory()
       .key(KeyInputs.MOUSE_RIGHT)
+      .conflictContext(KeyConflictContexts.inGame())
       .build();
 
   private final Set<BlockPos> renderingBlocks = Sets.newConcurrentHashSet();

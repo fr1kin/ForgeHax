@@ -1,8 +1,5 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import static dev.fiki.forgehax.main.Common.getLogger;
-import static net.minecraft.util.text.TextFormatting.RED;
-
 import com.google.common.util.concurrent.AtomicDouble;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.execution.CommandExecutor;
@@ -10,14 +7,6 @@ import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import javax.annotation.Nullable;
-
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -28,10 +17,18 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+
+import static dev.fiki.forgehax.main.Common.getLogger;
+import static net.minecraft.util.text.TextFormatting.RED;
+
 /**
  * Created by Babbaj on 4/10/2018.
  */
-@RegisterMod
 public class MainMenuGuiService extends ServiceMod {
   
   private Button customButton;

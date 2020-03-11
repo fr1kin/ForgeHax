@@ -2,19 +2,27 @@ package dev.fiki.forgehax.main.util.key;
 
 import com.google.common.collect.Sets;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import lombok.Getter;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getGameSettings;
+import static dev.fiki.forgehax.main.Common.requiresMainThreadExecution;
 
 public class BindingHelper {
 
   private static final Set<BindHandle> KEYS_HANDLES = Sets.newHashSet();
+
+  @Getter
+  private static boolean suppressingSettingsPacket = false;
 
   static {
     // cause key input class to load
@@ -152,6 +160,17 @@ public class BindingHelper {
   public static void updateKeyBindings() {
     requiresMainThreadExecution();
     KeyBinding.resetKeyBindingArrayAndHash();
+  }
+
+  public static void saveGameSettings() {
+    if(getGameSettings() != null) {
+      suppressingSettingsPacket = true;
+      try {
+        getGameSettings().saveOptions();
+      } finally {
+        suppressingSettingsPacket = false;
+      }
+    }
   }
 
   public static KeyBinding getKeyBindByDescription(String desc) {

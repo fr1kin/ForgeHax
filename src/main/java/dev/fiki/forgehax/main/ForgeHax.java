@@ -2,9 +2,9 @@ package dev.fiki.forgehax.main;
 
 import com.google.common.base.Strings;
 import dev.fiki.forgehax.common.LoggerProvider;
+import dev.fiki.forgehax.main.ui.ConsoleInterface;
 import dev.fiki.forgehax.main.util.FileManager;
 import dev.fiki.forgehax.main.util.cmd.RootCommand;
-import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
 import dev.fiki.forgehax.main.util.draw.BufferProvider;
 import dev.fiki.forgehax.main.util.mod.loader.ModManager;
 import lombok.AccessLevel;
@@ -43,7 +43,7 @@ public class ForgeHax {
   private ExecutorService asyncExecutorService;
   private ExecutorService pooledExecutorService;
 
-  private IConsole currentConsole;
+  private ConsoleInterface consoleInterface;
 
   private BufferProvider bufferProvider;
 
@@ -75,7 +75,7 @@ public class ForgeHax {
       asyncExecutorService = Executors.newSingleThreadExecutor();
       pooledExecutorService = Executors.newFixedThreadPool(4);
 
-      currentConsole = GAME_CONSOLE_OUTPUT;
+      consoleInterface = new ConsoleInterface();
 
       bufferProvider = new BufferProvider();
 
@@ -124,23 +124,6 @@ public class ForgeHax {
       }
     }
   }
-
-  private static final IConsole GAME_CONSOLE_OUTPUT = new IConsole() {
-    @Override
-    public void inform(String message, Object... args) {
-      Common.printInform(message, args);
-    }
-
-    @Override
-    public void warn(String message, Object... args) {
-      Common.printWarning(message, args);
-    }
-
-    @Override
-    public void error(String message, Object... args) {
-      Common.printError(message, args);
-    }
-  };
 
   public class ConfigProperties {
     private Properties properties = new Properties();

@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Singular;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.client.settings.IKeyConflictContext;
 
 import java.util.*;
 
@@ -47,6 +48,7 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
       String name, @Singular Set<String> aliases, String description,
       @Singular Set<EnumFlag> flags,
       @NonNull String keyName, @NonNull KeyInput key, @NonNull String keyCategory,
+      IKeyConflictContext conflictContext,
       @Singular List<ISettingValueChanged<KeyInput>> changedListeners,
       @Singular List<IKeyDownListener> keyDownListeners,
       @Singular List<IKeyPressedListener> keyPressedListeners,
@@ -73,6 +75,7 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
           .description(keyName)
           .category(keyCategory)
           .keyCode(key.getCode())
+          .conflictContext(conflictContext)
           .changeCallback(this::onExternalChanged)
           .build();
 
@@ -99,6 +102,7 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
     if(!Objects.equals(currentValue, value)) {
       getKeyBinding().setBind(value);
       BindingHelper.updateKeyBindings();
+      BindingHelper.saveGameSettings();
       invokeListeners(ISettingValueChanged.class, l -> l.onValueChanged(currentValue, value));
       callUpdateListeners();
       return true;
@@ -215,7 +219,7 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
       Objects.requireNonNull(input, "input");
       // dont use our ::bind method because we don't want to call the listeners
       // use addScheduledTask because ::getKeyBinding may be null still
-      addScheduledTask(() -> Objects.requireNonNull(getKeyBinding(), "keyBinding still null").bind(input));
+      addScheduledTask(() -> Objects.requireNonNull(getKeyBinding(), "keyBinding still null").setBind(input));
     } else {
       throw new IllegalArgumentException("expected JsonPrimitive, got " + json.getClass().getSimpleName());
     }

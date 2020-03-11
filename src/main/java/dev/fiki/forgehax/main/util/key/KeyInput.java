@@ -34,11 +34,19 @@ public class KeyInput {
   }
 
   public static KeyInput getKeyInputByCode(int code) {
-    return CODE_TO_KEYINPUT.getOrDefault(code, INVALID);
+    return Optional.ofNullable(CODE_TO_KEYINPUT.get(code))
+        .orElseGet(() -> {
+           getLogger().warn("Unknown key code \"{}\"", code);
+           return INVALID;
+        });
   }
 
   public static KeyInput getKeyInputByName(String key) {
-    return NAME_TO_KEYINPUT.getOrDefault(key, INVALID);
+    return Optional.ofNullable(NAME_TO_KEYINPUT.get(key))
+        .orElseGet(() -> {
+          getLogger().warn("Unknown key name \"{}\"", key);
+          return INVALID;
+        });
   }
 
   private Type type;

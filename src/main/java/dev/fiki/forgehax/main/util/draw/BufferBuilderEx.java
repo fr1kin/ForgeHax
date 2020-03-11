@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.datafixers.util.Pair;
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import dev.fiki.forgehax.main.util.reflection.ReflectionHelper;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -16,11 +16,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import org.lwjgl.opengl.GL11;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
-
-import static dev.fiki.forgehax.main.Common.getFontRenderer;
 
 @Getter
 public class BufferBuilderEx extends BufferBuilder {
@@ -29,6 +26,9 @@ public class BufferBuilderEx extends BufferBuilder {
   private double offsetX;
   private double offsetY;
   private double offsetZ;
+
+  @Getter @Setter
+  private MatrixStack matrixStack;
 
   public BufferBuilderEx(BufferBuilder original) {
     super(0);
@@ -41,6 +41,7 @@ public class BufferBuilderEx extends BufferBuilder {
 
   private void onDrawingFinished() {
     offsetX = offsetY = offsetZ = 0.d;
+    matrixStack = null;
   }
 
   public BufferBuilderEx setTranslation(double x, double y, double z) {
@@ -338,8 +339,12 @@ public class BufferBuilderEx extends BufferBuilder {
 
   @Override
   public BufferBuilderEx pos(double x, double y, double z) {
-    original.pos(x + getOffsetX(), y + getOffsetY(), z + getOffsetZ());
-    return this;
+    if(matrixStack == null) {
+      original.pos(x + getOffsetX(), y + getOffsetY(), z + getOffsetZ());
+      return this;
+    } else {
+      return pos(matrixStack.getLast().getPositionMatrix(), (float) x, (float) y, (float) z);
+    }
   }
 
   @Override

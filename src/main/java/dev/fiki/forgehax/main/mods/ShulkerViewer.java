@@ -1,33 +1,21 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.fiki.forgehax.main.mods.services.ChatCommandService;
+import dev.fiki.forgehax.main.util.Utils;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
-import dev.fiki.forgehax.main.util.key.KeyInput;
+import dev.fiki.forgehax.main.util.key.KeyConflictContexts;
 import dev.fiki.forgehax.main.util.key.KeyInputs;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.mods.services.ChatCommandService;
-import dev.fiki.forgehax.main.util.Utils;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Predicate;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -55,7 +43,17 @@ import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.gui.GuiUtils;
-import org.lwjgl.glfw.GLFW;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -114,10 +112,11 @@ public class ShulkerViewer extends ToggleMod {
       .name("hold-bind")
       .description("Bind for holding down the shulker view tooltip")
       .keyName("Hold")
-      .keyCategory("ForgeHax")
+      .defaultKeyCategory()
       .key(KeyInputs.KEY_LEFT_ALT)
       .keyPressedListener(this::onLockPressed)
       .keyReleasedListener(this::onLockReleased)
+      .conflictContext(KeyConflictContexts.inContainerGui())
       .build();
 
   private final List<GuiShulkerViewer> guiCache =

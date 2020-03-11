@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main;
 
+import dev.fiki.forgehax.main.ui.ConsoleInterface;
 import dev.fiki.forgehax.main.util.FileManager;
 import dev.fiki.forgehax.main.util.TextComponentBuilder;
 import dev.fiki.forgehax.main.util.cmd.RootCommand;
@@ -43,36 +44,44 @@ public interface Common {
   // forgehax
   //
 
+  static ForgeHax getForgeHax() {
+    return ForgeHax.getInstance();
+  }
+
   static Logger getLogger() {
-    return ForgeHax.getInstance().getLogger();
+    return getForgeHax().getLogger();
   }
 
   static RootCommand getRootCommand() {
-    return ForgeHax.getInstance().getRootCommand();
+    return getForgeHax().getRootCommand();
   }
 
   static ModManager getModManager() {
-    return ForgeHax.getInstance().getModManager();
+    return getForgeHax().getModManager();
   }
 
   static FileManager getFileManager() {
-    return ForgeHax.getInstance().getFileManager();
+    return getForgeHax().getFileManager();
   }
 
   static ForgeHax.ConfigProperties getConfigProperties() {
-    return ForgeHax.getInstance().getConfigProperties();
+    return getForgeHax().getConfigProperties();
   }
 
   static Path getBaseDirectory() {
-    return ForgeHax.getInstance().getBaseDirectory();
+    return getForgeHax().getBaseDirectory();
   }
 
   static IConsole getCurrentConsoleOutput() {
-    return ForgeHax.getInstance().getCurrentConsole();
+    return getForgeHax().getConsoleInterface();
+  }
+
+  static ConsoleInterface getConsoleInterface() {
+    return getForgeHax().getConsoleInterface();
   }
 
   static BufferProvider getBufferProvider() {
-    return ForgeHax.getInstance().getBufferProvider();
+    return getForgeHax().getBufferProvider();
   }
 
   //
@@ -244,11 +253,11 @@ public interface Common {
   }
 
   static Executor getAsyncThreadExecutor() {
-    return ForgeHax.getInstance().getAsyncExecutorService();
+    return getForgeHax().getAsyncExecutorService();
   }
 
   static ExecutorService getPooledThreadExecutor() {
-    return ForgeHax.getInstance().getPooledExecutorService();
+    return getForgeHax().getPooledExecutorService();
   }
 
   static void addScheduledTask(Runnable runnable) {

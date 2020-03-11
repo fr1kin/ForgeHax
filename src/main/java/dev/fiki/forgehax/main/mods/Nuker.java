@@ -2,42 +2,31 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.common.events.BlockControllerProcessEvent;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
-import dev.fiki.forgehax.main.util.common.PriorityEnum;
-import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
-import dev.fiki.forgehax.main.util.key.KeyInputs;
-import dev.fiki.forgehax.main.util.math.Angle;
-import dev.fiki.forgehax.main.util.math.VectorUtils;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.util.BlockHelper;
 import dev.fiki.forgehax.main.util.BlockHelper.BlockTraceInfo;
 import dev.fiki.forgehax.main.util.BlockHelper.UniqueBlock;
 import dev.fiki.forgehax.main.util.Utils;
-import dev.fiki.forgehax.main.util.key.BindingHelper;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
+import dev.fiki.forgehax.main.util.common.PriorityEnum;
+import dev.fiki.forgehax.main.util.entity.EntityUtils;
+import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
+import dev.fiki.forgehax.main.util.key.KeyConflictContexts;
+import dev.fiki.forgehax.main.util.key.KeyInputs;
+import dev.fiki.forgehax.main.util.math.Angle;
+import dev.fiki.forgehax.main.util.math.VectorUtils;
+import dev.fiki.forgehax.main.util.mod.Category;
+import dev.fiki.forgehax.main.util.mod.ToggleMod;
+import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.play.client.CAnimateHandPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
@@ -46,7 +35,10 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -120,6 +112,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
       .keyName("Selection")
       .defaultKeyCategory()
       .key(KeyInputs.MOUSE_LEFT)
+      .conflictContext(KeyConflictContexts.inGame())
       .build();
 
   public Nuker() {

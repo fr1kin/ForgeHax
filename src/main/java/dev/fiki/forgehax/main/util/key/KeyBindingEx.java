@@ -34,8 +34,20 @@ public class KeyBindingEx extends KeyBinding {
     return FastReflection.Fields.KeyBinding_pressTime.get(this);
   }
 
+  public void setKeyPressedTime(int ticks) {
+    FastReflection.Fields.KeyBinding_pressTime.set(this, ticks);
+  }
+
+  public void incrementPressedTime() {
+    setKeyPressedTime(getKeyPressedTime() + 1);
+  }
+
   public boolean isKeyDownUnchecked() {
     return FastReflection.Fields.KeyBinding_pressed.get(this);
+  }
+
+  public boolean checkConflicts() {
+    return getKeyConflictContext().isActive();
   }
 
   @Override
