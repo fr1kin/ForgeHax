@@ -516,6 +516,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onPlayerEntitySneakEdgeCheck(PlayerEntity player) {
-    return HOOK_onPlayerEntitySneakEdgeCheck.reportHook();
+    return Minecraft.getInstance().player == player
+        && HOOK_onPlayerEntitySneakEdgeCheck.reportHook();
   }
 }
