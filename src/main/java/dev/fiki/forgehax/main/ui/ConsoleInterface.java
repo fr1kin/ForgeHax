@@ -30,16 +30,19 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
   private final List<ConsoleEntry> entries = Lists.newCopyOnWriteArrayList();
   private final List<String> entered = Lists.newArrayList();
 
-  private ConsoleInputField consoleScreen = null;
+  private ConsoleInputScreen consoleScreen = null;
 
   private float scale = 1.f;
 
+  private int maxSize = 100;
   private int maxLines = 10;
   private int fadeOutDuration = 20;
   private int messageDuration = 100;
 
   @Setter(AccessLevel.NONE)
   private int currentLineCount = 0;
+  @Setter(AccessLevel.NONE)
+  private int scrollOffset = 0;
 
   void addEntered(String text) {
     if(entered.isEmpty() || !entered.get(0).equals(text)) {
@@ -48,7 +51,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
   }
 
   String getEnteredByRollingIndex(int index) {
-    return entered.isEmpty() ? null : entered.get(Math.floorMod(index, index % entered.size()));
+    return entered.isEmpty() ? null : entered.get(Math.floorMod(index, entered.size()));
   }
 
   boolean hasEnteredHistory() {
@@ -59,6 +62,11 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
     ConsoleEntry entry = new ConsoleEntry(this, string);
     entries.add(entry);
     currentLineCount += entry.getLineCount();
+
+    if(entries.size() > maxSize) {
+      ConsoleEntry top = entries.remove(0);
+      currentLineCount -= top.getLineCount();
+    }
   }
 
   public void onRescale(int screenWidth, int screenHeight) {
@@ -68,6 +76,14 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
       lines += entry.getLineCount();
     }
     currentLineCount = lines;
+  }
+
+  public void scroll(int offset) {
+    this.scrollOffset += offset;
+  }
+
+  public int getScrollOffset() {
+    return 0; // TODO:
   }
 
   public void onTick() {
@@ -95,9 +111,10 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
     final int maxLines = getLineCount();
     stack.translate(0.f, maxLines * lineHeight, 0.f);
 
-    int linesConsumed = 0, index = 0;
+    int linesConsumed = 0;
     while(it.hasPrevious() && linesConsumed < maxLines) {
       ConsoleEntry entry = it.previous();
+      int index = it.previousIndex() + 1;
 
       if(!consoleOpen && entry.getTicksExisted() >= getMessageDuration() + getFadeOutDuration()) {
         // this message and every message before it have faded out
@@ -115,17 +132,15 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
         String message = entry.getMessages().get(entryLinesConsuming - 1 - i);
 
         main.putRect(0, 0, getLineWidth(), lineHeight,
-            bgColor.setAlpha(getAlphaDecay(entry, 175)));
+            bgColor.setAlpha(entry.getAlphaDecay(175)));
 
         stack.translate(getPadding(), getPadding(), 50.f);
 
         SurfaceHelper.renderString(source, stack.getLast().getPositionMatrix(),
-            message, 0, 0, Colors.WHITE.setAlpha(getAlphaDecay(entry, 255)), true);
+            message, 0, 0, Colors.WHITE.setAlpha(entry.getAlphaDecay(255)), true);
 
         stack.pop();
       }
-
-      ++index;
     }
 
     float emptyVerticalSpace = (maxLines - linesConsumed + 1) * lineHeight;
@@ -141,7 +156,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
       return; // already exists
     }
 
-    ConsoleInputField con = new ConsoleInputField(this, binding);
+    ConsoleInputScreen con = new ConsoleInputScreen(this, binding);
     con.setText(consoleScreen == null ? "" : consoleScreen.getText());
     con.setPreviousScreen(getDisplayScreen());
     setDisplayScreen(consoleScreen = con);
@@ -181,16 +196,6 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
 
   float getCurrentTotalHeight() {
     return Math.min(getCurrentLineCount(), getLineCount()) * getLineHeight();
-  }
-
-  private int getAlphaDecay(ConsoleEntry entry, int defaultAlpha) {
-    if(isConsoleOpen() || entry.getTicksExisted() <= getMessageDuration()) {
-      return defaultAlpha;
-    } else {
-      int decayDuration = entry.getTicksExisted() - getMessageDuration();
-      int decayRemaining = Math.min(getFadeOutDuration(), Math.max(0, getFadeOutDuration() - decayDuration));
-      return (int)((float)defaultAlpha * (decayRemaining / (float)getFadeOutDuration()));
-    }
   }
 
   FontRenderer getFontRenderer() {

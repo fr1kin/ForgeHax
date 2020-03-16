@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-public class ConsoleInputField extends Screen {
+public class ConsoleInputScreen extends Screen {
   private final ConsoleInterface ci;
   private final KeyBinding keyBinding;
 
@@ -52,7 +52,7 @@ public class ConsoleInputField extends Screen {
   private Predicate<String> validator = str -> true;
   private int historyIndex = 0;
 
-  public ConsoleInputField(ConsoleInterface ci, KeyBinding keyBinding) {
+  public ConsoleInputScreen(ConsoleInterface ci, KeyBinding keyBinding) {
     super(new StringTextComponent("Console"));
     this.ci = ci;
     this.keyBinding = keyBinding;
@@ -128,7 +128,7 @@ public class ConsoleInputField extends Screen {
   }
 
   public void setText(String textIn) {
-    if (this.validator.test(textIn)) {
+    if (textIn != null && this.validator.test(textIn)) {
       if (textIn.length() > this.maxStringLength) {
         this.text = textIn.substring(0, this.maxStringLength);
       } else {
@@ -484,6 +484,11 @@ public class ConsoleInputField extends Screen {
         return false;
       }
     }
+  }
+
+  @Override
+  public boolean mouseScrolled(double handle, double scrollX, double scrollY) {
+    return false;
   }
 
   @Override

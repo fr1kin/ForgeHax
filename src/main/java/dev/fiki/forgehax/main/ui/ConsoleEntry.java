@@ -31,6 +31,16 @@ public class ConsoleEntry {
     return messages.size();
   }
 
+  public int getAlphaDecay(int defaultAlpha) {
+    if(ci.isConsoleOpen() || getTicksExisted() <= ci.getMessageDuration()) {
+      return defaultAlpha;
+    } else {
+      int decayDuration = getTicksExisted() - ci.getMessageDuration();
+      int decayRemaining = Math.min(ci.getFadeOutDuration(), Math.max(0, ci.getFadeOutDuration() - decayDuration));
+      return (int)((float)defaultAlpha * (decayRemaining / (float)ci.getFadeOutDuration()));
+    }
+  }
+
   public void tick() {
     ++ticksExisted;
   }

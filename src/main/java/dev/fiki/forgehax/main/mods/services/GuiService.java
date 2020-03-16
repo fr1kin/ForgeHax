@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.services;
 
 import dev.fiki.forgehax.main.events.PreClientTickEvent;
-import dev.fiki.forgehax.main.ui.ConsoleInputField;
+import dev.fiki.forgehax.main.ui.ConsoleInputScreen;
 import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.key.KeyConflictContexts;
 import dev.fiki.forgehax.main.util.key.KeyInputs;
@@ -66,7 +66,7 @@ public class GuiService extends ServiceMod {
 
   @SubscribeEvent
   public void onGuiOpen(GuiOpenEvent event) {
-    ConsoleInputField con = getConsoleInterface().getConsoleScreen();
+    ConsoleInputScreen con = getConsoleInterface().getConsoleScreen();
     if(con != null
         && !con.isClosing()
         && event.getGui() != con
