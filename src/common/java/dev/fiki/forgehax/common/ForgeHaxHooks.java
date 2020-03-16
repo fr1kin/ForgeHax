@@ -1,24 +1,12 @@
 package dev.fiki.forgehax.common;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import dev.fiki.forgehax.common.events.*;
 import dev.fiki.forgehax.common.events.movement.*;
-import dev.fiki.forgehax.common.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.common.events.render.ComputeVisibilityEvent;
-import dev.fiki.forgehax.common.events.DrawBlockBoundingBoxEvent;
 import dev.fiki.forgehax.common.events.render.HurtCamEffectEvent;
-import dev.fiki.forgehax.common.events.ItemStoppedUsedEvent;
-import dev.fiki.forgehax.common.events.LeftClickCounterUpdateEvent;
-import dev.fiki.forgehax.common.events.PlayerAttackEntityEvent;
-import dev.fiki.forgehax.common.events.PlayerDamageBlockEvent;
-import dev.fiki.forgehax.common.events.PlayerSyncItemEvent;
-import dev.fiki.forgehax.common.events.RenderBoatEvent;
-import dev.fiki.forgehax.common.events.SchematicaPlaceBlockEvent;
-
-import java.nio.ByteOrder;
-import java.util.*;
-
 import dev.fiki.forgehax.common.events.render.ProjectionViewMatrixSetupEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -41,6 +29,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
+
+import java.nio.ByteOrder;
+import java.util.*;
 
 public class ForgeHaxHooks {
 
@@ -516,5 +507,15 @@ public class ForgeHaxHooks {
     } else {
       return slipperiness;
     }
+  }
+
+  public static final HookReporter HOOK_onPlayerEntitySneakEdgeCheck =
+      newHookReporter()
+          .hook("onPlayerEntitySneakEdgeCheck")
+          .startOff()
+          .build();
+
+  public static boolean onPlayerEntitySneakEdgeCheck(PlayerEntity player) {
+    return HOOK_onPlayerEntitySneakEdgeCheck.reportHook();
   }
 }

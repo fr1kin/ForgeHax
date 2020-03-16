@@ -72,11 +72,11 @@ public class SafeWalkMod extends ToggleMod {
 
   @Override
   public void onEnabled() {
-    ForgeHaxHooks.isSafeWalkActivated = true;
+    ForgeHaxHooks.HOOK_onPlayerEntitySneakEdgeCheck.getActivator().enable(getName());
   }
 
   @Override
   public void onDisabled() {
-    ForgeHaxHooks.isSafeWalkActivated = false;
+    ForgeHaxHooks.HOOK_onPlayerEntitySneakEdgeCheck.getActivator().disable(getName());
   }
 }

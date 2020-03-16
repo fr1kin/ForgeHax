@@ -70,6 +70,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
         MinecraftPatch.class,
         NetManagerPatch.class,
         PlayerControllerPatch.class,
+        PlayerEntityPatch.class,
         PlayerTabOverlayPatch.class,
         BoatRendererPatch.class,
         WorldRendererPatch.class,

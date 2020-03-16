@@ -394,5 +394,12 @@ public interface TypesHook {
             .returns(void.class)
             .noArguments()
             .build();
+
+    ASMMethod ForgeHaxHooks_onPlayerEntitySneakEdgeCheck =
+        Classes.ForgeHaxHooks.newChildMethod()
+            .name("onPlayerEntitySneakEdgeCheck")
+            .returns(boolean.class)
+            .argument(TypesMc.Classes.PlayerEntity)
+            .build();
   }
 }

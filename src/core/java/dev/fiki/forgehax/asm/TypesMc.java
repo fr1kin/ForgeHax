@@ -377,6 +377,14 @@ public interface TypesMc {
             .noArguments()
             .build();
 
+    ASMMethod PlayerEntity_shouldAvoidEdgeFalling =
+        Classes.PlayerEntity.newChildMethod()
+            // no mcp name (yet)
+            .name("func_226565_dV_")
+            .returns(boolean.class)
+            .noArguments()
+            .build();
+
     ASMMethod ClientPlayerEntity_livingTick =
         Classes.ClientPlayerEntity.newChildMethod()
             // mcp 1.12 -> onLivingUpdate
