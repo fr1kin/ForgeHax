@@ -289,6 +289,13 @@ public interface TypesMc {
             .srg("field_184459_aA")
             .type(boolean.class)
             .build();
+
+    ASMField Vec3d_z =
+        Classes.Vec3d.newChildField()
+            .mcp("z")
+            .srg("field_72449_c")
+            .type(double.class)
+            .build();
   }
 
   interface Methods {
@@ -437,21 +444,18 @@ public interface TypesMc {
             .argument(Classes.Vec3d)
             .build();
 
-    // MOVED to GameRenderer
-    @Deprecated
-    ASMMethod EntityRenderer_hurtCameraEffect =
-        Classes.EntityRenderer.newChildMethod()
-            .mcp("hurtCameraEffect")
-            .srg("troll")
-            .returnsVoid()
-            .argument(float.class)
+    ASMMethod LivingEntity_isElytraFlying =
+        Classes.LivingEntity.newChildMethod()
+            .mcp("isElytraFlying")
+            .srg("func_184613_cA")
+            .returns(boolean.class)
             .build();
 
-    @Deprecated
-    ASMMethod Minecraft_setIngameFocus =
-        Classes.Minecraft.newChildMethod()
-            .mcp("setIngameFocus")
-            .returnsVoid()
+    ASMMethod LivingEntity_livingTick =
+        Classes.LivingEntity.newChildMethod()
+            .mcp("livingTick")
+            .srg("func_70636_d")
+            .returns(void.class)
             .build();
 
     ASMMethod Minecraft_runTick =

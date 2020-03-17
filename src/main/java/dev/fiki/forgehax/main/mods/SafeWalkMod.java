@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.ForgeHaxHooks;
+import dev.fiki.forgehax.common.StateManager;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
@@ -30,6 +31,9 @@ public class SafeWalkMod extends ToggleMod {
       .description("Minimum height above ground for collisions")
       .defaultTo(15)
       .build();
+
+  private final StateManager.StateHandle sneakMovement =
+      ForgeHaxHooks.HOOK_onPlayerEntitySneakEdgeCheck.createHandle(SafeWalkMod.class);
 
 //  @SubscribeEvent
 //  public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
@@ -72,11 +76,11 @@ public class SafeWalkMod extends ToggleMod {
 
   @Override
   public void onEnabled() {
-    ForgeHaxHooks.HOOK_onPlayerEntitySneakEdgeCheck.getActivator().enable(getName());
+    sneakMovement.enable();
   }
 
   @Override
   public void onDisabled() {
-    ForgeHaxHooks.HOOK_onPlayerEntitySneakEdgeCheck.getActivator().disable(getName());
+    sneakMovement.disable();
   }
 }

@@ -2,6 +2,8 @@ package dev.fiki.forgehax.common;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import net.minecraftforge.eventbus.api.Event;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -11,21 +13,19 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
-import net.minecraftforge.eventbus.api.Event;
-
 /**
  * Created on 2/11/2018 by fr1kin
  */
 public class HookReporter {
-
   private final Method method;
 
   private final List<ASMMethod> hookedMethods;
   private final List<Class<?>> eventClasses;
 
   private boolean responding = false;
-  private BoolSwitch activator = new BoolSwitch();
+  private StateManager handles = new StateManager();
+
+  private boolean enabled;
 
   private HookReporter(
       Method method,
@@ -96,32 +96,31 @@ public class HookReporter {
    *
    * @return if the hook is active
    */
-  public boolean reportHook() {
+  boolean checkState() {
     responding = true;
-    return activator.isEnabled();
+    return enabled && (!handles.isActive() || handles.isEnabled());
   }
 
-  /**
-   * Gets the activator object to enable and disable this hook
-   *
-   * @return activator instance
-   */
-  public BoolSwitch getActivator() {
-    return activator;
+  public StateManager.StateHandle createHandle(Class<?> clazz) {
+    return handles.createHandle(clazz);
+  }
+
+  public void deleteHandle(Class<?> clazz) {
+    handles.closeHandle(clazz);
   }
 
   /**
    * Enables the hook
    */
   public void enable() {
-    activator.enable("root");
+    enabled = true;
   }
 
   /**
    * Force disables the hook
    */
   public void disable() {
-    activator.forceDisable();
+    enabled = false;
   }
 
   /**

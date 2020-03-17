@@ -11,6 +11,7 @@ import lombok.NonNull;
 import lombok.Singular;
 
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 public final class EnumSetting<E extends Enum<E>> extends AbstractSetting<E> {
@@ -20,9 +21,11 @@ public final class EnumSetting<E extends Enum<E>> extends AbstractSetting<E> {
   public EnumSetting(IParentCommand parent,
       String name, @Singular Collection<String> aliases, String description,
       @Singular Collection<EnumFlag> flags,
+      @Singular List<ISettingValueChanged<Enum<E>>> changedListeners,
       @NonNull E defaultTo, E min, E max) {
     super(parent, name, aliases, description, flags, defaultTo, min, max);
     this.converter = new EnumType<>(defaultTo.getDeclaringClass());
+    addListeners(ISettingValueChanged.class, changedListeners);
     onFullyConstructed();
   }
 }

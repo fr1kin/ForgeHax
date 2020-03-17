@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.common.ForgeHaxHooks;
+import dev.fiki.forgehax.common.StateManager;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
@@ -26,6 +27,9 @@ public class XrayMod extends ToggleMod {
           })
       .build();
 
+  private final StateManager.StateHandle disableCulling =
+      ForgeHaxHooks.HOOK_shouldDisableCaveCulling.createHandle(XrayMod.class);
+
   private boolean previousForgeLightPipelineEnabled = false;
 
   public XrayMod() {
@@ -39,16 +43,18 @@ public class XrayMod extends ToggleMod {
 
     ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (this.opacity.getValue() / 255.f);
     ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
+
+    disableCulling.enable();
     Common.reloadChunkSmooth();
-    ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.enable("Xray");
   }
 
   @Override
   public void onDisabled() {
     ForgeConfig.CLIENT.forgeLightPipelineEnabled.set(previousForgeLightPipelineEnabled);
     ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
+
+    disableCulling.disable();
     Common.reloadChunkSmooth();
-    ForgeHaxHooks.SHOULD_DISABLE_CAVE_CULLING.disable("Xray");
   }
 
   private boolean isInternalCall = false;

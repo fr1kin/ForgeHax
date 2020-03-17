@@ -1,23 +1,33 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.common.ForgeHaxHooks;
+import dev.fiki.forgehax.common.StateManager;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.main.util.Switch.Handle;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
+import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.Switch.Handle;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import static dev.fiki.forgehax.main.Common.getGameSettings;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
+
 @RegisterMod
 public class ElytraFlight extends ToggleMod {
+  enum FlyMode {
+    FLIGHT,
+    SLOW_FALL,
+    ;
+  }
 
-  public final BooleanSetting fly_on_enable = newBooleanSetting()
-      .name("fly_on_enable")
+  public final BooleanSetting flyOnEnable = newBooleanSetting()
+      .name("fly-on-enable")
       .description("Start flying when enabled")
       .defaultTo(false)
       .build();
@@ -28,18 +38,39 @@ public class ElytraFlight extends ToggleMod {
       .defaultTo(0.05f)
       .build();
 
+  private final EnumSetting<FlyMode> mode = newEnumSetting(FlyMode.class)
+      .name("mode")
+      .description("Elytra flight mode")
+      .defaultTo(FlyMode.FLIGHT)
+      .build();
+
   private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getName());
+
+  private final StateManager.StateHandle elytraMovement =
+      ForgeHaxHooks.HOOK_shouldApplyElytraMovement.createHandle(ElytraFlight.class);
+  private final StateManager.StateHandle clampMotion =
+      ForgeHaxHooks.HOOK_shouldClampMotion.createHandle(ElytraFlight.class);
 
   public ElytraFlight() {
     super(Category.PLAYER, "ElytraFlight", false, "Elytra Flight");
   }
 
+  private void enableSlowFalling() {
+    elytraMovement.enable();
+    clampMotion.enable();
+  }
+
+  private void disableSlowFalling() {
+    elytraMovement.disable();
+    clampMotion.disable();
+  }
+
   @Override
   protected void onEnabled() {
-    if (fly_on_enable.getValue()) {
+    if (flyOnEnable.getValue()) {
       Common.addScheduledTask(() -> {
-        if (Common.getLocalPlayer() != null && !Common.getLocalPlayer().isElytraFlying()) {
-          Common.sendNetworkPacket(new CEntityActionPacket(Common.getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
+        if (getLocalPlayer() != null && !getLocalPlayer().isElytraFlying()) {
+          Common.sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
         }
       });
     }
@@ -48,19 +79,70 @@ public class ElytraFlight extends ToggleMod {
   @Override
   public void onDisabled() {
     flying.disable();
+    disableSlowFalling();
+
     // Are we still here?
-    if (Common.getLocalPlayer() != null) {
+    if (getLocalPlayer() != null) {
       // Ensure the player starts flying again.
-      Common.sendNetworkPacket(new CEntityActionPacket(Common.getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
+      Common.sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
     }
   }
 
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    // Enable our flight as soon as the player starts flying his elytra.
-    if (Common.getLocalPlayer().isElytraFlying()) {
-      flying.enable();
+    if(FlyMode.FLIGHT.equals(mode.getValue())) {
+      disableSlowFalling();
+
+      if (getLocalPlayer().isElytraFlying()) {
+        flying.enable();
+      }
+      getLocalPlayer().abilities.setFlySpeed(speed.getValue());
+    } else {
+      if (!getLocalPlayer().isElytraFlying()) {
+        return;
+      }
+
+      enableSlowFalling();
+
+      double motionX = 0.0D;
+      double motionY = -0.0001D;
+      double motionZ = 0.0D;
+
+      final float speed = (float) (1.7F * 1.06);
+
+      double forward = getLocalPlayer().movementInput.moveForward;
+      double strafe = getLocalPlayer().movementInput.moveStrafe;
+      float yaw = getLocalPlayer().rotationYaw;
+
+      if ((forward == 0.0D) && (strafe == 0.0D)) {
+        motionX = 0.0D;
+        motionZ = 0.0D;
+      } else {
+        if (forward != 0.0D) {
+          if (strafe > 0.0D) {
+            yaw += (forward > 0.0D ? -45 : 45);
+          } else if (strafe < 0.0D) {
+            yaw += (forward > 0.0D ? 45 : -45);
+          }
+
+          strafe = 0.0D;
+          if (forward > 0.0D) {
+            forward = 1.0D;
+          } else if (forward < 0.0D) {
+            forward = -1.0D;
+          }
+        }
+        final double cos = Math.cos(Math.toRadians(yaw + 90.0F));
+        final double sin = Math.sin(Math.toRadians(yaw + 90.0F));
+        motionX = (forward * speed * cos + strafe * speed * sin);
+        motionZ = (forward * speed * sin - strafe * speed * cos);
+
+      }
+      if (getGameSettings().keyBindSneak.isKeyDown()) {
+        motionY = -1.0D;
+      }
+
+      getLocalPlayer().setMotion(motionX, motionY, motionZ);
     }
-    Common.getLocalPlayer().abilities.setFlySpeed(speed.getValue());
   }
 }

@@ -96,7 +96,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onPushOutOfBlocks() {
-    return HOOK_onPushOutOfBlocks.reportHook()
+    return HOOK_onPushOutOfBlocks.checkState()
         && MinecraftForge.EVENT_BUS.post(new PushOutOfBlocksEvent());
   }
 
@@ -111,7 +111,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static float onRenderBoat(BoatEntity boat, float entityYaw) {
-    if (HOOK_onRenderBoat.reportHook()) {
+    if (HOOK_onRenderBoat.checkState()) {
       RenderBoatEvent event = new RenderBoatEvent(boat, entityYaw);
       MinecraftForge.EVENT_BUS.post(event);
       return event.getYaw();
@@ -135,7 +135,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static void onSchematicaPlaceBlock(ItemStack itemIn, BlockPos posIn, Vec3d vecIn, Direction sideIn) {
-    if (HOOK_onSchematicaPlaceBlock.reportHook()) {
+    if (HOOK_onSchematicaPlaceBlock.checkState()) {
       MinecraftForge.EVENT_BUS.post(new SchematicaPlaceBlockEvent(itemIn, posIn, vecIn, sideIn));
     }
   }
@@ -151,7 +151,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onHurtcamEffect() {
-    return HOOK_onHurtcamEffect.reportHook()
+    return HOOK_onHurtcamEffect.checkState()
         && MinecraftForge.EVENT_BUS.post(new HurtCamEffectEvent());
   }
 
@@ -167,7 +167,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onPacketOutbound(NetworkManager nm, IPacket<?> packet) {
-    return HOOK_onPacketOutbound.reportHook()
+    return HOOK_onPacketOutbound.checkState()
         && MinecraftForge.EVENT_BUS.post(new PacketOutboundEvent(nm, packet));
   }
 
@@ -183,7 +183,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onPacketInbound(NetworkManager nm, IPacket<?> packet) {
-    return HOOK_onPacketInbound.reportHook()
+    return HOOK_onPacketInbound.checkState()
         && MinecraftForge.EVENT_BUS.post(new PacketInboundEvent(nm, packet));
   }
 
@@ -198,7 +198,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onWaterMovement(Entity entity, Vec3d moveDir) {
-    return HOOK_onWaterMovement.reportHook()
+    return HOOK_onWaterMovement.checkState()
         && MinecraftForge.EVENT_BUS.post(new WaterMovementEvent(entity, moveDir));
   }
 
@@ -214,7 +214,7 @@ public class ForgeHaxHooks {
 
   public static boolean onApplyCollisionMotion(Entity entity, Entity collidedWithEntity,
       double x, double z) {
-    return HOOK_onApplyCollisionMotion.reportHook()
+    return HOOK_onApplyCollisionMotion.checkState()
         && MinecraftForge.EVENT_BUS.post(new ApplyCollisionMotionEvent(entity,
         collidedWithEntity, x, 0.D, z));
   }
@@ -233,7 +233,7 @@ public class ForgeHaxHooks {
 
   public static int onPutColorMultiplier(float r, float g, float b, int buffer, boolean[] flag) {
     flag[0] = SHOULD_UPDATE_ALPHA;
-    if (HOOK_onPutColorMultiplier.reportHook() && SHOULD_UPDATE_ALPHA) {
+    if (HOOK_onPutColorMultiplier.checkState() && SHOULD_UPDATE_ALPHA) {
       if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
         int red = (int) ((float) (buffer & 255) * r);
         int green = (int) ((float) (buffer >> 8 & 255) * g);
@@ -263,7 +263,7 @@ public class ForgeHaxHooks {
 
   @Deprecated
   public static void onComputeVisibility(VisGraph visGraph, SetVisibility setVisibility) {
-    if (HOOK_onComputeVisibility.reportHook()) {
+    if (HOOK_onComputeVisibility.checkState()) {
       MinecraftForge.EVENT_BUS.post(new ComputeVisibilityEvent(visGraph, setVisibility));
     }
   }
@@ -280,7 +280,7 @@ public class ForgeHaxHooks {
 
   @Deprecated
   public static boolean onDoBlockCollisions(Entity entity, BlockPos pos, BlockState state) {
-    return HOOK_onDoBlockCollisions.reportHook()
+    return HOOK_onDoBlockCollisions.checkState()
         && MinecraftForge.EVENT_BUS.post(new DoBlockCollisionsEvent(entity, pos, state));
   }
 
@@ -296,7 +296,7 @@ public class ForgeHaxHooks {
   public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = new HashSet<>();
 
   public static boolean isBlockFiltered(Entity entity, BlockState state) {
-    return HOOK_isBlockFiltered.reportHook()
+    return HOOK_isBlockFiltered.checkState()
         && entity instanceof PlayerEntity
         && LIST_BLOCK_FILTER.contains(state.getBlock().getClass());
   }
@@ -313,7 +313,7 @@ public class ForgeHaxHooks {
 
   @Deprecated
   public static boolean onApplyClimbableBlockMovement(LivingEntity livingBase) {
-    return HOOK_onApplyClimbableBlockMovement.reportHook()
+    return HOOK_onApplyClimbableBlockMovement.checkState()
         && MinecraftForge.EVENT_BUS.post(new ApplyClimbableBlockMovement(livingBase));
   }
 
@@ -328,7 +328,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onGetCollisionShapeEvent(Block block, BlockState state, IBlockReader reader, BlockPos pos) {
-    return HOOK_onAddCollisionBoxToList.reportHook()
+    return HOOK_onAddCollisionBoxToList.checkState()
         && MinecraftForge.EVENT_BUS.post(new GetCollisionShapeEvent(block, state, reader, pos));
   }
 
@@ -343,10 +343,8 @@ public class ForgeHaxHooks {
           //.dependsOn(TypesMc.Methods.VisGraph_computeVisibility)
           .build();
 
-  public static final BoolSwitch SHOULD_DISABLE_CAVE_CULLING = new BoolSwitch();
-
   public static boolean shouldDisableCaveCulling() {
-    return HOOK_shouldDisableCaveCulling.reportHook() && SHOULD_DISABLE_CAVE_CULLING.isEnabled();
+    return HOOK_shouldDisableCaveCulling.checkState();
   }
 
   /**
@@ -360,7 +358,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onUpdateWalkingPlayerPre(ClientPlayerEntity localPlayer) {
-    return HOOK_onUpdateWalkingPlayerPre.reportHook()
+    return HOOK_onUpdateWalkingPlayerPre.checkState()
         && MinecraftForge.EVENT_BUS.post(new PrePlayerMovementUpdateEvent(localPlayer));
   }
 
@@ -375,7 +373,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static void onUpdateWalkingPlayerPost(ClientPlayerEntity localPlayer) {
-    if (HOOK_onUpdateWalkingPlayerPost.reportHook()) {
+    if (HOOK_onUpdateWalkingPlayerPost.checkState()) {
       MinecraftForge.EVENT_BUS.post(new PostPlayerMovementUpdateEvent(localPlayer));
     }
   }
@@ -392,7 +390,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static int onLeftClickCounterSet(int value, Minecraft minecraft) {
-    if (HOOK_onLeftClickCounterSet.reportHook()) {
+    if (HOOK_onLeftClickCounterSet.checkState()) {
       LeftClickCounterUpdateEvent event = new LeftClickCounterUpdateEvent(minecraft, value);
       MinecraftForge.EVENT_BUS.post(event);
       return event.getValue();
@@ -412,7 +410,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onSendClickBlockToController(Minecraft minecraft, boolean clicked) {
-    if (HOOK_onSendClickBlockToController.reportHook()) {
+    if (HOOK_onSendClickBlockToController.checkState()) {
       BlockControllerProcessEvent event = new BlockControllerProcessEvent(minecraft, clicked);
       MinecraftForge.EVENT_BUS.post(event);
       return event.isLeftClicked();
@@ -432,7 +430,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static void onPlayerItemSync(PlayerController playerControllerMP) {
-    if (HOOK_onPlayerItemSync.reportHook()) {
+    if (HOOK_onPlayerItemSync.checkState()) {
       MinecraftForge.EVENT_BUS.post(new PlayerSyncItemEvent(playerControllerMP));
     }
   }
@@ -449,7 +447,7 @@ public class ForgeHaxHooks {
 
   public static void onPlayerBreakingBlock(PlayerController playerControllerMP,
       BlockPos pos, Direction facing) {
-    if (HOOK_onPlayerBreakingBlock.reportHook()) {
+    if (HOOK_onPlayerBreakingBlock.checkState()) {
       MinecraftForge.EVENT_BUS.post(new PlayerDamageBlockEvent(playerControllerMP, pos, facing));
     }
   }
@@ -466,7 +464,7 @@ public class ForgeHaxHooks {
 
   public static void onPlayerAttackEntity(PlayerController playerControllerMP,
       PlayerEntity attacker, Entity victim) {
-    if (HOOK_onPlayerAttackEntity.reportHook()) {
+    if (HOOK_onPlayerAttackEntity.checkState()) {
       MinecraftForge.EVENT_BUS.post(
           new PlayerAttackEntityEvent(playerControllerMP, attacker, victim));
     }
@@ -483,7 +481,7 @@ public class ForgeHaxHooks {
           .build();
 
   public static boolean onPlayerStopUse(PlayerController playerControllerMP, PlayerEntity player) {
-    return HOOK_onPlayerStopUse.reportHook()
+    return HOOK_onPlayerStopUse.checkState()
         && MinecraftForge.EVENT_BUS.post(new ItemStoppedUsedEvent(playerControllerMP, player));
   }
 
@@ -499,7 +497,7 @@ public class ForgeHaxHooks {
 
   public static float onEntityBlockSlipApply(float slipperiness,
       LivingEntity entityLivingBase, BlockPos blockPos) {
-    if (HOOK_onEntityBlockSlipApply.reportHook()) {
+    if (HOOK_onEntityBlockSlipApply.checkState()) {
       EntityBlockSlipApplyEvent event = new EntityBlockSlipApplyEvent(entityLivingBase,
           entityLivingBase.world.getBlockState(blockPos), slipperiness);
       MinecraftForge.EVENT_BUS.post(event);
@@ -512,11 +510,33 @@ public class ForgeHaxHooks {
   public static final HookReporter HOOK_onPlayerEntitySneakEdgeCheck =
       newHookReporter()
           .hook("onPlayerEntitySneakEdgeCheck")
-          .startOff()
           .build();
 
   public static boolean onPlayerEntitySneakEdgeCheck(PlayerEntity player) {
     return Minecraft.getInstance().player == player
-        && HOOK_onPlayerEntitySneakEdgeCheck.reportHook();
+        && HOOK_onPlayerEntitySneakEdgeCheck.checkState();
+  }
+
+  public static final HookReporter HOOK_shouldApplyElytraMovement =
+      newHookReporter()
+          .hook("shouldApplyElytraMovement")
+          .build();
+
+  public static boolean shouldApplyElytraMovement(boolean elytraFlying, LivingEntity living) {
+    if(Minecraft.getInstance().player == living) {
+      return elytraFlying && !HOOK_shouldApplyElytraMovement.checkState();
+    } else {
+      return elytraFlying;
+    }
+  }
+
+  public static final HookReporter HOOK_shouldClampMotion =
+      newHookReporter()
+          .hook("shouldClampMotion")
+          .build();
+
+  public static boolean shouldClampMotion(LivingEntity living) {
+    return Minecraft.getInstance().player == living
+        && !HOOK_shouldClampMotion.checkState();
   }
 }

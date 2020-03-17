@@ -401,5 +401,20 @@ public interface TypesHook {
             .returns(boolean.class)
             .argument(TypesMc.Classes.PlayerEntity)
             .build();
+
+    ASMMethod ForgeHaxHooks_shouldApplyElytraMovement =
+        Classes.ForgeHaxHooks.newChildMethod()
+            .name("shouldApplyElytraMovement")
+            .returns(boolean.class)
+            .argument(boolean.class)
+            .argument(TypesMc.Classes.LivingEntity)
+            .build();
+
+    ASMMethod ForgeHaxHooks_shouldClampMotion =
+        Classes.ForgeHaxHooks.newChildMethod()
+            .name("shouldClampMotion")
+            .returns(boolean.class)
+            .argument(TypesMc.Classes.LivingEntity)
+            .build();
   }
 }
