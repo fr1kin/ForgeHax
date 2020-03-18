@@ -320,6 +320,16 @@ public interface TypesMc {
             .argument(Classes.ISelectionContext)
             .build();
 
+    ASMMethod BlockState_onEntityCollision =
+        Classes.Block.newChildMethod()
+            .mcp("onEntityCollision")
+            .srg("func_196950_a")
+            .returnsVoid()
+            .argument(Classes.World)
+            .argument(Classes.BlockPos)
+            .argument(Classes.Entity)
+            .build();
+
     @Deprecated
     ASMMethod ChunkRenderContainer_addRenderChunk =
         Classes.ChunkRenderContainer.newChildMethod()

@@ -169,9 +169,9 @@ public interface TypesHook {
             .argument(boolean.class)
             .build();
 
-    ASMMethod ForgeHaxHooks_isBlockFiltered =
+    ASMMethod ForgeHaxHooks_shouldApplyBlockEntityCollisions =
         Classes.ForgeHaxHooks.newChildMethod()
-            .name("isBlockFiltered")
+            .name("shouldApplyBlockEntityCollisions")
             .returns(boolean.class)
             .argument(TypesMc.Classes.Entity)
             .argument(TypesMc.Classes.BlockState)

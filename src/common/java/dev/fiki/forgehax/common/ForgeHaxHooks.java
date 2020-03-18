@@ -263,21 +263,16 @@ public class ForgeHaxHooks {
         && MinecraftForge.EVENT_BUS.post(new DoBlockCollisionsEvent(entity, pos, state));
   }
 
-  /**
-   * isBlockFiltered
-   */
-  public static final HookReporter HOOK_isBlockFiltered =
+  public static final HookReporter HOOK_shouldApplyBlockEntityCollisions =
       newHookReporter()
-          .hook("isBlockFiltered")
-          //.dependsOn(TypesMc.Methods.Entity_doBlockCollisions)
+          .hook("shouldApplyBlockEntityCollisions")
           .build();
 
   public static final Set<Class<? extends Block>> LIST_BLOCK_FILTER = new HashSet<>();
 
-  public static boolean isBlockFiltered(Entity entity, BlockState state) {
-    return HOOK_isBlockFiltered.checkState()
-        && entity instanceof PlayerEntity
-        && LIST_BLOCK_FILTER.contains(state.getBlock().getClass());
+  public static boolean shouldApplyBlockEntityCollisions(Entity entity, BlockState state) {
+    return Minecraft.getInstance().player != entity
+        || !MinecraftForge.EVENT_BUS.post(new BlockEntityCollisionEvent(entity, state));
   }
 
   /**

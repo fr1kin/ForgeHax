@@ -2,15 +2,14 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
+import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
-
-import org.objectweb.asm.tree.*;
 
 public class EntityPatch {
 
@@ -81,52 +80,8 @@ public class EntityPatch {
     }
   }
 
-  //@RegisterTransformer("ForgeHaxHooks.isSafeWalkActivated")
-  public static class Move extends MethodTransformer {
-
-    private boolean isInvokeIsSteppingCarefullyCall(AbstractInsnNode node) {
-      if(node instanceof MethodInsnNode) {
-        MethodInsnNode mn = (MethodInsnNode) node;
-        return Methods.Entity_isSteppingCarefully.isNameEqual(mn.name);
-      }
-      return false;
-    }
-
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.Entity_move;
-    }
-
-    @Override
-    public void transform(MethodNode main) {
-      AbstractInsnNode sneakFlagNode = ASMPattern.builder()
-          .find(main)
-          .getFirst("could not find call to Entity::isSteppingCarefully");
-
-      AbstractInsnNode _jumpNode = sneakFlagNode.getNext();
-
-      if(!(_jumpNode instanceof JumpInsnNode)) {
-        throw new Error("expected node after INVOKEVIRTUAL to be a jump, but got "
-            + _jumpNode.getClass().getSimpleName());
-      }
-
-      // the original label to the jump
-//      LabelNode skipJump = ((JumpInsnNode) _jumpNode).label;
-//
-//      InsnList insnList = new InsnList();
-//      insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isSafeWalkActivated));
-//      insnList.add(new JumpInsnNode(IFEQ, skipJump));
-//      insnList.add(thatorJump);
-//
-//      AbstractInsnNode previousNode = sneakFlagNode.getPrevious();
-//      main.instructions.remove(sneakFlagNode); // delete IFEQ
-//      main.instructions.insert(previousNode, insnList); // insert new instructions
-    }
-  }
-
-  @RegisterTransformer("ForgeHaxHooks.isBlockFiltered")
+  @RegisterTransformer("ForgeHaxHooks::shouldApplyBlockEntityCollisions")
   public static class DoBlockCollisions extends MethodTransformer {
-
     @Override
     public ASMMethod getMethod() {
       return TypesMc.Methods.Entity_doBlockCollisions;
@@ -134,38 +89,32 @@ public class EntityPatch {
 
     @Override
     public void transform(MethodNode main) {
-      AbstractInsnNode preNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[]{
-                  ASTORE,
-                  0x00,
-                  0x00,
-                  ALOAD,
-                  INVOKEINTERFACE,
-                  ALOAD,
-                  GETFIELD,
-                  ALOAD,
-                  ALOAD,
-                  ALOAD,
-                  INVOKEVIRTUAL
-              },
-              "x??xxxxxxxx");
-      AbstractInsnNode postNode = ASMHelper.findPattern(preNode, new int[]{GOTO}, "x");
+      // >HERE<
+      // blockstate.onEntityCollision(this.world, ...
+      AbstractInsnNode pre = ASMPattern.builder()
+          .codeOnly()
+          .opcodes(ALOAD, ALOAD, GETFIELD, ALOAD, ALOAD, INVOKEVIRTUAL)
+          .find(main)
+          .getFirst("could not find node to BlockState::onEntityCollision call");
 
-      Objects.requireNonNull(preNode, "Find pattern failed for preNode");
-      Objects.requireNonNull(postNode, "Find pattern failed for postNode");
+      // this.onInsideBlock(blockstate);
+      // >HERE<
+      AbstractInsnNode post = ASMPattern.builder()
+          .codeOnly()
+          .opcode(GOTO)
+          .find(pre)
+          .getFirst("could not find GOTO label in try block");
 
-      LabelNode endJump = new LabelNode();
+      LabelNode skip = new LabelNode();
 
-      InsnList insnList = new InsnList();
-      insnList.add(new VarInsnNode(ALOAD, 0)); // push entity
-      insnList.add(new VarInsnNode(ALOAD, 8)); // push block state
-      insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_isBlockFiltered));
-      insnList.add(new JumpInsnNode(IFNE, endJump));
+      InsnList list = new InsnList();
+      list.add(new VarInsnNode(ALOAD, 0)); // push entity
+      list.add(new VarInsnNode(ALOAD, 11)); // push block state
+      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldApplyBlockEntityCollisions));
+      list.add(new JumpInsnNode(IFEQ, skip)); // skip if return value is equal to 0
 
-      main.instructions.insertBefore(postNode, endJump);
-      main.instructions.insert(preNode, insnList);
+      main.instructions.insertBefore(pre, list);
+      main.instructions.insertBefore(post, skip);
     }
   }
 }
