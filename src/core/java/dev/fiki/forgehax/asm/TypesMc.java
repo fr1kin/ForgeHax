@@ -591,16 +591,6 @@ public interface TypesMc {
             .argument(Classes.Entity)
             .build();
 
-    // appears to have moved to WorldLightManager::checkBlock
-    @Deprecated
-    ASMMethod World_checkLightFor =
-        Classes.World.newChildMethod()
-            .mcp("checkLightFor")
-            .returns(boolean.class)
-            .argument(Classes.EnumSkyBlock)
-            .argument(Classes.BlockPos)
-            .build();
-
     ASMMethod BoatEntity_updateMotion =
         Classes.BoatEntity.newChildMethod()
             .mcp("updateMotion")
