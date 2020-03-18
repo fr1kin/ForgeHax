@@ -274,13 +274,6 @@ public interface TypesHook {
             .argument(TypesMc.Classes.ClientPlayerEntity)
             .build();
 
-    ASMMethod ForgeHaxHooks_onPushOutOfBlocks =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onPushOutOfBlocks")
-            .returns(boolean.class)
-            .noArguments()
-            .build();
-
     ASMMethod ForgeHaxHooks_onRenderBoat =
         Classes.ForgeHaxHooks.newChildMethod()
             .name("onRenderBoat")

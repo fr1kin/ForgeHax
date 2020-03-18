@@ -1,16 +1,15 @@
 package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
+import dev.fiki.forgehax.asm.TypesMc;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
+import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
-
-import dev.fiki.forgehax.asm.TypesMc;
-import org.objectweb.asm.tree.*;
 
 /**
  * Created on 11/13/2016 by fr1kin
@@ -90,37 +89,6 @@ public class ClientEntityPlayerPatch {
       main.instructions.insertBefore(walkingUpdateCall.getPrevious(), pre);
       // insert below call
       main.instructions.insert(walkingUpdateCall, post);
-    }
-  }
-
-  @RegisterTransformer
-  public static class PushOutOfBlocks extends MethodTransformer {
-
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.ClientPlayerEntity_pushOutOfBlocks;
-    }
-
-    @Override
-    public void transform(MethodNode main) {
-      AbstractInsnNode preNode = main.instructions.getFirst();
-      AbstractInsnNode postNode = ASMPattern.builder()
-          .codeOnly()
-          .opcode(RETURN)
-          .find(main)
-          .getFirst();
-
-      Objects.requireNonNull(preNode, "Find pattern failed for pre node");
-      Objects.requireNonNull(postNode, "Find pattern failed for post node");
-
-      LabelNode endJump = new LabelNode();
-
-      InsnList insnPre = new InsnList();
-      insnPre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPushOutOfBlocks));
-      insnPre.add(new JumpInsnNode(IFNE, endJump));
-
-      main.instructions.insertBefore(preNode, insnPre);
-      main.instructions.insertBefore(postNode, endJump);
     }
   }
 

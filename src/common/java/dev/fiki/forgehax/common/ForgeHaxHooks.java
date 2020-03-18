@@ -79,21 +79,6 @@ public class ForgeHaxHooks {
   }
 
   /**
-   * onPushOutOfBlocks
-   */
-  public static final HookReporter HOOK_onPushOutOfBlocks =
-      newHookReporter()
-          .hook("onPushOutOfBlocks")
-          //.dependsOn(TypesMc.Methods.EntityPlayerSP_pushOutOfBlocks)
-          .forgeEvent(PushOutOfBlocksEvent.class)
-          .build();
-
-  public static boolean onPushOutOfBlocks() {
-    return HOOK_onPushOutOfBlocks.checkState()
-        && MinecraftForge.EVENT_BUS.post(new PushOutOfBlocksEvent());
-  }
-
-  /**
    * onRenderBoat
    */
   public static final HookReporter HOOK_onRenderBoat =

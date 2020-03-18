@@ -4,7 +4,6 @@ import dev.fiki.forgehax.common.ForgeHaxHooks;
 import dev.fiki.forgehax.common.StateManager;
 import dev.fiki.forgehax.common.events.movement.ApplyCollisionMotionEvent;
 import dev.fiki.forgehax.common.events.movement.EntityBlockSlipApplyEvent;
-import dev.fiki.forgehax.common.events.movement.PushOutOfBlocksEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
@@ -14,6 +13,7 @@ import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.network.IPacket;
@@ -21,6 +21,7 @@ import net.minecraft.network.play.server.SEntityStatusPacket;
 import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.network.play.server.SExplosionPacket;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.event.PlayerSPPushOutOfBlocksEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ConcurrentModificationException;
@@ -207,7 +208,7 @@ public class AntiKnockbackMod extends ToggleMod {
   }
 
   @SubscribeEvent
-  public void onPushOutOfBlocks(PushOutOfBlocksEvent event) {
+  public void onPushOutOfBlocks(PlayerSPPushOutOfBlocksEvent event) {
     if (blocks.getValue()) {
       event.setCanceled(true);
     }
@@ -218,7 +219,7 @@ public class AntiKnockbackMod extends ToggleMod {
     if (slipping.getValue()
         && getLocalPlayer() != null
         && getLocalPlayer().equals(event.getLivingEntity())) {
-      event.setSlipperiness(0.6f);
+      event.setSlipperiness(Blocks.STONE.getDefaultState().getSlipperiness(null, null, null));
     }
   }
 }
