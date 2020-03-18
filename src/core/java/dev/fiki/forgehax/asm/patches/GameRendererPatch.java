@@ -13,31 +13,19 @@ import org.objectweb.asm.tree.*;
 public class GameRendererPatch {
 
   @RegisterTransformer("ForgeHaxHooks::onHurtcamEffect")
-  public static class Hurtcam extends MethodTransformer {
+  public static class OnHurtcamEffect extends MethodTransformer {
     @Override
     public ASMMethod getMethod() {
-      return Methods.GameRenderer_renderWorld;
+      return Methods.GameRenderer_hurtCameraEffect;
     }
 
     @Override
     public void transform(MethodNode node) {
-      AbstractInsnNode hurtcamCall = ASMPattern.builder()
+      AbstractInsnNode returnCall = ASMPattern.builder()
           .codeOnly()
-          // this::getProjectionMatrix
-          // Matrix4f::multiply
-          .opcodes(INVOKEVIRTUAL, INVOKEVIRTUAL)
-          // this::hurtCameraEffect
-          .opcodes(ALOAD, ALOAD, FLOAD, INVOKESPECIAL)
+          .opcodes(RETURN)
           .find(node)
-          .getLast("Could not find hurtcam call");
-
-      AbstractInsnNode preCall = hurtcamCall
-          // FLOAD 1
-          .getPrevious()
-          // ALOAD 7
-          .getPrevious()
-          // ALOAD 0
-          .getPrevious();
+          .getLast("Could not find return call");
 
       LabelNode jmp = new LabelNode();
 
@@ -47,10 +35,9 @@ public class GameRendererPatch {
       // do not call if hurtcam event cancels execution
       list.add(new JumpInsnNode(IFNE, jmp));
 
-      node.instructions.insertBefore(preCall, list);
-      node.instructions.insert(hurtcamCall, jmp);
+      node.instructions.insert(list);
+      node.instructions.insertBefore(returnCall, jmp);
     }
-
   }
 
   @RegisterTransformer("ForgeHaxHooks::nearClippingPlane")

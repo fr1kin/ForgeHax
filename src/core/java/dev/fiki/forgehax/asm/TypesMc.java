@@ -711,5 +711,14 @@ public interface TypesMc {
             .argument(float.class)
             .argument(boolean.class)
             .build();
+
+    ASMMethod GameRenderer_hurtCameraEffect =
+        Classes.GameRenderer.newChildMethod()
+            .mcp("hurtCameraEffect")
+            .srg("func_228380_a_")
+            .returnsVoid()
+            .argument(Classes.MatrixStack)
+            .argument(float.class)
+            .build();
   }
 }
