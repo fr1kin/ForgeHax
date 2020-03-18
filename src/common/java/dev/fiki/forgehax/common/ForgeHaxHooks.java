@@ -1,19 +1,16 @@
 package dev.fiki.forgehax.common;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.fiki.forgehax.common.events.*;
 import dev.fiki.forgehax.common.events.movement.*;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.common.events.render.ComputeVisibilityEvent;
 import dev.fiki.forgehax.common.events.render.HurtCamEffectEvent;
-import dev.fiki.forgehax.common.events.render.ProjectionViewMatrixSetupEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.multiplayer.PlayerController;
-import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.chunk.SetVisibility;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.entity.Entity;
@@ -79,10 +76,6 @@ public class ForgeHaxHooks {
    */
   public static void onDrawBoundingBoxPost() {
     MinecraftForge.EVENT_BUS.post(new DrawBlockBoundingBoxEvent.Post());
-  }
-
-  public static void onSetupProjectionViewMatrix(MatrixStack stack, Matrix4f projection) {
-    MinecraftForge.EVENT_BUS.post(new ProjectionViewMatrixSetupEvent(stack, projection));
   }
 
   /**

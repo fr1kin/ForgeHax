@@ -1,13 +1,15 @@
 package dev.fiki.forgehax.main.mods.services;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.fiki.forgehax.common.events.render.ProjectionViewMatrixSetupEvent;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -18,7 +20,9 @@ import org.lwjgl.opengl.GL11;
 
 import static com.mojang.blaze3d.systems.RenderSystem.popMatrix;
 import static com.mojang.blaze3d.systems.RenderSystem.pushMatrix;
+import static dev.fiki.forgehax.main.Common.MC;
 import static dev.fiki.forgehax.main.Common.getGameRenderer;
+import static dev.fiki.forgehax.main.util.reflection.FastReflection.Methods.GameRenderer_hurtCameraEffect;
 
 /**
  * Created on 6/14/2017 by fr1kin
@@ -30,12 +34,29 @@ public class RenderEventService extends ServiceMod {
   }
 
   @SubscribeEvent
-  public void onProjectionViewMatrixSetup(ProjectionViewMatrixSetupEvent event) {
-    VectorUtils.setProjectionViewMatrix(event.getProjectionMatrix(), event.getMatrixStack().getLast().getPositionMatrix());
-  }
-
-  @SubscribeEvent
   public void onRenderWorld(RenderWorldLastEvent event) {
+    final GameRenderer gameRenderer = getGameRenderer();
+    final ActiveRenderInfo activeRenderInfo = gameRenderer.getActiveRenderInfo();
+    final float partialTicks = MC.getRenderPartialTicks();
+
+    MatrixStack stack = new MatrixStack();
+    stack.getLast().getPositionMatrix().multiply(
+        gameRenderer.getProjectionMatrix(activeRenderInfo, partialTicks, true));
+
+    GameRenderer_hurtCameraEffect.invoke(gameRenderer, stack, partialTicks);
+
+    Matrix4f projectionMatrix = stack.getLast().getPositionMatrix();
+
+//    net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup cameraSetup =
+//        net.minecraftforge.client.ForgeHooksClient.onCameraSetup(gameRenderer, activeRenderInfo, partialTicks);
+//    activeRenderInfo.setAnglesInternal(cameraSetup.getYaw(), cameraSetup.getPitch());
+//    stack.rotate(Vector3f.ZP.rotationDegrees(cameraSetup.getRoll()));
+
+//    stack.rotate(Vector3f.XP.rotationDegrees(activeRenderInfo.getPitch()));
+//    stack.rotate(Vector3f.YP.rotationDegrees(activeRenderInfo.getYaw() + 180.0F));
+
+    VectorUtils.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().getLast().getPositionMatrix());
+
     pushMatrix();
     RenderSystem.multMatrix(event.getMatrixStack().getLast().getPositionMatrix());
 
@@ -48,7 +69,7 @@ public class RenderEventService extends ServiceMod {
 
     RenderSystem.lineWidth(1.f);
 
-    Vec3d projectedView = getGameRenderer().getActiveRenderInfo().getProjectedView();
+    Vec3d projectedView = activeRenderInfo.getProjectedView();
 
     RenderEvent e = new RenderEvent(event.getMatrixStack(), projectedView, event.getPartialTicks());
     MinecraftForge.EVENT_BUS.post(e);

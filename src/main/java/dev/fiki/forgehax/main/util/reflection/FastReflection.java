@@ -1,11 +1,8 @@
 package dev.fiki.forgehax.main.util.reflection;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.fiki.forgehax.main.util.reflection.fasttype.FastField;
 import dev.fiki.forgehax.main.util.reflection.fasttype.FastMethod;
-
-import java.util.List;
-import java.util.Map;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -20,7 +17,6 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.Vector3f;
-import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.KeyBinding;
@@ -55,6 +51,9 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.storage.ChunkLoader;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 5/8/2017 by fr1kin
@@ -604,6 +603,15 @@ public interface FastReflection {
             .argument(ActiveRenderInfo.class)
             .argument(float.class)
             .argument(boolean.class)
+            .build();
+
+    FastMethod<Void> GameRenderer_hurtCameraEffect =
+        FastMethod.builder()
+            .parent(GameRenderer.class)
+            .mcp("hurtCameraEffect")
+            .srg("func_228380_a_")
+            .argument(MatrixStack.class)
+            .argument(float.class)
             .build();
 
     /**

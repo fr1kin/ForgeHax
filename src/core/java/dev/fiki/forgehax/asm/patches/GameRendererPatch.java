@@ -53,33 +53,6 @@ public class GameRendererPatch {
 
   }
 
-  @RegisterTransformer("ForgeHaxHooks::onSetupProjectionViewMatrix")
-  public static class ProjectionViewSetup extends MethodTransformer {
-
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.GameRenderer_renderWorld;
-    }
-
-    @Override
-    public void transform(MethodNode node) {
-      AbstractInsnNode beforeViewVectorCall = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(ALOAD, GETFIELD, GETFIELD, ALOAD, FLOAD, LLOAD, ILOAD, ALOAD, ALOAD, ALOAD, GETFIELD, ALOAD, INVOKEVIRTUAL)
-          .find(node)
-          .getFirst("Could not find getViewVector call");
-
-      InsnList list = new InsnList();
-      // call hurtcam event
-      list.add(new VarInsnNode(ALOAD, 4));
-      list.add(new VarInsnNode(ALOAD, 9));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSetupProjectionViewMatrix));
-      // do not call if hurtcam event cancels execution
-
-      node.instructions.insertBefore(beforeViewVectorCall, list);
-    }
-  }
-
   @RegisterTransformer("ForgeHaxHooks::nearClippingPlane")
   public static class GetProjectionMatrix extends MethodTransformer {
     @Override

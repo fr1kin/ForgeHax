@@ -77,14 +77,6 @@ public interface TypesHook {
             .noArguments()
             .build();
 
-    ASMMethod ForgeHaxHooks_onSetupProjectionViewMatrix =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onSetupProjectionViewMatrix")
-            .returnsVoid()
-            .argument(TypesMc.Classes.MatrixStack)
-            .argument(TypesMc.Classes.Matrix4f)
-            .build();
-
     ASMMethod ForgeHaxHooks_onPacketOutbound =
         Classes.ForgeHaxHooks.newChildMethod()
             .name("onPacketOutbound")
