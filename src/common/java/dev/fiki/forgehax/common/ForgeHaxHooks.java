@@ -183,16 +183,17 @@ public class ForgeHaxHooks {
   /**
    * onWaterMovement
    */
-  public static final HookReporter HOOK_onWaterMovement =
+  public static final HookReporter HOOK_shouldBePushedByLiquid =
       newHookReporter()
-          .hook("onWaterMovement")
-          //.dependsOn(TypesMc.Methods.World_handleMaterialAcceleration)
-          .forgeEvent(WaterMovementEvent.class)
+          .hook("shouldBePushedByLiquid")
           .build();
 
-  public static boolean onWaterMovement(Entity entity, Vec3d moveDir) {
-    return HOOK_onWaterMovement.checkState()
-        && MinecraftForge.EVENT_BUS.post(new WaterMovementEvent(entity, moveDir));
+  public static boolean shouldBePushedByLiquid(PlayerEntity entity) {
+    // push player provided that
+    // - entity is not the local player
+    // - OR hook is not disabled
+    return Minecraft.getInstance().player != entity
+        || !HOOK_shouldBePushedByLiquid.checkState();
   }
 
   /**

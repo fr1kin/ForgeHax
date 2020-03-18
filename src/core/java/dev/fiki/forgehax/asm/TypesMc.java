@@ -410,6 +410,14 @@ public interface TypesMc {
             .noArguments()
             .build();
 
+    ASMMethod PlayerEntity_isPushedByWater =
+        Classes.PlayerEntity.newChildMethod()
+            .mcp("isPushedByWater")
+            .srg("func_96092_aw")
+            .returns(boolean.class)
+            .noArguments()
+            .build();
+
     ASMMethod ClientPlayerEntity_onUpdateWalkingPlayer =
         Classes.ClientPlayerEntity.newChildMethod()
             .mcp("onUpdateWalkingPlayer")
@@ -577,18 +585,6 @@ public interface TypesMc {
             .mcp("computeVisibility")
             .srg("func_178607_a")
             .returns(Classes.SetVisibility)
-            .build();
-
-    // does not exist anymore or is renamed
-    @Deprecated
-    ASMMethod World_handleMaterialAcceleration =
-        Classes.World.newChildMethod()
-            .mcp("handleMaterialAcceleration")
-            .srg("troll")
-            .returns(boolean.class)
-            .argument(Classes.AxisAlignedBB)
-            .argument(Classes.Material)
-            .argument(Classes.Entity)
             .build();
 
     ASMMethod BoatEntity_updateMotion =

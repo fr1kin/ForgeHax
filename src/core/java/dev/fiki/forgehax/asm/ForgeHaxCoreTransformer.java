@@ -74,8 +74,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
         PlayerTabOverlayPatch.class,
         BoatRendererPatch.class,
         WorldRendererPatch.class,
-        VisGraphPatch.class,
-        WorldPatch.class
+        VisGraphPatch.class
     );
   }
 

@@ -107,12 +107,11 @@ public interface TypesHook {
             .argument(TypesMc.Classes.Packet)
             .build();
 
-    ASMMethod ForgeHaxHooks_onWaterMovement =
+    ASMMethod ForgeHaxHooks_shouldBePushedByLiquid =
         Classes.ForgeHaxHooks.newChildMethod()
-            .name("onWaterMovement")
+            .name("shouldBePushedByLiquid")
             .returns(boolean.class)
-            .argument(TypesMc.Classes.Entity)
-            .argument(TypesMc.Classes.Vec3d)
+            .argument(TypesMc.Classes.PlayerEntity)
             .build();
 
     ASMMethod ForgeHaxHooks_onApplyCollisionMotion =

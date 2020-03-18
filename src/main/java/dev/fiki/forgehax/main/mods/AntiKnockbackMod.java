@@ -1,19 +1,19 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.common.ForgeHaxHooks;
+import dev.fiki.forgehax.common.StateManager;
 import dev.fiki.forgehax.common.events.movement.ApplyCollisionMotionEvent;
 import dev.fiki.forgehax.common.events.movement.EntityBlockSlipApplyEvent;
 import dev.fiki.forgehax.common.events.movement.PushOutOfBlocksEvent;
-import dev.fiki.forgehax.common.events.movement.WaterMovementEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.network.IPacket;
@@ -90,8 +90,16 @@ public class AntiKnockbackMod extends ToggleMod {
       .defaultTo(true)
       .build();
 
+  private final StateManager.StateHandle stopWaterMovement =
+      ForgeHaxHooks.HOOK_shouldBePushedByLiquid.createHandle(AntiKnockbackMod.class);
+
   public AntiKnockbackMod() {
     super(Category.COMBAT, "AntiKnockback", false, "Removes knockback movement");
+  }
+
+  @Override
+  protected void onDisabled() {
+    stopWaterMovement.disable();
   }
 
   private Vec3d getMultiplier() {
@@ -130,6 +138,15 @@ public class AntiKnockbackMod extends ToggleMod {
 
   private void addEntityVelocity(Entity in, Vec3d velocity) {
     in.setMotion(in.getMotion().add(velocity));
+  }
+
+  @SubscribeEvent
+  public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
+    if(water.isEnabled()) {
+      stopWaterMovement.enable();
+    } else {
+      stopWaterMovement.disable();
+    }
   }
 
   /**
@@ -171,19 +188,6 @@ public class AntiKnockbackMod extends ToggleMod {
           event.setCanceled(true);
         }
       }
-    }
-  }
-
-  /**
-   * Stops velocity from water
-   */
-  @SubscribeEvent
-  public void onWaterMovementEvent(WaterMovementEvent event) {
-    if (water.getValue() && getLocalPlayer() != null && getLocalPlayer().equals(event.getEntity())) {
-      addEntityVelocity(
-          event.getEntity(),
-          VectorUtils.multiplyBy(event.getMovement().normalize().scale(0.014D), getMultiplier()));
-      event.setCanceled(true);
     }
   }
 
