@@ -31,7 +31,7 @@ public class GameRendererPatch {
 
       InsnList list = new InsnList();
       // call hurtcam event
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onHurtcamEffect));
+      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldStopHurtcamEffect));
       // do not call if hurtcam event cancels execution
       list.add(new JumpInsnNode(IFNE, jmp));
 

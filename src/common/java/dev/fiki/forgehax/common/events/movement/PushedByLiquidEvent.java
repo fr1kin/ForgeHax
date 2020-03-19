@@ -2,13 +2,13 @@ package dev.fiki.forgehax.common.events.movement;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 @Getter
 @AllArgsConstructor
 @Cancelable
-public class ApplyClimbableBlockMovement extends Event {
-  private final LivingEntity livingEntity;
+public class PushedByLiquidEvent extends Event {
+  private final PlayerEntity player;
 }

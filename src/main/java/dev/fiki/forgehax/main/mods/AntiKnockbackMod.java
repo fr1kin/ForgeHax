@@ -1,11 +1,9 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.ForgeHaxHooks;
-import dev.fiki.forgehax.common.StateManager;
 import dev.fiki.forgehax.common.events.movement.ApplyCollisionMotionEvent;
 import dev.fiki.forgehax.common.events.movement.EntityBlockSlipApplyEvent;
+import dev.fiki.forgehax.common.events.movement.PushedByLiquidEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
@@ -91,16 +89,8 @@ public class AntiKnockbackMod extends ToggleMod {
       .defaultTo(true)
       .build();
 
-  private final StateManager.StateHandle stopWaterMovement =
-      ForgeHaxHooks.HOOK_shouldBePushedByLiquid.createHandle(AntiKnockbackMod.class);
-
   public AntiKnockbackMod() {
     super(Category.COMBAT, "AntiKnockback", false, "Removes knockback movement");
-  }
-
-  @Override
-  protected void onDisabled() {
-    stopWaterMovement.disable();
   }
 
   private Vec3d getMultiplier() {
@@ -139,15 +129,6 @@ public class AntiKnockbackMod extends ToggleMod {
 
   private void addEntityVelocity(Entity in, Vec3d velocity) {
     in.setMotion(in.getMotion().add(velocity));
-  }
-
-  @SubscribeEvent
-  public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if(water.isEnabled()) {
-      stopWaterMovement.enable();
-    } else {
-      stopWaterMovement.disable();
-    }
   }
 
   /**
@@ -220,6 +201,13 @@ public class AntiKnockbackMod extends ToggleMod {
         && getLocalPlayer() != null
         && getLocalPlayer().equals(event.getLivingEntity())) {
       event.setSlipperiness(Blocks.STONE.getDefaultState().getSlipperiness(null, null, null));
+    }
+  }
+
+  @SubscribeEvent
+  public void onPushedByLiquid(PushedByLiquidEvent event) {
+    if(water.isEnabled()) {
+      event.setCanceled(true);
     }
   }
 }

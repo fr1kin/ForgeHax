@@ -9,14 +9,12 @@ import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
 import org.objectweb.asm.tree.*;
 
-import java.util.Objects;
-
 /**
  * Created on 11/13/2016 by fr1kin
  */
 public class ClientEntityPlayerPatch {
 
-  @RegisterTransformer("ForgeHaxHooks.isNoSlowDownActivated")
+  @RegisterTransformer("ForgeHaxHooks::shouldSlowdownPlayer")
   public static class ApplyLivingUpdate extends MethodTransformer {
 
     @Override
@@ -26,23 +24,20 @@ public class ClientEntityPlayerPatch {
 
     @Override
     public void transform(MethodNode main) {
-      AbstractInsnNode applySlowdownSpeedNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[]{IFNE, 0x00, 0x00, ALOAD, GETFIELD, DUP, GETFIELD, LDC, FMUL, PUTFIELD},
-              "x??xxxxxxx");
+      AbstractInsnNode skipNode = ASMPattern.builder()
+          .codeOnly()
+          .opcodes(ALOAD, INVOKEVIRTUAL, IFEQ, ALOAD, INVOKEVIRTUAL, IFNE)
+          .find(main)
+          .getLast("could not find IFNE node");
 
-      Objects.requireNonNull(
-          applySlowdownSpeedNode, "Find pattern failed for applySlowdownSpeedNode");
+      LabelNode skip = ((JumpInsnNode) skipNode).label;
 
-      // get label it jumps to
-      LabelNode jumpTo = ((JumpInsnNode) applySlowdownSpeedNode).label;
+      InsnList list = new InsnList();
+      list.add(new VarInsnNode(ALOAD, 0));
+      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldSlowdownPlayer));
+      list.add(new JumpInsnNode(IFEQ, skip));
 
-      InsnList insnList = new InsnList();
-      insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoSlowDownActivated));
-      insnList.add(new JumpInsnNode(IFNE, jumpTo));
-
-      main.instructions.insert(applySlowdownSpeedNode, insnList);
+      main.instructions.insert(skipNode, list);
     }
   }
 
@@ -92,7 +87,7 @@ public class ClientEntityPlayerPatch {
     }
   }
 
-  @RegisterTransformer("ClientPlayerEntity.isRowingBoat")
+  @RegisterTransformer("ForgeHaxHooks::shouldNotRowBoat")
   public static class RowingBoat extends MethodTransformer {
 
     @Override
@@ -102,22 +97,25 @@ public class ClientEntityPlayerPatch {
 
     @Override
     public void transform(MethodNode main) {
-      AbstractInsnNode preNode = main.instructions.getFirst();
+      AbstractInsnNode ret = ASMPattern.builder()
+          .codeOnly()
+          .opcode(IRETURN)
+          .find(main)
+          .getFirst("could not find return node");
 
-      Objects.requireNonNull(preNode, "Find pattern failed for pre node");
-
+      LabelNode end = new LabelNode();
       LabelNode jump = new LabelNode();
 
-      InsnList insnPre = new InsnList();
-      // insnPre.add(ASMHelper.call(GETSTATIC,
-      // TypesHook.Fields.ForgeHaxHooks_isNotRowingBoatActivated));
-      // insnPre.add(new JumpInsnNode(IFEQ, jump));
+      InsnList list = new InsnList();
+      list.add(new VarInsnNode(ALOAD, 0));
+      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldNotRowBoat));
+      list.add(new JumpInsnNode(IFEQ, jump));
+      list.add(new InsnNode(ICONST_0));
+      list.add(new JumpInsnNode(GOTO, end));
+      list.add(jump);
 
-      insnPre.add(new InsnNode(ICONST_0));
-      insnPre.add(new InsnNode(IRETURN)); // return false
-      // insnPre.add(jump);
-
-      main.instructions.insert(insnPre);
+      main.instructions.insert(list);
+      main.instructions.insertBefore(ret, end);
     }
   }
 }

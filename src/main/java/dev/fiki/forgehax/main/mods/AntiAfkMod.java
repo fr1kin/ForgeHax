@@ -1,9 +1,11 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.common.ForgeHaxHooks;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.main.mods.services.HotbarSelectionService.ResetFunction;
+import dev.fiki.forgehax.main.util.SimpleTimer;
+import dev.fiki.forgehax.main.util.Utils;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
@@ -14,18 +16,6 @@ import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.mods.services.HotbarSelectionService.ResetFunction;
-import dev.fiki.forgehax.main.util.SimpleTimer;
-import dev.fiki.forgehax.main.util.Utils;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.network.play.client.CAnimateHandPacket;
@@ -38,9 +28,15 @@ import net.minecraft.util.math.*;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
 import static dev.fiki.forgehax.main.Common.*;
-import static dev.fiki.forgehax.main.Common.getLocalPlayer;
-import static dev.fiki.forgehax.main.Common.getNetworkManager;
 
 @RegisterMod
 public class AntiAfkMod extends ToggleMod {
@@ -245,8 +241,6 @@ public class AntiAfkMod extends ToggleMod {
 
       @Override
       public void onStart() {
-        ForgeHaxHooks.isSafeWalkActivated = true;
-
         BindingHelper.disableContextHandler(getGameSettings().keyBindForward);
 
         Vec3d eye = EntityUtils.getEyePos(getLocalPlayer());
@@ -281,7 +275,6 @@ public class AntiAfkMod extends ToggleMod {
       public void onStop() {
         BindingHelper.restoreContextHandler(getGameSettings().keyBindForward);
         getLocalPlayer().setMotion(Vec3d.ZERO);
-        getModManager().get(SafeWalkMod.class).ifPresent(mod -> ForgeHaxHooks.isSafeWalkActivated = mod.isEnabled());
       }
     },
     SPIN {

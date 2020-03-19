@@ -1,7 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.ForgeHaxHooks;
-import dev.fiki.forgehax.common.StateManager;
+import dev.fiki.forgehax.common.events.movement.ClipBlockEdgeEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
@@ -9,6 +8,7 @@ import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created on 9/4/2016 by fr1kin
@@ -31,9 +31,6 @@ public class SafeWalkMod extends ToggleMod {
       .description("Minimum height above ground for collisions")
       .defaultTo(15)
       .build();
-
-  private final StateManager.StateHandle sneakMovement =
-      ForgeHaxHooks.HOOK_onPlayerEntitySneakEdgeCheck.createHandle(SafeWalkMod.class);
 
 //  @SubscribeEvent
 //  public void onAddCollisionBox(AddCollisionBoxToListEvent event) {
@@ -74,13 +71,8 @@ public class SafeWalkMod extends ToggleMod {
     return Common.getWorld().getBlockState(pos).getCollisionShape(Common.getWorld(), pos).isEmpty();
   }
 
-  @Override
-  public void onEnabled() {
-    sneakMovement.enable();
-  }
-
-  @Override
-  public void onDisabled() {
-    sneakMovement.disable();
+  @SubscribeEvent
+  public void onClipBlockEdge(ClipBlockEdgeEvent event) {
+    event.setCanceled(true);
   }
 }

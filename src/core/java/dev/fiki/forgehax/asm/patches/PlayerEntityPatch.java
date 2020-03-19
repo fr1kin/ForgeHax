@@ -29,7 +29,7 @@ public class PlayerEntityPatch {
 
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerEntitySneakEdgeCheck));
+      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldClipBlockEdge));
       list.add(new JumpInsnNode(IFEQ, label));
       list.add(new InsnNode(ICONST_1));
       list.add(new JumpInsnNode(GOTO, retLabel));

@@ -2,12 +2,12 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.asm.TypesHook;
 import dev.fiki.forgehax.asm.TypesMc;
+import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
+import dev.fiki.forgehax.asm.utils.InsnPattern;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
-
 import org.objectweb.asm.tree.*;
 
 public class BoatEntityPatch {
@@ -85,7 +85,7 @@ public class BoatEntityPatch {
 //    }
 //  }
 
-  @RegisterTransformer("ForgeHaxHooks.isNoClampingActivated")
+  @RegisterTransformer("ForgeHaxHooks::shouldClampBoat")
   public static class ApplyYawToEntity extends MethodTransformer {
 
     @Override
@@ -95,23 +95,24 @@ public class BoatEntityPatch {
 
     @Override
     public void transform(MethodNode main) {
-      AbstractInsnNode pre = ASMPattern.builder()
+      // MathHelper.clamp(f, -105.0F, 105.0F);
+      InsnPattern nodes = ASMPattern.builder()
           .codeOnly()
           .opcodes(FLOAD, LDC, LDC, INVOKESTATIC, FSTORE)
-          .find(main)
-          .getFirst("");
+          .find(main);
 
-      AbstractInsnNode post = pre.getNext().getNext().getNext(); //INVOKESTATIC
-
-      InsnList insnList = new InsnList();
+      AbstractInsnNode pre = nodes.getFirst();
+      AbstractInsnNode post = nodes.getLast(); // FSTORE
 
       LabelNode jump = new LabelNode();
 
-      insnList.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_isNoClampingActivated));
-      insnList.add(new JumpInsnNode(IFNE, jump)); // if nogravity is enabled
+      InsnList list = new InsnList();
+      list.add(new VarInsnNode(ALOAD, 0));
+      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldClampBoat));
+      list.add(new JumpInsnNode(IFEQ, jump));
 
-      main.instructions.insert(pre, insnList);
-      main.instructions.insert(post, jump);
+      main.instructions.insert(pre, list);
+      main.instructions.insertBefore(post, jump);
     }
   }
 }

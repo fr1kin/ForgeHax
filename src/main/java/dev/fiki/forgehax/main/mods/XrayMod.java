@@ -1,13 +1,13 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.ForgeHaxHooks;
-import dev.fiki.forgehax.common.StateManager;
+import dev.fiki.forgehax.common.events.render.CullCavesEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import net.minecraftforge.common.ForgeConfig;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 // TODO: 1.15
 //@RegisterMod
@@ -22,13 +22,10 @@ public class XrayMod extends ToggleMod {
       .flag(EnumFlag.EXECUTOR_MAIN_THREAD)
       .changedListener(
           (from, to) -> {
-            ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (to / 255.f);
+//            ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (to / 255.f);
             Common.reloadChunkSmooth();
           })
       .build();
-
-  private final StateManager.StateHandle disableCulling =
-      ForgeHaxHooks.HOOK_shouldDisableCaveCulling.createHandle(XrayMod.class);
 
   private boolean previousForgeLightPipelineEnabled = false;
 
@@ -41,20 +38,23 @@ public class XrayMod extends ToggleMod {
     previousForgeLightPipelineEnabled = ForgeConfig.CLIENT.forgeLightPipelineEnabled.get();
     ForgeConfig.CLIENT.forgeLightPipelineEnabled.set(false);
 
-    ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (this.opacity.getValue() / 255.f);
-    ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
+//    ForgeHaxHooks.COLOR_MULTIPLIER_ALPHA = (this.opacity.getValue() / 255.f);
+//    ForgeHaxHooks.SHOULD_UPDATE_ALPHA = true;
 
-    disableCulling.enable();
     Common.reloadChunkSmooth();
   }
 
   @Override
   public void onDisabled() {
     ForgeConfig.CLIENT.forgeLightPipelineEnabled.set(previousForgeLightPipelineEnabled);
-    ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
+//    ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
 
-    disableCulling.disable();
     Common.reloadChunkSmooth();
+  }
+
+  @SubscribeEvent
+  public void onCullCaves(CullCavesEvent event) {
+    event.setCanceled(true);
   }
 
   private boolean isInternalCall = false;

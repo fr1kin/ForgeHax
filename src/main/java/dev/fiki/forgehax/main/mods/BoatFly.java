@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.ForgeHaxHooks;
 import dev.fiki.forgehax.common.events.RenderBoatEvent;
-import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.common.events.boat.ClampBoatEvent;
+import dev.fiki.forgehax.common.events.boat.RowBoatEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
@@ -11,9 +11,10 @@ import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.util.MovementInput;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod
 public class BoatFly extends ToggleMod {
@@ -54,27 +55,32 @@ public class BoatFly extends ToggleMod {
 
   @SubscribeEvent // disable gravity
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    ForgeHaxHooks.isNoBoatGravityActivated =
-        Common.getMountedEntity() instanceof BoatEntity; // disable gravity if in boat
+//    ForgeHaxHooks.isNoBoatGravityActivated =
+//        getMountedEntity() instanceof BoatEntity; // disable gravity if in boat
+  }
+
+  @SubscribeEvent
+  public void onClampBoatAngles(ClampBoatEvent event) {
+    event.setCanceled(noClamp.isEnabled());
+  }
+
+  @SubscribeEvent
+  public void onBoatRowing(RowBoatEvent event) {
+    event.setCanceled(true);
   }
 
   @Override
   public void onDisabled() {
     // ForgeHaxHooks.isNoClampingActivated = false; // disable view clamping
-    ForgeHaxHooks.isNoBoatGravityActivated = false; // disable gravity
-    ForgeHaxHooks.isBoatSetYawActivated = false;
+//    ForgeHaxHooks.isNoBoatGravityActivated = false; // disable gravity
+//    ForgeHaxHooks.isBoatSetYawActivated = false;
     // ForgeHaxHooks.isNotRowingBoatActivated = false; // items always usable - can not be disabled
-  }
-
-  @Override
-  public void onLoad() {
-    ForgeHaxHooks.isNoClampingActivated = noClamp.getValue();
   }
 
   @SubscribeEvent
   public void onRenderBoat(RenderBoatEvent event) {
     if (EntityUtils.isDrivenByPlayer(event.getBoat()) && setYaw.getValue()) {
-      float yaw = Common.getLocalPlayer().rotationYaw;
+      float yaw = getLocalPlayer().rotationYaw;
       event.getBoat().rotationYaw = yaw;
       event.setYaw(yaw);
     }
@@ -83,28 +89,27 @@ public class BoatFly extends ToggleMod {
   @SubscribeEvent
   public void onClientTick(PreClientTickEvent event) {
     // check if the player is really riding a entity
-    if (Common.getLocalPlayer() != null && Common.getMountedEntity() != null) {
+    if (getLocalPlayer() != null && getMountedEntity() != null) {
 
-      ForgeHaxHooks.isNoClampingActivated = noClamp.getValue();
-      ForgeHaxHooks.isNoBoatGravityActivated = noGravity.getValue();
-      ForgeHaxHooks.isBoatSetYawActivated = setYaw.getValue();
+//      ForgeHaxHooks.isNoBoatGravityActivated = noGravity.getValue();
+//      ForgeHaxHooks.isBoatSetYawActivated = setYaw.getValue();
 
       double velX, velY, velZ;
 
-      if (Common.getGameSettings().keyBindJump.isKeyDown()) {
+      if (getGameSettings().keyBindJump.isKeyDown()) {
         // trick the riding entity to think its onground
-        Common.getMountedEntity().onGround = false;
+        getMountedEntity().onGround = false;
 
         // teleport up
-        velY = Common.getGameSettings().keyBindSprint.isKeyDown() ? 5.D : 1.5D;
+        velY = getGameSettings().keyBindSprint.isKeyDown() ? 5.D : 1.5D;
       } else {
-        velY = Common.getGameSettings().keyBindSprint.isKeyDown() ? -1.0 : -speedY.getValue();
+        velY = getGameSettings().keyBindSprint.isKeyDown() ? -1.0 : -speedY.getValue();
       }
 
-      MovementInput movementInput = Common.getLocalPlayer().movementInput;
+      MovementInput movementInput = getLocalPlayer().movementInput;
       double forward = movementInput.moveForward;
       double strafe = movementInput.moveStrafe;
-      float yaw = Common.getLocalPlayer().rotationYaw;
+      float yaw = getLocalPlayer().rotationYaw;
 
       if ((forward == 0.0D) && (strafe == 0.0D)) {
         velX = velZ = 0.D;
@@ -132,7 +137,7 @@ public class BoatFly extends ToggleMod {
         velZ = (forward * speed.getValue() * sin - strafe * speed.getValue() * cos);
       }
 
-      Common.getMountedEntity().setMotion(velX, velY, velZ);
+      getMountedEntity().setMotion(velX, velY, velZ);
     }
   }
 }

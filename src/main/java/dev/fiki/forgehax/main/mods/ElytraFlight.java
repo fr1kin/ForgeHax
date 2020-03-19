@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.ForgeHaxHooks;
-import dev.fiki.forgehax.common.StateManager;
+import dev.fiki.forgehax.common.events.movement.ClampMotionSpeedEvent;
+import dev.fiki.forgehax.common.events.movement.ElytraFlyMovementEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.Switch.Handle;
@@ -46,23 +46,8 @@ public class ElytraFlight extends ToggleMod {
 
   private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getName());
 
-  private final StateManager.StateHandle elytraMovement =
-      ForgeHaxHooks.HOOK_shouldApplyElytraMovement.createHandle(ElytraFlight.class);
-  private final StateManager.StateHandle clampMotion =
-      ForgeHaxHooks.HOOK_shouldClampMotion.createHandle(ElytraFlight.class);
-
   public ElytraFlight() {
     super(Category.PLAYER, "ElytraFlight", false, "Elytra Flight");
-  }
-
-  private void enableSlowFalling() {
-    elytraMovement.enable();
-    clampMotion.enable();
-  }
-
-  private void disableSlowFalling() {
-    elytraMovement.disable();
-    clampMotion.disable();
   }
 
   @Override
@@ -79,20 +64,31 @@ public class ElytraFlight extends ToggleMod {
   @Override
   public void onDisabled() {
     flying.disable();
-    disableSlowFalling();
 
     // Are we still here?
-    if (getLocalPlayer() != null) {
+    if (FlyMode.FLIGHT.equals(mode.getValue()) && getLocalPlayer() != null) {
       // Ensure the player starts flying again.
       Common.sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
     }
   }
 
   @SubscribeEvent
+  public void onElytraMovement(ElytraFlyMovementEvent event) {
+    if(FlyMode.FLIGHT.equals(mode.getValue())) {
+      event.setCanceled(true);
+    }
+  }
+
+  @SubscribeEvent
+  public void onClampMotion(ClampMotionSpeedEvent event) {
+    if(FlyMode.FLIGHT.equals(mode.getValue())) {
+      event.setCanceled(true);
+    }
+  }
+
+  @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if(FlyMode.FLIGHT.equals(mode.getValue())) {
-      disableSlowFalling();
-
       if (getLocalPlayer().isElytraFlying()) {
         flying.enable();
       }
@@ -101,8 +97,6 @@ public class ElytraFlight extends ToggleMod {
       if (!getLocalPlayer().isElytraFlying()) {
         return;
       }
-
-      enableSlowFalling();
 
       double motionX = 0.0D;
       double motionY = -0.0001D;

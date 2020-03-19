@@ -1,10 +1,7 @@
 package dev.fiki.forgehax.asm;
 
 import dev.fiki.forgehax.common.asmtype.ASMClass;
-import dev.fiki.forgehax.common.asmtype.ASMField;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
-
-import java.util.List;
 
 /**
  * Created on 5/27/2017 by fr1kin
@@ -12,67 +9,19 @@ import java.util.List;
 public interface TypesHook {
 
   interface Classes {
-
     ASMClass ForgeHaxHooks =
         ASMClass.builder()
             .className("dev/fiki/forgehax/common/ForgeHaxHooks")
             .build();
-
-    ASMClass GetCollisionShapeEvent =
-        ASMClass.builder()
-            .className("dev/fiki/forgehax/common/events/movement/GetCollisionShapeEvent")
-            .build();
   }
 
   interface Fields {
-
-    ASMField ForgeHaxHooks_isSafeWalkActivated =
-        Classes.ForgeHaxHooks.newChildField()
-            .name("isSafeWalkActivated")
-            .type(boolean.class)
-            .build();
-
-    ASMField ForgeHaxHooks_isNoSlowDownActivated =
-        Classes.ForgeHaxHooks.newChildField()
-            .name("isNoSlowDownActivated")
-            .type(boolean.class)
-            .build();
-
-    ASMField ForgeHaxHooks_isNoBoatGravityActivated =
-        Classes.ForgeHaxHooks.newChildField()
-            .name("isNoBoatGravityActivated")
-            .type(boolean.class)
-            .build();
-
-    ASMField ForgeHaxHooks_isNoClampingActivated =
-        Classes.ForgeHaxHooks.newChildField()
-            .name("isNoClampingActivated")
-            .type(boolean.class)
-            .build();
-
-    ASMField ForgeHaxHooks_isBoatSetYawActivated =
-        Classes.ForgeHaxHooks.newChildField()
-            .name("isBoatSetYawActivated")
-            .type(boolean.class)
-            .build();
-
-    ASMField ForgeHaxHooks_isNotRowingBoatActivated =
-        Classes.ForgeHaxHooks.newChildField()
-            .name("isNotRowingBoatActivated")
-            .type(boolean.class)
-            .build();
-
-    ASMField ForgeHaxHooks_doIncreaseTabListSize =
-        Classes.ForgeHaxHooks.newChildField()
-            .name("doIncreaseTabListSize")
-            .type(boolean.class)
-            .build();
   }
 
   interface Methods {
-    ASMMethod ForgeHaxHooks_onHurtcamEffect =
+    ASMMethod ForgeHaxHooks_shouldStopHurtcamEffect =
         Classes.ForgeHaxHooks.newChildMethod()
-            .name("onHurtcamEffect")
+            .name("shouldStopHurtcamEffect")
             .returns(boolean.class)
             .noArguments()
             .build();
@@ -93,20 +42,6 @@ public interface TypesHook {
             .argument(TypesMc.Classes.Packet)
             .build();
 
-    ASMMethod ForgeHaxHooks_onPreReceived =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onPreReceived")
-            .returns(boolean.class)
-            .argument(TypesMc.Classes.Packet)
-            .build();
-
-    ASMMethod ForgeHaxHooks_onPostReceived =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onPostReceived")
-            .returns(void.class)
-            .argument(TypesMc.Classes.Packet)
-            .build();
-
     ASMMethod ForgeHaxHooks_shouldBePushedByLiquid =
         Classes.ForgeHaxHooks.newChildMethod()
             .name("shouldBePushedByLiquid")
@@ -124,133 +59,12 @@ public interface TypesHook {
             .argument(double.class)
             .build();
 
-    ASMMethod ForgeHaxHooks_onPutColorMultiplier =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onPutColorMultiplier")
-            .returns(int.class)
-            .argument(float.class)
-            .argument(float.class)
-            .argument(float.class)
-            .argument(int.class)
-            .argument(boolean[].class)
-            .build();
-
-//    ASMMethod ForgeHaxHooks_onPreRenderBlockLayer =
-//        Classes.ForgeHaxHooks.newChildMethod()
-//            .name("onPreRenderBlockLayer")
-//            .returns(boolean.class)
-//            .argument(TypesMc.Classes.BlockRenderLayer)
-//            .argument(double.class)
-//            .build();
-//
-//    ASMMethod ForgeHaxHooks_onPostRenderBlockLayer =
-//        Classes.ForgeHaxHooks.newChildMethod()
-//            .name("onPostRenderBlockLayer")
-//            .returns(void.class)
-//            .argument(TypesMc.Classes.BlockRenderLayer)
-//            .argument(double.class)
-//            .build();
-//
-//    ASMMethod ForgeHaxHooks_onRenderBlockInLayer =
-//        Classes.ForgeHaxHooks.newChildMethod()
-//            .name("onRenderBlockInLayer")
-//            .returns(TypesMc.Classes.BlockRenderLayer)
-//            .argument(TypesMc.Classes.Block)
-//            .argument(TypesMc.Classes.BlockState)
-//            .argument(TypesMc.Classes.BlockRenderLayer)
-//            .argument(TypesMc.Classes.BlockRenderLayer)
-//            .build();
-
-    ASMMethod ForgeHaxHooks_onSetupTerrain =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onSetupTerrain")
-            .returns(boolean.class)
-            .argument(TypesMc.Classes.Entity)
-            .argument(boolean.class)
-            .build();
-
     ASMMethod ForgeHaxHooks_shouldApplyBlockEntityCollisions =
         Classes.ForgeHaxHooks.newChildMethod()
             .name("shouldApplyBlockEntityCollisions")
             .returns(boolean.class)
             .argument(TypesMc.Classes.Entity)
             .argument(TypesMc.Classes.BlockState)
-            .build();
-
-    ASMMethod ForgeHaxHooks_onAddCollisionBoxToList =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onAddCollisionBoxToList")
-            .returns(boolean.class)
-            .argument(TypesMc.Classes.Block)
-            .argument(TypesMc.Classes.BlockState)
-            .argument(TypesMc.Classes.World)
-            .argument(TypesMc.Classes.BlockPos)
-            .argument(TypesMc.Classes.AxisAlignedBB)
-            .argument(List.class)
-            .argument(TypesMc.Classes.Entity)
-            .argument(boolean.class)
-            .build();
-
-    ASMMethod ForgeHaxHooks_onBlockRenderInLoop =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onBlockRenderInLoop")
-            .returns(void.class)
-            .argument(TypesMc.Classes.RenderChunk)
-            .argument(TypesMc.Classes.Block)
-            .argument(TypesMc.Classes.BlockState)
-            .argument(TypesMc.Classes.BlockPos)
-            .build();
-
-    ASMMethod ForgeHaxHooks_onPreBuildChunk =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onPreBuildChunk")
-            .returns(void.class)
-            .argument(TypesMc.Classes.RenderChunk)
-            .build();
-
-    ASMMethod ForgeHaxHooks_onPostBuildChunk =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onPostBuildChunk")
-            .returns(void.class)
-            .argument(TypesMc.Classes.RenderChunk)
-            .build();
-
-    ASMMethod ForgeHaxHooks_onDeleteGlResources =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onDeleteGlResources")
-            .returns(void.class)
-            .argument(TypesMc.Classes.RenderChunk)
-            .build();
-
-    ASMMethod ForgeHaxHooks_onChunkUploaded =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onChunkUploaded")
-            .returns(void.class)
-            .argument(TypesMc.Classes.RenderChunk)
-            .argument(TypesMc.Classes.BufferBuilder)
-            .build();
-
-//    ASMMethod ForgeHaxHooks_onAddRenderChunk =
-//        Classes.ForgeHaxHooks.newChildMethod()
-//            .name("onAddRenderChunk")
-//            .returns(void.class)
-//            .argument(TypesMc.Classes.RenderChunk)
-//            .argument(TypesMc.Classes.BlockRenderLayer)
-//            .build();
-
-    ASMMethod ForgeHaxHooks_onLoadRenderers =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onLoadRenderers")
-            .returns(void.class)
-            .argument(TypesMc.Classes.ViewFrustum)
-            .argument(TypesMc.Classes.ChunkRenderDispatcher)
-            .build();
-
-    ASMMethod ForgeHaxHooks_onWorldRendererDeallocated =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onWorldRendererDeallocated")
-            .returns(void.class)
-            .argument(TypesMc.Classes.ChunkCompileTaskGenerator)
             .build();
 
     ASMMethod ForgeHaxHooks_shouldDisableCaveCulling =
@@ -290,14 +104,6 @@ public interface TypesHook {
             .argument(TypesMc.Classes.BlockPos)
             .argument(TypesMc.Classes.Vec3d)
             .argument(TypesMc.Classes.Direction)
-            .build();
-
-    ASMMethod ForgeHaxHooks_onWorldCheckLightFor =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onWorldCheckLightFor")
-            .returns(boolean.class)
-            .argument(TypesMc.Classes.EnumSkyBlock)
-            .argument(TypesMc.Classes.BlockPos)
             .build();
 
     ASMMethod ForgeHaxHooks_onLeftClickCounterSet =
@@ -372,16 +178,9 @@ public interface TypesHook {
             .argument("net/minecraftforge/eventbus/api/Event")
             .build();
 
-    ASMMethod ForgeHaxHooks_onDrawBoundingBox_Post =
+    ASMMethod ForgeHaxHooks_shouldClipBlockEdge =
         Classes.ForgeHaxHooks.newChildMethod()
-            .name("onDrawBoundingBoxPost")
-            .returns(void.class)
-            .noArguments()
-            .build();
-
-    ASMMethod ForgeHaxHooks_onPlayerEntitySneakEdgeCheck =
-        Classes.ForgeHaxHooks.newChildMethod()
-            .name("onPlayerEntitySneakEdgeCheck")
+            .name("shouldClipBlockEdge")
             .returns(boolean.class)
             .argument(TypesMc.Classes.PlayerEntity)
             .build();
@@ -399,6 +198,34 @@ public interface TypesHook {
             .name("shouldClampMotion")
             .returns(boolean.class)
             .argument(TypesMc.Classes.LivingEntity)
+            .build();
+
+    ASMMethod ForgeHaxHooks_shouldSlowdownPlayer =
+        Classes.ForgeHaxHooks.newChildMethod()
+            .name("shouldSlowdownPlayer")
+            .returns(boolean.class)
+            .argument(TypesMc.Classes.ClientPlayerEntity)
+            .build();
+
+    ASMMethod ForgeHaxHooks_shouldClampBoat =
+        Classes.ForgeHaxHooks.newChildMethod()
+            .name("shouldClampBoat")
+            .returns(boolean.class)
+            .argument(TypesMc.Classes.BoatEntity)
+            .build();
+
+    ASMMethod ForgeHaxHooks_shouldNotRowBoat =
+        Classes.ForgeHaxHooks.newChildMethod()
+            .name("shouldNotRowBoat")
+            .returns(boolean.class)
+            .argument(TypesMc.Classes.ClientPlayerEntity)
+            .build();
+
+    ASMMethod ForgeHaxHooks_shouldIncreaseTabListSize =
+        Classes.ForgeHaxHooks.newChildMethod()
+            .name("shouldIncreaseTabListSize")
+            .returns(boolean.class)
+            .noArguments()
             .build();
   }
 }
