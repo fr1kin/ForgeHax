@@ -41,7 +41,7 @@ public class ElytraFlight extends ToggleMod {
   private final EnumSetting<FlyMode> mode = newEnumSetting(FlyMode.class)
       .name("mode")
       .description("Elytra flight mode")
-      .defaultTo(FlyMode.FLIGHT)
+      .defaultTo(FlyMode.SLOW_FALL)
       .build();
 
   private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getName());
@@ -74,14 +74,14 @@ public class ElytraFlight extends ToggleMod {
 
   @SubscribeEvent
   public void onElytraMovement(ElytraFlyMovementEvent event) {
-    if(FlyMode.FLIGHT.equals(mode.getValue())) {
+    if(!FlyMode.FLIGHT.equals(mode.getValue())) {
       event.setCanceled(true);
     }
   }
 
   @SubscribeEvent
   public void onClampMotion(ClampMotionSpeedEvent event) {
-    if(FlyMode.FLIGHT.equals(mode.getValue())) {
+    if(!FlyMode.FLIGHT.equals(mode.getValue())) {
       event.setCanceled(true);
     }
   }
