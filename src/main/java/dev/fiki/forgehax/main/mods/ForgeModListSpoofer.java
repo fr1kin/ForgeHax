@@ -15,6 +15,7 @@ import lombok.SneakyThrows;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.FMLHandshakeMessages;
 import net.minecraftforge.fml.network.FMLNetworkConstants;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.simple.IndexedMessageCodec;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -62,61 +63,67 @@ public class ForgeModListSpoofer extends ToggleMod {
   @SneakyThrows
   @Override
   protected void onEnabled() {
-    // get channel codec
-    IndexedMessageCodec codec = getCodec();
+    try {
+      // get channel codec
+      IndexedMessageCodec codec = getCodec();
 
-    final Class<?> type = FMLHandshakeMessages.S2CModList.class;
+      final Class<?> type = FMLHandshakeMessages.S2CModList.class;
 
-    // get handler by class type
-    Object handler = IndexedMessageCodec_types.get(codec).get(type);
-    Objects.requireNonNull(handler, "Could not find MessageHandler for S2CModList type");
+      // get handler by class type
+      Object handler = IndexedMessageCodec_types.get(codec).get(type);
+      Objects.requireNonNull(handler, "Could not find MessageHandler for S2CModList type");
 
-    // keep the old handler
-    oldMessageHandler = handler;
+      // keep the old handler
+      oldMessageHandler = handler;
 
-    // MessageHandler fields that need to be copied
-    BiConsumer<Object, PacketBuffer> encoder = MessageHandler_encoder.get(handler).orElse(null);
-    Function<PacketBuffer, Object> decoder = MessageHandler_decoder.get(handler).orElse(null);
-    int index = MessageHandler_index.get(handler);
-    BiConsumer<Object, Supplier<NetworkEvent.Context>> messageConsumer = MessageHandler_messageConsumer.get(handler);
-    Optional<BiConsumer<Object, Integer>> loginIndexSetter = MessageHandler_loginIndexSetter.get(handler);
-    Optional<Function<Object, Integer>> loginIndexGetter = MessageHandler_loginIndexGetter.get(handler);
+      // MessageHandler fields that need to be copied
+      BiConsumer<Object, PacketBuffer> encoder = MessageHandler_encoder.get(handler).orElse(null);
+      Function<PacketBuffer, Object> decoder = MessageHandler_decoder.get(handler).orElse(null);
+      int index = MessageHandler_index.get(handler);
+      BiConsumer<Object, Supplier<NetworkEvent.Context>> messageConsumer = MessageHandler_messageConsumer.get(handler);
+      Optional<NetworkDirection> networkDirection = MessageHandler_networkDirection.get(handler);
+      Optional<BiConsumer<Object, Integer>> loginIndexSetter = MessageHandler_loginIndexSetter.get(handler);
+      Optional<Function<Object, Integer>> loginIndexGetter = MessageHandler_loginIndexGetter.get(handler);
 
-    handlerIndex = (short) (index & 0xFF);
+      handlerIndex = (short) (index & 0xFF);
 
-    // remove old handler from maps
-    IndexedMessageCodec_indicies.get(codec).remove(handlerIndex);
-    IndexedMessageCodec_types.get(codec).remove(type);
+      // remove old handler from maps
+      IndexedMessageCodec_indicies.get(codec).remove(handlerIndex);
+      IndexedMessageCodec_types.get(codec).remove(type);
 
-    // create new message handler
-    Constructor<?> constructor = IndexedMessageCodec_MessageHandler.getInstance()
-        .getDeclaredConstructor(IndexedMessageCodec.class, int.class,
-            Class.class, BiConsumer.class, Function.class, BiConsumer.class);
-    constructor.setAccessible(true);
+      // create new message handler
+      Constructor<?> constructor = IndexedMessageCodec_MessageHandler.getInstance()
+          .getDeclaredConstructor(IndexedMessageCodec.class, int.class,
+              Class.class, BiConsumer.class, Function.class, BiConsumer.class, Optional.class);
+      constructor.setAccessible(true);
 
-    // create new encoder that removes the mod
-    BiConsumer<Object, PacketBuffer> overrideEncoder = (o, buffer) -> {
-      if (o instanceof FMLHandshakeMessages.S2CModList) {
-        FMLHandshakeMessages.S2CModList instance = (FMLHandshakeMessages.S2CModList) o;
-        instance.getModList().removeAll(spoofing);
-      } else {
-        getLogger().error("Encoder is trying to encode object that isn't S2CModList");
-      }
+      // create new encoder that removes the mod
+      BiConsumer<Object, PacketBuffer> overrideEncoder = (o, buffer) -> {
+        if (o instanceof FMLHandshakeMessages.S2CModList) {
+          FMLHandshakeMessages.S2CModList instance = (FMLHandshakeMessages.S2CModList) o;
+          instance.getModList().removeAll(spoofing);
+        } else {
+          getLogger().error("Encoder is trying to encode object that isn't S2CModList");
+        }
 
-      if (encoder != null) {
-        encoder.accept(o, buffer);
-      }
-    };
+        if (encoder != null) {
+          encoder.accept(o, buffer);
+        }
+      };
 
-    // create message handler with our own encoder
-    Object instance = constructor.newInstance(codec, index, type,
-        overrideEncoder, decoder, messageConsumer);
+      // create message handler with our own encoder
+      Object instance = constructor.newInstance(codec, index, type,
+          overrideEncoder, decoder, messageConsumer, networkDirection);
 
-    // set the new MessageHandler's loginIndexSetter/Getter
-    MessageHandler_loginIndexSetter.set(instance, loginIndexSetter);
-    MessageHandler_loginIndexGetter.set(instance, loginIndexGetter);
+      // set the new MessageHandler's loginIndexSetter/Getter
+      MessageHandler_loginIndexSetter.set(instance, loginIndexSetter);
+      MessageHandler_loginIndexGetter.set(instance, loginIndexGetter);
 
-    // the encoder should now be redirected to our custom encoder
+      // the encoder should now be redirected to our custom encoder
+    } catch (Throwable t) {
+      getLogger().warn("Could load mod {}, probably not running newer forge version", getName());
+      getLogger().error(t, t);
+    }
   }
 
   @Override
@@ -189,6 +196,12 @@ public class ForgeModListSpoofer extends ToggleMod {
       FastField.builder()
           .parent(IndexedMessageCodec_MessageHandler.getInstance())
           .name("messageType")
+          .build();
+
+  private static final FastField<Optional<NetworkDirection>> MessageHandler_networkDirection =
+      FastField.builder()
+          .parent(IndexedMessageCodec_MessageHandler.getInstance())
+          .name("networkDirection")
           .build();
 
   private static final FastField<Optional<BiConsumer<Object, Integer>>> MessageHandler_loginIndexSetter =
