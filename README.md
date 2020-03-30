@@ -1,8 +1,9 @@
 # ForgeHax
-[![](https://img.shields.io/badge/download-1.12.2%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/master/lastSuccessfulBuild/)
-[![](https://img.shields.io/badge/download-1.13.2%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.13/lastSuccessfulBuild/artifact/build/libs/)
-[![Build Status](https://jenkins.nhackindustries.com/buildStatus/icon?job=ForgeHax/master)](https://jenkins.nhackindustries.com/job/ForgeHax/job/master)
-[![](https://img.shields.io/matrix/forgehax:nerdsin.space.svg?label=%23forgehax%3Anerdsin.space&logo=matrix)](https://matrix.to/#/#forgehax:nerdsin.space)
+[![Download 1.12.2](https://img.shields.io/badge/download-1.12.2%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/master/lastSuccessfulBuild/)
+[![Download 1.13.2](https://img.shields.io/badge/download-1.13.2%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.13/lastSuccessfulBuild/artifact/build/libs/)
+[![Total Downloads](https://img.shields.io/github/downloads/fr1kin/ForgeHax/total?logo=github&logoColor=white)](https://github.com/fr1kin/ForgeHax)
+[![Build Status](https://jenkins.nhackindustries.com/buildStatus/icon?job=ForgeHax/master&icon=)](https://jenkins.nhackindustries.com/job/ForgeHax/job/master)
+[![Join Matrix](https://img.shields.io/matrix/forgehax:nerdsin.space.svg?label=%23forgehax%3Anerdsin.space&logo=matrix)](https://matrix.to/#/#forgehax:nerdsin.space)
 
 A Minecraft cheat that runs as a Forge mod.
 
