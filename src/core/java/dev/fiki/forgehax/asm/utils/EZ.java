@@ -132,6 +132,12 @@ public class EZ {
 
     OmittingTransformerList(ArrayList<Path> original, String excluding) {
       this.original = original;
+
+      if(System.getProperty("os.name").toLowerCase().contains("win")) {
+        // omit the appending / from the file path if the user is on wangblows
+        excluding = excluding.substring(1);
+      }
+
       this.excluding = Paths.get(excluding).getFileName().toString();
       getLogger().info("Excluding file \"{}\" from transformer list", this.excluding);
 
