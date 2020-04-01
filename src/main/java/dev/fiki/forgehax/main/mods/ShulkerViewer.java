@@ -434,6 +434,12 @@ public class ShulkerViewer extends ToggleMod {
       int x = posX;
       int y = posY;
 
+      int rx = x + 8;
+      int ry = y - 1;
+
+      this.guiLeft = rx;
+      this.guiTop = ry;
+
       RenderSystem.enableTexture();
       RenderSystem.disableLighting();
 
@@ -479,6 +485,9 @@ public class ShulkerViewer extends ToggleMod {
 
       RenderSystem.popMatrix();
 
+      net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+          new net.minecraftforge.client.event.GuiContainerEvent.DrawBackground(this, mouseX, mouseY));
+
 //      getFontRenderer().drawString(parentShulker.getDisplayName().getFormattedText(),
 //          x + 8, y + 6, Colors.BLACK.toBuffer());
 
@@ -491,13 +500,16 @@ public class ShulkerViewer extends ToggleMod {
 
       Slot hoveringOver = null;
 
-      int rx = x + 8;
-      int ry = y - 1;
+      RenderSystem.pushMatrix();
+      RenderSystem.translatef(rx, ry, 0.f);
+
+      net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+          new net.minecraftforge.client.event.GuiContainerEvent.DrawForeground(this, mouseX, mouseY));
 
       for (Slot slot : container.inventorySlots) {
         if (slot.getHasStack()) {
-          int px = rx + slot.xPos;
-          int py = ry + slot.yPos;
+          int px = slot.xPos;
+          int py = slot.yPos;
           if (isPointInRegion(px, py, 16, 16, mouseX, mouseY)) {
             hoveringOver = slot;
 
@@ -507,10 +519,10 @@ public class ShulkerViewer extends ToggleMod {
 
             GuiUtils.drawGradientRect(
                 DEPTH,
-                rx + hoveringOver.xPos,
-                ry + hoveringOver.yPos,
-                rx + hoveringOver.xPos + 16,
-                ry + hoveringOver.yPos + 16,
+                hoveringOver.xPos,
+                hoveringOver.yPos,
+                hoveringOver.xPos + 16,
+                hoveringOver.yPos + 16,
                 Colors.WHITE.setAlpha(200).toBuffer(),
                 Colors.WHITE.setAlpha(200).toBuffer());
 
@@ -524,6 +536,8 @@ public class ShulkerViewer extends ToggleMod {
           SurfaceHelper.setItemRendererDepth(0.f);
         }
       }
+
+      RenderSystem.popMatrix();
 
       RenderSystem.disableLighting();
 
