@@ -13,7 +13,9 @@ import dev.fiki.forgehax.main.util.draw.RenderTypeEx;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.recipebook.RecipeBookGui;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.Tessellator;
@@ -59,6 +61,12 @@ public class ConsoleInputScreen extends Screen {
   }
 
   public synchronized void setPreviousScreen(Screen previousScreen) {
+    if(previousScreen instanceof InventoryScreen ) {
+      RecipeBookGui gui = ((InventoryScreen) previousScreen).getRecipeGui();
+      if(gui.isVisible()) {
+        gui.toggleVisibility();
+      }
+    }
     this.previousScreen = previousScreen;
     this.processPreviousScreen = previousScreen != null;
   }

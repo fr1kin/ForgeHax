@@ -7,6 +7,7 @@ import dev.fiki.forgehax.main.util.key.KeyConflictContexts;
 import dev.fiki.forgehax.main.util.key.KeyInputs;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -37,6 +38,11 @@ public class GuiService extends ServiceMod {
   }
   
   private void onBindPressed(KeyBinding bind) {
+    if(getDisplayScreen() != null
+        && getDisplayScreen().getFocused() instanceof TextFieldWidget) {
+      return;
+    }
+
     getConsoleInterface().onKeyPressed(bind);
   }
 
