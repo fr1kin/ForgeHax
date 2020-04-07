@@ -10,8 +10,6 @@ import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import io.netty.buffer.Unpooled;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -21,13 +19,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Scanner;
 import java.util.function.Consumer;
-
 import net.minecraft.client.gui.screen.EditBookScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.WritableBookItem;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CEditBookPacket;
 import net.minecraft.util.Hand;
 
@@ -38,7 +34,7 @@ import net.minecraft.util.Hand;
 public class BookBot extends ToggleMod {
 
   private static final int MAX_CHARACTERS_PER_PAGE = 256;
-  private static final int MAX_PAGES = 50;
+  private static final int MAX_PAGES = 100;
 
   public static final String NUMBER_TOKEN = "\\{NUMBER\\}";
 
@@ -57,7 +53,13 @@ public class BookBot extends ToggleMod {
         }
       })
       .build();
-
+  
+  private final BooleanSetting sign = newBooleanSetting()
+      .name("sign")
+      .description("finalize the book with title and authorship")
+      .defaultTo(true)
+      .build();
+  
   private final StringSetting file = newStringSetting()
       .name("file")
       .description("Name of the file inside the forgehax directory to use")
@@ -270,7 +272,7 @@ public class BookBot extends ToggleMod {
     if (!Files.isRegularFile(data)) {
       throw new RuntimeException("Not a file type");
     }
-
+    
     String text;
     try {
       text = new String(Files.readAllBytes(data), StandardCharsets.UTF_8);
@@ -280,7 +282,8 @@ public class BookBot extends ToggleMod {
 
     String name = data.getFileName().toString();
     if (name.endsWith(".txt") || name.endsWith(".book")) {
-      return new BookWriter(this, name.endsWith(".txt") ? parseText(text, prettify.getValue()) : text);
+      return new BookWriter(this, name.endsWith(".txt") ? parseText(text, prettify.getValue()) : text,
+        sign.getValue());
     } else {
       throw new RuntimeException("File is not a .txt or .book type");
     }
@@ -310,6 +313,7 @@ public class BookBot extends ToggleMod {
 
     private final BookBot parent;
     private final String contents;
+    private final boolean signBook;
 
     private final int totalPages;
 
@@ -322,9 +326,10 @@ public class BookBot extends ToggleMod {
 
     private Consumer<BookWriter> finalListener = null;
 
-    public BookWriter(BookBot parent, String contents) {
+    public BookWriter(BookBot parent, String contents, boolean signBook) {
       this.parent = parent;
       this.contents = contents;
+      this.signBook = signBook;
       Scanner scanner = newScanner();
 
       int c = 0;
@@ -404,15 +409,14 @@ public class BookBot extends ToggleMod {
       stack.setTagInfo("pages", pages);
 
       // publish the book
-      stack.setTagInfo("author", StringNBT.valueOf(Common.getLocalPlayer().getGameProfile().getName()));
-      stack.setTagInfo("title", StringNBT.valueOf(parent.name.getValue()
-          .replaceAll(NUMBER_TOKEN, "" + getBook())
-          .trim()));
-
-      PacketBuffer buff = new PacketBuffer(Unpooled.buffer());
-      buff.writeItemStack(stack);
-      Common.sendNetworkPacket(new CEditBookPacket(stack, true, Hand.MAIN_HAND));
-      //MC.getConnection().sendPacket(new CPacketCustomPayload("MC|BSign", buff));
+      if (signBook) {
+        stack.setTagInfo("author",
+            StringNBT.valueOf(Common.getLocalPlayer().getGameProfile().getName()));
+        stack.setTagInfo("title", StringNBT.valueOf(parent.name.getValue()
+            .replaceAll(NUMBER_TOKEN, "" + getBook())
+            .trim()));
+      }
+      Common.sendNetworkPacket(new CEditBookPacket(stack, signBook, Hand.MAIN_HAND));
     }
 
     @Override
@@ -439,7 +443,9 @@ public class BookBot extends ToggleMod {
           for (int i = 0; i < LocalPlayerInventory.getHotbarSize(); i++) {
             ItemStack stack = Common.getLocalPlayer().inventory.getStackInSlot(i);
             if (!stack.equals(ItemStack.EMPTY)
-                && stack.getItem() instanceof WritableBookItem) {
+                && stack.getItem() instanceof WritableBookItem
+                // written but unsigned books
+                && (null == stack.getTag() || null == stack.getTag().get("pages"))) {
               slot = i;
               selected = stack;
               break;
