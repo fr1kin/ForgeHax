@@ -54,7 +54,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
       logger.warn("ForgeHaxCore found Mixin. Some patches may not apply.");
     }
 
-    new EZ();
+    EZ.inject();
   }
 
   @Nonnull
