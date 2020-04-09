@@ -3,15 +3,14 @@ package dev.fiki.forgehax.asm.patches;
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.TransformingClassLoader;
 import dev.fiki.forgehax.asm.TypesHook;
+import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.EZ;
 import dev.fiki.forgehax.asm.utils.transforming.ClassTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
 import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.common.asmtype.ASMClass;
 import dev.fiki.forgehax.common.asmtype.ASMMethod;
-
 import org.objectweb.asm.tree.*;
 
 import java.lang.reflect.Field;
@@ -84,7 +83,7 @@ public class MinecraftPatch {
     }
   }
 
-  @RegisterTransformer("ForgeHaxHooks::LongNoseTribe")
+  //@RegisterTransformer("ForgeHaxHooks::LongNoseTribe")
   public static class HaltAccountEqualsBnw extends ClassTransformer {
     @Override
     public ASMClass getTransformingClass() {
@@ -95,7 +94,7 @@ public class MinecraftPatch {
 
     @Override
     public void transform(ClassNode node) {
-      EZ.getUrl().ifPresent(this::injectUrl);
+      EZ.getOurJar().ifPresent(this::injectUrl);
     }
 
     public void injectUrl(URL url) {

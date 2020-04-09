@@ -1,16 +1,15 @@
 package dev.fiki.forgehax.asm.utils;
 
 import lombok.SneakyThrows;
+import net.minecraftforge.fml.loading.ModDirTransformerDiscoverer;
 import org.apache.logging.log4j.core.*;
 import org.apache.logging.log4j.core.appender.DefaultErrorHandler;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -27,31 +26,39 @@ public class EZ {
 
   @SneakyThrows
   public EZ() {
-    Class<?> fmlServiceProviderClass = Class.forName("net.minecraftforge.fml.loading.FMLServiceProvider");
-    Field loggerField = fmlServiceProviderClass.getDeclaredField("LOGGER");
-    loggerField.setAccessible(true);
 
-    fmlLogger = (Logger) loggerField.get(null);
-    fmlLogger.addAppender(appender = new LAppender());
+    //getUrl().ifPresent(this::disableBlocker);
+    getJarPath().ifPresent(ModDirTransformerDiscoverer.getExtraLocators()::add);
   }
 
-  public static Optional<URL> getUrl() {
-    final String thisPath = EZ.class.getName().replace('.', '/') + ".class";
-    final URL url = EZ.class.getClassLoader().getResource(thisPath);
-
+  public static Optional<URL> getOurJar() {
+    final URL url = EZ.class.getProtectionDomain().getCodeSource().getLocation();
+    final Path p;
     try {
-      URLConnection connection = url.openConnection();
-      if (connection instanceof JarURLConnection) {
-        return Optional.of(((JarURLConnection) connection).getJarFileURL());
-      }
-    } catch (IOException ex) {
-      getLogger().error(ex, ex);
+      p = Paths.get(url.toURI());
+    } catch (URISyntaxException ex) {
+      throw new RuntimeException(ex);
     }
 
-    return Optional.empty();
+    if (p.getFileName().toString().toLowerCase().endsWith(".jar")) {
+      return Optional.of(url);
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  public static Optional<Path> getJarPath() {
+    return getOurJar().map(url -> {
+      try {
+        return Paths.get(url.toURI());
+      } catch (URISyntaxException ex) {
+        throw new RuntimeException(ex);
+      }
+    });
   }
 
   @SneakyThrows
+  @Deprecated
   public void disableBlocker(URL url) {
     Class<?> transformerDiscoverer = Class.forName("net.minecraftforge.fml.loading.ModDirTransformerDiscoverer");
 
@@ -69,7 +76,7 @@ public class EZ {
       if (event.getMessage() != null
           && event.getMessage().getFormat() != null
           && event.getMessage().getFormat().contains("Initiating mod scan")) {
-        EZ.getUrl().ifPresent(EZ.this::disableBlocker);
+        EZ.getOurJar().ifPresent(EZ.this::disableBlocker);
         fmlLogger.removeAppender(appender);
       }
     }
