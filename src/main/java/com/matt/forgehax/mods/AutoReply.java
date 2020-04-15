@@ -10,8 +10,6 @@ import joptsimple.internal.Strings;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.regex.Pattern;
-
 @RegisterMod
 public class AutoReply extends ToggleMod {
   
