@@ -49,7 +49,7 @@ public class AutoReply extends ToggleMod {
   @SubscribeEvent
   public void onClientChat(ClientChatReceivedEvent event) {
     String message = (event.getMessage().getUnformattedText());
-    if (Pattern.matches(search.get(), message)) && !message.startsWith(MC.getSession().getUsername())) {
+    if (message.matches(search.get()) && !message.startsWith(MC.getSession().getUsername())) {
       String append;
       switch (mode.get().toUpperCase()) {
         case "REPLY":
