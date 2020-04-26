@@ -17,6 +17,8 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Objects;
+
 /**
  * Created on 6/14/2017 by fr1kin
  */
@@ -40,8 +42,8 @@ public class RenderEventService extends ServiceMod {
     GlStateManager.disableDepth();
     
     GlStateManager.glLineWidth(1.f);
-    
-    Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
+
+    Vec3d renderPos = EntityUtils.getInterpolatedPos(Objects.requireNonNull(MC.getRenderViewEntity()), event.getPartialTicks());
     
     RenderEvent e = new RenderEvent(TESSELLATOR, renderPos, event.getPartialTicks());
     e.resetTranslation();
