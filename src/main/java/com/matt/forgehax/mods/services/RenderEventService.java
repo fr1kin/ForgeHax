@@ -1,7 +1,5 @@
 package com.matt.forgehax.mods.services;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-
 import com.matt.forgehax.events.Render2DEvent;
 import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.entity.EntityUtils;
@@ -16,6 +14,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
+
+import static com.matt.forgehax.Helper.getRenderEntity;
 
 /**
  * Created on 6/14/2017 by fr1kin
@@ -41,7 +41,7 @@ public class RenderEventService extends ServiceMod {
     
     GlStateManager.glLineWidth(1.f);
     
-    Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
+    Vec3d renderPos = EntityUtils.getInterpolatedPos(getRenderEntity(), event.getPartialTicks());
     
     RenderEvent e = new RenderEvent(TESSELLATOR, renderPos, event.getPartialTicks());
     e.resetTranslation();

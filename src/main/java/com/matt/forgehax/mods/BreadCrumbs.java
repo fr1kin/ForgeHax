@@ -19,11 +19,18 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.matt.forgehax.Helper.getFileManager;
 
 
 @RegisterMod
@@ -71,8 +78,10 @@ public class BreadCrumbs extends ToggleMod {
     super(Category.RENDER, "BreadCrumbs", false, "epic trail meme");
   }
 
+  private static final Path BASE_PATH = getFileManager().getBaseResolve("breadcrumbs");
 
-  private final List<Trail> trails = new ArrayList<>();
+  private List<Trail> trails = new ArrayList<>();
+  private boolean recording = true; // TODO: use this
 
   private Anchor rootAnchor;
   private Anchor newestAnchor;
@@ -83,7 +92,7 @@ public class BreadCrumbs extends ToggleMod {
   private Supplier<Stream<Stream<Vec3d>>> pointsToDraw = Stream::empty; // dont want to compute this in the render event
 
   // this should be immutable
-  private static class Trail {
+  /*private static class Trail {
     final int dimension;
     private final Anchor root;
     private final Anchor last;
@@ -94,6 +103,23 @@ public class BreadCrumbs extends ToggleMod {
       this.root = root;
       this.last = last;
       this.path = Collections.unmodifiableList(pathFind(root, last));
+    }
+  }*/
+  private static class Trail {
+    final int dimension;
+    final List<Vec3d> points;
+
+    Trail(int dim, List<Vec3d> path) {
+      this.dimension = dim;
+      this.points = Collections.unmodifiableList(path);
+    }
+
+    static Trail fromGraph(int dim, Anchor root, Anchor target, BreadCrumbs bc) {
+      final List<Anchor> anchors = pathFind(root, target);
+      final List<List<Vec3d>> points = bc.getAllPoints(anchors);
+      final List<Vec3d> flat = new ArrayList<>();
+      points.forEach(flat::addAll);
+      return new Trail(dim, flat);
     }
   }
 
@@ -121,6 +147,61 @@ public class BreadCrumbs extends ToggleMod {
     final Anchor root;
     final Set<Anchor> vertices = new HashSet<>();
   }*/
+
+  private enum Serialization {;
+    static {
+      try {
+        if (!Files.exists(BASE_PATH)) Files.createDirectories(BASE_PATH);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    private static Trail readTrail(DataInputStream dis) throws IOException {
+      final int dim = dis.readInt();
+      final int size = dis.readInt(); // number of points
+      final List<Vec3d> points = new ArrayList<>(size);
+      for (int i = 0; i < size; i++) {
+        points.add(new Vec3d(
+           dis.readDouble(),
+           dis.readDouble(),
+           dis.readDouble()
+        ));
+      }
+
+      return new Trail(dim, points);
+    }
+
+    private static void writeTrail(Trail trail, DataOutputStream dos) throws IOException {
+      dos.writeInt(trail.dimension);
+      dos.writeInt(trail.points.size());
+      for (Vec3d p : trail.points) {
+        dos.writeDouble(p.x);
+        dos.writeDouble(p.y);
+        dos.writeDouble(p.z);
+      }
+    }
+
+    static List<Trail> deserialize(Path p) throws IOException {
+      try (DataInputStream is = new DataInputStream(Files.newInputStream(p))) {
+        final int numTrails = is.readInt();
+        final List<Trail> trails = new ArrayList<>(numTrails);
+        for (int i = 0; i < numTrails; i++) {
+          trails.add(readTrail(is));
+        }
+
+        return trails;
+      }
+    }
+
+    static void serialize(List<Trail> trails, Path p) throws IOException {
+      try (DataOutputStream dos = new DataOutputStream(Files.newOutputStream(p))) {
+        dos.writeInt(trails.size());
+        for (Trail t : trails) {
+          writeTrail(t, dos);
+        }
+      }
+    }
+  }
 
   private static boolean isVisible(Anchor anchor) {
     if (!MC.world.isAreaLoaded(new BlockPos(anchor.pos), 1, false)) {
@@ -227,44 +308,46 @@ public class BreadCrumbs extends ToggleMod {
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (Helper.getModManager().get(FreecamMod.class).map(ToggleMod::isEnabled).orElse(false)) return;
 
-    final Vec3d playerPos = new Vec3d(MC.player.posX, MC.player.posY, MC.player.posZ);
+    if (this.recording) {
+      final Vec3d playerPos = new Vec3d(MC.player.posX, MC.player.posY, MC.player.posZ);
 
-    // first tick of a trail
-    if (this.rootAnchor == null) {
-      this.rootAnchor = new Anchor(playerPos);
-      this.newestAnchor = rootAnchor;
-      this.dimension = MC.player.dimension;
-      return;
-    }
-
-    final Set<Anchor> visibleAnchors = getVisibleAnchors(this.rootAnchor);
-    final Set<Anchor> noLongerVisible = Sets.difference(this.visibleLastTick, visibleAnchors);
-
-    final Set<Anchor> allOldAnchors = Sets.difference(getAllAnchors(rootAnchor), Collections.singleton(this.newestAnchor));
-
-    final Optional<Anchor> closest = !allOldAnchors.isEmpty() ? // TODO: make this a small list?
-        Optional.of(Collections.min(allOldAnchors, Comparator.comparingDouble(anch -> anch.pos.distanceTo(playerPos))))
-        : Optional.empty();
-
-    if (noLongerVisible.contains(this.newestAnchor) || closest.map(noLongerVisible::contains).orElse(false)) { // new anchor
-      final Anchor newAnchor = new Anchor(playerPos);
-      Stream.of(noLongerVisible, visibleAnchors)
-          .flatMap(Set::stream)
-          .distinct()
-          .forEach(anch -> anch.connectAnchor(newAnchor));
-      this.newestAnchor = newAnchor;
-    } else { // new point for the last anchor
-      final List<Vec3d> points = this.newestAnchor.points;
-      final Optional<Vec3d> prev = getLast(points);
-      // don't spam points if we don't move
-      if (!prev.isPresent() || prev.get().distanceTo(playerPos) > 0.01) {
-        points.add(playerPos);
+      // first tick of a trail
+      if (this.rootAnchor == null) {
+        this.rootAnchor = new Anchor(playerPos);
+        this.newestAnchor = rootAnchor;
+        this.dimension = MC.player.dimension;
+        return;
       }
+
+      final Set<Anchor> visibleAnchors = getVisibleAnchors(this.rootAnchor);
+      final Set<Anchor> noLongerVisible = Sets.difference(this.visibleLastTick, visibleAnchors);
+
+      final Set<Anchor> allOldAnchors = Sets.difference(getAllAnchors(rootAnchor), Collections.singleton(this.newestAnchor));
+
+      final Optional<Anchor> closest = !allOldAnchors.isEmpty() ? // TODO: make this a small list?
+          Optional.of(Collections.min(allOldAnchors, Comparator.comparingDouble(anch -> anch.pos.distanceTo(playerPos))))
+          : Optional.empty();
+
+      if (noLongerVisible.contains(this.newestAnchor) || closest.map(noLongerVisible::contains).orElse(false)) { // new anchor
+        final Anchor newAnchor = new Anchor(playerPos);
+        Stream.of(noLongerVisible, visibleAnchors)
+            .flatMap(Set::stream)
+            .distinct()
+            .forEach(anch -> anch.connectAnchor(newAnchor));
+        this.newestAnchor = newAnchor;
+      } else { // new point for the last anchor
+        final List<Vec3d> points = this.newestAnchor.points;
+        final Optional<Vec3d> prev = getLast(points);
+        // don't spam points if we don't move
+        if (!prev.isPresent() || prev.get().distanceTo(playerPos) > 0.01) {
+          points.add(playerPos);
+        }
+      }
+
+      this.visibleLastTick = getVisibleAnchors(this.rootAnchor); // should probably just reuse the list we just made
     }
 
     this.pointsToDraw = getPointsToDraw();
-
-    this.visibleLastTick = getVisibleAnchors(this.rootAnchor); // should probably just reuse the list we just made
   }
 
   private static <T> List<T> partialList(List<T> list, int smoothness) {
@@ -297,22 +380,38 @@ public class BreadCrumbs extends ToggleMod {
   }
 
   private Supplier<Stream<Stream<Vec3d>>> getPointsToDraw() {
-    final Stream<List<Anchor>> oldPaths = this.trails.stream()
+    final List<List<Vec3d>> oldPaths = this.trails.stream()
         .filter(t -> t.dimension == this.dimension)
-        .map(t -> t.path);
+        .map(t -> t.points)
+        .collect(Collectors.toList());
 
     // TODO: only pathfind when there is a new anchor
     // Trails<Anchors<Points>>>
-    final List<List<List<Vec3d>>> trails =
+    /*final List<List<List<Vec3d>>> trails =
         Stream.concat(
           oldPaths,
           Stream.of(pathFind(this.rootAnchor, this.newestAnchor))
         )
         .map(this::getAllPoints)
-        .collect(Collectors.toList());
+        .collect(Collectors.toList());*/
+    final List<List<Vec3d>> currentTrail = this.rootAnchor != null ?
+        getAllPoints(pathFind(this.rootAnchor, this.newestAnchor))
+        : Collections.emptyList();
 
-    return () -> trails.stream()
-        .map(anchors -> anchors.stream().flatMap(List::stream));
+    /*return () -> trails.stream()
+        .map(anchors -> anchors.stream().flatMap(List::stream));*/
+    return () -> Stream.concat(
+        oldPaths.stream().map(List::stream),
+        Stream.of(currentTrail.stream().flatMap(List::stream))
+    );
+  }
+
+  private void pushNewTrailAndReset() {
+    this.trails.add(Trail.fromGraph(this.dimension, this.rootAnchor, this.newestAnchor, this));
+
+    this.rootAnchor = null;
+    this.newestAnchor = null;
+    this.visibleLastTick = Collections.emptySet();
   }
 
   @SubscribeEvent
@@ -334,12 +433,12 @@ public class BreadCrumbs extends ToggleMod {
   @SubscribeEvent
   public void onPacketReceived(PacketEvent.Incoming.Pre event) {
     if (!(event.getPacket() instanceof SPacketRespawn)) return;
-    // This should never happen
-    if (this.rootAnchor == null) return;
+    MC.addScheduledTask(() -> {
+      // This should never happen
+      if (this.rootAnchor == null) return;
 
-    this.trails.add(new Trail(this.dimension, this.rootAnchor, this.newestAnchor));
-    this.rootAnchor = null;
-    this.visibleLastTick = Collections.emptySet();
+      this.pushNewTrailAndReset();
+    });
   }
 
   @Override
@@ -353,8 +452,9 @@ public class BreadCrumbs extends ToggleMod {
           MC.addScheduledTask(() -> {
             this.rootAnchor = null;
             this.newestAnchor = null;
-            this.pointsToDraw = Stream::empty;
             this.visibleLastTick = Collections.emptySet();
+            this.trails.clear();
+            this.pointsToDraw = Stream::empty;
           });
         })
         .build();
@@ -366,7 +466,20 @@ public class BreadCrumbs extends ToggleMod {
         .description("Save breadcrumb history to file")
         .requiredArgs(1)
         .processor(data -> {
-          Helper.printWarning("unimplemented");
+          MC.addScheduledTask(() -> {
+            try {
+              List<Trail> trails = new ArrayList<>(this.trails);
+              if (this.rootAnchor != null) {
+                trails.add(Trail.fromGraph(this.dimension, this.rootAnchor, this.newestAnchor, this));
+              }
+
+              final Path out = BASE_PATH.resolve(data.getArgumentAsString(0));
+              Serialization.serialize(trails, out);
+            } catch (IOException ex) {
+              Helper.printError(ex.toString());
+              ex.printStackTrace();
+            }
+          });
         })
         .build();
 
@@ -377,7 +490,44 @@ public class BreadCrumbs extends ToggleMod {
         .description("Load a breadcrumb file")
         .requiredArgs(1)
         .processor(data -> {
-          Helper.printWarning("unimplemented");
+          MC.addScheduledTask(() -> {
+            try {
+              this.trails.clear();
+              this.rootAnchor = null;
+              this.newestAnchor = null;
+              this.pointsToDraw = Stream::empty;
+
+              this.trails.addAll(Serialization.deserialize(BASE_PATH.resolve(data.getArgumentAsString(0))));
+              this.recording = false;
+            } catch (IOException ex) {
+              Helper.printError(ex.toString());
+              ex.printStackTrace();
+            }
+          });
+        })
+        .build();
+
+    getCommandStub()
+        .builders()
+        .newCommandBuilder()
+        .name("pause")
+        .description("Stop recording points")
+        .processor(data -> {
+          MC.addScheduledTask(() -> {
+            this.recording = false;
+            this.pushNewTrailAndReset();
+          });
+        })
+        .build();
+    getCommandStub()
+        .builders()
+        .newCommandBuilder()
+        .name("resume")
+        .description("Resume recording points")
+        .processor(data -> {
+          MC.addScheduledTask(() -> {
+            this.recording = true;
+          });
         })
         .build();
   }
