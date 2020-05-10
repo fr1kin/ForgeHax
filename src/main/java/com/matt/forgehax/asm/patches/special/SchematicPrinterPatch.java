@@ -44,6 +44,7 @@ public class SchematicPrinterPatch extends ClassTransformer {
       insnList.add(new VarInsnNode(ALOAD, 3)); // load ItemStack
       insnList.add(new VarInsnNode(ALOAD, 4)); // load BlockPos
       insnList.add(new VarInsnNode(ALOAD, 6)); // load Vec
+      insnList.add(new VarInsnNode(ALOAD, 5)); // load EnumFacing
       insnList.add(
         ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSchematicaPlaceBlock));
       

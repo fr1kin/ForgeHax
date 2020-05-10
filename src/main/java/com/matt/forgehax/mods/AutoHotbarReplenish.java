@@ -1,8 +1,5 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem;
@@ -10,14 +7,18 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.task.TaskChain;
-import java.util.Comparator;
-import java.util.List;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketClickWindow;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+
+import java.util.Comparator;
+import java.util.List;
+
+import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getNetworkManager;
 
 @RegisterMod
 public class AutoHotbarReplenish extends ToggleMod {
@@ -49,9 +50,17 @@ public class AutoHotbarReplenish extends ToggleMod {
           .builders()
           .<Integer>newSettingBuilder()
           .name("tick-delay")
-          .description(
-              "Number of ticks between each window click packet. 0 will have no limit and a negative value will send n packets per tick")
+          .description("Number of ticks between each window click packet. 0 will have no limit and a negative value will send n packets per tick")
           .defaultTo(1)
+          .build();
+
+  private final Setting<Boolean> no_gui =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("no-gui")
+          .description("Don't run when a gui is open")
+          .defaultTo(true)
           .build();
   
   private TaskChain<Runnable> tasks = TaskChain.empty();
@@ -143,7 +152,7 @@ public class AutoHotbarReplenish extends ToggleMod {
     }
     
     // only process when a gui isn't opened by the player
-    if (MC.currentScreen != null) {
+    if (MC.currentScreen != null && no_gui.get()) {
       return;
     }
     
@@ -156,43 +165,41 @@ public class AutoHotbarReplenish extends ToggleMod {
               .filter(InvItem::nonNull)
               .filter(this::isMonitoring)
               .filter(item -> !isAboveThreshold(item))
-              .filter(
-                  item ->
-                      slots
-                          .stream()
-                          .filter(this::isMonitoring)
-                          .filter(inv -> !inv.isItemDamageable() || isAboveThreshold(inv))
-                          .anyMatch(item::isItemsEqual))
+              .filter(item ->
+                  slots
+                      .stream()
+                      .filter(this::isMonitoring)
+                      .filter(inv -> !inv.isItemDamageable() || isAboveThreshold(inv))
+                      .anyMatch(item::isItemsEqual)
+              )
               .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
-              .map(
-                  hotbarItem ->
-                      TaskChain.<Runnable>builder()
-                          .then(
-                              () -> {
-                                // pick up item
-                                
-                                verifyHotbar(hotbarItem);
-                                click(
-                                    slots
-                                        .stream()
-                                        .filter(InvItem::nonNull)
-                                        .filter(this::isMonitoring)
-                                        .filter(hotbarItem::isItemsEqual)
-                                        .filter(inv -> !inv.isDamageable() || isAboveThreshold(inv))
-                                        .max(Comparator.comparingInt(this::getDamageOrCount))
-                                        .orElseThrow(RuntimeException::new),
-                                    0,
-                                    ClickType.PICKUP);
-                              })
-                          .then(
-                              () -> {
-                                // place item into hotbar
-                                
-                                verifyHotbar(hotbarItem);
-                                click(hotbarItem, 0, ClickType.PICKUP);
-                              })
-                          .then(this::tryPlacingHeldItem)
-                          .build())
+              .map(hotbarItem ->
+                  TaskChain.<Runnable>builder()
+                      .then(() -> {
+                            // pick up item
+
+                        verifyHotbar(hotbarItem);
+                        click(
+                            slots
+                                .stream()
+                                .filter(InvItem::nonNull)
+                                .filter(this::isMonitoring)
+                                .filter(hotbarItem::isItemsEqual)
+                                .filter(inv -> !inv.isDamageable() || isAboveThreshold(inv))
+                                .max(Comparator.comparingInt(this::getDamageOrCount))
+                                .orElseThrow(RuntimeException::new),
+                                0,
+                                ClickType.PICKUP
+                        );
+                      })
+                      .then(() -> {
+                        // place item into hotbar
+
+                        verifyHotbar(hotbarItem);
+                        click(hotbarItem, 0, ClickType.PICKUP);
+                      })
+                      .then(this::tryPlacingHeldItem)
+                      .build())
               .orElse(TaskChain.empty());
     }
     
@@ -233,8 +240,8 @@ public class AutoHotbarReplenish extends ToggleMod {
                 usedButtonIn,
                 modeIn,
                 clickedItemIn,
-                LocalPlayerInventory.getOpenContainer()
-                    .getNextTransactionID(LocalPlayerInventory.getInventory())));
+                LocalPlayerInventory.getOpenContainer().getNextTransactionID(LocalPlayerInventory.getInventory()))
+        );
   }
   
   private static ItemStack click(InvItem item, int usedButtonIn, ClickType modeIn) {
@@ -246,8 +253,7 @@ public class AutoHotbarReplenish extends ToggleMod {
         item.getSlotNumber(),
         usedButtonIn,
         modeIn,
-        ret =
-            LocalPlayerInventory.getOpenContainer()
+        ret = LocalPlayerInventory.getOpenContainer()
                 .slotClick(item.getSlotNumber(), usedButtonIn, modeIn, getLocalPlayer()));
     return ret;
   }

@@ -6,9 +6,6 @@ import com.matt.forgehax.mods.services.MainMenuGuiService.CommandInputGui;
 import com.matt.forgehax.util.FileManager;
 import com.matt.forgehax.util.command.CommandGlobal;
 import com.matt.forgehax.util.mod.loader.ModManager;
-import java.util.Optional;
-import java.util.Scanner;
-import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
@@ -23,6 +20,10 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.Scanner;
 
 /**
  * Created on 4/25/2017 by fr1kin
@@ -48,7 +49,11 @@ public class Helper implements Globals {
   public static Logger getLog() {
     return LOGGER;
   }
-  
+
+  public static Entity getRenderEntity() {
+    return MC.getRenderViewEntity();
+  }
+
   public static EntityPlayerSP getLocalPlayer() {
     return MC.player;
   }

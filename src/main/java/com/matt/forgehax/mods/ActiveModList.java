@@ -5,19 +5,22 @@ import static com.matt.forgehax.Helper.getModManager;
 import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.math.AlignHelper;
+import com.matt.forgehax.util.math.AlignHelper.Align;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
-import com.matt.forgehax.util.mod.ToggleMod;
+import com.matt.forgehax.util.mod.HudMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
-public class ActiveModList extends ToggleMod {
+public class ActiveModList extends HudMod {
   
   private final Setting<Boolean> tps_meter =
       getCommandStub()
@@ -66,6 +69,15 @@ public class ActiveModList extends ToggleMod {
           .defaultTo(SortMode.ALPHABETICAL)
           .build();
   
+  @Override
+  protected Align getDefaultAlignment() { return Align.TOPLEFT; }
+  @Override
+  protected int getDefaultOffsetX() { return 1; }
+  @Override
+  protected int getDefaultOffsetY() { return 1; }
+  @Override
+  protected double getDefaultScale() { return 1d; }
+  
   public ActiveModList() {
     super(Category.RENDER, "ActiveMods", true, "Shows list of all active mods");
   }
@@ -89,9 +101,7 @@ public class ActiveModList extends ToggleMod {
         builder.append(" (");
         builder.append(data.getSampleSize());
         builder.append(")");
-        if (sections > 0) {
-          builder.append(", ");
-        }
+        if (sections > 0) builder.append(", ");
       }
       if (sections > 0) {
         for (int i = sections; i > 0; i--) {
@@ -101,9 +111,7 @@ public class ActiveModList extends ToggleMod {
           builder.append(" (");
           builder.append(at);
           builder.append(")");
-          if ((i - 1) != 0) {
-            builder.append(", ");
-          }
+          if ((i - 1) != 0) builder.append(", ");
         }
       }
     }
@@ -123,12 +131,12 @@ public class ActiveModList extends ToggleMod {
   
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
-    int posX = 1;
-    final AtomicInteger posY = new AtomicInteger(1);
+    int align = alignment.get().ordinal();
+    
+    List<String> text = new ArrayList<>();
+    
     if (tps_meter.get()) {
-      SurfaceHelper
-          .drawTextShadow(generateTickRateText(), posX, posY.get(), Colors.WHITE.toBuffer());
-      posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
+      text.add(generateTickRateText());
     }
     
     if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
@@ -138,8 +146,7 @@ public class ActiveModList extends ToggleMod {
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
           .count();
-      SurfaceHelper.drawTextShadow(enabledMods + " mods enabled",
-          posX, posY.get(), Colors.WHITE.toBuffer());
+      text.add(enabledMods + " mods enabled");
     } else {
       getModManager()
           .getMods()
@@ -148,17 +155,11 @@ public class ActiveModList extends ToggleMod {
           .filter(mod -> !mod.isHidden())
           .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
           .sorted(sortMode.get().getComparator())
-          .forEach(
-              name -> {
-                SurfaceHelper.drawTextShadow(">" + name, posX, posY.get(), Colors.WHITE.toBuffer());
-                posY.addAndGet(SurfaceHelper.getTextHeight() + 1);
-              });
+          .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? ">" + name : name + "<"));
     }
-    /*
-    posY += (Render2DUtils.getTextHeight() + 1) * 2;
-    Render2DUtils.drawTextShadow(String.format("Pitch: %.4f", MC.thePlayer.rotationPitch), posX, posY, Utils.toRGBA(255, 255, 255, 255));
-    posY += Render2DUtils.getTextHeight() + 1;
-    Render2DUtils.drawTextShadow(String.format("Yaw: %.4f", MC.thePlayer.rotationYaw), posX, posY, Utils.toRGBA(255, 255, 255, 255));*/
+  
+    SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
+        Colors.WHITE.toBuffer(), scale.get(), true, align);
   }
   
   private enum SortMode {

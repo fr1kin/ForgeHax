@@ -1,8 +1,11 @@
 package com.matt.forgehax.mods.managers;
 
+import static com.matt.forgehax.Helper.getLocalPlayer;
+
 import com.google.common.collect.Lists;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.LocalPlayerUpdateMovementEvent;
+import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState.Local;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -17,8 +20,11 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.network.play.server.SPacketPlayerPosLook.EnumFlags;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
@@ -26,6 +32,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 @RegisterMod
 public class PositionRotationManager extends ServiceMod {
+
+  // copy/pasted from ToggleMod
+  private final Setting<Boolean> enabled = getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("enabled")
+      .description("Enables the mod")
+      .defaultTo(true)
+      .build();
   
   private static final SimpleManagerContainer<MovementUpdateListener> MANAGER =
     new SimpleManagerContainer<>();
@@ -63,7 +78,7 @@ public class PositionRotationManager extends ServiceMod {
   
   private static void setPlayerAngles(EntityPlayerSP player, Angle angles) {
     Angle original = getPlayerAngles(player);
-    Angle diff = angles.normalize().sub(original.normalize());
+    Angle diff = angles.normalize().sub(original.normalize()).normalize();
     player.rotationPitch = Utils.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
     player.rotationYaw = original.getYaw() + diff.getYaw();
   }
@@ -98,7 +113,14 @@ public class PositionRotationManager extends ServiceMod {
   }
   
   @SubscribeEvent
+  public void onWorldUnload(WorldEvent.Unload event) {
+    gState.setInitialized(false);
+  }
+  
+  @SubscribeEvent
   public void onMovementUpdatePre(LocalPlayerUpdateMovementEvent.Pre event) {
+    if (!enabled.get()) return;
+
     // updated view angles
     Angle va = getPlayerAngles(event.getLocalPlayer());
     
@@ -204,6 +226,8 @@ public class PositionRotationManager extends ServiceMod {
   
   @SubscribeEvent
   public void onMovementUpdatePost(LocalPlayerUpdateMovementEvent.Post event) {
+    if (!enabled.get()) return;
+
     // reset angles if silent aiming is enabled
     if (gState.isSilent()) {
       setPlayerAngles(event.getLocalPlayer(), gState.getClientAngles().inDegrees().normalize());
@@ -218,6 +242,30 @@ public class PositionRotationManager extends ServiceMod {
     
     // update the read-only state
     STATE.setCurrentState(gState);
+  }
+  
+  @SubscribeEvent(priority = EventPriority.HIGHEST)
+  public void onPacketReceived(PacketEvent.Incoming.Pre event) {
+    if (!enabled.get()) return;
+
+    if(event.getPacket() instanceof SPacketPlayerPosLook) {
+      // when the server sets the rotation we use that instead
+      final SPacketPlayerPosLook packet = event.getPacket();
+      
+      float pitch = packet.getPitch();
+      float yaw = packet.getYaw();
+      
+      Angle va = gState.getClientAngles();
+      
+      if(packet.getFlags().contains(EnumFlags.X_ROT))
+        pitch += va.getPitch();
+      
+      if(packet.getFlags().contains(EnumFlags.Y_ROT))
+        yaw += va.getYaw();
+      
+      gState.setServerAngles(pitch, yaw);
+      gState.setInitialized(true);
+    }
   }
   
   public interface MovementUpdateListener {
@@ -263,8 +311,7 @@ public class PositionRotationManager extends ServiceMod {
      * @return angle in degrees
      */
     default Angle getRenderClientViewAngles() {
-      return isActive()
-        ? getClientAngles()
+      return isActive() ? getClientAngles()
         : Angle.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
     }
     
@@ -275,8 +322,7 @@ public class PositionRotationManager extends ServiceMod {
      * @return angle in degrees
      */
     default Angle getRenderServerViewAngles() {
-      return isActive()
-        ? getServerAngles()
+      return isActive() ? getServerAngles()
         : Angle.degrees(getLocalPlayer().rotationPitch, getLocalPlayer().rotationYaw);
     }
     

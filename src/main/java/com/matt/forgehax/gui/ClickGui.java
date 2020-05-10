@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
 /**
@@ -60,6 +62,11 @@ public class ClickGui extends GuiScreen implements Globals {
   @Override
   public boolean doesGuiPauseGame() {
     return false;
+  }
+  
+  @SubscribeEvent
+  public void onScreenUpdated(GuiScreenEvent.InitGuiEvent.Post ev) {
+    scaledRes = new ScaledResolution(MC);
   }
   
   public void moveWindowToTop(GuiWindow window) {
