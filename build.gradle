@@ -160,21 +160,23 @@ task setGameDir() {
 }
 
 task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
-  final files = { directory, filter, closure ->
-    new File(directory).eachFileMatch(filter, closure)
-  }
+  if(file(project.ext.gameDir).exists()) {
+    final files = { directory, filter, closure ->
+      new File(directory).eachFileMatch(filter, closure)
+    }
 
-  doLast {
-    final mods = "${project.ext.gameDir}/mods"
+    doLast {
+      final mods = "${project.ext.gameDir}/mods"
 
-    project.copy {
-      // delete previous ForgeHax jars
-      files(mods, ~/ForgeHax-.*\.jar/) { file ->
-        file.delete()
+      project.copy {
+        // delete previous ForgeHax jars
+        files(mods, ~/ForgeHax-.*\.jar/) { file ->
+          file.delete()
+        }
+
+        from project.jar
+        into mods
       }
-
-      from project.jar
-      into mods
     }
   }
 }
