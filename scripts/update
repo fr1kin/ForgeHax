@@ -21,11 +21,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         docker-compose \
             -f docker-compose.ci.yml \
             run --rm \
+            --user "$(id -u):$(id -g)" \
             forgehax clean --stacktrace
-
-#        docker-compose \
-#            -f docker-compose.ci.yml \
-#            run --rm \
-#            forgehax setupDecompWorkspace --stacktrace --refresh-dependencies
     fi
 fi

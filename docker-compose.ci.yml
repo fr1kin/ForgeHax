@@ -2,7 +2,6 @@ version: '2.3'
 services:
     forgehax:
         image: gradle:5.4-jdk8
-        user: "1002:1002"
         environment:
           - GIT_COMMIT=${GIT_COMMIT:-latest}
           - FORGEHAX_DEBUG=1
