@@ -1,27 +1,18 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import com.google.common.collect.EvictingQueue;
-import com.google.common.collect.Lists;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.events.ConnectToServerEvent;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.util.SimpleTimer;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
-
 import lombok.Getter;
 import net.minecraft.network.play.server.SUpdateTimePacket;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 import static dev.fiki.forgehax.main.Common.getLogger;
 
@@ -114,7 +105,7 @@ public class TickRateService extends ServiceMod {
 
     // add the still running tick monitor to the
     TickrateTimer timer = data[currentIndex];
-    if(timer.isRunning()) {
+    if(timer != null && timer.isRunning()) {
       count++;
       total += timer.getTickrate();
     }
