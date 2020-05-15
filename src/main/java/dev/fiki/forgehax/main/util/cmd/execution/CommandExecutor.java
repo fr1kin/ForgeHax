@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.util.cmd.execution;
 
 import dev.fiki.forgehax.main.util.cmd.ICommand;
+import dev.fiki.forgehax.main.util.mod.AbstractMod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
@@ -19,12 +20,21 @@ public class CommandExecutor {
   public void run(@NonNull ICommand command, String[] args) {
     getExecutor(command).execute(() -> {
       try {
-        ArgumentList list = ArgumentList.createList(command, args, console);
+        // FIXME: Hacky fix for "${command} toggle". This should be removed when
+        //        the command system is rewritten. - Kakol
+        if(command.getName() == "toggle" && command.getParent() instanceof AbstractMod) {
+          // Dumb shit to get java to treat parent properly
+          AbstractMod parent = (AbstractMod) command.getParent();
+          String[] nargs = {"enabled", parent.isEnabled() ? "0" : "1"};
+          run(parent, nargs);
+        } else {
+         ArgumentList list = ArgumentList.createList(command, args, console);
 
-        ICommand nextCommand = command.onExecute(list);
+          ICommand nextCommand = command.onExecute(list);
 
-        if(nextCommand != null) {
-          run(nextCommand, list.getUnusedArguments());
+          if(nextCommand != null) {
+            run(nextCommand, list.getUnusedArguments());
+          }
         }
       } catch (Throwable t) {
         exceptionHandler.onThrown(t, console);
