@@ -1,11 +1,5 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getWorld;
-import static com.matt.forgehax.Helper.printInform;
-import static com.matt.forgehax.Helper.printWarning;
-
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -15,6 +9,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import static com.matt.forgehax.Helper.*;
 
 @RegisterMod
 public class RiderDesync extends ToggleMod {
@@ -150,8 +146,7 @@ public class RiderDesync extends ToggleMod {
     }
     
     if (forceUpdate && dismountedEntity != null) {
-      dismountedEntity
-          .setPosition(getLocalPlayer().posX, getLocalPlayer().posY, getLocalPlayer().posZ);
+      dismountedEntity.setPosition(getLocalPlayer().posX, getLocalPlayer().posY, getLocalPlayer().posZ);
       getNetworkManager().sendPacket(new CPacketVehicleMove(dismountedEntity));
     }
   }

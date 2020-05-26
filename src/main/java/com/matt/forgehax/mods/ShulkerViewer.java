@@ -10,14 +10,6 @@ import com.matt.forgehax.util.entity.LocalPlayerInventory;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -40,6 +32,14 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @RegisterMod
 public class ShulkerViewer extends ToggleMod {
@@ -318,32 +318,33 @@ public class ShulkerViewer extends ToggleMod {
         }
       }
       
-      AtomicInteger renderX;
-      AtomicInteger renderY;
+      int renderX;
+      int renderY;
       if (!isLocked() || (lastX == -1 && lastY == -1)) {
         int count = (int) guiCache.stream().filter(Objects::nonNull).count();
-        renderX = new AtomicInteger(lastX = event.getMouseX() + x_offset.get());
-        renderY =
-            new AtomicInteger(
-                lastY = event.getMouseY() - (SHULKER_GUI_SIZE * count) / 2 + y_offset.get());
+        renderX = lastX = event.getMouseX() + x_offset.get();
+        renderY = lastY = event.getMouseY() - (SHULKER_GUI_SIZE * count) / 2 + y_offset.get();
       } else {
-        renderX = new AtomicInteger(lastX);
-        renderY = new AtomicInteger(lastY);
+        renderX = lastX;
+        renderY = lastY;
       }
       
       isMouseInShulkerGui = false; // recheck
       
-      guiCache
+
+      final Iterable<GuiShulkerViewer> cache = guiCache
           .stream()
           .filter(Objects::nonNull)
           .sorted()
-          .forEach(
-              ui -> {
-                ui.posX = renderX.get();
-                ui.posY = renderY.get();
-                ui.drawScreen(event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
-                renderY.set(renderY.get() + SHULKER_GUI_SIZE + 1);
-              });
+          ::iterator;
+
+      for (GuiShulkerViewer ui : cache) {
+        ui.posX = renderX;
+        ui.posY = renderY;
+        ui.drawScreen(event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
+        renderY = renderY + SHULKER_GUI_SIZE + 1;
+      }
+
     } finally {
       cacheLock.unlock();
     }
