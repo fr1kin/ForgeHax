@@ -19,6 +19,11 @@ public class ServiceMod extends BaseMod {
   public boolean isHidden() {
     return true;
   }
+
+  @Override
+  public boolean notInList() {
+	return false;
+  }
   
   @Override
   public boolean isEnabled() {
