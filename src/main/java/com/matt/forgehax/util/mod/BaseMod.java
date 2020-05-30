@@ -195,6 +195,12 @@ public abstract class BaseMod implements Globals {
    * Check if the mod is hidden DEFAULT: true
    */
   public abstract boolean isHidden();
+
+
+  /**
+   * Hides a mod from the ModList
+   */ 
+  public abstract boolean notInList();
   
   /**
    * Check if the mod is enabled

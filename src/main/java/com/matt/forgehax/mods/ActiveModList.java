@@ -145,6 +145,7 @@ public class ActiveModList extends HudMod {
           .stream()
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
+          .filter(mod -> !mod.notInList())
           .count();
       text.add(enabledMods + " mods enabled");
     } else {
@@ -153,6 +154,7 @@ public class ActiveModList extends HudMod {
           .stream()
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
+          .filter(mod -> !mod.notInList())
           .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
           .sorted(sortMode.get().getComparator())
           .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? ">" + name : name + "<"));

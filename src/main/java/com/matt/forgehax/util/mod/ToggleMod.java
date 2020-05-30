@@ -7,7 +7,7 @@ import com.matt.forgehax.util.command.callbacks.CallbackData;
 public class ToggleMod extends BaseMod {
   
   private final Setting<Boolean> enabled;
-  private final Setting<Boolean> hidden;
+  private final Setting<Boolean> nolist;
   
   public ToggleMod(Category category, String modName, boolean defaultValue, String description) {
     super(category, modName, description);
@@ -28,7 +28,7 @@ public class ToggleMod extends BaseMod {
                   }
                 })
             .build();
-    this.hidden =
+    this.nolist =
         getCommandStub()
             .builders()
             .<Boolean>newSettingBuilder()
@@ -71,7 +71,7 @@ public class ToggleMod extends BaseMod {
    * Toggle mod to be displayed or not
    */
   public final void display() {
-    if (isHidden()) {
+    if (notInList()) {
       hide();
     } else {
       show();
@@ -80,12 +80,12 @@ public class ToggleMod extends BaseMod {
   
   @Override
   public void hide() {
-    hidden.set(true);
+    nolist.set(true);
   }
   
   @Override
   public void show() {
-    hidden.set(false);
+    nolist.set(false);
   }
   
   @Override
@@ -97,16 +97,21 @@ public class ToggleMod extends BaseMod {
   public String getDebugDisplayText() {
     return super.getDebugDisplayText();
   }
-  
+
   /**
    * Check if the mod is currently shown
    */
   
   @Override
   public boolean isHidden() {
-    return hidden.get();
+    return false;
   }
-  
+
+  @Override
+  public boolean notInList() {
+	return nolist.get();
+  }
+
   /**
    * Check if the mod is currently enabled
    */
