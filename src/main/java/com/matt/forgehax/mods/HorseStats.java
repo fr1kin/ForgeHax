@@ -22,7 +22,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class HorseStats extends ToggleMod {
   
   public HorseStats() {
-    super(Category.PLAYER, "HorseStats", false, "Change the stats of your horse");
+    super(Category.MOVEMENT, "HorseStats", false, "Change the stats of your horse");
   }
   
   private final Setting<Double> jumpHeight =

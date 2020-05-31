@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class NoSkylightUpdates extends ToggleMod {
   
   public NoSkylightUpdates() {
-    super(Category.RENDER, "NoSkylightUpdates", false, "Prevents skylight updates");
+    super(Category.WORLD, "NoSkylightUpdates", false, "Prevents skylight updates");
   }
   
   @SubscribeEvent

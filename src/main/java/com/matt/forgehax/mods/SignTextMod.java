@@ -21,7 +21,7 @@ import org.lwjgl.input.Mouse;
 public class SignTextMod extends ToggleMod {
   
   public SignTextMod() {
-    super(Category.MISC, "SignText", false, "get sign text");
+    super(Category.WORLD, "SignText", false, "Copy sign text on middleclick");
   }
   
   @SubscribeEvent

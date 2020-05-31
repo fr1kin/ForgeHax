@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class NoclipMod extends ToggleMod {
   
   public NoclipMod() {
-    super(Category.PLAYER, "Noclip", false, "Enables player noclip");
+    super(Category.MOVEMENT, "Noclip", false, "Enables player noclip");
   }
   
   @Override

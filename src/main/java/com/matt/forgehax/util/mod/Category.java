@@ -6,10 +6,12 @@ package com.matt.forgehax.util.mod;
 public enum Category {
   NONE("", ""),
   COMBAT("Combat", "Combat related mods"),
+  MOVEMENT("Movement", "Anything related to moving"),
   PLAYER("Player", "Mods that interact with the local player"),
   RENDER("Render", "2D/3D rendering mods"),
   WORLD("World", "Any mod that has to do with the world"),
   MISC("Misc", "Miscellaneous"),
+  CHAT("Chat", "Mods related to chat"),
   SERVICE("Service", "Background mods"),
   ;
   

@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class SafeWalkMod extends ToggleMod {
   
   public SafeWalkMod() {
-    super(Category.PLAYER, "SafeWalk", false, "Prevents you from falling off blocks");
+    super(Category.MOVEMENT, "SafeWalk", false, "Prevents you from falling off blocks");
   }
   
   private final Setting<Boolean> collisions =

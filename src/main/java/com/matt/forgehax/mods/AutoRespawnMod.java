@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 public class AutoRespawnMod extends ToggleMod {
   
   public AutoRespawnMod() {
-    super(Category.PLAYER, "AutoRespawn", false, "Auto respawn on death");
+    super(Category.MISC, "AutoRespawn", false, "Auto respawn on death");
   }
   
   private final Setting<Integer> delay =

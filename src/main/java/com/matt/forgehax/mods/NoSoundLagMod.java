@@ -25,7 +25,7 @@ public class NoSoundLagMod extends ToggleMod {
   );
   
   public NoSoundLagMod() {
-    super(Category.MISC, "NoSoundLag", false, "lag exploit fix");
+    super(Category.WORLD, "NoSoundLag", false, "lag exploit fix");
   }
   
   @SubscribeEvent

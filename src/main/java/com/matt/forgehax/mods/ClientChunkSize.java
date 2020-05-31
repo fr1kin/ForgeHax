@@ -38,7 +38,7 @@ public class ClientChunkSize extends ToggleMod {
   private ChunkPos current = null;
   
   public ClientChunkSize() {
-    super(Category.MISC, "ClientChunkSize", false, "Shows the client-side chunk size in bytes");
+    super(Category.WORLD, "ClientChunkSize", false, "Shows the client-side chunk size in bytes");
   }
   
   private static String toFormattedBytes(long size) {

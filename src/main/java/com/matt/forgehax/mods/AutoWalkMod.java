@@ -26,7 +26,7 @@ public class AutoWalkMod extends ToggleMod {
   private boolean isBound = false;
   
   public AutoWalkMod() {
-    super(Category.PLAYER, "AutoWalk", false, "Automatically walks forward");
+    super(Category.MOVEMENT, "AutoWalk", false, "Automatically walks forward");
   }
   
   @Override

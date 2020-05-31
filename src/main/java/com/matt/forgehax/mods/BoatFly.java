@@ -64,7 +64,7 @@ public class BoatFly extends ToggleMod {
           .build();
   
   public BoatFly() {
-    super(Category.MISC, "BoatFly", false, "Boathax");
+    super(Category.MOVEMENT, "BoatFly", false, "Boathax");
   }
   
   @SubscribeEvent // disable gravity

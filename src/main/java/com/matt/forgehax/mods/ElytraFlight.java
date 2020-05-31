@@ -40,7 +40,7 @@ public class ElytraFlight extends ToggleMod {
   private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getModName());
   
   public ElytraFlight() {
-    super(Category.PLAYER, "ElytraFlight", false, "Elytra Flight");
+    super(Category.MOVEMENT, "ElytraFlight", false, "Elytra Flight");
   }
   
   @Override

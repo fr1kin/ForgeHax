@@ -9,6 +9,6 @@ import com.matt.forgehax.util.mod.ToggleMod;
 public class AutoElytra extends ToggleMod {
   
   public AutoElytra() {
-    super(Category.PLAYER, "AutoElytra", false, "Automatically deploy elytra");
+    super(Category.MOVEMENT, "AutoElytra", false, "Automatically deploy elytra");
   }
 }

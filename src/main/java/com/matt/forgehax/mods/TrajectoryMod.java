@@ -20,7 +20,7 @@ import org.lwjgl.opengl.GL11;
 public class TrajectoryMod extends ToggleMod {
   
   public TrajectoryMod() {
-    super(Category.RENDER, "Trajectory", false, "Draws projectile trajectory");
+    super(Category.COMBAT, "Trajectory", false, "Draws projectile trajectory");
   }
   
   @SubscribeEvent

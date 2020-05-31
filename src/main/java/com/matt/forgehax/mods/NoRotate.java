@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class NoRotate extends ToggleMod {
   
   public NoRotate() {
-    super(Category.PLAYER, "NoRotate", false,
+    super(Category.MISC, "NoRotate", false,
         "Prevent server from setting client viewangles");
   }
   

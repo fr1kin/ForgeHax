@@ -98,7 +98,7 @@ public class CoordsFinder extends ToggleMod {
   private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
   
   public CoordsFinder() {
-    super(Category.MISC, "CoordsFinder", false,
+    super(Category.WORLD, "CoordsFinder", false,
         "Logs coordinates of lightning strikes and teleports");
   }
   

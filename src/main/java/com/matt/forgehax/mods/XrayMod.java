@@ -38,7 +38,7 @@ public class XrayMod extends ToggleMod {
   private boolean previousForgeLightPipelineEnabled = false;
   
   public XrayMod() {
-    super(Category.WORLD, "Xray", false, "See blocks through walls");
+    super(Category.RENDER, "Xray", false, "See blocks through walls");
   }
   
   @Override

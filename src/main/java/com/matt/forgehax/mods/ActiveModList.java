@@ -59,6 +59,15 @@ public class ActiveModList extends HudMod {
           .description("Shows lag time since last tick")
           .defaultTo(true)
           .build();
+
+  private final Setting<Boolean> condense =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("condense")
+          .description("Condense ModList when chat is open")
+          .defaultTo(true)
+          .build();
   
   private final Setting<SortMode> sortMode =
       getCommandStub()
@@ -139,7 +148,7 @@ public class ActiveModList extends HudMod {
       text.add(generateTickRateText());
     }
     
-    if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
+    if ((condense.get() && MC.currentScreen instanceof GuiChat) || MC.gameSettings.showDebugInfo) {
       long enabledMods = getModManager()
           .getMods()
           .stream()
