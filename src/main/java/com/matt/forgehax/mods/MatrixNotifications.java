@@ -203,10 +203,8 @@ public class MatrixNotifications extends ToggleMod {
     EXECUTOR.submit(() -> {
       try {
         HttpResponse res = post(url, json);
-        if (res.getStatusLine().getStatusCode() != 200) {
-		  if (!(res.getStatusLine().getStatusCode() == 204 && provider.get().equals("Discord"))) {
-            throw new Error("got response code " + res.getStatusLine().getStatusCode());
-		  {
+        if (res.getStatusLine().getStatusCode() != 200 && res.getStatusLine().getStatusCode() != 200) {
+          throw new Error("got response code " + res.getStatusLine().getStatusCode());
         }
       } catch (Throwable t) {
         if (t.getCause() instanceof ValidatorException) {
