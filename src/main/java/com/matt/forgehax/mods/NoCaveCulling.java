@@ -9,7 +9,7 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 public class NoCaveCulling extends ToggleMod {
   
   public NoCaveCulling() {
-    super(Category.RENDER, "NoCaveCulling", false, "Disables mojangs dumb cave culling shit");
+    super(Category.WORLD, "NoCaveCulling", false, "Disables mojangs dumb cave culling shit");
   }
   
   @Override

@@ -68,7 +68,7 @@ public class AutoHotbarReplenish extends ToggleMod {
   
   public AutoHotbarReplenish() {
     super(
-        Category.PLAYER,
+        Category.COMBAT,
         "AutoHotbarReplenish",
         false,
         "Will replenish tools or block stacks automatically");

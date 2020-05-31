@@ -37,7 +37,7 @@ public class AntiBatsMod extends ToggleMod {
       };
   
   public AntiBatsMod() {
-    super(Category.RENDER, "AntiBats", false, "666 KILL BATS 666");
+    super(Category.WORLD, "AntiBats", false, "666 KILL BATS 666");
   }
   
   @Override

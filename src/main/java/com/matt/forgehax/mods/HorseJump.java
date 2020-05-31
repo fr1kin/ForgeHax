@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class HorseJump extends ToggleMod {
   
   public HorseJump() {
-    super(Category.PLAYER, "HorseJump", false, "always max horse jump");
+    super(Category.MOVEMENT, "HorseJump", false, "always max horse jump");
   }
   
   @SubscribeEvent

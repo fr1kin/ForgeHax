@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class NoSlowdown extends ToggleMod {
   
   public NoSlowdown() {
-    super(Category.PLAYER, "NoSlowDown", false, "Disables block slowdown");
+    super(Category.MOVEMENT, "NoSlowDown", false, "Disables block slowdown");
   }
   
   @Override

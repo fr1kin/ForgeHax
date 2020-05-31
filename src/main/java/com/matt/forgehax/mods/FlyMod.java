@@ -24,7 +24,7 @@ public class FlyMod extends ToggleMod {
   private boolean zoomies = true;
   
   public FlyMod() {
-    super(Category.PLAYER, "Fly", false, "Enables flying");
+    super(Category.MOVEMENT, "Fly", false, "Enables flying");
   }
   
   @Override

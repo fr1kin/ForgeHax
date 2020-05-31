@@ -61,7 +61,7 @@ public class LogoutSpot extends ToggleMod {
   private final Set<LogoutPos> spots = Sets.newHashSet();
   
   public LogoutSpot() {
-    super(Category.RENDER, "LogoutSpot", false, "show where a player logs out");
+    super(Category.WORLD, "LogoutSpot", false, "show where a player logs out");
   }
   
   private void reset() {

@@ -34,7 +34,7 @@ public class ChatFilterMod extends ToggleMod {
           .build();
 
   public ChatFilterMod() {
-    super(Category.MISC, "ChatFilter", false, "Filter chat by regex");
+    super(Category.CHAT, "ChatFilter", false, "Filter chat by regex");
   }
 
   @SubscribeEvent

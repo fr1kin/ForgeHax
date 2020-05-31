@@ -35,7 +35,7 @@ public class Jesus extends ToggleMod {
       new AxisAlignedBB(0.D, 0.D, 0.D, 1.D, 0.99D, 1.D);
   
   public Jesus() {
-    super(Category.PLAYER, "Jesus", false, "Walk on water");
+    super(Category.MOVEMENT, "Jesus", false, "Walk on water");
   }
   
   @SubscribeEvent

@@ -62,7 +62,7 @@ public class StepMod extends ToggleMod {
           .build();
   
   public StepMod() {
-    super(Category.PLAYER, "Step", false, "Step up blocks");
+    super(Category.MOVEMENT, "Step", false, "Step up blocks");
   }
   
   @Override
