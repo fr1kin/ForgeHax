@@ -96,6 +96,12 @@ public abstract class BaseMod implements Globals {
   public void disable() {
     stop();
   }
+
+  public void hide() {
+  }
+  
+  public void show() {
+  }
   
   /**
    * Get the categories name
@@ -189,15 +195,15 @@ public abstract class BaseMod implements Globals {
   public abstract boolean isHidden();
 
   /**
+   * Hides a mod from the ModList
+   */ 
+  public abstract boolean notInList();
+
+  /**
    * Check if the mod is an element of InfoDisplay mod DEFAULT: true
    */
   public abstract boolean isInfoDisplayElement();
 
-  /**
-   * Hides a mod from the ModList
-   */ 
-  public abstract boolean notInList();
-  
   /**
    * Check if the mod is enabled
    */

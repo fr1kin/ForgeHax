@@ -5,7 +5,6 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import io.netty.util.internal.MathUtil;
 import net.minecraft.util.math.MathHelper;
 
 @RegisterMod
@@ -84,7 +83,7 @@ public class Speedometer extends ToggleMod {
 
     final double sqrtVal = Math.pow(diffPosX, 2) + Math.pow(diffPosZ, 2);
 
-    return MathUtil.round((MathHelper.sqrt(sqrtVal) / currentTps) * speedUnit.get().getMultiplier(), roundto.get());
+    return Math.round(((MathHelper.sqrt(sqrtVal) / currentTps) * speedUnit.get().getMultiplier()) * Math.pow(10, roundto.get())) / Math.pow(10, roundto.get());
   }
 
   /*private double calculateSpeedPerTicks(final int ticks) {
@@ -129,7 +128,7 @@ public class Speedometer extends ToggleMod {
       if(deltaTime == 0) {
         return 0;
       }
-      return MathUtil.round(MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ) * multiplier * 1000D / deltaTime, roundto);
+      return Math.round((MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ) * multiplier * 1000D / deltaTime) * 10)/10;
     }
   }
 }

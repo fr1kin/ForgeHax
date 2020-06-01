@@ -1,6 +1,5 @@
 package com.matt.forgehax.mods.infooverlay;
 
-import com.matt.forgehax.util.MathUtil;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -21,6 +20,6 @@ public class Saturation extends ToggleMod {
   public boolean isVisible() { return false; }*/
 
   public String getInfoDisplayText() {
-    return "Saturation: " + String.format("%s", MathUtil.round(MC.player.getFoodStats().getSaturationLevel(), 1));
+    return "Saturation: " + String.format("%.2f", MC.player.getFoodStats().getSaturationLevel());
   }
 }
