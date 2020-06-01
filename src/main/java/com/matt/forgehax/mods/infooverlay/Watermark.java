@@ -10,7 +10,7 @@ import com.matt.forgehax.util.draw.SurfaceHelper;
 public class Watermark extends ToggleMod {
 
   public Watermark() {
-    super(Category.GUI, "Watermark", false, "Display a watermark on your screen");
+    super(Category.GUI, "Watermark", true, "Display a watermark on your screen");
   }
 
   private final Setting<String> text =
@@ -19,29 +19,29 @@ public class Watermark extends ToggleMod {
       .<Boolean>newSettingBuilder()
       .name("text")
       .description("Watermark text")
-      .defaultTo("ForgeHax On Top!")
+      .defaultTo("ForgeHax > all")
       .build();
 
-  private final Setting<Double> x-offset =
+  private final Setting<Double> x_offset =
     getCommandStub()
       .builders()
       .<Double>newSettingBuilder()
-      .name("x-offset")
+      .name("x_offset")
       .description("Offset on x axis")
       .defaultTo(80)
       .build();
 
-  private final Setting<Double> y-offset =
+  private final Setting<Double> y_offset =
     getCommandStub()
       .builders()
       .<Double>newSettingBuilder()
-      .name("y-offset")
+      .name("y_offset")
       .description("Offset on y axis")
       .defaultTo(8)
       .build();
 
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
-    SurfaceHelper.drawText(text.get(), x-offset.get(), y-offset.get(), Colors.BETTER_PURPLE.toBuffer());
+    SurfaceHelper.drawText(text.get(), x_offset.get(), y_offset.get(), Colors.BETTER_PURPLE.toBuffer());
   }
 }
