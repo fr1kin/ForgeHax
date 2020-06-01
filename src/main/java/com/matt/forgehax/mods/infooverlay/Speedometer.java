@@ -58,7 +58,7 @@ public class Speedometer extends ToggleMod {
     getCommandStub()
       .builders()
       .<Integer>newSettingBuilder()
-      .name("round-to")
+      .name("roundto")
       .description("How many digits after the comma")
       .defaultTo(1)
       .min(0)
@@ -98,7 +98,7 @@ public class Speedometer extends ToggleMod {
 
   public String getInfoDisplayText() {
     //if (!showSpeedPerTicks.getAsBoolean()) {
-	String format = ("%." + roundto.getString() + "f");
+	String format = ("%." + roundto.get() + "f");
     return "Speed: " + String.format(format, calculateTimerSpeed()) + " " + speedUnit.get().getString();
     //} else return "Speed: " + calculateSpeedPerTicks(final int ticks) + " " + speedUnit.get().getString();
   }

@@ -5,6 +5,9 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.draw.SurfaceHelper;
+import com.matt.forgehax.util.color.Colors;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class Watermark extends ToggleMod {
@@ -16,25 +19,25 @@ public class Watermark extends ToggleMod {
   private final Setting<String> text =
     getCommandStub()
       .builders()
-      .<Boolean>newSettingBuilder()
+      .<String>newSettingBuilder()
       .name("text")
       .description("Watermark text")
-      .defaultTo("ForgeHax > all")
+      .defaultTo("ForgeHax 2.9.1")
       .build();
 
-  private final Setting<Double> x_offset =
+  private final Setting<Integer> x_offset =
     getCommandStub()
       .builders()
-      .<Double>newSettingBuilder()
+      .<Integer>newSettingBuilder()
       .name("x_offset")
       .description("Offset on x axis")
       .defaultTo(80)
       .build();
 
-  private final Setting<Double> y_offset =
+  private final Setting<Integer> y_offset =
     getCommandStub()
       .builders()
-      .<Double>newSettingBuilder()
+      .<Integer>newSettingBuilder()
       .name("y_offset")
       .description("Offset on y axis")
       .defaultTo(8)
