@@ -37,6 +37,13 @@ public class ChatFilterMod extends ToggleMod {
     super(Category.CHAT, "ChatFilter", false, "Filter chat by regex");
   }
 
+  private int filtered = 0;
+
+  @Override
+  public String getDisplayText() {
+    return (getModName() + " [" + filtered + "]");
+  }
+
   @SubscribeEvent
   public void onChatMessage(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketChat) {
@@ -50,6 +57,7 @@ public class ChatFilterMod extends ToggleMod {
 
       if (shouldFilter) {
         event.setCanceled(true);
+		filtered++;
       }
     }
   }

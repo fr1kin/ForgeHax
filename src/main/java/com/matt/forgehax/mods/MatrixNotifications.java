@@ -133,6 +133,15 @@ public class MatrixNotifications extends ToggleMod {
           .description("Message on connected to server")
           .defaultTo(true)
           .build();
+
+  private final Setting<Boolean> relay_chat =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("relay_chat")
+          .description("Pass all chat messages to WebHook")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Boolean> on_disconnected =
       getCommandStub()
@@ -332,7 +341,11 @@ public class MatrixNotifications extends ToggleMod {
   public void onPacketRecieve(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketChat) {
       SPacketChat packet = event.getPacket();
-      if (packet.getType() == ChatType.SYSTEM) {
+	  if (relay_chat.get()) {
+        ITextComponent comp = packet.getChatComponent();
+        String text = comp.getUnformattedText();
+		notify(text);
+      } else if (packet.getType() == ChatType.SYSTEM) {
         ITextComponent comp = packet.getChatComponent();
         if (comp.getSiblings().size() >= 2) {
           String text = comp.getSiblings().get(0).getUnformattedText();
