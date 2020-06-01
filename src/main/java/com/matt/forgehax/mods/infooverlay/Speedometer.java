@@ -82,8 +82,7 @@ public class Speedometer extends ToggleMod {
     final double diffPosZ = MC.player.posZ - MC.player.prevPosZ;
 
     final double sqrtVal = Math.pow(diffPosX, 2) + Math.pow(diffPosZ, 2);
-
-    return Math.round(((MathHelper.sqrt(sqrtVal) / currentTps) * speedUnit.get().getMultiplier()) * Math.pow(10, roundto.get())) / Math.pow(10, roundto.get());
+    return ((MathHelper.sqrt(sqrtVal) / currentTps) * speedUnit.get().getMultiplier());
   }
 
   /*private double calculateSpeedPerTicks(final int ticks) {
@@ -99,7 +98,8 @@ public class Speedometer extends ToggleMod {
 
   public String getInfoDisplayText() {
     //if (!showSpeedPerTicks.getAsBoolean()) {
-    return "Speed: " + calculateTimerSpeed() + " " + speedUnit.get().getString();
+	String format = ("%." + roundto.getString() + "f")
+    return "Speed: " + String.format(format, calculateTimerSpeed()) + " " + speedUnit.get().getString();
     //} else return "Speed: " + calculateSpeedPerTicks(final int ticks) + " " + speedUnit.get().getString();
   }
 

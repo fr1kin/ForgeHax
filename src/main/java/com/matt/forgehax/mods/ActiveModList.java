@@ -22,15 +22,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @RegisterMod
 public class ActiveModList extends HudMod {
   
-  private final Setting<Boolean> tps_meter =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("tps-meter")
-          .description("Shows the server tps")
-          .defaultTo(true)
-          .build();
-  
   private final Setting<Boolean> debug =
       getCommandStub()
           .builders()
@@ -96,57 +87,11 @@ public class ActiveModList extends HudMod {
     return true;
   }
   
-  private String generateTickRateText() {
-    StringBuilder builder = new StringBuilder("Tick-rate: ");
-    TickRateService.TickRateData data = TickRateService.getTickData();
-    if (data.getSampleSize() <= 0) {
-      builder.append("No tick data");
-    } else {
-      int factor = this.factor.get();
-      int sections = data.getSampleSize() / factor;
-      if ((sections * factor) < data.getSampleSize()) {
-        TickRateService.TickRateData.CalculationData point = data.getPoint();
-        builder.append(String.format("%.2f", point.getAverage()));
-        builder.append(" (");
-        builder.append(data.getSampleSize());
-        builder.append(")");
-        if (sections > 0) builder.append(", ");
-      }
-      if (sections > 0) {
-        for (int i = sections; i > 0; i--) {
-          int at = i * factor;
-          TickRateService.TickRateData.CalculationData point = data.getPoint(at);
-          builder.append(String.format("%.2f", point.getAverage()));
-          builder.append(" (");
-          builder.append(at);
-          builder.append(")");
-          if ((i - 1) != 0) builder.append(", ");
-        }
-      }
-    }
-    
-    if (showLag.get()) {
-      long lastTickMs = TickRateService.getInstance().getLastTimeDiff();
-      
-      if (lastTickMs < 1000) {
-        builder.append(", 0.0s");
-      } else {
-        builder.append(String.format(", %01.1fs", ((float) (lastTickMs - 1000)) / 1000));
-      }
-    }
-    
-    return builder.toString();
-  }
-  
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     int align = alignment.get().ordinal();
     
     List<String> text = new ArrayList<>();
-    
-    if (tps_meter.get()) {
-      text.add(generateTickRateText());
-    }
     
     if ((condense.get() && MC.currentScreen instanceof GuiChat) || MC.gameSettings.showDebugInfo) {
       long enabledMods = getModManager()

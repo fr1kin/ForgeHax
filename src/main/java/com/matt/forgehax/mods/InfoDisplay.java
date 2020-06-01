@@ -33,7 +33,7 @@ public class InfoDisplay extends HudMod {
       .builders()
       .<SortMode>newSettingEnumBuilder()
       .name("sorting")
-      .description("Sorting mode")
+      .description("alphabetical or length")
       .defaultTo(SortMode.LENGTH)
       .build();
 

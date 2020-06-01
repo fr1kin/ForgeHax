@@ -22,7 +22,7 @@ public class ServiceMod extends BaseMod {
 
   @Override
   public boolean notInList() {
-	return false;
+	return true;
   }
   
   @Override

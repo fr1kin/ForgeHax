@@ -4,8 +4,7 @@ package com.matt.forgehax.util.mod;
  * Created on 9/4/2017 by fr1kin
  */
 public enum Category {
-  NONE("", ""),
-  MOVEMENT("Movement", ""),
+  NONE("N/A", "You should not see this"),
   COMBAT("Combat", "Combat related mods"),
   MOVEMENT("Movement", "Anything related to moving"),
   PLAYER("Player", "Mods that interact with the local player"),

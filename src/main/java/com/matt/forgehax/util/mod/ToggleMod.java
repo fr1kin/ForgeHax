@@ -88,27 +88,6 @@ public class ToggleMod extends BaseMod {
     nolist.set(false);
   }
   
-  /**
-   * Toggle mod to be displayed or not
-   */
-  public final void display() {
-    if (notInList()) {
-      hide();
-    } else {
-      show();
-    }
-  }
-  
-  @Override
-  public void hide() {
-    nolist.set(true);
-  }
-  
-  @Override
-  public void show() {
-    nolist.set(false);
-  }
-  
   @Override
   protected StubBuilder buildStubCommand(StubBuilder builder) {
     return builder.kpressed(this::onBindPressed).kdown(this::onBindKeyDown).bind();

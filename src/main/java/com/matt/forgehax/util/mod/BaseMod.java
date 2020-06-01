@@ -103,14 +103,6 @@ public abstract class BaseMod implements Globals {
   public void show() {
   }
   
-  public void hide() {
-    return;
-  }
-  
-  public void show() {
-    return;
-  }
-  
   /**
    * Get the categories name
    */
