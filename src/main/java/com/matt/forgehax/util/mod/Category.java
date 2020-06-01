@@ -5,16 +5,19 @@ package com.matt.forgehax.util.mod;
  */
 public enum Category {
   NONE("", ""),
+  MOVEMENT("Movement", ""),
   COMBAT("Combat", "Combat related mods"),
   PLAYER("Player", "Mods that interact with the local player"),
   RENDER("Render", "2D/3D rendering mods"),
   WORLD("World", "Any mod that has to do with the world"),
   MISC("Misc", "Miscellaneous"),
+  CHAT("Chat", "Mods related to chat"),
+  GUI("GUI", "User Interface modules"),
   SERVICE("Service", "Background mods"),
   ;
   
-  private String prettyName;
-  private String description;
+  private final String prettyName;
+  private final String description;
   
   Category(String prettyName, String description) {
     this.prettyName = prettyName;
