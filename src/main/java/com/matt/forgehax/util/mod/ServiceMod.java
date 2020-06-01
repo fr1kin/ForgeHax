@@ -49,6 +49,11 @@ public class ServiceMod extends BaseMod {
   @Override
   protected void onBindPressed(CallbackData cb) {
   }
+
+  @Override
+  public boolean isInfoDisplayElement() {
+	return false;
+  }
   
   @Override
   protected void onBindKeyDown(CallbackData cb) {

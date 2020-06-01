@@ -30,6 +30,7 @@ public class ClickGui extends GuiScreen implements Globals {
   private GuiWindowMod worldWindow = new GuiWindowMod(Category.WORLD);
   private GuiWindowMod miscWindow = new GuiWindowMod(Category.MISC);
   private GuiWindowMod chatWindow = new GuiWindowMod(Category.CHAT);
+  private final GuiWindowMod guiWindow = new GuiWindowMod(Category.GUI);
   
   {
     windowList.add(combatWindow);
@@ -39,6 +40,7 @@ public class ClickGui extends GuiScreen implements Globals {
     windowList.add(worldWindow);
     windowList.add(miscWindow);
     windowList.add(chatWindow);
+    windowList.add(guiWindow);
   }
   
   public static ScaledResolution scaledRes = new ScaledResolution(MC);

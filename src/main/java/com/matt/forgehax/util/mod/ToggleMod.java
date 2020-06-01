@@ -66,6 +66,27 @@ public class ToggleMod extends BaseMod {
   public void disable() {
     enabled.set(false);
   }
+
+  /**
+   * Toggle mod to be displayed or not
+   */
+  public final void display() {
+    if (notInList()) {
+      hide();
+    } else {
+      show();
+    }
+  }
+  
+  @Override
+  public void hide() {
+    nolist.set(true);
+  }
+  
+  @Override
+  public void show() {
+    nolist.set(false);
+  }
   
   /**
    * Toggle mod to be displayed or not
@@ -98,10 +119,14 @@ public class ToggleMod extends BaseMod {
     return super.getDebugDisplayText();
   }
 
+  @Override
+  public boolean isInfoDisplayElement() {
+	return false;
+  }
+  
   /**
    * Check if the mod is currently shown
    */
-  
   @Override
   public boolean isHidden() {
     return false;
@@ -111,7 +136,7 @@ public class ToggleMod extends BaseMod {
   public boolean notInList() {
 	return nolist.get();
   }
-
+  
   /**
    * Check if the mod is currently enabled
    */

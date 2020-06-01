@@ -96,6 +96,12 @@ public abstract class BaseMod implements Globals {
   public void disable() {
     stop();
   }
+
+  public void hide() {
+  }
+  
+  public void show() {
+  }
   
   public void hide() {
     return;
@@ -201,7 +207,12 @@ public abstract class BaseMod implements Globals {
    * Hides a mod from the ModList
    */ 
   public abstract boolean notInList();
-  
+
+  /**
+   * Check if the mod is an element of InfoDisplay mod DEFAULT: true
+   */
+  public abstract boolean isInfoDisplayElement();
+
   /**
    * Check if the mod is enabled
    */
@@ -268,7 +279,11 @@ public abstract class BaseMod implements Globals {
   public String getDisplayText() {
     return getModName();
   }
-  
+
+  public String getInfoDisplayText() {
+    return getInfoDisplayText();
+  }
+
   public String getDebugDisplayText() {
     return getDisplayText();
   }
