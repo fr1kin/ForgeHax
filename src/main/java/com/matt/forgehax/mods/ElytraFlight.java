@@ -5,6 +5,7 @@ import static com.matt.forgehax.Helper.getNetworkManager;
 import com.matt.forgehax.asm.events.PacketEvent;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
+import com.matt.forgehax.events.PlayerTravelEvent;
 import com.matt.forgehax.util.Switch.Handle;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
@@ -14,10 +15,13 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
+import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketEntityMetadata;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 @RegisterMod
 public class ElytraFlight extends ToggleMod {
@@ -36,8 +40,26 @@ public class ElytraFlight extends ToggleMod {
           .builders()
           .<Double>newSettingBuilder()
           .name("speed")
-          .description("Base or max flight speed")
-          .defaultTo(0.05D)
+          .description("Base flight speed")
+          .defaultTo(0.0825D)
+          .build();
+
+  public final Setting<Float> boost =
+      getCommandStub()
+          .builders()
+          .<Float>newSettingBuilder()
+          .name("boost")
+          .description("Acceleration amount")
+          .defaultTo(0.05F)
+          .build();
+
+  public final Setting<Double> maxboost =
+      getCommandStub()
+          .builders()
+          .<Double>newSettingBuilder()
+          .name("maxboost")
+          .description("Max speed in control mode")
+          .defaultTo(1.60D)
           .build();
   
   public final Setting<Double> up_speed =
@@ -55,7 +77,7 @@ public class ElytraFlight extends ToggleMod {
           .<Double>newSettingBuilder()
           .name("down_speed")
           .description("Downward speed")
-          .defaultTo(0.1D)
+          .defaultTo(0.05D)
           .build();
 
   public final Setting<String> mode =
@@ -72,6 +94,8 @@ public class ElytraFlight extends ToggleMod {
   public ElytraFlight() {
     super(Category.MOVEMENT, "ElytraFlight", false, "Elytra Flight");
   }
+  
+  private double keep_y = 120;
 
   @Override
   public String getDisplayText() {
@@ -104,12 +128,10 @@ public class ElytraFlight extends ToggleMod {
   @Override
   public void onDisabled() {
 	switch(mode.get()) {
+	  case "fly":
+    	flying.disable(); // No break! I want it to do next stuff too
 	  case "control":
     	if (getLocalPlayer().capabilities.isCreativeMode) return;
-    	getLocalPlayer().capabilities.isFlying = false;
-		break;
-	  case "fly":
-    	flying.disable();
     	// Are we still here?
     	if (getLocalPlayer() != null) {
     	  // Ensure the player starts flying again.
@@ -124,14 +146,6 @@ public class ElytraFlight extends ToggleMod {
     	    .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
 		break;
 	}
-  }
-
-  @SubscribeEvent
-  public void onPacketInbound(PacketEvent.Incoming.Pre event) {
-    if (this.isEnabled() && mode.get().equals("packet") && 
-		event.getPacket() instanceof SPacketEntityMetadata) {
-      event.setCanceled(true);
-    }
   }
   
   @SubscribeEvent
@@ -149,39 +163,54 @@ public class ElytraFlight extends ToggleMod {
     	    .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
 		MC.player.capabilities.isFlying = true;
         MC.player.jumpMovementFactor = up_speed.getAsFloat();
-		if (!MC.gameSettings.keyBindForward.isKeyDown() && !MC.gameSettings.keyBindBack.isKeyDown())
+		if (!MC.gameSettings.keyBindForward.isKeyDown() && !MC.gameSettings.keyBindBack.isKeyDown() &&
+			!MC.gameSettings.keyBindLeft.isKeyDown() && !MC.gameSettings.keyBindRight.isKeyDown())
         	MC.player.setVelocity(0.0, 0.0, 0.0);
 		break;
 	  case "control":
-    	if (!getLocalPlayer().isElytraFlying()) return;
+    	if (getLocalPlayer().isElytraFlying()) {
     	  if(getLocalPlayer().isInWater()) {
     	      getNetworkManager()
 				.sendPacket(new CPacketEntityAction(getLocalPlayer(),Action.START_FALL_FLYING));
-    	      return;
     	  }
-    	  if(MC.gameSettings.keyBindJump.isKeyDown())
-    	    getLocalPlayer().motionY += up_speed.get();
-    	  else if(MC.gameSettings.keyBindSneak.isKeyDown())
-    	    getLocalPlayer().motionY -= down_speed.get();
-		  else
-    	    getLocalPlayer().motionY = 0;
+    	  if(!MC.gameSettings.keyBindJump.isKeyDown() && !MC.gameSettings.keyBindSneak.isKeyDown() && 
+			 !MC.gameSettings.keyBindForward.isKeyDown() && !MC.gameSettings.keyBindBack.isKeyDown())
+			MC.player.setVelocity(0, 0, 0);
 
+    	  if(MC.gameSettings.keyBindJump.isKeyDown()) {
+    	    getLocalPlayer().motionY = up_speed.get();
+		  }
+    	  else if(MC.gameSettings.keyBindSneak.isKeyDown()) {
+    	    getLocalPlayer().motionY = -down_speed.get();
+		  }
+		  else {
+    	    getLocalPlayer().motionY = 0;
+		  }
+
+    	  float yaw = (float)Math
+    	          .toRadians(getLocalPlayer().rotationYaw);
     	  if(MC.gameSettings.keyBindForward.isKeyDown()) {
-    	    float yaw = (float)Math
-    	            .toRadians(getLocalPlayer().rotationYaw);
-    	    getLocalPlayer().motionX -= MathHelper.sin(yaw) * 0.05F;
-    	    getLocalPlayer().motionZ += MathHelper.cos(yaw) * 0.05F;
+    	    getLocalPlayer().motionX -= MathHelper.sin(yaw) * boost.get();
+    	    getLocalPlayer().motionZ += MathHelper.cos(yaw) * boost.get();
     	  } else if (MC.gameSettings.keyBindBack.isKeyDown()) {
-    	    float yaw = (float)Math
-    	            .toRadians(MC.player.rotationYaw);
-    	    getLocalPlayer().motionX += MathHelper.sin(yaw) * 0.05F;
-    	    getLocalPlayer().motionZ -= MathHelper.cos(yaw) * 0.05F;
+    	    getLocalPlayer().motionX += MathHelper.sin(yaw) * boost.get();
+    	    getLocalPlayer().motionZ -= MathHelper.cos(yaw) * boost.get();
     	  }
-		  if (Math.abs(getLocalPlayer().motionZ) > speed.get())
-			getLocalPlayer().motionZ = Math.signum(getLocalPlayer().motionZ) * speed.get();
-		  if (Math.abs(getLocalPlayer().motionX) > speed.get())
-			getLocalPlayer().motionX = Math.signum(getLocalPlayer().motionX) * speed.get();
-		  break;
+    	  if(MC.gameSettings.keyBindLeft.isKeyDown()) {
+    	    getLocalPlayer().motionX -= MathHelper.sin(yaw - 90.0F) * boost.get();
+    	    getLocalPlayer().motionZ += MathHelper.cos(yaw - 90.0F) * boost.get();
+    	  } else if (MC.gameSettings.keyBindRight.isKeyDown()) {
+    	    getLocalPlayer().motionX -= MathHelper.sin(yaw + 90.0F) * boost.get();
+    	    getLocalPlayer().motionZ += MathHelper.cos(yaw + 90.0F) * boost.get();
+    	  }
+		  double speed = Math.sqrt(Math.pow(getLocalPlayer().motionZ, 2) + Math.pow(getLocalPlayer().motionX, 2));
+		  if (speed > maxboost.get()) {
+			double factor = maxboost.get() / speed;
+			getLocalPlayer().motionX *= factor;
+			getLocalPlayer().motionZ *= factor;
+		  } 
+		}
+		break;
 	}
   }
 }
