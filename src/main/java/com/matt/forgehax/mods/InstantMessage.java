@@ -27,7 +27,7 @@ public class InstantMessage extends ToggleMod {
           .build();
   
   public InstantMessage() {
-    super(Category.MISC, "InstantMessage", false, "Send message as soon as you join");
+    super(Category.CHAT, "InstantMessage", false, "Send message as soon as you join");
   }
   
   @SubscribeEvent

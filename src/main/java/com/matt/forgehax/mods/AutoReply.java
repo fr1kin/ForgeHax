@@ -41,7 +41,7 @@ public class AutoReply extends ToggleMod {
           .build();
   
   public AutoReply() {
-    super(Category.MISC, "AutoReply", false, "Automatically talk in chat if finds a strings");
+    super(Category.CHAT, "AutoReply", false, "Automatically talk in chat if finds a strings");
   }
   
   @SubscribeEvent

@@ -22,18 +22,19 @@ public class ClickGui extends GuiScreen implements Globals {
   private static ClickGui INSTANCE;
   
   public final List<GuiWindow> windowList = new ArrayList<>();
-
-  private final GuiWindowMod combatWindow = new GuiWindowMod(Category.COMBAT);
-  private final GuiWindowMod movementWindow = new GuiWindowMod(Category.MOVEMENT);
-  private final GuiWindowMod playerWindow = new GuiWindowMod(Category.PLAYER);
-  private final GuiWindowMod renderWindow = new GuiWindowMod(Category.RENDER);
-  private final GuiWindowMod worldWindow = new GuiWindowMod(Category.WORLD);
-  private final GuiWindowMod miscWindow = new GuiWindowMod(Category.MISC);
-  private final GuiWindowMod chatWindow = new GuiWindowMod(Category.CHAT);
+  
+  private GuiWindowMod combatWindow = new GuiWindowMod(Category.COMBAT);
+  private GuiWindowMod movementWindow = new GuiWindowMod(Category.MOVEMENT);
+  private GuiWindowMod playerWindow = new GuiWindowMod(Category.PLAYER);
+  private GuiWindowMod renderWindow = new GuiWindowMod(Category.RENDER);
+  private GuiWindowMod worldWindow = new GuiWindowMod(Category.WORLD);
+  private GuiWindowMod miscWindow = new GuiWindowMod(Category.MISC);
+  private GuiWindowMod chatWindow = new GuiWindowMod(Category.CHAT);
   private final GuiWindowMod guiWindow = new GuiWindowMod(Category.GUI);
   
   {
     windowList.add(combatWindow);
+    windowList.add(movementWindow);
     windowList.add(playerWindow);
     windowList.add(renderWindow);
     windowList.add(worldWindow);

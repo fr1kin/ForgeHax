@@ -47,7 +47,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
   private Angle previousAngles = Angle.ZERO;
   
   public Scaffold() {
-    super(Category.PLAYER, "Scaffold", false, "Place blocks under yourself");
+    super(Category.MOVEMENT, "Scaffold", false, "Place blocks under yourself");
   }
   
   @Override

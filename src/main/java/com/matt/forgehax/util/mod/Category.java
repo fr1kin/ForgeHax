@@ -7,6 +7,7 @@ public enum Category {
   NONE("", ""),
   MOVEMENT("Movement", ""),
   COMBAT("Combat", "Combat related mods"),
+  MOVEMENT("Movement", "Anything related to moving"),
   PLAYER("Player", "Mods that interact with the local player"),
   RENDER("Render", "2D/3D rendering mods"),
   WORLD("World", "Any mod that has to do with the world"),

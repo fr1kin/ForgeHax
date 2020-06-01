@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class BedModeMod extends ToggleMod {
   
   public BedModeMod() {
-    super(Category.PLAYER, "BedMode", false, "Sleep walking");
+    super(Category.MISC, "BedMode", false, "Sleep walking");
   }
   
   @SubscribeEvent

@@ -16,7 +16,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class NoFallMod extends ToggleMod {
   
   public NoFallMod() {
-    super(Category.PLAYER, "NoFall", false, "Prevents fall damage from being taken");
+    super(Category.MOVEMENT, "NoFall", false, "Prevents fall damage from being taken");
   }
   
   private float lastFallDistance = 0;

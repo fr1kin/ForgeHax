@@ -94,7 +94,7 @@ public class MatrixNotifications extends ToggleMod {
           .builders()
           .<String>newSettingBuilder()
           .name("url")
-          .description("URL to the Matrix web hook")
+          .description("URL to the WebHook")
           .defaultTo("")
           .build();
   
@@ -113,7 +113,7 @@ public class MatrixNotifications extends ToggleMod {
           .<String>newSettingBuilder()
           .name("skin-server-url")
           .description("URL to the skin server. If left empty then no image will be used.")
-          .defaultTo("https://visage.surgeplay.com/face/160/")
+          .defaultTo("https://minotar.net/helm/")
           .build();
   
   private final Setting<Integer> queue_notify_pos =
@@ -133,6 +133,15 @@ public class MatrixNotifications extends ToggleMod {
           .description("Message on connected to server")
           .defaultTo(true)
           .build();
+
+  private final Setting<Boolean> relay_chat =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("relay_chat")
+          .description("Pass all chat messages to WebHook")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Boolean> on_disconnected =
       getCommandStub()
@@ -151,9 +160,18 @@ public class MatrixNotifications extends ToggleMod {
           .description("Message when player moves in the queue")
           .defaultTo(true)
           .build();
+
+  private final Setting<String> provider =
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("provider")
+          .description("Either Matrix or Discord")
+          .defaultTo("Matrix")
+          .build();
   
   public MatrixNotifications() {
-    super(Category.MISC, "MatrixNotifications", false, "Matrix notifications");
+    super(Category.CHAT, "WebNotify", false, "Send notifications via WebHook. Either on Discord or Matrix");
   }
   
   private boolean joined = false;
@@ -194,7 +212,7 @@ public class MatrixNotifications extends ToggleMod {
     EXECUTOR.submit(() -> {
       try {
         HttpResponse res = post(url, json);
-        if (res.getStatusLine().getStatusCode() != 200) {
+        if (res.getStatusLine().getStatusCode() != 200 && res.getStatusLine().getStatusCode() != 204) {
           throw new Error("got response code " + res.getStatusLine().getStatusCode());
         }
       } catch (Throwable t) {
@@ -224,13 +242,22 @@ public class MatrixNotifications extends ToggleMod {
   
   private void notify(String message) {
     JsonObject object = new JsonObject();
-    object.addProperty("text", message);
-    object.addProperty("format", "plain");
-    object.addProperty("displayName", MC.getSession().getUsername());
+	if (provider.get().equals("Discord")) {
+    	object.addProperty("content", message);
+    	object.addProperty("username", MC.getSession().getUsername());
+	} else {
+    	object.addProperty("text", message);
+    	object.addProperty("format", "plain");
+    	object.addProperty("displayName", MC.getSession().getUsername());
+	}
     
     String id = getUriUuid();
     if (!skin_server_url.get().isEmpty() && id != null) {
-      object.addProperty("avatarUrl", skin_server_url.get() + id);
+	  if (provider.get().equals("Discord")) {
+        object.addProperty("avatar_url", skin_server_url.get() + id);
+	  } else {
+        object.addProperty("avatarUrl", skin_server_url.get() + id);
+	  }
     }
     
     postAsync(url.get(), object);
@@ -314,7 +341,11 @@ public class MatrixNotifications extends ToggleMod {
   public void onPacketRecieve(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketChat) {
       SPacketChat packet = event.getPacket();
-      if (packet.getType() == ChatType.SYSTEM) {
+	  if (relay_chat.get()) {
+        ITextComponent comp = packet.getChatComponent();
+        String text = comp.getUnformattedText();
+		notify(text);
+      } else if (packet.getType() == ChatType.SYSTEM) {
         ITextComponent comp = packet.getChatComponent();
         if (comp.getSiblings().size() >= 2) {
           String text = comp.getSiblings().get(0).getUnformattedText();

@@ -28,7 +28,7 @@ public class RiderDesync extends ToggleMod {
   private boolean forceUpdate = false;
   
   public RiderDesync() {
-    super(Category.PLAYER, "RiderDesync", false, "For entity force dismounting");
+    super(Category.MOVEMENT, "RiderDesync", false, "For entity force dismounting");
   }
   
   @Override

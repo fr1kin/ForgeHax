@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class PortalGui extends ToggleMod {
   
   public PortalGui() {
-    super(Category.PLAYER, "PortalGui", false, "Guis work while in portals");
+    super(Category.MISC, "PortalGui", false, "Guis work while in portals");
   }
   
   @SubscribeEvent

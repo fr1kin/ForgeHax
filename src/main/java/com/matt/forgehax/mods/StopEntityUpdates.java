@@ -12,7 +12,7 @@ public class StopEntityUpdates extends ToggleMod {
   
   public StopEntityUpdates() {
     super(
-        Category.MISC,
+        Category.WORLD,
         "StopEntityUpdates",
         false,
         "Prevent entity metadata update packets from being processed");

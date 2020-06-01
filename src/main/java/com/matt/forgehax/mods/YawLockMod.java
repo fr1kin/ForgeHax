@@ -40,7 +40,7 @@ public class YawLockMod extends ToggleMod
           .build();
   
   public YawLockMod() {
-    super(Category.PLAYER, "YawLock", false, "Locks yaw to prevent moving into walls");
+    super(Category.MOVEMENT, "YawLock", false, "Locks yaw to prevent moving into walls");
   }
   
   private float getYawDirection(float yaw) {

@@ -57,7 +57,7 @@ public class VanillaFlyMod extends ToggleMod {
           .build();
   
   public VanillaFlyMod() {
-    super(Category.PLAYER, "VanillaFly", false, "Fly like creative mode");
+    super(Category.MOVEMENT, "VanillaFly", false, "Fly like creative mode");
   }
   
   @Override

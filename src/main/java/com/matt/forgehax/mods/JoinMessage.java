@@ -134,7 +134,7 @@ public class JoinMessage extends ToggleMod {
   private final Map<UUID, AtomicLong> cooldowns = Maps.newConcurrentMap();
   
   public JoinMessage() {
-    super(Category.MISC, "JoinMessage", false, "Allows players to add custom join messages");
+    super(Category.CHAT, "JoinMessage", false, "Allows players to add custom join messages");
   }
   
   private void debugMessage(String str) {

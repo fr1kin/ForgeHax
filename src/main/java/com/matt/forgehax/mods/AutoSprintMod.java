@@ -30,7 +30,7 @@ public class AutoSprintMod extends ToggleMod {
           .build();
   
   public AutoSprintMod() {
-    super(Category.PLAYER, "AutoSprint", false, "Automatically sprints");
+    super(Category.MOVEMENT, "AutoSprint", false, "Automatically sprints");
   }
   
   private void startSprinting() {
