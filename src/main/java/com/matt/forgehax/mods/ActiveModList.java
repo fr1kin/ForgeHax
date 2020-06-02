@@ -21,7 +21,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class ActiveModList extends HudMod {
-  
+
+  public ActiveModList() {
+    super(Category.GUI, "ActiveMods", true, "Shows list of all active mods");
+  }
+
   private final Setting<Boolean> debug =
       getCommandStub()
           .builders()
@@ -30,36 +34,7 @@ public class ActiveModList extends HudMod {
           .description("Disables debug text on mods that have it")
           .defaultTo(false)
           .build();
-  
-  private final Setting<Integer> factor =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("factor")
-          .description("Splitting up the tick rate data")
-          .defaultTo(25)
-          .min(1)
-          .max(100)
-          .build();
-  
-  private final Setting<Boolean> showLag =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("showLag")
-          .description("Shows lag time since last tick")
-          .defaultTo(true)
-          .build();
 
-  private final Setting<Boolean> condense =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("condense")
-          .description("Condense ModList when chat is open")
-          .defaultTo(true)
-          .build();
-  
   private final Setting<SortMode> sortMode =
       getCommandStub()
           .builders()
@@ -68,66 +43,67 @@ public class ActiveModList extends HudMod {
           .description("Sorting mode")
           .defaultTo(SortMode.ALPHABETICAL)
           .build();
-  
+
   @Override
-  protected Align getDefaultAlignment() { return Align.TOPLEFT; }
+  protected Align getDefaultAlignment() { return Align.BOTTOMRIGHT; }
   @Override
   protected int getDefaultOffsetX() { return 1; }
   @Override
   protected int getDefaultOffsetY() { return 1; }
   @Override
   protected double getDefaultScale() { return 1d; }
-  
-  public ActiveModList() {
-    super(Category.RENDER, "ActiveMods", true, "Shows list of all active mods");
-  }
-  
+
   @Override
   public boolean isHidden() {
-    return true;
+    return false;
   }
-  
+
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     int align = alignment.get().ordinal();
-    
+
     List<String> text = new ArrayList<>();
-    
-    if ((condense.get() && MC.currentScreen instanceof GuiChat) || MC.gameSettings.showDebugInfo) {
+
+    if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
+      long totalMods = getModManager()
+          .getMods()
+          .stream()
+          .filter(mod -> !mod.isHidden())
+          .count();
+
       long enabledMods = getModManager()
           .getMods()
           .stream()
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
-          .filter(mod -> !mod.notInList())
           .count();
-      text.add(enabledMods + " mods enabled");
+      text.add(enabledMods + "/" + totalMods + " mods enabled");
     } else {
       getModManager()
           .getMods()
           .stream()
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
-          .filter(mod -> !mod.notInList())
+          .filter(mod -> !mod.isInfoDisplayElement())
           .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
           .sorted(sortMode.get().getComparator())
           .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? ">" + name : name + "<"));
     }
-  
+
     SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
         Colors.WHITE.toBuffer(), scale.get(), true, align);
   }
-  
+
   private enum SortMode {
     ALPHABETICAL((o1, o2) -> 0), // mod list is already sorted alphabetically
     LENGTH(Comparator.<String>comparingInt(SurfaceHelper::getTextWidth).reversed());
-    
+
     private final Comparator<String> comparator;
-    
+
     public Comparator<String> getComparator() {
       return this.comparator;
     }
-    
+
     SortMode(Comparator<String> comparatorIn) {
       this.comparator = comparatorIn;
     }

@@ -15,7 +15,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.*;
 
 import static com.matt.forgehax.Helper.getModManager;
-import static com.matt.forgehax.util.draw.SurfaceHelper.getTextHeight;
 
 /**
  * Created by OverFloyd
