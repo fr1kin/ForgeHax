@@ -19,18 +19,22 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketEntityMetadata;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 @RegisterMod
 public class ElytraFlight extends ToggleMod {
+  
+  public enum ElytraMode {
+    FLY,
+    PACKET,
+    CONTROL
+  }
+
   
   public final Setting<Boolean> fly_on_enable =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("fly_on_enable")
+          .name("fly-on-enable")
           .description("Start flying when enabled")
           .defaultTo(false)
           .build();
@@ -66,7 +70,7 @@ public class ElytraFlight extends ToggleMod {
       getCommandStub()
           .builders()
           .<Double>newSettingBuilder()
-          .name("up_speed")
+          .name("up-speed")
           .description("To keep altitude")
           .defaultTo(0.002D)
           .build();
@@ -75,18 +79,18 @@ public class ElytraFlight extends ToggleMod {
       getCommandStub()
           .builders()
           .<Double>newSettingBuilder()
-          .name("down_speed")
+          .name("down-speed")
           .description("Downward speed")
           .defaultTo(0.05D)
           .build();
 
-  public final Setting<String> mode =
+  public final Setting<ElytraMode> mode =
       getCommandStub()
           .builders()
-          .<String>newSettingBuilder()
+          .<ElytraMode>newSettingEnumBuilder()
           .name("mode")
           .description("control, fly or packet")
-          .defaultTo("control")
+          .defaultTo(ElytraMode.CONTROL)
           .build();
   
   private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getModName());
@@ -105,8 +109,8 @@ public class ElytraFlight extends ToggleMod {
   @Override
   protected void onEnabled() {
 	switch(mode.get()) {
-	  case "control":
-	  case "fly":
+	  case CONTROL:
+	  case FLY:
     	if (fly_on_enable.get()) {
     	  MC.addScheduledTask(
     	      () -> {
@@ -117,7 +121,7 @@ public class ElytraFlight extends ToggleMod {
     	      });
 		}
 		break;
-	  case "packet":
+	  case PACKET:
 		MC.player.capabilities.isFlying = true;
         MC.player.capabilities.allowFlying = true;
     	getLocalPlayer().capabilities.setFlySpeed(speed.getAsFloat());
@@ -128,9 +132,9 @@ public class ElytraFlight extends ToggleMod {
   @Override
   public void onDisabled() {
 	switch(mode.get()) {
-	  case "fly":
+	  case FLY:
     	flying.disable(); // No break! I want it to do next stuff too
-	  case "control":
+	  case CONTROL:
     	if (getLocalPlayer().capabilities.isCreativeMode) return;
     	// Are we still here?
     	if (getLocalPlayer() != null) {
@@ -139,7 +143,7 @@ public class ElytraFlight extends ToggleMod {
     	      .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
     	}
 		break;
-	  case "packet":
+	  case PACKET:
 		MC.player.capabilities.isFlying = false;
         MC.player.capabilities.allowFlying = false;
     	getNetworkManager()
@@ -151,14 +155,14 @@ public class ElytraFlight extends ToggleMod {
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
 	switch(mode.get()) {
-	  case "fly":
+	  case FLY:
     	// Enable our flight as soon as the player starts flying his elytra.
     	if (getLocalPlayer().isElytraFlying()) {
     	  flying.enable();
     	}
     	getLocalPlayer().capabilities.setFlySpeed(speed.getAsFloat());
 		break;
-	  case "packet":
+	  case PACKET:
 		getNetworkManager()
     	    .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.START_FALL_FLYING));
 		MC.player.capabilities.isFlying = true;
@@ -167,7 +171,7 @@ public class ElytraFlight extends ToggleMod {
 			!MC.gameSettings.keyBindLeft.isKeyDown() && !MC.gameSettings.keyBindRight.isKeyDown())
         	MC.player.setVelocity(0.0, 0.0, 0.0);
 		break;
-	  case "control":
+	  case CONTROL:
     	if (getLocalPlayer().isElytraFlying()) {
     	  if(getLocalPlayer().isInWater()) {
     	      getNetworkManager()
