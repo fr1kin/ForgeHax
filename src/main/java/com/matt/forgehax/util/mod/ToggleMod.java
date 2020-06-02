@@ -35,14 +35,6 @@ public class ToggleMod extends BaseMod {
             .name("hidden")
             .description("Hides the mod from modlist")
             .defaultTo(defaultValue)
-            .changed(
-                cb -> {
-                  if (cb.getTo()) {
-                    start();
-                  } else {
-                    stop();
-                  }
-                })
             .build();
   }
   
