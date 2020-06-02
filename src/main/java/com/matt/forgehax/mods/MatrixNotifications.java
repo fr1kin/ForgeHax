@@ -89,6 +89,12 @@ public class MatrixNotifications extends ToggleMod {
     }
   }
   
+  public enum Provider {
+    DISCORD,
+    MATRIX
+  }
+
+  
   private final Setting<String> url =
       getCommandStub()
           .builders()
@@ -113,7 +119,7 @@ public class MatrixNotifications extends ToggleMod {
           .<String>newSettingBuilder()
           .name("skin-server-url")
           .description("URL to the skin server. If left empty then no image will be used.")
-          .defaultTo("https://minotar.net/helm/")
+          .defaultTo("https://visage.surgeplay.com/face/160/")
           .build();
   
   private final Setting<Integer> queue_notify_pos =
@@ -138,7 +144,7 @@ public class MatrixNotifications extends ToggleMod {
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("relay_chat")
+          .name("relay-chat")
           .description("Pass all chat messages to WebHook")
           .defaultTo(false)
           .build();
@@ -161,13 +167,13 @@ public class MatrixNotifications extends ToggleMod {
           .defaultTo(true)
           .build();
 
-  private final Setting<String> provider =
+  private final Setting<Provider> provider =
       getCommandStub()
           .builders()
-          .<String>newSettingBuilder()
+          .<Provider>newSettingEnumBuilder()
           .name("provider")
           .description("Either Matrix or Discord")
-          .defaultTo("Matrix")
+          .defaultTo(Provider.MATRIX)
           .build();
   
   public MatrixNotifications() {
@@ -242,23 +248,22 @@ public class MatrixNotifications extends ToggleMod {
   
   private void notify(String message) {
     JsonObject object = new JsonObject();
-	if (provider.get().equals("Discord")) {
-    	object.addProperty("content", message);
-    	object.addProperty("username", MC.getSession().getUsername());
-	} else {
-    	object.addProperty("text", message);
-    	object.addProperty("format", "plain");
-    	object.addProperty("displayName", MC.getSession().getUsername());
-	}
-    
     String id = getUriUuid();
-    if (!skin_server_url.get().isEmpty() && id != null) {
-	  if (provider.get().equals("Discord")) {
-        object.addProperty("avatar_url", skin_server_url.get() + id);
-	  } else {
-        object.addProperty("avatarUrl", skin_server_url.get() + id);
+    switch(provider.get()){
+      case DISCORD:
+    	  object.addProperty("content", message);
+    	  object.addProperty("username", MC.getSession().getUsername());
+        if (!skin_server_url.get().isEmpty() && id != null)
+          object.addProperty("avatar_url", skin_server_url.get() + id);
+	      break;
+      case MATRIX:
+    	  object.addProperty("text", message);
+    	  object.addProperty("format", "plain");
+    	  object.addProperty("displayName", MC.getSession().getUsername());
+        if (!skin_server_url.get().isEmpty() && id != null)
+          object.addProperty("avatarUrl", skin_server_url.get() + id);
+        break;
 	  }
-    }
     
     postAsync(url.get(), object);
   }
@@ -341,10 +346,10 @@ public class MatrixNotifications extends ToggleMod {
   public void onPacketRecieve(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketChat) {
       SPacketChat packet = event.getPacket();
-	  if (relay_chat.get()) {
+      if (relay_chat.get()) {
         ITextComponent comp = packet.getChatComponent();
         String text = comp.getUnformattedText();
-		notify(text);
+        notify(text);
       } else if (packet.getType() == ChatType.SYSTEM) {
         ITextComponent comp = packet.getChatComponent();
         if (comp.getSiblings().size() >= 2) {
