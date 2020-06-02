@@ -5,7 +5,6 @@ import static com.matt.forgehax.Helper.getNetworkManager;
 import com.matt.forgehax.asm.events.PacketEvent;
 
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
-import com.matt.forgehax.events.PlayerTravelEvent;
 import com.matt.forgehax.util.Switch.Handle;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.entity.LocalPlayerUtils;
