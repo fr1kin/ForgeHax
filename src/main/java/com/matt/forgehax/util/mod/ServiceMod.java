@@ -19,6 +19,11 @@ public class ServiceMod extends BaseMod {
   public boolean isHidden() {
     return true;
   }
+
+  @Override
+  public boolean notInList() {
+	return true;
+  }
   
   @Override
   public boolean isEnabled() {
@@ -43,6 +48,11 @@ public class ServiceMod extends BaseMod {
   
   @Override
   protected void onBindPressed(CallbackData cb) {
+  }
+
+  @Override
+  public boolean isInfoDisplayElement() {
+	return false;
   }
   
   @Override

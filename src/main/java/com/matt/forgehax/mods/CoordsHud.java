@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class CoordsHud extends HudMod {
   
   public CoordsHud() {
-    super(Category.RENDER, "CoordsHUD", false, "Display world coords");
+    super(Category.GUI, "CoordsHUD", false, "Display world coords");
   }
   
   private final Setting<Boolean> translate =
@@ -30,6 +30,15 @@ public class CoordsHud extends HudMod {
           .<Boolean>newSettingBuilder()
           .name("translate")
           .description("show corresponding Nether or Overworld coords")
+          .defaultTo(true)
+          .build();
+
+  private final Setting<Boolean> toniostyle =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("toniostyle")
+          .description("Makes coords fancier (IMO)")
           .defaultTo(true)
           .build();
   
@@ -76,18 +85,31 @@ public class CoordsHud extends HudMod {
   @SubscribeEvent
   public void onRenderOverlay(RenderGameOverlayEvent.Text event) {
     List<String> text = new ArrayList<>();
-    
-    if (!translate.get() || (translate.get() && multiline.get())) {
-      text.add(String.format("%01.1f, %01.0f, %01.1f", thisX, thisY, thisZ));
-    }
-    if (translate.get()) {
-      if (multiline.get()) {
-        text.add(String.format("(%01.1f, %01.1f)", otherX, otherZ));
-      } else {
-        text.add(String.format(
-            "%01.1f, %01.0f, %01.1f (%01.1f, %01.1f)", thisX, thisY, thisZ, otherX, otherZ));
+   	if (toniostyle.get()) {
+      if (!translate.get() || (translate.get() && multiline.get())) {
+        text.add(String.format("[ X %.1f | %.1f Z ] (%.0f Y)", thisX, thisZ, thisY));
       }
-    }
+      if (translate.get()) {
+        if (multiline.get()) {
+          text.add(String.format("[ %.1f | %.1f ]", otherX, otherZ));
+        } else {
+          text.add(String.format(
+              "[ X %.1f | %.1f Z ] (%.0f Y)      %.1f | %.1f", thisX, thisZ, thisY, otherX, otherZ));
+        }
+      }
+	} else { 
+      if (!translate.get() || (translate.get() && multiline.get())) {
+        text.add(String.format("%01.1f, %01.0f, %01.1f", thisX, thisY, thisZ));
+      }
+      if (translate.get()) {
+        if (multiline.get()) {
+          text.add(String.format("(%01.1f, %01.1f)", otherX, otherZ));
+        } else {
+          text.add(String.format(
+              "%01.1f, %01.0f, %01.1f (%01.1f, %01.1f)", thisX, thisY, thisZ, otherX, otherZ));
+        }
+      }
+	}
     
     SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
         Colors.WHITE.toBuffer(), scale.get(), true, alignment.get().ordinal());

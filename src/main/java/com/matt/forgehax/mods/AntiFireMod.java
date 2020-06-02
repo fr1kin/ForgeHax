@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AntiFireMod extends ToggleMod {
   
   public AntiFireMod() {
-    super(Category.PLAYER, "AntiFire", false, "Removes fire");
+    super(Category.WORLD, "AntiFire", false, "Removes fire");
   }
   
   private final Setting<Boolean> collisions =

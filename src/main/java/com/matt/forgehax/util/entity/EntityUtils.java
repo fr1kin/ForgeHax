@@ -54,6 +54,7 @@ public class EntityUtils implements Globals {
   }
   
   public static boolean isBatsDisabled = false;
+  public static boolean isSquidsDisabled = false;
   
   /**
    * Checks if the mob could be possibly hostile towards us (we can't detect their attack target
@@ -128,6 +129,7 @@ public class EntityUtils implements Globals {
     return (entity.isCreatureType(EnumCreatureType.CREATURE, false)
         && !EntityUtils.isNeutralMob(entity))
         || (entity.isCreatureType(EnumCreatureType.AMBIENT, false) && !isBatsDisabled)
+		|| (entity.isCreatureType(EnumCreatureType.WATER_CREATURE, false) && !isSquidsDisabled)
         || entity instanceof EntityVillager
         || entity instanceof EntityIronGolem
         || (isNeutralMob(entity) && !EntityUtils.isMobAggressive(entity));

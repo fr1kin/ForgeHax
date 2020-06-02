@@ -7,6 +7,7 @@ import com.matt.forgehax.util.command.callbacks.CallbackData;
 public class ToggleMod extends BaseMod {
   
   private final Setting<Boolean> enabled;
+  private final Setting<Boolean> nolist;
   
   public ToggleMod(Category category, String modName, boolean defaultValue, String description) {
     super(category, modName, description);
@@ -26,6 +27,14 @@ public class ToggleMod extends BaseMod {
                     stop();
                   }
                 })
+            .build();
+    this.nolist =
+        getCommandStub()
+            .builders()
+            .<Boolean>newSettingBuilder()
+            .name("hidden")
+            .description("Hides the mod from modlist")
+            .defaultTo(defaultValue)
             .build();
   }
   
@@ -49,6 +58,27 @@ public class ToggleMod extends BaseMod {
   public void disable() {
     enabled.set(false);
   }
+
+  /**
+   * Toggle mod to be displayed or not
+   */
+  public final void display() {
+    if (notInList()) {
+      hide();
+    } else {
+      show();
+    }
+  }
+  
+  @Override
+  public void hide() {
+    nolist.set(true);
+  }
+  
+  @Override
+  public void show() {
+    nolist.set(false);
+  }
   
   @Override
   protected StubBuilder buildStubCommand(StubBuilder builder) {
@@ -59,10 +89,23 @@ public class ToggleMod extends BaseMod {
   public String getDebugDisplayText() {
     return super.getDebugDisplayText();
   }
+
+  @Override
+  public boolean isInfoDisplayElement() {
+	return false;
+  }
   
+  /**
+   * Check if the mod is currently shown
+   */
   @Override
   public boolean isHidden() {
     return false;
+  }
+
+  @Override
+  public boolean notInList() {
+	return nolist.get();
   }
   
   /**

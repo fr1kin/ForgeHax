@@ -135,7 +135,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
           .build();
   
   public Nuker() {
-    super(Category.PLAYER, "Nuker", false, "Mine blocks around yourself");
+    super(Category.WORLD, "Nuker", false, "Mine blocks around yourself");
     this.bindSelect.setKeyConflictContext(BindingHelper.getEmptyKeyConflictContext());
     ClientRegistry.registerKeyBinding(this.bindSelect);
   }

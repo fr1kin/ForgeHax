@@ -58,7 +58,7 @@ public class MapDownloader extends ToggleMod {
           .build();
 
   public MapDownloader() {
-    super(Category.MISC, "MapDownloader", false, "Saves map items as images");
+    super(Category.WORLD, "MapDownloader", false, "Saves map items as images");
   }
 
   @Override

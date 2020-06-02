@@ -88,13 +88,18 @@ public class MatrixNotifications extends ToggleMod {
       SOCKET_FACTORY_REGISTRY = sf;
     }
   }
+
+  public enum Provider {
+    DISCORD,
+    MATRIX
+  }
   
   private final Setting<String> url =
       getCommandStub()
           .builders()
           .<String>newSettingBuilder()
           .name("url")
-          .description("URL to the Matrix web hook")
+          .description("URL to the WebHook")
           .defaultTo("")
           .build();
   
@@ -133,6 +138,15 @@ public class MatrixNotifications extends ToggleMod {
           .description("Message on connected to server")
           .defaultTo(true)
           .build();
+
+  private final Setting<Boolean> relay_chat =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("relay_chat")
+          .description("Pass all chat messages to WebHook")
+          .defaultTo(false)
+          .build();
   
   private final Setting<Boolean> on_disconnected =
       getCommandStub()
@@ -151,9 +165,18 @@ public class MatrixNotifications extends ToggleMod {
           .description("Message when player moves in the queue")
           .defaultTo(true)
           .build();
+
+  private final Setting<Provider> provider =
+      getCommandStub()
+          .builders()
+          .<Provider>newSettingEnumBuilder()
+          .name("provider")
+          .description("Either Matrix or Discord")
+          .defaultTo(Provider.MATRIX)
+          .build();
   
   public MatrixNotifications() {
-    super(Category.MISC, "MatrixNotifications", false, "Matrix notifications");
+    super(Category.CHAT, "WebNotify", false, "Send notifications via WebHook. Either on Discord or Matrix");
   }
   
   private boolean joined = false;
@@ -194,7 +217,7 @@ public class MatrixNotifications extends ToggleMod {
     EXECUTOR.submit(() -> {
       try {
         HttpResponse res = post(url, json);
-        if (res.getStatusLine().getStatusCode() != 200) {
+        if (res.getStatusLine().getStatusCode() != 200 && res.getStatusLine().getStatusCode() != 204) {
           throw new Error("got response code " + res.getStatusLine().getStatusCode());
         }
       } catch (Throwable t) {
@@ -224,15 +247,21 @@ public class MatrixNotifications extends ToggleMod {
   
   private void notify(String message) {
     JsonObject object = new JsonObject();
-    object.addProperty("text", message);
-    object.addProperty("format", "plain");
-    object.addProperty("displayName", MC.getSession().getUsername());
-    
     String id = getUriUuid();
-    if (!skin_server_url.get().isEmpty() && id != null) {
-      object.addProperty("avatarUrl", skin_server_url.get() + id);
-    }
-    
+	switch(provider.get()) {
+	  case DISCORD:
+    	object.addProperty("content", message);
+    	object.addProperty("username", MC.getSession().getUsername());
+    	if (!skin_server_url.get().isEmpty() && id != null)
+          object.addProperty("avatar_url", skin_server_url.get() + id);
+		break;
+	  case MATRIX:
+    	object.addProperty("text", message);
+    	object.addProperty("format", "plain");
+    	object.addProperty("displayName", MC.getSession().getUsername());
+    	if (!skin_server_url.get().isEmpty() && id != null)
+        	object.addProperty("avatarUrl", skin_server_url.get() + id);
+	}
     postAsync(url.get(), object);
   }
   
@@ -314,7 +343,11 @@ public class MatrixNotifications extends ToggleMod {
   public void onPacketRecieve(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketChat) {
       SPacketChat packet = event.getPacket();
-      if (packet.getType() == ChatType.SYSTEM) {
+	  if (relay_chat.get()) {
+        ITextComponent comp = packet.getChatComponent();
+        String text = comp.getUnformattedText();
+		notify(text);
+      } else if (packet.getType() == ChatType.SYSTEM) {
         ITextComponent comp = packet.getChatComponent();
         if (comp.getSiblings().size() >= 2) {
           String text = comp.getSiblings().get(0).getUnformattedText();

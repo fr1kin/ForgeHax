@@ -34,7 +34,7 @@ public class RegionBorder extends ToggleMod {
 
 
   public RegionBorder() {
-    super(Category.RENDER, "RegionBorder", false, "Shows a border in front of the edge of the region you are in.");
+    super(Category.WORLD, "RegionBorder", false, "Shows a border in front of the edge of the region you are in.");
   }
 
   /**

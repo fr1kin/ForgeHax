@@ -31,7 +31,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class ChunkLogger extends ToggleMod {
   
   public ChunkLogger() {
-    super(Category.MISC, "ChunkLogger", false, "Show new chunks");
+    super(Category.WORLD, "ChunkLogger", false, "Show new chunks");
   }
   
   enum ShowChunkEnum {

@@ -22,15 +22,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @RegisterMod
 public class ActiveModList extends HudMod {
   
-  private final Setting<Boolean> tps_meter =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("tps-meter")
-          .description("Shows the server tps")
-          .defaultTo(true)
-          .build();
-  
   private final Setting<Boolean> debug =
       getCommandStub()
           .builders()
@@ -40,23 +31,12 @@ public class ActiveModList extends HudMod {
           .defaultTo(false)
           .build();
   
-  private final Setting<Integer> factor =
-      getCommandStub()
-          .builders()
-          .<Integer>newSettingBuilder()
-          .name("factor")
-          .description("Splitting up the tick rate data")
-          .defaultTo(25)
-          .min(1)
-          .max(100)
-          .build();
-  
-  private final Setting<Boolean> showLag =
+  private final Setting<Boolean> condense =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("showLag")
-          .description("Shows lag time since last tick")
+          .name("condense")
+          .description("Condense ModList when chat is open")
           .defaultTo(true)
           .build();
   
@@ -77,56 +57,9 @@ public class ActiveModList extends HudMod {
   protected int getDefaultOffsetY() { return 1; }
   @Override
   protected double getDefaultScale() { return 1d; }
-  
+
   public ActiveModList() {
-    super(Category.RENDER, "ActiveMods", true, "Shows list of all active mods");
-  }
-  
-  @Override
-  public boolean isHidden() {
-    return true;
-  }
-  
-  private String generateTickRateText() {
-    StringBuilder builder = new StringBuilder("Tick-rate: ");
-    TickRateService.TickRateData data = TickRateService.getTickData();
-    if (data.getSampleSize() <= 0) {
-      builder.append("No tick data");
-    } else {
-      int factor = this.factor.get();
-      int sections = data.getSampleSize() / factor;
-      if ((sections * factor) < data.getSampleSize()) {
-        TickRateService.TickRateData.CalculationData point = data.getPoint();
-        builder.append(String.format("%.2f", point.getAverage()));
-        builder.append(" (");
-        builder.append(data.getSampleSize());
-        builder.append(")");
-        if (sections > 0) builder.append(", ");
-      }
-      if (sections > 0) {
-        for (int i = sections; i > 0; i--) {
-          int at = i * factor;
-          TickRateService.TickRateData.CalculationData point = data.getPoint(at);
-          builder.append(String.format("%.2f", point.getAverage()));
-          builder.append(" (");
-          builder.append(at);
-          builder.append(")");
-          if ((i - 1) != 0) builder.append(", ");
-        }
-      }
-    }
-    
-    if (showLag.get()) {
-      long lastTickMs = TickRateService.getInstance().getLastTimeDiff();
-      
-      if (lastTickMs < 1000) {
-        builder.append(", 0.0s");
-      } else {
-        builder.append(String.format(", %01.1fs", ((float) (lastTickMs - 1000)) / 1000));
-      }
-    }
-    
-    return builder.toString();
+    super(Category.GUI, "ActiveMods", true, "Shows list of all active mods");
   }
   
   @SubscribeEvent
@@ -135,27 +68,30 @@ public class ActiveModList extends HudMod {
     
     List<String> text = new ArrayList<>();
     
-    if (tps_meter.get()) {
-      text.add(generateTickRateText());
-    }
-    
-    if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
+    if ((condense.get() && MC.currentScreen instanceof GuiChat) || MC.gameSettings.showDebugInfo) {
+      long totalMods = getModManager()
+          .getMods()
+          .stream()
+          .filter(mod -> !mod.isHidden())
+          .count();
       long enabledMods = getModManager()
           .getMods()
           .stream()
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
+          .filter(mod -> !mod.notInList())
           .count();
-      text.add(enabledMods + " mods enabled");
+      text.add(enabledMods + "/" + totalMods + " mods enabled");
     } else {
       getModManager()
           .getMods()
           .stream()
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
+          .filter(mod -> !mod.notInList())
           .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
           .sorted(sortMode.get().getComparator())
-          .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? ">" + name : name + "<"));
+          .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + name : name + " <"));
     }
   
     SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),

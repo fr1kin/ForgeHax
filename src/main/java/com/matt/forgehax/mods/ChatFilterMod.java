@@ -34,7 +34,14 @@ public class ChatFilterMod extends ToggleMod {
           .build();
 
   public ChatFilterMod() {
-    super(Category.MISC, "ChatFilter", false, "Filter chat by regex");
+    super(Category.CHAT, "ChatFilter", false, "Filter chat by regex");
+  }
+
+  private int filtered = 0;
+
+  @Override
+  public String getDisplayText() {
+    return (getModName() + " [" + filtered + "]");
   }
 
   @SubscribeEvent
@@ -50,6 +57,7 @@ public class ChatFilterMod extends ToggleMod {
 
       if (shouldFilter) {
         event.setCanceled(true);
+		filtered++;
       }
     }
   }

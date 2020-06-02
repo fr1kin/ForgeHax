@@ -197,7 +197,7 @@ public class FancyChat extends ToggleMod {
           .build();
   
   public FancyChat() {
-    super(Category.MISC, "FancyChat", false, "meme text");
+    super(Category.CHAT, "FancyChat", false, "meme text");
   }
   
   @Override

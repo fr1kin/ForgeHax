@@ -60,6 +60,11 @@ public abstract class HudMod extends ToggleMod {
             .defaultTo(getDefaultScale())
             .build();
   }
+
+  @Override
+  public boolean notInList() {
+	return true;
+  }
   
   // no need to recalc each frame but okay (on GuiScale and Settings change only)
   public final int getPosX(int extraOffset) {

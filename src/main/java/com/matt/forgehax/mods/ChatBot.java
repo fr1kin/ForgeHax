@@ -65,7 +65,7 @@ public class ChatBot extends ToggleMod {
           .build();
   
   public ChatBot() {
-    super(Category.MISC, "ChatBot", false, "Spam chat");
+    super(Category.CHAT, "ChatBot", false, "Spam chat");
   }
   
   @Override

@@ -27,7 +27,7 @@ public class ThisModIsDedicatedToUfoCrossing extends ToggleMod {
           .build();
 
   public ThisModIsDedicatedToUfoCrossing() {
-    super(Category.MISC, "ThisModIsDedicatedToUfoCrossing", false, "Automatically send a message to whoever comes into render distance");
+    super(Category.CHAT, "MessageNearby", false, "Automatically send a message to whoever comes into render distance");
   }
 
   @SubscribeEvent

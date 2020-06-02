@@ -1,7 +1,7 @@
 package com.matt.forgehax.util.mod;
-
+  
 import static com.matt.forgehax.Helper.getGlobalCommand;
-
+  
 import com.matt.forgehax.Globals;
 import com.matt.forgehax.util.command.Command;
 import com.matt.forgehax.util.command.ExecuteData;
@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import joptsimple.internal.Strings;
 import net.minecraftforge.common.MinecraftForge;
-
+  
 public abstract class BaseMod implements Globals {
   
   // name of the mod
@@ -95,6 +95,12 @@ public abstract class BaseMod implements Globals {
   
   public void disable() {
     stop();
+  }
+
+  public void hide() {
+  }
+  
+  public void show() {
   }
   
   /**
@@ -187,7 +193,18 @@ public abstract class BaseMod implements Globals {
    * Check if the mod is hidden DEFAULT: true
    */
   public abstract boolean isHidden();
-  
+
+
+  /**
+   * Hides a mod from the ModList
+   */ 
+  public abstract boolean notInList();
+
+  /**
+   * Check if the mod is an element of InfoDisplay mod DEFAULT: true
+   */
+  public abstract boolean isInfoDisplayElement();
+
   /**
    * Check if the mod is enabled
    */
@@ -254,7 +271,11 @@ public abstract class BaseMod implements Globals {
   public String getDisplayText() {
     return getModName();
   }
-  
+
+  public String getInfoDisplayText() {
+    return getInfoDisplayText();
+  }
+
   public String getDebugDisplayText() {
     return getDisplayText();
   }

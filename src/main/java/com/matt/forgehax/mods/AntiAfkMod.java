@@ -112,7 +112,7 @@ public class AntiAfkMod extends ToggleMod {
   private TaskEnum task = TaskEnum.NONE;
   
   public AntiAfkMod() {
-    super(Category.PLAYER, "AntiAFK", false, "Swing arm to prevent being afk kicked");
+    super(Category.MISC, "AntiAFK", false, "Swing arm to prevent being afk kicked");
     
     TaskEnum.SWING.setParentSetting(swing);
     TaskEnum.WALK.setParentSetting(walk);

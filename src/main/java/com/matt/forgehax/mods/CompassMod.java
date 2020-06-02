@@ -36,7 +36,7 @@ public class CompassMod extends ToggleMod {
   }
   
   public CompassMod() {
-    super(Category.RENDER, "Compass", false, "cool compass overlay");
+    super(Category.GUI, "Compass", false, "cool compass overlay");
   }
   
   @SubscribeEvent
