@@ -4,6 +4,8 @@ import java.util.stream.Collectors;
 
 import static com.matt.forgehax.Helper.getWorld;
 import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.util.math.VectorUtils.distance;
+import static com.matt.forgehax.Helper.getLocalPlayer;
 
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.command.Setting;
@@ -70,6 +72,8 @@ public class PlayerList extends HudMod {
       int align = alignment.get().ordinal();
 	  List<String> text = new ArrayList<>();
 
+      EntityPlayer player = getLocalPlayer();
+
       // Prints all the "InfoDisplayElement" mods
       getWorld()
         .loadedEntityList
@@ -79,7 +83,8 @@ public class PlayerList extends HudMod {
           entity ->
             !Objects.equals(getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
 		.map(entity -> (EntityPlayer) entity)
-        .map(entity -> entity.getDisplayName().getUnformattedText() + String.format(" [%.1f HP]", entity.getHealth()))
+        .map(entity -> String.format("%s [%.1f HP] - %.1fm", entity.getDisplayName().getUnformattedText(), entity.getHealth(),
+										distance(entity.posX, entity.posY, entity.posZ, player.posX, player.posY, player.posZ)))
         .sorted(sortMode.get().getComparator())
         .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + name : name + " <"));
 
