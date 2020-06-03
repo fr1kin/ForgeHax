@@ -52,15 +52,22 @@ public class ClickGui extends GuiScreen implements Globals {
     // TODO: load from settings
     // TODO: improve this a bit maybe
     for (int i = 0; i < windowList.size(); i++) {
-      int x =
-        (i + 1) * scaledRes.getScaledWidth() / (windowList.size() + 1)
-          - windowList.get(i).width / 2
-          - 10;
-      int y = scaledRes.getScaledHeight() / 15;
+      final int x = (i + 3) / 2 * scaledRes.getScaledWidth() / (windowList.size() - 2)
+          - windowList.get(i).width / 2;
+      final int y = scaledRes.getScaledHeight() / 25 + order(i) * scaledRes.getScaledHeight() / 2;
+
+      // Here check if the window goes offscreen, if true push it down all the others
       windowList.get(i).setPosition(x, y);
     }
   }
-  
+
+  private int order(final int i) {
+    if(i < 2) {
+      return 0;
+    }
+    return (i + 1) % 2; // Distance between windows
+  }
+
   public static ClickGui getInstance() {
     return (INSTANCE == null) ? (INSTANCE = new ClickGui()) : INSTANCE;
   }

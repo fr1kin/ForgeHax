@@ -5,6 +5,7 @@ import static com.matt.forgehax.Helper.getModManager;
 
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.gui.elements.GuiButton;
+import com.matt.forgehax.mods.ActiveModList;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.draw.SurfaceHelper;
@@ -39,33 +40,28 @@ public class GuiWindowMod extends GuiWindow {
     category = categoryIn;
     addModsToButtonList();
   }
-  
+
   private void addModsToButtonList() {
-    int maxWidth = 0;
     int newHeight = 0;
     for (BaseMod mod : getModManager().getMods()) {
       if (mod.getModCategory().equals(category) && !mod.isHidden()) {
         GuiButton moduleButton = new GuiButton(mod);
         buttonList.add(moduleButton);
-        
+
         newHeight += GuiButton.height + 1;
-        
-        String name = moduleButton.getName();
-        int width = SurfaceHelper.getTextWidth(name);
-        if (width > maxWidth) {
-          maxWidth = width;
-        }
+        height = Math.min(maxHeight, newHeight + 3);
       }
     }
-    height = Math.min(maxHeight, newHeight + 3);
-    width = maxWidth + 15; // set the width of window to the width of the longest mod name
+
+    width = 90;
   }
   
   private void drawModTooltip(BaseMod mod, int xScaled, int yScaled) {
     int scale = ClickGui.scaledRes.getScaleFactor();
-    
+
     String modName = mod.getModName();
     String modDescription = mod.getModDescription();
+
     int offset = 2;
     int tooltipX = xScaled / scale + offset;
     int tooltipY = yScaled / scale + offset;
@@ -105,13 +101,13 @@ public class GuiWindowMod extends GuiWindow {
   public void drawWindow(int mouseX, int mouseY) {
     super.drawWindow(mouseX, mouseY);
     windowY = headerY + 22;
-    
+  
     SurfaceHelper.drawOutlinedRectShaded(
       posX, windowY, width, height, Colors.GRAY.toBuffer(), 80, 3);
     int buttonY = windowY - buttonListOffset + 2;
-    
+  
     int scale = ClickGui.scaledRes.getScaleFactor();
-    
+
     GL11.glPushMatrix();
     int scissorY = MC.displayHeight - (scale * windowY + scale * height - 3);
     GL11.glScissor(scale * posX, scissorY, scale * width, scale * height - 8);
@@ -128,7 +124,7 @@ public class GuiWindowMod extends GuiWindow {
     }
     GL11.glDisable(GL11.GL_SCISSOR_TEST);
     GL11.glPopMatrix();
-    
+  
     // update variables
     bottomX = posX + width; // set the coords of the bottom right corner for mouse coord testing
     bottomY = windowY + height;
@@ -149,17 +145,23 @@ public class GuiWindowMod extends GuiWindow {
       }
     }
   }
-  
+
+  /**
+   * Used for toggling mods in the ClickGui
+   * 0 == Left Click 1 == Right Click 2 == Middle Click
+   */
   public void mouseClicked(int x, int y, int state) {
     super.mouseClicked(x, y, state);
-    for (GuiButton button : buttonList) {
-      if (x > button.x
-        && x < (button.x + width)
-        && y > button.y
-        && y < (button.y + GuiButton.height)
-        && !isMouseInHeader(x, y)) {
-        button.toggleMod();
-        break;
+    if (state == 0) {
+      for (GuiButton button : buttonList) {
+        if (x > button.x
+          && x < (button.x + width)
+          && y > button.y
+          && y < (button.y + GuiButton.height)
+          && !isMouseInHeader(x, y)) {
+          button.toggleMod();
+          break;
+        }
       }
     }
   }
@@ -171,7 +173,7 @@ public class GuiWindowMod extends GuiWindow {
     buttonListOffset -= i * 10;
     
     if (buttonListOffset < 0) {
-      buttonListOffset = 0; // dont scroll up if its already at the top
+      buttonListOffset = 0; // don't scroll up if its already at the top
     }
     
     int lowestButtonY = (GuiButton.height + 1) * buttonList.size() + windowY;
