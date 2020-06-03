@@ -62,6 +62,8 @@ public class ActiveModList extends HudMod {
     super(Category.GUI, "ActiveMods", true, "Shows list of all active mods");
   }
   
+  int posY;
+
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     int align = alignment.get().ordinal();
@@ -94,7 +96,14 @@ public class ActiveModList extends HudMod {
           .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + name : name + " <"));
     }
   
-    SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
+    // Shift up when chat is open && alignment is at bottom
+    if (alignment.get().toString().startsWith("BOTTOM") && MC.currentScreen instanceof GuiChat) {
+      posY = getPosY(offsetY.get() + 15);
+    } else {
+      posY = getPosY(offsetY.get() + 0);
+    }
+
+    SurfaceHelper.drawTextAlign(text, getPosX(0), posY,
         Colors.WHITE.toBuffer(), scale.get(), true, align);
   }
   

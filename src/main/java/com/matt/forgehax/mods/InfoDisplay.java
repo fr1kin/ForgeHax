@@ -80,14 +80,13 @@ public class InfoDisplay extends HudMod {
 
       // Shift up when chat is open && alignment is at bottom
       if (alignment.get().toString().startsWith("BOTTOM") && MC.currentScreen instanceof GuiChat) {
-        posY = getPosY(15);
+        posY = getPosY(offsetY.get() + 15);
       } else {
-        posY = getPosY(0);
+        posY = getPosY(offsetY.get() + 0);
       }
 
       // Prints on screen
-      SurfaceHelper.drawTextAlign(text, getPosX(offsetX.get()),
-        getPosY(offsetY.get()),
+      SurfaceHelper.drawTextAlign(text, getPosX(offsetX.get()), posY,
         Colors.WHITE.toBuffer(), scale.get(), true, align);
     }
   }

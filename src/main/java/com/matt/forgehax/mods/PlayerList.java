@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.*;
 
@@ -29,10 +30,10 @@ import static com.matt.forgehax.util.draw.SurfaceHelper.getTextHeight;
  * may 2020
  */
 @RegisterMod
-public class EntityList extends HudMod {
+public class PlayerList extends HudMod {
 
-  public EntityList() {
-    super(Category.GUI, "EntityList", false, "Displays a list of all rendered entities");
+  public PlayerList() {
+    super(Category.GUI, "PlayerList", false, "Displays nearby players and some stats");
   }
 
   private final Setting<SortMode> sortMode =
@@ -67,32 +68,22 @@ public class EntityList extends HudMod {
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     if (!MC.gameSettings.showDebugInfo) {
       int align = alignment.get().ordinal();
-      List<String> entityList = new ArrayList<>();
 	  List<String> text = new ArrayList<>();
 
       // Prints all the "InfoDisplayElement" mods
       getWorld()
         .loadedEntityList
         .stream()
-        // .filter(EntityUtils::isLiving)
+        .filter(EntityUtils::isPlayer)
         .filter(
           entity ->
             !Objects.equals(getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
-        // .filter(EntityUtils::isAlive)
-        .filter(EntityUtils::isValidEntity)
-        .map(entity -> entity.getDisplayName().getUnformattedText())
+		.map(entity -> (EntityPlayer) entity)
+        .map(entity -> entity.getDisplayName().getUnformattedText() + String.format(" [%.1f HP]", entity.getHealth()))
         .sorted(sortMode.get().getComparator())
-        .forEach(name -> entityList.add(name));
-	  
-	  String buf = "";
-	  int num = 0;
-	  for (String element : entityList.stream().distinct().collect(Collectors.toList())) {
-		buf = String.format("%s", element);
-		num = Collections.frequency(entityList, element);
-		if (num > 1) buf += String.format(" (x%d)", num);
-		text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + buf : buf + " <");
-	  }
+        .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + name : name + " <"));
 
+	  
       // Shift up when chat is open && alignment is at bottom
       if (alignment.get().toString().startsWith("BOTTOM") && MC.currentScreen instanceof GuiChat) {
         posY = getPosY(offsetY.get() + 15);
