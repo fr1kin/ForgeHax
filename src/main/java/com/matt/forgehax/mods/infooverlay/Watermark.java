@@ -1,6 +1,6 @@
 package com.matt.forgehax.mods.infooverlay;
 
-import java.util.Random;
+import static com.matt.forgehax.Helper.printError;
 
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -22,7 +22,6 @@ public class Watermark extends HudMod {
     super(Category.GUI, "Watermark", true, "Display a watermark on your screen");
   }
 
-  Random random = new Random();
   private int color = 0;
 
   private final Setting<String> text =
@@ -39,8 +38,8 @@ public class Watermark extends HudMod {
       .builders()
       .<Boolean>newSettingBuilder()
       .name("rainbow")
-      .description("Change color according to server ticks")
-      .defaultTo(false)
+      .description("Change color every 4 ticks")
+      .defaultTo(true)
       .build();
 
   @Override
@@ -55,7 +54,12 @@ public class Watermark extends HudMod {
   @SubscribeEvent
   public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketTimeUpdate) {
-	  color = Color.of(Math.random(), Math.random(), Math.random(), 1.0f).toBuffer();
+	  int r, g, b;
+	  r = (int) (Math.random() * 255);
+	  g = (int) (Math.random() * 255);
+	  b = (int) (Math.random() * 255);
+	  if (debug.get()) printError(String.format("Colors : R %d | G %d | B %d", r, g, b));
+	  color = Color.of(r, g, b, (int) 255).toBuffer();
     }
   }
 
