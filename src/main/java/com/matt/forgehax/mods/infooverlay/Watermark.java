@@ -30,7 +30,7 @@ public class Watermark extends HudMod {
       .<String>newSettingBuilder()
       .name("text")
       .description("Watermark text")
-      .defaultTo("ForgeHax 2.10.0")
+      .defaultTo("ForgeHax 2.10")
       .build();
 
   private final Setting<Boolean> rainbow =
@@ -58,7 +58,6 @@ public class Watermark extends HudMod {
 	  r = (int) (Math.random() * 255);
 	  g = (int) (Math.random() * 255);
 	  b = (int) (Math.random() * 255);
-	  if (debug.get()) printError(String.format("Colors : R %d | G %d | B %d", r, g, b));
 	  color = Color.of(r, g, b, (int) 255).toBuffer();
     }
   }
