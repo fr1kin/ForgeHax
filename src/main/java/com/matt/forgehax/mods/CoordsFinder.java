@@ -4,6 +4,7 @@ import static com.matt.forgehax.Helper.getFileManager;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
 import static com.matt.forgehax.Helper.printInform;
+import static com.matt.forgehax.util.math.VectorUtils.distance;
 import static java.util.Objects.isNull;
 
 import com.matt.forgehax.asm.events.PacketEvent;
@@ -49,7 +50,7 @@ public class CoordsFinder extends ToggleMod {
           .name("lighting-min-dist")
           .description("how far a lightning strike has to be from you to get logged")
           .min(0)
-          .defaultTo(32)
+          .defaultTo(64)
           .build();
   
   @SuppressWarnings("WeakerAccess")

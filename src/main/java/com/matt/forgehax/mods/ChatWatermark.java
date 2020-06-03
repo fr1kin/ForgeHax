@@ -23,11 +23,11 @@ public class ChatWatermark extends ToggleMod {
           .<String>newSettingBuilder()
           .name("text")
           .description("Text to add at the end of messages")
-          .defaultTo(" | imagine using closed source clients")
+          .defaultTo("imagine using closed source clients")
           .build();
   
   public ChatWatermark() {
-    super(Category.CHAT, "ChatWatermark", true, "Add text after your chat to be ever cringier");
+    super(Category.CHAT, "ChatWatermark", false, "Add text after your chat to be ever cringier");
   }
   
   @SubscribeEvent
@@ -37,7 +37,7 @@ public class ChatWatermark extends ToggleMod {
       
       String inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
 	  if (!inputMessage.startsWith("/")) {
-          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + text.get());
+          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + " │ " + text.get());
           PacketHelper.ignore(packet);
           getNetworkManager().sendPacket(packet);
           event.setCanceled(true);

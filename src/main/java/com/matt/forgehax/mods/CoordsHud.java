@@ -87,14 +87,14 @@ public class CoordsHud extends HudMod {
     List<String> text = new ArrayList<>();
    	if (toniostyle.get()) {
       if (!translate.get() || (translate.get() && multiline.get())) {
-        text.add(String.format("[ X %.1f | %.1f Z ] (%.0f Y)", thisX, thisZ, thisY));
+        text.add(String.format("[ X %.1f │ %.1f Z ] (%.0f Y)", thisX, thisZ, thisY));
       }
       if (translate.get()) {
         if (multiline.get()) {
-          text.add(String.format("[ %.1f | %.1f ]", otherX, otherZ));
+          text.add(String.format("[ %.1f │ %.1f ]", otherX, otherZ));
         } else {
           text.add(String.format(
-              "[ X %.1f | %.1f Z ] (%.0f Y)      %.1f | %.1f", thisX, thisZ, thisY, otherX, otherZ));
+              "[ X %.1f │ %.1f Z ] (%.0f Y)      %.1f │ %.1f", thisX, thisZ, thisY, otherX, otherZ));
         }
       }
 	} else { 
