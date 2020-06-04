@@ -110,11 +110,9 @@ public class EntityESP extends ToggleMod {
   
   @SubscribeEvent(priority = EventPriority.LOW)
   public void onRender2D(final Render2DEvent event) {
-	if (getWorld() == null) return;
     getWorld()
       .loadedEntityList
       .stream()
-      .filter(entity -> entity != null)
       .filter(EntityUtils::isLiving)
       .filter(
         entity ->
@@ -136,25 +134,24 @@ public class EntityESP extends ToggleMod {
 			  if (!mobs_friendly.get()) return;
               break;
           }
-          AxisAlignedBB bb = living.getEntityBoundingBox();
-          Vec3d topPos = new Vec3d(bb.maxX, bb.maxY, bb.maxZ);
-          // Vec3d topPosR = new Vec3d((bb.maxX - bb.minX)/2, bb.maxY, (bb.maxZ - bb.minZ)/2);
-          Vec3d botPos = new Vec3d(bb.minX, bb.minY, bb.minZ);
-          // Vec3d botPosR = new Vec3d((bb.maxX - bb.minX)/2, bb.minY, (bb.maxZ - bb.minZ)/2);
+          
+          Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
+          Vec3d topPos =
+            bottomPos.addVector(0.D, living.getRenderBoundingBox().maxY - living.posY, 0.D);
           
           Plane top = VectorUtils.toScreen(topPos);
-          // Plane topR = VectorUtils.toScreen(topPosR);
-          Plane bot = VectorUtils.toScreen(botPos);
-          // Plane botR = VectorUtils.toScreen(botPosR);
+          Plane bot = VectorUtils.toScreen(bottomPos);
           
-          // double height = Math.max(bot.getY() - top.getY(), botR.getY() - topR.getY());
-          double height = bot.getY() - top.getY();
+          double topX = top.getX();
+          double topY = top.getY() + 1.D;
+          double botX = bot.getX();
+          double botY = bot.getY() + 1.D;
+          double height = (bot.getY() - top.getY());
           double width = height;
-          // double width = Math.max(bot.getX() - top.getX(), botR.getX() - topR.getX());
 	  	  int color = Color.of(red.get(), green.get(), blue.get(), alpha.get()).toBuffer();
   		
-		  drawOutlinedRect((int) (top.getX() - (width/2)), (int) (top.getY() + 1.D),
-                           (int) width, (int) height, color, linewidth.get());
+		  drawOutlinedRect((int) (topX - (width/2)), (int) topY, (int) width, (int) height,
+		  					color, linewidth.get());
           
         });
   }
