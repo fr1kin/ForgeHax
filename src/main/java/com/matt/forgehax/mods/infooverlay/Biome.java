@@ -1,10 +1,10 @@
 package com.matt.forgehax.mods.infooverlay;
 
-import com.matt.forgehax.mods.CoordsHud;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
@@ -12,11 +12,10 @@ import net.minecraft.util.math.BlockPos;
 import static com.matt.forgehax.Helper.*;
 
 @RegisterMod
-public class LightLevel extends ToggleMod {
+public class Biome extends ToggleMod {
 
-  public LightLevel() {
-    super(Category.GUI, "LightLevel", false,
-      "Shows the light level of the block you're currently standing on");
+  public Biome() {
+    super(Category.GUI, "Biome", false, "Shows the biome you're currently in");
   }
 
   public enum Mode {
@@ -43,7 +42,6 @@ public class LightLevel extends ToggleMod {
   double thisZ;
 
   public String getInfoDisplayText() {
-
     switch (mode.get()) {
       case VIEWENTITY: {
         Entity viewEntity = getRenderEntity();
@@ -63,6 +61,6 @@ public class LightLevel extends ToggleMod {
 
     BlockPos position = new BlockPos(thisX, thisY ,thisZ);
 
-    return "Light: " + String.format("%s", MC.world.getLight(position));
+    return "Biome: " + String.format("%s", MC.world.getBiomeForCoordsBody(position).getBiomeName());
   }
 }

@@ -51,10 +51,13 @@ public class ActiveModList extends HudMod {
   
   @Override
   protected Align getDefaultAlignment() { return Align.TOPLEFT; }
+
   @Override
   protected int getDefaultOffsetX() { return 1; }
+
   @Override
   protected int getDefaultOffsetY() { return 1; }
+
   @Override
   protected double getDefaultScale() { return 1d; }
 
@@ -76,12 +79,12 @@ public class ActiveModList extends HudMod {
           .stream()
           .filter(mod -> !mod.isHidden())
           .count();
+
       long enabledMods = getModManager()
           .getMods()
           .stream()
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
-          .filter(mod -> !mod.notInList())
           .count();
       text.add(enabledMods + "/" + totalMods + " mods enabled");
     } else {
@@ -91,6 +94,7 @@ public class ActiveModList extends HudMod {
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
           .filter(mod -> !mod.notInList())
+          .filter(mod -> !mod.isInfoDisplayElement())
           .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
           .sorted(sortMode.get().getComparator())
           .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + name : name + " <"));
@@ -100,7 +104,7 @@ public class ActiveModList extends HudMod {
     if (alignment.get().toString().startsWith("BOTTOM") && MC.currentScreen instanceof GuiChat) {
       posY = getPosY(offsetY.get() + 15);
     } else {
-      posY = getPosY(offsetY.get() + 0);
+      posY = getPosY(offsetY.get());
     }
 
     SurfaceHelper.drawTextAlign(text, getPosX(0), posY,
