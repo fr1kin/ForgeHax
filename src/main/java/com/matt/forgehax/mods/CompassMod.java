@@ -25,14 +25,23 @@ public class CompassMod extends ToggleMod {
           .description("size of the compass")
           .defaultTo(3.D)
           .build();
+
+  public final Setting<Boolean> axis =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("axis")
+          .description("Shows axis instead of cardinal directions")
+          .defaultTo(false)
+          .build();
   
   private static final double HALF_PI = Math.PI / 2;
   
   private enum Direction {
-    N,
-    W,
-    S,
-    E
+    N, // -Z
+    W, // -X
+    S, // +Z
+    E  // +X
   }
   
   public CompassMod() {
@@ -44,10 +53,21 @@ public class CompassMod extends ToggleMod {
     final double centerX = event.getScreenWidth() / 2;
     final double centerY = event.getScreenHeight() * 0.8;
     
+	String dir_name = "";
     for (Direction dir : Direction.values()) {
       double rad = getPosOnCompass(dir);
+	  if (axis.get()) {
+		switch(dir) {
+		  case N: dir_name = "-Z"; break;
+		  case W: dir_name = "-X"; break;
+		  case S: dir_name = "+Z"; break;
+		  case E: dir_name = "+X"; break;
+		}
+	  } else {
+		dir_name = dir.name();
+	  }
       SurfaceHelper.drawTextShadowCentered(
-          dir.name(),
+          dir_name,
           (float) (centerX + getX(rad)),
           (float) (centerY + getY(rad)),
           dir == Direction.N ? Colors.RED.toBuffer() : Colors.WHITE.toBuffer());
