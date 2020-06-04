@@ -15,7 +15,7 @@ import org.lwjgl.input.Mouse;
 public class ManualDeleteMod extends ToggleMod {
   
   public ManualDeleteMod() {
-    super(Category.WORLD, "ManualEntityDelete", false,
+    super(Category.WORLD, "EntityDelete", false,
         "Manually delete entities with middle click");
   }
   

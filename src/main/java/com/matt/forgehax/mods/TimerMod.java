@@ -27,7 +27,7 @@ public class TimerMod extends ToggleMod {
           .<Float>newSettingBuilder()
           .name("speed")
           .description("how fast to make the game run")
-          .defaultTo(1f)
+          .defaultTo(0.33f)
           .min(0f)
           .success(__ -> {
             if (this.isEnabled()) {

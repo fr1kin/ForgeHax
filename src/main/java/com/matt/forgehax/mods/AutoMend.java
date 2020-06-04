@@ -22,7 +22,7 @@ public class AutoMend extends ToggleMod {
         Category.PLAYER,
         "AutoMend",
         false,
-        "Automatically swap item in offhand with another valid item once its fully repaired");
+        "Swap item in offhand with another item once its fully repaired");
   }
   
   private boolean isMendable(InvItem item) {

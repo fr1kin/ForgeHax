@@ -37,7 +37,7 @@ public class ChatWatermark extends ToggleMod {
       
       String inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
 	  if (!inputMessage.startsWith("/")) {
-          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + " │ " + text.get());
+          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + " ⏐ " + text.get());
           PacketHelper.ignore(packet);
           getNetworkManager().sendPacket(packet);
           event.setCanceled(true);

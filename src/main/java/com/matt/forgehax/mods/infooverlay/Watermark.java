@@ -30,7 +30,7 @@ public class Watermark extends HudMod {
       .<String>newSettingBuilder()
       .name("text")
       .description("Watermark text")
-      .defaultTo("ForgeHax 2.10")
+      .defaultTo("ForgeHax 2.10.0")
       .build();
 
   private final Setting<Boolean> rainbow =
@@ -45,11 +45,11 @@ public class Watermark extends HudMod {
   @Override
   protected Align getDefaultAlignment() { return Align.TOPLEFT; }
   @Override
-  protected int getDefaultOffsetX() { return 80; }
+  protected int getDefaultOffsetX() { return 5; }
   @Override
-  protected int getDefaultOffsetY() { return 15; }
+  protected int getDefaultOffsetY() { return 5; }
   @Override
-  protected double getDefaultScale() { return 1d; }
+  protected double getDefaultScale() { return 1.5d; }
 
   @SubscribeEvent
   public void onPacketPreceived(PacketEvent.Incoming.Pre event) {

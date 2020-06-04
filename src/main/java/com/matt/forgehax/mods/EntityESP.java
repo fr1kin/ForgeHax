@@ -147,7 +147,7 @@ public class EntityESP extends ToggleMod {
           double botX = bot.getX();
           double botY = bot.getY() + 1.D;
           double height = (bot.getY() - top.getY());
-          double width = Math.max(bot.getX() - top.getX(), 5.D);
+          double width = height;
 	  	  int color = Color.of(red.get(), green.get(), blue.get(), alpha.get()).toBuffer();
   		
 		  drawOutlinedRect((int) (topX - (width/2)), (int) topY, (int) width, (int) height,
