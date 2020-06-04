@@ -49,7 +49,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
           .defaultTo(false)
           .build();
 
-  public final Setting<Double> up_speed =
+  public final Setting<Double> upSpeed =
       getCommandStub()
           .builders()
           .<Double>newSettingBuilder()
@@ -81,23 +81,28 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
   
   @Override
   public void onLocalPlayerMovementUpdate(Local state) {
+    if (MC.world == null) {
+      return;
+    }
+
     if (placing) {
       ++tickCount;
     }
-    
+
+    if (ascend.get() && MC.gameSettings.keyBindJump.isKeyDown()) {
+      getLocalPlayer().motionY = upSpeed.get();
+    }
+
     if (LocalPlayerUtils.getVelocity().normalize().lengthVector() > 1.D && placing) {
       state.setServerAngles(previousAngles);
     } else {
       placing = false;
       tickCount = 0;
     }
-    if (ascend.get() && MC.gameSettings.keyBindJump.isKeyDown()) {
-      getLocalPlayer().motionY = up_speed.get();
-    }
     
     BlockPos below = new BlockPos(getLocalPlayer()).down();
     
-    if (!getWorld().getBlockState(below).getMaterial().isReplaceable()) {
+    if (!MC.world.getBlockState(below).getMaterial().isReplaceable()) {
       return;
     }
     
@@ -155,13 +160,13 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     getPlayerController()
         .processRightClickBlock(
             getLocalPlayer(),
-            getWorld(),
+            MC.world,
             tr.getPos(),
             tr.getOppositeSide(),
             hit,
             EnumHand.MAIN_HAND);
     
-    getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+    Objects.requireNonNull(getNetworkManager()).sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
     
     if (sneak) {
       LocalPlayerUtils.setSneaking(false);
