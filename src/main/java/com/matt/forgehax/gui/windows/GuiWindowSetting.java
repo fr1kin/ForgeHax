@@ -42,11 +42,13 @@ public class GuiWindowSetting extends GuiWindow {
   public void drawWindow(int mouseX, int mouseY) {
     super.drawWindow(mouseX, mouseY);
     
-    for (GuiElement input : inputList) {
-      input.x = 2;
-      input.y = height + 2;
-      input.width = width;
-      input.draw(mouseX, mouseY);
+    if (!isHidden) {
+      for (GuiElement input : inputList) {
+        input.x = 2;
+        input.y = height + 2;
+        input.width = width;
+        input.draw(mouseX, mouseY);
+      }
     }
     
     // update variables
@@ -64,7 +66,7 @@ public class GuiWindowSetting extends GuiWindow {
     super.mouseClicked(x, y, state);
     if (state == 2 && isMouseInHeader(x, y)) { // delete the window on middle click
       ClickGui.getInstance().windowList.remove(this);
-    } else {
+    } else if (!isHidden) {
       for (GuiElement input : inputList) {
         // if (isMouseInElement(x , y, input))
         input.mouseClicked(x, y, state);

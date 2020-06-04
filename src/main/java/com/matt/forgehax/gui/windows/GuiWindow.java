@@ -56,14 +56,15 @@ public abstract class GuiWindow {
    * 0 == Left Click 1 == Right Click 2 == Middle Click
    */
   public void mouseClicked(int mouseX, int mouseY, int state) {
-    if (state != 0) {
-      return;
-    }
-    if (isMouseInHeader(mouseX, mouseY)) {
-      dragging = true;
+    if (state == 0) {
+      if (isMouseInHeader(mouseX, mouseY)) {
+        dragging = true;
 
-      dragX = mouseX - posX;
-      dragY = mouseY - headerY;
+        dragX = mouseX - posX;
+        dragY = mouseY - headerY;
+      }
+    } else if (state == 1 && isMouseInHeader(mouseX, mouseY)) {
+      isHidden = !isHidden;
     }
   }
 
@@ -87,8 +88,9 @@ public abstract class GuiWindow {
     }
     drawHeader();
     windowY = headerY + 21;
-    SurfaceHelper.drawOutlinedRectShaded(
-      posX, windowY, width, height, GRAY.toBuffer(), 80, 3);
+	if (!isHidden)
+      SurfaceHelper.drawOutlinedRectShaded(
+        posX, windowY, width, height, GRAY.toBuffer(), 80, 3);
   }
   
   public void drawTooltip(int mouseX, int mouseY) {}
