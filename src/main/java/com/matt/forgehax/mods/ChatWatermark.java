@@ -12,6 +12,8 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.Objects;
+
 // THANKS BABBAJ I'M USING LOTTA STUFF FROM FANCYCHAT
 
 @RegisterMod
@@ -34,12 +36,12 @@ public class ChatWatermark extends ToggleMod {
   public void onPacketSent(PacketEvent.Outgoing.Pre event) {
     if (event.getPacket() instanceof CPacketChatMessage
         && !PacketHelper.isIgnored(event.getPacket())) {
-      
       String inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
+
 	  if (!inputMessage.startsWith("/")) {
-          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + " ⏐ " + text.get());
+          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + " I " + text.get());
           PacketHelper.ignore(packet);
-          getNetworkManager().sendPacket(packet);
+          Objects.requireNonNull(getNetworkManager()).sendPacket(packet);
           event.setCanceled(true);
       }
     }

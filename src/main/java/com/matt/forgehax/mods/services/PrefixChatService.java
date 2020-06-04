@@ -32,7 +32,7 @@ public class PrefixChatService extends ServiceMod {
     return builder
       .kpressed(this::onBindPressed)
       .kdown(this::onBindKeyDown)
-      .bind(Keyboard.KEY_COMMA) // default to comma
+      .bind(Keyboard.KEY_PERIOD) // default to .
       ;
   }
 }
