@@ -70,13 +70,13 @@ public class CoordsHud extends HudMod {
       .defaultTo(Mode.VIEWENTITY)
       .build();
 
-  private final Setting<Boolean> toniostyle =
+  private final Setting<Boolean> brackets =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("toniostyle")
-          .description("Makes coords fancy as fuck")
-          .defaultTo(true)
+          .name("brackets")
+          .description("Changes the coords layout")
+          .defaultTo(false)
           .build();
 
   @Override
@@ -140,34 +140,31 @@ public class CoordsHud extends HudMod {
   @SubscribeEvent
   public void onRenderOverlay(RenderGameOverlayEvent.Text event) {
     List<String> text = new ArrayList<>();
+	String facingNormal, facingWithTCoords, coordsNormal, coordsMultiTranslated, coordsTranslated;
 
-    // Direction
-    String facingNormal = String.format("%s " + "[%s]", getFacing(), getTowards());
-
-    // Multiline coords + direction
-    String facingWithTCoords = String.format("%s " + "[%s] (%01.1f, %01.1f)",
-      getFacing(), getTowards(), otherX, otherZ);
-
-    // Only OW coords
-    String coordsNormal = String.format("%01.1f, %01.1f, %01.1f", thisX, thisY, thisZ);
-
-    // Multiline Nether coords
-    String coordsMultiTranslated = String.format("(%01.1f, %01.1f)", otherX, otherZ);
-
-    // Single line OW + Nether coords
-    String coordsTranslated = String.format(
-      "%01.1f, %01.1f, %01.1f (%01.1f, %01.1f)", thisX, thisY, thisZ, otherX, otherZ);
-
-    /*if (toniostyle.get()) {
-      if (!translate.get() || (translate.get() && multiline.get())) {
-        text.add(String.format("[ X %.1f ⏐ %.1f Z ] (%.0f Y)", thisX, thisZ, thisY));
-      }
-      if (translate.get()) {
-        if (multiline.get()) {
-          text.add(String.format("[ %.1f ⏐ %.1f ]", otherX, otherZ));
-        } else {
-          text.add(String.format(
-              "[ X %.1f ⏐ %.1f Z ] (%.0f Y)      %.1f ⏐ %.1f", thisX, thisZ, thisY, otherX, otherZ));*/
+    if (brackets.get()) {
+      // Direction
+      facingNormal = String.format("%s " + "[%s]", getFacing(), getTowards());
+      // Multiline coords + direction
+      facingWithTCoords = String.format("[ %.1f ⏐ %.1f ] - %s [%s]", otherX, otherZ, getFacing(), getTowards());
+      // Only OW coords
+      coordsNormal = String.format("[ X %.1f ⏐ %.1f Z ] (%.0f Y)", thisX, thisZ, thisY);
+      // Multiline Nether coords
+      coordsMultiTranslated = String.format("[ %.1f ⏐ %.1f ]", otherX, otherZ);
+      // Single line OW + Nether coords
+      coordsTranslated = String.format("[ X %.1f ⏐ %.1f Z ] (%.0f Y)  %.1f ⏐ %.1f", thisX, thisZ, thisY, otherX, otherZ);
+    } else {
+      // Direction
+      facingNormal = String.format("%s " + "[%s]", getFacing(), getTowards());
+      // Multiline coords + direction
+      facingWithTCoords = String.format("%s " + "[%s] (%01.1f, %01.1f)", getFacing(), getTowards(), otherX, otherZ);
+      // Only OW coords
+      coordsNormal = String.format("%01.1f, %01.1f, %01.1f", thisX, thisY, thisZ);
+      // Multiline Nether coords
+      coordsMultiTranslated = String.format("(%01.1f, %01.1f)", otherX, otherZ);
+      // Single line OW + Nether coords
+      coordsTranslated = String.format("%01.1f, %01.1f, %01.1f (%01.1f, %01.1f)", thisX, thisY, thisZ, otherX, otherZ);
+    }
 
     if (!translate.get()
       || (translate.get() && multiline.get())

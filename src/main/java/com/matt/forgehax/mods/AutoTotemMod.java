@@ -40,7 +40,7 @@ public class AutoTotemMod extends ToggleMod {
             .mapToObj(i -> MC.player.inventoryContainer.getSlot(i).getStack().getItem())
             .filter(stack -> stack == Items.TOTEM_OF_UNDYING)
             .count();
-    return String.format(super.getDisplayText() + "[%d]", totemCount);
+    return String.format(super.getDisplayText() + " [%d]", totemCount);
   }
   
   @SubscribeEvent
