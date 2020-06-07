@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 
 import java.util.*;
 
@@ -99,10 +100,14 @@ public class EntityList extends HudMod {
           entity ->
             !Objects.equals(getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
         .filter(EntityUtils::isValidEntity)
-        .map(entity -> entity.getDisplayName().getUnformattedText())
+        .map(entity -> { if (entity instanceof EntityItem)
+                            return ((EntityItem) entity).getItem().getDisplayName();
+                         else
+                            return entity.getDisplayName().getUnformattedText();
+                       })
         .sorted()
         .forEach(name -> entityList.add(name));
-	  
+
 	  String buf = "";
 	  int num = 0;
 	  for (String element : entityList.stream().distinct().collect(Collectors.toList())) {
