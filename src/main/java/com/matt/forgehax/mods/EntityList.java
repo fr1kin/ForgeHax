@@ -93,16 +93,10 @@ public class EntityList extends HudMod {
 		text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + buf : buf + " <");
 	  }
 
-      // Shift up when chat is open && alignment is at bottom
-      if (alignment.get().toString().startsWith("BOTTOM") && MC.currentScreen instanceof GuiChat) {
-        posY = getPosY(offsetY.get() + 15);
-      } else {
-        posY = getPosY(offsetY.get() + 0);
-      }
 
-      // Prints on screen
-      SurfaceHelper.drawTextAlign(text, getPosX(offsetX.get()), posY,
-        Colors.WHITE.toBuffer(), scale.get(), true, align);
+    // Prints on screen
+    SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
+      Colors.WHITE.toBuffer(), scale.get(), true, align);
     }
   }
 

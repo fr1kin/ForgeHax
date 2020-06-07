@@ -3,9 +3,10 @@ package com.matt.forgehax.util.mod;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.math.AlignHelper;
 import com.matt.forgehax.util.math.AlignHelper.Align;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.gui.ScaledResolution;
 
 public abstract class HudMod extends ToggleMod {
   
@@ -76,7 +77,12 @@ public abstract class HudMod extends ToggleMod {
   public final int getPosY(int extraOffset) {
     final int align = alignment.get().ordinal();
     final int dirSignY = AlignHelper.getFlowDirY2(align);
-    return (extraOffset + offsetY.get()) * dirSignY + AlignHelper.alignV(scaledRes.getScaledHeight(), align);
+    int chatOffset = 0;
+    // Shift up when chat is open && alignment is at bottom
+    if (alignment.get().toString().startsWith("BOTTOM") && MC.currentScreen instanceof GuiChat) {
+      chatOffset = 15;
+    }
+    return (extraOffset + offsetY.get()) * dirSignY + AlignHelper.alignV(scaledRes.getScaledHeight(), align) - chatOffset;
   }
   
   @SubscribeEvent
