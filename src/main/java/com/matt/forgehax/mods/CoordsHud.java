@@ -14,7 +14,6 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiChat;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -165,45 +164,43 @@ public class CoordsHud extends HudMod {
       // Single line OW + Nether coords
       coordsTranslated = String.format("%01.1f, %01.1f, %01.1f (%01.1f, %01.1f)", thisX, thisY, thisZ, otherX, otherZ);
     }
-
-    if (!translate.get()
-      || (translate.get() && multiline.get())
-      || (translate.get() && MC.player.dimension == 1)) {
-      text.add(coordsNormal); // x, y, z
-
-      if(direction.get()){
-        if(!multiline.get()
-          || !translate.get() && multiline.get()
-          || (translate.get() && MC.player.dimension == 1)) {
-          text.add(facingNormal); // Facing [f]
-        }
+    
+    if (!translate.get() || MC.player.dimension == 1) {
+      text.add(coordsNormal);
+      if (direction.get()) {
+        text.add(facingNormal);
       }
-    }
-    if (translate.get() && MC.player.dimension != 1) {
+    } else if (MC.player.dimension == -1) {
       if (multiline.get()) {
         if (direction.get()) {
-          text.add(facingWithTCoords); // Facing (tx, tz)
+          text.add(facingWithTCoords);
         } else {
-          text.add(coordsMultiTranslated); // (tx, tz)
+          text.add(coordsTranslated);
+        }
+        text.add(coordsNormal);
+      } else {
+        if (direction.get()) {
+          text.add(facingNormal);
+        }
+        text.add(coordsTranslated);
+      }
+    } else {
+      if (multiline.get()) {
+        text.add(coordsNormal);
+        if (direction.get()) {
+          text.add(facingWithTCoords);
+        } else {
+          text.add(coordsTranslated);
         }
       } else {
-        text.add(coordsTranslated); // x, y, z (tx, tz)
-
+        text.add(coordsTranslated);
         if (direction.get()) {
-          text.add(facingNormal); // Facing [f]
+          text.add(facingNormal);
         }
       }
     }
-
-    // Coords y offsets when opening chat
-    if (alignment.get().toString().startsWith("BOTTOM") && MC.currentScreen instanceof GuiChat) {
-      posY = getPosY(15);
-    } else {
-      posY = getPosY(0);
-    }
-
     // Printing
-    SurfaceHelper.drawTextAlign(text, getPosX(0), posY,
+    SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
       Colors.WHITE.toBuffer(), scale.get(), true, alignment.get().ordinal());
   }
 
