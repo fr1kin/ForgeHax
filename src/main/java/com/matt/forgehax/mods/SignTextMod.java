@@ -65,32 +65,32 @@ public class SignTextMod extends HudMod {
       return;
     }
 
-    GlStateManager.enableTexture2D();
-    GlStateManager.disableLighting();
-    GlStateManager.color(
-        1.f,
-        1.f,
-        1.f,
-        1.f);
+    // GlStateManager.enableTexture2D();
+    // GlStateManager.disableLighting();
+    // GlStateManager.color(
+    //     1.f,
+    //     1.f,
+    //     1.f,
+    //     1.f);
 
-    GlStateManager.enableBlend();
-    GlStateManager.tryBlendFuncSeparate(
-        GlStateManager.SourceFactor.SRC_ALPHA,
-        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-        GlStateManager.SourceFactor.ONE,
-        GlStateManager.DestFactor.ZERO);
+    // GlStateManager.enableBlend();
+    // GlStateManager.tryBlendFuncSeparate(
+    //     GlStateManager.SourceFactor.SRC_ALPHA,
+    //     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+    //     GlStateManager.SourceFactor.ONE,
+    //     GlStateManager.DestFactor.ZERO);
 
     MC.getTextureManager().bindTexture(SIGN_TEXTURE);
 
-    SurfaceHelper.drawTexturedRect(getPosX(0), getPosY(0), 2, 2, 24, 12, 0);
+    SurfaceHelper.drawTexturedRect(getPosX(-45), getPosY(-5), 0, 20, 95, 45, 500);
 
     int align = alignment.get().ordinal();
 
     SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
         Colors.BLACK.toBuffer(), scale.get(), false, align);
 
-    GlStateManager.disableBlend();
-    GlStateManager.disableTexture2D();
+    // GlStateManager.disableBlend();
+    // GlStateManager.disableTexture2D();
   }
 
   @SubscribeEvent
