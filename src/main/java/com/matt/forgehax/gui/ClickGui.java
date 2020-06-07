@@ -90,6 +90,12 @@ public class ClickGui extends GuiScreen implements Globals {
   }
   
   public boolean isMouseInWindow(int mouseX, int mouseY, GuiWindow window) {
+    if (window.isHidden) {
+      return mouseX > window.posX
+        && mouseX < window.bottomX
+        && mouseY > window.headerY
+        && mouseY < window.headerY + 20;
+    }
     return mouseX > window.posX
       && mouseX < window.bottomX
       && mouseY > window.headerY

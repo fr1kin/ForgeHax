@@ -52,7 +52,6 @@ public class GuiWindowMod extends GuiWindow {
         height = Math.min(maxHeight, newHeight + 3);
       }
     }
-
     width = 90;
   }
   
