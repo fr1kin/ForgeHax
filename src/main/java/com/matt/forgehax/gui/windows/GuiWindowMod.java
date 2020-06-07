@@ -101,8 +101,10 @@ public class GuiWindowMod extends GuiWindow {
   public void drawWindow(int mouseX, int mouseY) {
     super.drawWindow(mouseX, mouseY);
     windowY = headerY + 22;
-  
-	if (isHidden) return;
+
+    if (isHidden){
+      return;
+    }
 
     SurfaceHelper.drawOutlinedRectShaded(
       posX, windowY, width, height, Colors.GRAY.toBuffer(), 80, 3);
@@ -135,8 +137,10 @@ public class GuiWindowMod extends GuiWindow {
   @Override
   public void drawTooltip(int mouseX, int mouseY) {
     int scale = ClickGui.scaledRes.getScaleFactor();
-    
-    if (isHidden) return;
+
+    if (isHidden){
+      return;
+    }
 
     if (mouseX >= posX && mouseX < bottomX &&
       mouseY >= windowY + (5 / scale) && mouseY < bottomY - (5 / scale)) {
@@ -156,7 +160,10 @@ public class GuiWindowMod extends GuiWindow {
    */
   public void mouseClicked(int x, int y, int state) {
     super.mouseClicked(x, y, state);
-	if (isHidden) return;
+    if (isHidden){
+      return;
+    }
+
     if (state == 0) {
       for (GuiButton button : buttonList) {
         if (x > button.x

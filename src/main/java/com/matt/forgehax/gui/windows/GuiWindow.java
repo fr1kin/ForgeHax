@@ -18,7 +18,7 @@ public abstract class GuiWindow {
 
   public boolean isHidden; // whether or not not to show everything below the header
 
-  private String title;
+  private final String title;
 
   public int posX, headerY, windowY;
   public int bottomX, bottomY;

@@ -16,7 +16,7 @@ public class GuiWindowSetting extends GuiWindow {
   public List<GuiElement> inputList =
     new ArrayList<>(); // list of toggles, sliders, text inputs, etc.
   
-  private BaseMod mod;
+  private final BaseMod mod;
   
   public GuiWindowSetting(BaseMod modIn, int x, int y) {
     super(modIn.getModName() + " Settings");
