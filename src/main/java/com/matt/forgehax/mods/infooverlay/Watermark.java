@@ -24,6 +24,47 @@ public class Watermark extends HudMod {
 
   private int color = 0;
 
+  private final Setting<Integer> alpha =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("alpha")
+          .description("Transparency, 0-255")
+          .min(0)
+          .max(255)
+          .defaultTo(255)
+          .build();
+  private final Setting<Integer> red =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("red")
+          .description("Red amount, 0-255")
+          .min(0)
+          .max(255)
+          .defaultTo(0)
+          .build();
+  private final Setting<Integer> green =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("green")
+          .description("Green amount, 0-255")
+          .min(0)
+          .max(255)
+          .defaultTo(0)
+          .build();
+  private final Setting<Integer> blue =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("blue")
+          .description("Blue amount, 0-255")
+          .min(0)
+          .max(255)
+          .defaultTo(0)
+          .build();
+
   private final Setting<String> text =
     getCommandStub()
       .builders()
@@ -67,7 +108,7 @@ public class Watermark extends HudMod {
 	int align = alignment.get().ordinal();	
 	int clr;
 	if (rainbow.get()) clr = color;
-	else clr = Colors.BETTER_PURPLE.toBuffer();
+	else clr = Color.of(red.get(), green.get(), blue.get(), alpha.get()).toBuffer();
     SurfaceHelper.drawTextAlign(text.get(), getPosX(0), getPosY(0),
 								clr, scale.get(), true, align);
   }
