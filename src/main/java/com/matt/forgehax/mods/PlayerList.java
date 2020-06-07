@@ -19,7 +19,7 @@ import com.matt.forgehax.util.mod.HudMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.event.entity.EntityEvent.EnteringChunk;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -78,10 +78,12 @@ public class PlayerList extends HudMod {
   int posY;
 
   @SubscribeEvent
-  public void onEntityEnteringChunk(EnteringChunk event) {
+  public void onEntityJoinWorld(EntityJoinWorldEvent event) {
     if (!warn.get()) return;
-    if (EntityUtils.isPlayer(event.getEntity())) {
-      Helper.printWarning(String.format("Player %s entered render distance", event.getEntity().getName()));
+    if (EntityUtils.isPlayer(event.getEntity()) &&
+        !getLocalPlayer().equals(event.getEntity()) &&
+        !EntityUtils.isFakeLocalPlayer(event.getEntity())) {
+      Helper.printWarning(String.format("Spotted %s", event.getEntity().getName()));
     }
   }
 
