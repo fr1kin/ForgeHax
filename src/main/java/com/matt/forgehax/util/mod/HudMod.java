@@ -80,7 +80,7 @@ public abstract class HudMod extends ToggleMod {
     int chatOffset = 0;
     // Shift up when chat is open && alignment is at bottom
     if (alignment.get().toString().startsWith("BOTTOM") && MC.currentScreen instanceof GuiChat) {
-      chatOffset = 15;
+      chatOffset = Math.max(15 - offsetY.get(), 0);
     }
     return (extraOffset + offsetY.get()) * dirSignY + AlignHelper.alignV(scaledRes.getScaledHeight(), align) - chatOffset;
   }
