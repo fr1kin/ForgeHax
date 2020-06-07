@@ -22,7 +22,6 @@ import com.matt.forgehax.util.math.Angle;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import com.matt.forgehax.util.command.Setting;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Objects;
@@ -39,24 +38,6 @@ import net.minecraft.util.math.Vec3d;
 
 @RegisterMod
 public class Scaffold extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
-
-  public final Setting<Boolean> ascend =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("ascend")
-          .description("Go up very fast")
-          .defaultTo(false)
-          .build();
-
-  public final Setting<Double> upSpeed =
-      getCommandStub()
-          .builders()
-          .<Double>newSettingBuilder()
-          .name("up-speed")
-          .description("Speed at which you ascend")
-          .defaultTo(0.35D)
-          .build();
   
   private static final EnumSet<EnumFacing> NEIGHBORS =
       EnumSet.of(EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.WEST);
@@ -66,7 +47,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
   private Angle previousAngles = Angle.ZERO;
   
   public Scaffold() {
-    super(Category.MOVEMENT, "Scaffold", false, "Place blocks under yourself");
+    super(Category.PLAYER, "Scaffold", false, "Place blocks under yourself");
   }
   
   @Override
@@ -81,18 +62,10 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
   
   @Override
   public void onLocalPlayerMovementUpdate(Local state) {
-    if (MC.world == null) {
-      return;
-    }
-
     if (placing) {
       ++tickCount;
     }
-
-    if (ascend.get() && MC.gameSettings.keyBindJump.isKeyDown()) {
-      getLocalPlayer().motionY = upSpeed.get();
-    }
-
+    
     if (LocalPlayerUtils.getVelocity().normalize().lengthVector() > 1.D && placing) {
       state.setServerAngles(previousAngles);
     } else {
@@ -102,7 +75,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     
     BlockPos below = new BlockPos(getLocalPlayer()).down();
     
-    if (!MC.world.getBlockState(below).getMaterial().isReplaceable()) {
+    if (!getWorld().getBlockState(below).getMaterial().isReplaceable()) {
       return;
     }
     
@@ -145,41 +118,44 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
     state.setServerAngles(previousAngles = Utils.getLookAtAngles(hit));
     
     final BlockTraceInfo tr = trace;
-    ResetFunction func = LocalPlayerInventory.setSelected(items);
-    
-    boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
-    if (sneak) {
-      // send start sneaking packet
-      PacketHelper.ignoreAndSend(
-          new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
-      
-      LocalPlayerUtils.setSneaking(true);
-      LocalPlayerUtils.setSneakingSuppression(true);
-    }
-    
-    getPlayerController()
-        .processRightClickBlock(
-            getLocalPlayer(),
-            MC.world,
-            tr.getPos(),
-            tr.getOppositeSide(),
-            hit,
-            EnumHand.MAIN_HAND);
-    
-    Objects.requireNonNull(getNetworkManager()).sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
-    
-    if (sneak) {
-      LocalPlayerUtils.setSneaking(false);
-      LocalPlayerUtils.setSneakingSuppression(false);
-      
-      getNetworkManager()
-          .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
-    }
-    
-    func.revert();
-    
-    Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
-    placing = true;
-    tickCount = 0;
+    state.invokeLater(
+        rs -> {
+          ResetFunction func = LocalPlayerInventory.setSelected(items);
+          
+          boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
+          if (sneak) {
+            // send start sneaking packet
+            PacketHelper.ignoreAndSend(
+                new CPacketEntityAction(getLocalPlayer(), Action.START_SNEAKING));
+            
+            LocalPlayerUtils.setSneaking(true);
+            LocalPlayerUtils.setSneakingSuppression(true);
+          }
+          
+          getPlayerController()
+              .processRightClickBlock(
+                  getLocalPlayer(),
+                  getWorld(),
+                  tr.getPos(),
+                  tr.getOppositeSide(),
+                  hit,
+                  EnumHand.MAIN_HAND);
+          
+          getNetworkManager().sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+          
+          if (sneak) {
+            LocalPlayerUtils.setSneaking(false);
+            LocalPlayerUtils.setSneakingSuppression(false);
+            
+            getNetworkManager()
+                .sendPacket(new CPacketEntityAction(getLocalPlayer(), Action.STOP_SNEAKING));
+          }
+          
+          func.revert();
+          
+          Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
+          placing = true;
+          tickCount = 0;
+        });
   }
 }
