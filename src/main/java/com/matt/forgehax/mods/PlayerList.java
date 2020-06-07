@@ -7,6 +7,7 @@ import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.util.math.VectorUtils.distance;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
+import com.matt.forgehax.Helper;
 import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.color.Colors;
@@ -18,6 +19,7 @@ import com.matt.forgehax.util.mod.HudMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.entity.EntityEvent.EnteringChunk;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -47,6 +49,15 @@ public class PlayerList extends HudMod {
       .defaultTo(SortMode.LENGTH)
       .build();
 
+  private final Setting<Boolean> warn =
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("warn")
+      .description("Send chat alert when spotting a player")
+      .defaultTo(true)
+      .build();
+
   @Override
   protected AlignHelper.Align getDefaultAlignment() {
     return AlignHelper.Align.TOPLEFT;
@@ -65,6 +76,14 @@ public class PlayerList extends HudMod {
   public boolean isInfoDisplayElement() { return false; }
 
   int posY;
+
+  @SubscribeEvent
+  public void onEntityEnteringChunk(EnteringChunk event) {
+    if (!warn.get()) return;
+    if (EntityUtils.isPlayer(event.getEntity())) {
+      Helper.printWarning(String.format("Player %s entered render distance", event.getEntity().getName()));
+    }
+  }
 
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
