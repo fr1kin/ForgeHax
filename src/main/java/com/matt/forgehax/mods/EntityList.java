@@ -44,6 +44,24 @@ public class EntityList extends HudMod {
       .defaultTo(SortMode.LENGTH)
       .build();
 
+  private final Setting<Boolean> items =
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("items")
+      .description("Include non-living entities")
+      .defaultTo(true)
+      .build();
+
+  private final Setting<Boolean> players =
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("players")
+      .description("Include players")
+      .defaultTo(false)
+      .build();
+
   @Override
   protected AlignHelper.Align getDefaultAlignment() {
     return AlignHelper.Align.TOPLEFT;
@@ -74,25 +92,27 @@ public class EntityList extends HudMod {
       getWorld()
         .loadedEntityList
         .stream()
-        // .filter(EntityUtils::isLiving)
+        .filter(e -> items.get() || EntityUtils.isLiving(e))
+        .filter(e -> items.get() || EntityUtils.isAlive(e))
+        .filter(e -> players.get() || !EntityUtils.isPlayer(e))
         .filter(
           entity ->
             !Objects.equals(getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
-        // .filter(EntityUtils::isAlive)
         .filter(EntityUtils::isValidEntity)
         .map(entity -> entity.getDisplayName().getUnformattedText())
-        .sorted(sortMode.get().getComparator())
+        .sorted()
         .forEach(name -> entityList.add(name));
 	  
 	  String buf = "";
 	  int num = 0;
 	  for (String element : entityList.stream().distinct().collect(Collectors.toList())) {
-		buf = String.format("%s", element);
-		num = Collections.frequency(entityList, element);
-		if (num > 1) buf += String.format(" (x%d)", num);
-		text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + buf : buf + " <");
+		  buf = String.format("%s", element);
+		  num = Collections.frequency(entityList, element);
+		  if (num > 1) buf += String.format(" (x%d)", num);
+		    text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + buf : buf + " <");
 	  }
 
+    text.sort(sortMode.get().getComparator());
 
     // Prints on screen
     SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
