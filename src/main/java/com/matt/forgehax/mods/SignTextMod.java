@@ -44,6 +44,8 @@ public class SignTextMod extends HudMod {
           .defaultTo(true)
           .build();
 
+  static final Align alignment = Align.TOP;
+
   @Override
   protected Align getDefaultAlignment() { return Align.TOP; }
 
@@ -65,32 +67,14 @@ public class SignTextMod extends HudMod {
       return;
     }
 
-    // GlStateManager.enableTexture2D();
-    // GlStateManager.disableLighting();
-    // GlStateManager.color(
-    //     1.f,
-    //     1.f,
-    //     1.f,
-    //     1.f);
-
-    // GlStateManager.enableBlend();
-    // GlStateManager.tryBlendFuncSeparate(
-    //     GlStateManager.SourceFactor.SRC_ALPHA,
-    //     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-    //     GlStateManager.SourceFactor.ONE,
-    //     GlStateManager.DestFactor.ZERO);
-
     MC.getTextureManager().bindTexture(SIGN_TEXTURE);
 
-    SurfaceHelper.drawTexturedRect(getPosX(-45), getPosY(-5), 0, 20, 95, 45, 500);
+    SurfaceHelper.drawTexturedRect(getPosX(-50), getPosY(-5), 0, 20, 100, 45, 500);
 
-    int align = alignment.get().ordinal();
+    int align = alignment.ordinal();
 
     SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
         Colors.BLACK.toBuffer(), scale.get(), false, align);
-
-    // GlStateManager.disableBlend();
-    // GlStateManager.disableTexture2D();
   }
 
   @SubscribeEvent
