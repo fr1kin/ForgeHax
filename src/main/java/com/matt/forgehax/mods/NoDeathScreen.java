@@ -53,6 +53,10 @@ public class NoDeathScreen extends ToggleMod {
 
   @SubscribeEvent
   public void onOutgoingPacketSent(PacketEvent.Outgoing.Pre event) {
+    if (MC.player == null) {
+      dead = false;
+      return; // Don't mess with main menu!
+    }
     if (dead && !(event.getPacket() instanceof CPacketChatMessage)
          && !(event.getPacket() instanceof CPacketKeepAlive)) {
       event.setCanceled(true);
@@ -70,6 +74,7 @@ public class NoDeathScreen extends ToggleMod {
   public void onGuiScreen(GuiScreenEvent event) {
     if (event.getGui() instanceof GuiGameOver) {
       dead = true;
+      MC.player.respawnPlayer();
       getLocalPlayer().setHealth(1F);
       MC.player.capabilities.allowFlying = true;
       MC.displayGuiScreen(new GuiChat("Oh geez guess I'm bad at this game"));
