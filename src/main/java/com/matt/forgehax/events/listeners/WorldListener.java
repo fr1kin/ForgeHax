@@ -21,8 +21,6 @@ public class WorldListener implements IWorldEventListener {
   @Override
   public void notifyBlockUpdate(
       World worldIn, BlockPos pos, IBlockState oldState, IBlockState newState, int flags) {
-    UpdateESP mod = (UpdateESP) getModManager().get("UpdateESP").get();
-    mod.addBlockUpdate(pos, Instant.now().toEpochMilli());
   }
   
   @Override
