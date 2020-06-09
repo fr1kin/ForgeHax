@@ -23,6 +23,8 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderBlockOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -82,6 +84,24 @@ public class NoRender extends ToggleMod {
       .<Boolean>newSettingBuilder()
       .name("squids")
       .description("Won't render squids")
+      .defaultTo(false)
+      .build();
+
+  public final Setting<Boolean> noBossBar =
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("boss-bar")
+      .description("Won't render wither/dragon boss bar")
+      .defaultTo(false)
+      .build();
+
+  public final Setting<Boolean> noFire =
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("fire")
+      .description("Won't render the fire overlay")
       .defaultTo(false)
       .build();
 
@@ -266,6 +286,23 @@ public class NoRender extends ToggleMod {
       if (!(event.getPacket() instanceof SPacketExplosion)) {
         return;
       }
+      event.setCanceled(true);
+    }
+  }
+
+  // BossBar
+  @SubscribeEvent
+  public void onGameOverlay(final RenderGameOverlayEvent event) {
+    if (event instanceof RenderGameOverlayEvent.BossInfo && noBossBar.get()) {
+      event.setCanceled(true);
+    }
+  }
+
+  // noFire
+  @SubscribeEvent
+  public void onBlockOverlay(final RenderBlockOverlayEvent event) {
+    if (event.getOverlayType().equals(RenderBlockOverlayEvent.OverlayType.FIRE)
+        && noFire.get() && event.getPlayer().equals(getLocalPlayer())) {
       event.setCanceled(true);
     }
   }
