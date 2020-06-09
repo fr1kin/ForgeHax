@@ -54,6 +54,15 @@ public class EntityList extends HudMod {
       .defaultTo(true)
       .build();
 
+  private final Setting<Boolean> animate =
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("animate")
+      .description("Add entities to screen one at a time")
+      .defaultTo(true)
+      .build();
+
   private final Setting<Boolean> players =
     getCommandStub()
       .builders()
@@ -80,14 +89,14 @@ public class EntityList extends HudMod {
   @Override
   public boolean isInfoDisplayElement() { return false; }
 
-  int posY;
+  private int max_len = 0;
 
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     if (!MC.gameSettings.showDebugInfo) {
       int align = alignment.get().ordinal();
       List<String> entityList = new ArrayList<>();
-	  List<String> text = new ArrayList<>();
+	    List<String> text = new ArrayList<>();
 
       // Prints all the "InfoDisplayElement" mods
       getWorld()
@@ -105,23 +114,24 @@ public class EntityList extends HudMod {
                          else
                             return entity.getDisplayName().getUnformattedText();
                        })
-        .sorted()
         .forEach(name -> entityList.add(name));
 
-	  String buf = "";
-	  int num = 0;
-	  for (String element : entityList.stream().distinct().collect(Collectors.toList())) {
-		  buf = String.format("%s", element);
-		  num = Collections.frequency(entityList, element);
-		  if (num > 1) buf += String.format(" (x%d)", num);
+	    String buf = "";
+	    int num = 0;
+	    for (String element : entityList.stream().distinct().collect(Collectors.toList())) {
+		    buf = String.format("%s", element);
+		    num = Collections.frequency(entityList, element);
+		    if (num > 1) buf += String.format(" (x%d)", num);
 		    text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + buf : buf + " <");
-	  }
+        if (animate.get() && text.size() >= (max_len + 1)) break;
+	    }
+      max_len = text.size();
 
-    text.sort(sortMode.get().getComparator());
+      text.sort(sortMode.get().getComparator());
 
-    // Prints on screen
-    SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
-      Colors.WHITE.toBuffer(), scale.get(), true, align);
+      // Prints on screen
+      SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
+        Colors.WHITE.toBuffer(), scale.get(), true, align);
     }
   }
 
