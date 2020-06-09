@@ -34,6 +34,18 @@ public class ItemESP extends ToggleMod {
           .defaultTo(1.D)
           .min(0.D)
           .build();
+
+  public final Setting<Boolean> age =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("age")
+          .description("Show ticks left before despawn")
+          .defaultTo(false)
+          .build();
+
+  // private final int MAX_AGE = 6000; not needed! Awesome!
+  private final int TICKS_SECOND = 20;
   
   @SubscribeEvent
   public void onRender2D(final Render2DEvent event) {
@@ -76,6 +88,10 @@ public class ItemESP extends ToggleMod {
               ItemStack stack = entity.getItem();
               String text =
                   stack.getDisplayName() + (stack.isStackable() ? (" x" + stack.getCount()) : "");
+
+              if (age.get()) {
+                text += String.format(" [%d]", (entity.lifespan - entity.ticksExisted) / TICKS_SECOND);
+              }
               
               SurfaceHelper.drawTextShadow(
                   text,
