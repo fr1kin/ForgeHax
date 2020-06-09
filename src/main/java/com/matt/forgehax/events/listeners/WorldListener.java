@@ -4,7 +4,6 @@ import static com.matt.forgehax.Helper.getModManager;
 
 import com.matt.forgehax.events.EntityAddedEvent;
 import com.matt.forgehax.events.EntityRemovedEvent;
-import com.matt.forgehax.mods.UpdateESP;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
