@@ -79,7 +79,7 @@ public class Watermark extends HudMod {
       .builders()
       .<Boolean>newSettingBuilder()
       .name("rainbow")
-      .description("Change color every 4 ticks")
+      .description("Change color every 20 ticks")
       .defaultTo(true)
       .build();
 
