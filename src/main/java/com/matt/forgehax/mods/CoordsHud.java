@@ -1,5 +1,7 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Helper.getPlayerDirection;
+
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
@@ -143,9 +145,9 @@ public class CoordsHud extends HudMod {
 
     if (brackets.get()) {
       // Direction
-      facingNormal = String.format("%s " + "[%s]", getFacing(), getTowards());
+      facingNormal = String.format("%s " + "[%s]", facingTable[getPlayerDirection()], towardsTable[getPlayerDirection()]);
       // Multiline coords + direction
-      facingWithTCoords = String.format("[ %.1f ⏐ %.1f ] - %s [%s]", otherX, otherZ, getFacing(), getTowards());
+      facingWithTCoords = String.format("[ %.1f ⏐ %.1f ] - %s [%s]", otherX, otherZ, facingTable[getPlayerDirection()], towardsTable[getPlayerDirection()]);
       // Only OW coords
       coordsNormal = String.format("[ X %.1f ⏐ %.1f Z ] (%.0f Y)", thisX, thisZ, thisY);
       // Multiline Nether coords
@@ -154,9 +156,9 @@ public class CoordsHud extends HudMod {
       coordsTranslated = String.format("[ X %.1f ⏐ %.1f Z ] (%.0f Y)  %.1f ⏐ %.1f", thisX, thisZ, thisY, otherX, otherZ);
     } else {
       // Direction
-      facingNormal = String.format("%s " + "[%s]", getFacing(), getTowards());
+      facingNormal = String.format("%s " + "[%s]", facingTable[getPlayerDirection()], towardsTable[getPlayerDirection()]);
       // Multiline coords + direction
-      facingWithTCoords = String.format("%s " + "[%s] (%01.1f, %01.1f)", getFacing(), getTowards(), otherX, otherZ);
+      facingWithTCoords = String.format("%s " + "[%s] (%01.1f, %01.1f)", facingTable[getPlayerDirection()], towardsTable[getPlayerDirection()], otherX, otherZ);
       // Only OW coords
       coordsNormal = String.format("%01.1f, %01.1f, %01.1f", thisX, thisY, thisZ);
       // Multiline Nether coords
@@ -204,47 +206,25 @@ public class CoordsHud extends HudMod {
       Colors.WHITE.toBuffer(), scale.get(), true, alignment.get().ordinal());
   }
 
-  private String getFacing() {
-    switch (MathHelper.floor((double) (Minecraft.getMinecraft().player.rotationYaw * 8.0F / 360.0F) + 0.5D) & 7) {
-      case 0:
-        return "South";
-      case 1:
-        return "South West";
-      case 2:
-        return "West";
-      case 3:
-        return "North West";
-      case 4:
-        return "North";
-      case 5:
-        return "North East";
-      case 6:
-        return "East";
-      case 7:
-        return "South East";
-    }
-    return "Invalid";
-  }
+  private final String facingTable[] = {
+    "South",
+    "South West",
+    "West",
+    "North West",
+    "North",
+    "North East",
+    "East",
+    "South East"
+  };
 
-  private String getTowards() {
-    switch (MathHelper.floor((double) (Minecraft.getMinecraft().player.rotationYaw * 8.0F / 360.0F) + 0.5D) & 7) {
-      case 0:
-        return "+Z";
-      case 1:
-        return "-X +Z";
-      case 2:
-        return "-X";
-      case 3:
-        return "-X -Z";
-      case 4:
-        return "-Z";
-      case 5:
-        return "+X -Z";
-      case 6:
-        return "+X";
-      case 7:
-        return "+X +Z";
-    }
-    return "Invalid";
+  private final String towardsTable[] = {
+    "+Z",
+    "-X +Z",
+    "-X",
+    "-X -Z",
+    "-Z",
+    "+X -Z",
+    "+X",
+    "+X +Z"
   }
 }

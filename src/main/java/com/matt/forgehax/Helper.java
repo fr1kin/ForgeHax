@@ -239,4 +239,8 @@ public class Helper implements Globals {
           }
         });
   }
+
+  public static int getPlayerDirection() {
+    return (MathHelper.floor((double) (Minecraft.getMinecraft().player.rotationYaw * 8.0F / 360.0F) + 0.5D) & 7);
+  }
 }
