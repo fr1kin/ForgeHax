@@ -226,5 +226,5 @@ public class CoordsHud extends HudMod {
     "+X -Z",
     "+X",
     "+X +Z"
-  }
+  };
 }
