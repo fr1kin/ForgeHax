@@ -94,17 +94,10 @@ public class CoordsHud extends HudMod {
       return;
     }
 
-    if (viewEntity.get()) {
-      Entity viewEntity = getRenderEntity();
-      thisX = viewEntity.posX;
-      thisY = viewEntity.posY;
-      thisZ = viewEntity.posZ;
-    } else {
-      EntityPlayerSP player = getLocalPlayer();
-      thisX = player.posX;
-      thisY = player.posY;
-      thisZ = player.posZ;
-    }
+    Entity entity = getEntity();
+    thisX = entity.posX;
+    thisY = entity.posY;
+    thisZ = entity.posZ;
 
     double thisFactor = MC.world.provider.getMovementFactor();
     double otherFactor = thisFactor != 1d ? 1d : 8d;
@@ -210,5 +203,9 @@ public class CoordsHud extends HudMod {
         return "+X +Z";
     }
     return "Invalid";
+  }
+
+  public Entity getEntity() {
+    return viewEntity.get() ? MC.getRenderViewEntity() : MC.player;
   }
 }
