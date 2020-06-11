@@ -40,7 +40,7 @@ public class Speedometer extends ToggleMod {
   }
 
   public String getInfoDisplayText() {
-    return "Speed: " + calculateTimerSpeed() + " " + speedUnit.get().getString();
+    return String.format("Speed: %.1f %s", calculateTimerSpeed(), speedUnit.get().getString());
   }
 
   public enum SpeedUnitTypes {

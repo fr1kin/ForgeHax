@@ -17,6 +17,6 @@ public class Saturation extends ToggleMod {
   }
 
   public String getInfoDisplayText() {
-    return "Saturation: " + String.format("%.2f", MC.player.getFoodStats().getSaturationLevel());
+    return "Saturation: " + String.format("%.1f", MC.player.getFoodStats().getSaturationLevel());
   }
 }

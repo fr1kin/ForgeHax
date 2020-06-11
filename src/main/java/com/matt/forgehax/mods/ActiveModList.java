@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
 public class ActiveModList extends ListMod {
+
   private final Setting<Boolean> showDebugText =
       getCommandStub()
           .builders()
@@ -43,7 +44,7 @@ public class ActiveModList extends ListMod {
           .<Boolean>newSettingBuilder()
           .name("condense")
           .description("Condense ModList when chat is open")
-          .defaultTo(false)
+          .defaultTo(true)
           .build();
 
   public ActiveModList() {
