@@ -17,11 +17,6 @@ public class FPS extends ToggleMod {
     return true;
   }
 
-  @Override
-  public boolean notInList() {
-	return true;
-  }
-
   public String getInfoDisplayText() {
     return "FPS: " + String.format("%s", Minecraft.getDebugFPS());
   }

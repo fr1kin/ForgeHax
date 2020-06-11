@@ -18,16 +18,11 @@ public class Latency extends ToggleMod {
     return true;
   }
 
-  @Override
-  public boolean notInList() {
-	return true;
-  }
-
   public String getInfoDisplayText() {
     return "Ping: " + String.format("%s ms", latencyCalc());
   }
 
-  private int latencyCalc(){
+  private int latencyCalc() {
     if (MC.getConnection() == null) {
       return 1;
     } else if (MC.player == null) {

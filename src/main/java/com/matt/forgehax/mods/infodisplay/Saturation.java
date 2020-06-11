@@ -16,13 +16,6 @@ public class Saturation extends ToggleMod {
     return true;
   }
 
-  @Override
-  public boolean notInList() {
-	return true;
-  }
-  /*@Override
-  public boolean isVisible() { return false; }*/
-
   public String getInfoDisplayText() {
     return "Saturation: " + String.format("%.2f", MC.player.getFoodStats().getSaturationLevel());
   }

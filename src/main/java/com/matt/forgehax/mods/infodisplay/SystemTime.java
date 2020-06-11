@@ -15,51 +15,21 @@ public class SystemTime extends ToggleMod {
     super(Category.GUI, "SystemTime", false, "Shows the time from your operating system");
   }
 
-  private final Setting<Boolean> showTime =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("time")
-      .description("Show time")
-      .defaultTo(true)
-      .build();
-
-  private final Setting<Boolean> showDate =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("date")
-      .description("Show date")
-      .defaultTo(true)
-      .build();
+  private final Setting<String> dateFormat =
+      getCommandStub()
+          .builders()
+          .<String>newSettingBuilder()
+          .name("date-format")
+          .description("Date format")
+          .defaultTo("d/MM/yyyy, HH:mm:ss")
+          .build();
 
   @Override
   public boolean isInfoDisplayElement() {
     return true;
   }
 
-  @Override
-  public boolean notInList() {
-	return true;
-  }
-
   public String getInfoDisplayText() {
-    StringBuilder builderTime = new StringBuilder();
-
-    if(showDate.getAsBoolean()) {
-      final String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
-      builderTime.append(String.format("%s", date));
-    }
-
-    if (showTime.getAsBoolean()) {
-      if (showDate.getAsBoolean()) {
-        builderTime.append(", ");
-      }
-      
-      final String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
-      builderTime.append(String.format("%s", time));
-    }
-
-    return builderTime.toString();
+    return new SimpleDateFormat(dateFormat.get()).format(new Date());
   }
 }

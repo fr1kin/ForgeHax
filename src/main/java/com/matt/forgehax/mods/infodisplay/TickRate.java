@@ -13,55 +13,45 @@ public class TickRate extends ToggleMod {
     super(Category.GUI, "TickRate", true, "Shows the server tick-rate data");
   }
 
-  public enum tickRateModes {
-    TICKRATE,
-    TPS
-  }
-
-  public final Setting<tickRateModes> tickRateMode =
-    getCommandStub()
-      .builders()
-      .<tickRateModes>newSettingEnumBuilder()
-      .name("mode")
-      .description("Modes for tick-rate")
-      .defaultTo(tickRateModes.TICKRATE)
-      .build();
+  public final Setting<Boolean> tpsMode =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("tps")
+          .description("Shows server TPS instaed of tick-rate")
+          .defaultTo(false)
+          .build();
 
   private final Setting<Integer> factor =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("factor")
-      .description("Splitting up the tick rate data")
-      .defaultTo(25)
-      .min(25)
-      .max(100)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("factor")
+          .description("Splitting up the tick rate data")
+          .defaultTo(25)
+          .min(25)
+          .max(100)
+          .build();
 
   private final Setting<Boolean> showLag =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("lag")
-      .description("Shows lag time since last valid tick")
-      .defaultTo(true)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("lag")
+          .description("Shows lag time since last valid tick")
+          .defaultTo(true)
+          .build();
 
   @Override
   public boolean isInfoDisplayElement() {
     return true;
   }
 
-  @Override
-  public boolean notInList() {
-	return true;
-  }
-
   public String getInfoDisplayText() {
     TickRateService.TickRateData data = TickRateService.getTickData();
     StringBuilder builderTickRate = new StringBuilder();
 
-    if (tickRateMode.get() == tickRateModes.TICKRATE) {
+    if (!tpsMode.get()) {
       builderTickRate.append("Tick-rate: ");
 
       if (data.getSampleSize() <= 0) {
@@ -92,7 +82,7 @@ public class TickRate extends ToggleMod {
           }
         }
       }
-    } else if (tickRateMode.get() == tickRateModes.TPS) {
+    } else {
       TickRateService.TickRateData.CalculationData point = data.getPoint();
       builderTickRate.append(String.format("TPS: %.2f", point.getAverage()));
     }

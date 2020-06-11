@@ -13,29 +13,27 @@ public class DamageValue extends ToggleMod {
     super(Category.GUI, "DamageValue", true, "Shows damage value in main or offhand");
   }
 
-  public enum Modes {
-    MAINHAND,
-    OFFHAND,
-    BOTH
-  }
+  public final Setting<Boolean> mainhand =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("mainhand")
+          .description("Show the damage value for the current item in main hand")
+          .defaultTo(true)
+          .build();
 
-  public final Setting<Modes> damageValueMode =
-    getCommandStub()
-      .builders()
-      .<Modes>newSettingEnumBuilder()
-      .name("mode")
-      .description("")
-      .defaultTo(Modes.MAINHAND)
-      .build();
+  public final Setting<Boolean> offhand =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("offhand")
+          .description("Show the damage value for the current item in off hand")
+          .defaultTo(true)
+          .build();
 
   @Override
   public boolean isInfoDisplayElement() {
     return true;
-  }
-
-  @Override
-  public boolean notInList() {
-	return true;
   }
 
   public String getInfoDisplayText() {
@@ -43,23 +41,15 @@ public class DamageValue extends ToggleMod {
     ItemStack itemStackM = MC.player.getHeldItemMainhand();
     ItemStack itemStackO = MC.player.getHeldItemOffhand();
 
-    switch (damageValueMode.get()){
-      case MAINHAND: {
-        builderDamage.append(String.format("%s", itemStackM.getMaxDamage() - itemStackM.getItemDamage()));
-        break;
+    if (mainhand.get()) {
+      builderDamage.append(String.format("%s", itemStackM.getMaxDamage() - itemStackM.getItemDamage()));
+    }
+
+    if (offhand.get()) {
+      if (mainhand.get()) {
+        builderDamage.append(" ");
       }
-      case OFFHAND: {
-        builderDamage.append(String.format("[%s]", itemStackO.getMaxDamage() - itemStackO.getItemDamage()));
-        break;
-      }
-      case BOTH: {
-        builderDamage.append(String.format("%s [%s]", (itemStackM.getMaxDamage() - itemStackM.getItemDamage()),
-          (itemStackO.getMaxDamage() - itemStackO.getItemDamage())));
-        break;
-      }
-      default: {
-        builderDamage.append("INVALID");
-      }
+      builderDamage.append(String.format("[%s]", itemStackO.getMaxDamage() - itemStackO.getItemDamage()));
     }
 
     return builderDamage.toString();
