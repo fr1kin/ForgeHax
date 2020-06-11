@@ -198,7 +198,7 @@ public abstract class BaseMod implements Globals {
   /**
    * Hides a mod from the ModList
    */ 
-  public abstract boolean notInList();
+  public abstract boolean isVisible();
 
   /**
    * Check if the mod is an element of InfoDisplay mod DEFAULT: true

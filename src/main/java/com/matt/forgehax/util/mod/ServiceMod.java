@@ -21,7 +21,7 @@ public class ServiceMod extends BaseMod {
   }
 
   @Override
-  public boolean notInList() {
+  public boolean isVisible() {
 	return true;
   }
   

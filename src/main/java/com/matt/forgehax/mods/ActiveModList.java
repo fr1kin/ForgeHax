@@ -2,120 +2,130 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getModManager;
 
-import com.matt.forgehax.mods.services.TickRateService;
-import com.matt.forgehax.util.color.Colors;
+import com.matt.forgehax.mods.services.ForgeHaxService;
 import com.matt.forgehax.util.command.Setting;
-import com.matt.forgehax.util.math.AlignHelper;
 import com.matt.forgehax.util.math.AlignHelper.Align;
-import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
-import com.matt.forgehax.util.mod.HudMod;
+import com.matt.forgehax.util.mod.ListMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import net.minecraft.client.gui.GuiChat;
+
+import net.minecraft.client.gui.*;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
-public class ActiveModList extends HudMod {
-  
-  private final Setting<Boolean> debug =
+public class ActiveModList extends ListMod {
+  private final Setting<Boolean> showDebugText =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
           .name("debug")
-          .description("Disables debug text on mods that have it")
+          .description("Enables debug text on mods that have it")
           .defaultTo(false)
           .build();
-  
-  private final Setting<Boolean> condense =
+
+  private final Setting<Boolean> showServiceMods =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("condense")
-          .description("Condense ModList when chat is open")
-          .defaultTo(true)
+          .name("show-service-mod")
+          .description("Shows service mods count when mod list is compressed")
+          .defaultTo(false)
           .build();
-  
-  private final Setting<SortMode> sortMode =
-      getCommandStub()
-          .builders()
-          .<SortMode>newSettingEnumBuilder()
-          .name("sorting")
-          .description("Sorting mode")
-          .defaultTo(SortMode.ALPHABETICAL)
-          .build();
-  
-  @Override
-  protected Align getDefaultAlignment() { return Align.TOPLEFT; }
-
-  @Override
-  protected int getDefaultOffsetX() { return 1; }
-
-  @Override
-  protected int getDefaultOffsetY() { return 1; }
-
-  @Override
-  protected double getDefaultScale() { return 1d; }
 
   public ActiveModList() {
     super(Category.GUI, "ActiveMods", true, "Shows list of all active mods");
   }
-  
-  int posY;
+
+  @Override
+  public boolean isInfoDisplayElement() {
+    return false;
+  }
+
+  @Override
+  protected Align getDefaultAlignment() {
+    return Align.BOTTOMRIGHT;
+  }
+
+  @Override
+  protected int getDefaultOffsetX() {
+    return 1;
+  }
+
+  @Override
+  protected int getDefaultOffsetY() {
+    return 1;
+  }
+
+  @Override
+  protected double getDefaultScale() {
+    return 1d;
+  }
+
+  @Override
+  public boolean isVisible() {
+    return false;
+  } // default false
 
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
-    int align = alignment.get().ordinal();
-    
     List<String> text = new ArrayList<>();
-    
-    if ((condense.get() && MC.currentScreen instanceof GuiChat) || MC.gameSettings.showDebugInfo) {
+
+    listAlignmentAdjust();
+
+    // Prints the watermark
+    if (showWatermark.get()) {
+      ForgeHaxService.INSTANCE.drawWatermark(getPosX(watermarkOffsetX), getPosY(watermarkOffsetY), align);
+    }
+
+    if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
+
+      // Total number of service mods
+      long serviceMods = getModManager()
+          .getMods()
+          .stream()
+          .filter(BaseMod::isHidden)
+          .count();
+
+      // Total number of mods in the client
       long totalMods = getModManager()
           .getMods()
           .stream()
           .filter(mod -> !mod.isHidden())
           .count();
 
+      // Mods that are enabled
       long enabledMods = getModManager()
           .getMods()
           .stream()
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
           .count();
+
       text.add(enabledMods + "/" + totalMods + " mods enabled");
+      if (showServiceMods.get()) {
+        text.add(serviceMods + " service mods");
+      }
+
     } else {
       getModManager()
           .getMods()
           .stream()
           .filter(BaseMod::isEnabled)
           .filter(mod -> !mod.isHidden())
-          .filter(mod -> !mod.notInList())
           .filter(mod -> !mod.isInfoDisplayElement())
-          .map(mod -> debug.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
+          .filter(BaseMod::isVisible) // prints only visible mods
+          .map(mod -> showDebugText.get() ? mod.getDebugDisplayText() : mod.getDisplayText())
           .sorted(sortMode.get().getComparator())
-          .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + name : name + " <"));
+          .map(super::appendArrow)
+          .forEach(text::add);
     }
 
-    SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
-        Colors.WHITE.toBuffer(), scale.get(), true, align);
-  }
-  
-  private enum SortMode {
-    ALPHABETICAL((o1, o2) -> 0), // mod list is already sorted alphabetically
-    LENGTH(Comparator.<String>comparingInt(SurfaceHelper::getTextWidth).reversed());
-    
-    private final Comparator<String> comparator;
-    
-    public Comparator<String> getComparator() {
-      return this.comparator;
-    }
-    
-    SortMode(Comparator<String> comparatorIn) {
-      this.comparator = comparatorIn;
-    }
+    // Prints on screen
+    printListWithWatermark(align, text);
   }
 }
