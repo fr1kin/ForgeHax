@@ -1,4 +1,4 @@
-package com.matt.forgehax.mods.infooverlay;
+package com.matt.forgehax.mods.infodisplay;
 
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;

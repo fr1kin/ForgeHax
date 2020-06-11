@@ -18,8 +18,11 @@ public abstract class HudMod extends ToggleMod {
   protected final Setting<Double> scale;
 
   protected abstract Align getDefaultAlignment();
+
   protected abstract int getDefaultOffsetX();
+
   protected abstract int getDefaultOffsetY();
+
   protected abstract double getDefaultScale();
 
   public HudMod(Category category, String modName, boolean defaultEnabled, String description) {
@@ -81,6 +84,7 @@ public abstract class HudMod extends ToggleMod {
         && MC.currentScreen instanceof GuiChat) {
       chatOffset = Math.max(15 - offsetY.get(), 0);
     }
+
     return (extraOffset + offsetY.get()) * dirSignY + AlignHelper.alignV(scaledRes.getScaledHeight(), align) - chatOffset;
   }
 

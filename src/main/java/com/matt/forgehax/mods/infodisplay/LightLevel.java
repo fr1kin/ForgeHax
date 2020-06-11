@@ -1,4 +1,4 @@
-package com.matt.forgehax.mods.infooverlay;
+package com.matt.forgehax.mods.infodisplay;
 
 import com.matt.forgehax.mods.CoordsHud;
 import com.matt.forgehax.util.command.Setting;
