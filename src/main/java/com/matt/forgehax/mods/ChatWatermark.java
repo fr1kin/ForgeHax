@@ -25,7 +25,7 @@ public class ChatWatermark extends ToggleMod {
           .<String>newSettingBuilder()
           .name("text")
           .description("Text to add at the end of messages")
-          .defaultTo("imagine using closed source clients")
+          .defaultTo("imagine not using ForgeHax :^)")
           .build();
   
   public ChatWatermark() {
@@ -39,7 +39,7 @@ public class ChatWatermark extends ToggleMod {
       String inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
 
 	  if (!inputMessage.startsWith("/")) {
-          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + " I " + text.get());
+          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + " | " + text.get());
           PacketHelper.ignore(packet);
           Objects.requireNonNull(getNetworkManager()).sendPacket(packet);
           event.setCanceled(true);

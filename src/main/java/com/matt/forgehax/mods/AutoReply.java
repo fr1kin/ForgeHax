@@ -9,28 +9,38 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import joptsimple.internal.Strings;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.opengl.Display;
 
 @RegisterMod
 public class AutoReply extends ToggleMod {
-  
-  public final Setting<String> reply =
+
+  public AutoReply() {
+    super(Category.MISC, "AutoReply", false, "Automatically talk in chat if finds a strings");
+  }
+
+  public final Setting<String> text =
       getCommandStub()
           .builders()
           .<String>newSettingBuilder()
-          .name("reply")
+          .name("text")
           .description("Text to reply with")
           .defaultTo("fuck off newfag")
           .build();
-  
-  public final Setting<String> mode =
+
+  public enum DetectionMode {
+    CHAT,
+    REPLY
+  }
+
+  public final Setting<DetectionMode> mode =
       getCommandStub()
           .builders()
-          .<String>newSettingBuilder()
+          .<DetectionMode>newSettingEnumBuilder()
           .name("mode")
-          .description("Reply or chat")
-          .defaultTo("REPLY")
+          .description("Detection mode")
+          .defaultTo(DetectionMode.REPLY)
           .build();
-  
+
   public final Setting<String> search =
       getCommandStub()
           .builders()
@@ -39,26 +49,48 @@ public class AutoReply extends ToggleMod {
           .description("Text to search for in message")
           .defaultTo("whispers: ")
           .build();
-  
-  public AutoReply() {
-    super(Category.CHAT, "AutoReply", false, "Automatically talk in chat if finds a strings");
-  }
-  
+
+  private final Setting<Boolean> onLostFocus =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("no-focus")
+          .description("Makes the mod only work on lost focus")
+          .defaultTo(false)
+          .build();
+
   @SubscribeEvent
   public void onClientChat(ClientChatReceivedEvent event) {
-    String message = (event.getMessage().getUnformattedText());
-    if (message.matches(search.get()) && !message.startsWith(MC.getSession().getUsername())) {
+    String message = event.getMessage().getUnformattedText();
+    if (message.contains(search.get()) && !message.startsWith(MC.getSession().getUsername())) {
       String append;
-      switch (mode.get().toUpperCase()) {
-        case "REPLY":
+      switch (mode.get()) {
+        case REPLY:
           append = "/r ";
           break;
-        case "CHAT":
+        case CHAT:
         default:
           append = Strings.EMPTY;
           break;
       }
-      getLocalPlayer().sendChatMessage(append + reply.get());
+      if (onLostFocus.getAsBoolean() && !Display.isActive()) {
+        getLocalPlayer().sendChatMessage(append + text.get());
+      } else if (!onLostFocus.getAsBoolean()){
+        getLocalPlayer().sendChatMessage(append + text.get());
+      }
+    }
+  }
+
+  @Override
+  public String getDebugDisplayText() {
+    switch (mode.get()){
+      case CHAT:{
+        return String.format("%s [C]", super.getDisplayText());
+      }
+      case REPLY: {
+        return String.format("%s [R]", super.getDisplayText());
+      }
+      default: return String.format("%s", super.getDisplayText());
     }
   }
 }

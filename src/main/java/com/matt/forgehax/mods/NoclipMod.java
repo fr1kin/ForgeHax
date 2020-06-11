@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class NoclipMod extends ToggleMod {
   
   public NoclipMod() {
-    super(Category.MOVEMENT, "Noclip", false, "Enables player noclip");
+    super(Category.MOVEMENT, "NoClip", false, "Enables player noclip");
   }
   
   @Override
@@ -27,6 +27,10 @@ public class NoclipMod extends ToggleMod {
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     Entity local = getRidingOrPlayer();
+    if (local == null) {
+      return;
+    }
+
     local.noClip = true;
     local.onGround = false;
     local.fallDistance = 0;

@@ -1,5 +1,6 @@
 package com.matt.forgehax.gui.elements;
 
+import com.matt.forgehax.mods.services.ForgeHaxService;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.mod.BaseMod;
 import org.apache.commons.lang3.StringUtils;
@@ -34,15 +35,15 @@ public class GuiButton {
 
   public void toggleMod() {
     if (!mod.isEnabled()) {
-      mod.enable();
+      mod.enable(ForgeHaxService.INSTANCE.toggleMsgs.get());
     } else {
-      mod.disable();
+      mod.disable(ForgeHaxService.INSTANCE.toggleMsgs.get());
     }
   }
 
   public String getName() {
     String trimmedName = mod.getModName();
-    return StringUtils.abbreviate(trimmedName, 14);
+    return StringUtils.abbreviate(trimmedName, 14); //TODO some actual math for this whenever there will be a window width setting
   }
 
   public BaseMod getMod() {

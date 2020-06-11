@@ -79,7 +79,6 @@ public class ForgeHaxService extends ServiceMod {
           .max(255)
           .build();
 
-  /* SOON
   public final Setting<Boolean> toggleMsgs =
       getCommandStub()
           .builders()
@@ -87,7 +86,7 @@ public class ForgeHaxService extends ServiceMod {
           .name("toggle-msgs")
           .description("Enables toggle messages in chat")
           .defaultTo(true)
-          .build();*/
+          .build();
 
   public String getWatermark() {
     return watermarkText.get();
