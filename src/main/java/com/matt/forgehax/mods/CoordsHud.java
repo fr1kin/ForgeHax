@@ -53,11 +53,11 @@ public class CoordsHud extends HudMod {
           .defaultTo(true)
           .build();
 
-  public final Setting<Boolean> viewentity =
+  public final Setting<Boolean> viewEntity =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("viewentity")
+          .name("view-entity")
           .description("Shows the current biome for viewentity (freecam)")
           .defaultTo(false)
           .build();
@@ -94,7 +94,7 @@ public class CoordsHud extends HudMod {
       return;
     }
 
-    if (viewentity.get()) {
+    if (viewEntity.get()) {
       Entity viewEntity = getRenderEntity();
       thisX = viewEntity.posX;
       thisY = viewEntity.posY;

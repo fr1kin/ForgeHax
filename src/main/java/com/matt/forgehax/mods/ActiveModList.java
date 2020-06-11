@@ -37,6 +37,15 @@ public class ActiveModList extends ListMod {
           .defaultTo(false)
           .build();
 
+  private final Setting<Boolean> condense =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("show-service-mod")
+          .description("Shows service mods count when mod list is compressed")
+          .defaultTo(false)
+          .build();
+
   public ActiveModList() {
     super(Category.GUI, "ActiveMods", true, "Shows list of all active mods");
   }
@@ -82,7 +91,7 @@ public class ActiveModList extends ListMod {
       ForgeHaxService.INSTANCE.drawWatermark(getPosX(watermarkOffsetX), getPosY(watermarkOffsetY), align);
     }
 
-    if (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
+    if (condense.get() && MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo) {
 
       // Total number of service mods
       long serviceMods = getModManager()
