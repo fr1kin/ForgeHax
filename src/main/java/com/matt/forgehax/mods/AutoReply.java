@@ -14,10 +14,6 @@ import org.lwjgl.opengl.Display;
 @RegisterMod
 public class AutoReply extends ToggleMod {
 
-  public AutoReply() {
-    super(Category.MISC, "AutoReply", false, "Automatically talk in chat if finds a strings");
-  }
-
   public final Setting<String> text =
       getCommandStub()
           .builders()
@@ -27,18 +23,13 @@ public class AutoReply extends ToggleMod {
           .defaultTo("fuck off newfag")
           .build();
 
-  public enum DetectionMode {
-    CHAT,
-    REPLY
-  }
-
-  public final Setting<DetectionMode> mode =
+  public final Setting<Boolean> chat =
       getCommandStub()
           .builders()
-          .<DetectionMode>newSettingEnumBuilder()
+          .<Boolean>newSettingBuilder()
           .name("mode")
           .description("Detection mode")
-          .defaultTo(DetectionMode.REPLY)
+          .defaultTo(false)
           .build();
 
   public final Setting<String> search =
@@ -59,23 +50,24 @@ public class AutoReply extends ToggleMod {
           .defaultTo(false)
           .build();
 
+  public AutoReply() {
+    super(Category.MISC, "AutoReply", false, "Automatically talk in chat if finds a strings");
+  }
+
   @SubscribeEvent
   public void onClientChat(ClientChatReceivedEvent event) {
     String message = event.getMessage().getUnformattedText();
     if (message.contains(search.get()) && !message.startsWith(MC.getSession().getUsername())) {
       String append;
-      switch (mode.get()) {
-        case REPLY:
-          append = "/r ";
-          break;
-        case CHAT:
-        default:
-          append = Strings.EMPTY;
-          break;
+      if (!chat.get()) {
+        append = "/r ";
+      } else {
+        append = Strings.EMPTY;
       }
+
       if (onLostFocus.getAsBoolean() && !Display.isActive()) {
         getLocalPlayer().sendChatMessage(append + text.get());
-      } else if (!onLostFocus.getAsBoolean()){
+      } else if (!onLostFocus.getAsBoolean()) {
         getLocalPlayer().sendChatMessage(append + text.get());
       }
     }
@@ -83,14 +75,11 @@ public class AutoReply extends ToggleMod {
 
   @Override
   public String getDebugDisplayText() {
-    switch (mode.get()){
-      case CHAT:{
-        return String.format("%s [C]", super.getDisplayText());
-      }
-      case REPLY: {
-        return String.format("%s [R]", super.getDisplayText());
-      }
-      default: return String.format("%s", super.getDisplayText());
+    if (chat.get()) {
+      return String.format("%s [C]", super.getDisplayText());
+    }
+    else {
+      return String.format("%s [R]", super.getDisplayText());
     }
   }
 }

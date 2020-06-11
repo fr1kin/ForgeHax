@@ -12,12 +12,11 @@ import com.matt.forgehax.util.mod.loader.RegisterMod;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.Helper.getPlayerDirection;
 
 @RegisterMod
 public class CoordsHud extends HudMod {
@@ -49,7 +48,7 @@ public class CoordsHud extends HudMod {
           .builders()
           .<Boolean>newSettingBuilder()
           .name("direction")
-          .description("Shows the facing value")
+          .description("Show the facing value")
           .defaultTo(true)
           .build();
 
@@ -58,7 +57,7 @@ public class CoordsHud extends HudMod {
           .builders()
           .<Boolean>newSettingBuilder()
           .name("view-entity")
-          .description("Shows the current biome for viewentity (freecam)")
+          .description("Show the current coords for viewentity (freecam)")
           .defaultTo(false)
           .build();
 
@@ -111,11 +110,11 @@ public class CoordsHud extends HudMod {
     List<String> text = new ArrayList<>();
 
     // Direction
-    String facingNormal = String.format("%s " + "[%s]", getFacing(), getTowards());
+    String facingNormal = String.format("%s " + "[%s]", facingTable[getPlayerDirection()], towardsTable[getPlayerDirection()]);
 
     // Multiline coords + direction
     String facingWithTCoords = String.format("%s " + "[%s] (%01.1f, %01.1f)",
-        getFacing(), getTowards(), otherX, otherZ);
+        facingTable[getPlayerDirection()], towardsTable[getPlayerDirection()], otherX, otherZ);
 
     // Only OW coords
     String coordsNormal = String.format("%01.1f, %01.1f, %01.1f", thisX, thisY, thisZ);
@@ -132,14 +131,15 @@ public class CoordsHud extends HudMod {
         || (translate.get() && MC.player.dimension == 1)) {
       text.add(coordsNormal); // x, y, z
 
-      if(direction.get()){
-        if(!multiline.get()
+      if (direction.get()) {
+        if (!multiline.get()
             || !translate.get() && multiline.get()
             || (translate.get() && MC.player.dimension == 1)) {
           text.add(facingNormal); // Facing [f]
         }
       }
     }
+
     if (translate.get() && MC.player.dimension != 1) {
       if (multiline.get()) {
         if (direction.get()) {
@@ -161,49 +161,27 @@ public class CoordsHud extends HudMod {
         Colors.WHITE.toBuffer(), scale.get(), true, alignment.get().ordinal());
   }
 
-  private String getFacing() {
-    switch (getPlayerDirection()) {
-      case 0:
-        return "South";
-      case 1:
-        return "South West";
-      case 2:
-        return "West";
-      case 3:
-        return "North West";
-      case 4:
-        return "North";
-      case 5:
-        return "North East";
-      case 6:
-        return "East";
-      case 7:
-        return "South East";
-    }
-    return "Invalid";
-  }
+  private final String[] facingTable = {
+      "South",
+      "South West",
+      "West",
+      "North West",
+      "North",
+      "North East",
+      "East",
+      "South East"
+  };
 
-  private String getTowards() {
-    switch (getPlayerDirection()) {
-      case 0:
-        return "+Z";
-      case 1:
-        return "-X +Z";
-      case 2:
-        return "-X";
-      case 3:
-        return "-X -Z";
-      case 4:
-        return "-Z";
-      case 5:
-        return "+X -Z";
-      case 6:
-        return "+X";
-      case 7:
-        return "+X +Z";
-    }
-    return "Invalid";
-  }
+  private final String[] towardsTable = {
+      "+Z",
+      "-X +Z",
+      "-X",
+      "-X -Z",
+      "-Z",
+      "+X -Z",
+      "+X",
+      "+X +Z"
+  };
 
   public Entity getEntity() {
     return viewEntity.get() ? MC.getRenderViewEntity() : MC.player;
