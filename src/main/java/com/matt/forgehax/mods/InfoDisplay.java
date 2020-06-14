@@ -12,7 +12,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.*;
 
 import static com.matt.forgehax.Helper.getModManager;
-import static com.matt.forgehax.util.draw.SurfaceHelper.getTextHeight;
 
 /**
  * Created by OverFloyd
@@ -31,7 +30,7 @@ public class InfoDisplay extends ListMod {
 
   @Override
   protected int getDefaultOffsetX() {
-    return 1;
+    return 2;
   }
 
   @Override
@@ -40,8 +39,18 @@ public class InfoDisplay extends ListMod {
   }
 
   @Override
+  protected int getDefaultWatermarkOffsetY() {
+    return 1;
+  }
+
+  @Override
   protected double getDefaultScale() {
-    return 1d;
+    return 1;
+  }
+
+  @Override
+  public boolean watermarkDefault() {
+    return true;
   }
 
   @Override
@@ -58,13 +67,6 @@ public class InfoDisplay extends ListMod {
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     List<String> text = new ArrayList<>();
 
-    listAlignmentAdjust();
-
-    // Prints the watermark
-    if (showWatermark.get()) {
-      ForgeHaxService.INSTANCE.drawWatermark(getPosX(watermarkOffsetX), getPosY(watermarkOffsetY), align);
-    }
-
     // Prints all the "InfoDisplayElement" mods
     getModManager()
         .getMods()
@@ -76,7 +78,12 @@ public class InfoDisplay extends ListMod {
         .map(super::appendArrow)
         .forEach(text::add);
 
+    // Prints the watermark
+    if (showWatermark.get()) {
+      ForgeHaxService.INSTANCE.drawWatermark(getPosX(0), getPosY(watermarkOffsetY.get()), alignment.get().ordinal());
+    }
+
     // Prints on screen
-    printListWithWatermark(align, text);
+    printListWithWatermark(text, alignment.get().ordinal());
   }
 }

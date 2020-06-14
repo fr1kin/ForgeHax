@@ -63,7 +63,7 @@ public class ActiveModList extends ListMod {
 
   @Override
   protected int getDefaultOffsetX() {
-    return 1;
+    return 2;
   }
 
   @Override
@@ -72,8 +72,18 @@ public class ActiveModList extends ListMod {
   }
 
   @Override
+  protected int getDefaultWatermarkOffsetY() {
+    return 1;
+  }
+
+  @Override
   protected double getDefaultScale() {
-    return 1d;
+    return 1;
+  }
+
+  @Override
+  public boolean watermarkDefault() {
+    return false;
   }
 
   @Override
@@ -84,13 +94,6 @@ public class ActiveModList extends ListMod {
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     List<String> text = new ArrayList<>();
-
-    listAlignmentAdjust();
-
-    // Prints the watermark
-    if (showWatermark.get()) {
-      ForgeHaxService.INSTANCE.drawWatermark(getPosX(watermarkOffsetX), getPosY(watermarkOffsetY), align);
-    }
 
     if (condense.get() && (MC.currentScreen instanceof GuiChat || MC.gameSettings.showDebugInfo)) {
 
@@ -134,7 +137,12 @@ public class ActiveModList extends ListMod {
           .forEach(text::add);
     }
 
+    // Prints the watermark
+    if (showWatermark.get()) {
+      ForgeHaxService.INSTANCE.drawWatermark(getPosX(0), getPosY(watermarkOffsetY.get()), alignment.get().ordinal());
+    }
+
     // Prints on screen
-    printListWithWatermark(align, text);
+    printListWithWatermark(text, alignment.get().ordinal());
   }
 }
