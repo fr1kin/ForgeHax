@@ -193,7 +193,7 @@ public class ItemESP extends ToggleMod {
               // GlStateManager.glLineWidth(linewidth.get());
               // GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
-              RenderUtils.drawBox(minVec, maxVec, color, linewidth.get(), false);
+              RenderUtils.drawBox(minVec, maxVec, color, linewidth.get(), true);
 
               // GL11.glDisable(GL11.GL_LINE_SMOOTH);
               // GlStateManager.glLineWidth(1.0f);
