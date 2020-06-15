@@ -35,74 +35,56 @@ I recommend allocating more ram in both environments as the Markers mod requires
 Sometimes when building, the config.properties resource will not be tokenized. This will break the tweaker because it wont know what mapping version to use. This can be fixed by cleaning your gradle and IDE build output and running setupDecompWorkspace again.
 
 ## FAQ
-#### How do I install ForgeHax?
+#### Q: How do I install ForgeHax?
 
-Download [Minecraft Forge](https://files.minecraftforge.net/) and put the ForgeHax jar into .minecraft/mods
+- Download [Minecraft Forge](https://files.minecraftforge.net/) and put the ForgeHax jar into `.minecraft/mods`
 
-#### How do I use commands?
+#### Q: How do I use commands?
 
-You use commands by typing `.` chat.
+- You use commands by typing `.` chat.
+- Example: `.help` in chat will print a list of all mods in ForgeHax.
 
-Example: `.help` in chat will print a list of all mods in ForgeHax.
+#### Q: How do I enter an argument that contains spaces?
 
-#### How do I enter an argument that contains spaces?
+- Use quotes.
+- Example: `.chatbot spam add spam "This will be treated as one argument"`
 
-Use quotes.
+#### Q: How do I see a list of mods?
 
-Example: `.chatbot spam add spam "This will be treated as one argument"`
+- Type `.mods <search>` in chat. The search argument is optional.
 
-#### How do I see a list of mods?
+#### Q: How do I toggle a mod?
 
-Type `.mods <search>` in chat. The search argument is optional.
+- Type `.<mod name> enabled 1` to enable, and `.<mod name> enabled 0` to disable.
+- Example: `.step enabled 1` will enable step hack.
 
-#### How do I toggle a mod?
+#### Q: How do I see a list of commands for a mod?
 
-Type `.<mod name> enabled 1` to enable, and `.<mod name> enabled 0` to disable.
+- Type `.<mod name>` and it should show a list of settings (if any), their current value, and their description.
+- Example: `.step`
 
-Example: `.step enabled 1` will enable step hack.
+#### Q: How do I see a list of options for a command?
 
-#### How do I see a list of commands for a mod?
+- After the command add `-?` or `--help`. Almost every command should have help text for its options by default.
+- Example: `.step -?` or `.step --help` or `.step enabled -?` etc
 
-Type `.<mod name>` and it should show a list of settings (if any), their current value, and their description.
+#### Q: How do I use the Markers mod?
 
-Example: `.step`
+- `.markers options add stone` Will add stone and all its variants to the block list
+- `.markers options add 1 -i` Will add stone by its block ID
+- `.markers options add stone -r 255 -g 0 -b 0` Will add stone and give it the color red.
+- `.markers options add stone -m 1` Will add stone with the meta variant of 1 (Granite)
+- `.markers options add shulker --regex` Will add any block that contains the word "shulker" in its name
+- `.markers options remove stone` Will remove stone from Markers
 
-#### How do I see a list of options for a command?
+#### Q: How do I use the SpamBot mod?
 
-After the command add `-?` or `--help`. Almost every command should have help text for its options by default.
-
-Example: `.step -?` or `.step --help` or `.step enabled -?` etc
-
-#### How do I use the Markers mod?
-
-`.markers options add stone` Will add stone and all its variants to the block list
-
-`.markers options add 1 -i` Will add stone by its block ID
-
-`.markers options add stone -r 255 -g 0 -b 0` Will add stone and give it the color red.
-
-`.markers options add stone -m 1` Will add stone with the meta variant of 1 (Granite)
-
-`.markers options add shulker --regex` Will add any block that contains the word "shulker" in its name
-
-`.markers options remove stone` Will remove stone from Markers
-
-#### How do I use the SpamBot mod?
-
-`.chatbot spam add test` Will add a new entry called "test"
-
-`.chatbot spam add test "Test text"` Will append "Test text" to the test entry message list.
-
-`.chatbot spam add test --type SEQUENTIAL` Will set the spam type to sequential. (Use `.spambot add -?` to see acceptable arguments)
-
-`.chatbot spam add test --keyword !test` Will set the trigger keyword to "!test"
- 
-`.chatbot spam add test --trigger REPLY` Will set the trigger mode to "REPLY" (Use `.spambot add -?` to see acceptable arguments)
- 
-`.chatbot spam add test --enabled true` Will enable the spam entry 
- 
-`.chatbot spam import test import_test.txt` Will import messages from the file "import_test.txt" inside .minecraft/forgehax
-
-`.chatbot spam export test export_test.txt` Will export messages from the entry into a text file under /forgehax.
- 
-`.chatbot spam remove test` Will remove the test entry and all its contents
+- `.chatbot spam add test` Will add a new entry called "test"
+- `.chatbot spam add test "Test text"` Will append "Test text" to the test entry message list.
+- `.chatbot spam add test --type SEQUENTIAL` Will set the spam type to sequential. (Use `.spambot add -?` to see acceptable arguments)
+- `.chatbot spam add test --keyword !test` Will set the trigger keyword to "!test"
+- `.chatbot spam add test --trigger REPLY` Will set the trigger mode to "REPLY" (Use `.spambot add -?` to see acceptable arguments)
+- `.chatbot spam add test --enabled true` Will enable the spam entry 
+- `.chatbot spam import test import_test.txt` Will import messages from the file "import_test.txt" inside `.minecraft/forgehax`
+- `.chatbot spam export test export_test.txt` Will export messages from the entry into a text file under `.minecraft/forgehax`.
+- `.chatbot spam remove test` Will remove the test entry and all its contents
