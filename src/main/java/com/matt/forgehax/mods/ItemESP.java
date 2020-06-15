@@ -3,7 +3,10 @@ package com.matt.forgehax.mods;
 import static com.matt.forgehax.Helper.getWorld;
 
 import com.matt.forgehax.events.Render2DEvent;
+import com.matt.forgehax.events.RenderEvent;
+import com.matt.forgehax.util.draw.RenderUtils;
 import com.matt.forgehax.util.color.Colors;
+import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.entity.EntityUtils;
@@ -16,6 +19,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
@@ -40,7 +44,69 @@ public class ItemESP extends ToggleMod {
           .builders()
           .<Boolean>newSettingBuilder()
           .name("age")
-          .description("Show ticks left before despawn")
+          .description("Show how long the item has existed (clientside)")
+          .defaultTo(false)
+          .build();
+
+  public final Setting<Float> linewidth =
+    getCommandStub()
+      .builders()
+      .<Float>newSettingBuilder()
+      .name("width")
+      .description("Line width")
+      .defaultTo(2.0F)
+      .build();
+
+  private final Setting<Integer> alpha =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("alpha")
+          .description("alpha")
+          .min(0)
+          .max(255)
+          .defaultTo(255)
+          .build();
+
+  private final Setting<Integer> red =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("red")
+          .description("red")
+          .min(0)
+          .max(255)
+          .defaultTo(0)
+          .build();
+
+  private final Setting<Integer> green =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("green")
+          .description("green")
+          .min(0)
+          .max(255)
+          .defaultTo(0)
+          .build();
+
+  private final Setting<Integer> blue =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("blue")
+          .description("blue")
+          .min(0)
+          .max(255)
+          .defaultTo(0)
+          .build();
+
+  private final Setting<Boolean> draw_box =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("box")
+          .description("Draw a box around items")
           .defaultTo(false)
           .build();
 
@@ -90,7 +156,7 @@ public class ItemESP extends ToggleMod {
                   stack.getDisplayName() + (stack.isStackable() ? (" x" + stack.getCount()) : "");
 
               if (age.get()) {
-                text += String.format(" [%d]", (entity.lifespan - entity.ticksExisted) / TICKS_SECOND);
+                text += String.format(" [%d]", entity.getAge()/TICKS_SECOND);
               }
               
               SurfaceHelper.drawTextShadow(
@@ -106,4 +172,33 @@ public class ItemESP extends ToggleMod {
     GlStateManager.enableDepth();
     GlStateManager.disableBlend();
   }
+
+  @SubscribeEvent
+  public void onRender(final RenderEvent event) {
+    if (!draw_box.get()) return;
+    getWorld()
+        .loadedEntityList
+        .stream()
+        .filter(EntityItem.class::isInstance)
+        .map(EntityItem.class::cast)
+        .filter(entity -> entity.ticksExisted > 1)
+        .forEach(
+            entity -> {
+	  	        int color = Color.of(red.get(), green.get(), blue.get(), alpha.get()).toBuffer();
+              AxisAlignedBB bb = entity.getRenderBoundingBox();
+              Vec3d minVec = new Vec3d(bb.minX, bb.minY, bb.minZ);
+              Vec3d maxVec = new Vec3d(bb.maxX, bb.maxY, bb.maxZ);
+
+              // GlStateManager.enableDepth();
+              // GlStateManager.glLineWidth(linewidth.get());
+              // GL11.glEnable(GL11.GL_LINE_SMOOTH);
+
+              RenderUtils.drawBox(minVec, maxVec, color, linewidth.get(), false);
+
+              // GL11.glDisable(GL11.GL_LINE_SMOOTH);
+              // GlStateManager.glLineWidth(1.0f);
+              // GlStateManager.disableDepth();
+            });
+  }
+
 }
