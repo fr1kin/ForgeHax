@@ -6,6 +6,7 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import joptsimple.internal.Strings;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -23,12 +24,12 @@ public class AutoReply extends ToggleMod {
           .defaultTo("fuck off newfag")
           .build();
 
-  public final Setting<Boolean> chat =
+  public final Setting<Boolean> dms =
       getCommandStub()
           .builders()
           .<Boolean>newSettingBuilder()
-          .name("mode")
-          .description("Detection mode")
+          .name("dms-mode")
+          .description("Makes AutoReply work only in dms")
           .defaultTo(false)
           .build();
 
@@ -59,7 +60,7 @@ public class AutoReply extends ToggleMod {
     String message = event.getMessage().getUnformattedText();
     if (message.contains(search.get()) && !message.startsWith(MC.getSession().getUsername())) {
       String append;
-      if (!chat.get()) {
+      if (dms.get()) {
         append = "/r ";
       } else {
         append = Strings.EMPTY;
@@ -75,11 +76,11 @@ public class AutoReply extends ToggleMod {
 
   @Override
   public String getDebugDisplayText() {
-    if (chat.get()) {
-      return String.format("%s [C]", super.getDisplayText());
+    if (!dms.get()) {
+      return super.getDebugDisplayText() + ChatFormatting.GRAY + " [" + ChatFormatting.WHITE + "C" + ChatFormatting.GRAY + "]" + ChatFormatting.WHITE;
     }
     else {
-      return String.format("%s [R]", super.getDisplayText());
+      return super.getDebugDisplayText() + ChatFormatting.GRAY + " [" + ChatFormatting.WHITE + "R" + ChatFormatting.GRAY + "]" + ChatFormatting.WHITE;
     }
   }
 }

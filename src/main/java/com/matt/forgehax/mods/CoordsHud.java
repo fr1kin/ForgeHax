@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -20,10 +21,6 @@ import static com.matt.forgehax.Helper.getPlayerDirection;
 
 @RegisterMod
 public class CoordsHud extends HudMod {
-
-  public CoordsHud() {
-    super(Category.GUI, "Coords", false, "Displays your current coordinates");
-  }
 
   private final Setting<Boolean> translate =
       getCommandStub()
@@ -60,6 +57,10 @@ public class CoordsHud extends HudMod {
           .description("Show the current coords for viewentity (freecam)")
           .defaultTo(false)
           .build();
+
+  public CoordsHud() {
+    super(Category.GUI, "Coords", false, "Displays your current coordinates");
+  }
 
   @Override
   protected Align getDefaultAlignment() {
@@ -110,21 +111,15 @@ public class CoordsHud extends HudMod {
     List<String> text = new ArrayList<>();
 
     // Direction
-    String facingNormal = String.format("%s " + "[%s]", facingTable[getPlayerDirection()], towardsTable[getPlayerDirection()]);
+    String facingAndDirection = String.format("%s " + TextFormatting.GRAY + "[" + TextFormatting.WHITE +
+        "%s"  + TextFormatting.GRAY + "]" + TextFormatting.WHITE, facingTable[getPlayerDirection()], towardsTable[getPlayerDirection()]);
 
-    // Multiline coords + direction
-    String facingWithTCoords = String.format("%s " + "[%s] (%01.1f, %01.1f)",
-        facingTable[getPlayerDirection()], towardsTable[getPlayerDirection()], otherX, otherZ);
+    // Nether coords
+    String coordsTranslated = String.format(TextFormatting.GRAY + "(" + TextFormatting.WHITE +"%01.1f, %01.1f" +
+        TextFormatting.GRAY + ")" + TextFormatting.WHITE, otherX, otherZ);
 
     // Only OW coords
     String coordsNormal = String.format("%01.1f, %01.1f, %01.1f", thisX, thisY, thisZ);
-
-    // Multiline Nether coords
-    String coordsMultiTranslated = String.format("(%01.1f, %01.1f)", otherX, otherZ);
-
-    // Single line OW + Nether coords
-    String coordsTranslated = String.format(
-        "%01.1f, %01.1f, %01.1f (%01.1f, %01.1f)", thisX, thisY, thisZ, otherX, otherZ);
 
     if (!translate.get()
         || (translate.get() && multiline.get())
@@ -135,7 +130,7 @@ public class CoordsHud extends HudMod {
         if (!multiline.get()
             || !translate.get() && multiline.get()
             || (translate.get() && MC.player.dimension == 1)) {
-          text.add(facingNormal); // Facing [f]
+          text.add(facingAndDirection); // Facing [f]
         }
       }
     }
@@ -143,15 +138,15 @@ public class CoordsHud extends HudMod {
     if (translate.get() && MC.player.dimension != 1) {
       if (multiline.get()) {
         if (direction.get()) {
-          text.add(facingWithTCoords); // Facing (tx, tz)
+          text.add(facingAndDirection + " " + coordsTranslated); // Facing (tx, tz)
         } else {
-          text.add(coordsMultiTranslated); // (tx, tz)
+          text.add(coordsTranslated); // (tx, tz)
         }
       } else {
-        text.add(coordsTranslated); // x, y, z (tx, tz)
+        text.add(coordsNormal + " " + coordsTranslated); // x, y, z (tx, tz)
 
         if (direction.get()) {
-          text.add(facingNormal); // Facing [f]
+          text.add(facingAndDirection); // Facing [f]
         }
       }
     }
