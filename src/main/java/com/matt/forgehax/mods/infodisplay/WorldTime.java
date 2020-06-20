@@ -1,7 +1,5 @@
 package com.matt.forgehax.mods.infodisplay;
 
-import static com.matt.forgehax.Helper.getWorld;
-
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -13,12 +11,12 @@ import net.minecraft.network.play.server.SPacketTimeUpdate;
 @RegisterMod
 public class WorldTime extends ToggleMod {
 
-  public final Setting<Boolean> server_sync =
+  public final Setting<Boolean> serverSync =
     getCommandStub()
       .builders()
       .<Boolean>newSettingBuilder()
       .name("server-sync")
-      .description("Force synchronization with server time")
+      .description("Force synchronization with server time.")
       .defaultTo(false)
       .build();
 
@@ -27,12 +25,12 @@ public class WorldTime extends ToggleMod {
       .builders()
       .<Boolean>newSettingBuilder()
       .name("slim")
-      .description("Show the time with a slimmer, real-like format")
+      .description("Show the time with a slimmer, real-like format.")
       .defaultTo(false)
       .build();
 
   public WorldTime() {
-    super(Category.GUI, "WorldTime", false, "Shows the time in Minecraft world");
+    super(Category.GUI, "WorldTime", false, "Shows the time in Minecraft world.");
   }
 
   @Override
@@ -46,21 +44,22 @@ public class WorldTime extends ToggleMod {
 
   @SubscribeEvent
   public void onPacketPreceived(PacketEvent.Incoming.Pre event) {
-    if (server_sync.get() && event.getPacket() instanceof SPacketTimeUpdate) {
+    if (serverSync.get() && event.getPacket() instanceof SPacketTimeUpdate) {
       time = (int) (((SPacketTimeUpdate) event.getPacket()).getWorldTime() % 24000L);
       day = ((SPacketTimeUpdate) event.getPacket()).getWorldTime() / 24000L;
     }
   }
 
   public String getInfoDisplayText() {
-    if (!server_sync.get()) {
-      time = (int) (getWorld().getWorldTime() % 24000L);
-      day = getWorld().getWorldTime() / 24000L;
+    if (!serverSync.get()) {
+      time = (int) (MC.world.getWorldTime() % 24000L);
+      day = MC.world.getWorldTime() / 24000L;
     }
+
     if (slim.get()) {
       return String.format("Day %d, %s", day, translate(time));
     } else {
-      return String.format("Age: %d ⏐ Time: %d/%d [%s]", day, time/TPS, getNextStep(time)/TPS, getTimePhase(time));
+      return String.format("Age: %d | Time: %d/%d [%s]", day, time / TPS, getNextStep(time) / TPS, getTimePhase(time));
     }
   }
 
@@ -84,6 +83,6 @@ public class WorldTime extends ToggleMod {
 
   private String translate(int time) {
     int translated_time = (int) (((long) time * 1728000L) / 24000L); // "ticks" in a real day / ticks in minecraft
-    return String.format("%02d:%02d", (int) translated_time/(3600*TPS), (int) (translated_time%(3600*TPS)/(60*TPS)));
+    return String.format("%02d:%02d", translated_time / (3600 * TPS), translated_time % (3600 * TPS) / (60 * TPS));
   }
 }

@@ -7,7 +7,7 @@ import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.math.AlignHelper.Align;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
-import com.matt.forgehax.util.mod.ListMod;
+import com.matt.forgehax.util.mod.WatermarkListMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
-public class ActiveModList extends ListMod {
+public class ActiveModList extends WatermarkListMod {
 
   private final Setting<Boolean> showDebugText =
       getCommandStub()
