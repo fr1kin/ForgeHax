@@ -106,7 +106,7 @@ public class FriendService extends ServiceMod {
           .findFirst()
           .orElse(null);
     if (f != null)
-      event.setColor(Colors.BETTER_PINK.toBuffer());
+      event.setColor(Colors.GOLD.toBuffer());
   }
 
   @Override
