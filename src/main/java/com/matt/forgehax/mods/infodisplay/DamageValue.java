@@ -5,6 +5,7 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextFormatting;
 
 @RegisterMod
 public class DamageValue extends ToggleMod {
@@ -49,7 +50,7 @@ public class DamageValue extends ToggleMod {
       if (mainhand.get()) {
         builderDamage.append(" ");
       }
-      builderDamage.append(String.format("[%s]", itemStackO.getMaxDamage() - itemStackO.getItemDamage()));
+      builderDamage.append(String.format(TextFormatting.GRAY + "[%s]" + TextFormatting.WHITE, itemStackO.getMaxDamage() - itemStackO.getItemDamage()));
     }
 
     return builderDamage.toString();

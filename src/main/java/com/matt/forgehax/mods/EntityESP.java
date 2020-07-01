@@ -19,6 +19,7 @@ import com.matt.forgehax.util.draw.RenderUtils;
 import java.util.Objects;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -39,7 +40,7 @@ public class EntityESP extends ToggleMod {
       .<ESPMode>newSettingEnumBuilder()
       .name("mode")
       .description("2D or 3D ESP rendering")
-      .defaultTo(ESPMode.SQUARE)
+      .defaultTo(ESPMode.BOX)
       .build();
   
   public final Setting<Boolean> players =
@@ -108,7 +109,7 @@ public class EntityESP extends ToggleMod {
           .description("green")
           .min(0)
           .max(255)
-          .defaultTo(0)
+          .defaultTo(255)
           .build();
 
   private final Setting<Integer> blue =
@@ -119,13 +120,12 @@ public class EntityESP extends ToggleMod {
           .description("blue")
           .min(0)
           .max(255)
-          .defaultTo(0)
+          .defaultTo(255)
           .build();
   
   public EntityESP() {
     super(Category.RENDER, "EntityESP", false, "Draw 2D boxes around entities");
   }
-  
 
   @SubscribeEvent(priority = EventPriority.LOW)
   public void onRender2D(final Render2DEvent event) {
@@ -154,7 +154,6 @@ public class EntityESP extends ToggleMod {
 			        if (!mobs_friendly.get()) return;
               break;
           }
-
 	  	    int color = Color.of(red.get(), green.get(), blue.get(), alpha.get()).toBuffer();
           Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
           Vec3d topPos =
@@ -208,15 +207,7 @@ public class EntityESP extends ToggleMod {
           Vec3d minVec = new Vec3d(bb.minX, bb.minY, bb.minZ);
           Vec3d maxVec = new Vec3d(bb.maxX, bb.maxY, bb.maxZ);
 
-          // GlStateManager.enableDepth();
-          // GlStateManager.glLineWidth(linewidth.get());
-          // GL11.glEnable(GL11.GL_LINE_SMOOTH);
-
           RenderUtils.drawBox(minVec, maxVec, color, linewidth.get(), true);
-
-          // GL11.glDisable(GL11.GL_LINE_SMOOTH);
-          // GlStateManager.glLineWidth(1.0f);
-          // GlStateManager.disableDepth();
         });
   }
 }

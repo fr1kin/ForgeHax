@@ -112,6 +112,10 @@ public class VectorUtils implements Globals {
     return pos.subtract(eyes).normalize().subtract(directionVec).lengthSquared();
   }
 
+  public static double distance(Vec3d a, Vec3d b) {
+    return distance(a.x, a.y, a.z, b.x, b.y, b.z);
+  }
+
   public static double distance(double x1, double y1, double z1, double x2, double y2, double z2) {
 	return Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2) + Math.pow(z2-z1, 2));
   }

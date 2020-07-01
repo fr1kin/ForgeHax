@@ -26,7 +26,7 @@ public class AntiFireMod extends ToggleMod {
           .builders()
           .<Boolean>newSettingBuilder()
           .name("collisions")
-          .description("Give fire collision boxes")
+          .description("Give fire and lava collision boxes")
           .defaultTo(false)
           .build();
   
@@ -38,8 +38,8 @@ public class AntiFireMod extends ToggleMod {
     
     if (Helper.getLocalPlayer() != null) {
       AxisAlignedBB bb = new AxisAlignedBB(event.getPos()).expand(0, 0.1D, 0);
-      if (event.getBlock() == Blocks.FIRE && isAbovePlayer(event.getPos()) && event.getEntityBox()
-          .intersects(bb)) {
+      if ((event.getBlock() == Blocks.FIRE || event.getBlock() == Blocks.LAVA) && isAbovePlayer(event.getPos())
+            && event.getEntityBox().intersects(bb)) {
         event.getCollidingBoxes().add(bb);
       }
     }

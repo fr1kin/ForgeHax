@@ -21,7 +21,7 @@ public class AntiHeldItemChangeMod extends ToggleMod {
   public AntiHeldItemChangeMod() {
     super(
         Category.PLAYER,
-        "AntiHeldItemChange",
+        "AntiHeldChange",
         false,
         "prevents the server from changing selected hotbar slot");
   }

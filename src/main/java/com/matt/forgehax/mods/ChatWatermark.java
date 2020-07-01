@@ -1,7 +1,6 @@
 package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.printError;
 
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.util.PacketHelper;
@@ -39,7 +38,7 @@ public class ChatWatermark extends ToggleMod {
       String inputMessage = ((CPacketChatMessage) event.getPacket()).getMessage();
 
 	  if (!inputMessage.startsWith("/")) {
-          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + " | " + text.get());
+          CPacketChatMessage packet = new CPacketChatMessage(inputMessage + " \u23d0 " + text.get());
           PacketHelper.ignore(packet);
           Objects.requireNonNull(getNetworkManager()).sendPacket(packet);
           event.setCanceled(true);

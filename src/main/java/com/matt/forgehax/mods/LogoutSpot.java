@@ -2,6 +2,7 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Helper.getModManager;
 
 import com.google.common.collect.Sets;
 import com.matt.forgehax.Helper;
@@ -12,6 +13,8 @@ import com.matt.forgehax.events.RenderEvent;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
+import com.matt.forgehax.util.entity.EntityUtils;
+import com.matt.forgehax.util.entity.PlayerUtils;
 import com.matt.forgehax.util.math.Plane;
 import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
@@ -19,12 +22,18 @@ import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.tesselation.GeometryMasks;
 import com.matt.forgehax.util.tesselation.GeometryTessellator;
+
+import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -57,6 +66,14 @@ public class LogoutSpot extends ToggleMod {
           .description("Print connect/disconnect messages in chat")
           .defaultTo(true)
           .build();
+  private final Setting<Boolean> log_visual_range =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("visual-range")
+          .description("Also print players entering render distance")
+          .defaultTo(true)
+          .build();
   
   private final Set<LogoutPos> spots = Sets.newHashSet();
   
@@ -70,9 +87,9 @@ public class LogoutSpot extends ToggleMod {
     }
   }
   
-  private void printWarning(String fmt, Object... args) {
+  private void printInform(String fmt, Object... args) {
     if (print_message.get()) {
-      Helper.printWarning(fmt, args);
+      Helper.printInform(fmt, args);
     }
   }
   
@@ -91,12 +108,25 @@ public class LogoutSpot extends ToggleMod {
   protected void onDisabled() {
     reset();
   }
+
+  @SubscribeEvent(priority = EventPriority.LOWEST)
+  public void onEntityJoinWorld(EntityJoinWorldEvent event) {
+    if (getLocalPlayer() == null) return;
+    
+    if (EntityUtils.isPlayer(event.getEntity()) &&
+        !getLocalPlayer().equals(event.getEntity()) &&
+        !EntityUtils.isFakeLocalPlayer(event.getEntity())) {
+      if (log_visual_range.get()) {
+          Helper.printWarning(String.format("spotted %s", event.getEntity().getName()));
+      }
+    }
+  }
   
   @SubscribeEvent
   public void onPlayerConnect(PlayerConnectEvent.Join event) {
     synchronized (spots) {
       if (spots.removeIf(spot -> spot.getId().equals(event.getPlayerInfo().getId()))) {
-        printWarning("%s has joined!", event.getPlayerInfo().getName());
+          printInform("%s joined", event.getPlayerInfo().getName());
       }
     }
   }
@@ -117,7 +147,7 @@ public class LogoutSpot extends ToggleMod {
                 event.getPlayerInfo().getName(),
                 new Vec3d(bb.maxX, bb.maxY, bb.maxZ),
                 new Vec3d(bb.minX, bb.minY, bb.minZ)))) {
-          printWarning("%s has disconnected!", event.getPlayerInfo().getName());
+          printInform("%s disconnected", event.getPlayerInfo().getName());
         }
       }
     }

@@ -17,7 +17,6 @@ public interface Colors {
   Color YELLOW = Color.of(255, 255, 0, 255);
   Color DARK_PURPLE = Color.of(170, 0, 170, 255);
   Color PURPLE = Color.of(163, 73, 163, 255);
-  Color BETTER_PURPLE = Color.of(141, 75, 163, 255);
   Color DARK_GRAY = Color.of(85, 85, 85, 255);
   Color GRAY = Color.of(128, 128, 128, 255);
   Color BROWN = Color.of(153, 102, 51, 255);
