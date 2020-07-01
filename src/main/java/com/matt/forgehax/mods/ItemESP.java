@@ -31,6 +31,17 @@ public class ItemESP extends ToggleMod {
     super(Category.RENDER, "ItemESP", false, "ESP for items");
   }
 
+  @Override
+  public String getDisplayText() {
+    long count = getWorld() // Jank but fr1kin loves streams :(
+      .loadedEntityList
+      .stream()
+      .filter(EntityItem.class::isInstance)
+      .map(EntityItem.class::cast)
+      .filter(entity -> entity.ticksExisted > 1)
+      .count();
+    return (getModName() + " [" + count + "]");
+  }
   public final Setting<Double> scale =
       getCommandStub()
           .builders()

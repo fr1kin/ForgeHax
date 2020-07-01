@@ -20,7 +20,9 @@ import net.minecraft.entity.item.EntityMinecartHopper;
 import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -145,6 +147,13 @@ public class StorageESPMod extends ToggleMod {
     super(Category.RENDER, "StorageESP", false, "Shows storage blocks/entities");
   }
 
+  private int count = 0;
+
+  @Override
+  public String getDisplayText() {
+    return (getModName() + " [" + count + "]");
+  }
+
   private int getTileEntityOutlineColor(TileEntity tileEntity) {
     if (chests.getAsBoolean() && tileEntity instanceof TileEntityChest) {
       return Colors.ORANGE.toBuffer();
@@ -213,7 +222,7 @@ public class StorageESPMod extends ToggleMod {
     else return -1;
   }
 
-  @SubscribeEvent
+  @SubscribeEvent(priority = EventPriority.HIGH)
   public void onRender(final RenderEvent event) {
     if(MC.gameSettings.hideGUI || getWorld() == null) {
       return;
@@ -224,7 +233,9 @@ public class StorageESPMod extends ToggleMod {
       GL11.glEnable(GL11.GL_LINE_SMOOTH);
     }
 
+    int buf = 0;
     for (TileEntity tileEntity : getWorld().loadedTileEntityList) {
+      if (tileEntity instanceof TileEntityChest) buf++;
       BlockPos pos = tileEntity.getPos();
 
       int outlineColor = getTileEntityOutlineColor(tileEntity);
@@ -244,6 +255,7 @@ public class StorageESPMod extends ToggleMod {
         }
       }
     }
+    count = buf;
 
     for (Entity entity : getWorld().loadedEntityList) {
       BlockPos pos = entity.getPosition();
@@ -273,9 +285,10 @@ public class StorageESPMod extends ToggleMod {
         }
       }
     }
-
-    GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
-    GL11.glDisable(GL11.GL_LINE_SMOOTH);
+    if (antialias.get()) {
+      GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
+      GL11.glDisable(GL11.GL_LINE_SMOOTH);
+    }
     GlStateManager.glLineWidth(1.0f);
   }
 }
