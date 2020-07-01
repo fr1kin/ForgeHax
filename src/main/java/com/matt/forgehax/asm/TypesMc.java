@@ -28,6 +28,12 @@ public interface TypesMc {
         .autoAssign()
         .build();
     
+    ASMClass Liquid =
+      ASMBuilders.newClassBuilder()
+        .setClassName("net/minecraft/block/BlockLiquid")
+        .autoAssign()
+        .build();
+    
     ASMClass Material =
       ASMBuilders.newClassBuilder()
         .setClassName("net/minecraft/block/material/Material")
@@ -350,6 +356,16 @@ public interface TypesMc {
         .add(Classes.AxisAlignedBB)
         .add(List.class)
         .add(Classes.Entity)
+        .add(boolean.class)
+        .finish()
+        .autoAssign()
+        .build();
+    ASMMethod Liquid_canCollideCheck =
+      Classes.Liquid.childMethod()
+        .setName("canCollideCheck")
+        .setReturnType(boolean.class)
+        .beginParameters()
+        .add(Classes.IBlockState)
         .add(boolean.class)
         .finish()
         .autoAssign()

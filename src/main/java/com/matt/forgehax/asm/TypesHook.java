@@ -61,6 +61,12 @@ public interface TypesHook {
         .setName("doIncreaseTabListSize")
         .setType(boolean.class)
         .build();
+
+    ASMField ForgeHaxHooks_isLiquidInteractEnabled =
+      Classes.ForgeHaxHooks.childField()
+        .setName("isLiquidInteractEnabled")
+        .setType(boolean.class)
+        .build();
   }
   
   interface Methods {

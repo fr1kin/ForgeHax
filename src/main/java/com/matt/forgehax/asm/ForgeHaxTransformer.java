@@ -4,6 +4,7 @@ import com.matt.forgehax.asm.TypesMc.Classes;
 import com.matt.forgehax.asm.patches.BlockPatch;
 import com.matt.forgehax.asm.patches.BoatPatch;
 import com.matt.forgehax.asm.patches.BufferBuilderPatch;
+import com.matt.forgehax.asm.patches.BlockLiquidPatch;
 import com.matt.forgehax.asm.patches.ChunkRenderContainerPatch;
 import com.matt.forgehax.asm.patches.ChunkRenderDispatcherPatch;
 import com.matt.forgehax.asm.patches.ChunkRenderWorkerPatch;
@@ -72,6 +73,9 @@ public class ForgeHaxTransformer implements IClassTransformer, ASMCommon {
     registerTransformer(new PlayerTabOverlayPatch());
     registerTransformer(new KeyBindingPatch());
     registerTransformer(new SchematicPrinterPatch());
+
+    // Not-Babbaj-nor-fr1kin
+    registerTransformer(new BlockLiquidPatch());
     
     // special transformers
     

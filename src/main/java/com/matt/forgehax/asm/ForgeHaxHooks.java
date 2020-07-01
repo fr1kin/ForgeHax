@@ -97,6 +97,7 @@ public class ForgeHaxHooks implements ASMCommon {
   public static boolean isNoClampingActivated = false;
   public static boolean isBoatSetYawActivated = false;
   public static boolean isNotRowingBoatActivated = false;
+  public static boolean isLiquidInteractEnabled = false;
   
   public static boolean doIncreaseTabListSize = false;
   
