@@ -118,7 +118,7 @@ public class AutoTool extends ToggleMod {
     return Optional.ofNullable(
         item.getItemStack()
             .getAttributeModifiers(EntityEquipmentSlot.MAINHAND)
-            .get(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
+            .get(SharedMonsterAttributes.ATTACK_SPEED.getName()))
         .map(
             at ->
                 at.stream().findAny().map(AttributeModifier::getAmount).map(Math::abs).orElse(0.D))
