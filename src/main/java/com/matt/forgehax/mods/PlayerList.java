@@ -21,10 +21,6 @@ import net.minecraft.util.text.TextFormatting;
 
 import java.util.*;
 
-/**
- * Bruh no Tonio did this I just copied InfoDisplay.java to start
- */
-
 @RegisterMod
 public class PlayerList extends ListMod {
 

@@ -27,10 +27,6 @@ import java.util.*;
 import static com.matt.forgehax.Helper.getModManager;
 import static com.matt.forgehax.util.draw.SurfaceHelper.getTextHeight;
 
-/**
- * Bruh no Tonio did this I just copied InfoDisplay.java to start
- */
-
 @RegisterMod
 public class EntityList extends ListMod {
 
