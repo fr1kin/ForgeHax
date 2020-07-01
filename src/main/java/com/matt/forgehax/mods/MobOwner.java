@@ -4,26 +4,24 @@ import static com.matt.forgehax.Helper.getWorld;
 
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 
-import org.apache.commons.io.IOUtils;
-
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-
-import com.google.gson.JsonParser;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.entity.PlayerInfo;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.entity.passive.EntityTameable;
-
+import net.minecraft.util.text.TextFormatting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 
-import java.net.URL;
-import java.time.Instant;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @RegisterMod
@@ -37,50 +35,40 @@ public class MobOwner extends ToggleMod {
       .defaultTo(10)
       .build();
 
-    public final Setting<Boolean> nametag =
-      getCommandStub()
-        .builders()
-        .<Boolean>newSettingBuilder()
-        .name("nametag")
-        .description("Set the nametag to always render")
-        .defaultTo(true)
-        .build();
+  public final Setting<Boolean> nametag =
+    getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("nametag")
+      .description("Set the nametag to always render")
+      .defaultTo(true)
+      .build();
+
+  private final Setting<TextFormatting> color =
+    getCommandStub()
+      .builders()
+      .<TextFormatting>newSettingEnumBuilder()
+      .name("Color")
+      .description("Set the color shown on the nametag")
+      .defaultTo(TextFormatting.WHITE)
+      .build();
   
   public MobOwner() {
     super(Category.WORLD, "MobOwner", true, "Add MobOwner in entities nametags");
   }
 
-  private Map<UUID, String> UUIDcache = new HashMap<UUID, String>();
-  private Map<UUID, Long> UUIDcooldown = new HashMap<UUID, Long>();
-  
-  private static String getNameFromUUID(String uuid) {
-    try {
-        String jsonUrl = IOUtils.toString(new URL("https://api.mojang.com/user/profiles/" + uuid.replace("-", "") + "/names"));
-        JsonParser parser = new JsonParser();
-        return parser.parse(jsonUrl)
-                     .getAsJsonArray()
-                     .get(parser.parse(jsonUrl).getAsJsonArray().size() - 1)
-                     .getAsJsonObject()
-                     .get("name")
-                     .toString()
-                     .replace("\"", "");
-    } catch (Exception ex) {
-      return null;
+  @Override
+  public void onEnabled() {
+    if (getWorld() == null) return;
+    for (Entity ent : getWorld().loadedEntityList) {
+      if (ent instanceof EntityTameable) {
+        
+        setName((EntityTameable) ent);
+      } else if (ent instanceof EntityHorse) {
+        if (nametag.get()) ent.setAlwaysRenderNameTag(true);
+        setName((EntityHorse) ent); 
+      }
     }
-  }
-
-  private String getName(UUID uuid) {
-    String name = UUIDcache.get(uuid);
-    
-    if (name == null) {
-      if (UUIDcooldown.get(uuid) == null || (
-          Instant.now().getEpochSecond() - UUIDcooldown.get(uuid) > lookup_cooldown.get())) {
-        UUIDcooldown.put(uuid, Instant.now().getEpochSecond());
-        name = getNameFromUUID(uuid.toString());
-        if (name != null) UUIDcache.put(uuid, name);
-      } 
-    }
-    return name;
   }
 
   @Override
@@ -89,35 +77,56 @@ public class MobOwner extends ToggleMod {
     for (Entity mob : getWorld().loadedEntityList) {
       if (mob instanceof EntityTameable || mob instanceof EntityHorse)
         mob.setAlwaysRenderNameTag(false);
+        mob.setCustomNameTag("");
     }
   }
 
-  @SubscribeEvent(priority = EventPriority.LOW)
-  public void clientTick(ClientTickEvent event) {
+  @SubscribeEvent(priority = EventPriority.LOWEST)
+  public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
     if (getWorld() == null) return;
-    for (Entity mob : getWorld().loadedEntityList) {
-      if (mob == null) continue;
-      if (mob instanceof EntityTameable) {
-        if (((EntityTameable) mob).getOwnerId() != null) {
-          if (nametag.get()) ((EntityTameable) mob).setAlwaysRenderNameTag(true);
-          if (((EntityTameable) mob).getCustomNameTag() == "") {
-            String username = getName(((EntityTameable) mob).getOwnerId());
-            if (username != null) {
-              ((EntityTameable) mob).setCustomNameTag(String.format("%s (%s)",
-                                        ((EntityTameable) mob).getName(), username));
-            }
+    if (event.getEntity() instanceof EntityTameable) {
+      setName((EntityTameable) event.getEntity());
+    } else if (event.getEntity() instanceof EntityHorse) {
+      setName((EntityHorse) event.getEntity());
+    }
+  }
+
+  private Map<UUID, PlayerInfo> UUIDcache = new ConcurrentHashMap<UUID, PlayerInfo>();
+
+  private void setName(EntityHorse mob) {
+    if (mob.getOwnerUniqueId() != null) {
+      if (mob.getCustomNameTag() == "") {
+        if (UUIDcache.get(mob.getOwnerUniqueId()) != null) {
+          mob.setCustomNameTag(String.format("%s (%s)", mob.getName(),color.get() +
+                        UUIDcache.get(mob.getOwnerUniqueId()).getName() + TextFormatting.RESET));
+        } else {
+          try {
+            PlayerInfo owner = new PlayerInfo(mob.getOwnerUniqueId());
+            UUIDcache.put(mob.getOwnerUniqueId(), owner);
+            mob.setCustomNameTag(String.format("%s (%s)", mob.getName(), color.get() + owner.getName() + TextFormatting.RESET));
+            if (nametag.get()) mob.setAlwaysRenderNameTag(true);
+          } catch (Exception e) {
+            // ignore
           }
         }
       }
-      if (mob instanceof EntityHorse) {
-        if (((EntityHorse) mob).getOwnerUniqueId() != null) {
-          if (nametag.get()) ((EntityHorse) mob).setAlwaysRenderNameTag(true);
-          if (((EntityHorse) mob).getCustomNameTag() == "") {
-            String username = getName(((EntityHorse) mob).getOwnerUniqueId());
-            if (username != null) {
-              ((EntityHorse) mob).setCustomNameTag(String.format("%s (%s)",
-                                  ((EntityHorse) mob).getName(), username));
-            }
+    }
+  }
+
+  private void setName(EntityTameable mob) {
+    if (mob.getOwnerId() != null) {
+      if (mob.getCustomNameTag() == "") {
+        if (UUIDcache.get(mob.getOwnerId()) != null) {
+          mob.setCustomNameTag(String.format("%s (%s)", mob.getName(),color.get() +
+                        UUIDcache.get(mob.getOwnerId()).getName() + TextFormatting.RESET));
+        } else {
+          try {
+            PlayerInfo owner = new PlayerInfo(mob.getOwnerId());
+            UUIDcache.put(mob.getOwnerId(), owner);
+            mob.setCustomNameTag(String.format("%s (%s)", mob.getName(), color.get() + owner.getName() + TextFormatting.RESET));
+            if (nametag.get()) mob.setAlwaysRenderNameTag(true);
+          } catch (Exception e) {
+            // ignore
           }
         }
       }
