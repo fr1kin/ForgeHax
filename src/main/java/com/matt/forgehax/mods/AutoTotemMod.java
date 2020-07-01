@@ -1,5 +1,7 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Helper.getModManager;
+
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
@@ -12,6 +14,7 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
@@ -40,7 +43,7 @@ public class AutoTotemMod extends ToggleMod {
             .mapToObj(i -> MC.player.inventoryContainer.getSlot(i).getStack().getItem())
             .filter(stack -> stack == Items.TOTEM_OF_UNDYING)
             .count();
-    return String.format(super.getDisplayText() + " [%d]", totemCount);
+    return (super.getDisplayText() + " [" + totemCount + "]");
   }
   
   @SubscribeEvent
@@ -57,6 +60,9 @@ public class AutoTotemMod extends ToggleMod {
             slot -> {
               invPickup(slot);
               invPickup(OFFHAND_SLOT);
+              if (getModManager().get(MatrixNotifications.class).get().isEnabled()) {
+                getModManager().get(MatrixNotifications.class).get().send_notify("Equipped new Totem");
+              }
             });
   }
   
