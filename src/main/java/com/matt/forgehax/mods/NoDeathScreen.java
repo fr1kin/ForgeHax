@@ -2,24 +2,30 @@ package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
 
-import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.command.Setting;//TODO implement some settings for fancy shit
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.Helper;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.client.CPacketKeepAlive;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraft.util.text.TextFormatting;
 
 @RegisterMod
 public class NoDeathScreen extends ToggleMod {
+
+  private final Setting<Boolean> silent =
+  getCommandStub()
+      .builders()
+      .<Boolean>newSettingBuilder()
+      .name("silent")
+      .description("Cancel all your packets while dead")
+      .defaultTo(true)
+      .build();
 
   private boolean dead = false;
   
@@ -33,7 +39,7 @@ public class NoDeathScreen extends ToggleMod {
         .builders()
         .newCommandBuilder()
         .name("respawn")
-        .description("self explainatory ig")
+        .description("send the respawn packet")
         .processor(
             data -> {
               dead = false;
@@ -47,7 +53,7 @@ public class NoDeathScreen extends ToggleMod {
   @Override
   public String getDisplayText() {
     if (dead)
-      return (getModName() + " [DEAD]");
+      return (getModName() + " [" + TextFormatting.RED + "DEAD" + TextFormatting.WHITE + "]");
     return (getModName());
   }
 
@@ -55,9 +61,9 @@ public class NoDeathScreen extends ToggleMod {
   public void onOutgoingPacketSent(PacketEvent.Outgoing.Pre event) {
     if (MC.player == null) {
       dead = false;
-      return; // Don't mess with main menu!
+      return; // Don't mess with menus! 
     }
-    if (dead && !(event.getPacket() instanceof CPacketChatMessage)
+    if (silent.get() && dead && !(event.getPacket() instanceof CPacketChatMessage)
          && !(event.getPacket() instanceof CPacketKeepAlive)) {
       event.setCanceled(true);
     }
@@ -66,6 +72,7 @@ public class NoDeathScreen extends ToggleMod {
   @Override
   public void onDisabled() {
     dead = false;
+    if (MC.player == null) return;
     MC.player.respawnPlayer();
     MC.player.capabilities.allowFlying = false;
   }
@@ -74,10 +81,11 @@ public class NoDeathScreen extends ToggleMod {
   public void onGuiScreen(GuiScreenEvent event) {
     if (event.getGui() instanceof GuiGameOver) {
       dead = true;
+      MC.displayGuiScreen(new GuiChat("Oh geez guess I'm bad at this game"));
       MC.player.respawnPlayer();
       getLocalPlayer().setHealth(1F);
+      getLocalPlayer().isDead = false;
       MC.player.capabilities.allowFlying = true;
-      MC.displayGuiScreen(new GuiChat("Oh geez guess I'm bad at this game"));
     }
   }
 } 
