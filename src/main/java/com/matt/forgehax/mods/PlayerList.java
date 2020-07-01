@@ -1,62 +1,46 @@
 package com.matt.forgehax.mods;
 
-import java.util.stream.Collectors;
-
 import static com.matt.forgehax.Helper.getWorld;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.util.math.VectorUtils.distance;
-import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getModManager;
 
-import com.matt.forgehax.Helper;
+import com.matt.forgehax.mods.services.FriendService;
 import com.matt.forgehax.util.entity.EntityUtils;
-import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.entity.PlayerUtils;
 import com.matt.forgehax.util.color.Colors;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.math.AlignHelper;
-import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
-import com.matt.forgehax.util.mod.HudMod;
+import com.matt.forgehax.util.mod.ListMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.TextFormatting;
 
 import java.util.*;
 
-import static com.matt.forgehax.Helper.getModManager;
-import static com.matt.forgehax.util.draw.SurfaceHelper.getTextHeight;
-
 /**
- * Created by OverFloyd
- * may 2020
+ * Bruh no Tonio did this I just copied InfoDisplay.java to start
  */
+
 @RegisterMod
-public class PlayerList extends HudMod {
+public class PlayerList extends ListMod {
+
+  private final Setting<Boolean> color =
+    getCommandStub()
+        .builders()
+        .<Boolean>newSettingBuilder()
+        .name("color")
+        .description("Color player names depending on gear")
+        .defaultTo(false)
+        .build();
 
   public PlayerList() {
     super(Category.GUI, "PlayerList", false, "Displays nearby players and some stats");
   }
-
-  private final Setting<SortMode> sortMode =
-    getCommandStub()
-      .builders()
-      .<SortMode>newSettingEnumBuilder()
-      .name("sorting")
-      .description("alphabetical or length")
-      .defaultTo(SortMode.LENGTH)
-      .build();
-
-  private final Setting<Boolean> warn =
-    getCommandStub()
-      .builders()
-      .<Boolean>newSettingBuilder()
-      .name("warn")
-      .description("Send chat alert when spotting a player")
-      .defaultTo(true)
-      .build();
 
   @Override
   protected AlignHelper.Align getDefaultAlignment() {
@@ -75,27 +59,21 @@ public class PlayerList extends HudMod {
   @Override
   public boolean isInfoDisplayElement() { return false; }
 
-  int posY;
+  private int count = 0;
 
-  @SubscribeEvent
-  public void onEntityJoinWorld(EntityJoinWorldEvent event) {
-    if (!warn.get()) return;
-    if (EntityUtils.isPlayer(event.getEntity()) &&
-        !getLocalPlayer().equals(event.getEntity()) &&
-        !EntityUtils.isFakeLocalPlayer(event.getEntity())) {
-      Helper.printWarning(String.format("Spotted %s", event.getEntity().getName()));
-    }
+  @Override
+  public String getDisplayText() {
+    return (getModName() + " [" + TextFormatting.DARK_AQUA + count + TextFormatting.WHITE + "]");
   }
 
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
     if (!MC.gameSettings.showDebugInfo) {
       int align = alignment.get().ordinal();
-	  List<String> text = new ArrayList<>();
+	    List<String> text = new ArrayList<>();
 
       EntityPlayer player = getLocalPlayer();
 
-      // Prints all the "InfoDisplayElement" mods
       getWorld()
         .loadedEntityList
         .stream()
@@ -103,11 +81,15 @@ public class PlayerList extends HudMod {
         .filter(
           entity ->
             !Objects.equals(getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
-		.map(entity -> (EntityPlayer) entity)
-        .map(entity -> String.format("%s [%.1f HP] - %.1fm", entity.getDisplayName().getUnformattedText(), entity.getHealth(),
-										distance(entity.posX, entity.posY, entity.posZ, player.posX, player.posY, player.posZ)))
+		    .map(entity -> (EntityPlayer) entity)
+        .map(entity -> (getDistanceColor(distance(entity.posX, entity.posY, entity.posZ, player.posX, player.posY, player.posZ)) +
+                        getNameColor(entity) + " [" +
+                        getHPColor(entity.getHealth()) + TextFormatting.GRAY + "] " +
+                        above_below(getLocalPlayer().posY, entity.posY)))
         .sorted(sortMode.get().getComparator())
-        .forEach(name -> text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + name : name + " <"));
+        .forEach(line -> text.add(line));
+
+      count = text.size();
 
       // Prints on screen
       SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
@@ -115,18 +97,34 @@ public class PlayerList extends HudMod {
     }
   }
 
-  public enum SortMode {
-    ALPHABETICAL((o1, o2) -> 0), // mod list is already sorted alphabetically
-    LENGTH(Comparator.<String>comparingInt(SurfaceHelper::getTextWidth).reversed());
+  private static String getHPColor(float hp) {
+    if (hp > 19.9F) return TextFormatting.DARK_GREEN + String.format("%.0f", hp);
+    if (hp > 17F) return TextFormatting.GREEN + String.format("%.0f", hp);
+    if (hp > 12F) return TextFormatting.YELLOW + String.format("%.0f", hp);
+    if (hp > 8F) return TextFormatting.GOLD + String.format("%.0f", hp);
+    if (hp > 5F) return TextFormatting.RED + String.format("%.1f", hp);
+    if (hp > 2F) return TextFormatting.DARK_RED + String.format("%.1f", hp);
+    return TextFormatting.DARK_GRAY + String.format("%.1f", hp);
+  }
 
-    private final Comparator<String> comparator;
+  private static String above_below(double pos1, double pos2) {
+    if (pos1 > pos2) return TextFormatting.GOLD + "++ ";
+    if (pos1 < pos2) return TextFormatting.DARK_GRAY + "-- ";
+    return TextFormatting.GRAY + "== ";
+  }
 
-    public Comparator<String> getComparator() {
-      return this.comparator;
+  private static String getDistanceColor(double distance) {
+    if (distance > 30D) return TextFormatting.DARK_AQUA + String.format("%.1fm ", distance);
+    if (distance > 10D) return TextFormatting.AQUA + String.format("%.1fm ", distance);
+    return TextFormatting.WHITE + String.format("%.1fm ", distance);
+  }
+
+  private String getNameColor(EntityPlayer entity) {
+    if (getModManager().get(FriendService.class).get().isFriend(entity.getName()))
+      return TextFormatting.LIGHT_PURPLE + entity.getName() + TextFormatting.GRAY;
+    if (color.get()) {
+      return PlayerUtils.getGearColor(entity).getFormattedText() + TextFormatting.GRAY;
     }
-
-    SortMode(Comparator<String> comparatorIn) {
-      this.comparator = comparatorIn;
-    }
+    return TextFormatting.GRAY + entity.getName();
   }
 }

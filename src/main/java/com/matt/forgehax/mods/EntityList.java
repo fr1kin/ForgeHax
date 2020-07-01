@@ -12,13 +12,15 @@ import com.matt.forgehax.util.draw.SurfaceHelper;
 import com.matt.forgehax.util.math.AlignHelper;
 import com.matt.forgehax.util.mod.BaseMod;
 import com.matt.forgehax.util.mod.Category;
-import com.matt.forgehax.util.mod.HudMod;
+import com.matt.forgehax.util.mod.ListMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.entity.item.EntityEnderCrystal;
 
 import java.util.*;
 
@@ -26,24 +28,15 @@ import static com.matt.forgehax.Helper.getModManager;
 import static com.matt.forgehax.util.draw.SurfaceHelper.getTextHeight;
 
 /**
- * Created by OverFloyd
- * may 2020
+ * Bruh no Tonio did this I just copied InfoDisplay.java to start
  */
+
 @RegisterMod
-public class EntityList extends HudMod {
+public class EntityList extends ListMod {
 
   public EntityList() {
     super(Category.GUI, "EntityList", false, "Displays a list of all rendered entities");
   }
-
-  private final Setting<SortMode> sortMode =
-    getCommandStub()
-      .builders()
-      .<SortMode>newSettingEnumBuilder()
-      .name("sorting")
-      .description("alphabetical or length")
-      .defaultTo(SortMode.LENGTH)
-      .build();
 
   private final Setting<Boolean> items =
     getCommandStub()
@@ -89,7 +82,12 @@ public class EntityList extends HudMod {
   @Override
   public boolean isInfoDisplayElement() { return false; }
 
-  private int max_len = 0;
+  @Override
+  public String getDisplayText() {
+    return (getModName() + " [" + count + "]");
+  }
+
+  private int count = 0, max_len = 0;
 
   @SubscribeEvent
   public void onRenderScreen(RenderGameOverlayEvent.Text event) {
@@ -98,7 +96,6 @@ public class EntityList extends HudMod {
       List<String> entityList = new ArrayList<>();
 	    List<String> text = new ArrayList<>();
 
-      // Prints all the "InfoDisplayElement" mods
       getWorld()
         .loadedEntityList
         .stream()
@@ -117,12 +114,13 @@ public class EntityList extends HudMod {
         .forEach(name -> entityList.add(name));
 
 	    String buf = "";
-	    int num = 0;
+      int num = 0;
+      count = entityList.size();
 	    for (String element : entityList.stream().distinct().collect(Collectors.toList())) {
 		    buf = String.format("%s", element);
 		    num = Collections.frequency(entityList, element);
 		    if (num > 1) buf += String.format(" (x%d)", num);
-		    text.add(AlignHelper.getFlowDirX2(align) == 1 ? "> " + buf : buf + " <");
+		    text.add(appendArrow(buf));
         if (animate.get() && text.size() >= (max_len + 1)) break;
 	    }
       max_len = text.size();
@@ -132,21 +130,6 @@ public class EntityList extends HudMod {
       // Prints on screen
       SurfaceHelper.drawTextAlign(text, getPosX(0), getPosY(0),
         Colors.WHITE.toBuffer(), scale.get(), true, align);
-    }
-  }
-
-  public enum SortMode {
-    ALPHABETICAL((o1, o2) -> 0), // mod list is already sorted alphabetically
-    LENGTH(Comparator.<String>comparingInt(SurfaceHelper::getTextWidth).reversed());
-
-    private final Comparator<String> comparator;
-
-    public Comparator<String> getComparator() {
-      return this.comparator;
-    }
-
-    SortMode(Comparator<String> comparatorIn) {
-      this.comparator = comparatorIn;
     }
   }
 }
