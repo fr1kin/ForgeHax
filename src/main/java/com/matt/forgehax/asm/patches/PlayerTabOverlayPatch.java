@@ -15,6 +15,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -72,6 +73,32 @@ public class PlayerTabOverlayPatch extends ClassTransformer {
       
       main.instructions.insertBefore(subListNode, insnList);
       main.instructions.insert(astoreNode, jump);
+
+      AbstractInsnNode maxSizeNode = 
+        ASMHelper.findPattern(
+          main.instructions.getFirst(),
+          new int[]{
+            ILOAD,
+            BIPUSH
+          },
+          "xx");
+      
+      Objects.requireNonNull(maxSizeNode, "Find pattern failed for maxSizeNode");
+      maxSizeNode = maxSizeNode.getNext();
+
+      InsnList check_if_increment = new InsnList();
+
+      LabelNode changed = new LabelNode();
+      LabelNode no_change = new LabelNode();
+
+      check_if_increment.add(ASMHelper.call(GETSTATIC, TypesHook.Fields.ForgeHaxHooks_doIncreaseTabListSize));
+      check_if_increment.add(new JumpInsnNode(IFEQ, no_change));
+      check_if_increment.add(new IntInsnNode(BIPUSH, 30));
+      check_if_increment.add(new JumpInsnNode(GOTO, changed));
+      check_if_increment.add(no_change);
+      
+      main.instructions.insert(maxSizeNode, changed);
+      main.instructions.insertBefore(maxSizeNode, check_if_increment);
     }
   }
   
