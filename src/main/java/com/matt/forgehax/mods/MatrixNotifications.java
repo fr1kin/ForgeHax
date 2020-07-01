@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.LocalPlayerUpdateEvent;
 import com.matt.forgehax.util.command.Setting;
+import com.matt.forgehax.util.entity.EntityUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
@@ -34,6 +35,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.http.HttpResponse;
@@ -51,7 +53,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import sun.security.validator.ValidatorException;
 
 @RegisterMod
 public class MatrixNotifications extends ToggleMod {
@@ -108,7 +109,7 @@ public class MatrixNotifications extends ToggleMod {
           .builders()
           .<String>newSettingBuilder()
           .name("user")
-          .description("User to ping for high priority messages")
+          .description("User to ping for high priority messages (use ID for Discord)")
           .defaultTo("")
           .build();
   
@@ -138,15 +139,6 @@ public class MatrixNotifications extends ToggleMod {
           .description("Message on connected to server")
           .defaultTo(true)
           .build();
-
-  private final Setting<Boolean> relay_chat =
-      getCommandStub()
-          .builders()
-          .<Boolean>newSettingBuilder()
-          .name("relay_chat")
-          .description("Pass all chat messages to WebHook")
-          .defaultTo(false)
-          .build();
   
   private final Setting<Boolean> on_disconnected =
       getCommandStub()
@@ -166,6 +158,33 @@ public class MatrixNotifications extends ToggleMod {
           .defaultTo(true)
           .build();
 
+  private final Setting<Boolean> relay_mentions =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("mentions")
+          .description("Relay messages with your username")
+          .defaultTo(true)
+          .build();
+
+  private final Setting<Boolean> relay_chat =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("relay_chat")
+          .description("Pass all chat messages to WebHook")
+          .defaultTo(false)
+          .build();
+  
+  private final Setting<Boolean> log_visual_range =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("visual-range")
+          .description("Log players entering render distance")
+          .defaultTo(true)
+          .build();
+  
   private final Setting<Provider> provider =
       getCommandStub()
           .builders()
@@ -176,7 +195,7 @@ public class MatrixNotifications extends ToggleMod {
           .build();
   
   public MatrixNotifications() {
-    super(Category.CHAT, "WebNotify", false, "Send notifications via WebHook. Either on Discord or Matrix");
+    super(Category.MISC, "WebNotify", false, "Send notifications via WebHook. Either on Discord or Matrix");
   }
   
   private boolean joined = false;
@@ -221,11 +240,7 @@ public class MatrixNotifications extends ToggleMod {
           throw new Error("got response code " + res.getStatusLine().getStatusCode());
         }
       } catch (Throwable t) {
-        if (t.getCause() instanceof ValidatorException) {
-          printError("Java JRE outdated. Change games to use the latest JRE.");
-        } else {
-          printError("Failed to send message to url: " + t.getMessage());
-        }
+        printError("Failed to send message to url: " + t.getMessage());
         t.printStackTrace();
       }
     });
@@ -244,24 +259,28 @@ public class MatrixNotifications extends ToggleMod {
         .map(id -> id.replaceAll("-", ""))
         .orElse(null);
   }
+
+  public void send_notify(String message) { // this is accessible from outside
+    notify(message);
+  }
   
   private void notify(String message) {
     JsonObject object = new JsonObject();
     String id = getUriUuid();
-	switch(provider.get()) {
-	  case DISCORD:
-    	object.addProperty("content", message);
-    	object.addProperty("username", MC.getSession().getUsername());
-    	if (!skin_server_url.get().isEmpty() && id != null)
-          object.addProperty("avatar_url", skin_server_url.get() + id);
-		break;
-	  case MATRIX:
-    	object.addProperty("text", message);
-    	object.addProperty("format", "plain");
-    	object.addProperty("displayName", MC.getSession().getUsername());
-    	if (!skin_server_url.get().isEmpty() && id != null)
-        	object.addProperty("avatarUrl", skin_server_url.get() + id);
-	}
+    switch(provider.get()) {
+      case DISCORD:
+        object.addProperty("content", message);
+        object.addProperty("username", MC.getSession().getUsername());
+        if (!skin_server_url.get().isEmpty() && id != null)
+            object.addProperty("avatar_url", skin_server_url.get() + id);
+      break;
+      case MATRIX:
+        object.addProperty("text", message);
+        object.addProperty("format", "plain");
+        object.addProperty("displayName", MC.getSession().getUsername());
+        if (!skin_server_url.get().isEmpty() && id != null)
+            object.addProperty("avatarUrl", skin_server_url.get() + id);
+    }
     postAsync(url.get(), object);
   }
   
@@ -274,7 +293,15 @@ public class MatrixNotifications extends ToggleMod {
     if (user.get().isEmpty()) {
       notify(msg);
     } else {
-      notify("@" + user.get() + " " + msg);
+      switch(provider.get()) {
+        case MATRIX:
+          notify("@" + user.get() + " " + msg);
+          break;
+        case DISCORD:
+          notify("<@" + user.get() + "> " + msg);
+          break;
+      }
+      
     }
   }
   
@@ -292,6 +319,17 @@ public class MatrixNotifications extends ToggleMod {
           "Custom socket factory has not been registered. All host SSL certificates must be trusted with the current JRE");
     }
   }
+
+  @SubscribeEvent
+  public void onEntityJoinWorld(EntityJoinWorldEvent event) {
+    if (getLocalPlayer() == null) return;
+    if (!log_visual_range.get()) return;
+    if (EntityUtils.isPlayer(event.getEntity()) &&
+        !getLocalPlayer().equals(event.getEntity()) &&
+        !EntityUtils.isFakeLocalPlayer(event.getEntity())) {
+      send_notify(String.format("Spotted %s", event.getEntity().getName()));
+    }
+  }
   
   @SubscribeEvent
   public void onTick(LocalPlayerUpdateEvent event) {
@@ -302,10 +340,10 @@ public class MatrixNotifications extends ToggleMod {
       
       if (on_connected.get()) {
         BlockPos pos = getLocalPlayer().getPosition();
-        if (pos.getX() != 0 && pos.getZ() != 0) {
+        if (pos.getX() != 0 && pos.getZ() != 0 && getServerName().equals("2b2t")) {
           ping("Connected to %s", getServerName());
         } else {
-          notify("Connected to %s queue", getServerName());
+          notify("Connected to %s", getServerName());
         }
       }
     }
@@ -343,15 +381,16 @@ public class MatrixNotifications extends ToggleMod {
   public void onPacketRecieve(PacketEvent.Incoming.Pre event) {
     if (event.getPacket() instanceof SPacketChat) {
       SPacketChat packet = event.getPacket();
-	  if (relay_chat.get()) {
-        ITextComponent comp = packet.getChatComponent();
-        String text = comp.getUnformattedText();
-		notify(text);
-      } else if (packet.getType() == ChatType.SYSTEM) {
-        ITextComponent comp = packet.getChatComponent();
+      ITextComponent comp = packet.getChatComponent();
+      String text = comp.getUnformattedText();
+      if (relay_chat.get() ||
+          (relay_mentions.get() && text.contains(MC.getSession().getUsername()))) {
+          notify(text);
+      }
+      if (packet.getType() == ChatType.SYSTEM) {
         if (comp.getSiblings().size() >= 2) {
-          String text = comp.getSiblings().get(0).getUnformattedText();
-          if ("Position in queue: ".equals(text)) {
+          String pos_text = comp.getSiblings().get(0).getUnformattedText();
+          if ("Position in queue: ".equals(pos_text)) {
             try {
               int pos = Integer.valueOf(comp.getSiblings().get(1).getUnformattedText());
               if (pos != position) {
@@ -359,7 +398,7 @@ public class MatrixNotifications extends ToggleMod {
                 if (on_queue_move.get() && position <= queue_notify_pos.get()) {
                   if (position == 1) {
                     ping("Position 1 in queue");
-                  } else {
+                  } else if (!relay_chat.get()) {
                     notify("Position %d in queue", position);
                   }
                 }
