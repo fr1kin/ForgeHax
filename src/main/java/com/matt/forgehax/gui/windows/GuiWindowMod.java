@@ -6,6 +6,7 @@ import static com.matt.forgehax.Helper.getModManager;
 import com.matt.forgehax.gui.ClickGui;
 import com.matt.forgehax.gui.elements.GuiButton;
 import com.matt.forgehax.mods.ActiveModList;
+import com.matt.forgehax.mods.services.GuiService;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.draw.SurfaceHelper;
@@ -49,7 +50,7 @@ public class GuiWindowMod extends GuiWindow {
         buttonList.add(moduleButton);
 
         newHeight += GuiButton.height + 1;
-        height = Math.min(maxHeight, newHeight + 3);
+        height = newHeight + 3;
       }
     }
     width = 90;
@@ -104,16 +105,18 @@ public class GuiWindowMod extends GuiWindow {
     if (isHidden){
       return;
     }
+    int actualHeight = (int) Math.min(height, ClickGui.scaledRes.getScaledHeight() * 
+                          getModManager().get(GuiService.class).get().max_height.get());
 
     SurfaceHelper.drawOutlinedRectShaded(
-      posX, windowY, width, height, Colors.GRAY.toBuffer(), 80, 3);
+      posX, windowY, width, actualHeight, Colors.GRAY.toBuffer(), 80, 3);
     int buttonY = windowY - buttonListOffset + 2;
   
     int scale = ClickGui.scaledRes.getScaleFactor();
 
     GL11.glPushMatrix();
-    int scissorY = MC.displayHeight - (scale * windowY + scale * height - 3);
-    GL11.glScissor(scale * posX, scissorY, scale * width, scale * height - 8);
+    int scissorY = MC.displayHeight - (scale * windowY + scale * actualHeight - 3);
+    GL11.glScissor(scale * posX, scissorY, scale * width, scale * actualHeight - 8);
     GL11.glEnable(GL11.GL_SCISSOR_TEST);
     for (GuiButton button : buttonList) {
       SurfaceHelper.drawRect(posX + 2, buttonY, width - 4, GuiButton.height, button.getColor());
@@ -130,7 +133,7 @@ public class GuiWindowMod extends GuiWindow {
   
     // update variables
     bottomX = posX + width; // set the coords of the bottom right corner for mouse coord testing
-    bottomY = windowY + height;
+    bottomY = windowY + actualHeight;
   }
   
   @Override
@@ -186,9 +189,10 @@ public class GuiWindowMod extends GuiWindow {
     if (buttonListOffset < 0) {
       buttonListOffset = 0; // don't scroll up if its already at the top
     }
-    
+    int actualHeight = (int) Math.min(height, ClickGui.scaledRes.getScaledHeight() * 
+                          getModManager().get(GuiService.class).get().max_height.get());
     int lowestButtonY = (GuiButton.height + 1) * buttonList.size() + windowY;
-    int lowestAllowedOffset = lowestButtonY - height - windowY + 3;
+    int lowestAllowedOffset = lowestButtonY - actualHeight - windowY + 3;
     if (lowestButtonY - buttonListOffset < bottomY) {
       buttonListOffset = lowestAllowedOffset;
     }
