@@ -6,6 +6,8 @@ import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 
+import net.minecraft.util.text.TextFormatting;
+
 @RegisterMod
 public class TickRate extends ToggleMod {
 
@@ -74,7 +76,8 @@ public class TickRate extends ToggleMod {
           for (int i = sections; i > 0; i--) {
             int at = i * factor;
             TickRateService.TickRateData.CalculationData point = data.getPoint(at);
-            builderTickRate.append(String.format("%.2f", point.getAverage()));
+            builderTickRate.append(String.format(
+              getColorTPS(point.getAverage()) + "%.2f" + TextFormatting.WHITE, point.getAverage()));
             builderTickRate.append(" (");
             builderTickRate.append(at);
             builderTickRate.append(")");
@@ -84,7 +87,8 @@ public class TickRate extends ToggleMod {
       }
     } else {
       TickRateService.TickRateData.CalculationData point = data.getPoint();
-      builderTickRate.append(String.format("TPS: %.2f", point.getAverage()));
+      builderTickRate.append(String.format(
+            "TPS: " + getColorTPS(point.getAverage()) + "%.2f" + TextFormatting.WHITE, point.getAverage()));
     }
 
     // Last tick function.
@@ -94,14 +98,24 @@ public class TickRate extends ToggleMod {
       if (lastTickMs < 1000) {
 
         // Adds 0.0s to the StringBuilder.
-        builderTickRate.append(", 0.0s");
+        builderTickRate.append(TextFormatting.DARK_GRAY + " 0.0s" + TextFormatting.WHITE);
       } else {
 
         // Adds lag time in seconds since last tick.
-        builderTickRate.append(String.format(", %01.1fs", ((float) (lastTickMs - 1000)) / 1000));
+        builderTickRate.append(String.format(" %01.1fs", ((float) (lastTickMs - 1000)) / 1000));
       }
     }
 
     return builderTickRate.toString();
+  }
+
+  private static String getColorTPS(double tps) {
+    if (tps > 19D) return TextFormatting.DARK_GREEN.toString();
+    if (tps > 16D) return TextFormatting.GREEN.toString();
+    if (tps > 12) return TextFormatting.YELLOW.toString();
+    if (tps > 8) return TextFormatting.GOLD.toString();
+    if (tps > 5) return TextFormatting.RED.toString();
+    if (tps > 2) return TextFormatting.DARK_RED.toString();
+    return TextFormatting.DARK_GRAY.toString();
   }
 }
