@@ -84,7 +84,14 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   public PacketLogger() {
     super(Category.MISC, "PacketLogger", false, "Logs all packets to file");
   }
-  
+
+  private int count = 0;
+
+  @Override
+  public String getDisplayText() {
+    return (getModName() + String.format(" [%d]", count));
+  }
+
   @Override
   protected void onLoad() {
     blacklist
@@ -191,6 +198,7 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   
   @Override
   protected void onEnabled() {
+    count = 0;
     try {
       if (!Files.exists(INBOUND)) {
         Files.createFile(INBOUND);
@@ -235,6 +243,7 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   public void onPacketInbound(PacketEvent.Incoming.Pre event) {
     if (!blacklist_on.get() || blacklist.get(event.getPacket().getClass()) == null) {
       logPacket(stream_packet_in, event.getPacket());
+      count++;
     }
   }
   
@@ -242,6 +251,7 @@ public class PacketLogger extends ToggleMod implements GsonConstant {
   public void onPacketOutbound(PacketEvent.Outgoing.Pre event) {
     if (!blacklist_on.get() || blacklist.get(event.getPacket().getClass()) == null) {
       logPacket(stream_packet_out, event.getPacket());
+      count++;
     }
   }
   
