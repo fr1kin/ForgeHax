@@ -1,16 +1,22 @@
 package com.matt.forgehax.mods;
 
+import static com.matt.forgehax.Helper.getModManager;
+
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
+import com.matt.forgehax.mods.services.FriendService;
+import com.matt.forgehax.mods.services.FriendService.FriendEntry;
 import com.matt.forgehax.util.command.Options;
+import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
 import com.matt.forgehax.util.serialization.ISerializableJson;
 import net.minecraft.network.play.server.SPacketChat;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.io.IOException;
@@ -32,6 +38,15 @@ public class ChatFilterMod extends ToggleMod {
           .factory(FilterEntry::new)
           .supplier(MemeSet::new)
           .build();
+    
+  public final Setting<Boolean> friend_bypass =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("friend-bypass")
+          .description("Never filter messages from friends")
+          .defaultTo(true)
+          .build();
 
   public ChatFilterMod() {
     super(Category.CHAT, "ChatFilter", false, "Filter chat by regex");
@@ -49,6 +64,14 @@ public class ChatFilterMod extends ToggleMod {
     if (event.getPacket() instanceof SPacketChat) {
       final SPacketChat packet = event.getPacket();
       final String message = packet.getChatComponent().getUnformattedText();
+
+      if (friend_bypass.get()) {
+        for (FriendEntry f : getModManager().get(FriendService.class).get().friendList) {
+          if (message.contains("<" + f.getName() + ">") || // This shit is basically for LolRiTTeR/LolRiTTeRBot
+              message.contains(f.getName() + " "))         // Maybe it's not in a chat message? 
+            return;
+        }
+      }
 
       final boolean shouldFilter = filterList.stream()
           .map(FilterEntry::getRegex)

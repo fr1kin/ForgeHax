@@ -3,9 +3,12 @@ package com.matt.forgehax.mods;
 import static com.matt.forgehax.Helper.getLocalPlayer;
 import static com.matt.forgehax.Helper.getPlayerController;
 import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.Helper.getModManager;
 
 import com.matt.forgehax.mods.managers.PositionRotationManager;
 import com.matt.forgehax.mods.managers.PositionRotationManager.RotationState;
+import com.matt.forgehax.mods.services.FriendService;
+import com.matt.forgehax.mods.services.GuiService;
 import com.matt.forgehax.mods.services.TickRateService;
 import com.matt.forgehax.util.Utils;
 import com.matt.forgehax.util.command.Setting;
@@ -85,6 +88,15 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
           .<Boolean>newSettingBuilder()
           .name("target-players")
           .description("Target players")
+          .defaultTo(true)
+          .build();
+
+  private final Setting<Boolean> friend_filter =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("friend-filter")
+          .description("Do not attack friends")
           .defaultTo(true)
           .build();
   
@@ -254,6 +266,8 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   private boolean isFiltered(Entity entity) {
     switch (EntityUtils.getRelationship(entity)) {
       case PLAYER:
+        if (friend_filter.get() && getModManager().get(FriendService.class).get().isFriend(entity.getName()))
+          return false;
         return target_players.get();
       case FRIENDLY:
       case NEUTRAL:

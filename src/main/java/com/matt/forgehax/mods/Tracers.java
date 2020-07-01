@@ -1,8 +1,10 @@
 package com.matt.forgehax.mods;
 
 import static com.matt.forgehax.Helper.getLocalPlayer;
+import static com.matt.forgehax.Helper.getModManager;
 
 import com.matt.forgehax.events.Render2DEvent;
+import com.matt.forgehax.mods.services.FriendService;
 import com.matt.forgehax.util.color.Color;
 import com.matt.forgehax.util.color.Colors;
 import com.matt.forgehax.util.command.Setting;
@@ -14,9 +16,7 @@ import com.matt.forgehax.util.math.VectorUtils;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-
 import java.util.Objects;
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -122,6 +122,15 @@ public class Tracers extends ToggleMod implements Colors {
           .<Boolean>newSettingBuilder()
           .name("friendly")
           .description("Trace friendly mobs.")
+          .defaultTo(false)
+          .build();
+    
+  private final Setting<Boolean> friend_filter =
+      getCommandStub()
+          .builders()
+          .<Boolean>newSettingBuilder()
+          .name("no-friends")
+          .description("Do not display tracers for friends")
           .defaultTo(false)
           .build();
 
@@ -366,6 +375,8 @@ public class Tracers extends ToggleMod implements Colors {
     public boolean isOptionEnabled() {
       switch (relationship) {
         case PLAYER:
+          if (friend_filter.get() && getModManager().get(FriendService.class).get().isFriend(entity.getName()))
+            return false;
           return players.get();
         case HOSTILE:
           return hostile.get();
