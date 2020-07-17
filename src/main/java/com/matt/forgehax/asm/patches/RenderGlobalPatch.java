@@ -8,16 +8,10 @@ import com.matt.forgehax.asm.utils.transforming.ClassTransformer;
 import com.matt.forgehax.asm.utils.transforming.Inject;
 import com.matt.forgehax.asm.utils.transforming.MethodTransformer;
 import com.matt.forgehax.asm.utils.transforming.RegisterMethodTransformer;
-import java.util.Objects;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 import scala.tools.asm.Type;
+
+import java.util.Objects;
 
 public class RenderGlobalPatch extends ClassTransformer {
   
@@ -178,8 +172,7 @@ public class RenderGlobalPatch extends ClassTransformer {
       
       InsnList insnList = new InsnList();
       insnList.add(new JumpInsnNode(IFEQ, falseLabel));
-      insnList.add(
-        ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldDisableCaveCulling));
+      insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldDisableCaveCulling));
       insnList.add(new JumpInsnNode(IFNE, falseLabel));
       insnList.add(new InsnNode(ICONST_1));
       insnList.add(new JumpInsnNode(GOTO, storeLabel));

@@ -1,19 +1,9 @@
 package com.matt.forgehax.util.entity;
 
-import static com.matt.forgehax.Helper.getLocalPlayer;
-import static com.matt.forgehax.Helper.getNetworkManager;
-import static com.matt.forgehax.Helper.getPlayerController;
-import static com.matt.forgehax.asm.reflection.FastReflection.Fields.PlayerControllerMP_currentPlayerItem;
-
 import com.google.common.base.Predicates;
 import com.matt.forgehax.mods.services.HotbarSelectionService;
 import com.matt.forgehax.mods.services.HotbarSelectionService.ResetFunction;
 import com.matt.forgehax.util.entity.LocalPlayerInventory.InvItem.SlotWrapper;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
@@ -23,6 +13,15 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketClickWindow;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static com.matt.forgehax.Helper.*;
+import static com.matt.forgehax.asm.reflection.FastReflection.Fields.PlayerControllerMP_currentPlayerItem;
 
 public class LocalPlayerInventory {
   
@@ -43,12 +42,13 @@ public class LocalPlayerInventory {
   }
   
   public static List<InvItem> getMainInventory() {
-    AtomicInteger next = new AtomicInteger(0);
-    return getInventory()
-        .mainInventory
-        .stream()
-        .map(item -> new InvItem.Base(item, next.getAndIncrement()))
-        .collect(Collectors.toList());
+    List<InvItem> out = new ArrayList<>();
+    int next = 0;
+    for (ItemStack item : getInventory().mainInventory) {
+      out.add(new InvItem.Base(item, next));
+      next++;
+    }
+    return out;
   }
   
   public static List<InvItem> getSlotInventory() {
