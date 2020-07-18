@@ -101,7 +101,7 @@ public class ActiveModList extends WatermarkListMod {
       long serviceMods = getModManager()
           .getMods()
           .stream()
-          .filter(BaseMod::isHidden)
+          .filter(ServiceMod.class::isInstance)
           .count();
 
       // Total number of mods in the client
