@@ -62,7 +62,6 @@ public class MobOwner extends ToggleMod {
     if (getWorld() == null) return;
     for (Entity ent : getWorld().loadedEntityList) {
       if (ent instanceof EntityTameable) {
-        
         setName((EntityTameable) ent);
       } else if (ent instanceof EntityHorse) {
         if (nametag.get()) ent.setAlwaysRenderNameTag(true);
@@ -106,7 +105,7 @@ public class MobOwner extends ToggleMod {
             mob.setCustomNameTag(String.format("%s (%s)", mob.getName(), color.get() + owner.getName() + TextFormatting.RESET));
             if (nametag.get()) mob.setAlwaysRenderNameTag(true);
           } catch (Exception e) {
-            // ignore
+            LOGGER.warn("Could not set nametag: {}", e.getMessage());
           }
         }
       }
@@ -126,7 +125,7 @@ public class MobOwner extends ToggleMod {
             mob.setCustomNameTag(String.format("%s (%s)", mob.getName(), color.get() + owner.getName() + TextFormatting.RESET));
             if (nametag.get()) mob.setAlwaysRenderNameTag(true);
           } catch (Exception e) {
-            // ignore
+            LOGGER.warn("Could not set nametag: {}", e.getMessage());
           }
         }
       }
