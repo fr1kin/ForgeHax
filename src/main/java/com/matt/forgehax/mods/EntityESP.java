@@ -144,17 +144,17 @@ public class EntityESP extends ToggleMod {
         living -> {
           switch (EntityUtils.getRelationship(living)) {
             case PLAYER:
-			        if (!players.get()) return;
+			  if (!players.get()) return;
               break;
             case HOSTILE:
-			        if (!mobs_hostile.get()) return;
+			  if (!mobs_hostile.get()) return;
               break;
             case NEUTRAL:
             case FRIENDLY:
-			        if (!mobs_friendly.get()) return;
+			  if (!mobs_friendly.get()) return;
               break;
           }
-	  	    int color = Color.of(red.get(), green.get(), blue.get(), alpha.get()).toBuffer();
+	  	  int color = Color.of(red.get(), green.get(), blue.get(), alpha.get()).toBuffer();
           Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
           Vec3d topPos =
             bottomPos.addVector(0.D, living.getRenderBoundingBox().maxY - living.posY, 0.D);
@@ -169,7 +169,7 @@ public class EntityESP extends ToggleMod {
           double height = (bot.getY() - top.getY());
           double width = height;
   		
-		      drawOutlinedRect((int) (topX - (width/2)), (int) topY, (int) width, (int) height,
+		  drawOutlinedRect((int) (topX - (width/2)), (int) topY, (int) width, (int) height,
 		  	  			color, linewidth.get());
         });
   }

@@ -98,15 +98,14 @@ public class EntityList extends ListMod {
         .filter(e -> items.get() || EntityUtils.isLiving(e))
         .filter(e -> items.get() || EntityUtils.isAlive(e))
         .filter(e -> players.get() || !EntityUtils.isPlayer(e))
-        .filter(
-          entity ->
-            !Objects.equals(getLocalPlayer(), entity) && !EntityUtils.isFakeLocalPlayer(entity))
+        .filter(e -> !Objects.equals(getLocalPlayer(), e) && !EntityUtils.isFakeLocalPlayer(e))
         .filter(EntityUtils::isValidEntity)
-        .map(entity -> { if (entity instanceof EntityItem)
-                            return ((EntityItem) entity).getItem().getDisplayName();
-                         else
-                            return entity.getDisplayName().getUnformattedText();
-                       })
+        .map(entity -> {
+		  if (entity instanceof EntityItem)
+            return ((EntityItem) entity).getItem().getDisplayName();
+          else
+            return entity.getDisplayName().getUnformattedText();
+        })
         .forEach(name -> entityList.add(name));
 
 	    String buf = "";
