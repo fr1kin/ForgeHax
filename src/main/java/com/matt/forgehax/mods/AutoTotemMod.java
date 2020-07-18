@@ -61,7 +61,8 @@ public class AutoTotemMod extends ToggleMod {
               invPickup(slot);
               invPickup(OFFHAND_SLOT);
               if (getModManager().get(MatrixNotifications.class).get().isEnabled()) {
-                getModManager().get(MatrixNotifications.class).get().send_notify("Equipped new Totem");
+                getModManager().get(MatrixNotifications.class).ifPresent(mod ->
+					mod.send_notify("Equipped new Totem"));
               }
             });
   }
