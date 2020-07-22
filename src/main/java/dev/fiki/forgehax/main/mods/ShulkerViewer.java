@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.mods.services.ChatCommandService;
@@ -32,7 +33,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.RecipeItemHelper;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -50,10 +50,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Predicate;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -318,30 +316,24 @@ public class ShulkerViewer extends ToggleMod {
         }
       }
 
-      AtomicInteger renderX;
-      AtomicInteger renderY;
+      int offsetX, offsetY;
       if (!isLocked() || (lastX == -1 && lastY == -1)) {
         int count = (int) guiCache.stream().filter(Objects::nonNull).count();
-        renderX = new AtomicInteger(lastX = event.getMouseX() + x_offset.getValue());
-        renderY =
-            new AtomicInteger(
-                lastY = event.getMouseY() - (SHULKER_GUI_SIZE * count) / 2 + y_offset.getValue());
+        offsetX = lastX = event.getMouseX() + x_offset.getValue();
+        offsetY = lastY = event.getMouseY() - (SHULKER_GUI_SIZE * count) / 2 + y_offset.getValue();
       } else {
-        renderX = new AtomicInteger(lastX);
-        renderY = new AtomicInteger(lastY);
+        offsetX = lastX;
+        offsetY = lastY;
       }
 
       isMouseInShulkerGui = false; // recheck
 
-      guiCache.stream()
-          .filter(Objects::nonNull)
-          .sorted()
-          .forEach(ui -> {
-            ui.posX = renderX.get();
-            ui.posY = renderY.get();
-            ui.render(event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
-            renderY.set(renderY.get() + SHULKER_GUI_SIZE + 1);
-          });
+      for(GuiShulkerViewer ui : guiCache) {
+        ui.posX = offsetX;
+        ui.posY = offsetY;
+        ui.render(event.getMatrixStack(), event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
+        offsetY += SHULKER_GUI_SIZE + 1;
+      }
     } finally {
       cacheLock.unlock();
     }
@@ -428,7 +420,7 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks) {
+    public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
       final int DEPTH = 500;
 
       int x = posX;
@@ -477,16 +469,16 @@ public class ShulkerViewer extends ToggleMod {
 
       RenderSystem.enableColorMaterial();
 
-      RenderSystem.pushMatrix();
-      RenderSystem.translated(0, 0, DEPTH);
+      stack.push();
+      stack.translate(0, 0, DEPTH);
 
-      SurfaceHelper.drawText(parentShulker.getDisplayName().getFormattedText(),
+      SurfaceHelper.drawText(parentShulker.getDisplayName().getString(),
           x + 8, y + 6, Colors.BLACK.toBuffer());
 
-      RenderSystem.popMatrix();
+      stack.pop();
 
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-          new net.minecraftforge.client.event.GuiContainerEvent.DrawBackground(this, mouseX, mouseY));
+          new net.minecraftforge.client.event.GuiContainerEvent.DrawBackground(this, stack, mouseX, mouseY));
 
 //      getFontRenderer().drawString(parentShulker.getDisplayName().getFormattedText(),
 //          x + 8, y + 6, Colors.BLACK.toBuffer());
@@ -500,11 +492,11 @@ public class ShulkerViewer extends ToggleMod {
 
       Slot hoveringOver = null;
 
-      RenderSystem.pushMatrix();
-      RenderSystem.translatef(rx, ry, 0.f);
+      stack.push();
+      stack.translate(rx, ry, 0.f);
 
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-          new net.minecraftforge.client.event.GuiContainerEvent.DrawForeground(this, mouseX, mouseY));
+          new net.minecraftforge.client.event.GuiContainerEvent.DrawForeground(this, stack, mouseX, mouseY));
 
       for (Slot slot : container.inventorySlots) {
         if (slot.getHasStack()) {
@@ -517,7 +509,7 @@ public class ShulkerViewer extends ToggleMod {
             RenderSystem.disableDepthTest();
             RenderSystem.colorMask(true, true, true, false);
 
-            GuiUtils.drawGradientRect(
+            GuiUtils.drawGradientRect(stack.getLast().getMatrix(),
                 DEPTH,
                 hoveringOver.xPos,
                 hoveringOver.yPos,
@@ -537,7 +529,7 @@ public class ShulkerViewer extends ToggleMod {
         }
       }
 
-      RenderSystem.popMatrix();
+      stack.pop();
 
       RenderSystem.disableLighting();
 
@@ -546,20 +538,20 @@ public class ShulkerViewer extends ToggleMod {
         RenderSystem.enableAlphaTest();
         RenderSystem.color4f(1.f, 1.f, 1.f, 1.0f);
 
-        RenderSystem.pushMatrix();
-        RenderSystem.translated(0, 0, DEPTH);
+        stack.push();
+        stack.translate(0, 0, DEPTH);
 
         isModGeneratedToolTip = true;
         try {
-          ItemStack stack = hoveringOver.getStack();
-          GuiUtils.preItemToolTip(stack);
-          renderTooltip(stack, mouseX + 8, mouseY + 8);
+          ItemStack itemStack = hoveringOver.getStack();
+          GuiUtils.preItemToolTip(itemStack);
+          renderTooltip(stack, itemStack, mouseX + 8, mouseY + 8);
           GuiUtils.postItemToolTip();
         } finally {
           isModGeneratedToolTip = false;
         }
 
-        RenderSystem.popMatrix();
+        stack.pop();
         RenderSystem.enableDepthTest();
       }
 
@@ -572,12 +564,13 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    public int compareTo(GuiShulkerViewer o) {
+      return Integer.compare(priority, o.priority);
     }
 
     @Override
-    public int compareTo(GuiShulkerViewer o) {
-      return Integer.compare(priority, o.priority);
+    protected void func_230450_a_(MatrixStack p_230450_1_, float p_230450_2_, int p_230450_3_, int p_230450_4_) {
+
     }
   }
 
@@ -709,11 +702,6 @@ public class ShulkerViewer extends ToggleMod {
     public void changeCurrentItem(double direction) { }
 
     @Override
-    public int clearMatchingItems(Predicate<ItemStack> p_195408_1_, int count) {
-      return 0;
-    }
-
-    @Override
     public int storeItemStack(ItemStack itemStackIn) {
       return 0;
     }
@@ -785,17 +773,8 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public boolean canHarvestBlock(BlockState state) {
-      return false;
-    }
-
-    @Override
     public ItemStack armorItemInSlot(int slotIn) {
       return ItemStack.EMPTY;
-    }
-
-    @Override
-    public void damageArmor(float damage) {
     }
 
     @Override
@@ -827,11 +806,6 @@ public class ShulkerViewer extends ToggleMod {
 
     @Override
     public boolean hasItemStack(ItemStack itemStackIn) {
-      return false;
-    }
-
-    @Override
-    public boolean hasTag(Tag<Item> itemTag) {
       return false;
     }
 

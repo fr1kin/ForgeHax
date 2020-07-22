@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
+import com.mojang.datafixers.util.Pair;
 import dev.fiki.forgehax.common.events.ItemStoppedUsedEvent;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ForgeHaxEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
@@ -10,12 +10,6 @@ import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.item.Food;
 import net.minecraft.item.ItemGroup;
@@ -25,10 +19,13 @@ import net.minecraft.util.Hand;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static dev.fiki.forgehax.main.Common.*;
-import static dev.fiki.forgehax.main.Common.MC;
 
 @RegisterMod
 public class AutoEatMod extends ToggleMod {
@@ -101,7 +98,7 @@ public class AutoEatMod extends ToggleMod {
 
   private boolean isGoodFood(LocalPlayerInventory.InvItem inv) {
     return inv.getItem().getFood().getEffects().stream()
-        .map(Pair::getLeft)
+        .map(Pair::getFirst)
         .map(EffectInstance::getPotion)
         .anyMatch(BAD_POTIONS::contains);
   }
@@ -141,7 +138,7 @@ public class AutoEatMod extends ToggleMod {
 
   private int getLongestEatingTicks(Food food) {
     return food.getEffects().stream()
-        .map(Pair::getKey)
+        .map(Pair::getFirst)
         .map(EffectInstance::getDuration)
         .max(Integer::compareTo)
         .orElse(20);

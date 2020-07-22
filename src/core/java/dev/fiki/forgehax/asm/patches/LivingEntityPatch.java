@@ -81,10 +81,10 @@ public class LivingEntityPatch {
 
   @RegisterTransformer("ForgeHaxHooks::shouldClampMotion")
   public static class LivingTick extends MethodTransformer {
-    private boolean isVec3dGetZField(AbstractInsnNode node) {
+    private boolean isVector3dGetZField(AbstractInsnNode node) {
       if(node instanceof FieldInsnNode && node.getOpcode() == GETFIELD) {
         FieldInsnNode mn = (FieldInsnNode) node;
-        return Fields.Vec3d_z.isNameEqual(mn.name);
+        return Fields.Vector3d_z.isNameEqual(mn.name);
       }
       return false;
     }
@@ -96,13 +96,13 @@ public class LivingEntityPatch {
 
     @Override
     public void transform(MethodNode node) {
-      // double d5 = vec3d.z;
+      // double d5 = Vector3d.z;
       // >HERE<
       AbstractInsnNode postStore = ASMPattern.builder()
-          .custom(this::isVec3dGetZField)
+          .custom(this::isVector3dGetZField)
           .opcode(DSTORE)
           .find(node)
-          .getLast("Cannot find GETFIELD to Vec3d.z");
+          .getLast("Cannot find GETFIELD to Vector3d.z");
 
       // >HERE<
       // this.setMotion(d1, d3, d5);

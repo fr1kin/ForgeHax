@@ -9,13 +9,15 @@ import dev.fiki.forgehax.main.util.math.AlignHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.HudMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.world.DimensionType;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import static dev.fiki.forgehax.main.Common.getWorld;
 
 @RegisterMod
 public class CoordsHud extends HudMod {
@@ -68,7 +70,7 @@ public class CoordsHud extends HudMod {
     thisY = player.getPosY();
     thisZ = player.getPosZ();
 
-    double thisFactor = Common.getWorld().getDimension().getMovementFactor();
+    double thisFactor = DimensionType.field_236000_d_.equals(getWorld().func_234922_V_()) ? 8d : 1d;
     double otherFactor = thisFactor != 1d ? 1d : 8d;
     double travelFactor = thisFactor / otherFactor;
     otherX = thisX * travelFactor;

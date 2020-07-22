@@ -11,6 +11,7 @@ import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.util.MovementInput;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -98,7 +99,7 @@ public class BoatFly extends ToggleMod {
 
       if (getGameSettings().keyBindJump.isKeyDown()) {
         // trick the riding entity to think its onground
-        getMountedEntity().onGround = false;
+        FastReflection.Fields.Entity_onGround.set(getMountedEntity(), false);
 
         // teleport up
         velY = getGameSettings().keyBindSprint.isKeyDown() ? 5.D : 1.5D;

@@ -18,6 +18,7 @@ import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
+import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
@@ -31,7 +32,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -112,16 +113,16 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
   public void onLocalPlayerMovementUpdate(Local state) {
     currentTarget = null;
 
-    Vec3d directionVector = Vec3d.ZERO;
-    BlockPos below = getLocalPlayer().getPosition().down();
+    Vector3d directionVector = Vector3d.ZERO;
+    BlockPos below = getLocalPlayer().func_233580_cy_().down();
     if(BlockHelper.isBlockReplaceable(below)) {
       currentTarget = below;
       predicted = true;
     } else if(motionPrediction.isEnabled()) {
       // try and get the block the player will be over
-      Vec3d motion = getLocalPlayer().getMotion();
+      Vector3d motion = getLocalPlayer().getMotion();
       // ignore y motion
-      Vec3d vel = new Vec3d(motion.getX(), 0.d, motion.getZ()).normalize();
+      Vector3d vel = new Vector3d(motion.getX(), 0.d, motion.getZ()).normalize();
 
       // must be moving
       if(vel.lengthSquared() > 0.d) {
@@ -134,7 +135,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
           modZ = vel.getZ() < 0.d ? -1.d : 1.d;
         }
 
-        directionVector = new Vec3d(modX, 0.d, modZ);
+        directionVector = new Vector3d(modX, 0.d, modZ);
         BlockPos forward = below.add(directionVector.getX(), directionVector.getY(), directionVector.getZ());
         if(BlockHelper.isBlockReplaceable(forward)) {
           currentTarget = forward;
@@ -163,11 +164,11 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
 
     boolean isPredictedTarget = directionVector.lengthSquared() > 0.d;
 
-    final Vec3d realEyes = getLocalPlayer().getEyePosition(1.f);
-    final Vec3d eyes = isPredictedTarget
+    final Vector3d realEyes = getLocalPlayer().getEyePosition(1.f);
+    final Vector3d eyes = isPredictedTarget
         ? realEyes.add(directionVector)
         : realEyes;
-    final Vec3d dir = LocalPlayerUtils.getServerDirectionVector();
+    final Vector3d dir = LocalPlayerUtils.getServerDirectionVector();
 
     BlockTraceInfo trace =
         Optional.ofNullable(BlockHelper.getPlaceableBlockSideTrace(eyes, dir, currentTarget))
@@ -187,7 +188,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
 
     currentTarget = trace.getPos();
     predicted = false;
-    Vec3d hit = trace.getHitVec();
+    Vector3d hit = trace.getHitVec();
     state.setServerAngles(Utils.getLookAtAngles(hit));
 
     // cannot place yet because of delay
@@ -249,7 +250,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
       buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
       buffer.setTranslation(event.getProjectedPos().scale(-1));
 
-      Vec3d pos = new Vec3d(current);
+      Vector3d pos = VectorUtils.toFPIVector(current);
       buffer.putOutlinedCuboid(pos, pos.add(1.D, 1.D, 1.D), GeometryMasks.Line.ALL,
           predicted ? Colors.YELLOW : Colors.ORANGE);
 

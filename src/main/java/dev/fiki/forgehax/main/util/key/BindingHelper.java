@@ -26,8 +26,8 @@ public class BindingHelper {
 
   static {
     // cause key input class to load
-    InputMappings.Type.KEYSYM.getName();
-    InputMappings.Type.MOUSE.getName();
+    InputMappings.Type.KEYSYM.name();
+    InputMappings.Type.MOUSE.name();
   }
 
   private static final IKeyConflictContext EMPTY = new IKeyConflictContext() {
@@ -98,7 +98,7 @@ public class BindingHelper {
   private static String trimInputKeyName(InputMappings.Input input) {
     int len;
     if (!InputMappings.Type.MOUSE.equals(input.getType())) {
-      len = (input.getType().getName() + ".").length();
+      len = (input.getType().name() + ".").length(); // TODO: 1.16 getName() returned something else
     } else {
       len = "key.".length();
     }

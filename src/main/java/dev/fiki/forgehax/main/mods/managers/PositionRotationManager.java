@@ -6,6 +6,8 @@ import dev.fiki.forgehax.common.events.movement.PrePlayerMovementUpdateEvent;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
+import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
+import dev.fiki.forgehax.main.util.Utils;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.math.Angle;
@@ -14,18 +16,15 @@ import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.task.SimpleManagerContainer;
 import dev.fiki.forgehax.main.util.task.TaskChain;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
-import dev.fiki.forgehax.main.util.Utils;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.network.play.server.SPlayerPositionLookPacket;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.network.play.server.SPlayerPositionLookPacket;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created on 6/15/2017 by fr1kin
@@ -78,7 +77,7 @@ public class PositionRotationManager extends ServiceMod {
     player.rotationYaw = original.getYaw() + diff.getYaw();
   }
   
-  private static void setPlayerPosition(ClientPlayerEntity player, Vec3d position) {
+  private static void setPlayerPosition(ClientPlayerEntity player, Vector3d position) {
     player.setRawPosition(position.getX(), position.getY(), position.getZ());
   }
   

@@ -1,41 +1,39 @@
 package dev.fiki.forgehax.main.util.draw;
 
-import static dev.fiki.forgehax.main.Common.*;
-import static com.mojang.blaze3d.systems.RenderSystem.*;
-import static dev.fiki.forgehax.main.util.math.AlignHelper.getFlowDirY2;
-import static org.lwjgl.opengl.GL11.GL_LINES;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.blaze3d.vertex.VertexBuilderUtils;
 import dev.fiki.forgehax.main.util.color.Color;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import javax.annotation.Nonnull;
-
 import dev.fiki.forgehax.main.util.math.AlignHelper;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.TransformationMatrix;
 import org.lwjgl.opengl.GL11;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Random;
+
+import static com.mojang.blaze3d.systems.RenderSystem.*;
+import static dev.fiki.forgehax.main.Common.MC;
+import static dev.fiki.forgehax.main.Common.getFontRenderer;
+import static dev.fiki.forgehax.main.util.math.AlignHelper.getFlowDirY2;
+import static org.lwjgl.opengl.GL11.GL_LINES;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
 /**
  * 2D rendering
@@ -288,7 +286,7 @@ public class SurfaceHelper {
     Random random = new Random();
     long i = 42L;
 
-    for(Direction direction : Direction.values()) {
+    for (Direction direction : Direction.values()) {
       random.setSeed(42L);
       MC.getItemRenderer().renderQuads(matrixStackIn, bufferIn,
           modelIn.getQuads(null, direction, random), stack, combinedLightIn, combinedOverlayIn);
@@ -302,8 +300,8 @@ public class SurfaceHelper {
   private static RenderType getRenderType(ItemStack itemStackIn) {
     Item item = itemStackIn.getItem();
     if (item instanceof BlockItem) {
-      Block block = ((BlockItem)item).getBlock();
-      return RenderTypeLookup.canRenderInLayer(block.getDefaultState(), RenderType.translucent())
+      Block block = ((BlockItem) item).getBlock();
+      return RenderTypeLookup.canRenderInLayer(block.getDefaultState(), RenderType.getTranslucent())
           ? RenderTypeEx.blockTranslucentCull()
           : RenderTypeEx.blockCutout();
     } else {
@@ -314,8 +312,8 @@ public class SurfaceHelper {
   private static IVertexBuilder getBuffer(IRenderTypeBuffer bufferIn, RenderType renderTypeIn, boolean isItemIn, boolean glintIn) {
     return glintIn ? VertexBuilderUtils.newDelegate(
         bufferIn.getBuffer(isItemIn
-            ? RenderType.glint()
-            : RenderType.entityGlint()),
+            ? RenderType.getGlint()
+            : RenderType.getEntityGlint()),
         bufferIn.getBuffer(renderTypeIn))
         : bufferIn.getBuffer(renderTypeIn);
   }
@@ -338,10 +336,12 @@ public class SurfaceHelper {
       RenderType rendertype = getRenderType(itemStack);
 
       IVertexBuilder builder = ItemRenderer.getBuffer(buffer, rendertype, true, itemStack.hasEffect());
-      renderModel(model, itemStack, 15728880, OverlayTexture.DEFAULT_LIGHT, stack, builder);
+      renderModel(model, itemStack, 15728880, OverlayTexture.NO_OVERLAY, stack, builder);
     } else {
-      itemStack.getItem().getItemStackTileEntityRenderer().render(itemStack, stack, buffer,
-          15728880, OverlayTexture.DEFAULT_LIGHT);
+      itemStack.getItem().getItemStackTileEntityRenderer().func_239207_a_(itemStack,
+          ItemCameraTransforms.TransformType.NONE,
+          stack, buffer,
+          15728880, OverlayTexture.NO_OVERLAY);
     }
 
     stack.pop();
@@ -378,7 +378,8 @@ public class SurfaceHelper {
 
   @Deprecated
   public static void drawRect(int x, int y, int i, int height, int toBuffer) {
-    AbstractGui.fill(x, y, i, height, toBuffer);
+    throw new UnsupportedOperationException("TODO 1.16"); // TODO: 1.16
+//    AbstractGui.func_238463_a_(TransformationMatrix.identity(), x, y, i, height, toBuffer);
   }
 
   @Deprecated

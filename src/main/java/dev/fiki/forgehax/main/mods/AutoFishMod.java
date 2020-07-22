@@ -14,7 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.play.server.SPlaySoundEffectPacket;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -64,8 +64,8 @@ public class AutoFishMod extends ToggleMod {
         && (me != null
         && me.fishingBobber != null
         && (maxSoundDistance.getValue() == 0 // disables this check
-        || (me.fishingBobber.getPositionVector()
-            .distanceTo(new Vec3d(packet.getX(), packet.getY(), packet.getZ())) <= maxSoundDistance.getValue())));
+        || (me.fishingBobber.getPositionVec()
+        .distanceTo(new Vector3d(packet.getX(), packet.getY(), packet.getZ())) <= maxSoundDistance.getValue())));
   }
 
   private void rightClick() {
@@ -115,8 +115,8 @@ public class AutoFishMod extends ToggleMod {
         boolean notInWater = false;
 
         // check if the bobber is not moving at all
-        if(bobber.getMotion().subtract(0, bobber.getMotion().getY(), 0).lengthSquared() == 0) {
-          notInWater = !getWorld().getBlockState(bobber.getPosition()).getMaterial().isLiquid();
+        if (bobber.getMotion().subtract(0, bobber.getMotion().getY(), 0).lengthSquared() == 0) {
+          notInWater = !getWorld().getBlockState(bobber.func_233580_cy_()).getMaterial().isLiquid();
         }
 
         if (notInWater || (recastDelay.getValue() != 0 && (ticksHookDeployed > recastDelay.getValue()))) {

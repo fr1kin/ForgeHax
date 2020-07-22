@@ -1,24 +1,16 @@
 package dev.fiki.forgehax.main.mods;
 
-import static java.util.Objects.isNull;
-
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.main.util.Switch.Handle;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.Switch.Handle;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.play.client.CPlayerPacket;
@@ -26,6 +18,12 @@ import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 @RegisterMod
 public class VanillaFlyMod extends ToggleMod {
@@ -103,7 +101,7 @@ public class VanillaFlyMod extends ToggleMod {
 
     AxisAlignedBB range = player.getBoundingBox().expand(0, -player.getPosY(), 0)
         .contract(0, -player.getHeight(), 0);
-    List<AxisAlignedBB> collisionBoxes = player.world.getEmptyCollisionShapes(player, range, Collections.emptySet())
+    List<AxisAlignedBB> collisionBoxes = player.world.getCollisionShapes(player, range)
         .map(VoxelShape::getBoundingBox)
         .collect(Collectors.toList());
     AtomicReference<Double> newHeight = new AtomicReference<>(0D);
@@ -145,7 +143,7 @@ public class VanillaFlyMod extends ToggleMod {
      */
     AxisAlignedBB range = player.getBoundingBox()
         .expand(0, 256 - player.getHealth() - player.getPosY(), 0).contract(0, player.getHeight(), 0);
-    List<AxisAlignedBB> collisionBoxes = player.world.getEmptyCollisionShapes(player, range, Collections.emptySet())
+    List<AxisAlignedBB> collisionBoxes = player.world.getCollisionShapes(player, range)
         .map(VoxelShape::getBoundingBox)
         .collect(Collectors.toList());
     AtomicReference<Double> newY = new AtomicReference<>(256D);

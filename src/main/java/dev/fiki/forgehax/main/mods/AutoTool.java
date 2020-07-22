@@ -3,17 +3,13 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.common.events.PlayerAttackEntityEvent;
 import dev.fiki.forgehax.common.events.PlayerDamageBlockEvent;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.BlockHelper;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.BlockHelper;
-
-import java.util.Comparator;
-import java.util.Optional;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -21,11 +17,14 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.Comparator;
+import java.util.Optional;
 
 import static net.minecraft.enchantment.Enchantments.EFFICIENCY;
 
@@ -99,7 +98,7 @@ public class AutoTool extends ToggleMod {
     return Optional.ofNullable(
         item.getItemStack()
             .getAttributeModifiers(EquipmentSlotType.MAINHAND)
-            .get(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
+            .get(Attributes.ATTACK_DAMAGE)) // attack damage
         .map(at -> at.stream().findAny().map(AttributeModifier::getAmount).orElse(0.D))
         .orElse(0.D);
   }
@@ -107,7 +106,7 @@ public class AutoTool extends ToggleMod {
   private double getAttackSpeed(LocalPlayerInventory.InvItem item) {
     return Optional.ofNullable(item.getItemStack()
         .getAttributeModifiers(EquipmentSlotType.MAINHAND)
-        .get(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
+        .get(Attributes.ATTACK_DAMAGE))
         .map(at -> at.stream()
             .findAny()
             .map(AttributeModifier::getAmount)

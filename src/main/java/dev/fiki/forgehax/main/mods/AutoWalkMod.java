@@ -9,7 +9,6 @@ import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
-import static dev.fiki.forgehax.main.Common.getGameSettings;
 
 @RegisterMod
 public class AutoWalkMod extends ToggleMod {
@@ -40,7 +39,7 @@ public class AutoWalkMod extends ToggleMod {
     getGameSettings().keyBindForward.setPressed(true);
 
     if (stop_at_unloaded_chunks.getValue()) {
-      if (!getWorld().isAreaLoaded(getLocalPlayer().getPosition(), 1)) {
+      if (!getWorld().isAreaLoaded(getLocalPlayer().func_233580_cy_(), 1)) {
         getGameSettings().keyBindForward.setPressed(false);
       }
     }

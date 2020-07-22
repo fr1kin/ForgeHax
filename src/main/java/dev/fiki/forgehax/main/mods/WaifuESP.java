@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
@@ -7,24 +8,21 @@ import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import javax.imageio.ImageIO;
-
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 //@RegisterMod
 public class WaifuESP extends ToggleMod {
@@ -72,9 +70,9 @@ public class WaifuESP extends ToggleMod {
     for (Entity entity : Common.getWorld().getAllEntities()) {
       if (EntityUtils.isLiving(entity) && shouldDraw((LivingEntity) entity)) {
         LivingEntity living = (LivingEntity) (entity);
-        Vec3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
-        Vec3d topVec =
-            bottomVec.add(new Vec3d(0, (entity.getRenderBoundingBox().maxY - entity.getPosY()), 0));
+        Vector3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
+        Vector3d topVec =
+            bottomVec.add(new Vector3d(0, (entity.getRenderBoundingBox().maxY - entity.getPosY()), 0));
         VectorUtils.ScreenPos top = VectorUtils._toScreen(topVec.x, topVec.y, topVec.z);
         VectorUtils.ScreenPos bot = VectorUtils._toScreen(bottomVec.x, bottomVec.y, bottomVec.z);
         if (top.isVisible || bot.isVisible) {

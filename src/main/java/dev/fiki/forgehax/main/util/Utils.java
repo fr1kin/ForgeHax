@@ -4,6 +4,12 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,14 +17,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.Vec3d;
-
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
 public class Utils implements Common {
   
@@ -60,11 +59,11 @@ public class Utils implements Common {
     return Math.max(min, Math.min(max, value));
   }
   
-  public static Angle getLookAtAngles(Vec3d start, Vec3d end) {
+  public static Angle getLookAtAngles(Vector3d start, Vector3d end) {
     return AngleHelper.getAngleFacingInDegrees(end.subtract(start)).normalize();
   }
   
-  public static Angle getLookAtAngles(Vec3d end) {
+  public static Angle getLookAtAngles(Vector3d end) {
     return getLookAtAngles(EntityUtils.getEyePos(getLocalPlayer()), end);
   }
   

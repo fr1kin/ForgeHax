@@ -21,7 +21,7 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -57,7 +57,7 @@ public class ForgeHaxHooks {
     return true;
   }
 
-  public static void onSchematicaPlaceBlock(ItemStack itemIn, BlockPos posIn, Vec3d vecIn, Direction sideIn) {
+  public static void onSchematicaPlaceBlock(ItemStack itemIn, BlockPos posIn, Vector3d vecIn, Direction sideIn) {
     MinecraftForge.EVENT_BUS.post(new SchematicaPlaceBlockEvent(itemIn, posIn, vecIn, sideIn));
   }
 

@@ -1,19 +1,18 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
+import static dev.fiki.forgehax.main.Common.getMountedEntity;
 
 /**
  * Created by Babbaj on 9/1/2017.
@@ -64,16 +63,13 @@ public class HorseStats extends ToggleMod {
   }
 
   private void applyStats(double newJump, double newSpeed) {
-    final IAttribute jump_strength =
-        FastReflection.Fields.AbstractHorse_JUMP_STRENGTH.get(getMountedEntity());
-    final IAttribute movement_speed =
-        FastReflection.Fields.SharedMonsterAttributes_MOVEMENT_SPEED.get(getMountedEntity());
+    LivingEntity living = (LivingEntity) getMountedEntity();
+    if (living != null) {
+      living.getAttribute(Attributes.HORSE_JUMP_STRENGTH)
+          .setBaseValue(newJump);
 
-    ((LivingEntity) getMountedEntity())
-        .getAttribute(jump_strength)
-        .setBaseValue(newJump);
-    ((LivingEntity) getMountedEntity())
-        .getAttribute(movement_speed)
-        .setBaseValue(newSpeed);
+      living.getAttribute(Attributes.MOVEMENT_SPEED)
+          .setBaseValue(newSpeed);
+    }
   }
 }

@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.util.draw;
 
-import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -12,9 +11,9 @@ import org.lwjgl.opengl.GL11;
 import java.util.OptionalDouble;
 
 public class RenderTypeEx extends RenderType {
-  private static final RenderType GL_LINES = RenderType.get("fh_lines",
+  private static final RenderType GL_LINES = RenderType.makeType("fh_lines",
       DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
-      RenderType.State.builder()
+      RenderType.State.getBuilder()
           .line(new RenderState.LineState(OptionalDouble.of(1.f)))
           .cull(RenderState.CULL_DISABLED)
           .depthTest(DEPTH_ALWAYS)
@@ -23,26 +22,26 @@ public class RenderTypeEx extends RenderType {
           .build(false)
   );
 
-  private static final RenderType GL_LINE_LOOP = RenderType.get("fh_line_loop",
+  private static final RenderType GL_LINE_LOOP = RenderType.makeType("fh_line_loop",
       DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINE_LOOP, 256,
-      RenderType.State.builder()
+      RenderType.State.getBuilder()
           .line(new RenderState.LineState(OptionalDouble.empty()))
           .transparency(RenderState.TRANSLUCENT_TRANSPARENCY)
           .fog(RenderState.NO_FOG)
           .build(false)
   );
 
-  private static final RenderType GL_TRIANGLES = RenderType.get("fh_triangles",
+  private static final RenderType GL_TRIANGLES = RenderType.makeType("fh_triangles",
       DefaultVertexFormats.POSITION_COLOR, GL11.GL_TRIANGLES, 256,
-      RenderType.State.builder()
+      RenderType.State.getBuilder()
           .transparency(RenderState.TRANSLUCENT_TRANSPARENCY)
           .fog(RenderState.NO_FOG)
           .build(false)
   );
 
-  private static final RenderType GL_QUADS = RenderType.get("fh_quads",
+  private static final RenderType GL_QUADS = RenderType.makeType("fh_quads",
       DefaultVertexFormats.POSITION_COLOR, GL11.GL_QUADS, 256,
-      RenderType.State.builder()
+      RenderType.State.getBuilder()
           .transparency(RenderState.TRANSLUCENT_TRANSPARENCY)
           .fog(RenderState.NO_FOG)
           .build(false)
@@ -77,7 +76,7 @@ public class RenderTypeEx extends RenderType {
   }
 
   public static RenderType entityTranslucentCull(ResourceLocation texture) {
-    RenderType.State state = RenderType.State.builder()
+    RenderType.State state = RenderType.State.getBuilder()
         .texture(new RenderState.TextureState(texture, false, false))
         .transparency(TRANSLUCENT_TRANSPARENCY)
         .diffuseLighting(DIFFUSE_LIGHTING_DISABLED)
@@ -85,12 +84,12 @@ public class RenderTypeEx extends RenderType {
         .lightmap(LIGHTMAP_DISABLED)
         .overlay(OVERLAY_ENABLED)
         .build(true);
-    return get("fh_entity_translucent_cull", DefaultVertexFormats.ITEM,
+    return makeType("fh_entity_translucent_cull", DefaultVertexFormats.ENTITY,
         GL11.GL_QUADS, 256, true, true, state);
   }
 
   public static RenderType entityCutout(ResourceLocation texture) {
-    RenderType.State state = RenderType.State.builder()
+    RenderType.State state = RenderType.State.getBuilder()
         .texture(new RenderState.TextureState(texture, false, false))
         .transparency(NO_TRANSPARENCY)
         .diffuseLighting(DIFFUSE_LIGHTING_DISABLED)
@@ -98,7 +97,7 @@ public class RenderTypeEx extends RenderType {
         .lightmap(LIGHTMAP_DISABLED)
         .overlay(OVERLAY_ENABLED)
         .build(true);
-    return get("fh_entity_cutout", DefaultVertexFormats.ITEM,
+    return makeType("fh_entity_cutout", DefaultVertexFormats.ENTITY,
         GL11.GL_QUADS, 256, true, false, state);
   }
 

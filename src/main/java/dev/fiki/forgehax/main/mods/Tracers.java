@@ -1,10 +1,12 @@
 package dev.fiki.forgehax.main.mods;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
+import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
@@ -14,17 +16,14 @@ import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.color.Color;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
 import java.util.Objects;
 import java.util.stream.StreamSupport;
-
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.opengl.GL11;
 
 import static com.mojang.blaze3d.systems.RenderSystem.*;
 import static org.lwjgl.opengl.GL11.glBegin;
@@ -123,7 +122,7 @@ public class Tracers extends ToggleMod implements Colors {
               Entity entity = er.getEntity();
               RelationState relationship = er.getRelationship();
 
-              Vec3d entityPos =
+              Vector3d entityPos =
                   EntityUtils.getInterpolatedEyePos(entity, Common.MC.getRenderPartialTicks());
               Plane screenPos = VectorUtils.toScreen(entityPos);
 

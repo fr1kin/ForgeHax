@@ -2,27 +2,27 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.PacketHelper;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import static dev.fiki.forgehax.main.util.reflection.FastReflection.Fields.Entity_onGround;
 
 @RegisterMod
 public class StepMod extends ToggleMod {
@@ -65,7 +65,7 @@ public class StepMod extends ToggleMod {
   protected void onEnabled() {
     PlayerEntity player = Common.getLocalPlayer();
     if (player != null) {
-      wasOnGround = player.onGround;
+      wasOnGround = Entity_onGround.get(player);
     }
   }
 
@@ -82,7 +82,7 @@ public class StepMod extends ToggleMod {
   }
 
   private void updateStepHeight(PlayerEntity player) {
-    player.stepHeight = player.onGround ? stepHeight.getValue() : DEFAULT_STEP_HEIGHT;
+    player.stepHeight = Entity_onGround.get(player) ? stepHeight.getValue() : DEFAULT_STEP_HEIGHT;
   }
 
   private boolean wasOnGround = false;
@@ -91,11 +91,11 @@ public class StepMod extends ToggleMod {
     AxisAlignedBB range = player.getBoundingBox().expand(0, -stepHeight.getValue(), 0)
         .contract(0, player.getHeight(), 0);
 
-    if (!player.world.checkBlockCollision(range)) {
+    if (!player.world.hasNoCollisions(range)) {
       return;
     }
 
-    List<AxisAlignedBB> collisionBoxes = player.world.getEmptyCollisionShapes(player, range, Collections.emptySet())
+    List<AxisAlignedBB> collisionBoxes = player.world.getCollisionShapes(player, range)
         .map(VoxelShape::getBoundingBox)
         .collect(Collectors.toList());
     AtomicReference<Double> newY = new AtomicReference<>(0D);
@@ -105,11 +105,11 @@ public class StepMod extends ToggleMod {
 
   private void updateUnstep(PlayerEntity player) {
     try {
-      if (unstep.getValue() && wasOnGround && !player.onGround && player.getMotion().getY() <= 0) {
+      if (unstep.getValue() && wasOnGround && !Entity_onGround.get(player) && player.getMotion().getY() <= 0) {
         unstep(player);
       }
     } finally {
-      wasOnGround = player.onGround;
+      wasOnGround = Entity_onGround.get(player);
     }
   }
 

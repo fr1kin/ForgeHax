@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.util.math;
 
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 
 /**
  * Created on 6/21/2017 by fr1kin
@@ -67,7 +67,7 @@ public class AngleHelper {
     return MathHelper.wrapDegrees(ang);
   }
   
-  public static Angle getAngleFacingInRadians(Vec3d vector) {
+  public static Angle getAngleFacingInRadians(Vector3d vector) {
     double pitch, yaw;
     if (vector.x == 0 && vector.z == 0) {
       yaw = 0.D;
@@ -80,7 +80,7 @@ public class AngleHelper {
     return Angle.radians((float) pitch, (float) yaw);
   }
   
-  public static Angle getAngleFacingInDegrees(Vec3d vector) {
+  public static Angle getAngleFacingInDegrees(Vector3d vector) {
     return getAngleFacingInRadians(vector).inDegrees();
   }
 }

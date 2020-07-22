@@ -16,6 +16,7 @@ import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.network.play.client.CAnimateHandPacket;
@@ -25,6 +26,7 @@ import net.minecraft.network.play.client.CPlayerTryUseItemOnBlockPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.*;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -243,7 +245,7 @@ public class AntiAfkMod extends ToggleMod {
       public void onStart() {
         BindingHelper.disableContextHandler(getGameSettings().keyBindForward);
 
-        Vec3d eye = EntityUtils.getEyePos(getLocalPlayer());
+        Vector3d eye = EntityUtils.getEyePos(getLocalPlayer());
 
         List<Double> yaws = Lists.newArrayList();
         for (int i = 0; i < (360 / DEGREES); ++i) {
@@ -254,7 +256,7 @@ public class AntiAfkMod extends ToggleMod {
         double lastDistance = -1.D;
         for (double y : yaws) {
           double[] cc = Angle.degrees(0.f, (float) y).getForwardVector();
-          Vec3d target = eye.add(new Vec3d(cc[0], cc[1], cc[2]).normalize().scale(64));
+          Vector3d target = eye.add(new Vector3d(cc[0], cc[1], cc[2]).normalize().scale(64));
 
           RayTraceContext ctx = new RayTraceContext(eye, target,
               RayTraceContext.BlockMode.COLLIDER,
@@ -274,7 +276,7 @@ public class AntiAfkMod extends ToggleMod {
       @Override
       public void onStop() {
         BindingHelper.restoreContextHandler(getGameSettings().keyBindForward);
-        getLocalPlayer().setMotion(Vec3d.ZERO);
+        getLocalPlayer().setMotion(Vector3d.ZERO);
       }
     },
     SPIN {
@@ -310,7 +312,7 @@ public class AntiAfkMod extends ToggleMod {
 
       RayTraceResult getTraceBelow() {
         // getBlockBelow()
-        Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
+        Vector3d eyes = EntityUtils.getEyePos(getLocalPlayer());
         RayTraceContext ctx = new RayTraceContext(eyes,
             eyes.add(0, -getPlayerController().getBlockReachDistance(), 0),
             RayTraceContext.BlockMode.COLLIDER,
@@ -383,7 +385,7 @@ public class AntiAfkMod extends ToggleMod {
         p = getLocalPlayer().rotationPitch;
 
         BlockPos pos = getBlockBelow();
-        Vec3d look = new Vec3d(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
+        Vector3d look = new Vector3d(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
         Angle va = Utils.getLookAtAngles(look);
         setViewAngles(va.getPitch(), va.getYaw());
       }
@@ -432,15 +434,16 @@ public class AntiAfkMod extends ToggleMod {
 
     static void swingHand() {
       if (silent) {
-        getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+        sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
       } else {
         getLocalPlayer().swingArm(Hand.MAIN_HAND);
       }
     }
 
     static void setViewAngles(float p, float y) {
-      if(silent) {
-        getNetworkManager().sendPacket(new CPlayerPacket.RotationPacket(p, y, getLocalPlayer().onGround));
+      if (silent) {
+        sendNetworkPacket(new CPlayerPacket.RotationPacket(p, y,
+            FastReflection.Fields.Entity_onGround.get(getLocalPlayer())));
       } else {
         LocalPlayerUtils.setViewAngles(p, y);
       }

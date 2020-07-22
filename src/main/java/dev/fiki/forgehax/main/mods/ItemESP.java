@@ -1,12 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.ColorSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
@@ -19,10 +15,8 @@ import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import java.util.stream.StreamSupport;
 
 import static dev.fiki.forgehax.main.Common.getBufferProvider;
 import static dev.fiki.forgehax.main.Common.worldEntities;
@@ -59,8 +53,8 @@ public class ItemESP extends ToggleMod {
         .map(ItemEntity.class::cast)
         .filter(entity -> entity.ticksExisted > 1)
         .forEach(entity -> {
-          Vec3d bottomPos = EntityUtils.getInterpolatedPos(entity, event.getPartialTicks());
-          Vec3d topPos = bottomPos.add(0.D, entity.getRenderBoundingBox().maxY - entity.getPosY(), 0.D);
+          Vector3d bottomPos = EntityUtils.getInterpolatedPos(entity, event.getPartialTicks());
+          Vector3d topPos = bottomPos.add(0.D, entity.getRenderBoundingBox().maxY - entity.getPosY(), 0.D);
 
           Plane top = VectorUtils.toScreen(topPos);
           Plane bot = VectorUtils.toScreen(bottomPos);
@@ -82,7 +76,7 @@ public class ItemESP extends ToggleMod {
               -SurfaceHelper.getStringHeight() / 2.f,
               0.f);
 
-          SurfaceHelper.renderString(buffers, stack.getLast().getPositionMatrix(),
+          SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
               text, 0, 0, color.getValue(), true);
 
           stack.pop();

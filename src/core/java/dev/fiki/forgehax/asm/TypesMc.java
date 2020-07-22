@@ -36,9 +36,9 @@ public interface TypesMc {
             .className("net/minecraft/entity/LivingEntity")
             .build();
 
-    ASMClass Vec3d =
+    ASMClass Vector3d =
         ASMClass.builder()
-            .className("net/minecraft/util/math/Vec3d")
+            .className("net/minecraft/util/math/Vector3d")
             .build();
 
     ASMClass BlockState =
@@ -290,8 +290,8 @@ public interface TypesMc {
             .type(boolean.class)
             .build();
 
-    ASMField Vec3d_z =
-        Classes.Vec3d.newChildField()
+    ASMField Vector3d_z =
+        Classes.Vector3d.newChildField()
             .mcp("z")
             .srg("field_72449_c")
             .type(double.class)
@@ -459,7 +459,7 @@ public interface TypesMc {
             .mcp("travel")
             .srg("func_213352_e")
             .returnsVoid()
-            .argument(Classes.Vec3d)
+            .argument(Classes.Vector3d)
             .build();
 
     ASMMethod LivingEntity_isElytraFlying =

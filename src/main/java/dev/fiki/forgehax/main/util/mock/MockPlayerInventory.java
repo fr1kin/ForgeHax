@@ -1,14 +1,15 @@
 package dev.fiki.forgehax.main.util.mock;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.RecipeItemHelper;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 
@@ -69,8 +70,8 @@ public class MockPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public int clearMatchingItems(Predicate<ItemStack> p_195408_1_, int p_195408_2_) {
-    return mocking.clearMatchingItems(p_195408_1_, p_195408_2_);
+  public int func_234564_a_(Predicate<ItemStack> p_234564_1_, int p_234564_2_, IInventory p_234564_3_) {
+    return mocking.func_234564_a_(p_234564_1_, p_234564_2_, p_234564_3_);
   }
 
   @Override
@@ -175,18 +176,13 @@ public class MockPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public boolean canHarvestBlock(BlockState p_184432_1_) {
-    return mocking.canHarvestBlock(p_184432_1_);
-  }
-
-  @Override
   public ItemStack armorItemInSlot(int p_70440_1_) {
     return mocking.armorItemInSlot(p_70440_1_);
   }
 
   @Override
-  public void damageArmor(float p_70449_1_) {
-    mocking.damageArmor(p_70449_1_);
+  public void func_234563_a_(DamageSource p_234563_1_, float p_234563_2_) {
+    mocking.func_234563_a_(p_234563_1_, p_234563_2_);
   }
 
   @Override
@@ -250,8 +246,8 @@ public class MockPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public boolean hasTag(Tag<Item> p_199712_1_) {
-    return mocking.hasTag(p_199712_1_);
+  public boolean hasTag(ITag<Item> itemTag) {
+    return mocking.hasTag(itemTag);
   }
 
   @Override

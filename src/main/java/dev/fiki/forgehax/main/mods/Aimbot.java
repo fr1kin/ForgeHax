@@ -1,5 +1,9 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
+import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState;
+import dev.fiki.forgehax.main.mods.services.TickRateService;
+import dev.fiki.forgehax.main.util.Utils;
 import dev.fiki.forgehax.main.util.cmd.settings.*;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
@@ -10,22 +14,16 @@ import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.projectile.Projectile;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState;
-import dev.fiki.forgehax.main.mods.services.TickRateService;
-import dev.fiki.forgehax.main.util.Utils;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec3d;
-
 import static dev.fiki.forgehax.main.Common.*;
-import static dev.fiki.forgehax.main.Common.getGameSettings;
 
 @RegisterMod
 public class Aimbot extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
@@ -184,15 +182,15 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     }
   }
 
-  private Vec3d getAttackPosition(Entity entity) {
+  private Vector3d getAttackPosition(Entity entity) {
     return EntityUtils.getInterpolatedPos(entity, 1).add(0, entity.getEyeHeight() / 2, 0);
   }
 
   /**
    * Check if the entity is a valid target to acquire
    */
-  private boolean filterTarget(Vec3d pos, Vec3d viewNormal, Angle angles, Entity entity) {
-    final Vec3d tpos = getAttackPosition(entity);
+  private boolean filterTarget(Vector3d pos, Vector3d viewNormal, Angle angles, Entity entity) {
+    final Vector3d tpos = getAttackPosition(entity);
     return Optional.of(entity)
         .filter(EntityUtils::isLiving)
         .filter(EntityUtils::isAlive)
@@ -220,12 +218,12 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     }
   }
 
-  private boolean isInRange(Vec3d from, Vec3d to) {
+  private boolean isInRange(Vector3d from, Vector3d to) {
     double dist = isProjectileAimbotActivated() ? projectile_range.getValue() : range.getValue();
     return dist <= 0 || from.distanceTo(to) <= dist;
   }
 
-  private boolean isInFov(Angle angle, Vec3d pos) {
+  private boolean isInFov(Angle angle, Vector3d pos) {
     double fov = this.fov.getValue();
     if (fov >= 180) {
       return true;
@@ -237,7 +235,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
   }
 
   private double selecting(
-      final Vec3d pos, final Vec3d viewNormal, final Angle angles, final Entity entity) {
+      final Vector3d pos, final Vector3d viewNormal, final Angle angles, final Entity entity) {
     switch (selector.getValue()) {
       case DISTANCE:
         return getAttackPosition(entity).subtract(pos).lengthSquared();
@@ -251,7 +249,7 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
     }
   }
 
-  private Entity findTarget(final Vec3d pos, final Vec3d viewNormal, final Angle angles) {
+  private Entity findTarget(final Vector3d pos, final Vector3d viewNormal, final Angle angles) {
     return StreamSupport.stream(getWorld().getAllEntities().spliterator(), false)
         .filter(entity -> filterTarget(pos, viewNormal, angles, entity))
         .min(Comparator.comparingDouble(entity -> selecting(pos, viewNormal, angles, entity)))
@@ -272,8 +270,8 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
 
   @Override
   public void onLocalPlayerMovementUpdate(RotationState.Local state) {
-    Vec3d pos = EntityUtils.getEyePos(getLocalPlayer());
-    Vec3d look = getLocalPlayer().getLookVec();
+    Vector3d pos = EntityUtils.getEyePos(getLocalPlayer());
+    Vector3d look = getLocalPlayer().getLookVec();
     Angle angles = AngleHelper.getAngleFacingInDegrees(look);
 
     Entity t = getTarget();

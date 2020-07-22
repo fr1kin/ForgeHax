@@ -1,8 +1,9 @@
 package dev.fiki.forgehax.main.util.math;
 
-import java.util.Objects;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
+
+import java.util.Objects;
 
 /**
  * Created on 6/21/2017 by fr1kin
@@ -141,12 +142,12 @@ public abstract class Angle {
     };
   }
   
-  public Vec3d getDirectionVector() {
+  public Vector3d getDirectionVector() {
     float cy = MathHelper.cos(-inDegrees().getYaw() * 0.017453292F - (float) Math.PI);
     float sy = MathHelper.sin(-inDegrees().getYaw() * 0.017453292F - (float) Math.PI);
     float cp = -MathHelper.cos(-inDegrees().getPitch() * 0.017453292F);
     float sp = MathHelper.sin(-inDegrees().getPitch() * 0.017453292F);
-    return new Vec3d(sy * cp, sp, cy * cp);
+    return new Vector3d(sy * cp, sp, cy * cp);
   }
   
   public float[] toArray() {

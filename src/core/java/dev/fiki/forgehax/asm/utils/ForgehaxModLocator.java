@@ -2,6 +2,7 @@ package dev.fiki.forgehax.asm.utils;
 
 import net.minecraftforge.fml.loading.moddiscovery.AbstractJarFileLocator;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
+import net.minecraftforge.fml.loading.moddiscovery.ModFileParser;
 import net.minecraftforge.forgespi.locating.IModFile;
 
 import java.util.Collections;
@@ -18,7 +19,7 @@ public class ForgehaxModLocator extends AbstractJarFileLocator {
   public List<IModFile> scanMods() {
     return EZ.getJarPath()
         .map(p -> {
-          final ModFile modFile = new ModFile(p, this);
+          final ModFile modFile = new ModFile(p, this, ModFileParser::modsTomlParser);
           this.modJars.compute(modFile, (mf, fs) -> this.createFileSystem(mf));
 
           return Collections.singletonList((IModFile) modFile);

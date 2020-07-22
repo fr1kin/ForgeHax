@@ -6,14 +6,13 @@ import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.Objects;
-
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.Objects;
 
 @RegisterMod
 @SuppressWarnings("MethodCallSideOnly")
@@ -43,7 +42,7 @@ public class PacketFlyMod extends ToggleMod {
         || Common.getGameSettings().keyBindRight.isKeyDown()
         || Common.getGameSettings().keyBindBack.isKeyDown())
         && !Common.getGameSettings().keyBindJump.isKeyDown()) {
-      Vec3d vel = Common.getLocalPlayer().getMotion();
+      Vector3d vel = Common.getLocalPlayer().getMotion();
       Common.getLocalPlayer().setMotion(xDir * 0.26, vel.getY(), zDir * 0.26);
     }
 

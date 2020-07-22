@@ -1,26 +1,27 @@
 package dev.fiki.forgehax.main.util.projectile;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.vector.Vector3d;
+
 import java.util.List;
 import java.util.Objects;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
 
 /**
  * Created on 6/22/2017 by fr1kin
  */
 public class SimulationResult {
   
-  private final List<Vec3d> points;
+  private final List<Vector3d> points;
   private final double distanceTraveledSq;
   private final Entity hitEntity;
   
-  public SimulationResult(List<Vec3d> points, double distanceTraveledSq, Entity hitEntity) {
+  public SimulationResult(List<Vector3d> points, double distanceTraveledSq, Entity hitEntity) {
     this.points = points;
     this.distanceTraveledSq = distanceTraveledSq;
     this.hitEntity = hitEntity;
   }
   
-  public Vec3d getShootPos() {
+  public Vector3d getShootPos() {
     try {
       return points.get(0);
     } catch (Throwable t) {
@@ -28,7 +29,7 @@ public class SimulationResult {
     }
   }
   
-  public Vec3d getHitPos() {
+  public Vector3d getHitPos() {
     try {
       return points.get(points.size() - 1);
     } catch (Throwable t) {
@@ -49,8 +50,8 @@ public class SimulationResult {
   }
   
   public double getDistanceApartSq() {
-    Vec3d start = getShootPos();
-    Vec3d hit = getHitPos();
+    Vector3d start = getShootPos();
+    Vector3d hit = getHitPos();
     if (start != null && hit != null) {
       return start.squareDistanceTo(hit);
     } else {
@@ -58,7 +59,7 @@ public class SimulationResult {
     }
   }
   
-  public List<Vec3d> getPathTraveled() {
+  public List<Vector3d> getPathTraveled() {
     return points;
   }
 }

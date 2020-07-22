@@ -1,21 +1,10 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.PreClientTickEvent;
+import dev.fiki.forgehax.main.util.SimpleTimer;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.SimpleTimer;
-
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.concurrent.Executors;
-import java.util.zip.DeflaterOutputStream;
-
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -24,10 +13,17 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ChunkLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.io.*;
+import java.text.NumberFormat;
+import java.util.concurrent.Executors;
+import java.util.zip.DeflaterOutputStream;
+
+import static dev.fiki.forgehax.main.Common.*;
+
 @RegisterMod
 public class ClientChunkSize extends ToggleMod {
 
-  private static final File DUMMY = Common.getFileManager().getBaseResolve("dummy").toFile();
+  private static final File DUMMY = getFileManager().getBaseResolve("dummy").toFile();
 
   private final SimpleTimer timer = new SimpleTimer();
 
@@ -84,11 +80,11 @@ public class ClientChunkSize extends ToggleMod {
 
   @SubscribeEvent
   public void onTick(PreClientTickEvent event) {
-    if (!Common.isInWorld() || running) {
+    if (!isInWorld() || running) {
       return;
     }
 
-    Chunk chunk = Common.getWorld().getChunkAt(Common.getLocalPlayer().getPosition());
+    Chunk chunk = getWorld().getChunkAt(getLocalPlayer().func_233580_cy_());
     if (chunk.isEmpty()) {
       return;
     }
@@ -116,9 +112,8 @@ public class ClientChunkSize extends ToggleMod {
                   try {
                     // this should be done on the main mc thread but it works 99% of the
                     // time outside it
-                    ChunkLoader loader = new ChunkLoader(DUMMY, null);
-                    FastReflection.Methods.AnvilChunkLoader_writeChunkToNBT.invoke(
-                        loader, chunk, Common.getWorld(), level);
+                    ChunkLoader loader = new ChunkLoader(DUMMY, null, false);
+                    FastReflection.Methods.AnvilChunkLoader_writeChunkToNBT.invoke(loader, chunk, getWorld(), level);
                   } catch (Throwable t) {
                     size = -1L;
                     previousSize = 0L;

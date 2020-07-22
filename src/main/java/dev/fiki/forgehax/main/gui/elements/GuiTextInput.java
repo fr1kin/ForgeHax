@@ -1,14 +1,14 @@
 package dev.fiki.forgehax.main.gui.elements;
 
 import dev.fiki.forgehax.main.gui.windows.GuiWindowSetting;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
-
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
+
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
 /**
  * Created by Babbaj on 9/15/2017.
@@ -41,7 +41,7 @@ public class GuiTextInput extends GuiElement {
         case GLFW.GLFW_KEY_ENTER:
           isActive = false;
           // setValue(input);
-          Common.MC.player.sendMessage(new StringTextComponent(input.toString()));
+          getLocalPlayer().sendMessage(new StringTextComponent(input.toString()), null);
           break;
         
         case GLFW.GLFW_KEY_BACKSPACE:

@@ -485,8 +485,8 @@ public class ConsoleInputScreen extends Screen {
 
       if (flag && button == 0) {
         int i = MathHelper.floor(mouseX) - getX();
-        String s = ci.getFontRenderer().trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getAdjustedWidth());
-        this.setCursorPosition(ci.getFontRenderer().trimStringToWidth(s, i).length() + this.lineScrollOffset);
+//        String s = ci.getFontRenderer().trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getAdjustedWidth());
+//        this.setCursorPosition(ci.getFontRenderer().trimStringToWidth(s, i).length() + this.lineScrollOffset);
         return true;
       } else {
         return false;
@@ -500,7 +500,7 @@ public class ConsoleInputScreen extends Screen {
   }
 
   @Override
-  public void render(int mouseX, int mouseY, float partialTicks) {
+  public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
     if(processPreviousScreen) {
       synchronized (this) {
         if (previousScreen != null
@@ -508,7 +508,7 @@ public class ConsoleInputScreen extends Screen {
           RenderSystem.pushMatrix();
           RenderSystem.translatef(0.f, 0.f, -150.f);
           try {
-            previousScreen.render(0, 0, partialTicks);
+            previousScreen.render(stack, 0, 0, partialTicks);
           } catch (Throwable t) {
             processPreviousScreen = false;
           }
@@ -521,7 +521,6 @@ public class ConsoleInputScreen extends Screen {
     IRenderTypeBuffer.Impl source = buffers.getBufferSource();
     BufferBuilderEx main = buffers.getBuffer(RenderTypeEx.glTriangle());
 
-    MatrixStack stack = new MatrixStack();
     main.setMatrixStack(stack);
 
     main.putRect(getX(), getY(), getWidth(), getHeight(), Colors.BLACK.setAlpha(200));
@@ -533,8 +532,9 @@ public class ConsoleInputScreen extends Screen {
     int cursorOffset = this.cursorPosition - this.lineScrollOffset;
     int selectionLength = this.selectionEnd - this.lineScrollOffset;
 
-    String visibleText = ci.getFontRenderer().trimStringToWidth(this.text.substring(this.lineScrollOffset),
-        this.getAdjustedWidth());
+//    String visibleText = ci.getFontRenderer().trimStringToWidth(this.text.substring(this.lineScrollOffset),
+//        this.getAdjustedWidth());
+    String visibleText = ""; // TODO: 1.16
 
     boolean selectedTextVisible = cursorOffset >= 0 && cursorOffset <= visibleText.length();
     boolean markerVisible = this.cursorCounter / 6 % 2 == 0 && selectedTextVisible;
@@ -549,7 +549,7 @@ public class ConsoleInputScreen extends Screen {
 
     if (!visibleText.isEmpty()) {
       String renderText = selectedTextVisible ? visibleText.substring(0, cursorOffset) : visibleText;
-      SurfaceHelper.renderString(source, stack.getLast().getPositionMatrix(), renderText,
+      SurfaceHelper.renderString(source, stack.getLast().getMatrix(), renderText,
           (float) getX(), (float) getY(),
           Colors.WHITE, true);
       offsetX += SurfaceHelper.getStringWidth(renderText) + 1;
@@ -566,12 +566,12 @@ public class ConsoleInputScreen extends Screen {
     }
 
     if (!visibleText.isEmpty() && selectedTextVisible && cursorOffset < visibleText.length()) {
-      SurfaceHelper.renderString(source, stack.getLast().getPositionMatrix(), visibleText.substring(cursorOffset),
+      SurfaceHelper.renderString(source, stack.getLast().getMatrix(), visibleText.substring(cursorOffset),
           offsetX, y, color, true);
     }
 
     if (!endStringVisible && this.suggestion != null) {
-      SurfaceHelper.renderString(source, stack.getLast().getPositionMatrix(), this.suggestion,
+      SurfaceHelper.renderString(source, stack.getLast().getMatrix(), this.suggestion,
           endX - 1, y, Colors.GRAY, true);
     }
 
@@ -582,7 +582,7 @@ public class ConsoleInputScreen extends Screen {
         main.putRect(endX, y - 1, 1, 10, Color.of(208, 208, 208, 255));
         stack.pop();
       } else {
-        SurfaceHelper.renderString(source, stack.getLast().getPositionMatrix(), "_",
+        SurfaceHelper.renderString(source, stack.getLast().getMatrix(), "_",
             endX, y, color, true);
       }
     }
@@ -702,28 +702,28 @@ public class ConsoleInputScreen extends Screen {
   }
 
   public void setSelectionPos(int position) {
-    int i = this.text.length();
-    this.selectionEnd = MathHelper.clamp(position, 0, i);
-    if (ci.getFontRenderer() != null) {
-      if (this.lineScrollOffset > i) {
-        this.lineScrollOffset = i;
-      }
-
-      int j = this.getAdjustedWidth();
-      String s = ci.getFontRenderer().trimStringToWidth(this.text.substring(this.lineScrollOffset), j);
-      int k = s.length() + this.lineScrollOffset;
-      if (this.selectionEnd == this.lineScrollOffset) {
-        this.lineScrollOffset -= ci.getFontRenderer().trimStringToWidth(this.text, j, true).length();
-      }
-
-      if (this.selectionEnd > k) {
-        this.lineScrollOffset += this.selectionEnd - k;
-      } else if (this.selectionEnd <= this.lineScrollOffset) {
-        this.lineScrollOffset -= this.lineScrollOffset - this.selectionEnd;
-      }
-
-      this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, i);
-    }
+//    int i = this.text.length(); // TODO: 1.16
+//    this.selectionEnd = MathHelper.clamp(position, 0, i);
+//    if (ci.getFontRenderer() != null) {
+//      if (this.lineScrollOffset > i) {
+//        this.lineScrollOffset = i;
+//      }
+//
+//      int j = this.getAdjustedWidth();
+//      String s = ci.getFontRenderer().trimStringToWidth(this.text.substring(this.lineScrollOffset), j);
+//      int k = s.length() + this.lineScrollOffset;
+//      if (this.selectionEnd == this.lineScrollOffset) {
+//        this.lineScrollOffset -= ci.getFontRenderer().trimStringToWidth(this.text, j, true).length();
+//      }
+//
+//      if (this.selectionEnd > k) {
+//        this.lineScrollOffset += this.selectionEnd - k;
+//      } else if (this.selectionEnd <= this.lineScrollOffset) {
+//        this.lineScrollOffset -= this.lineScrollOffset - this.selectionEnd;
+//      }
+//
+//      this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, i);
+//    }
 
   }
 

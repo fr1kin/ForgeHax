@@ -17,7 +17,7 @@ public class SchematicaPrinterBypass extends ToggleMod {
 //  @SubscribeEvent
 //  public void onPrinterBlockPlace(SchematicaPlaceBlockEvent event) {
 //    final BlockPos pos = event.getPos().offset(event.getSide());
-//    final Vec3d vec = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+//    final Vector3d vec = new Vector3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
 //
 //    Angle lookAngle = Utils.getLookAtAngles(vec);
 //    Globals.sendNetworkPacket(new CPlayerPacket.RotationPacket(lookAngle.getYaw(),

@@ -9,8 +9,8 @@ import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -40,12 +40,12 @@ public class RenderEventService extends ServiceMod {
     final float partialTicks = MC.getRenderPartialTicks();
 
     MatrixStack stack = new MatrixStack();
-    stack.getLast().getPositionMatrix().multiply(
+    stack.getLast().getMatrix().mul(
         gameRenderer.getProjectionMatrix(activeRenderInfo, partialTicks, true));
 
     GameRenderer_hurtCameraEffect.invoke(gameRenderer, stack, partialTicks);
 
-    Matrix4f projectionMatrix = stack.getLast().getPositionMatrix();
+    Matrix4f projectionMatrix = stack.getLast().getMatrix();
 
 //    net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup cameraSetup =
 //        net.minecraftforge.client.ForgeHooksClient.onCameraSetup(gameRenderer, activeRenderInfo, partialTicks);
@@ -55,10 +55,10 @@ public class RenderEventService extends ServiceMod {
 //    stack.rotate(Vector3f.XP.rotationDegrees(activeRenderInfo.getPitch()));
 //    stack.rotate(Vector3f.YP.rotationDegrees(activeRenderInfo.getYaw() + 180.0F));
 
-    VectorUtils.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().getLast().getPositionMatrix());
+    VectorUtils.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().getLast().getMatrix());
 
     pushMatrix();
-    RenderSystem.multMatrix(event.getMatrixStack().getLast().getPositionMatrix());
+    RenderSystem.multMatrix(event.getMatrixStack().getLast().getMatrix());
 
     RenderSystem.disableTexture();
     RenderSystem.enableBlend();
@@ -69,7 +69,7 @@ public class RenderEventService extends ServiceMod {
 
     RenderSystem.lineWidth(1.f);
 
-    Vec3d projectedView = activeRenderInfo.getProjectedView();
+    Vector3d projectedView = activeRenderInfo.getProjectedView();
 
     RenderEvent e = new RenderEvent(event.getMatrixStack(), projectedView, event.getPartialTicks());
     MinecraftForge.EVENT_BUS.post(e);

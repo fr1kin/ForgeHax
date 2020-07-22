@@ -4,17 +4,18 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
-
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.tileentity.SignTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 
 /**
  * Created by Babbaj on 9/16/2017.
@@ -36,11 +37,12 @@ public class SignTextMod extends ToggleMod {
 
         if (tileEntity instanceof SignTileEntity) {
           SignTileEntity sign = (SignTileEntity) tileEntity;
+          ITextComponent[] texts = FastReflection.Fields.GuiEditSign_signText.get(sign);
 
           int signTextLength = 0;
           // find the first line from the bottom that isn't empty
           for (int i = 3; i >= 0; i--) {
-            if (!sign.signText[i].getUnformattedComponentText().isEmpty()) {
+            if (!texts[i].getUnformattedComponentText().isEmpty()) {
               signTextLength = i + 1;
               break;
             }
@@ -52,8 +54,7 @@ public class SignTextMod extends ToggleMod {
           String[] lines = new String[signTextLength];
 
           for (int i = 0; i < signTextLength; i++) {
-            lines[i] =
-                sign.signText[i].getFormattedText().replace(TextFormatting.RESET.toString(), "");
+            lines[i] = texts[i].getString().replace(TextFormatting.RESET.toString(), "");
           }
 
           String fullText = String.join("\n", lines);

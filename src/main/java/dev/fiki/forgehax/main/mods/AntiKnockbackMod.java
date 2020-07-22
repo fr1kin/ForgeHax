@@ -18,7 +18,7 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SEntityStatusPacket;
 import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.network.play.server.SExplosionPacket;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.PlayerSPPushOutOfBlocksEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -93,18 +93,18 @@ public class AntiKnockbackMod extends ToggleMod {
     super(Category.COMBAT, "AntiKnockback", false, "Removes knockback movement");
   }
 
-  private Vec3d getMultiplier() {
-    return new Vec3d(multiplier_x.getValue(), multiplier_y.getValue(), multiplier_z.getValue());
+  private Vector3d getMultiplier() {
+    return new Vector3d(multiplier_x.getValue(), multiplier_y.getValue(), multiplier_z.getValue());
   }
 
-  private Vec3d getPacketMotion(IPacket<?> packet) {
+  private Vector3d getPacketMotion(IPacket<?> packet) {
     if (packet instanceof SExplosionPacket) {
-      return new Vec3d(
+      return new Vector3d(
           FastReflection.Fields.SExplosionPacket_motionX.get(packet),
           FastReflection.Fields.SExplosionPacket_motionY.get(packet),
           FastReflection.Fields.SExplosionPacket_motionZ.get(packet));
     } else if (packet instanceof SEntityVelocityPacket) {
-      return new Vec3d(
+      return new Vector3d(
           FastReflection.Fields.SEntityVelocityPacket_motionX.get(packet),
           FastReflection.Fields.SEntityVelocityPacket_motionY.get(packet),
           FastReflection.Fields.SEntityVelocityPacket_motionZ.get(packet));
@@ -113,7 +113,7 @@ public class AntiKnockbackMod extends ToggleMod {
     }
   }
 
-  private void setPacketMotion(IPacket<?> packet, Vec3d in) {
+  private void setPacketMotion(IPacket<?> packet, Vector3d in) {
     if (packet instanceof SExplosionPacket) {
       FastReflection.Fields.SExplosionPacket_motionX.set(packet, (float) in.x);
       FastReflection.Fields.SExplosionPacket_motionY.set(packet, (float) in.y);
@@ -127,7 +127,7 @@ public class AntiKnockbackMod extends ToggleMod {
     }
   }
 
-  private void addEntityVelocity(Entity in, Vec3d velocity) {
+  private void addEntityVelocity(Entity in, Vector3d velocity) {
     in.setMotion(in.getMotion().add(velocity));
   }
 
@@ -139,12 +139,12 @@ public class AntiKnockbackMod extends ToggleMod {
     if (!isInWorld()) {
       return;
     } else if (explosions.getValue() && event.getPacket() instanceof SExplosionPacket) {
-      Vec3d multiplier = getMultiplier();
-      Vec3d motion = getPacketMotion(event.getPacket());
+      Vector3d multiplier = getMultiplier();
+      Vector3d motion = getPacketMotion(event.getPacket());
       setPacketMotion(event.getPacket(), VectorUtils.multiplyBy(motion, multiplier));
     } else if (velocity.getValue() && event.getPacket() instanceof SEntityVelocityPacket) {
       if (((SEntityVelocityPacket) event.getPacket()).getEntityID() == getLocalPlayer().getEntityId()) {
-        Vec3d multiplier = getMultiplier();
+        Vector3d multiplier = getMultiplier();
         if (multiplier.lengthSquared() > 0.D) {
           setPacketMotion(event.getPacket(),
               VectorUtils.multiplyBy(getPacketMotion(event.getPacket()), multiplier));
@@ -161,7 +161,7 @@ public class AntiKnockbackMod extends ToggleMod {
           Entity offender = packet.getEntity(getWorld());
           if (offender instanceof FishingBobberEntity) {
             FishingBobberEntity hook = (FishingBobberEntity) offender;
-            if (getLocalPlayer().equals(hook.caughtEntity)) {
+            if (getLocalPlayer().equals(hook.func_234607_k_())) {
               event.setCanceled(true);
             }
           }
@@ -182,7 +182,7 @@ public class AntiKnockbackMod extends ToggleMod {
       addEntityVelocity(
           event.getEntity(),
           VectorUtils.multiplyBy(
-              new Vec3d(event.getMotionX(), event.getMotionY(), event.getMotionZ()),
+              new Vector3d(event.getMotionX(), event.getMotionY(), event.getMotionZ()),
               getMultiplier()));
       event.setCanceled(true);
     }

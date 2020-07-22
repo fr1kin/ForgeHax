@@ -1,23 +1,21 @@
 package dev.fiki.forgehax.main.util.entity;
 
-import static dev.fiki.forgehax.main.Common.*;
-
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.services.SneakService;
-import dev.fiki.forgehax.main.util.BlockHelper;
 import dev.fiki.forgehax.main.util.Switch;
 import dev.fiki.forgehax.main.util.math.Angle;
-
-import java.util.Objects;
-import java.util.Optional;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.util.Direction;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.util.math.vector.Vector3d;
+
+import java.util.Objects;
+
+import static dev.fiki.forgehax.main.Common.*;
 
 /**
  * Class for dealing with the local player only
@@ -36,7 +34,7 @@ public class LocalPlayerUtils implements Common {
     return PositionRotationManager.getState().getRenderServerViewAngles();
   }
   
-  public static Vec3d getVelocity() {
+  public static Vector3d getVelocity() {
     return getLocalPlayer().getMotion();
   }
 
@@ -53,7 +51,7 @@ public class LocalPlayerUtils implements Common {
     boolean old = isSneaking();
     getLocalPlayer().setSneaking(sneak);
     if (getLocalPlayer().movementInput != null) {
-      getLocalPlayer().movementInput.field_228350_h_ = sneak;
+      getLocalPlayer().movementInput.sneaking = sneak;
     }
     return old;
   }
@@ -62,15 +60,15 @@ public class LocalPlayerUtils implements Common {
     SneakService.getInstance().setSuppressing(suppress);
   }
   
-  public static Vec3d getEyePos() {
+  public static Vector3d getEyePos() {
     return EntityUtils.getEyePos(getLocalPlayer());
   }
   
-  public static Vec3d getDirectionVector() {
+  public static Vector3d getDirectionVector() {
     return getViewAngles().getDirectionVector().normalize();
   }
   
-  public static Vec3d getServerDirectionVector() {
+  public static Vector3d getServerDirectionVector() {
     return getServerViewAngles().getDirectionVector().normalize();
   }
   
@@ -79,28 +77,28 @@ public class LocalPlayerUtils implements Common {
   }
   
   public static BlockRayTraceResult getBlockViewTrace() {
-    Vec3d start = getLocalPlayer().getEyePosition(1.f);
-    Vec3d end = start.add(getLocalPlayer().getLook(1.f).normalize().scale(getBlockReach()));
+    Vector3d start = getLocalPlayer().getEyePosition(1.f);
+    Vector3d end = start.add(getLocalPlayer().getLook(1.f).normalize().scale(getBlockReach()));
     RayTraceContext ctx = new RayTraceContext(start, end, RayTraceContext.BlockMode.OUTLINE,
         RayTraceContext.FluidMode.NONE, getLocalPlayer());
     return getWorld().rayTraceBlocks(ctx);
   }
   
-  public static RayTraceResult getViewTrace(Entity entity, Vec3d direction,
+  public static RayTraceResult getViewTrace(Entity entity, Vector3d direction,
       float partialTicks, double reach, double reachAttack) {
     if (entity == null) {
       return null;
     }
     
-    Vec3d eyes = entity.getEyePosition(partialTicks);
+    Vector3d eyes = entity.getEyePosition(partialTicks);
     RayTraceResult trace = entity.pick(reach, partialTicks, false);
     
-    Vec3d dir = direction.scale(reach);
-    Vec3d lookDir = eyes.add(dir);
+    Vector3d dir = direction.scale(reach);
+    Vector3d lookDir = eyes.add(dir);
     
     double hitDistance = Type.MISS.equals(trace.getType()) ? reachAttack : trace.getHitVec().distanceTo(eyes);
     Entity hitEntity = null;
-    Vec3d hitEntityVec = null;
+    Vector3d hitEntityVec = null;
     
     for (Entity ent : getWorld().getEntitiesInAABBexcluding(entity,
         entity.getBoundingBox().expand(dir.x, dir.y, dir.y).grow(1.D),
@@ -108,7 +106,7 @@ public class LocalPlayerUtils implements Common {
             .and(Objects::nonNull)
             .and(Entity::canBeCollidedWith))) {
       AxisAlignedBB bb = ent.getBoundingBox().grow(ent.getCollisionBorderSize());
-      Vec3d hitVec = bb.rayTrace(eyes, lookDir).orElse(null);
+      Vector3d hitVec = bb.rayTrace(eyes, lookDir).orElse(null);
       if (bb.contains(eyes)) {
         if (hitDistance > 0.D) {
           hitEntity = ent;
@@ -146,7 +144,7 @@ public class LocalPlayerUtils implements Common {
     return getPlayerController().getBlockReachDistance();
   }
   
-  public static boolean isInReach(Vec3d start, Vec3d end) {
+  public static boolean isInReach(Vector3d start, Vector3d end) {
     return start.squareDistanceTo(end) < getBlockReach() * getBlockReach();
   }
   

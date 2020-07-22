@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods.services;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.execution.CommandExecutor;
 import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
@@ -53,7 +54,7 @@ public class MainMenuGuiService extends ServiceMod {
           gui.height / 4 + 48 + (24 * 3), // y
           200,
           20,
-          "Command Input", this::onPressed
+          new StringTextComponent("Command Input"), this::onPressed
       ));
     }
   }
@@ -95,14 +96,14 @@ public class MainMenuGuiService extends ServiceMod {
       inputField = new TextFieldWidget(Common.getFontRenderer(),
           4, this.height - 12,
           this.width - 4, 12,
-          "");
+          new StringTextComponent(""));
       inputField.setMaxStringLength(Integer.MAX_VALUE);
       inputField.setEnableBackgroundDrawing(false);
       inputField.setCanLoseFocus(false);
 
       modeButton = new Button(0, this.width - 100 - 2,
           this.height - 20 - 2, 100,
-          mode.getName(), this::onModePressed);
+          new StringTextComponent(mode.getName()), this::onModePressed);
 
       // TODO: add back button?
 
@@ -111,8 +112,8 @@ public class MainMenuGuiService extends ServiceMod {
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks) {
-      renderBackground();
+    public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+      renderBackground(stack);
 
       SurfaceHelper.drawRect(2, this.height - 16,
           this.width - 104, this.height - 4,
@@ -121,17 +122,17 @@ public class MainMenuGuiService extends ServiceMod {
           this.width - 2, this.height - 38,
           70 << 24); // messageHistory box
 
-      this.drawHistory();
+      this.drawHistory(stack);
 
-      super.render(mouseX, mouseY, partialTicks);
+      super.render(stack, mouseX, mouseY, partialTicks);
     }
     
-    private void drawHistory() {
+    private void drawHistory(MatrixStack stack) {
       AtomicDouble offset = new AtomicDouble();
       messageHistory.stream()
           .limit(100)
           .forEach(str -> {
-            Common.getFontRenderer().drawString(str, 5, (this.height - 50 - offset.intValue()), Colors.WHITE.toBuffer());
+            Common.getFontRenderer().drawString(stack, str, 5, (this.height - 50 - offset.intValue()), Colors.WHITE.toBuffer());
             offset.addAndGet(10);
           });
     }

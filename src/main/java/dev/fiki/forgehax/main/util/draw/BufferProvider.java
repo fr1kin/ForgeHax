@@ -2,7 +2,10 @@ package dev.fiki.forgehax.main.util.draw;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import lombok.Getter;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Tessellator;
 
 import java.util.Map;
 
@@ -18,8 +21,8 @@ public class BufferProvider {
         .add(RenderTypeEx.glQuads())
         .add(RenderTypeEx.blockTranslucentCull())
         .add(RenderTypeEx.blockCutout())
-        .add(RenderType.glint())
-        .add(RenderType.entityGlint())
+        .add(RenderType.getGlint())
+        .add(RenderType.getEntityGlint())
         ;
 
     this.bufferSource = IRenderTypeBuffer.getImpl(buffers.build(), defaultBuffer);
@@ -33,7 +36,7 @@ public class BufferProvider {
     Map<RenderType, BufferBuilder> buffers = new Object2ObjectLinkedOpenHashMap<>();
 
     public BufferMap add(RenderType type) {
-      buffers.put(type, new BufferBuilderEx(new BufferBuilder(type.defaultBufferSize())));
+      buffers.put(type, new BufferBuilderEx(new BufferBuilder(type.getBufferSize())));
       return this;
     }
 

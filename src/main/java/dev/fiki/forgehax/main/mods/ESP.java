@@ -29,10 +29,9 @@ import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.*;
-
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Singular;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderType;
@@ -42,11 +41,13 @@ import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderNameplateEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.*;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -158,8 +159,8 @@ public class ESP extends ToggleMod implements Fonts {
             return;
           }
 
-          Vec3d bottomPos = EntityUtils.getInterpolatedPos(living, partialTicks);
-          Vec3d topPos = bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.getPosY(), 0.D);
+          Vector3d bottomPos = EntityUtils.getInterpolatedPos(living, partialTicks);
+          Vector3d topPos = bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.getPosY(), 0.D);
 
           Plane top = VectorUtils.toScreen(topPos);
           Plane bot = VectorUtils.toScreen(bottomPos);
@@ -199,7 +200,7 @@ public class ESP extends ToggleMod implements Fonts {
                 stack.scale(textScale, textScale, 0.f);
                 stack.translate(-x, -y, 0.d);
 
-                SurfaceHelper.renderString(buffers, stack.getLast().getPositionMatrix(),
+                SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
                     text, 0, 0, color, true);
 
                 offsetY += SurfaceHelper.getStringHeight() + 1.f;
@@ -239,7 +240,7 @@ public class ESP extends ToggleMod implements Fonts {
             stack.scale(textScale, textScale, 0.f);
             stack.translate(-x, -y, 0.d);
 
-            SurfaceHelper.renderString(buffers, stack.getLast().getPositionMatrix(),
+            SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
                 name, 0, 0, Colors.WHITE, true);
 
             offsetY += SurfaceHelper.getStringHeight() + 2.f;
@@ -289,7 +290,7 @@ public class ESP extends ToggleMod implements Fonts {
                   stack.translate(1f, j++ * SurfaceHelper.getStringHeight(), -50.f);
 
                   // render enchantment short name
-                  SurfaceHelper.renderString(buffers, stack.getLast().getPositionMatrix(),
+                  SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
                       enchantment.getShortName(), 0, 0, Colors.WHITE, true);
 
                   if(enchantment.isMultiLevel()) {
@@ -311,7 +312,7 @@ public class ESP extends ToggleMod implements Fonts {
                       }
                     }
 
-                    SurfaceHelper.renderString(buffers, stack.getLast().getPositionMatrix(),
+                    SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
                         level, 0, 0, color, true);
                   }
 
@@ -327,7 +328,7 @@ public class ESP extends ToggleMod implements Fonts {
 
                 stack.scale(0.5f, 0.5f, 150);
 
-                SurfaceHelper.renderString(buffers, stack.getLast().getPositionMatrix(),
+                SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
                     text, 0, 0, getColorLevel(dur), true);
                 stack.pop();
               }
@@ -370,8 +371,8 @@ public class ESP extends ToggleMod implements Fonts {
 
     buffers.finish(RenderTypeEx.blockTranslucentCull());
     buffers.finish(RenderTypeEx.blockCutout());
-    buffers.finish(RenderType.glint());
-    buffers.finish(RenderType.entityGlint());
+    buffers.finish(RenderType.getGlint());
+    buffers.finish(RenderType.getEntityGlint());
 
     RenderSystem.enableDepthTest();
     RenderHelper.setupGui3DDiffuseLighting();

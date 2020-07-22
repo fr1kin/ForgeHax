@@ -1,16 +1,16 @@
 package dev.fiki.forgehax.main.gui;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.gui.windows.GuiWindow;
 import dev.fiki.forgehax.main.gui.windows.GuiWindowMod;
 import dev.fiki.forgehax.main.util.mod.Category;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.StringTextComponent;
 
 /**
  * Created by Babbaj on 9/5/2017.
@@ -70,7 +70,7 @@ public class ClickGui extends Screen implements Common {
   }
 
   @Override
-  public void render(int mouseX, int mouseY, float partialTicks) {
+  public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
     // super.render(mouseX, mouseY, partialTicks);
 
     for (GuiWindow window : windowList) {

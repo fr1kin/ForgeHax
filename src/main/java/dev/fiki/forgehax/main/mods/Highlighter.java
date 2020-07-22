@@ -58,15 +58,16 @@ public class Highlighter extends ToggleMod {
 
   @SubscribeEvent
   public void onGuiContainerDrawEvent(GuiContainerEvent.DrawBackground event) {
-    RenderSystem.pushMatrix();
     RenderSystem.enableDepthTest();
-    RenderSystem.translatef(event.getGuiContainer().getGuiLeft(), event.getGuiContainer().getGuiTop(), 0);
+
+    event.getMatrixStack().push();
+    event.getMatrixStack().translate(event.getGuiContainer().getGuiLeft(), event.getGuiContainer().getGuiTop(), 0);
 
     final String matching = find.getValue().toLowerCase();
     for (Slot slot : event.getGuiContainer().getContainer().inventorySlots) {
       ItemStack stack = slot.getStack();
       if (shouldHighlight(stack, str -> str.toLowerCase().contains(matching))) {
-        GuiUtils.drawGradientRect(0,
+        GuiUtils.drawGradientRect(event.getMatrixStack().getLast().getMatrix(), 0,
             slot.xPos, slot.yPos,
             slot.xPos + 16, slot.yPos + 16,
             Color.of(218,165,32, 200).toBuffer(),
@@ -74,6 +75,6 @@ public class Highlighter extends ToggleMod {
       }
     }
 
-    RenderSystem.popMatrix();
+    event.getMatrixStack().pop();
   }
 }

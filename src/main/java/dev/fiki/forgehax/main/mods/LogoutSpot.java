@@ -19,7 +19,7 @@ import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -104,8 +104,8 @@ public class LogoutSpot extends ToggleMod {
             new LogoutPos(
                 event.getPlayerInfo().getUuid(),
                 event.getPlayerInfo().getName(),
-                new Vec3d(bb.maxX, bb.maxY, bb.maxZ),
-                new Vec3d(bb.minX, bb.minY, bb.minZ)))) {
+                new Vector3d(bb.maxX, bb.maxY, bb.maxZ),
+                new Vector3d(bb.minX, bb.minY, bb.minZ)))) {
           printWarning("%s has disconnected!", event.getPlayerInfo().getName());
         }
       }
@@ -120,10 +120,10 @@ public class LogoutSpot extends ToggleMod {
 
     synchronized (spots) {
       spots.forEach(spot -> {
-        Vec3d top = spot.getTopVec();
+        Vector3d top = spot.getTopVec();
         Plane upper = VectorUtils.toScreen(top);
         if (upper.isVisible()) {
-          double distance = getLocalPlayer().getPositionVector().distanceTo(top);
+          double distance = getLocalPlayer().getPositionVec().distanceTo(top);
           String name = String.format("%s (%.1f)", spot.getName(), distance);
           SurfaceHelper.drawTextShadow(
               name,
@@ -156,7 +156,7 @@ public class LogoutSpot extends ToggleMod {
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (max_distance.getValue() > 0) {
       synchronized (spots) {
-        spots.removeIf(pos -> getLocalPlayer().getPositionVector().distanceTo(pos.getTopVec())
+        spots.removeIf(pos -> getLocalPlayer().getPositionVec().distanceTo(pos.getTopVec())
             > max_distance.getValue());
       }
     }
@@ -175,10 +175,10 @@ public class LogoutSpot extends ToggleMod {
   private static class LogoutPos {
     final UUID id;
     final String name;
-    final Vec3d maxs;
-    final Vec3d mins;
+    final Vector3d maxs;
+    final Vector3d mins;
 
-    private LogoutPos(UUID uuid, String name, Vec3d maxs, Vec3d mins) {
+    private LogoutPos(UUID uuid, String name, Vector3d maxs, Vector3d mins) {
       this.id = uuid;
       this.name = name;
       this.maxs = maxs;
@@ -193,16 +193,16 @@ public class LogoutSpot extends ToggleMod {
       return name;
     }
 
-    public Vec3d getMaxs() {
+    public Vector3d getMaxs() {
       return maxs;
     }
 
-    public Vec3d getMins() {
+    public Vector3d getMins() {
       return mins;
     }
 
-    public Vec3d getTopVec() {
-      return new Vec3d(
+    public Vector3d getTopVec() {
+      return new Vector3d(
           (getMins().x + getMaxs().x) / 2.D, getMaxs().y, (getMins().z + getMaxs().z) / 2.D);
     }
 

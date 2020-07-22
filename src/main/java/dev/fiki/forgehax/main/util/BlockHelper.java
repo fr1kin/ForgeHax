@@ -7,15 +7,6 @@ import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.util.reflection.ReflectionHelper;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,12 +14,22 @@ import lombok.ToString;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.item.*;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 
-import static dev.fiki.forgehax.main.Common.*;
+import java.util.*;
+import java.util.stream.Stream;
+
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
+import static dev.fiki.forgehax.main.Common.getWorld;
 
 public class BlockHelper {
 
@@ -50,7 +51,7 @@ public class BlockHelper {
     return new BlockTraceInfo(pos, side);
   }
 
-  public static List<BlockPos> getBlocksInRadius(Vec3d pos, double radius) {
+  public static List<BlockPos> getBlocksInRadius(Vector3d pos, double radius) {
     List<BlockPos> list = Lists.newArrayList();
     for (double x = pos.x - radius; x <= pos.x + radius; ++x) {
       for (double y = pos.y - radius; y <= pos.y + radius; ++y) {
@@ -72,7 +73,7 @@ public class BlockHelper {
     return getWorld().getBlockState(pos).getMaterial().isReplaceable();
   }
 
-  public static boolean isTraceClear(Vec3d start, Vec3d end, BlockPos target) {
+  public static boolean isTraceClear(Vector3d start, Vector3d end, BlockPos target) {
     RayTraceContext ctx = new RayTraceContext(start, end,
         RayTraceContext.BlockMode.OUTLINE,
         RayTraceContext.FluidMode.NONE, getLocalPlayer());
@@ -80,8 +81,8 @@ public class BlockHelper {
     return tr.getPos().equals(target);
   }
 
-  public static boolean doesTraceHitBlockSide(Vec3d start, Vec3d end, BlockPos target, Direction direction) {
-    Vec3d dir = end.subtract(start).normalize();
+  public static boolean doesTraceHitBlockSide(Vector3d start, Vector3d end, BlockPos target, Direction direction) {
+    Vector3d dir = end.subtract(start).normalize();
     // extend the end vector to reach out more so it actually touches the block
     RayTraceContext ctx = new RayTraceContext(start, end.add(dir.scale(2)),
         RayTraceContext.BlockMode.OUTLINE,
@@ -91,17 +92,17 @@ public class BlockHelper {
         && tr.getFace().equals(direction);
   }
 
-  public static Vec3d getOBBCenter(BlockPos pos) {
+  public static Vector3d getOBBCenter(BlockPos pos) {
     BlockState state = getWorld().getBlockState(pos);
     VoxelShape shape = state.getCollisionShape(getWorld(), pos);
     if (!shape.isEmpty()) {
       AxisAlignedBB bb = shape.getBoundingBox();
-      return new Vec3d(
+      return new Vector3d(
           bb.minX + ((bb.maxX - bb.minX) / 2.D),
           bb.minY + ((bb.maxY - bb.minY) / 2.D),
           bb.minZ + ((bb.maxZ - bb.minZ) / 2.D));
     } else {
-      return Vec3d.ZERO;
+      return Vector3d.ZERO;
     }
   }
 
@@ -117,7 +118,7 @@ public class BlockHelper {
     return false;
   }
 
-  private static BlockTraceInfo getPlaceableBlockSideTrace(Vec3d eyes, Vec3d normal,
+  private static BlockTraceInfo getPlaceableBlockSideTrace(Vector3d eyes, Vector3d normal,
       Stream<Direction> stream, BlockPos pos) {
     return stream
         .map(side -> new BlockTraceInfo(pos.offset(side), side))
@@ -129,23 +130,23 @@ public class BlockHelper {
         .orElse(null);
   }
 
-  public static BlockTraceInfo getPlaceableBlockSideTrace(Vec3d eyes, Vec3d normal,
+  public static BlockTraceInfo getPlaceableBlockSideTrace(Vector3d eyes, Vector3d normal,
       EnumSet<Direction> sides, BlockPos pos) {
     return getPlaceableBlockSideTrace(eyes, normal, sides.stream(), pos);
   }
 
-  public static BlockTraceInfo getPlaceableBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
+  public static BlockTraceInfo getPlaceableBlockSideTrace(Vector3d eyes, Vector3d normal, BlockPos pos) {
     return getPlaceableBlockSideTrace(eyes, normal, Stream.of(Direction.values()), pos);
   }
 
-  public static BlockTraceInfo getBlockSideTrace(Vec3d eyes, BlockPos pos, Direction side) {
+  public static BlockTraceInfo getBlockSideTrace(Vector3d eyes, BlockPos pos, Direction side) {
     return Optional.of(newBlockTrace(pos, side))
         .filter(tr -> BlockHelper.doesTraceHitBlockSide(eyes, tr.getHitVec(), tr.getPos(), side.getOpposite()))
         .filter(tr -> LocalPlayerUtils.isInReach(eyes, tr.getHitVec()))
         .orElse(null);
   }
 
-  public static BlockTraceInfo getVisibleBlockSideTrace(Vec3d eyes, Vec3d normal, BlockPos pos) {
+  public static BlockTraceInfo getVisibleBlockSideTrace(Vector3d eyes, Vector3d normal, BlockPos pos) {
     return Arrays.stream(Direction.values())
         .map(side -> BlockHelper.getBlockSideTrace(eyes, pos, side))
         .filter(Objects::nonNull)
@@ -157,15 +158,15 @@ public class BlockHelper {
   public static class BlockTraceInfo {
     private final BlockPos pos;
     private final Direction side;
-    private final Vec3d centerPos;
-    private final Vec3d hitVec;
+    private final Vector3d centerPos;
+    private final Vector3d hitVec;
 
     private BlockTraceInfo(BlockPos pos, Direction side) {
       this.pos = pos;
       this.side = side;
-      Vec3d obb = BlockHelper.getOBBCenter(pos);
-      this.centerPos = new Vec3d(pos).add(obb);
-      this.hitVec = this.centerPos.add(obb.mul(new Vec3d(getOppositeSide().getDirectionVec())));
+      Vector3d obb = BlockHelper.getOBBCenter(pos);
+      this.centerPos = VectorUtils.toFPIVector(pos).add(obb);
+      this.hitVec = this.centerPos.add(obb.mul(VectorUtils.toFPIVector(getOppositeSide().getDirectionVec())));
     }
 
     public Direction getOppositeSide() {
@@ -198,8 +199,8 @@ public class BlockHelper {
     @EqualsAndHashCode.Exclude
     private final BlockPos pos;
 
-    public Vec3d getCenteredPos() {
-      return new Vec3d(getPos()).add(getOBBCenter(getPos()));
+    public Vector3d getCenteredPos() {
+      return VectorUtils.toFPIVector(getPos()).add(getOBBCenter(getPos()));
     }
 
     public ItemStack asItemStack() {

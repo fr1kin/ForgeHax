@@ -1,15 +1,15 @@
 package dev.fiki.forgehax.main.mods.commands;
 
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.mod.CommandMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CMoveVehiclePacket;
 import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -27,9 +27,9 @@ public class ClipCommand extends CommandMod {
   private static void mcSetPositionAndUpdate(Entity ent, double x, double y, double z) {
     ent.setLocationAndAngles(x, y, z, ent.rotationYaw, ent.rotationPitch);
     // update passengers
-    ent.func_226276_cg_().forEach((p_226267_1_) -> {
+    ent.getSelfAndPassengers().forEach(e -> {
       //p_226267_1_.isPositionDirty = true;
-      p_226267_1_.func_226265_a_(Entity::moveForced);
+      e.moveForced(x, y, z); // todo: 1.16 idk if this is correct
     });
   }
 
@@ -39,7 +39,7 @@ public class ClipCommand extends CommandMod {
 
     if (ent instanceof ClientPlayerEntity) {
       sendNetworkPacket(new CPlayerPacket.PositionPacket(
-          ent.getPosX(), ent.getPosY(), ent.getPosZ(), ent.onGround));
+          ent.getPosX(), ent.getPosY(), ent.getPosZ(), FastReflection.Fields.Entity_onGround.get(ent)));
     } else {
       sendNetworkPacket(new CMoveVehiclePacket(ent));
     }
@@ -120,7 +120,7 @@ public class ClipCommand extends CommandMod {
 
           double offset = args.<Double>getFirst().getValueOrDefault();
 
-          Vec3d dir = getLocalPlayer().getLookVec().normalize();
+          Vector3d dir = getLocalPlayer().getLookVec().normalize();
           final Entity local = getLocalPlayer();
           setPosition(local, local.getPosX() + (dir.x * offset),
               local.getPosY(),

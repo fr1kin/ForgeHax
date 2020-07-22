@@ -33,7 +33,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
@@ -127,7 +127,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
     if (!bounded.getValue()) {
       return true;
     } else {
-      Vec3d pos = ub.getCenteredPos().subtract(getLocalPlayer().getPositionVector());
+      Vector3d pos = ub.getCenteredPos().subtract(getLocalPlayer().getPositionVec());
       return pos.x < width_upper.getValue()
           && pos.x > -width_lower.getValue()
           && pos.y < height_upper.getValue()
@@ -228,8 +228,8 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
       return;
     }
 
-    final Vec3d eyes = EntityUtils.getEyePos(getLocalPlayer());
-    final Vec3d dir =
+    final Vector3d eyes = EntityUtils.getEyePos(getLocalPlayer());
+    final Vector3d dir =
         client_angles.getValue()
             ? LocalPlayerUtils.getDirectionVector()
             : LocalPlayerUtils.getServerDirectionVector();

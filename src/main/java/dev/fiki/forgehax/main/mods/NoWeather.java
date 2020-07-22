@@ -90,21 +90,19 @@ public class NoWeather extends ToggleMod {
   @SubscribeEvent
   public void onPacketIncoming(PacketInboundEvent event) {
     if (event.getPacket() instanceof SChangeGameStatePacket) {
-      int state = ((SChangeGameStatePacket) event.getPacket()).getGameState();
+      SChangeGameStatePacket.State state = ((SChangeGameStatePacket) event.getPacket()).func_241776_b_();
       float strength = ((SChangeGameStatePacket) event.getPacket()).getValue();
       boolean isRainState = false;
-      switch (state) {
-        case 1: // end rain
-          isRainState = false;
-          setState(false, 0.f, 0.f);
-          break;
-        case 2: // start rain
-          isRainState = true;
-          setState(true, 1.f, 1.f);
-          break;
-        case 7: // fade value: sky brightness
-          isRainState = true; // needs to be cancelled to avoid flicker
-          break;
+      if(state == SChangeGameStatePacket.field_241765_b_) {
+        isRainState = false;
+        setState(false, 0.f, 0.f);
+      } else if(state == SChangeGameStatePacket.field_241766_c_) {
+        // start rain
+        isRainState = true;
+        setState(true, 1.f, 1.f);
+      } else if(state == SChangeGameStatePacket.field_241771_h_) {
+        // fade value: sky brightness
+        isRainState = true; // needs to be cancelled to avoid flicker
       }
       if (isRainState) {
         disableRain();
@@ -118,7 +116,7 @@ public class NoWeather extends ToggleMod {
     if (isRaining
         && showStatus.getValue()
         && isInWorld()) {
-      Biome biome = getWorld().getBiome(getLocalPlayer().getPosition());
+      Biome biome = getWorld().getBiome(getLocalPlayer().func_233580_cy_());
       boolean canRain = Biome.RainType.RAIN.equals(biome.getPrecipitation());
       boolean canSnow = Biome.RainType.SNOW.equals(biome.getPrecipitation());
 

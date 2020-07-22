@@ -6,6 +6,8 @@ import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.WolfEntity;
 
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
+
 /**
  * Created on 6/27/2017 by fr1kin
  */
@@ -28,6 +30,6 @@ public class WolfRelationProvider extends EntityRelationProvider<WolfEntity> {
 
   @Override
   public RelationState getCurrentRelationState(WolfEntity entity) {
-    return entity.isAngry() ? RelationState.HOSTILE : RelationState.NEUTRAL;
+    return entity.func_230256_F__() > 0 && !entity.isOwner(getLocalPlayer()) ? RelationState.HOSTILE : RelationState.NEUTRAL;
   }
 }

@@ -9,23 +9,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
-import net.minecraft.client.gui.screen.EditSignScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.monster.ZombiePigmanEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.monster.ZombifiedPiglinEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -33,7 +30,6 @@ import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.client.CCloseWindowPacket;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CMoveVehiclePacket;
@@ -47,6 +43,7 @@ import net.minecraft.util.Session;
 import net.minecraft.util.Timer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
@@ -215,11 +212,10 @@ public interface FastReflection {
     /**
      * Entity
      */
-    FastField<EntityDataManager> Entity_dataManager =
+    FastField<Boolean> Entity_onGround =
         FastField.builder()
             .parent(Entity.class)
-            .mcp("dataManager")
-            .srg("field_70180_af")
+            .mcp("onGround")
             .build();
 
     FastField<Boolean> Entity_inPortal =
@@ -232,9 +228,9 @@ public interface FastReflection {
     /**
      * EntityPigZombie
      */
-    FastField<Integer> ZombiePigmanEntity_angerLevel =
+    FastField<Integer> ZombifiedPiglinEntity_angerLevel =
         FastField.builder()
-            .parent(ZombiePigmanEntity.class)
+            .parent(ZombifiedPiglinEntity.class)
             .mcp("angerLevel")
             .srg("field_70837_d")
             .build();
@@ -461,7 +457,8 @@ public interface FastReflection {
      * AbstractHorse
      */
 
-    FastField<IAttribute> AbstractHorse_JUMP_STRENGTH =
+    @Deprecated
+    FastField<Attribute> AbstractHorse_JUMP_STRENGTH =
         FastField.builder()
             .parent(AbstractHorseEntity.class)
             .mcp("JUMP_STRENGTH")
@@ -472,22 +469,17 @@ public interface FastReflection {
      * SharedMonsterAttributes
      */
 
-    FastField<IAttribute> SharedMonsterAttributes_MOVEMENT_SPEED =
-        FastField.builder()
-            .parent(SharedMonsterAttributes.class)
-            .mcp("MOVEMENT_SPEED")
-            .srg("field_111263_d")
-            .build();
+    @Deprecated
+    FastField<Attribute> SharedMonsterAttributes_MOVEMENT_SPEED = null;
 
     /**
      * GuiEditSign
      */
 
-    FastField<SignTileEntity> GuiEditSign_tileSign =
+    FastField<ITextComponent[]> GuiEditSign_signText =
         FastField.builder()
-            .parent(EditSignScreen.class)
-            .mcp("tileSign")
-            .srg("field_146848_f")
+            .parent(SignTileEntity.class)
+            .mcp("signText")
             .build();
 
     /**

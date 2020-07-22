@@ -7,13 +7,14 @@ import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.vector.*;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
@@ -51,11 +52,11 @@ public class BufferBuilderEx extends BufferBuilder {
     return this;
   }
 
-  public BufferBuilderEx setTranslation(Vec3d pos) {
+  public BufferBuilderEx setTranslation(Vector3d pos) {
     return setTranslation(pos.getX(), pos.getY(), pos.getZ());
   }
 
-  public BufferBuilderEx setTranslation(Vec3i pos) {
+  public BufferBuilderEx setTranslation(Vector3i pos) {
     return setTranslation(pos.getX(), pos.getY(), pos.getZ());
   }
 
@@ -206,13 +207,13 @@ public class BufferBuilderEx extends BufferBuilder {
     return this;
   }
 
-  public BufferBuilderEx putFilledCuboid(Vec3d start, Vec3d finish,
+  public BufferBuilderEx putFilledCuboid(Vector3d start, Vector3d finish,
       final int sides, Color color) {
     return putFilledCuboid(start.getX(), start.getY(), start.getZ(),
         finish.getX(), finish.getY(), finish.getZ(), sides, color);
   }
 
-  public BufferBuilderEx putFilledCuboid(Vec3i start, Vec3i finish,
+  public BufferBuilderEx putFilledCuboid(Vector3i start, Vector3i finish,
       final int sides, Color color) {
     return putFilledCuboid(start.getX(), start.getY(), start.getZ(),
         finish.getX(), finish.getY(), finish.getZ(), sides, color);
@@ -290,13 +291,13 @@ public class BufferBuilderEx extends BufferBuilder {
     return this;
   }
 
-  public BufferBuilderEx putOutlinedCuboid(Vec3d start, Vec3d finish,
+  public BufferBuilderEx putOutlinedCuboid(Vector3d start, Vector3d finish,
       final int sides, Color color) {
     return putOutlinedCuboid(start.getX(), start.getY(), start.getZ(),
         finish.getX(), finish.getY(), finish.getZ(), sides, color);
   }
 
-  public BufferBuilderEx putOutlinedCuboid(Vec3i start, Vec3i finish,
+  public BufferBuilderEx putOutlinedCuboid(Vector3i start, Vector3i finish,
       final int sides, Color color) {
     return putOutlinedCuboid(start.getX(), start.getY(), start.getZ(),
         finish.getX(), finish.getY(), finish.getZ(), sides, color);
@@ -343,7 +344,7 @@ public class BufferBuilderEx extends BufferBuilder {
       original.pos(x + getOffsetX(), y + getOffsetY(), z + getOffsetZ());
       return this;
     } else {
-      return pos(matrixStack.getLast().getPositionMatrix(), (float) x, (float) y, (float) z);
+      return pos(matrixStack.getLast().getMatrix(), (float) x, (float) y, (float) z);
     }
   }
 
@@ -447,8 +448,8 @@ public class BufferBuilderEx extends BufferBuilder {
   }
 
   @Override
-  public void vertex(float x, float y, float z, float red, float green, float blue, float alpha, float texU, float texV, int overlayUV, int lightmapUV, float normalX, float normalY, float normalZ) {
-    original.vertex(x, y, z, red, green, blue, alpha, texU, texV, overlayUV, lightmapUV, normalX, normalY, normalZ);
+  public void addVertex(float x, float y, float z, float red, float green, float blue, float alpha, float texU, float texV, int overlayUV, int lightmapUV, float normalX, float normalY, float normalZ) {
+    original.addVertex(x, y, z, red, green, blue, alpha, texU, texV, overlayUV, lightmapUV, normalX, normalY, normalZ);
   }
 
   @Override
@@ -467,21 +468,6 @@ public class BufferBuilderEx extends BufferBuilder {
   public BufferBuilderEx overlay(int packedLight) {
     original.overlay(packedLight);
     return this;
-  }
-
-  @Override
-  public void addVertexData(MatrixStack.Entry matrixEntryIn, BakedQuad quadIn, float redIn, float greenIn, float blueIn, int combinedLightIn, int combinedOverlayIn) {
-    original.addVertexData(matrixEntryIn, quadIn, redIn, greenIn, blueIn, combinedLightIn, combinedOverlayIn);
-  }
-
-  @Override
-  public void addVertexData(MatrixStack.Entry matrixStackIn, BakedQuad quadIn, float[] colorMuls, float red, float green, float blue, int[] lightmapCoords, int overlayColor, boolean readExistingColor) {
-    original.addVertexData(matrixStackIn, quadIn, colorMuls, red, green, blue, lightmapCoords, overlayColor, readExistingColor);
-  }
-
-  @Override
-  public Pair<DrawState, ByteBuffer> getAndResetData() {
-    return original.getAndResetData();
   }
 
   @Override
@@ -547,6 +533,26 @@ public class BufferBuilderEx extends BufferBuilder {
   @Override
   public int applyBakedLighting(int lightmapCoord, ByteBuffer data) {
     return original.applyBakedLighting(lightmapCoord, data);
+  }
+
+  @Override
+  protected void growBuffer() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Pair<DrawState, ByteBuffer> getNextBuffer() {
+    return original.getNextBuffer();
+  }
+
+  @Override
+  public void addQuad(MatrixStack.Entry matrixEntryIn, BakedQuad quadIn, float redIn, float greenIn, float blueIn, int combinedLightIn, int combinedOverlayIn) {
+    original.addQuad(matrixEntryIn, quadIn, redIn, greenIn, blueIn, combinedLightIn, combinedOverlayIn);
+  }
+
+  @Override
+  public void addQuad(MatrixStack.Entry matrixEntryIn, BakedQuad quadIn, float[] colorMuls, float redIn, float greenIn, float blueIn, int[] combinedLightsIn, int combinedOverlayIn, boolean mulColor) {
+    original.addQuad(matrixEntryIn, quadIn, colorMuls, redIn, greenIn, blueIn, combinedLightsIn, combinedOverlayIn, mulColor);
   }
 
   @Override

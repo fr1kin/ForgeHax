@@ -1,9 +1,6 @@
 package dev.fiki.forgehax.main.util;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 
 public class TextComponentBuilder {
   public static TextComponentBuilder builder() {
@@ -23,7 +20,7 @@ public class TextComponentBuilder {
   }
 
   public TextComponentBuilder color(TextFormatting color) {
-    style().setColor(color);
+    style().setColor(Color.func_240743_a_(color.getColor()));
     return this;
   }
 
@@ -53,7 +50,9 @@ public class TextComponentBuilder {
   }
 
   public TextComponentBuilder text(String text) {
-    current = current.appendSibling(new StringTextComponent(text));
+    StringTextComponent txt = new StringTextComponent(text);
+    current.getSiblings().add(txt);
+    current = txt;
     return this;
   }
 

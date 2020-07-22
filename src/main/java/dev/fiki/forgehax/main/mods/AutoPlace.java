@@ -39,6 +39,7 @@ import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.*;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
@@ -247,14 +248,14 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     RenderSystem.disableDepthTest();
 
     final BufferBuilderEx builder = event.getBuffer();
-    final Vec3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
+    final Vector3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
 
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
     renderingBlocks.forEach(pos -> {
           BlockState state = getWorld().getBlockState(pos);
           AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).getBoundingBox();
-          builder.setTranslation(new Vec3d(pos).subtract(renderPos));
+          builder.setTranslation(VectorUtils.toFPIVector(pos).subtract(renderPos));
           builder.putOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.GREEN.setAlpha(150));
         });
 
@@ -264,7 +265,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     if (current != null) {
       BlockState state = getWorld().getBlockState(current);
       AxisAlignedBB bb = state.getCollisionShape(getWorld(), current).getBoundingBox();
-      builder.setTranslation(new Vec3d(current).subtract(renderPos));
+      builder.setTranslation(VectorUtils.toFPIVector(current).subtract(renderPos));
       builder.putOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.RED.setAlpha(150));
     }
 
@@ -412,8 +413,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       return;
     }
 
-    final Vec3d eyes = getLocalPlayer().getEyePosition(1.f);
-    final Vec3d dir =
+    final Vector3d eyes = getLocalPlayer().getEyePosition(1.f);
+    final Vector3d dir =
         client_angles.getValue()
             ? LocalPlayerUtils.getDirectionVector()
             : LocalPlayerUtils.getServerDirectionVector();

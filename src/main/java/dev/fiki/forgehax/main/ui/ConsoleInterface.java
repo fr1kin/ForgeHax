@@ -136,7 +136,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
 
         stack.translate(getPadding(), getPadding(), 50.f);
 
-        SurfaceHelper.renderString(source, stack.getLast().getPositionMatrix(),
+        SurfaceHelper.renderString(source, stack.getLast().getMatrix(),
             message, 0, 0, Colors.WHITE.setAlpha(entry.getAlphaDecay(255)), true);
 
         stack.pop();

@@ -102,7 +102,7 @@ public interface TypesHook {
             .returns(void.class)
             .argument(TypesMc.Classes.ItemStack)
             .argument(TypesMc.Classes.BlockPos)
-            .argument(TypesMc.Classes.Vec3d)
+            .argument(TypesMc.Classes.Vector3d)
             .argument(TypesMc.Classes.Direction)
             .build();
 

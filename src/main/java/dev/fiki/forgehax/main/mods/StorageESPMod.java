@@ -7,11 +7,11 @@ import dev.fiki.forgehax.main.util.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -133,7 +133,7 @@ public class StorageESPMod extends ToggleMod {
       Color color = getEntityColor(ent);
       if(color != null && color.getAlpha() > 0) {
         buffer.putOutlinedCuboid(ent.getBoundingBox()
-            .offset(ent.getPositionVector().scale(-1D))
+            .offset(ent.getPositionVec().scale(-1D))
             .offset(EntityUtils.getInterpolatedPos(ent, event.getPartialTicks())),
             GeometryMasks.Line.ALL, color);
       }

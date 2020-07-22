@@ -30,7 +30,7 @@ public interface TypesSpecial {
         .argument(TypesMc.Classes.ItemStack)
         .argument(TypesMc.Classes.BlockPos)
         .argument(TypesMc.Classes.Direction)
-        .argument(TypesMc.Classes.Vec3d)
+        .argument(TypesMc.Classes.Vector3d)
         .argument(TypesMc.Classes.Hand)
         .build();
   }

@@ -4,12 +4,6 @@ import com.google.common.collect.Lists;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
-
-import java.util.List;
-import java.util.Objects;
-import javax.annotation.Nullable;
-
-import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.Item;
@@ -17,9 +11,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 
-import static dev.fiki.forgehax.main.Common.*;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
+
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
+import static dev.fiki.forgehax.main.Common.getWorld;
 
 /**
  * Created on 6/21/2017 by fr1kin
@@ -153,7 +152,7 @@ public enum Projectile implements IProjectile {
   
   @Nullable
   public SimulationResult getSimulatedTrajectory(
-      Vec3d shootPos, Angle angle, double force, int factor) throws IllegalArgumentException {
+      Vector3d shootPos, Angle angle, double force, int factor) throws IllegalArgumentException {
     if (isNull()) {
       return null;
     }
@@ -161,7 +160,7 @@ public enum Projectile implements IProjectile {
     Entity hitEntity = null;
     
     double[] forward = angle.getForwardVector();
-    Vec3d v = new Vec3d(forward[0], forward[1], forward[2]).normalize().scale(force);
+    Vector3d v = new Vector3d(forward[0], forward[1], forward[2]).normalize().scale(force);
     
     double velocityX = v.x;
     double velocityY = v.y;
@@ -171,11 +170,11 @@ public enum Projectile implements IProjectile {
     
     EntityRayTraceResult trace;
     
-    List<Vec3d> points = Lists.newArrayList();
+    List<Vector3d> points = Lists.newArrayList();
     points.add(shootPos); // add the initial position
     
-    Vec3d next = new Vec3d(shootPos.x, shootPos.y, shootPos.z);
-    Vec3d previous = next;
+    Vector3d next = new Vector3d(shootPos.x, shootPos.y, shootPos.z);
+    Vector3d previous = next;
     
     for (int index = points.size(), n = 0; index < MAX_ITERATIONS; index++) {
       next = next.add(velocityX, velocityY, velocityZ);
@@ -205,8 +204,9 @@ public enum Projectile implements IProjectile {
         break;
       }
       
-      double d = getWorld().isMaterialInBB(bb, Material.WATER) ? getWaterDrag() : getDrag();
-      
+//      double d = getWorld().isMaterialInBB(bb, Material.WATER) ? getWaterDrag() : getDrag();
+      double d = getDrag(); // TODO: 1.16 water drag
+
       velocityX = (velocityX * d);
       velocityY = (velocityY * d) - getGravity();
       velocityZ = (velocityZ * d);
@@ -224,11 +224,11 @@ public enum Projectile implements IProjectile {
   }
   
   @Nullable
-  public Angle getEstimatedImpactAngleInRadians(Vec3d shooterPos, Vec3d targetPos, double force) {
+  public Angle getEstimatedImpactAngleInRadians(Vector3d shooterPos, Vector3d targetPos, double force) {
     if (isNull()) {
       return null;
     }
-    Vec3d start = shooterPos.subtract(targetPos);
+    Vector3d start = shooterPos.subtract(targetPos);
     
     double pitch;
     double yaw = AngleHelper.getAngleFacingInRadians(targetPos.subtract(shooterPos)).getYaw();
@@ -263,16 +263,16 @@ public enum Projectile implements IProjectile {
   
   @Nullable
   public Angle getEstimatedImpactAngleInRadiansFromEntity(
-      Entity entity, Vec3d targetPos, double force) {
+      Entity entity, Vector3d targetPos, double force) {
     return getEstimatedImpactAngleInRadians(getEntityShootPos(entity), targetPos, force);
   }
   
-  public boolean canHitEntity(Vec3d shooterPos, Entity targetEntity) {
+  public boolean canHitEntity(Vector3d shooterPos, Entity targetEntity) {
     if (isNull()) {
       return false;
     }
     
-    Vec3d targetPos = EntityUtils.getOBBCenter(targetEntity);
+    Vector3d targetPos = EntityUtils.getOBBCenter(targetEntity);
     
     double min = getMinForce();
     double max = getMaxForce();
@@ -301,7 +301,7 @@ public enum Projectile implements IProjectile {
   
   // ####################################################################################################
   
-  private AxisAlignedBB getBoundBox(Vec3d pos) {
+  private AxisAlignedBB getBoundBox(Vector3d pos) {
     double mp = getProjectileSize() / 2.D;
     return new AxisAlignedBB(
         pos.x - mp, pos.y - mp, pos.z - mp, pos.x + mp, pos.y + mp, pos.z + mp);
@@ -310,7 +310,7 @@ public enum Projectile implements IProjectile {
   // ####################################################################################################
   
   private static EntityRayTraceResult rayTraceCheckEntityCollisions(
-      Vec3d start, Vec3d end, AxisAlignedBB bb, double motionX, double motionY, double motionZ) {
+      Vector3d start, Vector3d end, AxisAlignedBB bb, double motionX, double motionY, double motionZ) {
 //    RayTraceResult trace = getWorld().rayTraceBlocks(start, end, false, true, false);
 //
 //    if (trace != null) {
@@ -324,7 +324,7 @@ public enum Projectile implements IProjectile {
 //                getLocalPlayer(), bb.expand(motionX, motionY, motionZ).grow(1.D));
 //
 //    double best = 0.D;
-//    Vec3d hitPos = Vec3d.ZERO;
+//    Vector3d hitPos = Vector3d.ZERO;
 //    Entity hitEntity = null;
 //
 //    for (Entity entity : entities) {
@@ -352,11 +352,11 @@ public enum Projectile implements IProjectile {
         bb.expand(motionX, motionY, motionZ).grow(1.D), ent -> true);
   }
   
-  private static Vec3d getEntityShootPos(Entity entity) {
+  private static Vector3d getEntityShootPos(Entity entity) {
     return EntityUtils.getEyePos(entity).subtract(0.D, SHOOT_POS_OFFSET, 0.D);
   }
   
-  private static Vec3d getShootPosFacing(Entity entity, Angle angleFacing) {
+  private static Vector3d getShootPosFacing(Entity entity, Angle angleFacing) {
     return getEntityShootPos(entity)
         .subtract(
             Math.cos(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D,

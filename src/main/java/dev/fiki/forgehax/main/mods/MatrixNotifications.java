@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.mods;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.authlib.GameProfile;
 import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
@@ -13,23 +14,6 @@ import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import com.mojang.authlib.GameProfile;
-
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.network.play.server.SChatPacket;
@@ -54,6 +38,21 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import sun.security.validator.ValidatorException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @RegisterMod
 public class MatrixNotifications extends ToggleMod {
@@ -253,7 +252,7 @@ public class MatrixNotifications extends ToggleMod {
       once = true;
 
       if (on_connected.getValue()) {
-        BlockPos pos = Common.getLocalPlayer().getPosition();
+        BlockPos pos = Common.getLocalPlayer().func_233580_cy_();
         if (pos.getX() != 0 && pos.getZ() != 0) {
           ping("Connected to %s", getServerName());
         } else {

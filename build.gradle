@@ -11,19 +11,18 @@ buildscript {
 
     forgehaxVersion = "3.0.0-${forgehaxCommit}"
 
-    minecraftVersion = '1.15.2'
-    forgeVersion = "${minecraftVersion}-31.1.30"
+    minecraftVersion = '1.16.1'
+    forgeVersion = "${minecraftVersion}-32.0.70"
 
     fmlVersion = '2.0.0-milestone.1'
     lombokVersion = '1.18.12'
 
-    mcpVersion = '1.15.1'
+    mcpVersion = '1.16.1'
     mcpChannel = 'snapshot'
-    mcpMapping = '20200126'
+    mcpMapping = '20200707'
   }
   repositories {
     mavenCentral()
-    jcenter()
     maven { url "http://files.minecraftforge.net/maven" }
   }
   dependencies {
@@ -44,7 +43,7 @@ group 'dev.fiki.forgehax'
 version forgehaxVersion
 
 archivesBaseName = "ForgeHax-${minecraftVersion}"
-sourceCompatibility = targetCompatibility = '1.8'
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
 configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'

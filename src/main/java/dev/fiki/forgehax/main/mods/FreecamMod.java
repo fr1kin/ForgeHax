@@ -7,6 +7,7 @@ import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
+import dev.fiki.forgehax.main.util.Switch.Handle;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.math.Angle;
@@ -14,7 +15,6 @@ import dev.fiki.forgehax.main.util.mock.MockClientEntityPlayer;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.Switch.Handle;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
@@ -23,7 +23,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CInputPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameType;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderNameplateEvent;
@@ -46,7 +46,7 @@ public class FreecamMod extends ToggleMod {
 
   private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getName());
 
-  private Vec3d pos = Vec3d.ZERO;
+  private Vector3d pos = Vector3d.ZERO;
   private Angle angle = Angle.ZERO;
 
   private boolean isRidingEntity;
@@ -71,10 +71,10 @@ public class FreecamMod extends ToggleMod {
       ridingEntity = self.getRidingEntity();
       self.stopRiding();
     } else {
-      pos = self.getPositionVector();
+      pos = self.getPositionVec();
     }
 
-    pos = self.getPositionVector();
+    pos = self.getPositionVec();
     angle = LocalPlayerUtils.getViewAngles();
 
     mockPlayer = new MockClientEntityPlayer(self);
@@ -142,7 +142,7 @@ public class FreecamMod extends ToggleMod {
     flying.enable();
 
     getLocalPlayer().noClip = true;
-    getLocalPlayer().onGround = false;
+    FastReflection.Fields.Entity_onGround.set(getLocalPlayer(), false);
     getLocalPlayer().fallDistance = 0;
   }
 
@@ -150,7 +150,7 @@ public class FreecamMod extends ToggleMod {
   public void onRender(RenderEvent event) {
     if (mockPlayer != null) {
       // mock player cant move so no need to lerp its pos and yaw
-      Vec3d pos = mockPlayer.getPositionVector().subtract(event.getProjectedPos());
+      Vector3d pos = mockPlayer.getPositionVec().subtract(event.getProjectedPos());
 
       IRenderTypeBuffer.Impl buffer = MC.getRenderTypeBuffers().getBufferSource();
 
@@ -197,7 +197,7 @@ public class FreecamMod extends ToggleMod {
 
     if (event.getPacket() instanceof SPlayerPositionLookPacket) {
       SPlayerPositionLookPacket packet = (SPlayerPositionLookPacket) event.getPacket();
-      pos = new Vec3d(packet.getX(), packet.getY(), packet.getZ());
+      pos = new Vector3d(packet.getX(), packet.getY(), packet.getZ());
       angle = Angle.degrees(packet.getPitch(), packet.getYaw());
       event.setCanceled(true);
     }
