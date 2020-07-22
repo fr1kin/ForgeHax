@@ -109,7 +109,7 @@ public class EntityPatch {
 
       InsnList list = new InsnList();
       list.add(new VarInsnNode(ALOAD, 0)); // push entity
-      list.add(new VarInsnNode(ALOAD, 11)); // push block state
+      list.add(new VarInsnNode(ALOAD, 8)); // push block state
       list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldApplyBlockEntityCollisions));
       list.add(new JumpInsnNode(IFEQ, skip)); // skip if return value is equal to 0
 
