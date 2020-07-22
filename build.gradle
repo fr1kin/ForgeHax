@@ -7,9 +7,9 @@ buildscript {
         standardOutput out
       }
       return out.toString().trim()
-    }()
+    }.call()
 
-    forgehaxVersion = "3.0.0-${forgehaxCommit}"
+    forgehaxVersion = "3.1.0-${forgehaxCommit}"
 
     minecraftVersion = '1.16.1'
     forgeVersion = "${minecraftVersion}-32.0.70"
