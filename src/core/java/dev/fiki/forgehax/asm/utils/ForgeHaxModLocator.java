@@ -9,10 +9,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class ForgehaxModLocator extends AbstractJarFileLocator {
+import static dev.fiki.forgehax.asm.ASMCommon.getLogger;
 
-  public ForgehaxModLocator() {
-    System.out.println("Created ForgehaxModLocator");
+public class ForgeHaxModLocator extends AbstractJarFileLocator {
+
+  public ForgeHaxModLocator() {
+    getLogger().debug("Created ForgeHaxModLocator");
   }
 
   @Override
@@ -29,12 +31,10 @@ public class ForgehaxModLocator extends AbstractJarFileLocator {
 
   @Override
   public String name() {
-    return "ForgehaxModLocator";
+    return "ForgeHaxModLocator";
   }
 
   @Override
   public void initArguments(Map<String, ?> arguments) {
   }
-
-
 }
