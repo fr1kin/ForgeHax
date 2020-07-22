@@ -3,7 +3,7 @@
 [![](https://img.shields.io/badge/download-1.15.2%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.15/lastSuccessfulBuild/artifact/build/libs/)
 [![](https://img.shields.io/badge/download-1.16.1%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.16/lastSuccessfulBuild/artifact/build/libs/)
 
-[![Build Status](https://jenkins.nhackindustries.com/buildStatus/icon?job=ForgeHax/1.16)](https://jenkins.nhackindustries.com/job/ForgeHax/job/master)
+[![Build Status](https://jenkins.nhackindustries.com/buildStatus/icon?job=ForgeHax/1.16)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.16)
 [![](https://img.shields.io/matrix/forgehax:nerdsin.space.svg?label=%23forgehax%3Anerdsin.space&logo=matrix)](https://matrix.to/#/#forgehax:nerdsin.space)
 
 A Minecraft cheat that runs as a Forge mod.
