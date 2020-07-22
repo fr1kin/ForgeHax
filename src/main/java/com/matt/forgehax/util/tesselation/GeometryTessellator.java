@@ -86,9 +86,20 @@ public class GeometryTessellator extends Tessellator {
     drawCuboid(pos, pos, sides, argb);
   }
 
+  public void drawCuboid(final double x, final double y, final double z, final int sides, final int argb) {
+    drawCuboid(x, y, z, x, y, z, sides, argb);
+  }
+
   public void drawCuboid(
       final BlockPos begin, final BlockPos end, final int sides, final int argb) {
     drawCuboid(getBuffer(), begin, end, sides, argb, this.delta);
+  }
+
+  public void drawCuboid(
+      final double xFrom, final double yFrom, final double zFrom,
+      final double xTo, final double yTo, final double zTo,
+      final int sides, final int argb) {
+    drawCuboid(getBuffer(), xFrom, yFrom, zFrom, xTo, yTo, zTo, sides, argb, this.delta);
   }
 
   public static void drawCuboid(
