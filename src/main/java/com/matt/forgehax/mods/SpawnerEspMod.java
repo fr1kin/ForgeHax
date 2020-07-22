@@ -28,13 +28,15 @@ public class SpawnerEspMod extends ToggleMod {
   
   @SubscribeEvent
   public void onRender(RenderEvent event) {
+    if(getWorld() == null) {
+      return;
+    }
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
     
     for (TileEntity tileEntity : getWorld().loadedTileEntityList) {
       if (tileEntity instanceof TileEntityMobSpawner) {
-        BlockPos pos = tileEntity.getPos();
         GeometryTessellator.drawCuboid(
-            event.getBuffer(), pos, GeometryMasks.Line.ALL, Colors.RED.toBuffer());
+            event.getBuffer(), tileEntity.getPos(), GeometryMasks.Line.ALL, Colors.RED.toBuffer());
       }
     }
     
