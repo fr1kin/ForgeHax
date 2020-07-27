@@ -1,7 +1,3 @@
-plugins {
-  id 'groovy'
-}
-
 sourceSets {
   api {
     compileClasspath += main.compileClasspath
@@ -17,7 +13,7 @@ repositories {
 }
 
 dependencies {
-  compile 'org.codehaus.groovy:groovy-all:2.4.15'
+  compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.13', ext: 'pom'
   compile group: 'org.ow2.asm', name: 'asm-debug-all', version: '5.2'
 }
 
