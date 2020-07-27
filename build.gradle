@@ -36,8 +36,10 @@ repositories {
 }
 
 apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'dev.fiki.forgehax.mapper'
 
 group 'dev.fiki.forgehax'
 version forgehaxVersion
@@ -98,6 +100,10 @@ minecraft {
       }
     }
   }
+}
+
+mapper {
+  include sourceSets.main, 'dev.fiki.forgehax.core'
 }
 
 dependencies {
