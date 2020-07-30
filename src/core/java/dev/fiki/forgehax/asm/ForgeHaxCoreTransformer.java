@@ -9,10 +9,7 @@ import dev.fiki.forgehax.asm.utils.EZ;
 import dev.fiki.forgehax.asm.utils.transforming.Patch;
 import dev.fiki.forgehax.asm.utils.transforming.PatchScanner;
 import dev.fiki.forgehax.asm.utils.transforming.Wrappers;
-import dev.fiki.forgehax.common.LoggerProvider;
-import lombok.Getter;
 import lombok.SneakyThrows;
-import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
@@ -21,18 +18,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ForgeHaxCoreTransformer implements ITransformationService {
-  @Getter
-  static Logger logger = null;
-
+public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommon {
   public ForgeHaxCoreTransformer() {
-    logger = LoggerProvider.builder()
-        .contextClass(ForgeHaxCoreTransformer.class)
-        .label("core")
-        .build()
-        .getLogger();
-
-    logger.info("ForgeHaxCore initializing");
+    LOGGER.info("ForgeHaxCore initializing");
   }
 
   @Nonnull
@@ -54,7 +42,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
     if (otherServices.stream()
         .map(String::toLowerCase)
         .anyMatch(str -> str.contains("mixin"))) {
-      logger.warn("ForgeHaxCore found Mixin. Some patches may not apply.");
+      LOGGER.warn("ForgeHaxCore found Mixin. Some patches may not apply.");
     }
 
     EZ.inject();
@@ -107,7 +95,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
     try {
       return clazz.getDeclaredConstructor() != null;
     } catch (NoSuchMethodException ex) {
-      getLogger().warn("Class \"{}\" has no zero-argument constructor!", clazz.getSimpleName());
+      LOGGER.warn("Class \"{}\" has no zero-argument constructor!", clazz.getSimpleName());
     }
     return false;
   }
