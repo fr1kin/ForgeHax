@@ -1,14 +1,12 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.PatternSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.PacketHelper;
 import net.minecraft.network.play.client.CChatMessagePacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -17,7 +15,6 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 // made by BABBAJ
 

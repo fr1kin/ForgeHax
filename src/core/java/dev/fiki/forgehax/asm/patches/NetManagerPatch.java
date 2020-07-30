@@ -1,101 +1,95 @@
 package dev.fiki.forgehax.asm.patches;
 
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
+import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.InsnPattern;
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.asm.TypesHook;
-import dev.fiki.forgehax.asm.utils.ASMHelper;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.transforming.Inject;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import net.minecraft.network.IPacket;
+import net.minecraft.network.NetworkManager;
+import org.objectweb.asm.tree.*;
 
-import dev.fiki.forgehax.asm.TypesMc;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+@ClassMapping(NetworkManager.class)
+public class NetManagerPatch extends Patch {
 
-public class NetManagerPatch {
+  @Inject
+  @MethodMapping("dispatchPacket")
+  public void dispatchPacket(MethodNode main,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onPacketOutbound",
+          args = {NetworkManager.class, IPacket.class},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    // get node at the very top
+    AbstractInsnNode top = main.instructions.getFirst();
 
-  @RegisterTransformer("ForgeHaxHooks::onPacketOutbound")
-  public static class DispatchPacket extends MethodTransformer {
+    // get the return node
+    AbstractInsnNode ret = ASMPattern.builder()
+        .codeOnly()
+        .opcode(RETURN)
+        .find(main)
+        .getFirst("could not find return node");
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.NetworkManager_dispatchPacket;
-    }
+    LabelNode jmp = new LabelNode();
 
-    @Override
-    public void transform(MethodNode main) {
-      // get node at the very top
-      AbstractInsnNode top = main.instructions.getFirst();
+    // call event before all other code
+    InsnList pre = new InsnList();
+    pre.add(new VarInsnNode(ALOAD, 0)); // network manager
+    pre.add(new VarInsnNode(ALOAD, 1)); // packet
+    pre.add(ASMHelper.call(INVOKESTATIC, hook));
+    pre.add(new JumpInsnNode(IFNE, jmp));
 
-      // get the return node
-      AbstractInsnNode ret = ASMPattern.builder()
-          .codeOnly()
-          .opcode(RETURN)
-          .find(main)
-          .getFirst("could not find return node");
-
-      LabelNode jmp = new LabelNode();
-
-      // call event before all other code
-      InsnList pre = new InsnList();
-      pre.add(new VarInsnNode(ALOAD, 0)); // network manager
-      pre.add(new VarInsnNode(ALOAD, 1)); // packet
-      pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPacketOutbound));
-      pre.add(new JumpInsnNode(IFNE, jmp));
-
-      // add just below the first node (which should be a label node)
-      main.instructions.insert(top, pre);
-      // add just before the return node
-      main.instructions.insertBefore(ret, jmp);
-    }
+    // add just below the first node (which should be a label node)
+    main.instructions.insert(top, pre);
+    // add just before the return node
+    main.instructions.insertBefore(ret, jmp);
   }
 
-  @RegisterTransformer("ForgeHaxHooks::onPacketInbound")
-  public static class ChannelRead0 extends MethodTransformer {
+  @Inject
+  @MethodMapping("channelRead0")
+  public void channelRead0(MethodNode main,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onPacketInbound",
+          args = {NetworkManager.class, IPacket.class},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    // try {
+    // >FIRST<
+    // processPacket(...
+    InsnPattern node = ASMPattern.builder()
+        .codeOnly()
+        .opcodes(ALOAD, ALOAD, GETFIELD, INVOKESTATIC)
+        .find(main);
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.NetworkManager_channelRead0;
-    }
+    AbstractInsnNode first = node.getFirst("could not find node above ::processPacket call");
 
-    @Override
-    public void transform(MethodNode main) {
-      // try {
-      // >FIRST<
-      // processPacket(...
-      InsnPattern node = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(ALOAD, ALOAD, GETFIELD, INVOKESTATIC)
-          .find(main);
+    // get the return node
+    // dont add jump after ::processPacket because there is a field that increments
+    // if ThreadQuickExitException is not thrown (which is nearly always)
+    AbstractInsnNode ret = ASMPattern.builder()
+        .codeOnly()
+        .opcodes(RETURN)
+        .find(main)
+        .getFirst("could not find return node");
 
-      AbstractInsnNode first = node.getFirst("could not find node above ::processPacket call");
+    LabelNode jmp = new LabelNode();
 
-      // get the return node
-      // dont add jump after ::processPacket because there is a field that increments
-      // if ThreadQuickExitException is not thrown (which is nearly always)
-      AbstractInsnNode ret = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(RETURN)
-          .find(main)
-          .getFirst("could not find return node");
+    // call event before all other code
+    InsnList pre = new InsnList();
+    pre.add(new VarInsnNode(ALOAD, 0)); // network manager
+    pre.add(new VarInsnNode(ALOAD, 2)); // packet
+    pre.add(ASMHelper.call(INVOKESTATIC, hook));
+    pre.add(new JumpInsnNode(IFNE, jmp));
 
-      LabelNode jmp = new LabelNode();
-
-      // call event before all other code
-      InsnList pre = new InsnList();
-      pre.add(new VarInsnNode(ALOAD, 0)); // network manager
-      pre.add(new VarInsnNode(ALOAD, 2)); // packet
-      pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPacketInbound));
-      pre.add(new JumpInsnNode(IFNE, jmp));
-
-      // add just below the first node (which should be a label node)
-      main.instructions.insertBefore(first, pre);
-      // add just before the return node
-      main.instructions.insertBefore(ret, jmp);
-    }
+    // add just below the first node (which should be a label node)
+    main.instructions.insertBefore(first, pre);
+    // add just before the return node
+    main.instructions.insertBefore(ret, jmp);
   }
 }

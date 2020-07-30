@@ -1,13 +1,13 @@
 package dev.fiki.forgehax.main.mods.services;
 
 import com.google.common.base.MoreObjects;
-import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.TextComponentBuilder;
 import dev.fiki.forgehax.main.util.cmd.execution.CommandExecutor;
 import dev.fiki.forgehax.main.util.cmd.settings.CharacterSetting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.PacketHelper;
 import net.minecraft.network.play.client.CChatMessagePacket;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

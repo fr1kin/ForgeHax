@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.BlockControllerProcessEvent;
-import dev.fiki.forgehax.common.events.LeftClickCounterUpdateEvent;
+import dev.fiki.forgehax.asm.events.BlockControllerProcessEvent;
+import dev.fiki.forgehax.asm.events.LeftClickCounterUpdateEvent;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -11,8 +11,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.*;
 import static dev.fiki.forgehax.main.Common.getGameSettings;
+import static dev.fiki.forgehax.main.Common.isInWorld;
 
 @RegisterMod
 public class AutoMine extends ToggleMod {

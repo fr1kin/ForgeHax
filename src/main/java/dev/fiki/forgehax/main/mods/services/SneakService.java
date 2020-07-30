@@ -1,10 +1,10 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CEntityActionPacket.Action;

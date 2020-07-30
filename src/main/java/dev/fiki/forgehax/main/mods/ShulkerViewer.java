@@ -328,11 +328,13 @@ public class ShulkerViewer extends ToggleMod {
 
       isMouseInShulkerGui = false; // recheck
 
-      for(GuiShulkerViewer ui : guiCache) {
-        ui.posX = offsetX;
-        ui.posY = offsetY;
-        ui.render(event.getMatrixStack(), event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
-        offsetY += SHULKER_GUI_SIZE + 1;
+      for (GuiShulkerViewer ui : guiCache) {
+        if (ui != null) {
+          ui.posX = offsetX;
+          ui.posY = offsetY;
+          ui.render(event.getMatrixStack(), event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
+          offsetY += SHULKER_GUI_SIZE + 1;
+        }
       }
     } finally {
       cacheLock.unlock();
@@ -341,7 +343,6 @@ public class ShulkerViewer extends ToggleMod {
     if (help_text.getValue()) {
       RenderSystem.disableLighting();
       RenderSystem.disableDepthTest();
-
 
       SurfaceHelper.drawTextShadow(
           "Hold "
@@ -423,14 +424,11 @@ public class ShulkerViewer extends ToggleMod {
     public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
       final int DEPTH = 500;
 
-      int x = posX;
-      int y = posY;
+      stack.push();
+      stack.translate(posX, posY, 0);
 
-      int rx = x + 8;
-      int ry = y - 1;
-
-      this.guiLeft = rx;
-      this.guiTop = ry;
+      this.guiLeft = posX + 8;
+      this.guiTop = posY - 1;
 
       RenderSystem.enableTexture();
       RenderSystem.disableLighting();
@@ -459,9 +457,9 @@ public class ShulkerViewer extends ToggleMod {
       // height 16        = top of the gui
       // height 54        = gui item boxes
       // height 6         = bottom of the gui
-      GuiUtils.drawTexturedModalRect(x, y, 0, 0, 176, 16, DEPTH);
-      GuiUtils.drawTexturedModalRect(x, y + 16, 0, 16, 176, 54, DEPTH);
-      GuiUtils.drawTexturedModalRect(x, y + 16 + 54, 0, 160, 176, 6, DEPTH);
+      GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 176, 16, DEPTH);
+      GuiUtils.drawTexturedModalRect(0, 16, 0, 16, 176, 54, DEPTH);
+      GuiUtils.drawTexturedModalRect(0, 16 + 54, 0, 160, 176, 6, DEPTH);
 
       RenderSystem.enableTexture();
       RenderSystem.disableDepthTest();
@@ -473,7 +471,7 @@ public class ShulkerViewer extends ToggleMod {
       stack.translate(0, 0, DEPTH);
 
       SurfaceHelper.drawText(parentShulker.getDisplayName().getString(),
-          x + 8, y + 6, Colors.BLACK.toBuffer());
+          8, 6, Colors.BLACK.toBuffer());
 
       stack.pop();
 
@@ -493,7 +491,7 @@ public class ShulkerViewer extends ToggleMod {
       Slot hoveringOver = null;
 
       stack.push();
-      stack.translate(rx, ry, 0.f);
+      stack.translate(8, -1, 0.f);
 
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
           new net.minecraftforge.client.event.GuiContainerEvent.DrawForeground(this, stack, mouseX, mouseY));
@@ -561,6 +559,8 @@ public class ShulkerViewer extends ToggleMod {
 
       RenderSystem.disableBlend();
       RenderSystem.color4f(1.f, 1.f, 1.f, 1.0f);
+
+      stack.pop();
     }
 
     @Override
@@ -678,10 +678,12 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void setPickedItemStack(ItemStack stack) { }
+    public void setPickedItemStack(ItemStack stack) {
+    }
 
     @Override
-    public void pickItem(int index) { }
+    public void pickItem(int index) {
+    }
 
     @Override
     public int getSlotFor(ItemStack stack) {
@@ -699,7 +701,8 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void changeCurrentItem(double direction) { }
+    public void changeCurrentItem(double direction) {
+    }
 
     @Override
     public int storeItemStack(ItemStack itemStackIn) {
@@ -707,7 +710,8 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void tick() { }
+    public void tick() {
+    }
 
     @Override
     public boolean addItemStackToInventory(ItemStack itemStackIn) {
@@ -720,7 +724,8 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void placeItemBackInInventory(World worldIn, ItemStack stack) { }
+    public void placeItemBackInInventory(World worldIn, ItemStack stack) {
+    }
 
     @Override
     public ItemStack decrStackSize(int index, int count) {
@@ -728,7 +733,8 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void deleteStack(ItemStack stack) { }
+    public void deleteStack(ItemStack stack) {
+    }
 
     @Override
     public ItemStack removeStackFromSlot(int index) {
@@ -736,7 +742,8 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void setInventorySlotContents(int index, ItemStack stack) { }
+    public void setInventorySlotContents(int index, ItemStack stack) {
+    }
 
     @Override
     public float getDestroySpeed(BlockState state) {
@@ -827,10 +834,12 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void openInventory(PlayerEntity player) { }
+    public void openInventory(PlayerEntity player) {
+    }
 
     @Override
-    public void closeInventory(PlayerEntity player) { }
+    public void closeInventory(PlayerEntity player) {
+    }
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {

@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.PlayerAttackEntityEvent;
-import dev.fiki.forgehax.common.events.PlayerDamageBlockEvent;
+import dev.fiki.forgehax.asm.events.PlayerAttackEntityEvent;
+import dev.fiki.forgehax.asm.events.PlayerDamageBlockEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.BlockHelper;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;

@@ -1,120 +1,120 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.TypesHook;
-import dev.fiki.forgehax.asm.TypesMc;
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.transforming.Inject;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
 
-public class EntityPatch {
+@ClassMapping(Entity.class)
+public class EntityPatch extends Patch {
 
-  @RegisterTransformer("ForgeHaxHooks::onApplyCollisionMotion")
-  public static class ApplyEntityCollision extends MethodTransformer {
+  @MethodMapping("applyEntityCollision")
+  public void applyEntityCollision(MethodNode main,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onApplyCollisionMotion",
+          args = {Entity.class, Entity.class, double.class, double.class},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    // @ this.addVelocity(-d0, 0.0D, -d1);
+    AbstractInsnNode thisEntityPreNode =
+        ASMHelper.findPattern(
+            main.instructions.getFirst(),
+            new int[]{ALOAD, DLOAD, DNEG, DCONST_0, DLOAD, DNEG, INVOKEVIRTUAL},
+            "xxxxxxx");
+    // start at preNode, and scan for next INVOKEVIRTUAL sig
+    AbstractInsnNode thisEntityPostNode =
+        ASMHelper.findPattern(thisEntityPreNode, new int[]{INVOKEVIRTUAL}, "x");
+    // @ entityIn.addVelocity(d0, 0.0D, d1);
+    AbstractInsnNode otherEntityPreNode =
+        ASMHelper.findPattern(
+            thisEntityPostNode,
+            new int[]{ALOAD, DLOAD, DCONST_0, DLOAD, INVOKEVIRTUAL},
+            "xxxxx");
+    // start at preNode, and scan for next INVOKEVIRTUAL sig
+    AbstractInsnNode otherEntityPostNode =
+        ASMHelper.findPattern(otherEntityPreNode, new int[]{INVOKEVIRTUAL}, "x");
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.Entity_applyEntityCollision;
-    }
+    Objects.requireNonNull(thisEntityPreNode, "Find pattern failed for thisEntityPreNode");
+    Objects.requireNonNull(thisEntityPostNode, "Find pattern failed for thisEntityPostNode");
+    Objects.requireNonNull(otherEntityPreNode, "Find pattern failed for otherEntityPreNode");
+    Objects.requireNonNull(otherEntityPostNode, "Find pattern failed for otherEntityPostNode");
 
-    @Override
-    public void transform(MethodNode main) {
-      // @ this.addVelocity(-d0, 0.0D, -d1);
-      AbstractInsnNode thisEntityPreNode =
-          ASMHelper.findPattern(
-              main.instructions.getFirst(),
-              new int[]{ALOAD, DLOAD, DNEG, DCONST_0, DLOAD, DNEG, INVOKEVIRTUAL},
-              "xxxxxxx");
-      // start at preNode, and scan for next INVOKEVIRTUAL sig
-      AbstractInsnNode thisEntityPostNode =
-          ASMHelper.findPattern(thisEntityPreNode, new int[]{INVOKEVIRTUAL}, "x");
-      // @ entityIn.addVelocity(d0, 0.0D, d1);
-      AbstractInsnNode otherEntityPreNode =
-          ASMHelper.findPattern(
-              thisEntityPostNode,
-              new int[]{ALOAD, DLOAD, DCONST_0, DLOAD, INVOKEVIRTUAL},
-              "xxxxx");
-      // start at preNode, and scan for next INVOKEVIRTUAL sig
-      AbstractInsnNode otherEntityPostNode =
-          ASMHelper.findPattern(otherEntityPreNode, new int[]{INVOKEVIRTUAL}, "x");
+    LabelNode endJumpForThis = new LabelNode();
+    LabelNode endJumpForOther = new LabelNode();
 
-      Objects.requireNonNull(thisEntityPreNode, "Find pattern failed for thisEntityPreNode");
-      Objects.requireNonNull(thisEntityPostNode, "Find pattern failed for thisEntityPostNode");
-      Objects.requireNonNull(otherEntityPreNode, "Find pattern failed for otherEntityPreNode");
-      Objects.requireNonNull(otherEntityPostNode, "Find pattern failed for otherEntityPostNode");
+    // first we handle this.addVelocity
 
-      LabelNode endJumpForThis = new LabelNode();
-      LabelNode endJumpForOther = new LabelNode();
+    InsnList insnThisPre = new InsnList();
+    insnThisPre.add(new VarInsnNode(ALOAD, 0)); // push THIS
+    insnThisPre.add(new VarInsnNode(ALOAD, 1));
+    insnThisPre.add(new VarInsnNode(DLOAD, 2));
+    insnThisPre.add(new InsnNode(DNEG)); // push -X
+    insnThisPre.add(new VarInsnNode(DLOAD, 4));
+    insnThisPre.add(new InsnNode(DNEG)); // push -Z
+    insnThisPre.add(
+        ASMHelper.call(INVOKESTATIC, hook));
+    insnThisPre.add(new JumpInsnNode(IFNE, endJumpForThis));
 
-      // first we handle this.addVelocity
+    InsnList insnOtherPre = new InsnList();
+    insnOtherPre.add(new VarInsnNode(ALOAD, 1)); // push entityIn
+    insnOtherPre.add(new VarInsnNode(ALOAD, 0)); // push THIS
+    insnOtherPre.add(new VarInsnNode(DLOAD, 2)); // push X
+    insnOtherPre.add(new VarInsnNode(DLOAD, 4)); // push Z
+    insnOtherPre.add(
+        ASMHelper.call(INVOKESTATIC, hook));
+    insnOtherPre.add(new JumpInsnNode(IFNE, endJumpForOther));
 
-      InsnList insnThisPre = new InsnList();
-      insnThisPre.add(new VarInsnNode(ALOAD, 0)); // push THIS
-      insnThisPre.add(new VarInsnNode(ALOAD, 1));
-      insnThisPre.add(new VarInsnNode(DLOAD, 2));
-      insnThisPre.add(new InsnNode(DNEG)); // push -X
-      insnThisPre.add(new VarInsnNode(DLOAD, 4));
-      insnThisPre.add(new InsnNode(DNEG)); // push -Z
-      insnThisPre.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onApplyCollisionMotion));
-      insnThisPre.add(new JumpInsnNode(IFNE, endJumpForThis));
+    main.instructions.insertBefore(thisEntityPreNode, insnThisPre);
+    main.instructions.insert(thisEntityPostNode, endJumpForThis);
 
-      InsnList insnOtherPre = new InsnList();
-      insnOtherPre.add(new VarInsnNode(ALOAD, 1)); // push entityIn
-      insnOtherPre.add(new VarInsnNode(ALOAD, 0)); // push THIS
-      insnOtherPre.add(new VarInsnNode(DLOAD, 2)); // push X
-      insnOtherPre.add(new VarInsnNode(DLOAD, 4)); // push Z
-      insnOtherPre.add(
-          ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onApplyCollisionMotion));
-      insnOtherPre.add(new JumpInsnNode(IFNE, endJumpForOther));
-
-      main.instructions.insertBefore(thisEntityPreNode, insnThisPre);
-      main.instructions.insert(thisEntityPostNode, endJumpForThis);
-
-      main.instructions.insertBefore(otherEntityPreNode, insnOtherPre);
-      main.instructions.insert(otherEntityPostNode, endJumpForOther);
-    }
+    main.instructions.insertBefore(otherEntityPreNode, insnOtherPre);
+    main.instructions.insert(otherEntityPostNode, endJumpForOther);
   }
 
-  @RegisterTransformer("ForgeHaxHooks::shouldApplyBlockEntityCollisions")
-  public static class DoBlockCollisions extends MethodTransformer {
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.Entity_doBlockCollisions;
-    }
+  @Inject
+  @MethodMapping("doBlockCollisions")
+  public void transform(MethodNode main,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "shouldApplyBlockEntityCollisions",
+          args = {Entity.class, BlockState.class},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    // >HERE<
+    // blockstate.onEntityCollision(this.world, ...
+    AbstractInsnNode pre = ASMPattern.builder()
+        .codeOnly()
+        .opcodes(ALOAD, ALOAD, GETFIELD, ALOAD, ALOAD, INVOKEVIRTUAL)
+        .find(main)
+        .getFirst("could not find node to BlockState::onEntityCollision call");
 
-    @Override
-    public void transform(MethodNode main) {
-      // >HERE<
-      // blockstate.onEntityCollision(this.world, ...
-      AbstractInsnNode pre = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(ALOAD, ALOAD, GETFIELD, ALOAD, ALOAD, INVOKEVIRTUAL)
-          .find(main)
-          .getFirst("could not find node to BlockState::onEntityCollision call");
+    // this.onInsideBlock(blockstate);
+    // >HERE<
+    AbstractInsnNode post = ASMPattern.builder()
+        .codeOnly()
+        .opcode(GOTO)
+        .find(pre)
+        .getFirst("could not find GOTO label in try block");
 
-      // this.onInsideBlock(blockstate);
-      // >HERE<
-      AbstractInsnNode post = ASMPattern.builder()
-          .codeOnly()
-          .opcode(GOTO)
-          .find(pre)
-          .getFirst("could not find GOTO label in try block");
+    LabelNode skip = new LabelNode();
 
-      LabelNode skip = new LabelNode();
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0)); // push entity
+    list.add(new VarInsnNode(ALOAD, 8)); // push block state
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
+    list.add(new JumpInsnNode(IFEQ, skip)); // skip if return value is equal to 0
 
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0)); // push entity
-      list.add(new VarInsnNode(ALOAD, 8)); // push block state
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldApplyBlockEntityCollisions));
-      list.add(new JumpInsnNode(IFEQ, skip)); // skip if return value is equal to 0
-
-      main.instructions.insertBefore(pre, list);
-      main.instructions.insertBefore(post, skip);
-    }
+    main.instructions.insertBefore(pre, list);
+    main.instructions.insertBefore(post, skip);
   }
 }

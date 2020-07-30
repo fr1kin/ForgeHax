@@ -1,17 +1,16 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Sets;
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.Set;
-
 import net.minecraft.network.play.server.SPlaySoundEffectPacket;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.Set;
 
 @RegisterMod
 public class NoSoundLagMod extends ToggleMod {

@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.common.events.BlockControllerProcessEvent;
+import dev.fiki.forgehax.asm.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;

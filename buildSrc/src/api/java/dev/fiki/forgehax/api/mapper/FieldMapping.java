@@ -10,9 +10,11 @@ import java.lang.annotation.Target;
 public @interface FieldMapping {
   Class<?> parentClass() default void.class;
 
-  String value();
+  String value() default "";
 
   MappedFormat format() default MappedFormat.MAPPED;
+
+  ClassMapping _parentClass() default @ClassMapping(void.class);
 
   String _name() default "";
   String _obfName() default "";

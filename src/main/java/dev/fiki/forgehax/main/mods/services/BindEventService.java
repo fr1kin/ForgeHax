@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.key.KeyBindingEx;

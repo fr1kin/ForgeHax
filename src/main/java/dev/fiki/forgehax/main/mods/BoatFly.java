@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.RenderBoatEvent;
-import dev.fiki.forgehax.common.events.boat.ClampBoatEvent;
-import dev.fiki.forgehax.common.events.boat.RowBoatEvent;
+import dev.fiki.forgehax.asm.events.RenderBoatEvent;
+import dev.fiki.forgehax.asm.events.boat.ClampBoatEvent;
+import dev.fiki.forgehax.asm.events.boat.RowBoatEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;

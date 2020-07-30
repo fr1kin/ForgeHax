@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.PacketHelper;

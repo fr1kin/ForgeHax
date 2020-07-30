@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;

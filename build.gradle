@@ -36,7 +36,6 @@ repositories {
 }
 
 apply plugin: 'java'
-apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'dev.fiki.forgehax.mapper'
@@ -72,7 +71,7 @@ sourceSets {
         exclude 'dev/fiki/forgehax/main/mods/ForgeModListSpoofer.java'
       }
     }
-    compileClasspath += api.output + common.output
+    compileClasspath += api.output + common.output + core.output
   }
 
   allSourceSets {
@@ -103,7 +102,7 @@ minecraft {
 }
 
 mapper {
-  include sourceSets.main, 'dev.fiki.forgehax.core'
+  include sourceSets.core
 }
 
 dependencies {

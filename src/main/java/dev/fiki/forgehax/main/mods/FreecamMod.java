@@ -2,8 +2,8 @@ package dev.fiki.forgehax.main.mods;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;

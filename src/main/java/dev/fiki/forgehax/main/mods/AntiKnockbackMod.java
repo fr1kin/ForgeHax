@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.movement.ApplyCollisionMotionEvent;
-import dev.fiki.forgehax.common.events.movement.EntityBlockSlipApplyEvent;
-import dev.fiki.forgehax.common.events.movement.PushedByLiquidEvent;
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.movement.ApplyCollisionMotionEvent;
+import dev.fiki.forgehax.asm.events.movement.EntityBlockSlipApplyEvent;
+import dev.fiki.forgehax.asm.events.movement.PushedByLiquidEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.math.VectorUtils;

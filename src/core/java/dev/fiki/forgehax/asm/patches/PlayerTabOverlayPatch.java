@@ -1,52 +1,55 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.TypesHook;
-import dev.fiki.forgehax.asm.TypesMc;
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import dev.fiki.forgehax.api.mapper.MappedFormat;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.InsnPattern;
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.transforming.Inject;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import net.minecraft.client.gui.overlay.PlayerTabOverlayGui;
 import org.objectweb.asm.tree.*;
 
 /**
  * Created by Babbaj on 8/9/2017. thanks 086 :3
  */
-public class PlayerTabOverlayPatch {
-  @RegisterTransformer("ForgeHaxHooks::doIncreaseTabListSize")
-  public static class RenderPlayerListRenderIcon extends MethodTransformer {
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.PlayerTabOverlayGui_renderPlayerList;
-    }
+@ClassMapping(PlayerTabOverlayGui.class)
+public class PlayerTabOverlayPatch extends Patch {
+  @Inject
+  @MethodMapping(value = "func_238523_a_", format = MappedFormat.SRG)
+  public void render(MethodNode main,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "shouldIncreaseTabListSize",
+          args = {},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    InsnPattern nodes = ASMPattern.builder()
+        .codeOnly()
+        .opcodes(ALOAD,
+            ICONST_0,
+            ALOAD,
+            INVOKEINTERFACE,
+            BIPUSH,
+            INVOKESTATIC,
+            INVOKEINTERFACE,
+            ASTORE)
+        .find(main);
 
-    @Override
-    public void transform(MethodNode main) {
-      InsnPattern nodes = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(ALOAD,
-              ICONST_0,
-              ALOAD,
-              INVOKEINTERFACE,
-              BIPUSH,
-              INVOKESTATIC,
-              INVOKEINTERFACE,
-              ASTORE)
-          .find(main);
+    AbstractInsnNode subListNode = nodes.getFirst();
+    AbstractInsnNode post = nodes.getLast();
 
-      AbstractInsnNode subListNode = nodes.getFirst();
-      AbstractInsnNode post = nodes.getLast();
+    LabelNode jump = new LabelNode();
 
-      LabelNode jump = new LabelNode();
+    InsnList insnList = new InsnList();
+    insnList.add(ASMHelper.call(INVOKESTATIC, hook));
+    insnList.add(new JumpInsnNode(IFNE, jump));
 
-      InsnList insnList = new InsnList();
-      insnList.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldIncreaseTabListSize));
-      insnList.add(new JumpInsnNode(IFNE, jump));
-
-      main.instructions.insertBefore(subListNode, insnList);
-      main.instructions.insert(post, jump);
-    }
+    main.instructions.insertBefore(subListNode, insnList);
+    main.instructions.insert(post, jump);
   }
 }

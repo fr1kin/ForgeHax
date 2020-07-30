@@ -2,7 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingSet;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;

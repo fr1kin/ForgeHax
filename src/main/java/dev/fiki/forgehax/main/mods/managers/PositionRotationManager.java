@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.main.mods.managers;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.common.events.movement.PostPlayerMovementUpdateEvent;
-import dev.fiki.forgehax.common.events.movement.PrePlayerMovementUpdateEvent;
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.movement.PostPlayerMovementUpdateEvent;
+import dev.fiki.forgehax.asm.events.movement.PrePlayerMovementUpdateEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;

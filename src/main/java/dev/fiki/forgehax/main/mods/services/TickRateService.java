@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.events.ConnectToServerEvent;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.util.SimpleTimer;

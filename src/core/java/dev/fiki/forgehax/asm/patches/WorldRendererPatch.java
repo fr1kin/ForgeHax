@@ -1,7 +1,5 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.TypesMc;
-
 public class WorldRendererPatch {
   
 

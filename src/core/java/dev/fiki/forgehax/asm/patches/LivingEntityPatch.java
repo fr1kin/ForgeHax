@@ -1,127 +1,128 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.TypesHook;
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import dev.fiki.forgehax.api.mapper.FieldMapping;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.transforming.Inject;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import org.objectweb.asm.tree.*;
 
-public class LivingEntityPatch {
+@ClassMapping(LivingEntity.class)
+public class LivingEntityPatch extends Patch {
 
-  @RegisterTransformer("ForgeHaxHooks::onEntityBlockSlipApply")
-  public static class Travel_BlockSlip extends MethodTransformer {
+  @Inject
+  @MethodMapping("travel")
+  public void travel(MethodNode node,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onEntityBlockSlipApply",
+          args = {float.class, LivingEntity.class, BlockPos.class},
+          ret = float.class
+      ) ASMMethod hook) {
+    AbstractInsnNode first = ASMPattern.builder()
+        .codeOnly()
+        // float f5 = this.world.getBlockState(....
+        .opcodes(INVOKEVIRTUAL, FSTORE)
+        // float f7 = this.onGround ? f5....
+        .opcodes(ALOAD, GETFIELD, IFEQ, FLOAD, LDC, FMUL, GOTO)
+        .find(node)
+        .getFirst();
 
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.LivingEntity_travel;
-    }
+    InsnList list = new InsnList();
+    // slipperiness is on the stack right now
+    list.add(new VarInsnNode(ALOAD, 0)); // living entity
+    list.add(new VarInsnNode(ALOAD, 7)); // block position under
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
+    // top of stack should be a modified or unmodified slippery float
 
-    @Override
-    public void transform(MethodNode node) {
-      AbstractInsnNode first = ASMPattern.builder()
-          .codeOnly()
-          // float f5 = this.world.getBlockState(....
-          .opcodes(INVOKEVIRTUAL, FSTORE)
-          // float f7 = this.onGround ? f5....
-          .opcodes(ALOAD, GETFIELD, IFEQ, FLOAD, LDC, FMUL, GOTO)
-          .find(node)
-          .getFirst();
-
-      InsnList list = new InsnList();
-      // slipperiness is on the stack right now
-      list.add(new VarInsnNode(ALOAD, 0)); // living entity
-      list.add(new VarInsnNode(ALOAD, 6)); // block position under
-      list.add(ASMHelper.call(
-          INVOKESTATIC,
-          TypesHook.Methods.ForgeHaxHooks_onEntityBlockSlipApply
-      ));
-      // top of stack should be a modified or unmodified slippery float
-
-      //
-      node.instructions.insert(first, list); // insert after
-    }
+    //
+    node.instructions.insert(first, list); // insert after
   }
 
-  @RegisterTransformer("ForgeHaxHooks::shouldApplyElytraMovement")
-  public static class Travel_ElytraMovement extends MethodTransformer {
-    private boolean isElytraFlyingCall(AbstractInsnNode node) {
-      if(node instanceof MethodInsnNode && node.getOpcode() == INVOKEVIRTUAL) {
-        MethodInsnNode mn = (MethodInsnNode) node;
-        return Methods.LivingEntity_isElytraFlying.isNameEqual(mn.name);
-      }
-      return false;
-    }
+  @Inject
+  @MethodMapping("travel")
+  public void travel_Elytra(MethodNode node,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "shouldApplyElytraMovement",
+          args = {boolean.class, LivingEntity.class},
+          ret = boolean.class
+      ) ASMMethod hook,
+      @MethodMapping("isElytraFlying") ASMMethod isElytraFlying) {
+    AbstractInsnNode flyingNode = ASMPattern.builder()
+        .codeOnly()
+        .custom(n -> {
+          if (n instanceof MethodInsnNode) {
+            return isElytraFlying.isNameEqual(((MethodInsnNode) n).name);
+          }
+          return false;
+        })
+        .opcode(IFEQ)
+        .find(node)
+        .getFirst();
 
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.LivingEntity_travel;
-    }
+    InsnList list = new InsnList();
+    // currently the return value of isElytraFlying is on the top
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
+    // below this should be an IFEQ opcode
 
-    @Override
-    public void transform(MethodNode node) {
-      AbstractInsnNode flyingNode = ASMPattern.builder()
-          .codeOnly()
-          .custom(this::isElytraFlyingCall)
-          .opcode(IFEQ)
-          .find(node)
-          .getFirst();
-
-      InsnList list = new InsnList();
-      // currently the return value of isElytraFlying is on the top
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldApplyElytraMovement));
-      // below this should be an IFEQ opcode
-
-      // insert hook after isElytraFlying call but before IFEQ
-      node.instructions.insert(flyingNode, list);
-    }
+    // insert hook after isElytraFlying call but before IFEQ
+    node.instructions.insert(flyingNode, list);
   }
 
-  @RegisterTransformer("ForgeHaxHooks::shouldClampMotion")
-  public static class LivingTick extends MethodTransformer {
-    private boolean isVector3dGetZField(AbstractInsnNode node) {
-      if(node instanceof FieldInsnNode && node.getOpcode() == GETFIELD) {
-        FieldInsnNode mn = (FieldInsnNode) node;
-        return Fields.Vector3d_z.isNameEqual(mn.name);
-      }
-      return false;
-    }
+  @Inject
+  @MethodMapping("livingTick")
+  public void transform(MethodNode node,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "shouldClampMotion",
+          args = {LivingEntity.class},
+          ret = boolean.class
+      ) ASMMethod hook,
+      @FieldMapping(
+          parentClass = Vector3d.class,
+          value = "z"
+      ) ASMField vec3d_z) {
+    // double d5 = Vector3d.z;
+    // >HERE<
+    AbstractInsnNode postStore = ASMPattern.builder()
+        .custom(n -> {
+          if (n instanceof FieldInsnNode && n.getOpcode() == GETFIELD) {
+            FieldInsnNode mn = (FieldInsnNode) n;
+            return vec3d_z.isNameEqual(mn.name);
+          }
+          return false;
+        })
+        .opcode(DSTORE)
+        .find(node)
+        .getLast("Cannot find GETFIELD to Vector3d.z");
 
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.LivingEntity_livingTick;
-    }
+    // >HERE<
+    // this.setMotion(d1, d3, d5);
+    AbstractInsnNode beforeMotionCall = ASMPattern.builder()
+        .codeOnly()
+        .opcodes(ALOAD, DLOAD, DLOAD, DLOAD)
+        .opcode(INVOKEVIRTUAL)
+        .find(postStore)
+        .getFirst("Cannot find call to ::setMotion");
 
-    @Override
-    public void transform(MethodNode node) {
-      // double d5 = Vector3d.z;
-      // >HERE<
-      AbstractInsnNode postStore = ASMPattern.builder()
-          .custom(this::isVector3dGetZField)
-          .opcode(DSTORE)
-          .find(node)
-          .getLast("Cannot find GETFIELD to Vector3d.z");
+    LabelNode skipLabel = new LabelNode();
 
-      // >HERE<
-      // this.setMotion(d1, d3, d5);
-      AbstractInsnNode beforeMotionCall = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(ALOAD, DLOAD, DLOAD, DLOAD)
-          .opcode(INVOKEVIRTUAL)
-          .find(postStore)
-          .getFirst("Cannot find call to ::setMotion");
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
+    list.add(new JumpInsnNode(IFEQ, skipLabel));
 
-      LabelNode skipLabel = new LabelNode();
-
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldClampMotion));
-      list.add(new JumpInsnNode(IFEQ, skipLabel));
-
-      node.instructions.insert(postStore, list);
-      node.instructions.insertBefore(beforeMotionCall, skipLabel);
-    }
+    node.instructions.insert(postStore, list);
+    node.instructions.insertBefore(beforeMotionCall, skipLabel);
   }
 }

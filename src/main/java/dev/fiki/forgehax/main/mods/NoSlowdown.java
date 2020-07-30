@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Sets;
-import dev.fiki.forgehax.common.events.BlockEntityCollisionEvent;
-import dev.fiki.forgehax.common.events.movement.PlayerSlowdownEvent;
+import dev.fiki.forgehax.asm.events.BlockEntityCollisionEvent;
+import dev.fiki.forgehax.asm.events.movement.PlayerSlowdownEvent;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.main.util.mod.Category;

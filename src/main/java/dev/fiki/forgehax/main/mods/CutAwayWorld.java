@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.NearClippingPlaneEvent;
+import dev.fiki.forgehax.asm.events.NearClippingPlaneEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;

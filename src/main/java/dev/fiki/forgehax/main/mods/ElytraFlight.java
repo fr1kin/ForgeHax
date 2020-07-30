@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.movement.ClampMotionSpeedEvent;
-import dev.fiki.forgehax.common.events.movement.ElytraFlyMovementEvent;
+import dev.fiki.forgehax.asm.events.movement.ClampMotionSpeedEvent;
+import dev.fiki.forgehax.asm.events.movement.ElytraFlyMovementEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.Switch.Handle;

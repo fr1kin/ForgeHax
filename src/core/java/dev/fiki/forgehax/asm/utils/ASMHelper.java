@@ -1,11 +1,10 @@
 package dev.fiki.forgehax.asm.utils;
 
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.NEW;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import org.objectweb.asm.tree.*;
 
-import dev.fiki.forgehax.common.asmtype.ASMField;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,16 +13,8 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
+
+import static org.objectweb.asm.Opcodes.*;
 
 public class ASMHelper {
   
@@ -122,12 +113,12 @@ public class ASMHelper {
   }
   
   public static MethodInsnNode call(int opcode, boolean isInterface, ASMMethod method) {
-    Objects.requireNonNull(method.getParent(), "Method requires assigned parent class");
+    Objects.requireNonNull(method.getParentClass(), "Method requires assigned parent class");
     return new MethodInsnNode(
       opcode,
-      method.getParent().getClassName(),
-      method.getSrg(),
-      method.getSrgDescriptor(),
+      method.getParentClass().getName(),
+      method.getName(),
+      method.getDescriptorString(),
       false);
   }
   
@@ -136,12 +127,13 @@ public class ASMHelper {
   }
   
   public static FieldInsnNode call(int opcode, ASMField field) {
-    Objects.requireNonNull(field.getParent(), "Field requires assigned parent class");
-    return new FieldInsnNode(
-      opcode,
-      field.getParent().getClassName(),
-      field.getSrg(),
-      field.getSrgType().getDescriptor());
+    throw new UnsupportedOperationException("removed type info from ASMField (since mcpbot doesnt provide it)");
+//    Objects.requireNonNull(field.getParentClass(), "Field requires assigned parent class");
+//    return new FieldInsnNode(
+//      opcode,
+//      field.getParentClass().getName(),
+//      field.getName(),
+//      field.getSrgType().getDescriptor());
   }
   
   // scope is from first label to last label

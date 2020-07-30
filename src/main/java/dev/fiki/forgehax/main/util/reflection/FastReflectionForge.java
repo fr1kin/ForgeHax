@@ -1,7 +1,5 @@
 package dev.fiki.forgehax.main.util.reflection;
 
-import cpw.mods.modlauncher.Launcher;
-import dev.fiki.forgehax.common.asmtype.ASMClass;
 import dev.fiki.forgehax.main.util.reflection.fasttype.FastClass;
 
 /**

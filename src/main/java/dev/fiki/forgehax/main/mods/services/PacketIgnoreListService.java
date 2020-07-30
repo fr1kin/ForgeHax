@@ -1,10 +1,10 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.PacketHelper;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 

@@ -1,74 +1,66 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.TypesHook;
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import dev.fiki.forgehax.api.mapper.FieldMapping;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.transforming.Inject;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import net.minecraft.client.Minecraft;
 import org.objectweb.asm.tree.*;
 
-import static dev.fiki.forgehax.asm.TypesMc.Fields.Minecraft_leftClickCounter;
+@ClassMapping(Minecraft.class)
+public class MinecraftPatch extends Patch {
 
-public class MinecraftPatch {
+  @Inject
+  @MethodMapping("runTick")
+  public void runTick(MethodNode method,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onLeftClickCounterSet",
+          args = {int.class, Minecraft.class},
+          ret = int.class
+      ) ASMMethod hook,
+      @FieldMapping("leftClickCounter") ASMField leftClickCounter) {
+    // this.leftClickCounter = 10000;
+    AbstractInsnNode node = ASMPattern.builder()
+        .opcodes(SIPUSH)
+        .custom(n -> {
+          if (n instanceof FieldInsnNode && n.getOpcode() == PUTFIELD) {
+            FieldInsnNode fld = (FieldInsnNode) n;
+            return leftClickCounter.isNameEqual(fld.name);
+          }
+          return false;
+        })
+        .find(method)
+        .getFirst();
 
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
 
-  @RegisterTransformer("ForgeHaxHooks::onLeftClickCounterSet")
-  public static class RunTick extends MethodTransformer {
-
-    private boolean isLeftClickField(AbstractInsnNode node, int opcode) {
-      if (node instanceof FieldInsnNode && node.getOpcode() == opcode) {
-        FieldInsnNode fld = (FieldInsnNode) node;
-        return Minecraft_leftClickCounter.isNameEqual(fld.name);
-      }
-      return false;
-    }
-
-    private boolean isPutLeftClickField(AbstractInsnNode node) {
-      return isLeftClickField(node, PUTFIELD);
-    }
-
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.Minecraft_runTick;
-    }
-
-    @Override
-    public void transform(MethodNode method) {
-      // this.leftClickCounter = 10000;
-      AbstractInsnNode node = ASMPattern.builder()
-          .opcodes(SIPUSH)
-          .custom(this::isPutLeftClickField)
-          .find(method)
-          .getFirst();
-
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onLeftClickCounterSet));
-
-      method.instructions.insert(node, list);
-    }
+    method.instructions.insert(node, list);
   }
 
-  @RegisterTransformer("ForgeHaxHooks::onSendClickBlockToController")
-  public static class SendClickBlockToController extends MethodTransformer {
+  @Inject
+  @MethodMapping("sendClickBlockToController")
+  public void sendClickBlockToController(MethodNode method,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onSendClickBlockToController",
+          args = {Minecraft.class, boolean.class},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(new VarInsnNode(ILOAD, 1));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
+    list.add(new VarInsnNode(ISTORE, 1));
 
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.Minecraft_sendClickBlockToController;
-    }
-
-    @Override
-    public void transform(MethodNode method) {
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(new VarInsnNode(ILOAD, 1));
-      list.add(
-          ASMHelper.call(
-              INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onSendClickBlockToController));
-      list.add(new VarInsnNode(ISTORE, 1));
-
-      method.instructions.insert(list);
-    }
+    method.instructions.insert(list);
   }
 }

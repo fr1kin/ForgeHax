@@ -1,106 +1,98 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.TypesHook;
-import dev.fiki.forgehax.asm.TypesMc;
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.transforming.Inject;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import net.minecraft.client.multiplayer.PlayerController;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+@ClassMapping(PlayerController.class)
+public class PlayerControllerPatch extends Patch {
 
-public class PlayerControllerPatch {
+  @Inject
+  @MethodMapping("syncCurrentPlayItem")
+  public void syncCurrentPlayItem(MethodNode node,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onPlayerItemSync",
+          args = {PlayerController.class},
+          ret = void.class
+      ) ASMMethod hook) {
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
 
-  @RegisterTransformer("ForgeHaxHooks::onPlayerItemSync")
-  public static class SyncCurrentPlayItem extends MethodTransformer {
-
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.PlayerController_syncCurrentPlayItem;
-    }
-
-    @Override
-    public void transform(MethodNode node) {
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerItemSync));
-
-      node.instructions.insert(list);
-    }
+    node.instructions.insert(list);
   }
 
-  @RegisterTransformer("ForgeHaxHooks::onPlayerAttackEntity")
-  public static class AttackEntity extends MethodTransformer {
+  @Inject
+  @MethodMapping("attackEntity")
+  public void attackEntity(MethodNode node,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onPlayerAttackEntity",
+          args = {PlayerController.class, PlayerEntity.class, Entity.class},
+          ret = void.class
+      ) ASMMethod hook) {
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(new VarInsnNode(ALOAD, 1));
+    list.add(new VarInsnNode(ALOAD, 2));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.PlayerController_attackEntity;
-    }
-
-    @Override
-    public void transform(MethodNode node) {
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(new VarInsnNode(ALOAD, 1));
-      list.add(new VarInsnNode(ALOAD, 2));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerAttackEntity));
-
-      node.instructions.insert(list);
-    }
+    node.instructions.insert(list);
   }
 
-  @RegisterTransformer("ForgeHaxHooks::onPlayerBreakingBlock")
-  public static class OnPlayerDamageBlock extends MethodTransformer {
+  @Inject
+  @MethodMapping("onPlayerDamageBlock")
+  public void onPlayerDamageBlock(MethodNode node,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onPlayerBreakingBlock",
+          args = {PlayerController.class, BlockPos.class, Direction.class},
+          ret = void.class
+      ) ASMMethod hook) {
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(new VarInsnNode(ALOAD, 1));
+    list.add(new VarInsnNode(ALOAD, 2));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.PlayerController_onPlayerDamageBlock;
-    }
-
-    @Override
-    public void transform(MethodNode node) {
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(new VarInsnNode(ALOAD, 1));
-      list.add(new VarInsnNode(ALOAD, 2));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerBreakingBlock));
-
-      node.instructions.insert(list);
-    }
+    node.instructions.insert(list);
   }
 
-  @RegisterTransformer("ForgeHaxHooks::onPlayerStopUse")
-  public static class OnStoppedUsingItem extends MethodTransformer {
+  @Inject
+  @MethodMapping("onStoppedUsingItem")
+  public void transform(MethodNode node,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onPlayerStopUse",
+          args = {PlayerController.class, PlayerEntity.class},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    AbstractInsnNode last = ASMHelper.findPattern(node.instructions.getFirst(), new int[]{RETURN}, "x");
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.PlayerController_onStoppedUsingItem;
-    }
+    Objects.requireNonNull(last, "Could not find RET opcode");
 
-    @Override
-    public void transform(MethodNode node) {
-      AbstractInsnNode last =
-          ASMHelper.findPattern(node.instructions.getFirst(), new int[]{RETURN}, "x");
+    LabelNode label = new LabelNode();
 
-      Objects.requireNonNull(last, "Could not find RET opcode");
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(new VarInsnNode(ALOAD, 1));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
+    list.add(new JumpInsnNode(IFNE, label));
 
-      LabelNode label = new LabelNode();
-
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(new VarInsnNode(ALOAD, 1));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onPlayerStopUse));
-      list.add(new JumpInsnNode(IFNE, label));
-
-      node.instructions.insert(list);
-      node.instructions.insertBefore(last, label);
-    }
+    node.instructions.insert(list);
+    node.instructions.insertBefore(last, label);
   }
 }

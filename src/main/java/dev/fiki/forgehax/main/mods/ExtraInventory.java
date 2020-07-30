@@ -1,27 +1,18 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.base.MoreObjects;
-import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.main.util.SimpleTimer;
+import dev.fiki.forgehax.main.util.Utils;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.SimpleTimer;
-import dev.fiki.forgehax.main.util.Utils;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
 import dev.fiki.forgehax.main.util.reflection.ReflectionHelper;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
@@ -36,6 +27,10 @@ import net.minecraft.network.play.client.CClickWindowPacket;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.getLogger;
 

@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MethodMapping {
   /**
-   * CODEGEN ONLY
+   * COMPILE ONLY
    * <p>
    * The parent class of the mapping this object represents.
    * If not changed, the code generator will use the class provided by the parent classes {@code @ClassMapping}
@@ -19,16 +19,16 @@ public @interface MethodMapping {
   Class<?> parentClass() default void.class;
 
   /**
-   * CODEGEN ONLY
+   * COMPILE ONLY
    * <p>
    * The name of the method to attempt to lookup mappings for.
    *
    * @return method name
    */
-  String value();
+  String value() default "";
 
   /**
-   * CODEGEN ONLY
+   * COMPILE ONLY
    * <p>
    * The arguments for the method. This can be omitted if the {@code value} and/or {@code ret} is unique.
    *
@@ -37,7 +37,7 @@ public @interface MethodMapping {
   Class<?>[] args() default {};
 
   /**
-   * CODEGEN ONLY
+   * COMPILE ONLY
    * <p>
    * The return type of the method. This can be omitted if the {@code value} and/or {@code args} is unique.
    *
@@ -58,6 +58,8 @@ public @interface MethodMapping {
    * @return the type of mapping name provided
    */
   MappedFormat format() default MappedFormat.MAPPED;
+
+  ClassMapping _parentClass() default @ClassMapping(void.class);
 
   String _name() default "";
   String _obfName() default "";

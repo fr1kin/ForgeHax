@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.asm.utils.transforming;
 
-import cpw.mods.modlauncher.TransformTargetLabel;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
@@ -10,20 +9,16 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class Wrappers {
   @SuppressWarnings("unchecked")
   public static <T> ITransformer<T> createWrapper(ITransformer<T> transformer) {
-    if (transformer instanceof MethodTransformer) {
+    if (transformer instanceof PatchScanner.InternalMethodTransformer) {
       return (ITransformer<T>) new MethodTransformerWrapper((ITransformer<MethodNode>) transformer);
-    } else if (transformer instanceof ClassTransformer) {
+    } /*else if (transformer instanceof ClassTransformer) {
       return (ITransformer<T>) new ClassTransformerWrapper((ITransformer<ClassNode>) transformer);
-    } else {
+    }*/ else {
       throw new IllegalArgumentException("Class \"" + transformer.getClass().getSimpleName() + " is not supported.");
     }
 

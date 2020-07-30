@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.render.CullCavesEvent;
+import dev.fiki.forgehax.asm.events.render.CullCavesEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;

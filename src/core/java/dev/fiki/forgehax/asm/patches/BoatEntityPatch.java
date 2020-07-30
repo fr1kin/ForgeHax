@@ -1,16 +1,19 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.TypesHook;
-import dev.fiki.forgehax.asm.TypesMc;
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.InsnPattern;
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.transforming.Inject;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import net.minecraft.entity.item.BoatEntity;
 import org.objectweb.asm.tree.*;
 
-public class BoatEntityPatch {
+@ClassMapping(BoatEntity.class)
+public class BoatEntityPatch extends Patch {
 
 
 //  @RegisterTransformer("ForgeHaxHooks.isBoatSetYawActivated")
@@ -85,34 +88,31 @@ public class BoatEntityPatch {
 //    }
 //  }
 
-  @RegisterTransformer("ForgeHaxHooks::shouldClampBoat")
-  public static class ApplyYawToEntity extends MethodTransformer {
+  @Inject
+  @MethodMapping("applyYawToEntity")
+  public void applyYawToEntity(MethodNode main,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "shouldClampBoat",
+          args = {BoatEntity.class},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    InsnPattern nodes = ASMPattern.builder()
+        .codeOnly()
+        .opcodes(FLOAD, LDC, LDC, INVOKESTATIC, FSTORE)
+        .find(main);
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.BoatEntity_applyYawToEntity;
-    }
+    AbstractInsnNode pre = nodes.getFirst();
+    AbstractInsnNode post = nodes.getLast(); // FSTORE
 
-    @Override
-    public void transform(MethodNode main) {
-      // MathHelper.clamp(f, -105.0F, 105.0F);
-      InsnPattern nodes = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(FLOAD, LDC, LDC, INVOKESTATIC, FSTORE)
-          .find(main);
+    LabelNode jump = new LabelNode();
 
-      AbstractInsnNode pre = nodes.getFirst();
-      AbstractInsnNode post = nodes.getLast(); // FSTORE
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
+    list.add(new JumpInsnNode(IFEQ, jump));
 
-      LabelNode jump = new LabelNode();
-
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldClampBoat));
-      list.add(new JumpInsnNode(IFEQ, jump));
-
-      main.instructions.insert(pre, list);
-      main.instructions.insertBefore(post, jump);
-    }
+    main.instructions.insert(pre, list);
+    main.instructions.insertBefore(post, jump);
   }
 }

@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.mojang.datafixers.util.Pair;
-import dev.fiki.forgehax.common.events.ItemStoppedUsedEvent;
+import dev.fiki.forgehax.asm.events.ItemStoppedUsedEvent;
 import dev.fiki.forgehax.main.events.ForgeHaxEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;

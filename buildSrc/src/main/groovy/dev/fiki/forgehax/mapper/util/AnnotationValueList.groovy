@@ -7,15 +7,24 @@ class AnnotationValueList implements Map<String, Object> {
   private List<Object> list;
 
   AnnotationValueList(List<Object> list) {
-    this.list = list;
+    this.list = list != null ? list : Collections.emptyList();
 
-    if (list.size() % 2 != 0) {
+    if (this.list.size() % 2 != 0) {
       throw new Error('value list is asymmetrical!')
     }
   }
 
+  AnnotationValueList() {
+    this(new ArrayList<Object>())
+  }
+
   String getAsString(String key) {
     return get(key) as String
+  }
+
+  Boolean getAsBoolean(String key) {
+    def o = get(key)
+    return o != -1 ? o as Boolean : null
   }
 
   Type getAsType(String key) {
@@ -40,6 +49,10 @@ class AnnotationValueList implements Map<String, Object> {
 
   Object putAsMappedFormat(String key, MappedFormat type) {
     return put(key, [Type.getDescriptor(MappedFormat), type.name()])
+  }
+
+  AnnotationValueList copy() {
+    return new AnnotationValueList(Collections.unmodifiableList(new ArrayList<Object>(list)))
   }
 
   private def findKeyIndex(Object key) {

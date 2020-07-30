@@ -6,7 +6,8 @@ import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.IncompatibleEnvironmentException;
 import dev.fiki.forgehax.asm.patches.*;
 import dev.fiki.forgehax.asm.utils.EZ;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import dev.fiki.forgehax.asm.utils.transforming.PatchScanner;
 import dev.fiki.forgehax.asm.utils.transforming.Wrappers;
 import dev.fiki.forgehax.common.LoggerProvider;
 import lombok.Getter;
@@ -41,10 +42,12 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
   }
 
   @Override
-  public void initialize(IEnvironment environment) {}
+  public void initialize(IEnvironment environment) {
+  }
 
   @Override
-  public void beginScanning(IEnvironment environment) {}
+  public void beginScanning(IEnvironment environment) {
+  }
 
   @Override
   public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
@@ -81,10 +84,13 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
   @SuppressWarnings("unchecked")
   private List<ITransformer> getTransformersForClasses(Class<?>... patches) {
     return (List<ITransformer>) Stream.of(patches) // epic cast because compiler bug??
-        .flatMap(clazz -> Stream.concat(Stream.of(clazz), Stream.of(clazz.getDeclaredClasses())))
-        .filter(clazz -> clazz.isAnnotationPresent(RegisterTransformer.class))
+        .filter(Patch.class::isAssignableFrom)
         .filter(ForgeHaxCoreTransformer::requiresZeroArgConstructor)
         .map(ForgeHaxCoreTransformer::newInstance)
+        .map(Patch.class::cast)
+        .map(PatchScanner::new)
+        .map(PatchScanner::getTransformers)
+        .flatMap(List::stream)
         .map(ITransformer.class::cast)
         .map(Wrappers::createWrapper)
         .collect(Collectors.toList());

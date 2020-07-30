@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.movement.ClipBlockEdgeEvent;
+import dev.fiki.forgehax.asm.events.movement.ClipBlockEdgeEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;

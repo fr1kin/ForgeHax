@@ -1,121 +1,122 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.TypesHook;
-import dev.fiki.forgehax.asm.TypesMc;
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import dev.fiki.forgehax.asm.utils.transforming.Inject;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import org.objectweb.asm.tree.*;
 
-/**
- * Created on 11/13/2016 by fr1kin
- */
-public class ClientEntityPlayerPatch {
+@ClassMapping(ClientPlayerEntity.class)
+public class ClientEntityPlayerPatch extends Patch {
 
-  @RegisterTransformer("ForgeHaxHooks::shouldSlowdownPlayer")
-  public static class ApplyLivingUpdate extends MethodTransformer {
+  @Inject
+  @MethodMapping("livingTick")
+  public void livingTick(MethodNode main,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "shouldSlowdownPlayer",
+          args = {ClientPlayerEntity.class},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    AbstractInsnNode skipNode = ASMPattern.builder()
+        .codeOnly()
+        .opcodes(ALOAD, INVOKEVIRTUAL, IFEQ, ALOAD, INVOKEVIRTUAL, IFNE)
+        .find(main)
+        .getLast("could not find IFNE node");
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.ClientPlayerEntity_livingTick;
-    }
+    LabelNode skip = ((JumpInsnNode) skipNode).label;
 
-    @Override
-    public void transform(MethodNode main) {
-      AbstractInsnNode skipNode = ASMPattern.builder()
-          .codeOnly()
-          .opcodes(ALOAD, INVOKEVIRTUAL, IFEQ, ALOAD, INVOKEVIRTUAL, IFNE)
-          .find(main)
-          .getLast("could not find IFNE node");
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
+    list.add(new JumpInsnNode(IFEQ, skip));
 
-      LabelNode skip = ((JumpInsnNode) skipNode).label;
-
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldSlowdownPlayer));
-      list.add(new JumpInsnNode(IFEQ, skip));
-
-      main.instructions.insert(skipNode, list);
-    }
+    main.instructions.insert(skipNode, list);
   }
 
-  @RegisterTransformer("ForgeHaxHooks::onUpdateWalkingPlayer(Pre|Post)")
-  public static class Tick extends MethodTransformer {
+  @Inject
+  @MethodMapping("tick")
+  public void tick(MethodNode main,
+      @MethodMapping(
+          parentClass = ClientPlayerEntity.class,
+          value = "onUpdateWalkingPlayer"
+      ) ASMMethod onUpdateWalkingPlayer,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onUpdateWalkingPlayerPre",
+          args = {ClientPlayerEntity.class},
+          ret = boolean.class
+      ) ASMMethod updateWalkingPlayerPre,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "onUpdateWalkingPlayerPost",
+          args = {ClientPlayerEntity.class},
+          ret = void.class
+      ) ASMMethod updateWalkingPlayerPost) {
+    // <pre>
+    // this.onUpdateWalkingPlayer();
+    // <post>
+    // skip label
+    AbstractInsnNode walkingUpdateCall = ASMPattern.builder()
+        .custom(n -> {
+          if (n instanceof MethodInsnNode) {
+            return onUpdateWalkingPlayer.isNameEqual(((MethodInsnNode) n).name);
+          }
+          return false;
+        })
+        .find(main)
+        .getFirst("could not find node to onUpdateWalkingPlayer");
 
-    private boolean isOnWalkingUpdateCall(AbstractInsnNode node) {
-      if(node instanceof MethodInsnNode) {
-        MethodInsnNode mn = (MethodInsnNode) node;
-        return Methods.ClientPlayerEntity_onUpdateWalkingPlayer.isNameEqual(mn.name);
-      }
-      return false;
-    }
+    LabelNode jmp = new LabelNode();
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.ClientPlayerEntity_tick;
-    }
+    InsnList pre = new InsnList();
+    pre.add(new VarInsnNode(ALOAD, 0)); // this*
+    pre.add(ASMHelper.call(INVOKESTATIC, updateWalkingPlayerPre));
+    pre.add(new JumpInsnNode(IFNE, jmp));
 
-    @Override
-    public void transform(MethodNode main) {
-      // <pre>
-      // this.onUpdateWalkingPlayer();
-      // <post>
-      // skip label
-      AbstractInsnNode walkingUpdateCall = ASMPattern.builder()
-          .custom(this::isOnWalkingUpdateCall)
-          .find(main)
-          .getFirst("could not find node to onUpdateWalkingPlayer");
+    InsnList post = new InsnList();
+    post.add(new VarInsnNode(ALOAD, 0)); // this*
+    post.add(ASMHelper.call(INVOKESTATIC, updateWalkingPlayerPost));
+    post.add(jmp);
 
-      LabelNode jmp = new LabelNode();
-
-      InsnList pre = new InsnList();
-      pre.add(new VarInsnNode(ALOAD, 0)); // this*
-      pre.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPre));
-      pre.add(new JumpInsnNode(IFNE, jmp));
-
-      InsnList post = new InsnList();
-      post.add(new VarInsnNode(ALOAD, 0)); // this*
-      post.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_onUpdateWalkingPlayerPost));
-      post.add(jmp);
-
-      // insert above ALOAD
-      main.instructions.insertBefore(walkingUpdateCall.getPrevious(), pre);
-      // insert below call
-      main.instructions.insert(walkingUpdateCall, post);
-    }
+    // insert above ALOAD
+    main.instructions.insertBefore(walkingUpdateCall.getPrevious(), pre);
+    // insert below call
+    main.instructions.insert(walkingUpdateCall, post);
   }
 
-  @RegisterTransformer("ForgeHaxHooks::shouldNotRowBoat")
-  public static class RowingBoat extends MethodTransformer {
+  @Inject
+  @MethodMapping("isRowingBoat")
+  public void isRowingBoat(MethodNode main,
+      @MethodMapping(
+          parentClass = ForgeHaxHooks.class,
+          value = "shouldNotRowBoat",
+          args = {ClientPlayerEntity.class},
+          ret = boolean.class
+      ) ASMMethod hook) {
+    AbstractInsnNode ret = ASMPattern.builder()
+        .codeOnly()
+        .opcode(IRETURN)
+        .find(main)
+        .getFirst("could not find return node");
 
-    @Override
-    public ASMMethod getMethod() {
-      return TypesMc.Methods.ClientPlayerEntity_isRowingBoat;
-    }
+    LabelNode end = new LabelNode();
+    LabelNode jump = new LabelNode();
 
-    @Override
-    public void transform(MethodNode main) {
-      AbstractInsnNode ret = ASMPattern.builder()
-          .codeOnly()
-          .opcode(IRETURN)
-          .find(main)
-          .getFirst("could not find return node");
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(ASMHelper.call(INVOKESTATIC, hook));
+    list.add(new JumpInsnNode(IFEQ, jump));
+    list.add(new InsnNode(ICONST_0));
+    list.add(new JumpInsnNode(GOTO, end));
+    list.add(jump);
 
-      LabelNode end = new LabelNode();
-      LabelNode jump = new LabelNode();
-
-      InsnList list = new InsnList();
-      list.add(new VarInsnNode(ALOAD, 0));
-      list.add(ASMHelper.call(INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_shouldNotRowBoat));
-      list.add(new JumpInsnNode(IFEQ, jump));
-      list.add(new InsnNode(ICONST_0));
-      list.add(new JumpInsnNode(GOTO, end));
-      list.add(jump);
-
-      main.instructions.insert(list);
-      main.instructions.insertBefore(ret, end);
-    }
+    main.instructions.insert(list);
+    main.instructions.insertBefore(ret, end);
   }
 }

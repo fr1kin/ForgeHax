@@ -1,11 +1,10 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.asm.utils.transforming.MethodTransformer;
-import dev.fiki.forgehax.common.asmtype.ASMMethod;
-import dev.fiki.forgehax.asm.utils.transforming.RegisterTransformer;
-import org.objectweb.asm.tree.*;
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import net.minecraft.block.Block;
 
-public class BlockPatch  {
+@ClassMapping(Block.class)
+public class BlockPatch {
 
 
   // REMOVED in 1.15
@@ -80,40 +79,39 @@ public class BlockPatch  {
 //    }
 //  }
 
-
-  @RegisterTransformer
-  public static class GetCollisionShape extends MethodTransformer {
-
-    @Override
-    public ASMMethod getMethod() {
-      return Methods.Block_getCollisionShape;
-    }
-
-    @Override
-    public void transform(MethodNode method) {
-      // TODO: 1.15 maybe
-//      AbstractInsnNode node = method.instructions.getFirst();
+//  @RegisterTransformer
+//  public static class GetCollisionShape extends MethodTransformer {
 //
-//      LabelNode jump = new LabelNode();
-//      final int eventIdx = ASMHelper.addNewLocalVariable(method, "forgehax_event",
-//          TypesHook.Classes.GetCollisionShapeEvent.getClassDescriptor());
+//    @Override
+//    public ASMMethod getMethod() {
+//      return Methods.Block_getCollisionShape;
+//    }
 //
-//      InsnList list = new InsnList();
-//      InsnList eventArgs = new InsnList();
-//      eventArgs.add(new VarInsnNode(Opcodes.ALOAD, 0)); // this (Block)
-//      eventArgs.add(new VarInsnNode(Opcodes.ALOAD, 1)); // state
-//      eventArgs.add(new VarInsnNode(Opcodes.ALOAD, 2)); // worldIn (IBlockReader)
-//      eventArgs.add(new VarInsnNode(Opcodes.ALOAD, 3)); // pos
-//      list.add(ASMHelper.newInstance(TypesHook.Classes.GetCollisionShapeEvent.getClassName(),
-//          new ASMClass[]{Classes.Block, Classes.BlockState, Classes.IBlockReader, Classes.BlockPos},
-//          eventArgs));
-//      list.add(new VarInsnNode(Opcodes.ASTORE, eventIdx));
-//      list.add(new VarInsnNode(Opcodes.ALOAD, eventIdx));
-//      list.add(ASMHelper.call(Opcodes.INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_fireEvent_b));
-//      list.add(new JumpInsnNode(Opcodes.IFNE, jump));
-//      list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, Type.getInternalName(GetCollisionShapeEvent.class), "getReturnShape", "()" + Classes.VoxelShape.getDescriptor()));
-//      list.add(new InsnNode(Opcodes.ARETURN));
-//      list.add(jump);
-    }
-  }
+//    @Override
+//    public void transform(MethodNode method) {
+//      // TODO: 1.15 maybe
+////      AbstractInsnNode node = method.instructions.getFirst();
+////
+////      LabelNode jump = new LabelNode();
+////      final int eventIdx = ASMHelper.addNewLocalVariable(method, "forgehax_event",
+////          TypesHook.Classes.GetCollisionShapeEvent.getClassDescriptor());
+////
+////      InsnList list = new InsnList();
+////      InsnList eventArgs = new InsnList();
+////      eventArgs.add(new VarInsnNode(Opcodes.ALOAD, 0)); // this (Block)
+////      eventArgs.add(new VarInsnNode(Opcodes.ALOAD, 1)); // state
+////      eventArgs.add(new VarInsnNode(Opcodes.ALOAD, 2)); // worldIn (IBlockReader)
+////      eventArgs.add(new VarInsnNode(Opcodes.ALOAD, 3)); // pos
+////      list.add(ASMHelper.newInstance(TypesHook.Classes.GetCollisionShapeEvent.getClassName(),
+////          new ASMClass[]{Classes.Block, Classes.BlockState, Classes.IBlockReader, Classes.BlockPos},
+////          eventArgs));
+////      list.add(new VarInsnNode(Opcodes.ASTORE, eventIdx));
+////      list.add(new VarInsnNode(Opcodes.ALOAD, eventIdx));
+////      list.add(ASMHelper.call(Opcodes.INVOKESTATIC, TypesHook.Methods.ForgeHaxHooks_fireEvent_b));
+////      list.add(new JumpInsnNode(Opcodes.IFNE, jump));
+////      list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, Type.getInternalName(GetCollisionShapeEvent.class), "getReturnShape", "()" + Classes.VoxelShape.getDescriptor()));
+////      list.add(new InsnNode(Opcodes.ARETURN));
+////      list.add(jump);
+//    }
+//  }
 }

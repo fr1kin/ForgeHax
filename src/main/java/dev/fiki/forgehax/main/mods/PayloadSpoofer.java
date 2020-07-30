@@ -2,20 +2,19 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.common.events.packet.PacketOutboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.Scanner;
-import java.util.Set;
-
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CCustomPayloadPacket;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Created on 6/2/2017 by fr1kin

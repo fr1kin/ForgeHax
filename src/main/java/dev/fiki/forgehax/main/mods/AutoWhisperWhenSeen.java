@@ -1,12 +1,12 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import com.mojang.authlib.GameProfile;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import com.mojang.authlib.GameProfile;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.network.play.server.SSpawnPlayerPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

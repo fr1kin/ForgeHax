@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import dev.fiki.forgehax.common.events.packet.PacketInboundEvent;
+import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.events.ChatMessageEvent;
 import dev.fiki.forgehax.main.util.entity.PlayerInfo;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
