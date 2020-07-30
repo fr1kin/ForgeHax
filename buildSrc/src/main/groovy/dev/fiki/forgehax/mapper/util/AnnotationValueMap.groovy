@@ -3,10 +3,10 @@ package dev.fiki.forgehax.mapper.util
 import dev.fiki.forgehax.api.mapper.MappedFormat
 import org.objectweb.asm.Type
 
-class AnnotationValueList implements Map<String, Object> {
+class AnnotationValueMap implements Map<String, Object> {
   private List<Object> list;
 
-  AnnotationValueList(List<Object> list) {
+  AnnotationValueMap(List<Object> list) {
     this.list = list != null ? list : Collections.emptyList();
 
     if (this.list.size() % 2 != 0) {
@@ -14,7 +14,7 @@ class AnnotationValueList implements Map<String, Object> {
     }
   }
 
-  AnnotationValueList() {
+  AnnotationValueMap() {
     this(new ArrayList<Object>())
   }
 
@@ -51,8 +51,8 @@ class AnnotationValueList implements Map<String, Object> {
     return put(key, [Type.getDescriptor(MappedFormat), type.name()])
   }
 
-  AnnotationValueList copy() {
-    return new AnnotationValueList(Collections.unmodifiableList(new ArrayList<Object>(list)))
+  AnnotationValueMap copy() {
+    return new AnnotationValueMap(Collections.unmodifiableList(new ArrayList<Object>(list)))
   }
 
   private def findKeyIndex(Object key) {

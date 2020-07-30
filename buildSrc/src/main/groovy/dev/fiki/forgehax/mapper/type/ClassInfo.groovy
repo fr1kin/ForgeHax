@@ -1,9 +1,23 @@
 package dev.fiki.forgehax.mapper.type
 
+import dev.fiki.forgehax.api.mapper.MappedFormat
+
 class ClassInfo {
   String name, obfName;
   Map<String, MethodInfo> srgToMethod = new HashMap<>()
   Map<String, FieldInfo> srgToField = new HashMap<>()
+
+  void setNameByFormat(String name, MappedFormat format) {
+    switch (format) {
+      case MappedFormat.MAPPED:
+      case MappedFormat.SRG:
+        this.name = name
+        break
+      case MappedFormat.OBFUSCATED:
+        this.obfName = name
+        break
+    }
+  }
 
   boolean equals(o) {
     if (this.is(o)) return true

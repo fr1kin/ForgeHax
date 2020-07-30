@@ -5,7 +5,7 @@ import dev.fiki.forgehax.mapper.extractor.MapData
 import dev.fiki.forgehax.mapper.type.ClassInfo
 import dev.fiki.forgehax.mapper.type.FieldInfo
 import dev.fiki.forgehax.mapper.type.MethodInfo
-import dev.fiki.forgehax.mapper.util.AnnotationValueList
+import dev.fiki.forgehax.mapper.util.AnnotationValueMap
 import groovy.io.FileType
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
@@ -79,7 +79,7 @@ class AnnotationScanTask extends DefaultTask {
   }
 
   void restructureAnnotation(AnnotationNode node, AnnotationNode parentNode) {
-    def params = new AnnotationValueList(node.values)
+    def params = new AnnotationValueMap(node.values)
 
     switch (node.desc) {
       case Type.getDescriptor(ClassMapping):
@@ -161,7 +161,7 @@ class AnnotationScanTask extends DefaultTask {
     }
   }
 
-  MappedFormat getAndUnmapFormat(AnnotationValueList params) {
+  MappedFormat getAndUnmapFormat(AnnotationValueMap params) {
     def type = params.getAsMappedFormat('format')
     if (type != null) {
       params.remove('format')
@@ -170,7 +170,7 @@ class AnnotationScanTask extends DefaultTask {
     return MappedFormat.MAPPED
   }
 
-  String getAndSetParentClass(AnnotationValueList params, AnnotationNode parent) {
+  String getAndSetParentClass(AnnotationValueMap params, AnnotationNode parent) {
     // use override parent class if provided
     def parentClass = params.remove('parentClass') as Type
     if (parentClass != null) {
@@ -202,7 +202,7 @@ class AnnotationScanTask extends DefaultTask {
       // insert into the annotation
       params.put('_parentClass', parent)
 
-      return new AnnotationValueList(parent.values).get('_name') as String
+      return new AnnotationValueMap(parent.values).get('_name') as String
     }
   }
 

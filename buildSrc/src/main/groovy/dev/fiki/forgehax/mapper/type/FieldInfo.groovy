@@ -1,9 +1,25 @@
 package dev.fiki.forgehax.mapper.type
 
+import dev.fiki.forgehax.api.mapper.MappedFormat
+
 class FieldInfo {
   ClassInfo parent
   String name, obfName, srgName
   boolean isStatic = false
+
+  void setNameByFormat(String name, MappedFormat format) {
+    switch (format) {
+      case MappedFormat.MAPPED:
+        this.name = name
+        break
+      case MappedFormat.SRG:
+        this.srgName = name
+        break
+      case MappedFormat.OBFUSCATED:
+        this.obfName = name
+        break
+    }
+  }
 
   boolean equals(o) {
     if (this.is(o)) return true

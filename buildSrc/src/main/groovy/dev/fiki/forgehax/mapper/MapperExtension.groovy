@@ -3,13 +3,11 @@ package dev.fiki.forgehax.mapper
 
 import dev.fiki.forgehax.api.mapper.MappedFormat
 import dev.fiki.forgehax.mapper.extractor.MapData
+import dev.fiki.forgehax.mapper.extractor.StaticMethodsImporter
+import dev.fiki.forgehax.mapper.extractor.TSrgImporter
 import dev.fiki.forgehax.mapper.tasks.AnnotationScanTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
-
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.util.zip.ZipFile
 
 class MapperExtension {
   final static data = new MapData()
@@ -33,31 +31,15 @@ class MapperExtension {
       Objects.requireNonNull(downloadMcpConfig, 'downloadMcpConfig')
 
       extractSrg.doLast {
-        data.importSrg(extractSrg.output as File, MappedFormat.OBFUSCATED, MappedFormat.SRG, MappedFormat.OBFUSCATED)
+        data.importSource(new TSrgImporter(extractSrg.output as File, MappedFormat.OBFUSCATED, MappedFormat.SRG))
       }
 
       createMcpToSrg.doLast {
-        data.importSrg(createMcpToSrg.output as File, MappedFormat.MAPPED, MappedFormat.SRG, MappedFormat.SRG)
+        data.importSource(new TSrgImporter(createMcpToSrg.output as File, MappedFormat.MAPPED, MappedFormat.SRG))
       }
 
       downloadMcpConfig.doLast {
-        // import the file that tells us which methods are static
-        def zip = new ZipFile(downloadMcpConfig.output as File)
-        zip.entries().with {
-          while (it.hasMoreElements()) {
-            def e = it.nextElement()
-            if ('config/static_methods.txt' == e.getName()) {
-              def tmp = File.createTempFile("temp", null)
-              tmp.deleteOnExit()
-
-              zip.getInputStream(e).withCloseable { Files.copy(it, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING) }
-
-              data.importStaticMethods(tmp)
-              return
-            }
-          }
-          throw new Error('Cannot find static method file!')
-        }
+        data.importSource(StaticMethodsImporter.fromMcpConfigZip(downloadMcpConfig.output as File))
       }
     }
 
@@ -78,9 +60,11 @@ class MapperExtension {
       targetSourceSet sourceSet
     }
 
+    // run this task after compiling the source
     compileTask.finalizedBy scanTask
 
     project.afterEvaluate {
+      // we need these resources
       scanTask.dependsOn extractSrg, createMcpToSrg, downloadMcpConfig
     }
   }

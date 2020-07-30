@@ -1,10 +1,38 @@
 package dev.fiki.forgehax.mapper.type
 
+import dev.fiki.forgehax.api.mapper.MappedFormat
+
 class MethodInfo {
   ClassInfo parent
   String name, obfName, srgName
   String descriptor, obfDescriptor
   boolean isStatic = false
+
+  void setNameByFormat(String name, MappedFormat format) {
+    switch (format) {
+      case MappedFormat.MAPPED:
+        this.name = name
+        break
+      case MappedFormat.SRG:
+        this.srgName = name
+        break
+      case MappedFormat.OBFUSCATED:
+        this.obfName = name
+        break
+    }
+  }
+
+  void setDescriptorByFormat(String descriptor, MappedFormat format) {
+    switch (format) {
+      case MappedFormat.MAPPED:
+      case MappedFormat.SRG:
+        this.descriptor = descriptor
+        break
+      case MappedFormat.OBFUSCATED:
+        this.obfDescriptor = descriptor
+        break
+    }
+  }
 
   boolean equals(o) {
     if (this.is(o)) return true
