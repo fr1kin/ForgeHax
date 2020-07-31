@@ -13,19 +13,39 @@ import java.util.stream.Stream;
 
 @Getter
 public abstract class ASMMethod implements Formattable<ASMMethod> {
-  public static ASMMethod fromAnnotation(MethodMapping mapping) {
-    ASMClass parentClass = ASMClass.fromAnnotation(mapping._parentClass());
-    String name = Util.emptyToNull(mapping._name());
-    String obfName = Util.emptyToNull(mapping._obfName());
-    String srgName = Util.emptyToNull(mapping._srgName());
-    Type descriptor = Util.descriptorToTypeOrNull(Util.emptyToNull(mapping._descriptor()));
-    Type obfDescriptor = Util.descriptorToTypeOrNull(Util.emptyToNull(mapping._obfDescriptor()));
+  public static ASMMethod unmap(MethodMapping mapping) {
+    return auto(ASMClass.unmap(mapping._parentClass()),
+        mapping._name(), mapping._obfName(), mapping._srgName(),
+        mapping._descriptor(), mapping._obfDescriptor());
+  }
+
+  public static ASMMethod single(ASMClass parentClass, String name, Type descriptor) {
+    return new Single(parentClass, name, descriptor);
+  }
+
+  public static ASMMethod multi(ASMClass parentClass, String name, String obfName, String srgName,
+      Type descriptor, Type obfDescriptor) {
+    return new Container(parentClass, name, srgName, obfName, descriptor, obfDescriptor);
+  }
+
+  public static ASMMethod auto(ASMClass parentClass, String name, String obfName, String srgName,
+      Type descriptor, Type obfDescriptor) {
+    name = Util.emptyToNull(name);
+    obfName = Util.emptyToNull(obfName);
+    srgName = Util.emptyToNull(srgName);
 
     if (Stream.of(name, obfDescriptor, srgName).filter(Objects::nonNull).count() > 1) {
       return new Container(parentClass, name, srgName, obfName, descriptor, obfDescriptor);
     } else {
       return new Single(parentClass, Util.firstNonNull(name, srgName, obfName), descriptor);
     }
+  }
+
+  public static ASMMethod auto(ASMClass parentClass, String name, String obfName, String srgName,
+      String descriptor, String obfDescriptor) {
+    Type a0 = Util.descriptorToTypeOrNull(descriptor);
+    Type a1 = Util.descriptorToTypeOrNull(obfDescriptor);
+    return auto(parentClass, name, obfName, srgName, a0, a1);
   }
 
   public abstract ASMClass getParentClass();

@@ -12,7 +12,7 @@ public class Patch implements Opcodes {
   public Patch() {
     if (getClass().isAnnotationPresent(ClassMapping.class)) {
       ClassMapping mapping = getClass().getAnnotation(ClassMapping.class);
-      this.transformingClass = ASMClass.fromAnnotation(mapping);
+      this.transformingClass = ASMClass.unmap(mapping);
     }
   }
 }

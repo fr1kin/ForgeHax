@@ -47,12 +47,17 @@ class MapperExtension {
     project.tasks.jar.from project.fileTree('buildSrc/build/classes/java/api')
   }
 
+  void dependencyOnly(SourceSet sourceSet) {
+    // add the api dependency to the project
+    project.dependencies.add(sourceSet.getCompileConfigurationName(),
+        project.files('buildSrc/build/libs/buildSrc-api.jar'))
+  }
+
   void include(SourceSet sourceSet, String packageName) {
     final compileTask = project.tasks.find { it.name == sourceSet.getCompileJavaTaskName() }
 
     // add the api dependency to the project
-    project.dependencies.add(sourceSet.getCompileConfigurationName(),
-        project.files('buildSrc/build/libs/buildSrc-api.jar'))
+    dependencyOnly(sourceSet)
 
     // create new task
     def scanTask = project.tasks.create("${sourceSet.name}AnnotationScanner", AnnotationScanTask) {

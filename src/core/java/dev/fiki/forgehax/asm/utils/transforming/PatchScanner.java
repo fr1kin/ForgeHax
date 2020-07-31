@@ -34,7 +34,7 @@ public class PatchScanner implements ASMCommon {
     for (Method method : patch.getClass().getMethods()) {
       if (method.isAnnotationPresent(Inject.class) && method.isAnnotationPresent(MethodMapping.class)) {
         transformers.add(new InternalMethodTransformer(patch, method,
-            ASMMethod.fromAnnotation(method.getAnnotation(MethodMapping.class))));
+            ASMMethod.unmap(method.getAnnotation(MethodMapping.class))));
       }
     }
 
@@ -53,19 +53,19 @@ public class PatchScanner implements ASMCommon {
   private static Object getMappedType(Class<?> type, AnnotatedElement e) {
     if (ASMClass.class.isAssignableFrom(type)) {
       if (e.isAnnotationPresent(ClassMapping.class)) {
-        return ASMClass.fromAnnotation(e.getAnnotation(ClassMapping.class));
+        return ASMClass.unmap(e.getAnnotation(ClassMapping.class));
       } else {
         throw new Error("ASMClass parameter must have a ClassMapping annotation");
       }
     } else if (ASMField.class.isAssignableFrom(type)) {
       if (e.isAnnotationPresent(FieldMapping.class)) {
-        return ASMField.fromAnnotation(e.getAnnotation(FieldMapping.class));
+        return ASMField.unmap(e.getAnnotation(FieldMapping.class));
       } else {
         throw new Error("ASMField parameter must have a MethodMapping annotation");
       }
     } else if (ASMMethod.class.isAssignableFrom(type)) {
       if (e.isAnnotationPresent(MethodMapping.class)) {
-        return ASMMethod.fromAnnotation(e.getAnnotation(MethodMapping.class));
+        return ASMMethod.unmap(e.getAnnotation(MethodMapping.class));
       } else {
         throw new Error("ASMMethod parameter must have a MethodMapping annotation");
       }

@@ -13,15 +13,27 @@ import java.util.stream.Stream;
 
 @Getter
 public abstract class ASMField implements Formattable<ASMField> {
-  public static ASMField fromAnnotation(@NonNull FieldMapping mapping) {
-    ASMClass parentClass = ASMClass.fromAnnotation(mapping._parentClass());
-    String name = Util.emptyToNull(mapping._name());
-    String obfName = Util.emptyToNull(mapping._obfName());
-    String srgName = Util.emptyToNull(mapping._srgName());
+  public static ASMField unmap(@NonNull FieldMapping mapping) {
+    return auto(ASMClass.unmap(mapping._parentClass()),
+        mapping._name(), mapping._srgName(), mapping._obfName());
+  }
+
+  public static ASMField single(ASMClass parentClass, String name) {
+    return new Single(parentClass, name);
+  }
+
+  public static ASMField multi(ASMClass parentClass, String name, String srgName, String obfName) {
+    return new Container(parentClass, name, obfName, srgName);
+  }
+
+  public static ASMField auto(ASMClass parentClass, String name, String srgName, String obfName) {
+    name = Util.emptyToNull(name);
+    srgName = Util.emptyToNull(srgName);
+    obfName = Util.emptyToNull(obfName);
     if (Stream.of(name, obfName, srgName).filter(Objects::nonNull).count() > 1) {
-      return new Container(parentClass, name, obfName, srgName);
+      return multi(parentClass, name, obfName, srgName);
     } else {
-      return new Single(parentClass, Util.firstNonNull(name, obfName, srgName));
+      return single(parentClass, Util.firstNonNull(name, obfName, srgName));
     }
   }
 

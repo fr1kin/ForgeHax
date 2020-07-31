@@ -18,6 +18,6 @@ class Util {
   }
 
   public static Type descriptorToTypeOrNull(String desc) {
-    return desc == null ? null : Type.getMethodType(desc);
+    return emptyToNull(desc) == null ? null : Type.getMethodType(desc);
   }
 }

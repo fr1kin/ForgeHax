@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.asm.utils.asmtype;
 
-import com.google.common.base.Strings;
 import dev.fiki.forgehax.api.mapper.ClassMapping;
 import dev.fiki.forgehax.api.mapper.MappedFormat;
 import lombok.Getter;
@@ -12,13 +11,25 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class ASMClass implements Formattable<ASMClass> {
-  public static ASMClass fromAnnotation(@NonNull ClassMapping mapping) {
-    String name = Strings.emptyToNull(mapping._name());
-    String obfName = Strings.emptyToNull(mapping._obfName());
+  public static ASMClass unmap(@NonNull ClassMapping mapping) {
+    return ASMClass.auto(mapping._name(), mapping._obfName());
+  }
+
+  public static ASMClass single(String name) {
+    return new Single(name);
+  }
+
+  public static ASMClass multi(String name, String obfName) {
+    return new Container(name, obfName);
+  }
+
+  public static ASMClass auto(String name, String obfName) {
+    name = Util.emptyToNull(name);
+    obfName = Util.emptyToNull(obfName);
     if (obfName == null) {
-      return new Single(name);
+      return single(name);
     } else {
-      return new Container(name, obfName);
+      return multi(name, obfName);
     }
   }
 
