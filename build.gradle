@@ -103,6 +103,7 @@ minecraft {
 
 mapper {
   include sourceSets.core
+  include sourceSets.main
 }
 
 dependencies {

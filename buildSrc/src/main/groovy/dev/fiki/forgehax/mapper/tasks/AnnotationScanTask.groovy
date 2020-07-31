@@ -75,7 +75,7 @@ class AnnotationScanTask extends DefaultTask {
   }
 
   boolean shouldScanClass(AnnotationNode node) {
-    return node.desc == Type.getDescriptor(ScanMappings) || node.desc == Type.getDescriptor(ClassMapping)
+    return node.desc == Type.getDescriptor(MappingScan) || node.desc == Type.getDescriptor(ClassMapping)
   }
 
   void restructureAnnotation(AnnotationNode node, AnnotationNode parentNode) {
