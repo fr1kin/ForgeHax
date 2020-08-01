@@ -22,15 +22,14 @@ import java.util.stream.Stream;
 
 public class ForgeHaxCoreTransformer implements ITransformationService {
   @Getter
-  static Logger logger = null;
+  static Logger logger =
+      LoggerProvider.builder()
+      .contextClass(ForgeHaxCoreTransformer.class)
+      .label("core")
+      .build()
+      .getLogger();
 
   public ForgeHaxCoreTransformer() {
-    logger = LoggerProvider.builder()
-        .contextClass(ForgeHaxCoreTransformer.class)
-        .label("core")
-        .build()
-        .getLogger();
-
     logger.info("ForgeHaxCore initializing");
   }
 
