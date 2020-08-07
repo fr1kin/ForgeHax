@@ -1,22 +1,19 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 
 import java.io.File;
 
-/**
- * Created by Babbaj on 11/6/2017.
- */
 // TODO: 1.15
+//@RegisterMod(
+//    name = "MapDownloader",
+//    description = "Saves map items as images",
+//    category = Category.MISC
+//)
 public class MapDownloader extends ToggleMod {
   
   private File outputDir;
   
-  public MapDownloader() {
-    super(Category.MISC, "MapDownloader", false, "Saves map items as images");
-  }
-
   /*
   private void saveImage(String fileName, BufferedImage image) {
     

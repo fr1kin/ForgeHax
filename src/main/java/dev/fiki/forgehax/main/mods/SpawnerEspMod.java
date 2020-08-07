@@ -6,10 +6,10 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.draw.GeometryMasks;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
@@ -17,12 +17,14 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getWorld;
+import static dev.fiki.forgehax.main.Common.worldTileEntities;
 
-/**
- * Created on 9/29/2016 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "SpawnerESP",
+    description = "Spawner esp",
+    category = Category.RENDER
+)
 public class SpawnerEspMod extends ToggleMod {
   private final ColorSetting spawnerColor = newColorSetting()
       .name("spawner-color")
@@ -35,10 +37,6 @@ public class SpawnerEspMod extends ToggleMod {
       .description("Makes lines appear smoother. May impact framerate significantly")
       .defaultTo(false)
       .build();
-
-  public SpawnerEspMod() {
-    super(Category.RENDER, "SpawnerESP", false, "Spawner esp");
-  }
 
   @SubscribeEvent
   public void onRender(RenderEvent event) {

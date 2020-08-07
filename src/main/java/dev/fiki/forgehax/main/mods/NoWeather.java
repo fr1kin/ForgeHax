@@ -5,7 +5,7 @@ import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.play.server.SChangeGameStatePacket;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -14,19 +14,16 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-/**
- * Created on 5/16/2017 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "NoWeather",
+    description = "Disables weather",
+    category = Category.WORLD
+)
 public class NoWeather extends ToggleMod {
 
   private boolean isRaining = false;
   private float rainStrength = 0.f;
   private float previousRainStrength = 0.f;
-
-  public NoWeather() {
-    super(Category.WORLD, "NoWeather", false, "Disables weather");
-  }
 
   private final BooleanSetting showStatus = newBooleanSetting()
       .name("hud-status")

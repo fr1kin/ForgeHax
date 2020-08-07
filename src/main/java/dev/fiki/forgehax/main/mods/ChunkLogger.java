@@ -14,7 +14,7 @@ import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -28,16 +28,12 @@ import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Created on 10/12/2017 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "ChunkLogger",
+    description = "Show new chunks",
+    category = Category.MISC
+)
 public class ChunkLogger extends ToggleMod {
-
-  public ChunkLogger() {
-    super(Category.MISC, "ChunkLogger", false, "Show new chunks");
-  }
-
   enum ShowChunkEnum {
     ALL,
     NEW_ONLY,

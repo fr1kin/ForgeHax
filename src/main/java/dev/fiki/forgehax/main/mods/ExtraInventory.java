@@ -12,7 +12,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import dev.fiki.forgehax.main.util.reflection.ReflectionHelper;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
@@ -34,9 +34,12 @@ import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.getLogger;
 
-@RegisterMod
+@RegisterMod(
+    name = "ExtraInventory",
+    description = "Allows one to carry up to 5 extra items in their inventory",
+    category = Category.PLAYER
+)
 public class ExtraInventory extends ToggleMod {
-
   private static final int GUI_INVENTORY_ID = 0;
 
   private final BooleanSetting auto_store = newBooleanSetting()
@@ -59,14 +62,6 @@ public class ExtraInventory extends ToggleMod {
   private boolean guiCloseGuard = false;
 
   private SimpleTimer clickTimer = new SimpleTimer();
-
-  public ExtraInventory() {
-    super(
-        Category.PLAYER,
-        "ExtraInventory",
-        false,
-        "Allows one to carry up to 5 extra items in their inventory");
-  }
 
   private InventoryScreen createGuiWrapper(InventoryScreen gui) {
     try {

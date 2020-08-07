@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.mods.services.TickRateService;
@@ -7,21 +8,26 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.play.server.SUpdateTimePacket;
 import net.minecraft.util.Timer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-/**
- * Created by Babbaj on 1/24/2018.
- */
-@RegisterMod
+@RegisterMod(
+    name = "Timer",
+    description = "Speed up game time",
+    category = Category.MISC
+)
+@RequiredArgsConstructor
 public class TimerMod extends ToggleMod {
+  @FieldMapping(parentClass = Minecraft.class, value = "timer")
+  public final ReflectionField<Timer> Minecraft_timer;
 
-  public TimerMod() {
-    super(Category.MISC, "Timer", false, "Speed up game time");
-  }
+  @FieldMapping(parentClass = Timer.class, value = "tickLength")
+  public final ReflectionField<Float> Timer_tickLength;
 
   public final FloatSetting factor = newFloatSetting()
       .name("speed")
@@ -72,8 +78,8 @@ public class TimerMod extends ToggleMod {
   }
 
   private void setSpeed(float value) {
-    Timer timer = FastReflection.Fields.Minecraft_timer.get(Common.MC);
-    FastReflection.Fields.Timer_tickLength.set(timer, value);
+    Timer timer = Minecraft_timer.get(Common.MC);
+    Timer_tickLength.set(timer, value);
   }
 
   @Override

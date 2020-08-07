@@ -6,7 +6,7 @@ import dev.fiki.forgehax.main.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.util.SimpleTimer;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import lombok.Getter;
 import net.minecraft.network.play.server.SUpdateTimePacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -50,8 +50,7 @@ public class TickRateService extends ServiceMod {
   private long currentTotal = 0;
   private double currentTickrate;
 
-  public TickRateService() {
-    super("TickManager", "Records the average tick rate");
+  {
     instance = this;
   }
 

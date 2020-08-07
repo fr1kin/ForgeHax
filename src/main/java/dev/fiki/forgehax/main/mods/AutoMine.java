@@ -6,7 +6,7 @@ import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -14,14 +14,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import static dev.fiki.forgehax.main.Common.getGameSettings;
 import static dev.fiki.forgehax.main.Common.isInWorld;
 
-@RegisterMod
+@RegisterMod(
+    name = "AutoMine",
+    description = "Auto mine blocks",
+    category = Category.PLAYER
+)
 public class AutoMine extends ToggleMod {
 
   private boolean pressed = false;
-
-  public AutoMine() {
-    super(Category.PLAYER, "AutoMine", false, "Auto mine blocks");
-  }
 
   private void setPressed(boolean state) {
     getGameSettings().keyBindAttack.setPressed(state);

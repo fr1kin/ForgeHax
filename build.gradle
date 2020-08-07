@@ -102,6 +102,8 @@ minecraft {
 }
 
 mapper {
+  annotatedWith 'dev/fiki/forgehax/main/util/modloader/RegisterMod'
+
   include sourceSets.core
   include sourceSets.main
 }
@@ -118,6 +120,11 @@ dependencies {
 
   testCompile group: 'junit', name: 'junit', version: '4.12'
   testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
+}
+
+compileJava {
+  // this will allow use to read a constructors parameter names at runtime
+  options.compilerArgs << '-parameters'
 }
 
 jar {

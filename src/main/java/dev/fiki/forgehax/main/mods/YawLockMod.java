@@ -1,19 +1,21 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
+import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.math.Angle;
-import dev.fiki.forgehax.main.util.math.AngleHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 
-@RegisterMod
+@RegisterMod(
+    name = "YawLock",
+    description = "Locks yaw to prevent moving into walls",
+    category = Category.PLAYER
+)
 public class YawLockMod extends ToggleMod
     implements PositionRotationManager.MovementUpdateListener {
 
@@ -30,10 +32,6 @@ public class YawLockMod extends ToggleMod
       .min(-180.f)
       .max(180.f)
       .build();
-
-  public YawLockMod() {
-    super(Category.PLAYER, "YawLock", false, "Locks yaw to prevent moving into walls");
-  }
 
   private float getYawDirection(float yaw) {
     return Math.round(Math.round((yaw + 1.f) / 45.f) * 45.f);

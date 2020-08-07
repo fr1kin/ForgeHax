@@ -7,7 +7,7 @@ import dev.fiki.forgehax.main.util.TextComponentBuilder;
 import dev.fiki.forgehax.main.util.cmd.execution.CommandExecutor;
 import dev.fiki.forgehax.main.util.cmd.settings.CharacterSetting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.play.client.CChatMessagePacket;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,9 +15,6 @@ import org.apache.logging.log4j.Level;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-/**
- * Created on 5/15/2017 by fr1kin
- */
 @RegisterMod
 public class ChatCommandService extends ServiceMod {
   private static Character ACTIVATION_CHARACTER = '.';
@@ -32,10 +29,6 @@ public class ChatCommandService extends ServiceMod {
       .defaultTo('.')
       .changedListener((from, to) -> ACTIVATION_CHARACTER = to)
       .build();
-
-  public ChatCommandService() {
-    super("ChatCommandService", "Listeners for activation key in chat messages typed");
-  }
 
   @Override
   protected void onLoad() {

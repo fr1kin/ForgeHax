@@ -5,17 +5,21 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.draw.GeometryMasks;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
-@RegisterMod
+@RegisterMod(
+    name = "RegionBorder",
+    description = "Shows a border in front of the edge of the region you are in",
+    category = Category.RENDER
+)
 public class RegionBorder extends ToggleMod {
   private final IntegerSetting chunkDistance = newIntegerSetting()
       .name("chunk-distance")
@@ -29,10 +33,6 @@ public class RegionBorder extends ToggleMod {
       .description("whether you even want to draw the actual region border.")
       .defaultTo(true)
       .build();
-
-  public RegionBorder() {
-    super(Category.RENDER, "RegionBorder", false, "Shows a border in front of the edge of the region you are in.");
-  }
 
   /**
    * to draw the border

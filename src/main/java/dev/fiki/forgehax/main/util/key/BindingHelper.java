@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.util.key;
 
 import com.google.common.collect.Sets;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
 import lombok.Getter;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
@@ -106,7 +106,7 @@ public class BindingHelper {
   }
 
   public static InputMappings.Input getInputByName(String name) {
-    return FastReflection.Fields.InputMappings_REGISTRY.get(null)
+    return ReflectionTools.getInstance().InputMappings_Input_REGISTRY.get(null)
         .values()
         .stream()
         .filter(input -> input.getTranslationKey().equalsIgnoreCase(name)
@@ -116,7 +116,7 @@ public class BindingHelper {
   }
 
   public static InputMappings.Input getInputByKeyCode(int keyCode) {
-    return FastReflection.Fields.InputMappings_REGISTRY.get(null)
+    return ReflectionTools.getInstance().InputMappings_Input_REGISTRY.get(null)
         .values()
         .stream()
         .filter(input -> input.getKeyCode() == keyCode)

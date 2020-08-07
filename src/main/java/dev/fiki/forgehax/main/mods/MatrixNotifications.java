@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
@@ -13,8 +14,10 @@ import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.di.Injected;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.util.math.BlockPos;
@@ -51,27 +54,14 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-@RegisterMod
+@RegisterMod(
+    name = "MatrixNotifications",
+    description = "Matrix notifications",
+    category = Category.MISC
+)
+@RequiredArgsConstructor
 public class MatrixNotifications extends ToggleMod {
-
-  private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
-
-  static {
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      EXECUTOR.shutdown();
-      try {
-        while (!EXECUTOR.isTerminated()) {
-          EXECUTOR.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        }
-      } catch (Throwable t) {
-        // ignore
-      }
-    }));
-  }
-
   private static final Registry<ConnectionSocketFactory> SOCKET_FACTORY_REGISTRY;
 
   static {
@@ -89,6 +79,12 @@ public class MatrixNotifications extends ToggleMod {
       SOCKET_FACTORY_REGISTRY = sf;
     }
   }
+
+  @FieldMapping(parentClass = DisconnectedScreen.class, value = "message")
+  private final ReflectionField<ITextComponent> DisconnectedScreen_message;
+
+  @Injected("async")
+  private final ExecutorService async;
 
   private final StringSetting url = newStringSetting()
       .name("url")
@@ -132,10 +128,6 @@ public class MatrixNotifications extends ToggleMod {
       .defaultTo(true)
       .build();
 
-  public MatrixNotifications() {
-    super(Category.MISC, "MatrixNotifications", false, "Matrix notifications");
-  }
-
   private boolean joined = false;
   private boolean once = false;
   private int position = 0;
@@ -170,8 +162,8 @@ public class MatrixNotifications extends ToggleMod {
     }
   }
 
-  private static void postAsync(final String url, final JsonElement json) {
-    EXECUTOR.submit(() -> {
+  private void postAsync(final String url, final JsonElement json) {
+    async.submit(() -> {
       try {
         HttpResponse res = post(url, json);
         if (res.getStatusLine().getStatusCode() != 200) {
@@ -278,7 +270,7 @@ public class MatrixNotifications extends ToggleMod {
       joined = false;
 
       if (on_disconnected.getValue()) {
-        String reason = Optional.ofNullable(FastReflection.Fields.DisconnectedScreen_message.get(event.getGui()))
+        String reason = Optional.ofNullable(DisconnectedScreen_message.get(event.getGui()))
             .map(ITextComponent::getUnformattedComponentText)
             .orElse("");
         if (reason.isEmpty()) {

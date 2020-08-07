@@ -28,7 +28,7 @@ import dev.fiki.forgehax.main.util.math.Plane;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
@@ -51,7 +51,11 @@ import java.util.*;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "ESP",
+    description = "Shows entity locations and info",
+    category = Category.RENDER
+)
 public class ESP extends ToggleMod implements Fonts {
 
   private static final int HEALTHBAR_WIDTH = 15;
@@ -85,10 +89,6 @@ public class ESP extends ToggleMod implements Fonts {
       .build();
 
   private int highestAbsorbtionLevel = 0;
-
-  public ESP() {
-    super(Category.RENDER, "ESP", false, "Shows entity locations and info");
-  }
 
   private Color getColorLevel(float scale) {
     return Color.of((int) ((255 - scale) * 255), (int) (255 * scale), 0);

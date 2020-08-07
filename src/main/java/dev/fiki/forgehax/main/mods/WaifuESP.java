@@ -8,6 +8,7 @@ import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -24,12 +25,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-//@RegisterMod
+@RegisterMod(
+    name = "WaifuESP",
+    description = "overlay cute animes over players",
+    category = Category.RENDER
+)
 public class WaifuESP extends ToggleMod {
-
-  public WaifuESP() {
-    super(Category.RENDER, "WaifuESP", false, "overlay cute animes over players");
-  }
 
   public final BooleanSetting noRenderPlayers = newBooleanSetting()
       .name("no-render-players")

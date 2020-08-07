@@ -1,13 +1,16 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.api.mapper.MethodMapping;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionMethod;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.item.ItemStack;
@@ -23,8 +26,15 @@ import static dev.fiki.forgehax.main.Common.*;
 /**
  * Created on 9/2/2016 by fr1kin
  */
-@RegisterMod
+@RegisterMod(
+    name = "AutoFish",
+    description = "Auto fish",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class AutoFishMod extends ToggleMod {
+  @MethodMapping(parentClass = Minecraft.class, value = "rightClickMouse")
+  private final ReflectionMethod<Void> Minecraft_rightClickMouse;
 
   private int ticksCastDelay = 0;
   private int ticksHookDeployed = 0;
@@ -54,10 +64,6 @@ public class AutoFishMod extends ToggleMod {
       .defaultTo(600)
       .build();
 
-  public AutoFishMod() {
-    super(Category.PLAYER, "AutoFish", false, "Auto fish");
-  }
-
   private boolean isCorrectSplashPacket(SPlaySoundEffectPacket packet) {
     ClientPlayerEntity me = getLocalPlayer();
     return packet.getSound().equals(SoundEvents.ENTITY_FISHING_BOBBER_SPLASH)
@@ -70,7 +76,7 @@ public class AutoFishMod extends ToggleMod {
 
   private void rightClick() {
     if (ticksCastDelay <= 0) { // to prevent the fishing rod from being spammed when in hand
-      FastReflection.Methods.Minecraft_rightClickMouse.invoke(MC);
+      Minecraft_rightClickMouse.invoke(MC);
       ticksCastDelay = castingDelay.getValue();
       ticksHookDeployed = 0;
     }

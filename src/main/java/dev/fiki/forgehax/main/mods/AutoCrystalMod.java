@@ -7,7 +7,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EnderCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,7 +25,11 @@ import static dev.fiki.forgehax.main.Common.*;
 /**
  * Created on 3/12/2018 by exkerbinator
  */
-@RegisterMod
+@RegisterMod(
+    name = "AutoCrystal",
+    description = "Automatically detonates nearby end crystals",
+    category = Category.COMBAT
+)
 public class AutoCrystalMod extends ToggleMod {
 
   public final FloatSetting maxDistance = newFloatSetting()
@@ -67,10 +71,6 @@ public class AutoCrystalMod extends ToggleMod {
       .defaultTo(10f)
       .min(0f)
       .build();
-
-  public AutoCrystalMod() {
-    super(Category.COMBAT, "AutoCrystal", false, "Automatically detonates nearby end crystals");
-  }
 
   private final SimpleTimer timer = new SimpleTimer();
 

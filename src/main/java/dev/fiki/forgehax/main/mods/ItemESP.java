@@ -11,7 +11,7 @@ import dev.fiki.forgehax.main.util.math.Plane;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -21,7 +21,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import static dev.fiki.forgehax.main.Common.getBufferProvider;
 import static dev.fiki.forgehax.main.Common.worldEntities;
 
-@RegisterMod
+@RegisterMod(
+    name = "ItemESP",
+    description = "ESP for items",
+    category = Category.RENDER
+)
 public class ItemESP extends ToggleMod {
 
   private final FloatSetting scale = newFloatSetting()
@@ -36,10 +40,6 @@ public class ItemESP extends ToggleMod {
       .description("Color of the item esp font")
       .defaultTo(Colors.WHITE)
       .build();
-
-  public ItemESP() {
-    super(Category.RENDER, "ItemESP", false, "ESP for items");
-  }
 
   @SubscribeEvent
   public void onRender2D(final Render2DEvent event) {

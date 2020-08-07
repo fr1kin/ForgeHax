@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.main.mods.services;
 
-import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -14,10 +14,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 @RegisterMod
 public class LocalPlayerUpdateEventService extends ServiceMod {
-  
-  public LocalPlayerUpdateEventService() {
-    super("LocalPlayerUpdateEventService");
-  }
   
   @SubscribeEvent
   public void onUpdate(LivingEvent.LivingUpdateEvent event) {

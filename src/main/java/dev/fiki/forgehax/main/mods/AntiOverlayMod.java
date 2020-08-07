@@ -1,11 +1,13 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.main.events.RenderEvent;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
@@ -15,12 +17,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "AntiOverlay",
+    description = "Removes screen overlays",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class AntiOverlayMod extends ToggleMod {
-
-  public AntiOverlayMod() {
-    super(Category.PLAYER, "AntiOverlay", false, "Removes screen overlays");
-  }
+  @FieldMapping(parentClass = GameRenderer.class, value = "itemActivationItem")
+  private final ReflectionField<ItemStack> GameRenderer_itemActivationItem;
 
   /**
    * Disables water/lava fog
@@ -51,10 +56,10 @@ public class AntiOverlayMod extends ToggleMod {
 
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    ItemStack stack = FastReflection.Fields.GameRenderer_itemActivationItem.get(getGameRenderer());
+    ItemStack stack = GameRenderer_itemActivationItem.get(getGameRenderer());
 
-    if(stack != null && Items.TOTEM_OF_UNDYING.equals(stack.getItem())) {
-      FastReflection.Fields.GameRenderer_itemActivationItem.set(getGameRenderer(), null);
+    if (stack != null && Items.TOTEM_OF_UNDYING.equals(stack.getItem())) {
+      GameRenderer_itemActivationItem.set(getGameRenderer(), null);
     }
   }
 }

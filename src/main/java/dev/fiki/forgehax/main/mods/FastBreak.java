@@ -1,24 +1,31 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
-public class FastBreak extends ToggleMod {
+import static dev.fiki.forgehax.main.Common.getPlayerController;
 
-  public FastBreak() {
-    super(Category.PLAYER, "FastBreak", false, "Fast break retard");
-  }
+@RegisterMod(
+    name = "FastBreak",
+    description = "Break blocks faster",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
+public class FastBreak extends ToggleMod {
+  @FieldMapping(parentClass = PlayerController.class, value = "blockHitDelay")
+  private final ReflectionField<Integer> PlayerController_blockHitDelay;
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (Common.getPlayerController() != null) {
-      FastReflection.Fields.PlayerController_blockHitDelay.set(Common.getPlayerController(), 0);
+    if (getPlayerController() != null) {
+      PlayerController_blockHitDelay.set(getPlayerController(), 0);
     }
   }
 }

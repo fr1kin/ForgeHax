@@ -10,15 +10,22 @@ import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.util.MovementInput;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "BoatFly",
+    description = "Boathax",
+    category = Category.MISC
+)
+@RequiredArgsConstructor
 public class BoatFly extends ToggleMod {
+  private final ReflectionTools reflection;
 
   public final DoubleSetting speed = newDoubleSetting()
       .name("speed")
@@ -49,10 +56,6 @@ public class BoatFly extends ToggleMod {
       .description("disable boat gravity")
       .defaultTo(true)
       .build();
-
-  public BoatFly() {
-    super(Category.MISC, "BoatFly", false, "Boathax");
-  }
 
   @SubscribeEvent // disable gravity
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
@@ -99,7 +102,7 @@ public class BoatFly extends ToggleMod {
 
       if (getGameSettings().keyBindJump.isKeyDown()) {
         // trick the riding entity to think its onground
-        FastReflection.Fields.Entity_onGround.set(getMountedEntity(), false);
+        reflection.Entity_onGround.set(getMountedEntity(), false);
 
         // teleport up
         velY = getGameSettings().keyBindSprint.isKeyDown() ? 5.D : 1.5D;

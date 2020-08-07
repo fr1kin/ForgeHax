@@ -12,6 +12,11 @@ public class ServiceMod extends AbstractMod {
   public ServiceMod(String name, String desc) {
     super(Category.SERVICE, name, desc, Collections.singleton(EnumFlag.HIDDEN));
   }
+
+  public ServiceMod() {
+    super();
+    addFlag(EnumFlag.SERVICE_MOD);
+  }
   
   public ServiceMod(String name) {
     this(name, "");

@@ -3,22 +3,22 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
+import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.draw.GeometryMasks;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
-@RegisterMod
+@RegisterMod(
+    name = "ChunkBorder",
+    description = "Shows a border at the border around the chunk you are in",
+    category = Category.RENDER
+)
 public class ChunkBorder extends ToggleMod {
-  public ChunkBorder() {
-    super(Category.RENDER, "ChunkBorder", false, "Shows a border at the border around the chunk you are in.");
-  }
-
   /**
    * to draw the border
    *

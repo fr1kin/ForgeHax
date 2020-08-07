@@ -4,28 +4,22 @@ import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.Comparator;
-import java.util.Optional;
-
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+import java.util.Comparator;
+import java.util.Optional;
+
+@RegisterMod(
+    name = "AutoMend",
+    description = "Automatically swap item in offhand with another valid item once its fully repaired",
+    category = Category.PLAYER
+)
 public class AutoMend extends ToggleMod {
-
-  public AutoMend() {
-    super(
-        Category.PLAYER,
-        "AutoMend",
-        false,
-        "Automatically swap item in offhand with another valid item once its fully repaired");
-  }
-
   private boolean isMendable(LocalPlayerInventory.InvItem item) {
     return item.isItemDamageable()
         && EnchantmentHelper.getEnchantmentLevel(Enchantments.MENDING, item.getItemStack()) > 0;

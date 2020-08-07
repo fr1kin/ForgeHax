@@ -1,18 +1,6 @@
 package dev.fiki.forgehax.main.util.classloader;
 
 import com.google.common.collect.Lists;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.*;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.jar.JarFile;
-import java.util.stream.Collectors;
-
 import dev.fiki.forgehax.main.ForgeHax;
 import dev.fiki.forgehax.main.util.Streamables;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -20,11 +8,36 @@ import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import org.objectweb.asm.Type;
 import sun.net.www.protocol.file.FileURLConnection;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+
 import static dev.fiki.forgehax.main.Common.getLogger;
 import static dev.fiki.forgehax.main.util.FileHelper.*;
-import static dev.fiki.forgehax.main.util.reflection.FastReflectionForge.*;
 
 public class ClassLoaderHelper {
+  private static Class<?> MODJAR_CLASS;
+
+  static {
+    try {
+      MODJAR_CLASS = Class.forName("net.minecraftforge.fml.loading.ModJarURLHandler$ModJarURLConnection");
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    }
+  }
+
   private static void collectPathRecursively(Path directory, List<Path> collected)
       throws IOException {
     if (directory != null
@@ -182,7 +195,7 @@ public class ClassLoaderHelper {
 
     getLogger().debug("Connecting to jar using {}", connection.getClass());
 
-    if (connection.getClass().equals(ModJarURLHandler.Classes.ModJarURLConnection.getInstance())) {
+    if (connection.getClass().equals(MODJAR_CLASS)) {
       final ModFile modFile = FMLLoader.getLoadingModList().getModFileById(connection.getURL().getHost()).getFile();
 
       final Path jar = modFile.getFilePath();

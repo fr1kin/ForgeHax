@@ -6,7 +6,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.WolfEntity;
@@ -27,7 +27,11 @@ import java.util.Date;
 
 import static java.util.Objects.isNull;
 
-@RegisterMod
+@RegisterMod(
+    name = "CoordsFinder",
+    description = "Logs coordinates of lightning strikes and teleports",
+    category = Category.MISC
+)
 public class CoordsFinder extends ToggleMod {
 
   @SuppressWarnings("WeakerAccess")
@@ -77,11 +81,6 @@ public class CoordsFinder extends ToggleMod {
 
   private final Path logPath = Common.getFileManager().getBaseResolve("logs/coordsfinder.log");
   private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
-
-  public CoordsFinder() {
-    super(Category.MISC, "CoordsFinder", false,
-        "Logs coordinates of lightning strikes and teleports");
-  }
 
   private void logCoords(String name, double x, double y, double z) {
     int ix = MathHelper.floor(x);

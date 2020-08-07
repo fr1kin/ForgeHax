@@ -12,7 +12,7 @@ import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import dev.fiki.forgehax.main.util.projectile.Projectile;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -25,7 +25,11 @@ import java.util.stream.StreamSupport;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "Aimbot",
+    description = "Automatically attack entities and players",
+    category = Category.COMBAT
+)
 public class Aimbot extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
 
   private static Entity target = null;
@@ -141,10 +145,6 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
       .description("The method used to select a target from a group")
       .defaultTo(Selector.CROSSHAIR)
       .build();
-
-  public Aimbot() {
-    super(Category.COMBAT, "Aimbot", false, "Automatically attack entities and players");
-  }
 
   private double getLagComp() {
     if (lag_compensation.getValue()) {

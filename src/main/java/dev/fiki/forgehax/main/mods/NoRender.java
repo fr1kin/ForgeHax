@@ -3,21 +3,22 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.stream.StreamSupport;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getWorld;
+import static dev.fiki.forgehax.main.Common.isInWorld;
 
-@RegisterMod
+@RegisterMod(
+    name = "NoRender",
+    description = "Stops rendering items on ground",
+    category = Category.RENDER
+)
 public class NoRender extends ToggleMod {
-  
-  public NoRender() {
-    super(Category.RENDER, "NoRender", false, "Stops rendering items on ground");
-  }
   
   @SubscribeEvent
   public void onClientTick(PreClientTickEvent event) {

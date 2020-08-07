@@ -11,7 +11,7 @@ import dev.fiki.forgehax.main.util.draw.GeometryMasks;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -28,10 +28,11 @@ import org.lwjgl.opengl.GL11;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-/**
- * Created on 9/4/2016 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "StorageESP",
+    description = "Shows storage",
+    category = Category.RENDER
+)
 public class StorageESPMod extends ToggleMod {
   private final ColorSetting chestColor = newColorSetting()
       .name("chest-color")
@@ -74,10 +75,6 @@ public class StorageESPMod extends ToggleMod {
       .description("Makes lines appear smoother. May impact framerate significantly")
       .defaultTo(false)
       .build();
-
-  public StorageESPMod() {
-    super(Category.RENDER, "StorageESP", false, "Shows storage");
-  }
 
   private Color getTileEntityColor(TileEntity te) {
     if (te instanceof ChestTileEntity) {

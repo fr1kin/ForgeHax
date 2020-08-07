@@ -16,7 +16,7 @@ import dev.fiki.forgehax.main.util.key.KeyConflictContexts;
 import dev.fiki.forgehax.main.util.key.KeyInputs;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -55,7 +55,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "ShulkerViewer",
+    description = "View the contents of a shulker box",
+    category = Category.RENDER
+)
 public class ShulkerViewer extends ToggleMod {
 
   private static final ResourceLocation SHULKER_GUI_TEXTURE =
@@ -131,10 +135,6 @@ public class ShulkerViewer extends ToggleMod {
 
   private int lastX = -1;
   private int lastY = -1;
-
-  public ShulkerViewer() {
-    super(Category.RENDER, "ShulkerViewer", false, "View the contents of a shulker box.");
-  }
 
   private boolean isLocked() {
     return locked && updated;

@@ -10,7 +10,6 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingSet;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.spam.SpamEntry;
 import dev.fiki.forgehax.main.util.spam.SpamMessage;
@@ -19,7 +18,11 @@ import dev.fiki.forgehax.main.util.spam.SpamTrigger;
 import joptsimple.internal.Strings;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-//@RegisterMod
+//@RegisterMod(
+//    name = "ChatBot",
+//    description = "Spam chat",
+//    category = Category.MISC
+//)
 public class ChatBot extends ToggleMod {
 
   private final CustomSettingSet<SpamEntry> spams = newCustomSettingSet(SpamEntry.class)
@@ -42,10 +45,6 @@ public class ChatBot extends ToggleMod {
       .description("start spam list anew in sequential mode")
       .defaultTo(false)
       .build();
-
-  public ChatBot() {
-    super(Category.MISC, "ChatBot", false, "Spam chat");
-  }
 
   @Override
   protected void onDisabled() {

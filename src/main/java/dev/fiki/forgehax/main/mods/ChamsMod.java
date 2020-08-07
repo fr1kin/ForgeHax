@@ -1,18 +1,22 @@
 package dev.fiki.forgehax.main.mods;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import com.mojang.blaze3d.platform.GlStateManager;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.entity.LivingEntity;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-@RegisterMod
+@RegisterMod(
+    name = "Chams",
+    description = "Render living models behind walls",
+    category = Category.RENDER
+)
 public class ChamsMod extends ToggleMod {
 
   public final BooleanSetting players = newBooleanSetting()
@@ -32,10 +36,6 @@ public class ChamsMod extends ToggleMod {
       .description("Enables friendly mobs")
       .defaultTo(true)
       .build();
-
-  public ChamsMod() {
-    super(Category.RENDER, "Chams", false, "Render living models behind walls");
-  }
 
   public boolean shouldDraw(LivingEntity entity) {
     return !entity.equals(Common.MC.player)

@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.asm.events.movement.ApplyCollisionMotionEvent;
 import dev.fiki.forgehax.asm.events.movement.EntityBlockSlipApplyEvent;
 import dev.fiki.forgehax.asm.events.movement.PushedByLiquidEvent;
@@ -9,8 +10,9 @@ import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
@@ -26,8 +28,26 @@ import java.util.ConcurrentModificationException;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "AntiKnockback",
+    description = "Removes knockback movement",
+    category = Category.COMBAT
+)
+@RequiredArgsConstructor
 public class AntiKnockbackMod extends ToggleMod {
+  @FieldMapping(parentClass = SEntityVelocityPacket.class, value = "motionX")
+  private final ReflectionField<Integer> SEntityVelocityPacket_motionX;
+  @FieldMapping(parentClass = SEntityVelocityPacket.class, value = "motionY")
+  private final ReflectionField<Integer> SEntityVelocityPacket_motionY;
+  @FieldMapping(parentClass = SEntityVelocityPacket.class, value = "motionZ")
+  private final ReflectionField<Integer> SEntityVelocityPacket_motionZ;
+
+  @FieldMapping(parentClass = SExplosionPacket.class, value = "motionX")
+  private final ReflectionField<Float> SExplosionPacket_motionX;
+  @FieldMapping(parentClass = SExplosionPacket.class, value = "motionY")
+  private final ReflectionField<Float> SExplosionPacket_motionY;
+  @FieldMapping(parentClass = SExplosionPacket.class, value = "motionZ")
+  private final ReflectionField<Float> SExplosionPacket_motionZ;
 
   private final DoubleSetting multiplier_x = newDoubleSetting()
       .name("x-multiplier")
@@ -89,10 +109,6 @@ public class AntiKnockbackMod extends ToggleMod {
       .defaultTo(true)
       .build();
 
-  public AntiKnockbackMod() {
-    super(Category.COMBAT, "AntiKnockback", false, "Removes knockback movement");
-  }
-
   private Vector3d getMultiplier() {
     return new Vector3d(multiplier_x.getValue(), multiplier_y.getValue(), multiplier_z.getValue());
   }
@@ -100,14 +116,14 @@ public class AntiKnockbackMod extends ToggleMod {
   private Vector3d getPacketMotion(IPacket<?> packet) {
     if (packet instanceof SExplosionPacket) {
       return new Vector3d(
-          FastReflection.Fields.SExplosionPacket_motionX.get(packet),
-          FastReflection.Fields.SExplosionPacket_motionY.get(packet),
-          FastReflection.Fields.SExplosionPacket_motionZ.get(packet));
+          SExplosionPacket_motionX.get(packet),
+          SExplosionPacket_motionY.get(packet),
+          SExplosionPacket_motionZ.get(packet));
     } else if (packet instanceof SEntityVelocityPacket) {
       return new Vector3d(
-          FastReflection.Fields.SEntityVelocityPacket_motionX.get(packet),
-          FastReflection.Fields.SEntityVelocityPacket_motionY.get(packet),
-          FastReflection.Fields.SEntityVelocityPacket_motionZ.get(packet));
+          SEntityVelocityPacket_motionX.get(packet),
+          SEntityVelocityPacket_motionY.get(packet),
+          SEntityVelocityPacket_motionZ.get(packet));
     } else {
       throw new IllegalArgumentException();
     }
@@ -115,13 +131,13 @@ public class AntiKnockbackMod extends ToggleMod {
 
   private void setPacketMotion(IPacket<?> packet, Vector3d in) {
     if (packet instanceof SExplosionPacket) {
-      FastReflection.Fields.SExplosionPacket_motionX.set(packet, (float) in.x);
-      FastReflection.Fields.SExplosionPacket_motionY.set(packet, (float) in.y);
-      FastReflection.Fields.SExplosionPacket_motionZ.set(packet, (float) in.z);
+      SExplosionPacket_motionX.set(packet, (float) in.x);
+      SExplosionPacket_motionY.set(packet, (float) in.y);
+      SExplosionPacket_motionZ.set(packet, (float) in.z);
     } else if (packet instanceof SEntityVelocityPacket) {
-      FastReflection.Fields.SEntityVelocityPacket_motionX.set(packet, (int) Math.round(in.x));
-      FastReflection.Fields.SEntityVelocityPacket_motionY.set(packet, (int) Math.round(in.y));
-      FastReflection.Fields.SEntityVelocityPacket_motionZ.set(packet, (int) Math.round(in.z));
+      SEntityVelocityPacket_motionX.set(packet, (int) Math.round(in.x));
+      SEntityVelocityPacket_motionY.set(packet, (int) Math.round(in.y));
+      SEntityVelocityPacket_motionZ.set(packet, (int) Math.round(in.z));
     } else {
       throw new IllegalArgumentException();
     }

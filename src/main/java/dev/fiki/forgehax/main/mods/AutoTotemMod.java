@@ -6,11 +6,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
-import java.util.OptionalInt;
-import java.util.stream.IntStream;
-
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.Item;
@@ -18,14 +14,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
+
+@RegisterMod(
+    name = "AutoTotem",
+    description = "Automatically move totems to off-hand",
+    category = Category.COMBAT
+)
 public class AutoTotemMod extends ToggleMod {
 
   private final int OFFHAND_SLOT = 45;
-
-  public AutoTotemMod() {
-    super(Category.COMBAT, "AutoTotem", false, "Automatically move totems to off-hand");
-  }
 
   private final BooleanSetting allowGui = newBooleanSetting()
       .name("allow-gui")

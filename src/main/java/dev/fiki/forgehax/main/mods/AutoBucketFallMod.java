@@ -5,8 +5,9 @@ import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -24,12 +25,14 @@ import static net.minecraft.util.math.RayTraceResult.Type;
 /**
  * Created by Babbaj on 9/4/2017. TODO: check all 4 collision box corners
  */
-@RegisterMod
+@RegisterMod(
+    name = "AutoBucket",
+    description = "Automatically place bucket to reset fall damage",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class AutoBucketFallMod extends ToggleMod {
-
-  public AutoBucketFallMod() {
-    super(Category.PLAYER, "AutoBucket", false, "Automatically place bucket to reset fall damage");
-  }
+  private final ReflectionTools reflection;
 
   public final DoubleSetting preHeight = newDoubleSetting()
       .name("PreHeight")
@@ -42,7 +45,7 @@ public class AutoBucketFallMod extends ToggleMod {
       .defaultTo(15D)
       .build();
 
-  private ItemStack WATER_BUCKET = new ItemStack(Items.WATER_BUCKET);
+  private final ItemStack WATER_BUCKET = new ItemStack(Items.WATER_BUCKET);
 
   @SubscribeEvent
   public void onClientTick(TickEvent.ClientTickEvent event) {
@@ -98,7 +101,7 @@ public class AutoBucketFallMod extends ToggleMod {
       sendNetworkPacket(new CPlayerPacket.RotationPacket(
           getLocalPlayer().rotationYaw,
           90,
-          FastReflection.Fields.Entity_onGround.get(getLocalPlayer())));
+          reflection.Entity_onGround.get(getLocalPlayer())));
 
       // probably unnecessary but doing it anyways
       getLocalPlayer().prevRotationPitch = 90f;

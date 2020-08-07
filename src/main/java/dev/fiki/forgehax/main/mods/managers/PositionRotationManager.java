@@ -13,7 +13,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import dev.fiki.forgehax.main.util.task.SimpleManagerContainer;
 import dev.fiki.forgehax.main.util.task.TaskChain;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -57,10 +57,6 @@ public class PositionRotationManager extends ServiceMod {
   
   public static ReadableRotationState getState() {
     return STATE;
-  }
-  
-  public PositionRotationManager() {
-    super("PositionRotationManager");
   }
   
   private final RotationState gState = new RotationState();

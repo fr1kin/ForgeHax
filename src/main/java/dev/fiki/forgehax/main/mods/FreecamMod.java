@@ -2,6 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
@@ -14,8 +15,10 @@ import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.mock.MockClientEntityPlayer;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -32,11 +35,17 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-/**
- * Created on 9/3/2016 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "Freecam",
+    description = "Freely look around you",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class FreecamMod extends ToggleMod {
+  private final ReflectionTools reflection;
+
+  @FieldMapping(parentClass = NetworkPlayerInfo.class, value = "gameType")
+  private final ReflectionField<GameType> NetworkPlayerInfo_gameType;
 
   private final FloatSetting speed = newFloatSetting()
       .name("speed")
@@ -55,10 +64,6 @@ public class FreecamMod extends ToggleMod {
   private MockClientEntityPlayer mockPlayer;
 
   private GameType previousGameType;
-
-  public FreecamMod() {
-    super(Category.PLAYER, "Freecam", false, "Freecam mode");
-  }
 
   private void setupMockPlayer() {
     if (!isInWorld() || mockPlayer != null) {
@@ -91,7 +96,7 @@ public class FreecamMod extends ToggleMod {
 
     if (MC.getConnection() != null) {
       NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(self.getGameProfile().getId());
-      FastReflection.Fields.NetworkPlayerInfo_gameType.set(info, GameType.SPECTATOR);
+      NetworkPlayerInfo_gameType.set(info, GameType.SPECTATOR);
     }
 
     self.abilities.setFlySpeed(speed.getValue());
@@ -124,7 +129,7 @@ public class FreecamMod extends ToggleMod {
 
     if (MC.getConnection() != null) {
       NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(getLocalPlayer().getGameProfile().getId());
-      FastReflection.Fields.NetworkPlayerInfo_gameType.set(info, previousGameType);
+      NetworkPlayerInfo_gameType.set(info, previousGameType);
     }
 
     // cleanup
@@ -142,7 +147,7 @@ public class FreecamMod extends ToggleMod {
     flying.enable();
 
     getLocalPlayer().noClip = true;
-    FastReflection.Fields.Entity_onGround.set(getLocalPlayer(), false);
+    reflection.Entity_onGround.set(getLocalPlayer(), false);
     getLocalPlayer().fallDistance = 0;
   }
 

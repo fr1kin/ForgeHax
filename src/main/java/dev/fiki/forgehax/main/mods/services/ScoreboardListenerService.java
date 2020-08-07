@@ -9,16 +9,13 @@ import dev.fiki.forgehax.main.util.SimpleTimer;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
 import net.minecraft.network.play.server.SPlayerListItemPacket;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-/**
- * Created on 7/18/2017 by fr1kin
- */
 @RegisterMod
 public class ScoreboardListenerService extends ServiceMod {
 
@@ -31,10 +28,6 @@ public class ScoreboardListenerService extends ServiceMod {
   private final SimpleTimer timer = new SimpleTimer();
 
   private boolean ignore = false;
-
-  public ScoreboardListenerService() {
-    super("ScoreboardListenerService");
-  }
 
   @SubscribeEvent
   public void onClientConnect(ConnectToServerEvent event) {

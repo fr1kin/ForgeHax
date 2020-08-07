@@ -5,7 +5,7 @@ import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import dev.fiki.forgehax.main.util.projectile.Projectile;
 import dev.fiki.forgehax.main.util.projectile.SimulationResult;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -19,12 +19,12 @@ import static com.mojang.blaze3d.systems.RenderSystem.*;
 import static dev.fiki.forgehax.main.Common.getGameRenderer;
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
-@RegisterMod
+@RegisterMod(
+    name = "Trajectory",
+    description = "Draws projectile trajectory",
+    category = Category.RENDER
+)
 public class TrajectoryMod extends ToggleMod {
-
-  public TrajectoryMod() {
-    super(Category.RENDER, "Trajectory", false, "Draws projectile trajectory");
-  }
 
   @SubscribeEvent
   public void onRender(RenderEvent event) {

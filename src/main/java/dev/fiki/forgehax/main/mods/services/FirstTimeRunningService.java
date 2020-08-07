@@ -2,21 +2,17 @@ package dev.fiki.forgehax.main.mods.services;
 
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import joptsimple.internal.Strings;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import joptsimple.internal.Strings;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-
 import static dev.fiki.forgehax.main.Common.*;
 
-/**
- * Created on 6/14/2017 by fr1kin
- */
 @RegisterMod
 public class FirstTimeRunningService extends ServiceMod {
   
@@ -32,10 +28,6 @@ public class FirstTimeRunningService extends ServiceMod {
     return Strings.EMPTY;
   }
   
-  public FirstTimeRunningService() {
-    super("FirstTimeRunningService");
-  }
-  
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (!Objects.equals(getConfigProperties().getVersion(), getOnceFileVersion())) {
@@ -45,6 +37,6 @@ public class FirstTimeRunningService extends ServiceMod {
         Files.write(STARTUP_ONCE, getConfigProperties().getVersion().getBytes());
       } catch (IOException e) {}
     }
-    getModManager().unload(this);
+    unload();
   }
 }

@@ -4,7 +4,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
@@ -14,16 +14,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 import static dev.fiki.forgehax.main.Common.getMountedEntity;
 
-/**
- * Created by Babbaj on 9/1/2017.
- */
-@RegisterMod
+@RegisterMod(
+    name = "HorseStats",
+    description = "Change the stats of your horse",
+    category = Category.PLAYER
+)
 public class HorseStats extends ToggleMod {
-
-  public HorseStats() {
-    super(Category.PLAYER, "HorseStats", false, "Change the stats of your horse");
-  }
-
   private final DoubleSetting jumpHeight = newDoubleSetting()
       .name("jump-height")
       .description("Modified horse jump height attribute. Default: 1")

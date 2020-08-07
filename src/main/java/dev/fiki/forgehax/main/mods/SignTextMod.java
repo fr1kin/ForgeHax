@@ -1,10 +1,12 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.tileentity.SignTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -17,15 +19,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 
-/**
- * Created by Babbaj on 9/16/2017.
- */
-@RegisterMod
+@RegisterMod(
+    name = "SignText",
+    description = "get sign text",
+    category = Category.MISC
+)
+@RequiredArgsConstructor
 public class SignTextMod extends ToggleMod {
-
-  public SignTextMod() {
-    super(Category.MISC, "SignText", false, "get sign text");
-  }
+  @FieldMapping(parentClass = SignTileEntity.class, value = "signText")
+  private final ReflectionField<ITextComponent[]> SignTileEntity_signText;
 
   @SubscribeEvent
   public void onInput(InputEvent.MouseInputEvent event) {
@@ -37,7 +39,7 @@ public class SignTextMod extends ToggleMod {
 
         if (tileEntity instanceof SignTileEntity) {
           SignTileEntity sign = (SignTileEntity) tileEntity;
-          ITextComponent[] texts = FastReflection.Fields.GuiEditSign_signText.get(sign);
+          ITextComponent[] texts = SignTileEntity_signText.get(sign);
 
           int signTextLength = 0;
           // find the first line from the bottom that isn't empty

@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
@@ -10,8 +11,10 @@ import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
@@ -25,8 +28,26 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
-@RegisterMod
+@RegisterMod(
+    name = "VanillaFly",
+    description = "Fly like creative mode",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class VanillaFlyMod extends ToggleMod {
+  private final ReflectionTools common;
+
+  @FieldMapping(parentClass = CPlayerPacket.class, value = "moving")
+  private final ReflectionField<Boolean> CPacketPlayer_moving;
+
+  @FieldMapping(parentClass = SPlayerPositionLookPacket.class, value = "x")
+  private final ReflectionField<Double> SPlayerPositionLookPacket_x;
+
+  @FieldMapping(parentClass = SPlayerPositionLookPacket.class, value = "y")
+  private final ReflectionField<Double> SPlayerPositionLookPacket_y;
+
+  @FieldMapping(parentClass = SPlayerPositionLookPacket.class, value = "z")
+  private final ReflectionField<Double> SPlayerPositionLookPacket_z;
 
   private Handle fly = LocalPlayerUtils.getFlySwitch().createHandle(getName());
 
@@ -51,10 +72,6 @@ public class VanillaFlyMod extends ToggleMod {
       .min(0f)
       .defaultTo(1f)
       .build();
-
-  public VanillaFlyMod() {
-    super(Category.PLAYER, "VanillaFly", false, "Fly like creative mode");
-  }
 
   @Override
   protected void onEnabled() {
@@ -95,7 +112,7 @@ public class VanillaFlyMod extends ToggleMod {
     }
 
     CPlayerPacket packet = (CPlayerPacket) event.getPacket();
-    if (!FastReflection.Fields.CPacketPlayer_moving.get(packet)) {
+    if (!CPacketPlayer_moving.get(packet)) {
       return;
     }
 
@@ -107,8 +124,8 @@ public class VanillaFlyMod extends ToggleMod {
     AtomicReference<Double> newHeight = new AtomicReference<>(0D);
     collisionBoxes.forEach(box -> newHeight.set(Math.max(newHeight.get(), box.maxY)));
 
-    FastReflection.Fields.CPacketPlayer_y.set(packet, newHeight.get());
-    FastReflection.Fields.CPacketPlayer_onGround.set(packet, true);
+    common.CPacketPlayer_y.set(packet, newHeight.get());
+    common.CPacketPlayer_onGround.set(packet, true);
   }
 
   @SubscribeEvent
@@ -127,9 +144,9 @@ public class VanillaFlyMod extends ToggleMod {
 
     double oldY = player.getPosY();
     player.setPosition(
-        FastReflection.Fields.SPlayerPositionLookPacket_x.get(packet),
-        FastReflection.Fields.SPlayerPositionLookPacket_y.get(packet),
-        FastReflection.Fields.SPlayerPositionLookPacket_z.get(packet)
+        SPlayerPositionLookPacket_x.get(packet),
+        SPlayerPositionLookPacket_y.get(packet),
+        SPlayerPositionLookPacket_z.get(packet)
     );
 
     /*
@@ -149,6 +166,6 @@ public class VanillaFlyMod extends ToggleMod {
     AtomicReference<Double> newY = new AtomicReference<>(256D);
     collisionBoxes.forEach(box -> newY.set(Math.min(newY.get(), box.minY - player.getHeight())));
 
-    FastReflection.Fields.SPlayerPositionLookPacket_y.set(packet, Math.min(oldY, newY.get()));
+    SPlayerPositionLookPacket_y.set(packet, Math.min(oldY, newY.get()));
   }
 }

@@ -1,6 +1,10 @@
 package dev.fiki.forgehax.mapper.tasks
 
-import dev.fiki.forgehax.api.mapper.*
+
+import dev.fiki.forgehax.api.mapper.ClassMapping
+import dev.fiki.forgehax.api.mapper.FieldMapping
+import dev.fiki.forgehax.api.mapper.MappedFormat
+import dev.fiki.forgehax.api.mapper.MethodMapping
 import dev.fiki.forgehax.mapper.extractor.MapData
 import dev.fiki.forgehax.mapper.type.ClassInfo
 import dev.fiki.forgehax.mapper.type.FieldInfo
@@ -22,12 +26,16 @@ import java.nio.file.StandardOpenOption
 
 class AnnotationScanTask extends DefaultTask {
   @Input
-  MapData mapper;
+  SourceSet targetSourceSet
   @Input
-  SourceSet targetSourceSet;
+  List<Type> scannedAnnotations = []
+
+  MapData mapper
 
   @TaskAction
   def action() {
+    mapper = getProject().tasks.importSources.data
+
     targetSourceSet.getOutput().getClassesDirs()
         .filter { it.exists() }
         .each { srcDir ->
@@ -75,7 +83,7 @@ class AnnotationScanTask extends DefaultTask {
   }
 
   boolean shouldScanClass(AnnotationNode node) {
-    return node.desc == Type.getDescriptor(MappingScan) || node.desc == Type.getDescriptor(ClassMapping)
+    return scannedAnnotations.find { node.desc == it.getDescriptor() }
   }
 
   void restructureAnnotation(AnnotationNode node, AnnotationNode parentNode) {
@@ -237,9 +245,9 @@ class AnnotationScanTask extends DefaultTask {
     def fs = findFields(name, parentClass, from)
     def shouldError = mapper.classMap.containsKey(parentClass)
     if (!fs || fs.length == 0) {
-      if (shouldError) System.err.println("Found 0 matches for ${parentClass}.${name}!")
+      if (shouldError) println("Found 0 matches for ${parentClass}.${name}!")
     } else if (fs.length > 1) {
-      if (shouldError) System.err.println("Too many matches for ${parentClass}.${name}!")
+      if (shouldError) println("Too many matches for ${parentClass}.${name}!")
     } else {
       return fs[0]
     }

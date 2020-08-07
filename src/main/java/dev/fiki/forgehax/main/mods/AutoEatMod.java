@@ -9,8 +9,9 @@ import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.item.Food;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.potion.Effect;
@@ -27,9 +28,13 @@ import java.util.stream.StreamSupport;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "AutoEat",
+    description = "Auto eats when you get hungry",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class AutoEatMod extends ToggleMod {
-
   private static final List<Effect> BAD_POTIONS =
       StreamSupport.stream(ForgeRegistries.POTIONS.spliterator(), false)
           .filter(effect -> !effect.isBeneficial())
@@ -41,6 +46,8 @@ public class AutoEatMod extends ToggleMod {
     RATIO,
     ;
   }
+
+  private final ReflectionTools reflection;
 
   private final EnumSetting<Sorting> sorting = newEnumSetting(Sorting.class)
       .name("sorting")
@@ -69,10 +76,6 @@ public class AutoEatMod extends ToggleMod {
   private int eatingTicks = 0;
   private int selectedTicks = 0;
   private int lastHotbarIndex = -1;
-
-  public AutoEatMod() {
-    super(Category.PLAYER, "AutoEat", false, "Auto eats when you get hungry");
-  }
 
   private void reset() {
     if (eatingTicks > 0) {
@@ -199,7 +202,7 @@ public class AutoEatMod extends ToggleMod {
               MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_START));
             }
 
-            FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, 4);
+            reflection.Minecraft_rightClickDelayTimer.set(MC, 4);
             getPlayerController().processRightClick(getLocalPlayer(), getWorld(), Hand.MAIN_HAND);
 
             ++eatingTicks;

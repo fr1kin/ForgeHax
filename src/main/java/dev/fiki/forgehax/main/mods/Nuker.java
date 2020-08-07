@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.asm.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
@@ -21,12 +22,14 @@ import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraft.network.play.client.CAnimateHandPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
@@ -42,8 +45,15 @@ import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "Nuker",
+    description = "Mine blocks around yourself",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class Nuker extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
+  @FieldMapping(parentClass = PlayerController.class, value = "curBlockDamageMP")
+  private final ReflectionField<Float> PlayerController_curBlockDamageMP;
 
   private final List<Block> targets = Lists.newArrayList();
   private final AtomicBoolean attackToggle = new AtomicBoolean(false);
@@ -115,10 +125,6 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
       .conflictContext(KeyConflictContexts.inGame())
       .build();
 
-  public Nuker() {
-    super(Category.PLAYER, "Nuker", false, "Mine blocks around yourself");
-  }
-
   private boolean isTargeting(UniqueBlock block) {
     return targets.stream().anyMatch(b -> b.equals(block.getBlock()));
   }
@@ -151,7 +157,7 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
   }
 
   private float getBlockBreakAmount() {
-    return FastReflection.Fields.PlayerController_curBlockDamageMP.get(getPlayerController());
+    return PlayerController_curBlockDamageMP.get(getPlayerController());
   }
 
   private void updateBlockBreaking(BlockPos target) {

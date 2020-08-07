@@ -4,10 +4,14 @@ import dev.fiki.forgehax.asm.events.NearClippingPlaneEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "CutAwayWorld",
+    description = "See through the world",
+    category = Category.RENDER
+)
 public class CutAwayWorld extends ToggleMod {
 
   private final FloatSetting distance = newFloatSetting()
@@ -15,11 +19,6 @@ public class CutAwayWorld extends ToggleMod {
       .description("Near plane distance")
       .defaultTo(5.5f)
       .build();
-
-  public CutAwayWorld() {
-    super(Category.RENDER, "CutAwayWorld", false, "CutAwayWorld");
-  }
-
 
   @SubscribeEvent
   public void nearPlaneEvent(NearClippingPlaneEvent event) {

@@ -7,12 +7,16 @@ import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "NoSlowDown",
+    description = "Disables block slowdown",
+    category = Category.PLAYER
+)
 public class NoSlowdown extends ToggleMod {
 
   private final SimpleSettingSet<Block> filteredBlocks = newSimpleSettingSet(Block.class)
@@ -24,10 +28,6 @@ public class NoSlowdown extends ToggleMod {
       .supplier(Sets::newHashSet)
       .defaultsTo(Blocks.SOUL_SAND)
       .build();
-
-  public NoSlowdown() {
-    super(Category.PLAYER, "NoSlowDown", false, "Disables block slowdown");
-  }
 
   @SubscribeEvent
   public void onPlayerSlowdown(PlayerSlowdownEvent event) {

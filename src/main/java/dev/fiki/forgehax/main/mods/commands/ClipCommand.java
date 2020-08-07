@@ -3,8 +3,9 @@ package dev.fiki.forgehax.main.mods.commands;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.mod.CommandMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CMoveVehiclePacket;
@@ -17,11 +18,9 @@ import static dev.fiki.forgehax.main.Common.*;
  * Created by Babbaj on 4/12/2018.
  */
 @RegisterMod
+@RequiredArgsConstructor
 public class ClipCommand extends CommandMod {
-
-  public ClipCommand() {
-    super("ClipCommand");
-  }
+  private final ReflectionTools reflection;
 
   // Entity::setPositionAndUpdate has a pozzed check
   private static void mcSetPositionAndUpdate(Entity ent, double x, double y, double z) {
@@ -34,12 +33,12 @@ public class ClipCommand extends CommandMod {
   }
 
   // teleport to absolute position
-  private static void setPosition(Entity ent, double x, double y, double z) {
+  private void setPosition(Entity ent, double x, double y, double z) {
     mcSetPositionAndUpdate(ent, x, y, z);
 
     if (ent instanceof ClientPlayerEntity) {
       sendNetworkPacket(new CPlayerPacket.PositionPacket(
-          ent.getPosX(), ent.getPosY(), ent.getPosZ(), FastReflection.Fields.Entity_onGround.get(ent)));
+          ent.getPosX(), ent.getPosY(), ent.getPosZ(), reflection.Entity_onGround.get(ent)));
     } else {
       sendNetworkPacket(new CMoveVehiclePacket(ent));
     }

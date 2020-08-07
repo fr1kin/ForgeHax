@@ -6,7 +6,10 @@ import dev.fiki.forgehax.main.ui.ConsoleInterface;
 import dev.fiki.forgehax.main.util.FileManager;
 import dev.fiki.forgehax.main.util.cmd.RootCommand;
 import dev.fiki.forgehax.main.util.draw.BufferProvider;
-import dev.fiki.forgehax.main.util.mod.loader.ModManager;
+import dev.fiki.forgehax.main.util.modloader.ModManager;
+import dev.fiki.forgehax.main.util.modloader.di.DependencyInjector;
+import dev.fiki.forgehax.main.util.modloader.di.providers.ReflectionProviders;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraftforge.fml.common.Mod;
@@ -37,6 +40,7 @@ public class ForgeHax {
   private ConfigProperties configProperties;
 
   private RootCommand rootCommand;
+  private DependencyInjector dependencyInjector;
   private ModManager modManager;
   private FileManager fileManager;
 
@@ -66,18 +70,32 @@ public class ForgeHax {
     try {
       configProperties = new ConfigProperties();
 
+      DependencyInjector di = (dependencyInjector = new DependencyInjector());
+      di.addInstance(dependencyInjector);
+
       rootCommand = new RootCommand();
       rootCommand.setConfigDir(getBaseDirectory().resolve("config"));
+      di.addInstance(rootCommand);
 
-      modManager = new ModManager();
+      modManager = new ModManager(dependencyInjector);
       fileManager = new FileManager();
+      di.addInstance(modManager);
+      di.addInstance(fileManager);
 
       asyncExecutorService = Executors.newSingleThreadExecutor();
       pooledExecutorService = Executors.newFixedThreadPool(4);
+      di.addInstance(asyncExecutorService, ExecutorService.class, "async");
+      di.addInstance(pooledExecutorService, ExecutorService.class, "threadpool");
 
       consoleInterface = new ConsoleInterface();
+      di.addInstance(configProperties, "cli");
 
       bufferProvider = new BufferProvider();
+      di.addInstance(bufferProvider);
+
+      di.module(ReflectionTools.class);
+
+      ReflectionProviders.all(dependencyInjector);
 
       if (!modManager.searchPackage("dev.fiki.forgehax.main.mods")) {
         logger.error("Could not find any mods to load. Verify the right package is listed");
@@ -90,10 +108,10 @@ public class ForgeHax {
         logger.info("No plugins loaded (this is fine)");
       }
 
-      // load all mod classes
-      modManager.loadAll();
+      // inject all dependencies
+      di.inject();
 
-      // load all mod classes
+      // call AbstractMod::load
       modManager.startupMods();
 
       // add shutdown hook to serialize all settings and
@@ -103,7 +121,7 @@ public class ForgeHax {
       getLogger().error(t, t);
 
       // rethrow so forge warns the client about the errors
-      throw t;
+      throw new Error("ForgeHax failed to initialize", t);
     }
   }
 

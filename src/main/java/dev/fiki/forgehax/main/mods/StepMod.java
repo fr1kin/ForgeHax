@@ -2,7 +2,6 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
@@ -10,7 +9,9 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
@@ -22,12 +23,18 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static dev.fiki.forgehax.main.util.reflection.FastReflection.Fields.Entity_onGround;
+import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "Step",
+    description = "Step up blocks",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class StepMod extends ToggleMod {
-
   private static final float DEFAULT_STEP_HEIGHT = 0.6f;
+
+  private final ReflectionTools reflection;
 
   private final BooleanSetting entityStep = newBooleanSetting()
       .name("entity-step")
@@ -43,7 +50,7 @@ public class StepMod extends ToggleMod {
       .flag(EnumFlag.EXECUTOR_MAIN_THREAD)
       .changedListener((from, to) -> {
         if (isEnabled()) {
-          PlayerEntity player = Common.getLocalPlayer();
+          PlayerEntity player = getLocalPlayer();
           if (player != null) {
             updateStepHeight(player);
           }
@@ -57,32 +64,28 @@ public class StepMod extends ToggleMod {
       .defaultTo(false)
       .build();
 
-  public StepMod() {
-    super(Category.PLAYER, "Step", false, "Step up blocks");
-  }
-
   @Override
   protected void onEnabled() {
-    PlayerEntity player = Common.getLocalPlayer();
+    PlayerEntity player = getLocalPlayer();
     if (player != null) {
-      wasOnGround = Entity_onGround.get(player);
+      wasOnGround = reflection.Entity_onGround.get(player);
     }
   }
 
   @Override
   public void onDisabled() {
-    PlayerEntity player = Common.getLocalPlayer();
+    PlayerEntity player = getLocalPlayer();
     if (player != null) {
       player.stepHeight = DEFAULT_STEP_HEIGHT;
     }
 
-    if (Common.getMountedEntity() != null) {
-      Common.getMountedEntity().stepHeight = 1;
+    if (getMountedEntity() != null) {
+      getMountedEntity().stepHeight = 1;
     }
   }
 
   private void updateStepHeight(PlayerEntity player) {
-    player.stepHeight = Entity_onGround.get(player) ? stepHeight.getValue() : DEFAULT_STEP_HEIGHT;
+    player.stepHeight = reflection.Entity_onGround.get(player) ? stepHeight.getValue() : DEFAULT_STEP_HEIGHT;
   }
 
   private boolean wasOnGround = false;
@@ -105,11 +108,11 @@ public class StepMod extends ToggleMod {
 
   private void updateUnstep(PlayerEntity player) {
     try {
-      if (unstep.getValue() && wasOnGround && !Entity_onGround.get(player) && player.getMotion().getY() <= 0) {
+      if (unstep.getValue() && wasOnGround && !reflection.Entity_onGround.get(player) && player.getMotion().getY() <= 0) {
         unstep(player);
       }
     } finally {
-      wasOnGround = Entity_onGround.get(player);
+      wasOnGround = reflection.Entity_onGround.get(player);
     }
   }
 
@@ -123,11 +126,11 @@ public class StepMod extends ToggleMod {
     updateStepHeight(player);
     updateUnstep(player);
 
-    if (Common.getMountedEntity() != null) {
+    if (getMountedEntity() != null) {
       if (entityStep.getValue()) {
-        Common.getMountedEntity().stepHeight = 256;
+        getMountedEntity().stepHeight = 256;
       } else {
-        Common.getMountedEntity().stepHeight = 1;
+        getMountedEntity().stepHeight = 1;
       }
     }
   }
@@ -160,7 +163,7 @@ public class StepMod extends ToggleMod {
                   packetPlayer.isOnGround()));
           for (IPacket toSend : sendList) {
             PacketHelper.ignore(toSend);
-            Common.getNetworkManager().sendPacket(toSend);
+            getNetworkManager().sendPacket(toSend);
           }
           event.setCanceled(true);
         }

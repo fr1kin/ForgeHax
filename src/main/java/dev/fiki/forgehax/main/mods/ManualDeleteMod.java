@@ -1,24 +1,23 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getWorld;
+import static dev.fiki.forgehax.main.Common.isInWorld;
 
-@RegisterMod
+@RegisterMod(
+    name = "ManualEntityDelete",
+    description = "Manually delete entities with middle click",
+    category = Category.WORLD
+)
 public class ManualDeleteMod extends ToggleMod {
-
-  public ManualDeleteMod() {
-    super(Category.WORLD, "ManualEntityDelete", false,
-        "Manually delete entities with middle click");
-  }
 
   @SubscribeEvent
   public void onInput(InputEvent.MouseInputEvent event) {

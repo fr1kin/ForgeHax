@@ -1,18 +1,16 @@
 package dev.fiki.forgehax.main.mods.commands;
 
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.mod.CommandMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import net.minecraft.block.Block;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import net.minecraft.block.Block;
-import net.minecraft.util.ResourceLocation;
-
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getBlockRegistry;
 
 /**
  * Created on 5/27/2017 by fr1kin
@@ -20,10 +18,6 @@ import static dev.fiki.forgehax.main.Common.*;
 @RegisterMod
 public class BlocksCommand extends CommandMod {
   
-  public BlocksCommand() {
-    super("BlocksCommand");
-  }
-
   {
     newSimpleCommand()
         .name("blocks")

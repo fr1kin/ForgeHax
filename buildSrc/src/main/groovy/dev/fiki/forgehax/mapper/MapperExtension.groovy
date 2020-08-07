@@ -1,46 +1,26 @@
 package dev.fiki.forgehax.mapper
 
-
-import dev.fiki.forgehax.api.mapper.MappedFormat
-import dev.fiki.forgehax.mapper.extractor.MapData
-import dev.fiki.forgehax.mapper.extractor.StaticMethodsImporter
-import dev.fiki.forgehax.mapper.extractor.TSrgImporter
+import dev.fiki.forgehax.api.mapper.ClassMapping
+import dev.fiki.forgehax.api.mapper.MappingScan
 import dev.fiki.forgehax.mapper.tasks.AnnotationScanTask
+import dev.fiki.forgehax.mapper.tasks.ImportSourcesTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
+import org.objectweb.asm.Type
 
 class MapperExtension {
-  final static data = new MapData()
   final Project project;
 
-  def extractSrg, createMcpToSrg, downloadMcpConfig
+  ImportSourcesTask importSourcesTask
+  List<Type> targetAnnotations = [Type.getType(ClassMapping), Type.getType(MappingScan)]
 
   MapperExtension(Project project) {
     this.project = project
 
+    importSourcesTask = project.tasks.create("importSources", ImportSourcesTask)
+
     project.afterEvaluate {
-      // get the obfuscated -> srg file
-      extractSrg = project.tasks.find { 'extractSrg' == it.name }
-      // get the srg -> mcp file
-      createMcpToSrg = project.tasks.find { 'createMcpToSrg' == it.name }
-      // get the zip that contains info about static methods
-      downloadMcpConfig = project.tasks.find { 'downloadMcpConfig' == it.name }
-
-      Objects.requireNonNull(extractSrg, 'extractSrg')
-      Objects.requireNonNull(createMcpToSrg, 'createMcpToSrg')
-      Objects.requireNonNull(downloadMcpConfig, 'downloadMcpConfig')
-
-      extractSrg.doLast {
-        data.importSource(new TSrgImporter(extractSrg.output as File, MappedFormat.OBFUSCATED, MappedFormat.SRG))
-      }
-
-      createMcpToSrg.doLast {
-        data.importSource(new TSrgImporter(createMcpToSrg.output as File, MappedFormat.MAPPED, MappedFormat.SRG))
-      }
-
-      downloadMcpConfig.doLast {
-        data.importSource(StaticMethodsImporter.fromMcpConfigZip(downloadMcpConfig.output as File))
-      }
+      importSourcesTask.dependsOn project.tasks.extractSrg, project.tasks.createMcpToSrg, project.tasks.downloadMcpConfig
     }
 
     // add the api classes to the projects build
@@ -53,6 +33,10 @@ class MapperExtension {
         project.files('buildSrc/build/libs/buildSrc-api.jar'))
   }
 
+  void annotatedWith(String internalClassName) {
+    targetAnnotations.add(Type.getObjectType(internalClassName))
+  }
+
   void include(SourceSet sourceSet, String packageName) {
     final compileTask = project.tasks.find { it.name == sourceSet.getCompileJavaTaskName() }
 
@@ -61,8 +45,8 @@ class MapperExtension {
 
     // create new task
     def scanTask = project.tasks.create("${sourceSet.name}AnnotationScanner", AnnotationScanTask) {
-      mapper data
       targetSourceSet sourceSet
+      scannedAnnotations += targetAnnotations
     }
 
     // run this task after compiling the source
@@ -70,7 +54,7 @@ class MapperExtension {
 
     project.afterEvaluate {
       // we need these resources
-      scanTask.dependsOn extractSrg, createMcpToSrg, downloadMcpConfig
+      scanTask.dependsOn importSourcesTask
     }
   }
 

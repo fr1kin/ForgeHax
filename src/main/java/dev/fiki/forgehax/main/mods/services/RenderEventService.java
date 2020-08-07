@@ -2,11 +2,14 @@ package dev.fiki.forgehax.main.mods.services;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
 import dev.fiki.forgehax.main.events.Render2DEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionMethod;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.math.vector.Matrix4f;
@@ -22,16 +25,12 @@ import static com.mojang.blaze3d.systems.RenderSystem.popMatrix;
 import static com.mojang.blaze3d.systems.RenderSystem.pushMatrix;
 import static dev.fiki.forgehax.main.Common.MC;
 import static dev.fiki.forgehax.main.Common.getGameRenderer;
-import static dev.fiki.forgehax.main.util.reflection.FastReflection.Methods.GameRenderer_hurtCameraEffect;
 
-/**
- * Created on 6/14/2017 by fr1kin
- */
 @RegisterMod
+@RequiredArgsConstructor
 public class RenderEventService extends ServiceMod {
-  public RenderEventService() {
-    super("RenderEventService");
-  }
+  @MethodMapping(parentClass = GameRenderer.class, value = "hurtCameraEffect")
+  private final ReflectionMethod<Void> GameRenderer_hurtCameraEffect;
 
   @SubscribeEvent
   public void onRenderWorld(RenderWorldLastEvent event) {

@@ -2,17 +2,16 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "AntiFog",
+    description = "Removes fog",
+    category = Category.WORLD
+)
 public class AntiFogMod extends ToggleMod {
-
-  public AntiFogMod() {
-    super(Category.WORLD, "AntiFog", false, "Removes fog");
-  }
-
   @SubscribeEvent
   public void onFogDensity(EntityViewRenderEvent.FogDensity event) {
     event.setDensity(0);

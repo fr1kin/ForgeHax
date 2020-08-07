@@ -1,17 +1,19 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.AxisAlignedBB;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "AntiFire",
+    description = "Removes fire",
+    category = Category.PLAYER
+)
 public class AntiFireMod extends ToggleMod {
 
   private final BooleanSetting collisions = newBooleanSetting()
@@ -19,10 +21,6 @@ public class AntiFireMod extends ToggleMod {
       .description("Give fire collision boxes")
       .defaultTo(false)
       .build();
-
-  public AntiFireMod() {
-    super(Category.PLAYER, "AntiFire", false, "Removes fire");
-  }
 
 //  @SubscribeEvent
 //  public void onAddCollisionBox(AddCollisionBoxToListEvent event) {

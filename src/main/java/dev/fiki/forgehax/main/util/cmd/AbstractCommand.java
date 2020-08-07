@@ -16,11 +16,10 @@ public abstract class AbstractCommand implements ICommand {
   @Setter
   private IParentCommand parent;
 
-  private final String name;
+  private String name;
+  private String description;
+
   private final Set<String> aliases;
-
-  private final String description;
-
   private final Set<EnumFlag> flags;
 
   public AbstractCommand(IParentCommand parent,

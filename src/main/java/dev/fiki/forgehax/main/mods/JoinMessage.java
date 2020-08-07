@@ -14,7 +14,6 @@ import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingSet;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
 import dev.fiki.forgehax.main.util.entry.CustomMessageEntry;
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.spam.SpamMessage;
 import dev.fiki.forgehax.main.util.spam.SpamTokens;
@@ -26,11 +25,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Created on 7/21/2017 by fr1kin
- */
 // TODO: 1.15
-//@RegisterMod
+//@RegisterMod(
+//    name = "JoinMessage",
+//    description = "Allows players to add custom join messages",
+//    category = Category.MISC
+//)
 public class JoinMessage extends ToggleMod {
 
   private static final SpamTokens[] SPAM_TOKENS = new SpamTokens[]{SpamTokens.PLAYER_NAME, SpamTokens.MESSAGE};
@@ -97,10 +97,6 @@ public class JoinMessage extends ToggleMod {
       .build();
 
   private final Map<UUID, AtomicLong> cooldowns = Maps.newConcurrentMap();
-
-  public JoinMessage() {
-    super(Category.MISC, "JoinMessage", false, "Allows players to add custom join messages");
-  }
 
   private void debugMessage(String str) {
     if (debug_messages.getValue()) {

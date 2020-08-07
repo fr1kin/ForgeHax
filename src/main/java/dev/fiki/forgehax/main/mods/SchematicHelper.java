@@ -1,10 +1,14 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 
 // TODO: 1.15 fix this
+//@RegisterMod(
+//    name = "SchematicHelper",
+//    description = "Render box where a block would be placed",
+//    category = Category.RENDER
+//)
 public class SchematicHelper extends ToggleMod {
   
   private final FloatSetting line_width = newFloatSetting()
@@ -14,10 +18,6 @@ public class SchematicHelper extends ToggleMod {
           .min(1f)
           .build();
   
-  public SchematicHelper() {
-    super(Category.RENDER, "SchematicHelper", false, "Render box where a block would be placed");
-  }
-
   /*
   @SubscribeEvent
   public void onRender(RenderEvent event) {

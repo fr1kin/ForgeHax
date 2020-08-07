@@ -6,11 +6,6 @@ import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.math.AlignHelper;
 import dev.fiki.forgehax.main.util.math.AlignHelper.Align;
-import net.minecraft.client.renderer.VirtualScreen;
-import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import static dev.fiki.forgehax.main.Common.MC;
 
 public abstract class HudMod extends ToggleMod {
   protected final EnumSetting<Align> alignment = newEnumSetting(Align.class)
@@ -41,9 +36,9 @@ public abstract class HudMod extends ToggleMod {
   protected abstract int getDefaultOffsetX();
   protected abstract int getDefaultOffsetY();
   protected abstract double getDefaultScale();
-  
-  public HudMod(Category category, String modName, boolean defaultEnabled, String description) {
-    super(category, modName, defaultEnabled, description);
+
+  public HudMod() {
+    super();
   }
   
   // no need to recalc each frame but okay (on GuiScale and Settings change only)

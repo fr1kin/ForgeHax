@@ -4,13 +4,17 @@ import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "FPSLock",
+    description = "Lock the fps to a lower-than-allowed value, and restore when disabled",
+    category = Category.MISC
+)
 public class FPSLock extends ToggleMod {
 
   private final IntegerSetting defaultFps = newIntegerSetting()
@@ -40,14 +44,6 @@ public class FPSLock extends ToggleMod {
       .min(0)
       .defaultTo(3)
       .build();
-
-  public FPSLock() {
-    super(
-        Category.MISC,
-        "FPSLock",
-        false,
-        "Lock the fps to a lower-than-allowed value, and restore when disabled");
-  }
 
   private int getFps() {
     if (no_focus_fps.getValue() > 0

@@ -6,7 +6,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.item.Items;
 import net.minecraft.network.play.server.SSpawnPlayerPacket;
@@ -17,13 +17,12 @@ import java.util.UUID;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "AutoLog",
+    description = "Automatically disconnect",
+    category = Category.COMBAT
+)
 public class AutoLog extends ToggleMod {
-  
-  public AutoLog() {
-    super(Category.COMBAT, "AutoLog", false, "automatically disconnect");
-  }
-  
   public final IntegerSetting threshold = newIntegerSetting()
           .name("threshold")
           .description("health to go down to to disconnect\"")

@@ -5,7 +5,7 @@ import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CCustomPayloadPacket;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
@@ -15,20 +15,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-/**
- * Created on 6/1/2017 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "PayloadLogger",
+    description = "Logs custom payloads",
+    category = Category.MISC
+)
 public class CustomPayloadLogger extends ToggleMod {
-
   private static final Path CLIENT_PAYLOAD_LOG =
       Common.getFileManager().getMkBaseResolve("logs/payload/client2server_payload.log");
   private static final Path SERVER_PAYLOAD_LOG =
       Common.getFileManager().getMkBaseResolve("logs/payload/server2client_payload.log");
-
-  public CustomPayloadLogger() {
-    super(Category.MISC, "PayloadLogger", false, "Logs custom payloads");
-  }
 
   private void log(IPacket packet) {
     if (packet instanceof SCustomPayloadPlayPacket) {

@@ -4,7 +4,7 @@ import com.google.common.base.MoreObjects;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -12,7 +12,6 @@ import java.util.function.Predicate;
 
 @RegisterMod
 public class HotbarSelectionService extends ServiceMod {
-  
   private static HotbarSelectionService instance = null;
   
   public static HotbarSelectionService getInstance() {
@@ -24,9 +23,8 @@ public class HotbarSelectionService extends ServiceMod {
   
   private int lastSetIndex = -1;
   private Predicate<Long> resetCondition = ticks -> true;
-  
-  public HotbarSelectionService() {
-    super("HotbarSelectionService");
+
+  {
     instance = this;
   }
   

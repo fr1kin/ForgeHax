@@ -5,6 +5,7 @@ import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.mods.services.HotbarSelectionService.ResetFunction;
+import dev.fiki.forgehax.main.mods.services.SneakService;
 import dev.fiki.forgehax.main.util.BlockHelper;
 import dev.fiki.forgehax.main.util.BlockHelper.BlockTraceInfo;
 import dev.fiki.forgehax.main.util.PacketHelper;
@@ -21,8 +22,9 @@ import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.BlockItem;
@@ -44,8 +46,16 @@ import java.util.Optional;
 import static dev.fiki.forgehax.main.Common.*;
 import static net.minecraft.network.play.client.CEntityActionPacket.Action;
 
-@RegisterMod
+@RegisterMod(
+    name = "Scaffold",
+    description = "Place blocks under yourself",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class Scaffold extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
+  private final SneakService sneaks;
+  private final ReflectionTools reflection;
+
   private final EnumSet<Direction> horizontal = EnumSet.copyOf(Lists.newArrayList(Direction.Plane.HORIZONTAL));
 
   private final IntegerSetting delay = newIntegerSetting()
@@ -76,10 +86,6 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
   private int tickCount = 0;
   private BlockPos currentTarget = null;
   private boolean predicted = false;
-
-  public Scaffold() {
-    super(Category.PLAYER, "Scaffold", false, "Place blocks under yourself");
-  }
 
   @Override
   protected void onEnabled() {
@@ -213,8 +219,8 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
         PacketHelper.ignoreAndSend(
             new CEntityActionPacket(getLocalPlayer(), Action.PRESS_SHIFT_KEY));
 
-        LocalPlayerUtils.setSneaking(true);
-        LocalPlayerUtils.setSneakingSuppression(true);
+        sneaks.setSneaking(true);
+        sneaks.setSuppressing(true);
       }
 
       if (getPlayerController()
@@ -228,15 +234,15 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
       }
 
       if (sneak) {
-        LocalPlayerUtils.setSneaking(false);
-        LocalPlayerUtils.setSneakingSuppression(false);
+        sneaks.setSneaking(false);
+        sneaks.setSuppressing(false);
 
         sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), Action.RELEASE_SHIFT_KEY));
       }
 
       func.revert();
 
-      FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, delay.getValue());
+      reflection.Minecraft_rightClickDelayTimer.set(MC, delay.getValue());
       tickCount = 0;
     });
   }

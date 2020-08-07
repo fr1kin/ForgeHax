@@ -4,7 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.datafixers.util.Pair;
 import dev.fiki.forgehax.main.util.color.Color;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -19,6 +19,7 @@ import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 @Getter
 public class BufferBuilderEx extends BufferBuilder {
@@ -61,7 +62,8 @@ public class BufferBuilderEx extends BufferBuilder {
   }
 
   public int getDrawMode() {
-    return FastReflection.Fields.BufferBuilder_drawMode.get(original);
+    return Objects.requireNonNull(ReflectionTools.getInstance(), "ReflectionTools not initialized!")
+        .BufferBuilder_drawMode.get(original);
   }
 
   public BufferBuilderEx putLine(double startX, double startY, double endX, double endY, @Nullable Color color) {

@@ -4,7 +4,7 @@ import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.gui.ClickGui;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.gui.screen.IngameMenuScreen;
 import net.minecraft.client.gui.screen.OptionsScreen;
 import net.minecraft.client.gui.screen.OptionsSoundsScreen;
@@ -16,16 +16,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-/**
- * Created by Babbaj on 9/5/2017.
- */
-@RegisterMod
+@RegisterMod(
+    name = "GuiMove",
+    description = "move with a gui open",
+    category = Category.MISC
+)
 public class GuiMove extends ToggleMod {
-
-  public GuiMove() {
-    super(Category.MISC, "GuiMove", false, "move with a gui open");
-  }
-
   @SubscribeEvent
   public void LocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     KeyBinding[] keys = {

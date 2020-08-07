@@ -6,12 +6,16 @@ import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "BaritoneCompatibility",
+    description = "the lazy compatibility mod",
+    category = Category.MISC
+)
 public class BaritoneCompatibility extends ToggleMod {
 
   private final StringSetting on_string = newStringSetting()
@@ -25,10 +29,6 @@ public class BaritoneCompatibility extends ToggleMod {
       .description("Message to disable baritone")
       .defaultTo("#stop")
       .build();
-
-  public BaritoneCompatibility() {
-    super(Category.MISC, "BaritoneCompatibility", false, "the lazy compatibility mod");
-  }
 
   private boolean off = false;
   private boolean once = false;

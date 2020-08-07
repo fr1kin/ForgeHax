@@ -1,18 +1,14 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 
-/**
- * Created by Babbaj on 8/18/2017.
- */
 // TODO: 1.15 fix this
+//@RegisterMod(
+//    name = "MapMod",
+//    description = "custom map images",
+//    category = Category.MISC
+//)
 public class MapMod extends ToggleMod {
-  
-  public MapMod() {
-    super(Category.MISC, "MapMod", false, "custom map images");
-  }
-
   /*
   private enum Mode {
     DATA,

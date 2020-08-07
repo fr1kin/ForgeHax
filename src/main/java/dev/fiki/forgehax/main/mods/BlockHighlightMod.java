@@ -5,11 +5,13 @@ import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 
-@RegisterMod
+@RegisterMod(
+    name = "BlockHighlight",
+    description = "Make selected block bounding box more visible",
+    category = Category.RENDER
+)
 public class BlockHighlightMod extends ToggleMod {
 
   private final ColorSetting color = newColorSetting()
@@ -24,10 +26,6 @@ public class BlockHighlightMod extends ToggleMod {
       .min(0.f)
       .defaultTo(5.f)
       .build();
-
-  public BlockHighlightMod() {
-    super(Category.RENDER, "BlockHighlight", false, "Make selected block bounding box more visible");
-  }
 
   private float toFloat(int colorVal) {
     return colorVal / 255.f;

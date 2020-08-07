@@ -8,7 +8,7 @@ import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.value.IValue;
 import dev.fiki.forgehax.main.util.mod.CommandMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
 
 import java.util.stream.Collectors;
@@ -20,10 +20,6 @@ import static dev.fiki.forgehax.main.Common.*;
  */
 @RegisterMod
 public class HelpCommand extends CommandMod {
-
-  public HelpCommand() {
-    super("HelpCommand");
-  }
 
   {
     newSimpleCommand()
@@ -89,7 +85,7 @@ public class HelpCommand extends CommandMod {
         .name("loaded")
         .description("Loaded plugin list")
         .executor(args -> {
-          args.inform(getModManager().getMods().stream()
+          args.inform(getModManager().getMods()
               .map(AbstractCommand::getName)
               .sorted(String.CASE_INSENSITIVE_ORDER)
               .collect(Collectors.joining(", ")));

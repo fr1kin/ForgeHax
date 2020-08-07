@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.util.key;
 
 import com.google.common.base.MoreObjects;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,11 +31,11 @@ public class KeyBindingEx extends KeyBinding {
   }
 
   public int getKeyPressedTime() {
-    return FastReflection.Fields.KeyBinding_pressTime.get(this);
+    return ReflectionTools.getInstance().KeyBinding_pressTime.get(this);
   }
 
   public void setKeyPressedTime(int ticks) {
-    FastReflection.Fields.KeyBinding_pressTime.set(this, ticks);
+    ReflectionTools.getInstance().KeyBinding_pressTime.set(this, ticks);
   }
 
   public void incrementPressedTime() {
@@ -43,7 +43,7 @@ public class KeyBindingEx extends KeyBinding {
   }
 
   public boolean isKeyDownUnchecked() {
-    return FastReflection.Fields.KeyBinding_pressed.get(this);
+    return ReflectionTools.getInstance().KeyBinding_pressed.get(this);
   }
 
   public boolean checkConflicts() {

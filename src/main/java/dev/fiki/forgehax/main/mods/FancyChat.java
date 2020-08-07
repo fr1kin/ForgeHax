@@ -5,7 +5,6 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.PatternSetting;
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import net.minecraft.network.play.client.CChatMessagePacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -18,7 +17,11 @@ import java.util.regex.Pattern;
 
 // made by BABBAJ
 
-//@RegisterMod
+//@RegisterMod(
+//    name = "FancyChat",
+//    description = "meme text",
+//    category = Category.MISC
+//)
 public class FancyChat extends ToggleMod {
 
   private enum Mode {
@@ -136,10 +139,6 @@ public class FancyChat extends ToggleMod {
       .description("Commands where only the first argument may not be changed (RegExp)")
       .defaultTo(Pattern.compile("(pm|tell|msg|message|w|whisper|nick|mail)"))
       .build();
-
-  public FancyChat() {
-    super(Category.MISC, "FancyChat", false, "meme text");
-  }
 
   @SubscribeEvent
   public void onPacketSent(PacketOutboundEvent event) {

@@ -1,20 +1,24 @@
 package dev.fiki.forgehax.main.util.mod;
 
+import com.google.common.base.Strings;
+import dev.fiki.forgehax.main.util.cmd.AbstractCommand;
 import dev.fiki.forgehax.main.util.cmd.AbstractParentCommand;
 import dev.fiki.forgehax.main.util.cmd.ICommand;
-import dev.fiki.forgehax.main.util.cmd.ISetting;
-import dev.fiki.forgehax.main.util.cmd.ParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
-
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Set;
-
 import dev.fiki.forgehax.main.util.cmd.listener.IUpdateConfiguration;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import net.minecraftforge.common.MinecraftForge;
 
-import static dev.fiki.forgehax.main.Common.*;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import static dev.fiki.forgehax.main.Common.getLogger;
+import static dev.fiki.forgehax.main.Common.getRootCommand;
 import static dev.fiki.forgehax.main.util.cmd.flag.EnumFlag.HIDDEN;
 import static dev.fiki.forgehax.main.util.cmd.flag.EnumFlag.MOD_REGISTERED;
 
@@ -22,10 +26,39 @@ import static dev.fiki.forgehax.main.util.cmd.flag.EnumFlag.MOD_REGISTERED;
 public abstract class AbstractMod extends AbstractParentCommand {
   // category of the mod
   private final Category category;
-  
+
   AbstractMod(Category category, String name, String desc, Set<EnumFlag> flags) {
     super(getRootCommand(), name, Collections.emptySet(), desc, flags);
     this.category = category;
+
+    onFullyConstructed();
+  }
+
+  @SneakyThrows
+  AbstractMod() {
+    super(getRootCommand(), "invalid", Collections.emptySet(), "invalid", Collections.emptySet());
+
+    RegisterMod info = getClass().getAnnotation(RegisterMod.class);
+    Objects.requireNonNull(info, "RegisterMod annotation required for default constructor!");
+
+    // vomit emoji
+    Field fName = AbstractCommand.class.getDeclaredField("name");
+    fName.setAccessible(true);
+    fName.set(this, Stream.of(info.value(), info.name())
+        .map(Strings::emptyToNull)
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse(getClass().getSimpleName()));
+
+    Field fDesc = AbstractCommand.class.getDeclaredField("description");
+    fDesc.setAccessible(true);
+    fDesc.set(this, info.description());
+
+    for (EnumFlag flag : info.flags()) {
+      addFlag(flag);
+    }
+
+    this.category = info.category();
 
     onFullyConstructed();
   }
@@ -67,22 +100,26 @@ public abstract class AbstractMod extends AbstractParentCommand {
    * Load the mod
    */
   public final void load() {
+    getLogger().debug("Loading mod {}", getName());
+
     readConfig();
     if (isEnabled()) {
       start();
     }
     onLoad();
   }
-  
+
   /**
    * Unload the mod
    */
   public final void unload() {
+    getLogger().debug("Unloading mod {}", getName());
+
     saveConfig();
     stop();
     onUnload();
   }
-  
+
   /**
    * Enables the mod
    */
@@ -92,14 +129,14 @@ public abstract class AbstractMod extends AbstractParentCommand {
       getLogger().debug("{} enabled", getName());
     }
   }
-  
+
   protected final void stop() {
     if (unregister()) {
       onDisabled();
       getLogger().debug("{} disabled", getName());
     }
   }
-  
+
   /**
    * Register event to forge bus
    */
@@ -112,7 +149,7 @@ public abstract class AbstractMod extends AbstractParentCommand {
 
     return false;
   }
-  
+
   /**
    * Unregister event on forge bus
    */
@@ -136,40 +173,41 @@ public abstract class AbstractMod extends AbstractParentCommand {
 
   /**
    * Called when a child command updates
+   *
    * @param command child command
    */
   protected void onChildUpdateConfiguration(ICommand command) {
     saveConfig();
   }
-  
+
   /**
    * Called when the mod is loaded
    */
   protected abstract void onLoad();
-  
+
   /**
    * Called when unloaded
    */
   protected abstract void onUnload();
-  
+
   /**
    * Called when the mod is enabled
    */
   protected abstract void onEnabled();
-  
+
   /**
    * Called when the mod is disabled
    */
   protected abstract void onDisabled();
-  
+
   public String getDisplayText() {
     return getName();
   }
-  
+
   public String getDebugDisplayText() {
     return getDisplayText();
   }
-  
+
   @Override
   public String toString() {
     return getName() + ": " + getDescription();
@@ -179,7 +217,7 @@ public abstract class AbstractMod extends AbstractParentCommand {
   public boolean addChild(ICommand command) {
     boolean ret = super.addChild(command);
 
-    if(ret) {
+    if (ret) {
       command.addListener(IUpdateConfiguration.class, this::onChildUpdateConfiguration);
     }
 

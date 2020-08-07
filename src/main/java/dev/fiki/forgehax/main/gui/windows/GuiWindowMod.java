@@ -2,18 +2,17 @@ package dev.fiki.forgehax.main.gui.windows;
 
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.gui.elements.GuiButton;
+import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.mod.AbstractMod;
 import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.color.Color;
+import net.minecraft.util.math.MathHelper;
+import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.util.math.MathHelper;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Created by Babbaj on 9/5/2017.
@@ -41,20 +40,20 @@ public class GuiWindowMod extends GuiWindow {
   private void addModsToButtonList() {
     int maxWidth = 0;
     int newHeight = 0;
-    for (AbstractMod mod : Common.getModManager().getMods()) {
-      if (mod.getCategory().equals(category) && !mod.isHidden()) {
-        GuiButton moduleButton = new GuiButton(mod);
-        buttonList.add(moduleButton);
-        
-        newHeight += GuiButton.height + 1;
-        
-        String name = moduleButton.getName();
-        int width = SurfaceHelper.getTextWidth(name);
-        if (width > maxWidth) {
-          maxWidth = width;
-        }
-      }
-    }
+//    for (AbstractMod mod : Common.getModManager().getMods()) {
+//      if (mod.getCategory().equals(category) && !mod.isHidden()) {
+//        GuiButton moduleButton = new GuiButton(mod);
+//        buttonList.add(moduleButton);
+//
+//        newHeight += GuiButton.height + 1;
+//
+//        String name = moduleButton.getName();
+//        int width = SurfaceHelper.getTextWidth(name);
+//        if (width > maxWidth) {
+//          maxWidth = width;
+//        }
+//      }
+//    }
     height = Math.min(maxHeight, newHeight + 3);
     width = maxWidth + 15; // set the width of window to the width of the longest mod name
   }

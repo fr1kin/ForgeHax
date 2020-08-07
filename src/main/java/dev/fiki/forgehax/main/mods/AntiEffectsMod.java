@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Sets;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
@@ -8,15 +9,24 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionMethod;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.Effects;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "AntiPotionEffects",
+    description = "Removes potion effects",
+    category = Category.RENDER
+)
+@RequiredArgsConstructor
 public class AntiEffectsMod extends ToggleMod {
+  @MethodMapping(parentClass = LivingEntity.class, value = "resetPotionEffectMetadata")
+  private final ReflectionMethod<Void> LivingEntity_resetPotionEffectMetadata;
 
   private final BooleanSetting noParticles = newBooleanSetting()
       .name("no-particles")
@@ -38,22 +48,18 @@ public class AntiEffectsMod extends ToggleMod {
       .defaultsTo(Effects.WITHER)
       .build();
 
-  public AntiEffectsMod() {
-    super(Category.RENDER, "AntiPotionEffects", false, "Removes potion effects");
-  }
-
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     effects.forEach(event.getEntityLiving()::removeActivePotionEffect);
 
     // removes particle effect
-    FastReflection.Methods.LivingEntity_resetPotionEffectMetadata.invoke(event.getEntityLiving());
+    LivingEntity_resetPotionEffectMetadata.invoke(event.getEntityLiving());
   }
 
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
     if (noParticles.getValue()) {
-      FastReflection.Methods.LivingEntity_resetPotionEffectMetadata.invoke(event.getEntityLiving());
+      LivingEntity_resetPotionEffectMetadata.invoke(event.getEntityLiving());
     }
   }
 }

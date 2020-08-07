@@ -15,7 +15,7 @@ import dev.fiki.forgehax.main.util.math.Plane;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.vector.Vector3d;
@@ -29,10 +29,11 @@ import static com.mojang.blaze3d.systems.RenderSystem.*;
 import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glEnd;
 
-/**
- * Created on 8/6/2017 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "Tracers",
+    description = "See where other players are",
+    category = Category.RENDER
+)
 public class Tracers extends ToggleMod implements Colors {
 
   enum Mode {
@@ -40,10 +41,6 @@ public class Tracers extends ToggleMod implements Colors {
     LINES,
     BOTH,
     ;
-  }
-
-  public Tracers() {
-    super(Category.RENDER, "Tracers", false, "See where other players are");
   }
 
   public final EnumSetting<Mode> mode = newEnumSetting(Mode.class)

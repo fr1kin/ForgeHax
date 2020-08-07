@@ -6,19 +6,22 @@ import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import dev.fiki.forgehax.main.util.task.TaskChain;
-
-import java.util.Comparator;
-import java.util.List;
-
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CClickWindowPacket;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+import java.util.Comparator;
+import java.util.List;
+
+@RegisterMod(
+    name = "AutoHotbarReplenish",
+    description = "Will replenish tools or block stacks automatically",
+    category = Category.PLAYER
+)
 public class AutoHotbarReplenish extends ToggleMod {
 
   private final IntegerSetting durability_threshold = newIntegerSetting()
@@ -51,14 +54,6 @@ public class AutoHotbarReplenish extends ToggleMod {
 
   private TaskChain<Runnable> tasks = TaskChain.empty();
   private long tickCount = 0;
-
-  public AutoHotbarReplenish() {
-    super(
-        Category.PLAYER,
-        "AutoHotbarReplenish",
-        false,
-        "Will replenish tools or block stacks automatically");
-  }
 
   private boolean processing(int index) {
     if (tick_delay.getValue() == 0) {

@@ -5,7 +5,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.key.KeyBindingEx;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.network.play.client.CClientSettingsPacket;
@@ -16,16 +16,9 @@ import org.lwjgl.glfw.GLFW;
 
 import static dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting.*;
 
-/**
- * Created on 6/14/2017 by fr1kin
- */
 @RegisterMod
 public class BindEventService extends ServiceMod {
   private boolean bindConfigLoaded = false;
-
-  public BindEventService() {
-    super("BindEventService");
-  }
 
   private void updateBindings(KeyBindingSetting setting, int keyAction) {
     final KeyBindingEx key = setting.getKeyBinding();

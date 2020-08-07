@@ -9,7 +9,15 @@ import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import net.minecraft.client.gui.screen.EditBookScreen;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.WritableBookItem;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
+import net.minecraft.network.play.client.CEditBookPacket;
+import net.minecraft.util.Hand;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,18 +27,12 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Scanner;
 import java.util.function.Consumer;
-import net.minecraft.client.gui.screen.EditBookScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.WritableBookItem;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.network.play.client.CEditBookPacket;
-import net.minecraft.util.Hand;
 
-/**
- * Created on 12/17/2017 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "BookBot",
+    description = "Automatically write books",
+    category = Category.MISC
+)
 public class BookBot extends ToggleMod {
 
   private static final int MAX_CHARACTERS_PER_PAGE = 256;
@@ -196,10 +198,6 @@ public class BookBot extends ToggleMod {
           }
         })
         .build();
-  }
-
-  public BookBot() {
-    super(Category.MISC, "BookBot", false, "Automatically write books");
   }
 
   private static final Collection<Character> CHARS_NO_REPEATING =

@@ -11,27 +11,32 @@ import java.util.Set;
 
 @Getter(AccessLevel.PROTECTED)
 public abstract class KeyBoundMod extends AbstractMod {
-  private final KeyBindingSetting keyBindingSetting;
+  private final KeyBindingSetting keyBindingSetting = newKeyBindingSetting()
+      .name("bind")
+      .description("Key bind to enable the mod")
+      .unbound()
+      .defaultKeyName()
+      .defaultKeyCategory()
+      .conflictContext(KeyConflictContexts.inGame())
+      .keyDownListener(this::onKeyDown)
+      .keyPressedListener(this::onKeyPressed)
+      .keyReleasedListener(this::onKeyReleased)
+      .build();
 
-  public KeyBoundMod(Category category, String name, String desc, Set<EnumFlag> flags) {
-    super(category, name, desc, flags);
-    this.keyBindingSetting = newKeyBindingSetting()
-        .name("bind")
-        .description("Key bind to enable the mod")
-        .unbound()
-        .defaultKeyName()
-        .defaultKeyCategory()
-        .conflictContext(KeyConflictContexts.inGame())
-        .keyDownListener(this::onKeyDown)
-        .keyPressedListener(this::onKeyPressed)
-        .keyReleasedListener(this::onKeyReleased)
-        .build();
-
+  {
     newSimpleCommand()
         .name("unbind")
         .description("Unbind the key this mod is set to")
         .executor(args -> keyBindingSetting.unbind())
         .build();
+  }
+
+  public KeyBoundMod(Category category, String name, String desc, Set<EnumFlag> flags) {
+    super(category, name, desc, flags);
+  }
+
+  public KeyBoundMod() {
+    super();
   }
 
   public abstract void onKeyPressed(KeyBinding key);

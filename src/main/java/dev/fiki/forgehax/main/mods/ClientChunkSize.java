@@ -2,10 +2,7 @@ package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.SimpleTimer;
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.util.math.ChunkPos;
@@ -20,9 +17,12 @@ import java.util.zip.DeflaterOutputStream;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+//@RegisterMod(
+//    name = "ClientChunkSize",
+//    description = "Shows the client-side chunk size in bytes",
+//    category = Category.MISC
+//)
 public class ClientChunkSize extends ToggleMod {
-
   private static final File DUMMY = getFileManager().getBaseResolve("dummy").toFile();
 
   private final SimpleTimer timer = new SimpleTimer();
@@ -31,10 +31,6 @@ public class ClientChunkSize extends ToggleMod {
   private long size = 0L;
   private long previousSize = 0L;
   private ChunkPos current = null;
-
-  public ClientChunkSize() {
-    super(Category.MISC, "ClientChunkSize", false, "Shows the client-side chunk size in bytes");
-  }
 
   private static String toFormattedBytes(long size) {
     NumberFormat format = NumberFormat.getInstance();
@@ -113,7 +109,6 @@ public class ClientChunkSize extends ToggleMod {
                     // this should be done on the main mc thread but it works 99% of the
                     // time outside it
                     ChunkLoader loader = new ChunkLoader(DUMMY, null, false);
-                    FastReflection.Methods.AnvilChunkLoader_writeChunkToNBT.invoke(loader, chunk, getWorld(), level);
                   } catch (Throwable t) {
                     size = -1L;
                     previousSize = 0L;

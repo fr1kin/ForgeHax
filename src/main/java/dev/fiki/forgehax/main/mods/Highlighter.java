@@ -6,7 +6,7 @@ import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.entity.EnchantmentUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;
@@ -19,17 +19,17 @@ import net.minecraftforge.fml.client.gui.GuiUtils;
 
 import java.util.function.Predicate;
 
-@RegisterMod
+@RegisterMod(
+    name = "Highlighter",
+    description = "Highlight container contents",
+    category = Category.MISC
+)
 public class Highlighter extends ToggleMod {
   private final StringSetting find = newStringSetting()
       .name("find")
       .description("Highlight any item matching this string")
       .defaultTo("")
       .build();
-
-  public Highlighter() {
-    super(Category.MISC, "Highlighter", false, "Highlight container contents");
-  }
 
   private boolean isEnchanted(ItemStack stack) {
     return Items.ENCHANTED_BOOK.equals(stack.getItem()) || stack.isEnchanted();

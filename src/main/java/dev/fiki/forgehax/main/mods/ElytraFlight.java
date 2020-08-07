@@ -11,14 +11,18 @@ import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getGameSettings;
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
-@RegisterMod
+@RegisterMod(
+    name = "ElytraFlight",
+    description = "Elytra flight",
+    category = Category.PLAYER
+)
 public class ElytraFlight extends ToggleMod {
   enum FlyMode {
     FLIGHT,
@@ -45,10 +49,6 @@ public class ElytraFlight extends ToggleMod {
       .build();
 
   private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getName());
-
-  public ElytraFlight() {
-    super(Category.PLAYER, "ElytraFlight", false, "Elytra Flight");
-  }
 
   @Override
   protected void onEnabled() {

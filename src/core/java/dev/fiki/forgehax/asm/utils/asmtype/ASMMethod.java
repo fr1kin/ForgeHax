@@ -2,6 +2,7 @@ package dev.fiki.forgehax.asm.utils.asmtype;
 
 import dev.fiki.forgehax.api.mapper.MappedFormat;
 import dev.fiki.forgehax.api.mapper.MethodMapping;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -76,6 +77,7 @@ public abstract class ASMMethod implements Formattable<ASMMethod> {
   }
 
   @Getter
+  @EqualsAndHashCode(callSuper = false)
   @RequiredArgsConstructor
   static private class Single extends ASMMethod {
     private final ASMClass parentClass;
@@ -104,6 +106,26 @@ public abstract class ASMMethod implements Formattable<ASMMethod> {
     @Override
     public Stream<ASMMethod> stream() {
       return getParent().stream();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Multi multi = (Multi) o;
+
+      if (!getParentClass().equals(multi.getParentClass())) return false;
+      if (!name.equals(multi.name)) return false;
+      return descriptor.equals(multi.descriptor);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = getParentClass().hashCode();
+      result = 31 * result + name.hashCode();
+      result = 31 * result + descriptor.hashCode();
+      return result;
     }
   }
 
@@ -169,6 +191,28 @@ public abstract class ASMMethod implements Formattable<ASMMethod> {
       return stream()
           .map(Object::toString)
           .collect(Collectors.joining(","));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Container container = (Container) o;
+
+      if (!parentClass.equals(container.parentClass)) return false;
+      if (mapped != null ? !mapped.equals(container.mapped) : container.mapped != null) return false;
+      if (obfuscated != null ? !obfuscated.equals(container.obfuscated) : container.obfuscated != null) return false;
+      return searge != null ? searge.equals(container.searge) : container.searge == null;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = parentClass.hashCode();
+      result = 31 * result + (mapped != null ? mapped.hashCode() : 0);
+      result = 31 * result + (obfuscated != null ? obfuscated.hashCode() : 0);
+      result = 31 * result + (searge != null ? searge.hashCode() : 0);
+      return result;
     }
   }
 }

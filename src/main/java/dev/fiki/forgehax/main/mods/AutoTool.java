@@ -9,7 +9,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -28,7 +28,11 @@ import java.util.Optional;
 
 import static net.minecraft.enchantment.Enchantments.EFFICIENCY;
 
-@RegisterMod
+@RegisterMod(
+    name = "AutoTool",
+    description = "Automatically switch to the best tool",
+    category = Category.PLAYER
+)
 public class AutoTool extends ToggleMod {
 
   private static AutoTool instance = null;
@@ -63,8 +67,7 @@ public class AutoTool extends ToggleMod {
       .max((int) Short.MAX_VALUE)
       .build();
 
-  public AutoTool() {
-    super(Category.PLAYER, "AutoTool", false, "Automatically switch to the best tool");
+  {
     instance = this;
   }
 

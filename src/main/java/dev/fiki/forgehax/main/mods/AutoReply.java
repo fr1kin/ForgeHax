@@ -4,14 +4,17 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import joptsimple.internal.Strings;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "AutoReply",
+    description = "Automatically talk in chat if finds a strings",
+    category = Category.MISC
+)
 public class AutoReply extends ToggleMod {
-
   public final StringSetting reply = newStringSetting()
       .name("reply")
       .description("Text to reply with")
@@ -29,10 +32,6 @@ public class AutoReply extends ToggleMod {
       .description("Text to search for in message")
       .defaultTo("whispers: ")
       .build();
-
-  public AutoReply() {
-    super(Category.MISC, "AutoReply", false, "Automatically talk in chat if finds a strings");
-  }
 
   @SubscribeEvent
   public void onClientChat(ClientChatReceivedEvent event) {

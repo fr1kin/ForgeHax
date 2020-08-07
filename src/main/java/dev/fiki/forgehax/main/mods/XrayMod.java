@@ -4,13 +4,16 @@ import dev.fiki.forgehax.asm.events.render.CullCavesEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 // TODO: 1.15
-//@RegisterMod
+//@RegisterMod(
+//    name = "XRay",
+//    description = "See blocks through walls",
+//    category = Category.WORLD
+//)
 public class XrayMod extends ToggleMod {
 
   public final IntegerSetting opacity = newIntegerSetting()
@@ -28,10 +31,6 @@ public class XrayMod extends ToggleMod {
       .build();
 
   private boolean previousForgeLightPipelineEnabled = false;
-
-  public XrayMod() {
-    super(Category.WORLD, "Xray", false, "See blocks through walls");
-  }
 
   @Override
   public void onEnabled() {

@@ -15,7 +15,7 @@ import dev.fiki.forgehax.main.util.math.Plane;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -29,9 +29,12 @@ import java.util.UUID;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "LogoutSpot",
+    description = "Show where a player logs out",
+    category = Category.RENDER
+)
 public class LogoutSpot extends ToggleMod {
-
   private final BooleanSetting render = newBooleanSetting()
       .name("render")
       .description("Draw a box where the player logged out")
@@ -59,10 +62,6 @@ public class LogoutSpot extends ToggleMod {
   }
 
   private final Set<LogoutPos> spots = Sets.newHashSet();
-
-  public LogoutSpot() {
-    super(Category.RENDER, "LogoutSpot", false, "show where a player logs out");
-  }
 
   private void reset() {
     synchronized (spots) {

@@ -3,9 +3,9 @@ package dev.fiki.forgehax.main.util.entity;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.entity.mobtypes.EntityRelations;
 import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
+import net.minecraft.entity.IAngerable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.EndermanEntity;
@@ -34,7 +34,7 @@ public class EntityUtils implements Common {
   public static boolean isBatsDisabled = false;
 
   public static boolean isZombiePigmanAggressive(ZombifiedPiglinEntity entity) {
-    return FastReflection.Fields.ZombifiedPiglinEntity_angerLevel.get(entity) > 0;
+    return entity.func_230256_F__() > 0;
   }
 
   /**
@@ -49,7 +49,7 @@ public class EntityUtils implements Common {
       if (((ZombifiedPiglinEntity) entity).isAggressive() || isZombiePigmanAggressive((ZombifiedPiglinEntity) entity)) {
         if (!isZombiePigmanAggressive((ZombifiedPiglinEntity) entity)) {
           // set pigmens anger to 400 if it hasn't been angered already
-          FastReflection.Fields.ZombifiedPiglinEntity_angerLevel.set(entity, 400);
+          ((IAngerable) entity).func_230260_a__(400);
         }
         return true;
       }

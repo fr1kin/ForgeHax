@@ -1,27 +1,29 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.entity.Entity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
-/**
- * Created by Babbaj on 8/28/2017.
- */
-@RegisterMod
+@RegisterMod(
+    name = "PortalGui",
+    description = "Guis work while in portals",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class PortalGui extends ToggleMod {
-
-  public PortalGui() {
-    super(Category.PLAYER, "PortalGui", false, "Guis work while in portals");
-  }
+  @FieldMapping(parentClass = Entity.class, value = "inPortal")
+  private final ReflectionField<Boolean> Entity_inPortal;
 
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    FastReflection.Fields.Entity_inPortal.set(getLocalPlayer(), false);
+    Entity_inPortal.set(getLocalPlayer(), false);
   }
 }

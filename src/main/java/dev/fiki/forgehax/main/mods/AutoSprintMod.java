@@ -5,13 +5,21 @@ import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import lombok.RequiredArgsConstructor;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getGameSettings;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
-@RegisterMod
+@RegisterMod(
+    name = "AutoSprint",
+    description = "Automatically sprints",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class AutoSprintMod extends ToggleMod {
+  private final FreecamMod freecam;
 
   private boolean isBound = false;
 
@@ -25,10 +33,6 @@ public class AutoSprintMod extends ToggleMod {
       .description("Sprint mode")
       .defaultTo(Modes.ALWAYS)
       .build();
-
-  public AutoSprintMod() {
-    super(Category.PLAYER, "AutoSprint", false, "Automatically sprints");
-  }
 
   private void startSprinting() {
     switch (mode.getValue()) {
@@ -74,7 +78,7 @@ public class AutoSprintMod extends ToggleMod {
     if (event.getEntityLiving().moveForward > 0
         && !event.getEntityLiving().collidedHorizontally
         && !event.getEntityLiving().isCrouching()
-        && !getModManager().isModEnabled(FreecamMod.class)) {
+        && !freecam.isEnabled()) {
       startSprinting();
     }
   }

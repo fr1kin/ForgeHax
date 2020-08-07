@@ -7,16 +7,16 @@ import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-/**
- * Created by Babbaj on 10/28/2017.
- */
-@RegisterMod
+@RegisterMod(
+    name = "Compass",
+    description = "cool compass overlay",
+    category = Category.RENDER
+)
 public class CompassMod extends ToggleMod {
-
   public final DoubleSetting scale = newDoubleSetting()
       .name("scale")
       .description("size of the compass")
@@ -30,10 +30,6 @@ public class CompassMod extends ToggleMod {
     W,
     S,
     E
-  }
-
-  public CompassMod() {
-    super(Category.RENDER, "Compass", false, "cool compass overlay");
   }
 
   @SubscribeEvent

@@ -27,16 +27,10 @@ import java.util.List;
 import static dev.fiki.forgehax.main.Common.getLogger;
 import static net.minecraft.util.text.TextFormatting.RED;
 
-/**
- * Created by Babbaj on 4/10/2018.
- */
+//@RegisterMod
 public class MainMenuGuiService extends ServiceMod {
   
   private Button customButton;
-  
-  public MainMenuGuiService() {
-    super("MainMenuGuiService");
-  }
   
   @SubscribeEvent
   public void onGui(GuiScreenEvent.InitGuiEvent.Post event) {

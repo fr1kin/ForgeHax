@@ -1,23 +1,13 @@
 package dev.fiki.forgehax.main.mods.commands;
 
-import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
-import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
-import dev.fiki.forgehax.main.util.mod.CommandMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 import dev.fiki.forgehax.main.util.PacketHelper;
+import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
+import dev.fiki.forgehax.main.util.mod.CommandMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.play.client.CChatMessagePacket;
-
-import java.util.Arrays;
-
-import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod
 public class SayCommand extends CommandMod {
-
-  public SayCommand() {
-    super("SayCommand");
-  }
 
   {
     newSimpleCommand()

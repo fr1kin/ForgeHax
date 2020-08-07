@@ -1,11 +1,8 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.SimpleTimer;
-import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.mods.services.TickRateService;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
@@ -13,20 +10,24 @@ import dev.fiki.forgehax.main.util.math.AlignHelper;
 import dev.fiki.forgehax.main.util.mod.AbstractMod;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.HudMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.mods.services.TickRateService;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "ActiveMods",
+    description = "Shows a list of all active mods",
+    category = Category.RENDER,
+    enabled = true
+)
 public class ActiveModList extends HudMod {
-
   private final BooleanSetting tps_meter = newBooleanSetting()
       .name("tps-meter")
       .description("Shows the server tps")
@@ -78,11 +79,6 @@ public class ActiveModList extends HudMod {
     return 1d;
   }
 
-  public ActiveModList() {
-    super(Category.RENDER, "ActiveMods", true, "Shows list of all active mods");
-    addFlag(EnumFlag.HIDDEN);
-  }
-
   private String generateTickRateText() {
     String text = "Tick-rate: ";
     TickRateService monitor = TickRateService.getInstance();
@@ -116,18 +112,14 @@ public class ActiveModList extends HudMod {
       text.add(generateTickRateText());
     }
 
-    if (Common.getDisplayScreen() instanceof ChatScreen || Common.MC.gameSettings.showDebugInfo) {
-      long enabledMods = Common.getModManager()
-          .getMods()
-          .stream()
+    if (getDisplayScreen() instanceof ChatScreen || getGameSettings().showDebugInfo) {
+      long enabledMods = getModManager().getMods()
           .filter(AbstractMod::isEnabled)
           .filter(mod -> !mod.isHidden())
           .count();
       text.add(enabledMods + " mods enabled");
     } else {
-      Common.getModManager()
-          .getMods()
-          .stream()
+      getModManager().getMods()
           .filter(AbstractMod::isEnabled)
           .filter(mod -> !mod.isHidden())
           .map(mod -> debug.getValue() ? mod.getDebugDisplayText() : mod.getDisplayText())

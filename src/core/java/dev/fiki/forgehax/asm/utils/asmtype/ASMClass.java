@@ -2,10 +2,7 @@ package dev.fiki.forgehax.asm.utils.asmtype;
 
 import dev.fiki.forgehax.api.mapper.ClassMapping;
 import dev.fiki.forgehax.api.mapper.MappedFormat;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,6 +38,7 @@ public abstract class ASMClass implements Formattable<ASMClass> {
   }
 
   @Getter
+  @EqualsAndHashCode(callSuper = false)
   @RequiredArgsConstructor
   static private class Single extends ASMClass {
     private final String name;
@@ -61,6 +59,24 @@ public abstract class ASMClass implements Formattable<ASMClass> {
     @Override
     public Stream<ASMClass> stream() {
       return getParent().stream();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Multi multi = (Multi) o;
+
+      if (!parent.equals(multi.parent)) return false;
+      return name.equals(multi.name);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = parent.hashCode();
+      result = 31 * result + name.hashCode();
+      return result;
     }
   }
 
@@ -104,6 +120,24 @@ public abstract class ASMClass implements Formattable<ASMClass> {
       return stream()
           .map(Object::toString)
           .collect(Collectors.joining(","));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Container container = (Container) o;
+
+      if (!mapped.getName().equals(container.mapped.getName())) return false;
+      return obfuscated.getName().equals(container.obfuscated.getName());
+    }
+
+    @Override
+    public int hashCode() {
+      int result = mapped.getName().hashCode();
+      result = 31 * result + obfuscated.getName().hashCode();
+      return result;
     }
   }
 }

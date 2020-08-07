@@ -2,10 +2,7 @@ package dev.fiki.forgehax.asm.utils.asmtype;
 
 import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mapper.MappedFormat;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -51,6 +48,7 @@ public abstract class ASMField implements Formattable<ASMField> {
   }
 
   @Getter
+  @EqualsAndHashCode(callSuper = false)
   @RequiredArgsConstructor
   static private class Single extends ASMField {
     private final ASMClass parentClass;
@@ -77,6 +75,24 @@ public abstract class ASMField implements Formattable<ASMField> {
     @Override
     public Stream<ASMField> stream() {
       return getParent().stream();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Multi multi = (Multi) o;
+
+      if (!getParentClass().equals(multi.getParentClass())) return false;
+      return name.equals(multi.name);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = getParentClass().hashCode();
+      result = 31 * result + name.hashCode();
+      return result;
     }
   }
 
@@ -131,6 +147,28 @@ public abstract class ASMField implements Formattable<ASMField> {
       return stream()
           .map(Object::toString)
           .collect(Collectors.joining(","));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Container container = (Container) o;
+
+      if (!parentClass.equals(container.parentClass)) return false;
+      if (mapped != null ? !mapped.equals(container.mapped) : container.mapped != null) return false;
+      if (srg != null ? !srg.equals(container.srg) : container.srg != null) return false;
+      return obfuscated != null ? obfuscated.equals(container.obfuscated) : container.obfuscated == null;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = parentClass.hashCode();
+      result = 31 * result + (mapped != null ? mapped.hashCode() : 0);
+      result = 31 * result + (srg != null ? srg.hashCode() : 0);
+      result = 31 * result + (obfuscated != null ? obfuscated.hashCode() : 0);
+      return result;
     }
   }
 }

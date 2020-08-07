@@ -6,19 +6,16 @@ import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-/**
- * Created on 9/4/2016 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "SafeWalk",
+    description = "Prevents you from falling off blocks",
+    category = Category.PLAYER
+)
 public class SafeWalkMod extends ToggleMod {
-
-  public SafeWalkMod() {
-    super(Category.PLAYER, "SafeWalk", false, "Prevents you from falling off blocks");
-  }
 
   private final BooleanSetting collisions = newBooleanSetting()
       .name("collisions")

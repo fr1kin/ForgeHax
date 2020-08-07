@@ -5,7 +5,7 @@ import dev.fiki.forgehax.main.events.ChatMessageEvent;
 import dev.fiki.forgehax.main.util.entity.PlayerInfo;
 import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import joptsimple.internal.Strings;
 import net.minecraft.network.play.server.SChatPacket;
 import net.minecraftforge.common.MinecraftForge;
@@ -18,9 +18,6 @@ import java.util.regex.Pattern;
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 import static dev.fiki.forgehax.main.Common.getLogger;
 
-/**
- * Created on 7/18/2017 by fr1kin
- */
 @RegisterMod
 public class ChatIdentifierService extends ServiceMod {
 
@@ -37,10 +34,6 @@ public class ChatIdentifierService extends ServiceMod {
   private static final Pattern[] OUTGOING_PRIVATE_MESSAGES = {
       Pattern.compile("[Tt]o (.*?): (.*)"), // 2b2t and vanilla i think
   };
-
-  public ChatIdentifierService() {
-    super("ChatIdentifierService", "Listens to incoming chat messages and identifies the sender");
-  }
 
   private static boolean extract(String message, Pattern[] patterns, BiConsumer<PlayerInfo, String> callback) {
     for (Pattern pattern : patterns) {

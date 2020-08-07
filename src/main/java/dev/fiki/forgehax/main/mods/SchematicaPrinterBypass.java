@@ -1,19 +1,13 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
 
-/**
- * Created by Babbaj on 9/20/2017.
- */
-@RegisterMod
+//@RegisterMod(
+//    name = "PrinterBypass",
+//    description = "Set silent angles for schematica printer",
+//    category = Category.MISC
+//)
 public class SchematicaPrinterBypass extends ToggleMod {
-
-  public SchematicaPrinterBypass() {
-    super(Category.MISC, "PrinterBypass", false, "Set silent angles for schematica printer");
-  }
-
 //  @SubscribeEvent
 //  public void onPrinterBlockPlace(SchematicaPlaceBlockEvent event) {
 //    final BlockPos pos = event.getPos().offset(event.getSide());

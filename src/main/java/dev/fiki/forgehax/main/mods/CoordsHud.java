@@ -8,7 +8,7 @@ import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.math.AlignHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.HudMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.world.DimensionType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -19,12 +19,12 @@ import java.util.List;
 
 import static dev.fiki.forgehax.main.Common.getWorld;
 
-@RegisterMod
+@RegisterMod(
+    name = "CoordsHUD",
+    description = "Display world coords",
+    category = Category.RENDER
+)
 public class CoordsHud extends HudMod {
-  public CoordsHud() {
-    super(Category.RENDER, "CoordsHUD", false, "Display world coords");
-  }
-
   private final BooleanSetting translate = newBooleanSetting()
       .name("translate")
       .description("show corresponding Nether or Overworld coords")

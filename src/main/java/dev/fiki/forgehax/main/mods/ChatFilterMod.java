@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingSet;
-import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
 import net.minecraft.network.play.server.SChatPacket;
@@ -16,7 +15,11 @@ import java.util.regex.Pattern;
 
 // TODO: 1.15 fix this
 
-//@RegisterMod
+//@RegisterMod(
+//    name = "ChatFilter",
+//    description = "Filter chat by regex",
+//    category = Category.MISC
+//)
 public class ChatFilterMod extends ToggleMod {
   private final Map<String, Pattern> patternCache = new WeakHashMap<>();
 
@@ -26,10 +29,6 @@ public class ChatFilterMod extends ToggleMod {
       .valueSupplier(FilterEntry::new)
       .supplier(MemeSet::new)
       .build();
-
-  public ChatFilterMod() {
-    super(Category.MISC, "ChatFilter", false, "Filter chat by regex");
-  }
 
   @SubscribeEvent
   public void onChatMessage(PacketInboundEvent event) {

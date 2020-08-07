@@ -1,25 +1,26 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-/**
- * Created on 9/4/2016 by fr1kin
- */
-@RegisterMod
-public class FastPlaceMod extends ToggleMod {
+import static dev.fiki.forgehax.main.Common.MC;
 
-  public FastPlaceMod() {
-    super(Category.PLAYER, "FastPlace", false, "Fast place");
-  }
+@RegisterMod(
+    name = "FastPlace",
+    description = "Place blocks faster",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
+public class FastPlaceMod extends ToggleMod {
+  private final ReflectionTools reflection;
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    FastReflection.Fields.Minecraft_rightClickDelayTimer.set(Common.MC, 0);
+    reflection.Minecraft_rightClickDelayTimer.set(MC, 0);
   }
 }

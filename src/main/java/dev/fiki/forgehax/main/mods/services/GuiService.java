@@ -6,7 +6,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.main.util.key.KeyConflictContexts;
 import dev.fiki.forgehax.main.util.key.KeyInputs;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -19,9 +19,8 @@ import static dev.fiki.forgehax.main.Common.*;
 /**
  * Created by Babbaj on 9/10/2017.
  */
-@RegisterMod
+@RegisterMod("GUI")
 public class GuiService extends ServiceMod {
-
   private final KeyBindingSetting guiBind = newKeyBindingSetting()
       .name("bind")
       .description("Bind to open the gui")
@@ -33,10 +32,6 @@ public class GuiService extends ServiceMod {
       .conflictContext(KeyConflictContexts.none())
       .build();
 
-  public GuiService() {
-    super("GUI");
-  }
-  
   private void onBindPressed(KeyBinding bind) {
     if(getDisplayScreen() != null
         && getDisplayScreen().getFocused() instanceof TextFieldWidget) {

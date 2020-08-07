@@ -6,7 +6,7 @@ import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CCustomPayloadPacket;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
@@ -16,10 +16,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.Scanner;
 import java.util.Set;
 
-/**
- * Created on 6/2/2017 by fr1kin
- */
-@RegisterMod
+@RegisterMod(
+    name = "PayloadSpoofer",
+    description = "Will cancel packets sent by some mods",
+    category = Category.MISC
+)
 public class PayloadSpoofer extends ToggleMod {
 
   private static final Set<String> IGNORE_LIST = Sets.newHashSet();
@@ -28,10 +29,6 @@ public class PayloadSpoofer extends ToggleMod {
     IGNORE_LIST.add("WDL|INIT");
     IGNORE_LIST.add("WDL|CONTROL");
     IGNORE_LIST.add("WDL|REQUEST");
-  }
-
-  public PayloadSpoofer() {
-    super(Category.MISC, "PayloadSpoofer", false, "Will cancel packets sent by some mods");
   }
 
   private boolean isBlockedPacket(String channel, PacketBuffer buffer) {

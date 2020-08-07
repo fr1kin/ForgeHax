@@ -5,7 +5,7 @@ import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CMoveVehiclePacket;
 import net.minecraftforge.event.world.WorldEvent;
@@ -13,7 +13,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "RiderDesync",
+    description = "For entity force dismounting",
+    category = Category.PLAYER
+)
 public class RiderDesync extends ToggleMod {
 
   private final BooleanSetting auto_update = newBooleanSetting()
@@ -124,10 +128,6 @@ public class RiderDesync extends ToggleMod {
           printInform("Saved riding entity reset");
         })
         .build();
-  }
-
-  public RiderDesync() {
-    super(Category.PLAYER, "RiderDesync", false, "For entity force dismounting");
   }
 
   @Override

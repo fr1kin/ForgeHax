@@ -15,8 +15,9 @@ import dev.fiki.forgehax.main.util.key.BindingHelper;
 import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.network.play.client.CAnimateHandPacket;
@@ -40,8 +41,14 @@ import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "AntiAFK",
+    description = "Swing arm to prevent being afk kicked",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class AntiAfkMod extends ToggleMod {
+  private final ReflectionTools reflection;
 
   private final LongSetting delay = newLongSetting()
       .name("delay")
@@ -89,9 +96,7 @@ public class AntiAfkMod extends ToggleMod {
 
   private TaskEnum task = TaskEnum.NONE;
 
-  public AntiAfkMod() {
-    super(Category.PLAYER, "AntiAFK", false, "Swing arm to prevent being afk kicked");
-
+  {
     TaskEnum.SWING.setParentSetting(swing);
     TaskEnum.WALK.setParentSetting(walk);
     TaskEnum.SPIN.setParentSetting(spin);
@@ -367,7 +372,7 @@ public class AntiAfkMod extends ToggleMod {
           }
 
           ResetFunction func = LocalPlayerInventory.setSelected(item);
-          LocalPlayerInventory.syncSelected();
+//          LocalPlayerInventory.syncSelected();
 
           BlockRayTraceResult tr = new BlockRayTraceResult(result.getHitVec(), Direction.UP, hit, false);
 
@@ -442,8 +447,7 @@ public class AntiAfkMod extends ToggleMod {
 
     static void setViewAngles(float p, float y) {
       if (silent) {
-        sendNetworkPacket(new CPlayerPacket.RotationPacket(p, y,
-            FastReflection.Fields.Entity_onGround.get(getLocalPlayer())));
+        sendNetworkPacket(new CPlayerPacket.RotationPacket(p, y, true));
       } else {
         LocalPlayerUtils.setViewAngles(p, y);
       }

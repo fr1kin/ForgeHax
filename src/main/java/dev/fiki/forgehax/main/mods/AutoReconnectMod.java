@@ -1,18 +1,21 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "AutoReconnect",
+    description = "Automatically reconnects to server",
+    category = Category.MISC
+)
 public class AutoReconnectMod extends ToggleMod {
 
   private static ServerData lastConnectedServer;
@@ -32,10 +35,6 @@ public class AutoReconnectMod extends ToggleMod {
       .description("Delay between each reconnect attempt")
       .defaultTo(5.D)
       .build();
-
-  public AutoReconnectMod() {
-    super(Category.MISC, "AutoReconnect", false, "Automatically reconnects to server");
-  }
 
   @SubscribeEvent
   public void onGuiOpened(GuiOpenEvent event) {

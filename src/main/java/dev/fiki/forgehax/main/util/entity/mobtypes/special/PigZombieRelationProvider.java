@@ -3,7 +3,6 @@ package dev.fiki.forgehax.main.util.entity.mobtypes.special;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.mobtypes.EntityRelationProvider;
 import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.ZombifiedPiglinEntity;
 
@@ -29,7 +28,7 @@ public class PigZombieRelationProvider extends EntityRelationProvider<ZombifiedP
 
   @Override
   public RelationState getCurrentRelationState(ZombifiedPiglinEntity entity) {
-    return (entity.isAggressive() || FastReflection.Fields.ZombifiedPiglinEntity_angerLevel.get(entity) > 0)
+    return (entity.isAggressive() || entity.func_230256_F__() > 0)
         ? RelationState.HOSTILE
         : RelationState.NEUTRAL;
   }

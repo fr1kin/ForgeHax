@@ -8,6 +8,7 @@ import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
 import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.mods.services.HotbarSelectionService.ResetFunction;
+import dev.fiki.forgehax.main.mods.services.SneakService;
 import dev.fiki.forgehax.main.util.BlockHelper;
 import dev.fiki.forgehax.main.util.BlockHelper.BlockTraceInfo;
 import dev.fiki.forgehax.main.util.BlockHelper.UniqueBlock;
@@ -29,8 +30,9 @@ import dev.fiki.forgehax.main.util.math.Angle;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
@@ -50,9 +52,13 @@ import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod
+@RegisterMod(
+    name = "AutoPlace",
+    description = "Automatically place blocks on top of other blocks",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class AutoPlace extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
-
   enum Stage {
     SELECT_BLOCKS,
     SELECT_REPLACEMENT,
@@ -60,6 +66,9 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
     READY,
     ;
   }
+
+  private final SneakService sneaks;
+  private final ReflectionTools reflection;
 
   private final SimpleSettingSet<Direction> sides = newSimpleSettingEnumSet(Direction.class)
       .name("sides")
@@ -143,10 +152,6 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
   private Runnable resetTask = null;
 
   private Stage stage = Stage.SELECT_BLOCKS;
-
-  public AutoPlace() {
-    super(Category.PLAYER, "AutoPlace", false, "Automatically place blocks on top of other blocks");
-  }
 
   private void reset() {
     if (resetToggle.compareAndSet(true, false)) {
@@ -393,7 +398,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       currentRenderingTarget = null;
       return;
     }
-    if (cooldown.getValue() > 0 && FastReflection.Fields.Minecraft_rightClickDelayTimer.get(MC) > 0) {
+    if (cooldown.getValue() > 0 && reflection.Minecraft_rightClickDelayTimer.get(MC) > 0) {
       return;
     }
 
@@ -491,8 +496,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
         PacketHelper.ignoreAndSend(new CEntityActionPacket(getLocalPlayer(),
             CEntityActionPacket.Action.PRESS_SHIFT_KEY));
 
-        LocalPlayerUtils.setSneakingSuppression(true);
-        LocalPlayerUtils.setSneaking(true);
+        sneaks.setSuppressing(true);
+        sneaks.setSneaking(true);
       }
 
       if (getPlayerController().func_217292_a(
@@ -505,8 +510,8 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       }
 
       if (sneak) {
-        LocalPlayerUtils.setSneaking(false);
-        LocalPlayerUtils.setSneakingSuppression(false);
+        sneaks.setSneaking(false);
+        sneaks.setSuppressing(false);
 
         sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
       }
@@ -514,7 +519,7 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
       func.revert();
 
       // set the block place delay
-      FastReflection.Fields.Minecraft_rightClickDelayTimer.set(MC, cooldown.getValue());
+      reflection.Minecraft_rightClickDelayTimer.set(MC, cooldown.getValue());
     });
   }
 }

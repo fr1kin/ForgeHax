@@ -1,21 +1,26 @@
 package dev.fiki.forgehax.main.mods;
 
+import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.PacketHelper;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "NoFall",
+    description = "Prevents fall damage from being taken",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class NoFallMod extends ToggleMod {
-
-  public NoFallMod() {
-    super(Category.PLAYER, "NoFall", false, "Prevents fall damage from being taken");
-  }
+  @FieldMapping(parentClass = CPlayerPacket.class, value = "onGround")
+  private final ReflectionField<Boolean> CPacketPlayer_onGround;
 
   private float lastFallDistance = 0;
 
@@ -25,7 +30,7 @@ public class NoFallMod extends ToggleMod {
         && !(event.getPacket() instanceof CPlayerPacket.RotationPacket)
         && !PacketHelper.isIgnored(event.getPacket())) {
       CPlayerPacket packetPlayer = (CPlayerPacket) event.getPacket();
-      if (FastReflection.Fields.CPacketPlayer_onGround.get(packetPlayer) && lastFallDistance >= 4) {
+      if (CPacketPlayer_onGround.get(packetPlayer) && lastFallDistance >= 4) {
         CPlayerPacket packet =
             new CPlayerPacket.PositionRotationPacket(
                 ((CPlayerPacket) event.getPacket()).getX(0),

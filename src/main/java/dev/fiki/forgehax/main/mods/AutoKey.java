@@ -1,31 +1,33 @@
 package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Maps;
+import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.maps.SimpleSettingMap;
 import dev.fiki.forgehax.main.util.key.BindingHelper;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import dev.fiki.forgehax.main.util.reflection.fasttype.FastField;
-import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import lombok.Getter;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import java.util.function.BiConsumer;
 
 /**
  * Created by Babbaj on 1/30/2018.
  */
-@RegisterMod
+@RegisterMod(
+    name = "AutoKey",
+    description = "Automatically click/press keys",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class AutoKey extends ToggleMod {
-  @Getter
-  private static AutoKey instance;
+  private final ReflectionTools reflection;
 
-  private IntegerSetting holdTime = newIntegerSetting()
+  private final IntegerSetting holdTime = newIntegerSetting()
       .name("hold-time")
       .description("how long to hold button for tap")
       .defaultTo(150) // approximate minimum for reliable key pressing
@@ -54,11 +56,6 @@ public class AutoKey extends ToggleMod {
 
   private long lastTimeMillis;
 
-  public AutoKey() {
-    super(Category.PLAYER, "AutoKey", false, "Automatically click/press keys");
-    instance = this;
-  }
-
   @SubscribeEvent
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     final int lastClick = (int) (System.currentTimeMillis() - lastTimeMillis);
@@ -66,40 +63,32 @@ public class AutoKey extends ToggleMod {
       lastTimeMillis = System.currentTimeMillis();
     }
 
-    active.forEach((key, mode) -> mode.apply(key, lastClick));
-  }
-
-  private static void incrementPressTime(KeyBinding binding) {
-    FastField<Integer> field = FastReflection.Fields.KeyBinding_pressTime;
-    int currTime = field.get(binding);
-    field.set(binding, currTime + 1);
-  }
-
-  private enum ClickMode {
-    TAP(
-        (key, time) -> {
-          if (time < AutoKey.getInstance().holdTime.getValue()) {
+    active.forEach((key, mode) -> {
+      switch (mode) {
+        case TAP:
+          if (lastClick < holdTime.getValue()) {
             incrementPressTime(key);
             key.setPressed(true);
           } else {
             key.setPressed(false);
           }
-        }), // hold key for at least 150ms
-
-    HOLD(
-        (key, time) -> {
+          break;
+        case HOLD:
           incrementPressTime(key);
           key.setPressed(true);
-        }); // hold key forever
+          break;
+      }
+    });
+  }
 
-    BiConsumer<KeyBinding, Integer> clickAction;
+  private void incrementPressTime(KeyBinding binding) {
+    ReflectionField<Integer> field = reflection.KeyBinding_pressTime;
+    int currTime = field.get(binding);
+    field.set(binding, currTime + 1);
+  }
 
-    ClickMode(BiConsumer<KeyBinding, Integer> action) {
-      this.clickAction = action;
-    }
-
-    public void apply(KeyBinding key, int lastTime) {
-      clickAction.accept(key, lastTime);
-    }
+  private enum ClickMode {
+    TAP, // hold key for at least 150ms
+    HOLD;
   }
 }

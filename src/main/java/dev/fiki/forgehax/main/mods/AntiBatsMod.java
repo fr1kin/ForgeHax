@@ -3,11 +3,11 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.mobtypes.EntityRelationProvider;
-import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
 import dev.fiki.forgehax.main.util.entity.mobtypes.EntityRelations;
+import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -17,13 +17,13 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "AntiBats",
+    description = "666 KILL BATS 666",
+    category = Category.RENDER
+)
 public class AntiBatsMod extends ToggleMod {
   private static final EntityRelationProvider<BatEntity> BAT_PROVIDER = new BatRelationProvider();
-
-  public AntiBatsMod() {
-    super(Category.RENDER, "AntiBats", false, "666 KILL BATS 666");
-  }
 
   @Override
   public void onEnabled() {

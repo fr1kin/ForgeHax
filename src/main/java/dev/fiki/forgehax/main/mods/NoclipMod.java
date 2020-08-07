@@ -3,19 +3,22 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getMountedEntityOrPlayer;
 
-@RegisterMod
+@RegisterMod(
+    name = "Noclip",
+    description = "Enables player noclip",
+    category = Category.PLAYER
+)
+@RequiredArgsConstructor
 public class NoclipMod extends ToggleMod {
-
-  public NoclipMod() {
-    super(Category.PLAYER, "Noclip", false, "Enables player noclip");
-  }
+  private final ReflectionTools reflection;
 
   @Override
   public void onDisabled() {
@@ -30,6 +33,6 @@ public class NoclipMod extends ToggleMod {
     Entity local = getMountedEntityOrPlayer();
     local.noClip = true;
     local.fallDistance = 0;
-    FastReflection.Fields.Entity_onGround.set(local, false);
+    reflection.Entity_onGround.set(local, false);
   }
 }

@@ -6,22 +6,17 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import dev.fiki.forgehax.main.util.spam.SpamMessage;
+import joptsimple.internal.Strings;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import joptsimple.internal.Strings;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-/**
- * Created on 7/21/2017 by fr1kin
- */
 @RegisterMod
 public class SpamService extends ServiceMod {
-  
   private static final List<SpamMessage> SENDING = Lists.newCopyOnWriteArrayList();
   
   public static boolean send(SpamMessage spam) {
@@ -78,10 +73,6 @@ public class SpamService extends ServiceMod {
               args.inform("Reset chat spam");
             })
         .build();
-  }
-  
-  public SpamService() {
-    super("SpamService");
   }
   
   @SubscribeEvent

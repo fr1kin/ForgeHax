@@ -5,7 +5,7 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
@@ -14,15 +14,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Objects;
 
-@RegisterMod
+@RegisterMod(
+    name = "PacketFly",
+    description = "Enables flying",
+    category = Category.PLAYER
+)
 @SuppressWarnings("MethodCallSideOnly")
 public class PacketFlyMod extends ToggleMod {
 
   private boolean zoomies = true;
-
-  public PacketFlyMod() {
-    super(Category.PLAYER, "PacketFly", false, "Enables flying");
-  }
 
   @Override
   public void onDisabled() {

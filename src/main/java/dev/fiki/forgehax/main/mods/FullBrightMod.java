@@ -5,16 +5,15 @@ import dev.fiki.forgehax.main.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.mod.loader.RegisterMod;
+import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@RegisterMod
+@RegisterMod(
+    name = "FullBright",
+    description = "Makes everything render with maximum brightness",
+    category = Category.WORLD
+)
 public class FullBrightMod extends ToggleMod {
-
-  public FullBrightMod() {
-    super(Category.WORLD, "FullBright", false, "Makes everything render with maximum brightness");
-  }
-
   private final DoubleSetting defaultGamma = newDoubleSetting()
       .name("gamma")
       .description("default gamma to revert to")

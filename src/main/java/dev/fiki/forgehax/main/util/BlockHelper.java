@@ -4,9 +4,6 @@ import com.google.common.collect.Lists;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
-import dev.fiki.forgehax.main.util.reflection.FastReflection;
-import dev.fiki.forgehax.main.util.reflection.ReflectionHelper;
-import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -186,7 +183,7 @@ public class BlockHelper {
     }
 
     public boolean isSneakRequired() {
-      return BlockActivationChecker.isOverwritten(getBlockState().getBlock());
+      return false; // TODO: 1.16
     }
   }
 
@@ -213,20 +210,6 @@ public class BlockHelper {
 
     public boolean isEqual(BlockPos pos) {
       return getWorld().getBlockState(pos).getBlock().equals(block);
-    }
-  }
-
-  public static class BlockActivationChecker {
-    private static final Object2BooleanArrayMap<Class<?>> CACHE = new Object2BooleanArrayMap<>();
-
-    public static boolean isOverwritten(final Block instance) {
-      Objects.requireNonNull(instance);
-      return CACHE.computeIfAbsent(
-          instance.getClass(),
-          clazz -> Block.class != ReflectionHelper.getMethodDeclaringClass(
-              FastReflection.Methods.Block_onBlockActivated,
-              instance)
-      );
     }
   }
 }
