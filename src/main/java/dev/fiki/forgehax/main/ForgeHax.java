@@ -47,8 +47,6 @@ public class ForgeHax {
   private ExecutorService asyncExecutorService;
   private ExecutorService pooledExecutorService;
 
-  private ConsoleInterface consoleInterface;
-
   private BufferProvider bufferProvider;
 
   public ForgeHax() {
@@ -87,12 +85,10 @@ public class ForgeHax {
       di.addInstance(asyncExecutorService, ExecutorService.class, "async");
       di.addInstance(pooledExecutorService, ExecutorService.class, "threadpool");
 
-      consoleInterface = new ConsoleInterface();
-      di.addInstance(configProperties, "cli");
-
       bufferProvider = new BufferProvider();
       di.addInstance(bufferProvider);
 
+      di.module(ConsoleInterface.class, "cli");
       di.module(ReflectionTools.class);
 
       ReflectionProviders.all(dependencyInjector);

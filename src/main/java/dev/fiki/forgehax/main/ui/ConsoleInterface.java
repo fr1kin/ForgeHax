@@ -24,8 +24,7 @@ import java.util.ListIterator;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@Getter
-@Setter
+@Getter @Setter
 public class ConsoleInterface implements IGuiEventListener, IConsole {
   private final List<ConsoleEntry> entries = Lists.newCopyOnWriteArrayList();
   private final List<String> entered = Lists.newArrayList();

@@ -505,14 +505,14 @@ public class ConsoleInputScreen extends Screen {
       synchronized (this) {
         if (previousScreen != null
             && previousScreen.getMinecraft() != null) {
-          RenderSystem.pushMatrix();
-          RenderSystem.translatef(0.f, 0.f, -150.f);
+          stack.push();
+          stack.translate(0.f, 0.f, -150.f);
           try {
             previousScreen.render(stack, 0, 0, partialTicks);
           } catch (Throwable t) {
             processPreviousScreen = false;
           }
-          RenderSystem.popMatrix();
+          stack.pop();
         }
       }
     }
@@ -532,9 +532,8 @@ public class ConsoleInputScreen extends Screen {
     int cursorOffset = this.cursorPosition - this.lineScrollOffset;
     int selectionLength = this.selectionEnd - this.lineScrollOffset;
 
-//    String visibleText = ci.getFontRenderer().trimStringToWidth(this.text.substring(this.lineScrollOffset),
-//        this.getAdjustedWidth());
-    String visibleText = ""; // TODO: 1.16
+    String visibleText = ci.getFontRenderer().func_238412_a_(this.text.substring(this.lineScrollOffset),
+        this.getAdjustedWidth());
 
     boolean selectedTextVisible = cursorOffset >= 0 && cursorOffset <= visibleText.length();
     boolean markerVisible = this.cursorCounter / 6 % 2 == 0 && selectedTextVisible;
@@ -589,18 +588,18 @@ public class ConsoleInputScreen extends Screen {
 
     stack.pop();
 
-    RenderSystem.pushMatrix();
-    RenderSystem.translatef(0.f, 0.f, 50.f);
+    stack.push();
+    stack.translate(0.f, 0.f, 50.f);
     source.finish();
 
     if (selectionLength != cursorOffset) {
-      RenderSystem.pushMatrix();
-      RenderSystem.translatef(2.f, 2.f, 0.f);
+      stack.push();
+      stack.translate(2.f, 2.f, 0.f);
       int highlightX = x + ci.getFontRenderer().getStringWidth(visibleText.substring(0, selectionLength));
       this.drawSelectionBox(endX, y - 1, highlightX - 1, y + 1 + 9);
-      RenderSystem.popMatrix();
+      stack.pop();
     }
-    RenderSystem.popMatrix();
+    stack.pop();
   }
 
   /**
@@ -702,28 +701,28 @@ public class ConsoleInputScreen extends Screen {
   }
 
   public void setSelectionPos(int position) {
-//    int i = this.text.length(); // TODO: 1.16
-//    this.selectionEnd = MathHelper.clamp(position, 0, i);
-//    if (ci.getFontRenderer() != null) {
-//      if (this.lineScrollOffset > i) {
-//        this.lineScrollOffset = i;
-//      }
-//
-//      int j = this.getAdjustedWidth();
-//      String s = ci.getFontRenderer().trimStringToWidth(this.text.substring(this.lineScrollOffset), j);
-//      int k = s.length() + this.lineScrollOffset;
-//      if (this.selectionEnd == this.lineScrollOffset) {
-//        this.lineScrollOffset -= ci.getFontRenderer().trimStringToWidth(this.text, j, true).length();
-//      }
-//
-//      if (this.selectionEnd > k) {
-//        this.lineScrollOffset += this.selectionEnd - k;
-//      } else if (this.selectionEnd <= this.lineScrollOffset) {
-//        this.lineScrollOffset -= this.lineScrollOffset - this.selectionEnd;
-//      }
-//
-//      this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, i);
-//    }
+    int i = this.text.length(); // TODO: 1.16
+    this.selectionEnd = MathHelper.clamp(position, 0, i);
+    if (ci.getFontRenderer() != null) {
+      if (this.lineScrollOffset > i) {
+        this.lineScrollOffset = i;
+      }
+
+      int j = this.getAdjustedWidth();
+      String s = ci.getFontRenderer().func_238412_a_(this.text.substring(this.lineScrollOffset), j);
+      int k = s.length() + this.lineScrollOffset;
+      if (this.selectionEnd == this.lineScrollOffset) {
+        this.lineScrollOffset -= ci.getFontRenderer().func_238413_a_(this.text, j, true).length();
+      }
+
+      if (this.selectionEnd > k) {
+        this.lineScrollOffset += this.selectionEnd - k;
+      } else if (this.selectionEnd <= this.lineScrollOffset) {
+        this.lineScrollOffset -= this.lineScrollOffset - this.selectionEnd;
+      }
+
+      this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, i);
+    }
 
   }
 

@@ -7,6 +7,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.item.Items;
 import net.minecraft.network.play.server.SSpawnPlayerPacket;
@@ -22,7 +23,10 @@ import static dev.fiki.forgehax.main.Common.*;
     description = "Automatically disconnect",
     category = Category.COMBAT
 )
+@RequiredArgsConstructor
 public class AutoLog extends ToggleMod {
+  private final AutoReconnectMod autoReconnect;
+
   public final IntegerSetting threshold = newIntegerSetting()
           .name("threshold")
           .description("health to go down to to disconnect\"")
@@ -49,7 +53,7 @@ public class AutoLog extends ToggleMod {
           || (noTotem.getValue()
           && !((getLocalPlayer().getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING)
           || getLocalPlayer().getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING))) {
-        AutoReconnectMod.hasAutoLogged = true;
+        autoReconnect.hasAutoLogged = true;
         getNetworkManager().closeChannel(new StringTextComponent("Health too low (" + health + ")"));
         disable();
       }
@@ -60,7 +64,7 @@ public class AutoLog extends ToggleMod {
   public void onPacketRecieved(PacketInboundEvent event) {
     if (event.getPacket() instanceof SSpawnPlayerPacket) {
       if (disconnectOnNewPlayer.getValue()) {
-        AutoReconnectMod.hasAutoLogged = true; // dont automatically reconnect
+        autoReconnect.hasAutoLogged = true; // dont automatically reconnect
         UUID id = ((SSpawnPlayerPacket) event.getPacket()).getUniqueId();
         
         NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(id);

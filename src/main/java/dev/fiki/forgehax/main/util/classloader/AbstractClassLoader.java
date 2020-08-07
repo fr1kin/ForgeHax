@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.main.util.classloader;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -8,9 +9,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getLauncherClassLoader;
+import static dev.fiki.forgehax.main.Common.getLogger;
 
 /**
  * Created on 2/13/2018 by fr1kin
@@ -53,7 +54,6 @@ public abstract class AbstractClassLoader<E> {
         .filter(this::checkAnnotation)
         .filter(this::checkInheritedClass)
         .map(this::wildCast)
-        .filter(this::valid)
         .collect(Collectors.toList());
   }
   
@@ -67,15 +67,6 @@ public abstract class AbstractClassLoader<E> {
   
   public E loadClass(Class<? extends E> clazz) {
     return loadClasses(Collections.singleton(clazz)).stream().findFirst().orElse(null);
-  }
-  
-  protected boolean valid(Class<? extends E> clazz) {
-    try {
-      return clazz.getDeclaredConstructor() != null;
-    } catch (NoSuchMethodException e) {
-      getLogger().error("Class has no default constructor");
-      return false;
-    }
   }
   
   protected E create(Class<? extends E> clazz) {

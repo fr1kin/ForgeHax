@@ -1,10 +1,8 @@
 package dev.fiki.forgehax.main;
 
-import dev.fiki.forgehax.main.ui.ConsoleInterface;
 import dev.fiki.forgehax.main.util.FileManager;
 import dev.fiki.forgehax.main.util.TextComponentBuilder;
 import dev.fiki.forgehax.main.util.cmd.RootCommand;
-import dev.fiki.forgehax.main.util.cmd.execution.IConsole;
 import dev.fiki.forgehax.main.util.draw.BufferProvider;
 import dev.fiki.forgehax.main.util.modloader.ModManager;
 import net.minecraft.block.Block;
@@ -70,14 +68,6 @@ public interface Common {
 
   static Path getBaseDirectory() {
     return getForgeHax().getBaseDirectory();
-  }
-
-  static IConsole getCurrentConsoleOutput() {
-    return getForgeHax().getConsoleInterface();
-  }
-
-  static ConsoleInterface getConsoleInterface() {
-    return getForgeHax().getConsoleInterface();
   }
 
   static BufferProvider getBufferProvider() {

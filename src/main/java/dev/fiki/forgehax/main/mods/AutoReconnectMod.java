@@ -20,8 +20,8 @@ public class AutoReconnectMod extends ToggleMod {
 
   private static ServerData lastConnectedServer;
 
-  public static boolean hasAutoLogged =
-      false; // used to disable autoreconnecting without disabling the entire mod
+  // used to disable autoreconnecting without disabling the entire mod
+  public boolean hasAutoLogged = false;
 
   public void updateLastConnectedServer() {
     ServerData data = Common.MC.getCurrentServerData();
