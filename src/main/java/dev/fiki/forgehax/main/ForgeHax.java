@@ -12,6 +12,7 @@ import dev.fiki.forgehax.main.util.modloader.di.providers.ReflectionProviders;
 import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
 import lombok.AccessLevel;
 import lombok.Getter;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -70,6 +71,10 @@ public class ForgeHax {
 
       DependencyInjector di = (dependencyInjector = new DependencyInjector());
       di.addInstance(dependencyInjector);
+
+      di.addInstance(this, "forgehax");
+      di.addInstance(Minecraft.getInstance(), "mc");
+      di.addInstance(logger, "logger");
 
       rootCommand = new RootCommand();
       rootCommand.setConfigDir(getBaseDirectory().resolve("config"));
