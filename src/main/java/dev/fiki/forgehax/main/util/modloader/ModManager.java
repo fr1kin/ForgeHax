@@ -1,11 +1,13 @@
 package dev.fiki.forgehax.main.util.modloader;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import dev.fiki.forgehax.main.util.FileHelper;
 import dev.fiki.forgehax.main.util.classloader.AbstractClassLoader;
 import dev.fiki.forgehax.main.util.classloader.ClassLoaderHelper;
 import dev.fiki.forgehax.main.util.classloader.CustomClassLoaders;
 import dev.fiki.forgehax.main.util.mod.AbstractMod;
+import dev.fiki.forgehax.main.util.mod.CommandMod;
 import dev.fiki.forgehax.main.util.modloader.di.DependencyInjector;
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +17,7 @@ import java.lang.annotation.Annotation;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static dev.fiki.forgehax.main.Common.getLogger;
@@ -25,6 +28,7 @@ import static dev.fiki.forgehax.main.Common.getLogger;
 @RequiredArgsConstructor
 public class ModManager extends AbstractClassLoader<AbstractMod> {
   private final DependencyInjector di;
+  private final List<AbstractMod> mods = Lists.newArrayList();
 
   public boolean searchPackage(String packageDir) {
     try {
@@ -89,7 +93,7 @@ public class ModManager extends AbstractClassLoader<AbstractMod> {
   }
 
   public Stream<AbstractMod> getMods() {
-    return di.getInstances(AbstractMod.class);
+    return mods.stream();
   }
 
   public void startupMods() {
@@ -98,6 +102,10 @@ public class ModManager extends AbstractClassLoader<AbstractMod> {
     di.getInstances(AbstractMod.class).forEach(mod -> {
         try {
           mod.load();
+
+          if (!(mod instanceof CommandMod)) {
+            mods.add(mod);
+          }
         } catch (Throwable t) {
           getLogger().debug("Failed to load mod {}: {}", mod.getName(), t.getMessage());
           getLogger().debug(t, t);

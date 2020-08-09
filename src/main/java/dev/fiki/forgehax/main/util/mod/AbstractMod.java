@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.main.util.mod;
 
 import com.google.common.base.Strings;
-import dev.fiki.forgehax.main.util.cmd.AbstractCommand;
 import dev.fiki.forgehax.main.util.cmd.AbstractParentCommand;
 import dev.fiki.forgehax.main.util.cmd.ICommand;
+import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.listener.IUpdateConfiguration;
 import dev.fiki.forgehax.main.util.modloader.RegisterMod;
@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import net.minecraftforge.common.MinecraftForge;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -35,24 +34,20 @@ public abstract class AbstractMod extends AbstractParentCommand {
   }
 
   @SneakyThrows
-  AbstractMod() {
-    super(getRootCommand(), "invalid", Collections.emptySet(), "invalid", Collections.emptySet());
+  AbstractMod(IParentCommand parent) {
+    super(parent, "invalid", Collections.emptySet(), "invalid", Collections.emptySet());
 
     RegisterMod info = getClass().getAnnotation(RegisterMod.class);
     Objects.requireNonNull(info, "RegisterMod annotation required for default constructor!");
 
     // vomit emoji
-    Field fName = AbstractCommand.class.getDeclaredField("name");
-    fName.setAccessible(true);
-    fName.set(this, Stream.of(info.value(), info.name())
+    Util.setCommandName(this, Stream.of(info.value(), info.name())
         .map(Strings::emptyToNull)
         .filter(Objects::nonNull)
         .findFirst()
         .orElse(getClass().getSimpleName()));
 
-    Field fDesc = AbstractCommand.class.getDeclaredField("description");
-    fDesc.setAccessible(true);
-    fDesc.set(this, info.description());
+    Util.setCommandDescription(this, Strings.nullToEmpty(info.description()));
 
     for (EnumFlag flag : info.flags()) {
       addFlag(flag);
@@ -61,6 +56,10 @@ public abstract class AbstractMod extends AbstractParentCommand {
     this.category = info.category();
 
     onFullyConstructed();
+  }
+
+  AbstractMod() {
+    this(getRootCommand());
   }
 
   /**
