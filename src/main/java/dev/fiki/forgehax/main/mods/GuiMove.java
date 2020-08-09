@@ -1,7 +1,6 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.gui.ClickGui;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.modloader.RegisterMod;
@@ -36,8 +35,7 @@ public class GuiMove extends ToggleMod {
         || getDisplayScreen() instanceof VideoSettingsScreen
         || getDisplayScreen() instanceof OptionsSoundsScreen
         || getDisplayScreen() instanceof ContainerScreen
-        || getDisplayScreen() instanceof IngameMenuScreen
-        || getDisplayScreen() instanceof ClickGui) {
+        || getDisplayScreen() instanceof IngameMenuScreen) {
       for (KeyBinding bind : keys) {
         KeyBinding.setKeyBindState(bind.getKey(),
             InputMappings.isKeyDown(getMainWindow().getHandle(), bind.getKey().getKeyCode()));
