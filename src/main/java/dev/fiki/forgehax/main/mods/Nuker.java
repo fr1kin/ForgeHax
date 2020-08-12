@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.asm.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
+import dev.fiki.forgehax.main.mods.managers.RotationManager;
+import dev.fiki.forgehax.main.mods.managers.RotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.util.BlockHelper;
 import dev.fiki.forgehax.main.util.BlockHelper.BlockTraceInfo;
 import dev.fiki.forgehax.main.util.BlockHelper.UniqueBlock;
@@ -51,7 +51,7 @@ import static dev.fiki.forgehax.main.Common.*;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
-public class Nuker extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
+public class Nuker extends ToggleMod implements RotationManager.MovementUpdateListener {
   @FieldMapping(parentClass = PlayerController.class, value = "curBlockDamageMP")
   private final ReflectionField<Float> PlayerController_curBlockDamageMP;
 
@@ -178,13 +178,13 @@ public class Nuker extends ToggleMod implements PositionRotationManager.Movement
 
   @Override
   protected void onEnabled() {
-    PositionRotationManager.getManager().register(this, PriorityEnum.HIGH);
+    RotationManager.getManager().register(this, PriorityEnum.HIGH);
     printInform("Select blocks by looking at it and pressing %s", selectBind.getKeyName());
   }
 
   @Override
   protected void onDisabled() {
-    PositionRotationManager.getManager().unregister(this);
+    RotationManager.getManager().unregister(this);
   }
 
   @SubscribeEvent

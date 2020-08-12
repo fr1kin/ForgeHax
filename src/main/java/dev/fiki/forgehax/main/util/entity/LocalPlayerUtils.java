@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.util.entity;
 
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
+import dev.fiki.forgehax.main.mods.managers.RotationManager;
 import dev.fiki.forgehax.main.util.Switch;
 import dev.fiki.forgehax.main.util.math.Angle;
 import net.minecraft.entity.Entity;
@@ -30,7 +30,7 @@ public class LocalPlayerUtils implements Common {
   }
 
   public static Angle getServerViewAngles() {
-    return PositionRotationManager.getState().getRenderServerViewAngles();
+    return RotationManager.getState().getRenderServerViewAngles();
   }
 
   public static Vector3d getVelocity() {

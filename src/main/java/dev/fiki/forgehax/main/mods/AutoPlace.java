@@ -5,8 +5,8 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
+import dev.fiki.forgehax.main.mods.managers.RotationManager;
+import dev.fiki.forgehax.main.mods.managers.RotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.mods.services.HotbarSelectionService.ResetFunction;
 import dev.fiki.forgehax.main.mods.services.SneakService;
 import dev.fiki.forgehax.main.util.BlockHelper;
@@ -58,7 +58,7 @@ import static dev.fiki.forgehax.main.Common.*;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
-public class AutoPlace extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
+public class AutoPlace extends ToggleMod implements RotationManager.MovementUpdateListener {
   enum Stage {
     SELECT_BLOCKS,
     SELECT_REPLACEMENT,
@@ -228,12 +228,12 @@ public class AutoPlace extends ToggleMod implements PositionRotationManager.Move
 
   @Override
   protected void onEnabled() {
-    PositionRotationManager.getManager().register(this);
+    RotationManager.getManager().register(this);
   }
 
   @Override
   protected void onDisabled() {
-    PositionRotationManager.getManager().unregister(this);
+    RotationManager.getManager().unregister(this);
     printToggle.set(false);
   }
 

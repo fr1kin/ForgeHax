@@ -229,8 +229,8 @@ public class ESP extends ToggleMod implements Fonts {
             stack.push();
             stack.translate(topX, topY - offsetY - 1, 0.f);
 
-            String name = living.getDisplayName().getUnformattedComponentText();
-            if(name.isEmpty()) {
+            String name = living.getName().getString();
+            if(name == null || name.isEmpty()) {
               name = living.getScoreboardName();
             }
 
@@ -337,7 +337,7 @@ public class ESP extends ToggleMod implements Fonts {
               stack.scale(1.f, -1.f, 1.f);
               stack.scale(itemSize, itemSize, 0);
 
-              SurfaceHelper.renderItem(living, itemStack, stack, buffers);
+              SurfaceHelper.renderItem(living, itemStack, stack, MC.getRenderTypeBuffers().getBufferSource());
 
               stack.pop();
             }
@@ -373,6 +373,7 @@ public class ESP extends ToggleMod implements Fonts {
     buffers.finish(RenderTypeEx.blockCutout());
     buffers.finish(RenderType.getGlint());
     buffers.finish(RenderType.getEntityGlint());
+    MC.getRenderTypeBuffers().getBufferSource().finish();
 
     RenderSystem.enableDepthTest();
     RenderHelper.setupGui3DDiffuseLighting();

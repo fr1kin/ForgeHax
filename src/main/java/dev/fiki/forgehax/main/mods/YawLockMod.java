@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState;
+import dev.fiki.forgehax.main.mods.managers.RotationManager;
+import dev.fiki.forgehax.main.mods.managers.RotationManager.RotationState;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.main.util.common.PriorityEnum;
@@ -17,7 +17,7 @@ import dev.fiki.forgehax.main.util.modloader.RegisterMod;
     category = Category.PLAYER
 )
 public class YawLockMod extends ToggleMod
-    implements PositionRotationManager.MovementUpdateListener {
+    implements RotationManager.MovementUpdateListener {
 
   public final BooleanSetting auto = newBooleanSetting()
       .name("auto")
@@ -49,12 +49,12 @@ public class YawLockMod extends ToggleMod
 
   @Override
   protected void onEnabled() {
-    PositionRotationManager.getManager().register(this, PriorityEnum.LOWEST);
+    RotationManager.getManager().register(this, PriorityEnum.LOWEST);
   }
 
   @Override
   protected void onDisabled() {
-    PositionRotationManager.getManager().unregister(this);
+    RotationManager.getManager().unregister(this);
   }
 
   @Override

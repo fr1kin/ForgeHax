@@ -6,7 +6,7 @@ import dev.fiki.forgehax.asm.events.movement.PrePlayerMovementUpdateEvent;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
+import dev.fiki.forgehax.main.mods.managers.RotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.util.Utils;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
@@ -16,6 +16,7 @@ import dev.fiki.forgehax.main.util.mod.ServiceMod;
 import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import dev.fiki.forgehax.main.util.task.SimpleManagerContainer;
 import dev.fiki.forgehax.main.util.task.TaskChain;
+import lombok.Getter;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.vector.Vector3d;
@@ -30,7 +31,7 @@ import java.util.function.Consumer;
  * Created on 6/15/2017 by fr1kin
  */
 @RegisterMod
-public class PositionRotationManager extends ServiceMod {
+public class RotationManager extends ServiceMod {
 
   // copy/pasted from ToggleMod
   private final BooleanSetting enabled = newBooleanSetting()
@@ -58,46 +59,16 @@ public class PositionRotationManager extends ServiceMod {
   public static ReadableRotationState getState() {
     return STATE;
   }
-  
-  private final RotationState gState = new RotationState();
+
+  @Getter
+  private final RotationState currentState = new RotationState();
   private TaskChain<Consumer<ReadableRotationState>> futureTasks = TaskChain.empty();
-  
-  private static Angle getPlayerAngles(ClientPlayerEntity player) {
-    return Angle.degrees(player.rotationPitch, player.rotationYaw);
-  }
-  
-  private static void setPlayerAngles(ClientPlayerEntity player, Angle angles) {
-    Angle original = getPlayerAngles(player);
-    Angle diff = angles.normalize().sub(original.normalize()).normalize();
-    player.rotationPitch = Utils.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
-    player.rotationYaw = original.getYaw() + diff.getYaw();
-  }
-  
-  private static void setPlayerPosition(ClientPlayerEntity player, Vector3d position) {
-    player.setRawPosition(position.getX(), position.getY(), position.getZ());
-  }
-  
-  private float clampAngle(float from, float to, float clamp) {
-    return AngleHelper.normalizeInDegrees(
-      from + Utils.clamp(AngleHelper.normalizeInDegrees(to - from), -clamp, clamp));
-  }
-  
-  private Angle clampAngle(Angle from, Angle to, float clamp) {
-    return Angle.degrees(
-      clampAngle(from.getPitch(), to.getPitch(), clamp),
-      clampAngle(from.getYaw(), to.getYaw(), clamp));
-  }
-  
-  private float getRotationCount(Angle from, Angle to, float clamp) {
-    Angle diff = to.sub(from).normalize();
-    float rp = (diff.getPitch() / clamp);
-    float ry = (diff.getYaw() / clamp);
-    return Math.max(Math.abs(rp), Math.abs(ry));
-  }
+
+
   
   @SubscribeEvent
   public void onWorldLoad(ClientWorldEvent.Load event) {
-    gState.setInitialized(false);
+    currentState.setInitialized(false);
   }
   
   @SubscribeEvent
@@ -107,19 +78,19 @@ public class PositionRotationManager extends ServiceMod {
     // updated view angles
     Angle va = getPlayerAngles(event.getLocalPlayer());
     
-    if (!gState.isInitialized()) {
-      gState.setServerAngles(va);
-      gState.setClientAngles(va);
-      gState.setInitialized(true);
+    if (!currentState.isInitialized()) {
+      currentState.setServerAngles(va);
+      currentState.setClientAngles(va);
+      currentState.setInitialized(true);
     }
     
     RotationState gs = new RotationState();
-    gs.setServerAngles(gState.getServerAngles()); // use previous angles
+    gs.setServerAngles(currentState.getServerAngles()); // use previous angles
     gs.setClientAngles(va);
     
     // boolean to check if any task has been processed
     boolean changed = false;
-    
+
     // true if only the client angle has been updated
     boolean clientOnly = false;
     
@@ -138,7 +109,7 @@ public class PositionRotationManager extends ServiceMod {
         
         // set the current server angles to the previous states as this event wont fire
         RotationState rs = new RotationState(gs);
-        rs.setServerAngles(gState.getServerAngles());
+        rs.setServerAngles(currentState.getServerAngles());
         synchronized (STATE) {
           STATE.setCurrentState(rs);
         }
@@ -174,18 +145,18 @@ public class PositionRotationManager extends ServiceMod {
       }
     }
     
-    if (gs.getListener() == null && gState.getListener() == null) {
+    if (gs.getListener() == null && currentState.getListener() == null) {
       gs.setServerAngles(gs.getClientAngles());
-    } else if (gs.getListener() == null && gState.getListener() != null) {
-      getManager().finish(gState.getListener()); // finish the previous task
+    } else if (gs.getListener() == null && currentState.getListener() != null) {
+      getManager().finish(currentState.getListener()); // finish the previous task
       gs.setServerAngles(gs.getClientAngles());
-    } else if (gState.getListener() != gs.getListener()) {
+    } else if (currentState.getListener() != gs.getListener()) {
       getManager().begin(gs.getListener());
     }
     
     if (smooth.getValue() > 0.D) {
       // the current angles the server thinks we are looking at
-      Angle start = gState.getServerAngles();
+      Angle start = currentState.getServerAngles();
       // the angles we want to look at
       Angle dest = gs.getServerAngles();
       
@@ -201,10 +172,10 @@ public class PositionRotationManager extends ServiceMod {
       futureTasks = ls != null ? ls.getFutureTasks() : TaskChain.empty();
     }
     
-    gState.copyOf(gs);
+    currentState.copyOf(gs);
     
     // set the player angles to the server angles
-    setPlayerAngles(event.getLocalPlayer(), gState.getServerAngles().inDegrees().normalize());
+    setPlayerAngles(event.getLocalPlayer(), currentState.getServerAngles().inDegrees().normalize());
   }
   
   @SubscribeEvent
@@ -212,19 +183,19 @@ public class PositionRotationManager extends ServiceMod {
     if (!enabled.getValue()) return;
 
     // reset angles if silent aiming is enabled
-    if (gState.isSilent()) {
-      setPlayerAngles(event.getLocalPlayer(), gState.getClientAngles().inDegrees().normalize());
+    if (currentState.isSilent()) {
+      setPlayerAngles(event.getLocalPlayer(), currentState.getClientAngles().inDegrees().normalize());
     }
     
     // process all the tasks
     while (futureTasks.hasNext()) {
-      futureTasks.next().accept(gState);
+      futureTasks.next().accept(currentState);
     }
     // set to empty task chain
     futureTasks = TaskChain.empty();
     
     // update the read-only state
-    STATE.setCurrentState(gState);
+    STATE.setCurrentState(currentState);
   }
   
   @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -238,7 +209,7 @@ public class PositionRotationManager extends ServiceMod {
       float pitch = packet.getPitch();
       float yaw = packet.getYaw();
       
-      Angle va = gState.getClientAngles();
+      Angle va = currentState.getClientAngles();
       
       if(packet.getFlags().contains(SPlayerPositionLookPacket.Flags.X_ROT))
         pitch += va.getPitch();
@@ -246,9 +217,42 @@ public class PositionRotationManager extends ServiceMod {
       if(packet.getFlags().contains(SPlayerPositionLookPacket.Flags.Y_ROT))
         yaw += va.getYaw();
       
-      gState.setServerAngles(pitch, yaw);
-      gState.setInitialized(true);
+      currentState.setServerAngles(pitch, yaw);
+      currentState.setInitialized(true);
     }
+  }
+
+  private static Angle getPlayerAngles(ClientPlayerEntity player) {
+    return Angle.degrees(player.rotationPitch, player.rotationYaw);
+  }
+
+  private static void setPlayerAngles(ClientPlayerEntity player, Angle angles) {
+    Angle original = getPlayerAngles(player);
+    Angle diff = angles.normalize().sub(original.normalize()).normalize();
+    player.rotationPitch = Utils.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
+    player.rotationYaw = original.getYaw() + diff.getYaw();
+  }
+
+  private static void setPlayerPosition(ClientPlayerEntity player, Vector3d position) {
+    player.setRawPosition(position.getX(), position.getY(), position.getZ());
+  }
+
+  private static float clampAngle(float from, float to, float clamp) {
+    return AngleHelper.normalizeInDegrees(
+        from + Utils.clamp(AngleHelper.normalizeInDegrees(to - from), -clamp, clamp));
+  }
+
+  private static Angle clampAngle(Angle from, Angle to, float clamp) {
+    return Angle.degrees(
+        clampAngle(from.getPitch(), to.getPitch(), clamp),
+        clampAngle(from.getYaw(), to.getYaw(), clamp));
+  }
+
+  private static float getRotationCount(Angle from, Angle to, float clamp) {
+    Angle diff = to.sub(from).normalize();
+    float rp = (diff.getPitch() / clamp);
+    float ry = (diff.getYaw() / clamp);
+    return Math.max(Math.abs(rp), Math.abs(ry));
   }
   
   public interface MovementUpdateListener {

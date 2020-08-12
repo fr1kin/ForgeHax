@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState;
+import dev.fiki.forgehax.main.mods.managers.RotationManager;
+import dev.fiki.forgehax.main.mods.managers.RotationManager.RotationState;
 import dev.fiki.forgehax.main.mods.services.TickRateService;
 import dev.fiki.forgehax.main.util.Utils;
 import dev.fiki.forgehax.main.util.cmd.settings.*;
@@ -30,7 +30,7 @@ import static dev.fiki.forgehax.main.Common.*;
     description = "Automatically attack entities and players",
     category = Category.COMBAT
 )
-public class Aimbot extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
+public class Aimbot extends ToggleMod implements RotationManager.MovementUpdateListener {
 
   private static Entity target = null;
 
@@ -258,13 +258,13 @@ public class Aimbot extends ToggleMod implements PositionRotationManager.Movemen
 
   @Override
   protected void onEnabled() {
-    PositionRotationManager.getManager().register(this, PriorityEnum.HIGHEST);
+    RotationManager.getManager().register(this, PriorityEnum.HIGHEST);
     BindingHelper.disableContextHandler(getGameSettings().keyBindAttack);
   }
 
   @Override
   public void onDisabled() {
-    PositionRotationManager.getManager().unregister(this);
+    RotationManager.getManager().unregister(this);
     BindingHelper.restoreContextHandler(getGameSettings().keyBindAttack);
   }
 

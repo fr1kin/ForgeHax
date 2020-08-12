@@ -34,6 +34,7 @@ public class ReflectionMethod<V> {
             for(Method classMethod : parentClass.get().getDeclaredMethods()) {
               Type methodDescriptor = Type.getType(classMethod);
               if (type.getName().equals(classMethod.getName()) && type.getDescriptor().equals(methodDescriptor)) {
+                classMethod.setAccessible(true);
                 return classMethod;
               }
             }

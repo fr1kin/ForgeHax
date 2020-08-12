@@ -2,8 +2,8 @@ package dev.fiki.forgehax.main.mods;
 
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.main.events.RenderEvent;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager;
-import dev.fiki.forgehax.main.mods.managers.PositionRotationManager.RotationState.Local;
+import dev.fiki.forgehax.main.mods.managers.RotationManager;
+import dev.fiki.forgehax.main.mods.managers.RotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.mods.services.HotbarSelectionService.ResetFunction;
 import dev.fiki.forgehax.main.mods.services.SneakService;
 import dev.fiki.forgehax.main.util.BlockHelper;
@@ -52,7 +52,7 @@ import static net.minecraft.network.play.client.CEntityActionPacket.Action;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
-public class Scaffold extends ToggleMod implements PositionRotationManager.MovementUpdateListener {
+public class Scaffold extends ToggleMod implements RotationManager.MovementUpdateListener {
   private final SneakService sneaks;
   private final ReflectionTools reflection;
 
@@ -89,7 +89,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
 
   @Override
   protected void onEnabled() {
-    PositionRotationManager.getManager().register(this, PriorityEnum.HIGHEST);
+    RotationManager.getManager().register(this, PriorityEnum.HIGHEST);
     currentTarget = null;
     predicted = false;
     tickCount = 0;
@@ -97,7 +97,7 @@ public class Scaffold extends ToggleMod implements PositionRotationManager.Movem
 
   @Override
   protected void onDisabled() {
-    PositionRotationManager.getManager().unregister(this);
+    RotationManager.getManager().unregister(this);
   }
 
   @Override

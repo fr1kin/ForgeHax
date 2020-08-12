@@ -67,7 +67,7 @@ public class ItemESP extends ToggleMod {
           stack.translate(top.getX(), bot.getY(), 0.f);
 
           ItemStack itemStack = entity.getItem();
-          String text = itemStack.getDisplayName().getUnformattedComponentText()
+          String text = itemStack.getTextComponent().getString()
               + (itemStack.isStackable() ? (" x" + itemStack.getCount()) : "");
 
           stack.scale(scale, scale, 0.f);

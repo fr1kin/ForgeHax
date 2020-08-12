@@ -11,14 +11,12 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.TransformationMatrix;
@@ -319,32 +317,35 @@ public class SurfaceHelper {
   }
 
   public static void renderItem(LivingEntity living, ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
-    stack.push();
-
-    IBakedModel model = MC.getItemRenderer().getItemModelWithOverrides(itemStack, living.world, living);
-
-    if (Items.TRIDENT.equals(itemStack.getItem())) {
-      model = MC.getItemRenderer().getItemModelMesher().getModelManager()
-          .getModel(new ModelResourceLocation("minecraft:trident#inventory"));
-    }
-
-    model = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(stack, model,
-        ItemCameraTransforms.TransformType.GUI, false);
-
-    stack.translate(-0.5D, -0.5D, -0.5D);
-    if (!model.isBuiltInRenderer()) {
-      RenderType rendertype = getRenderType(itemStack);
-
-      IVertexBuilder builder = ItemRenderer.getBuffer(buffer, rendertype, true, itemStack.hasEffect());
-      renderModel(model, itemStack, 15728880, OverlayTexture.NO_OVERLAY, stack, builder);
-    } else {
-      itemStack.getItem().getItemStackTileEntityRenderer().func_239207_a_(itemStack,
-          ItemCameraTransforms.TransformType.NONE,
-          stack, buffer,
-          15728880, OverlayTexture.NO_OVERLAY);
-    }
-
-    stack.pop();
+//    stack.push();
+//
+//    IBakedModel model = MC.getItemRenderer().getItemModelWithOverrides(itemStack, living.world, living);
+//
+//    if (Items.TRIDENT.equals(itemStack.getItem())) {
+//      model = MC.getItemRenderer().getItemModelMesher().getModelManager()
+//          .getModel(new ModelResourceLocation("minecraft:trident#inventory"));
+//    }
+//
+//    model = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(stack, model,
+//        ItemCameraTransforms.TransformType.GUI, false);
+//
+//    stack.translate(-0.5D, -0.5D, -0.5D);
+//    if (!model.isBuiltInRenderer()) {
+//      RenderType rendertype = getRenderType(itemStack);
+//
+//      IVertexBuilder builder = ItemRenderer.getBuffer(buffer, rendertype, true, itemStack.hasEffect());
+//      renderModel(model, itemStack, 15728880, OverlayTexture.NO_OVERLAY, stack, builder);
+//    } else {
+//      itemStack.getItem().getItemStackTileEntityRenderer().func_239207_a_(itemStack,
+//          ItemCameraTransforms.TransformType.NONE,
+//          stack, buffer,
+//          15728880, OverlayTexture.NO_OVERLAY);
+//    }
+//
+//    stack.pop();
+    MC.getItemRenderer().renderItem(itemStack, ItemCameraTransforms.TransformType.GUI,
+        false, stack, buffer, 15728880, OverlayTexture.NO_OVERLAY,
+        MC.getItemRenderer().getItemModelWithOverrides(itemStack, living.getEntityWorld(), living));
   }
 
   public static void drawScaledCustomSizeModalRect(double x, double y,
