@@ -1,6 +1,5 @@
 package dev.fiki.forgehax.main.mods;
 
-import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.color.Colors;
@@ -17,7 +16,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.fiki.forgehax.main.Common.getWorld;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
 @RegisterMod(
     name = "CoordsHUD",
@@ -64,13 +63,13 @@ public class CoordsHud extends HudMod {
   double otherZ;
 
   @SubscribeEvent
-  public void onLocalPlayerUpdate(LocalPlayerUpdateEvent ev) {
-    ClientPlayerEntity player = Common.getLocalPlayer();
+  public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
+    ClientPlayerEntity player = getLocalPlayer();
     thisX = player.getPosX();
     thisY = player.getPosY();
     thisZ = player.getPosZ();
 
-    double thisFactor = DimensionType.field_236000_d_.equals(getWorld().func_234922_V_()) ? 8d : 1d;
+    double thisFactor = player.worldClient.func_230315_m_().func_242725_p().equals(DimensionType.field_242711_b) ? 8d : 1d;
     double otherFactor = thisFactor != 1d ? 1d : 8d;
     double travelFactor = thisFactor / otherFactor;
     otherX = thisX * travelFactor;

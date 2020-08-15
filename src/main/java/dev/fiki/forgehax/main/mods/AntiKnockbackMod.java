@@ -21,7 +21,6 @@ import net.minecraft.network.play.server.SEntityStatusPacket;
 import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.network.play.server.SExplosionPacket;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.client.event.PlayerSPPushOutOfBlocksEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ConcurrentModificationException;
@@ -204,12 +203,12 @@ public class AntiKnockbackMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onPushOutOfBlocks(PlayerSPPushOutOfBlocksEvent event) {
-    if (blocks.getValue()) {
-      event.setCanceled(true);
-    }
-  }
+//  @SubscribeEvent // TODO: 1.16.2
+//  public void onPushOutOfBlocks(PlayerSPPushOutOfBlocksEvent event) {
+//    if (blocks.getValue()) {
+//      event.setCanceled(true);
+//    }
+//  }
 
   @SubscribeEvent
   public void onBlockSlip(EntityBlockSlipApplyEvent event) {
@@ -222,7 +221,7 @@ public class AntiKnockbackMod extends ToggleMod {
 
   @SubscribeEvent
   public void onPushedByLiquid(PushedByLiquidEvent event) {
-    if(water.isEnabled()) {
+    if (water.isEnabled()) {
       event.setCanceled(true);
     }
   }
