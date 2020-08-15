@@ -103,6 +103,22 @@ public class ASMHelper {
   public static AbstractInsnNode findPattern(MethodNode node, int... opcodes) {
     return findPattern(node.instructions, opcodes);
   }
+
+  public static InsnNode findReturn(int opcode, MethodNode node) {
+    InsnNode returnNode = null;
+
+    for (AbstractInsnNode n = node.instructions.getFirst(); n != null; n = n.getNext()) {
+      if (n instanceof InsnNode && n.getOpcode() == opcode) {
+        if (returnNode != null) {
+          throw new IllegalStateException("Found more than one return node!");
+        }
+
+        returnNode = (InsnNode) n;
+      }
+    }
+
+    return Objects.requireNonNull(returnNode, "Could not find any return nodes!");
+  }
   
   @Nullable
   public static AbstractInsnNode forward(AbstractInsnNode start, int n) {

@@ -3,6 +3,7 @@ package dev.fiki.forgehax.asm.patches;
 import dev.fiki.forgehax.api.mapper.ClassMapping;
 import dev.fiki.forgehax.api.mapper.MethodMapping;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
+import dev.fiki.forgehax.asm.hooks.PushHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
@@ -118,5 +119,31 @@ public class ClientEntityPlayerPatch extends Patch {
 
     main.instructions.insert(list);
     main.instructions.insertBefore(ret, end);
+  }
+
+  @Inject
+  @MethodMapping("shouldBlockPushPlayer")
+  public void shouldBlockPushPlayer(MethodNode node,
+      @MethodMapping(
+          parentClass = PushHooks.class,
+          value = "onPushedByBlock",
+          args = {ClientPlayerEntity.class},
+          ret = boolean.class
+      ) ASMMethod onPushedByBlock) {
+    InsnNode ret = ASMHelper.findReturn(IRETURN, node);
+
+    LabelNode disabled = new LabelNode();
+    LabelNode notDisabled = new LabelNode();
+
+    InsnList list = new InsnList();
+    list.add(new VarInsnNode(ALOAD, 0));
+    list.add(ASMHelper.call(INVOKESTATIC, onPushedByBlock));
+    list.add(new JumpInsnNode(IFEQ, notDisabled));
+    list.add(new InsnNode(ICONST_0));
+    list.add(new JumpInsnNode(GOTO, disabled));
+    list.add(notDisabled);
+
+    node.instructions.insert(list);
+    node.instructions.insertBefore(ret, disabled);
   }
 }

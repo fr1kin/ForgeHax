@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.mods;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.asm.events.movement.ApplyCollisionMotionEvent;
 import dev.fiki.forgehax.asm.events.movement.EntityBlockSlipApplyEvent;
+import dev.fiki.forgehax.asm.events.movement.PushedByBlockEvent;
 import dev.fiki.forgehax.asm.events.movement.PushedByLiquidEvent;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
@@ -203,12 +204,12 @@ public class AntiKnockbackMod extends ToggleMod {
     }
   }
 
-//  @SubscribeEvent // TODO: 1.16.2
-//  public void onPushOutOfBlocks(PlayerSPPushOutOfBlocksEvent event) {
-//    if (blocks.getValue()) {
-//      event.setCanceled(true);
-//    }
-//  }
+  @SubscribeEvent
+  public void onPushOutOfBlocks(PushedByBlockEvent event) {
+    if (blocks.getValue()) {
+      event.setCanceled(true);
+    }
+  }
 
   @SubscribeEvent
   public void onBlockSlip(EntityBlockSlipApplyEvent event) {

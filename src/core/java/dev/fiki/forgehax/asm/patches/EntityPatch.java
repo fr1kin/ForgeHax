@@ -17,6 +17,7 @@ import java.util.Objects;
 @ClassMapping(Entity.class)
 public class EntityPatch extends Patch {
 
+  @Inject
   @MethodMapping("applyEntityCollision")
   public void applyEntityCollision(MethodNode main,
       @MethodMapping(
@@ -61,8 +62,7 @@ public class EntityPatch extends Patch {
     insnThisPre.add(new InsnNode(DNEG)); // push -X
     insnThisPre.add(new VarInsnNode(DLOAD, 4));
     insnThisPre.add(new InsnNode(DNEG)); // push -Z
-    insnThisPre.add(
-        ASMHelper.call(INVOKESTATIC, hook));
+    insnThisPre.add(ASMHelper.call(INVOKESTATIC, hook));
     insnThisPre.add(new JumpInsnNode(IFNE, endJumpForThis));
 
     InsnList insnOtherPre = new InsnList();
@@ -70,8 +70,7 @@ public class EntityPatch extends Patch {
     insnOtherPre.add(new VarInsnNode(ALOAD, 0)); // push THIS
     insnOtherPre.add(new VarInsnNode(DLOAD, 2)); // push X
     insnOtherPre.add(new VarInsnNode(DLOAD, 4)); // push Z
-    insnOtherPre.add(
-        ASMHelper.call(INVOKESTATIC, hook));
+    insnOtherPre.add(ASMHelper.call(INVOKESTATIC, hook));
     insnOtherPre.add(new JumpInsnNode(IFNE, endJumpForOther));
 
     main.instructions.insertBefore(thisEntityPreNode, insnThisPre);
