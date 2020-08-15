@@ -59,7 +59,6 @@ public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommo
   public List<ITransformer> transformers() {
     return getTransformersForClasses(
         BlockModelRendererPatch.class,
-        BlockPatch.class,
         BoatEntityPatch.class,
         LivingEntityPatch.class,
         EntityPatch.class,
@@ -73,8 +72,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommo
         PlayerEntityPatch.class,
         PlayerTabOverlayPatch.class,
         BoatRendererPatch.class,
-        VisGraphPatch.class,
-        WorldRendererPatch.class
+        VisGraphPatch.class
     );
   }
 
