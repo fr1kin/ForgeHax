@@ -1,12 +1,23 @@
 package dev.fiki.forgehax.asm.utils;
 
+import cpw.mods.modlauncher.ClassTransformer;
 import net.minecraftforge.fml.loading.ModDirTransformerDiscoverer;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.filter.CompositeFilter;
+import org.apache.logging.log4j.core.filter.MarkerFilter;
 
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
+
+import static dev.fiki.forgehax.asm.ASMCommon.getLogger;
 
 
 public class EZ {
@@ -41,4 +52,45 @@ public class EZ {
     });
   }
 
+  public static void enableClassDumping() {
+    getLogger().info("Enabling class dumping!");
+
+    MarkerManager.getMarker("CLASSDUMP");
+
+    try {
+      Field loggerField = ClassTransformer.class.getDeclaredField("LOGGER");
+      loggerField.setAccessible(true);
+
+      Logger logger = (Logger) loggerField.get(null);
+      enableDumpingProperties(logger);
+
+      logger.getContext().addPropertyChangeListener(event -> {
+        getLogger().warn("CLASSDUMP properties changed! Attempting to revert");
+        enableDumpingProperties(logger);
+      });
+    } catch (Throwable e) {
+      getLogger().error("Failed to activate class dumping: {}", e.getMessage());
+      getLogger().error(e, e);
+    }
+  }
+
+  private static void enableDumpingProperties(Logger logger) {
+    logger.setLevel(Level.TRACE);
+
+    CompositeFilter compositeFilter = (CompositeFilter) logger.getContext().getConfiguration().getFilter();
+    Objects.requireNonNull(compositeFilter, "compositeFilter");
+
+    Filter[] filters = compositeFilter.getFiltersArray();
+    Objects.requireNonNull(filters, "filters");
+
+    for (int i = 0; i < filters.length; i++) {
+      Filter filter = filters[i];
+      if (filter instanceof MarkerFilter && "CLASSDUMP".equals(filter.toString())) {
+        filters[i] = MarkerFilter.createFilter("CLASSDUMP", Filter.Result.ACCEPT, Filter.Result.NEUTRAL);
+        return;
+      }
+    }
+
+    throw new Error("Failed to find CLASSDUMP filter in CompositeFilter");
+  }
 }

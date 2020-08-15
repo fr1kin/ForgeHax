@@ -15,7 +15,7 @@ public class Wrappers {
   @SuppressWarnings("unchecked")
   public static <T> ITransformer<T> createWrapper(ITransformer<T> transformer) {
     if (transformer instanceof PatchScanner.InternalMethodTransformer) {
-      return (ITransformer<T>) new MethodTransformerWrapper((ITransformer<MethodNode>) transformer);
+      return (ITransformer<T>) new ClassTransformerWrapper((ITransformer<ClassNode>) transformer);
     } /*else if (transformer instanceof ClassTransformer) {
       return (ITransformer<T>) new ClassTransformerWrapper((ITransformer<ClassNode>) transformer);
     }*/ else {

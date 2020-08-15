@@ -9,12 +9,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FieldMapping {
   Class<?> parentClass() default void.class;
+  ClassMapping parent() default @ClassMapping;
 
   String value() default "";
 
   MappedFormat format() default MappedFormat.MAPPED;
 
-  ClassMapping _parentClass() default @ClassMapping(void.class);
+  ClassMapping _parentClass() default @ClassMapping;
 
   String _name() default "";
   String _obfName() default "";

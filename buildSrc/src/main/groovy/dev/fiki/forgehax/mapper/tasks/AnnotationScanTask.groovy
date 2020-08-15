@@ -91,15 +91,9 @@ class AnnotationScanTask extends DefaultTask {
 
     switch (node.desc) {
       case Type.getDescriptor(ClassMapping):
-        def clazz = params.remove('value') as Type
-        if (clazz) {
-          // some classes will be children of other classes
-          def subClass = params.getAsString('subClassName')
-          if (subClass) {
-            // optional subclass name
-            clazz = Type.getObjectType(clazz.getInternalName() + '$' + subClass)
-          }
+        def clazz = getClassType(params)
 
+        if (clazz) {
           // replace the class reference so that the class isn't loaded by the jvm
           params.putAsClass('value', void.class)
 
@@ -147,7 +141,18 @@ class AnnotationScanTask extends DefaultTask {
           def parentClass = getAndSetParentClass(params, parentNode)
 
           def returnType = params.remove('ret') as Type
+
+          if (returnType == null) {
+            def retm = params.remove('retm') as AnnotationNode
+            returnType = parseClassMapping(retm)
+          }
+
           def argumentTypes = params.remove('args') as Type[]
+
+          if (argumentTypes == null) {
+            def argsm = params.remove('argsm') as List<AnnotationNode>
+            argumentTypes = argsm?.with { it.collect {parseClassMapping(it)}.toArray(new Type[0]) }
+          }
 
           def method = findMethod(methodName, parentClass, returnType, argumentTypes, format)
           if (method) {
@@ -157,8 +162,13 @@ class AnnotationScanTask extends DefaultTask {
             params.put('_descriptor', method.descriptor)
             params.put('_obfDescriptor', method.obfDescriptor)
           } else {
-            returnType = returnType != null ? returnType : Type.VOID_TYPE
-            argumentTypes = argumentTypes != null ? argumentTypes : [] as Type[]
+            if (returnType == null) {
+              returnType = Type.VOID_TYPE
+            }
+
+            if (argumentTypes == null) {
+              argumentTypes = [] as Type[]
+            }
 
             // provide at least the class -> string name
             params.put('_name', methodName)
@@ -167,6 +177,38 @@ class AnnotationScanTask extends DefaultTask {
         }
         break
     }
+  }
+
+  Type getClassType(AnnotationValueMap params) {
+    def clazz = params.remove('value') as Type
+
+    // for classes that dont have public access
+    // we allow access via a string
+    if (clazz == null) {
+      def className = params.remove('className') as String
+
+      if (className != null) {
+        clazz = Type.getObjectType(className)
+      }
+    }
+
+    if (clazz) {
+      // some classes will be children of other classes
+      def subClass = params.remove('innerClassNames') as String[]
+      if (subClass != null) {
+        subClass.each { clazz = Type.getObjectType(clazz.getInternalName() + '$' + it) }
+      }
+    }
+
+    return clazz
+  }
+
+  Type parseClassMapping(AnnotationNode an) {
+    if (an != null && an.desc == Type.getDescriptor(ClassMapping)) {
+      def map = new AnnotationValueMap(an.values)
+      return getClassType(map)
+    }
+    return null
   }
 
   MappedFormat getAndUnmapFormat(AnnotationValueMap params) {
@@ -181,6 +223,12 @@ class AnnotationScanTask extends DefaultTask {
   String getAndSetParentClass(AnnotationValueMap params, AnnotationNode parent) {
     // use override parent class if provided
     def parentClass = params.remove('parentClass') as Type
+
+    if (parentClass == null) {
+      def an = params.remove('parent') as AnnotationNode
+      parentClass = parseClassMapping(an)
+    }
+
     if (parentClass != null) {
       // create new class mapping annotation
       parent = new AnnotationNode(Type.getDescriptor(ClassMapping))

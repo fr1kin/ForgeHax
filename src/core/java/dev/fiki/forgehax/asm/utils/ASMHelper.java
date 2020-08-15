@@ -2,9 +2,11 @@ package dev.fiki.forgehax.asm.utils;
 
 import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
@@ -138,9 +140,7 @@ public class ASMHelper {
   
   // scope is from first label to last label
   public static int addNewLocalVariable(MethodNode method, String name, String desc) {
-    ASMPattern labelPattern = ASMPattern.builder().build();
-    
-    final LabelNode start = labelPattern.test(method).getFirst();
+    final LabelNode start = (LabelNode) method.instructions.getFirst();
     
     // TODO: implement backwards pattern matching so this can be refactored
     AbstractInsnNode iter = method.instructions.getFirst();
@@ -169,6 +169,26 @@ public class ASMHelper {
     method.localVariables.add(variable);
     
     return newIndex;
+  }
+
+  public static Optional<LocalVariableNode> getLocalVariable(MethodNode node, String name, Type descriptor) {
+    LocalVariableNode[] labels = node.localVariables.stream()
+        .filter(lv -> name == null || Objects.equals(name, lv.name))
+        .filter(lv -> descriptor == null || Objects.equals(descriptor.getDescriptor(), lv.desc))
+        .toArray(LocalVariableNode[]::new);
+
+    if (labels.length <= 0) {
+      return Optional.empty();
+    } else if (labels.length > 1) {
+      throw new Error("Found too many local variable matches for method "
+          + node.name + "!\n\tname=" + name
+          + "\n\tdescriptor=" + descriptor
+          + "\n\tmatches={"
+          + Arrays.stream(labels).map(lv -> lv.name + " " + lv.desc).collect(Collectors.joining(", "))
+          + "}");
+    }
+
+    return Optional.of(labels[0]);
   }
   
   // args should be type descriptors

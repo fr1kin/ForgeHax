@@ -1,5 +1,6 @@
 package dev.fiki.forgehax.asm;
 
+import com.google.common.collect.ImmutableList;
 import cpw.mods.modlauncher.api.IEnvironment;
 import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
@@ -9,16 +10,21 @@ import dev.fiki.forgehax.asm.utils.EZ;
 import dev.fiki.forgehax.asm.utils.transforming.Patch;
 import dev.fiki.forgehax.asm.utils.transforming.PatchScanner;
 import dev.fiki.forgehax.asm.utils.transforming.Wrappers;
+import lombok.Getter;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommon {
+  @Getter
+  private List<String> otherServices = Collections.emptyList();
+
   public ForgeHaxCoreTransformer() {
     LOGGER.info("ForgeHaxCore initializing");
   }
@@ -39,33 +45,36 @@ public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommo
 
   @Override
   public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
-    if (otherServices.stream()
-        .map(String::toLowerCase)
-        .anyMatch(str -> str.contains("mixin"))) {
-      LOGGER.warn("ForgeHaxCore found Mixin. Some patches may not apply.");
-    }
+    this.otherServices = ImmutableList.copyOf(otherServices);
 
     EZ.inject();
+
+    if (System.getProperty("forgehax.classdump") != null) {
+      EZ.enableClassDumping();
+    }
   }
 
   @Nonnull
   @Override
   public List<ITransformer> transformers() {
     return getTransformersForClasses(
+        BlockModelRendererPatch.class,
         BlockPatch.class,
         BoatEntityPatch.class,
         LivingEntityPatch.class,
         EntityPatch.class,
+        ChunkRenderRebuildTaskPatch.class,
         ClientEntityPlayerPatch.class,
         GameRendererPatch.class,
+        IVertexBuilderPatch.class,
         MinecraftPatch.class,
         NetManagerPatch.class,
         PlayerControllerPatch.class,
         PlayerEntityPatch.class,
         PlayerTabOverlayPatch.class,
         BoatRendererPatch.class,
-        WorldRendererPatch.class,
-        VisGraphPatch.class
+        VisGraphPatch.class,
+        WorldRendererPatch.class
     );
   }
 
@@ -76,12 +85,16 @@ public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommo
         .filter(ForgeHaxCoreTransformer::requiresZeroArgConstructor)
         .map(ForgeHaxCoreTransformer::newInstance)
         .map(Patch.class::cast)
-        .map(PatchScanner::new)
+        .map(this::newPatchScanner)
         .map(PatchScanner::getTransformers)
         .flatMap(List::stream)
         .map(ITransformer.class::cast)
         .map(Wrappers::createWrapper)
         .collect(Collectors.toList());
+  }
+
+  private PatchScanner newPatchScanner(Patch patch) {
+    return new PatchScanner(this, patch);
   }
 
   @SneakyThrows

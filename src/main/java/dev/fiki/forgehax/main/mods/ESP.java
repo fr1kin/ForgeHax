@@ -141,7 +141,7 @@ public class ESP extends ToggleMod implements Fonts {
 
     final IRenderTypeBuffer.Impl buffers = getBufferProvider().getBufferSource();
     final BufferBuilderEx triangles = getBufferProvider().getBuffer(RenderTypeEx.glTriangle());
-    final MatrixStack stack = new MatrixStack();
+    final MatrixStack stack = event.getMatrixStack();
 
     final EquipmentList selfEquipmentList = new EquipmentList(getLocalPlayer());
 
@@ -355,17 +355,13 @@ public class ESP extends ToggleMod implements Fonts {
         });
 
     //
-    RenderSystem.pushMatrix();
     MC.getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
     MC.getTextureManager().getTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE)
         .setBlurMipmapDirect(false, false);
-    RenderSystem.enableRescaleNormal();
-    RenderSystem.enableAlphaTest();
     RenderSystem.defaultAlphaFunc();
     RenderSystem.enableDepthTest();
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     RenderHelper.disableStandardItemLighting();
     RenderHelper.setupGuiFlatDiffuseLighting();
 
@@ -374,21 +370,12 @@ public class ESP extends ToggleMod implements Fonts {
     buffers.finish(RenderType.getGlint());
     buffers.finish(RenderType.getEntityGlint());
     MC.getRenderTypeBuffers().getBufferSource().finish();
+    buffers.finish();
 
     RenderSystem.enableDepthTest();
     RenderHelper.setupGui3DDiffuseLighting();
     RenderHelper.disableStandardItemLighting();
-    RenderSystem.disableAlphaTest();
-    RenderSystem.disableRescaleNormal();
     RenderSystem.disableTexture();
-    RenderSystem.popMatrix();
-
-    RenderSystem.pushMatrix();
-    RenderSystem.translatef(0.5f, 0.5f, 0.0f);
-
-    buffers.finish();
-
-    RenderSystem.popMatrix();
   }
 
   private DrawingSetting.DrawingSettingBuilder newDrawingSetting() {

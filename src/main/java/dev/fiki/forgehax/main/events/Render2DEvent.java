@@ -1,11 +1,10 @@
 package dev.fiki.forgehax.main.events;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.draw.BufferBuilderEx;
-import dev.fiki.forgehax.main.util.draw.BufferProvider;
-import dev.fiki.forgehax.main.util.draw.SurfaceBuilder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.eventbus.api.Event;
 
 import static dev.fiki.forgehax.main.Common.getBufferProvider;
@@ -14,13 +13,10 @@ import static dev.fiki.forgehax.main.Common.getBufferProvider;
  * Created on 9/2/2017 by fr1kin
  */
 @Getter
+@AllArgsConstructor
 public class Render2DEvent extends Event {
-  private final SurfaceBuilder surfaceBuilder = new SurfaceBuilder();
   private final float partialTicks;
-  
-  public Render2DEvent(float partialTicks) {
-    this.partialTicks = partialTicks;
-  }
+  private final MatrixStack matrixStack;
 
   public BufferBuilderEx getBuffer() {
     return getBufferProvider().getDefaultBuffer();
@@ -36,9 +32,5 @@ public class Render2DEvent extends Event {
   
   public int getScreenHeight() {
     return Common.getScreenHeight();
-  }
-  
-  public SurfaceBuilder getSurfaceBuilder() {
-    return surfaceBuilder;
   }
 }

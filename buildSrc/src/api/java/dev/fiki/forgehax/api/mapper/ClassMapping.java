@@ -8,8 +8,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ClassMapping {
-  Class<?> value() default void.class;
-  String subClassName() default "";
+  Class<?> value() default Dummy.class;
+  String className() default "";
+  String[] innerClassNames() default {};
 
   String _name() default "";
   String _obfName() default "";

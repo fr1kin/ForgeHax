@@ -13,8 +13,6 @@ import org.apache.logging.log4j.core.appender.rolling.SizeBasedTriggeringPolicy;
 import org.apache.logging.log4j.core.appender.rolling.TimeBasedTriggeringPolicy;
 import org.apache.logging.log4j.core.impl.Log4jContextFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.apache.logging.log4j.core.util.DefaultShutdownCallbackRegistry;
-import org.apache.logging.log4j.core.util.ShutdownCallbackRegistry;
 import org.apache.logging.log4j.spi.LoggerContextFactory;
 
 import java.nio.file.Paths;
@@ -86,7 +84,7 @@ public class LoggerProvider {
     coreLogger.addAppender(fileAppender);
 
     // use custom level for our mod because forge debug level logging spits out a ton of bs
-    coreLogger.setLevel(customLevel);
+//    coreLogger.setLevel(customLevel);
 
     return coreLogger;
   }

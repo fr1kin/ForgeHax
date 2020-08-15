@@ -6,7 +6,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -71,9 +74,24 @@ public abstract class ASMMethod implements Formattable<ASMMethod> {
     return stream().map(ASMMethod::getName).anyMatch(other::equals);
   }
 
+  public boolean isDescriptorEqual(String desc) {
+    return stream().map(ASMMethod::getDescriptorString).anyMatch(desc::equals);
+  }
+
+  public boolean matchesInvoke(int opcode, AbstractInsnNode node) {
+    return node.getOpcode() == opcode
+        && node instanceof MethodInsnNode
+        && this.isNameEqual(((MethodInsnNode) node).name)
+        && this.isDescriptorEqual(((MethodInsnNode) node).desc);
+  }
+
+  public boolean matchesStaticMethodNode(AbstractInsnNode node) {
+    return matchesInvoke(Opcodes.INVOKESTATIC, node);
+  }
+
   @Override
   public String toString() {
-    return getName() + "::" + getParentClass().getName();
+    return getParentClass().getName() + "::" + getName();
   }
 
   @Getter

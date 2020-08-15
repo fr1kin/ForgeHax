@@ -16,7 +16,8 @@ public @interface MethodMapping {
    *
    * @return parent class
    */
-  Class<?> parentClass() default void.class;
+  Class<?> parentClass() default Dummy.class;
+  ClassMapping parent() default @ClassMapping;
 
   /**
    * COMPILE ONLY
@@ -34,7 +35,8 @@ public @interface MethodMapping {
    *
    * @return Array of argument types
    */
-  Class<?>[] args() default {};
+  Class<?>[] args() default {Dummy.class};
+  ClassMapping[] argsm() default @ClassMapping;
 
   /**
    * COMPILE ONLY
@@ -43,7 +45,8 @@ public @interface MethodMapping {
    *
    * @return Return type
    */
-  Class<?> ret() default void.class;
+  Class<?> ret() default Dummy.class;
+  ClassMapping[] retm() default @ClassMapping;
 
   /**
    * To help the code generator know if the method is static or not.

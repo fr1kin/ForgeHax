@@ -7,20 +7,25 @@ import dev.fiki.forgehax.api.mapper.ClassMapping;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mapper.MethodMapping;
 import dev.fiki.forgehax.asm.ASMCommon;
+import dev.fiki.forgehax.asm.ForgeHaxCoreTransformer;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMClass;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.asm.ASMCommon.getLogger;
 
@@ -29,23 +34,29 @@ public class PatchScanner implements ASMCommon {
   private final List<ITransformer<?>> transformers = new ArrayList<>();
 
   @SneakyThrows
-  public PatchScanner(Patch patch) {
+  public PatchScanner(ForgeHaxCoreTransformer core, Patch patch) {
     // collect all the method transformers and create a transformer object to wrap the method call
     for (Method method : patch.getClass().getMethods()) {
       if (method.isAnnotationPresent(Inject.class) && method.isAnnotationPresent(MethodMapping.class)) {
+
+        ConditionalInject condition = method.getAnnotation(ConditionalInject.class);
+
+        if (condition != null) {
+          boolean not = condition.value().startsWith("!");
+          String serviceName = not ? condition.value().substring(1) : condition.value();
+          boolean exists = core.getOtherServices().contains(serviceName);
+
+          if (not && exists) {
+            getLogger().info("Skipping {} because service {} is present", method.getName(), serviceName);
+            continue;
+          } else if (!not && !exists) {
+            getLogger().info("Skipping {} because service {} is not present", method.getName(), serviceName);
+            continue;
+          }
+        }
+
         transformers.add(new InternalMethodTransformer(patch, method,
             ASMMethod.unmap(method.getAnnotation(MethodMapping.class))));
-      }
-    }
-
-    // inject mappings into fields
-    for (Field field : patch.getClass().getDeclaredFields()) {
-      if ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL) {
-        field.setAccessible(true);
-        Object val = getMappedType(field.getType(), field);
-        if (val != null) {
-          field.set(patch, val);
-        }
       }
     }
   }
@@ -80,7 +91,7 @@ public class PatchScanner implements ASMCommon {
 
   @Getter
   @RequiredArgsConstructor
-  static class InternalMethodTransformer implements ITransformer<MethodNode> {
+  static class InternalMethodTransformer implements ITransformer<ClassNode> {
     private final Object parent;
     private final Method method;
     private final ASMMethod targetMethod;
@@ -88,31 +99,38 @@ public class PatchScanner implements ASMCommon {
     @Nonnull
     @Override
     @SneakyThrows
-    public MethodNode transform(MethodNode input, ITransformerVotingContext context) {
-      // build the list of arguments
-      List<Object> arguments = new ArrayList<>();
-      for (Parameter parameter : getMethod().getParameters()) {
-        Class<?> type = parameter.getType();
+    public ClassNode transform(ClassNode input, ITransformerVotingContext context) {
+      for (MethodNode node : input.methods) {
+        if (getTargetMethod().isNameEqual(node.name) && getTargetMethod().isDescriptorEqual(node.desc)) {
+          // build the list of arguments
+          List<Object> arguments = new ArrayList<>();
+          for (Parameter parameter : getMethod().getParameters()) {
+            Class<?> type = parameter.getType();
 
-        if (MethodNode.class.isAssignableFrom(type)) {
-          arguments.add(input);
-        } else if (!addMappedArgument(type, parameter, arguments)) {
-          throw new Error("Unknown parameter type " + type.getName());
+            if (MethodNode.class.isAssignableFrom(type)) {
+              arguments.add(node);
+            } else if (!addMappedArgument(type, parameter, arguments)) {
+              throw new Error("Unknown parameter type " + type.getName());
+            }
+          }
+
+          getLogger().debug("Attempting to transform method {}", getTargetMethod());
+
+          try {
+            method.invoke(parent, arguments.toArray());
+            return input;
+          } catch (Throwable t) {
+            if (t instanceof InvocationTargetException) {
+              t = t.getCause();
+            }
+
+            getLogger().error("Failed to transform method {}!", getTargetMethod());
+            getLogger().error(t, t);
+          }
         }
       }
 
-      getLogger().debug("Attempting to transform method {}", getTargetMethod());
-
-      try {
-        method.invoke(parent, arguments.toArray());
-      } catch (Throwable t) {
-        if (t instanceof InvocationTargetException) {
-          t = t.getCause();
-        }
-
-        getLogger().warn("Failed to transform method {}!", getTargetMethod());
-        getLogger().debug(t, t);
-      }
+      getLogger().error("Could not find and transform method {}!", getTargetMethod());
 
       return input;
     }
@@ -126,9 +144,12 @@ public class PatchScanner implements ASMCommon {
     @Nonnull
     @Override
     public Set<Target> targets() {
-      return getTargetMethod().stream()
-          .map(m -> Target.targetMethod(m.getParentClass().getName(), m.getName(), m.getDescriptorString()))
-          .collect(Collectors.toSet());
+      return Collections.singleton(Target.targetClass(getTargetMethod().getParentClass().getName()));
+    }
+
+    @Override
+    public String toString() {
+      return getTargetMethod().toString();
     }
   }
 }

@@ -109,6 +109,9 @@ mapper {
 }
 
 dependencies {
+  // forge provides us the wrong version, might need to remove this eventually
+  implementation group: 'org.ow2.asm', name: 'asm-util', version: '7.2'
+
   compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
