@@ -11,11 +11,14 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 public class XrayHooks {
+  private static final int RENDER_OFF = 0;
+  private static final int RENDER_TRANSPARENT = 1;
+  private static final int RENDER_XRAYED = 2;
+
   @Setter
   private static boolean xrayBlocks = false;
 
-  private static final ThreadLocal<Boolean> renderingBlock = ThreadLocal.withInitial(() -> false);
-  private static final ThreadLocal<Boolean> xrayingBlock = ThreadLocal.withInitial(() -> false);
+  private static final ThreadLocal<Integer> rendering = ThreadLocal.withInitial(() -> 0);
 
   @Setter
   private static float blockAlphaOverride = 1.0f;
@@ -30,41 +33,36 @@ public class XrayHooks {
     return xrayBlocks;
   }
 
-  public static boolean isQuadsHookEnabled() {
-    return xrayBlocks || fullbright;
-  }
-
   public static boolean isRenderingBlock() {
-    return renderingBlock.get();
+    return rendering.get() > RENDER_OFF;
   }
 
   public static boolean shouldMakeTransparent(BlockState state) {
     if (!shouldXrayBlock.test(state)) {
-      renderingBlock.set(true);
+      rendering.set(RENDER_TRANSPARENT);
       return true;
     } else {
-      xrayingBlock.set(true);
+      rendering.set(RENDER_XRAYED);
       return false;
     }
   }
 
   public static boolean changeBrightness(int[] brightness, float[] colorMul) {
-    boolean xrayed = xrayingBlock.get();
-    if (fullbright || xrayed) {
+    final int mode = rendering.get();
+    if (fullbright || mode == RENDER_XRAYED) {
       Arrays.fill(brightness, 12582912);
       Arrays.fill(colorMul, 1.f);
-      if (xrayed) {
+      if (mode == RENDER_XRAYED) {
         return false;
       }
     }
-    return renderingBlock.get();
+    return mode == RENDER_TRANSPARENT;
   }
 
   public static void blockRenderFinished() {
     // this could create a memory leak if new threads are spawned
     // but i dont want to be constantly removing objects from the map
-    renderingBlock.set(false);
-    xrayingBlock.set(false);
+    rendering.set(RENDER_OFF);
   }
 
   public static float getBlockAlphaOverride() {
