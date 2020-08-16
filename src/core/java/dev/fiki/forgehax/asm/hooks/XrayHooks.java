@@ -21,13 +21,17 @@ public class XrayHooks {
   private static float blockAlphaOverride = 1.0f;
 
   @Setter
-  private static int blockLightmapOverride = 12582912;
+  private static boolean fullbright = false;
 
   @Setter
   private static volatile Predicate<BlockState> shouldXrayBlock = state -> false;
 
   public static boolean isXrayBlocks() {
     return xrayBlocks;
+  }
+
+  public static boolean isQuadsHookEnabled() {
+    return xrayBlocks || fullbright;
   }
 
   public static boolean isRenderingBlock() {
@@ -45,10 +49,13 @@ public class XrayHooks {
   }
 
   public static boolean changeBrightness(int[] brightness, float[] colorMul) {
-    if (xrayingBlock.get()) {
-      Arrays.fill(brightness, blockLightmapOverride);
+    boolean xrayed = xrayingBlock.get();
+    if (fullbright || xrayed) {
+      Arrays.fill(brightness, 12582912);
       Arrays.fill(colorMul, 1.f);
-      return false;
+      if (xrayed) {
+        return false;
+      }
     }
     return renderingBlock.get();
   }

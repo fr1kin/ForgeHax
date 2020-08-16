@@ -5,6 +5,7 @@ import dev.fiki.forgehax.asm.events.render.CullCavesEvent;
 import dev.fiki.forgehax.asm.hooks.XrayHooks;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.main.util.mod.Category;
@@ -46,12 +47,20 @@ public class XrayMod extends ToggleMod {
       })
       .build();
 
+  public final BooleanSetting fullbright = newBooleanSetting()
+      .name("fullbright")
+      .description("Light blocks up as much as possible")
+      .defaultTo(true)
+      .changedListener(((from, to) -> XrayHooks.setFullbright(to)))
+      .build();
+
   @Override
   public void onEnabled() {
 //    previousForgeLightPipelineEnabled = ForgeConfig.CLIENT.forgeLightPipelineEnabled.get();
 //    ForgeConfig.CLIENT.forgeLightPipelineEnabled.set(false);
 
     XrayHooks.setXrayBlocks(true);
+    XrayHooks.setFullbright(fullbright.getValue());
     XrayHooks.setBlockAlphaOverride(opacity.floatValue() / 255.f);
     XrayHooks.setShouldXrayBlock(state -> blocks.contains(state.getBlock()));
 
@@ -64,6 +73,7 @@ public class XrayMod extends ToggleMod {
 //    ForgeHaxHooks.SHOULD_UPDATE_ALPHA = false;
 
     XrayHooks.setXrayBlocks(false);
+    XrayHooks.setFullbright(false);
     XrayHooks.setShouldXrayBlock(state -> false);
 
     reloadChunks();
