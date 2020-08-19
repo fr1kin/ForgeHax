@@ -35,7 +35,7 @@ public class ArgumentList {
         }
       }
 
-      int range = Math.min(arg.getMaxArgumentsConsumed(), length);
+      int range = Math.min(arg.getMaxArgumentsConsumed(), length + 1);
 
       // remove the arguments from this list
       length -= range;
