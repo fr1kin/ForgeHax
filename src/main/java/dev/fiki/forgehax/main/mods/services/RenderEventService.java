@@ -21,8 +21,6 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import static com.mojang.blaze3d.systems.RenderSystem.popMatrix;
-import static com.mojang.blaze3d.systems.RenderSystem.pushMatrix;
 import static dev.fiki.forgehax.main.Common.MC;
 import static dev.fiki.forgehax.main.Common.getGameRenderer;
 
@@ -56,8 +54,8 @@ public class RenderEventService extends ServiceMod {
 
     VectorUtils.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().getLast().getMatrix());
 
-    pushMatrix();
-    RenderSystem.multMatrix(event.getMatrixStack().getLast().getMatrix());
+//    pushMatrix();
+//    RenderSystem.multMatrix(event.getMatrixStack().getLast().getMatrix());
 
     RenderSystem.disableTexture();
     RenderSystem.enableBlend();
@@ -82,7 +80,7 @@ public class RenderEventService extends ServiceMod {
     RenderSystem.enableDepthTest();
     RenderSystem.enableCull();
 
-    popMatrix();
+//    popMatrix();
   }
 
   @SubscribeEvent(priority = EventPriority.LOW)

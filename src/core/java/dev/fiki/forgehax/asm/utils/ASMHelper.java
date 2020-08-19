@@ -119,6 +119,26 @@ public class ASMHelper {
 
     return Objects.requireNonNull(returnNode, "Could not find any return nodes!");
   }
+
+  public static Optional<AbstractInsnNode> matchNext(AbstractInsnNode node, Predicate<AbstractInsnNode> predicate) {
+    while (node != null) {
+      if (predicate.test(node)) {
+        return Optional.of(node);
+      }
+      node = node.getNext();
+    }
+    return Optional.empty();
+  }
+
+  public static Optional<AbstractInsnNode> matchPrevious(AbstractInsnNode node, Predicate<AbstractInsnNode> predicate) {
+    while (node != null) {
+      if (predicate.test(node)) {
+        return Optional.of(node);
+      }
+      node = node.getPrevious();
+    }
+    return Optional.empty();
+  }
   
   @Nullable
   public static AbstractInsnNode forward(AbstractInsnNode start, int n) {

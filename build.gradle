@@ -80,7 +80,7 @@ sourceSets {
 }
 
 minecraft {
-  mappings channel: mcpChannel, version: "${mcpMapping}-${mcpVersion}"
+  mappings channel: mcpChannel, version: mcpChannel == 'official' ? mcpVersion : "${mcpMapping}-${mcpVersion}"
 
   runs {
     client {

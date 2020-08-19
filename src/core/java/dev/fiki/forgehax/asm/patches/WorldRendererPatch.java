@@ -1,0 +1,30 @@
+package dev.fiki.forgehax.asm.patches;
+
+import dev.fiki.forgehax.api.mapper.ClassMapping;
+import dev.fiki.forgehax.api.mapper.FieldMapping;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.asm.utils.ASMPattern;
+import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
+import dev.fiki.forgehax.asm.utils.transforming.Patch;
+import net.minecraft.client.renderer.WorldRenderer;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+
+@ClassMapping(WorldRenderer.class)
+public class WorldRendererPatch extends Patch {
+
+  @MethodMapping("loadRenderers")
+  public void loadRenderers(MethodNode node,
+      @FieldMapping("viewFrustum") ASMField viewFrustum) {
+    AbstractInsnNode putViewFrustum = ASMPattern.builder()
+        .codeOnly()
+        .custom(an -> an.getOpcode() == PUTFIELD
+            && an instanceof FieldInsnNode
+            && viewFrustum.isNameEqual(((FieldInsnNode) an).name))
+        .find(node)
+        .getFirst("Could not find PUTFIELD for viewFrustum!");
+
+
+  }
+}

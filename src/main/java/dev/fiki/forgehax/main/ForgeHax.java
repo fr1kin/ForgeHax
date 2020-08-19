@@ -86,7 +86,7 @@ public class ForgeHax {
       di.addInstance(fileManager);
 
       asyncExecutorService = Executors.newSingleThreadExecutor();
-      pooledExecutorService = Executors.newFixedThreadPool(4);
+      pooledExecutorService = Executors.newFixedThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() / 2));
       di.addInstance(asyncExecutorService, ExecutorService.class, "async");
       di.addInstance(pooledExecutorService, ExecutorService.class, "threadpool");
 

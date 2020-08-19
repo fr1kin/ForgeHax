@@ -18,7 +18,7 @@ import org.objectweb.asm.tree.*;
 import java.util.Objects;
 
 @ClassMapping(value = ChunkRenderDispatcher.ChunkRender.class, innerClassNames = "RebuildTask")
-public class ChunkRenderRebuildTaskPatch extends Patch {
+public class ChunkRenderDispatcher$ChunkRender$RebuildTaskPatch extends Patch {
 
   @Inject
   @ConditionalInject("!OptiFine")

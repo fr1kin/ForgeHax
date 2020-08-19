@@ -26,6 +26,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
@@ -34,6 +35,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
 
 public interface Common {
   Minecraft MC = Minecraft.getInstance();
@@ -139,7 +143,7 @@ public interface Common {
 
   static void reloadChunkSmooth() {
     addScheduledTask(() -> {
-      if(isInWorld()) {
+      if (isInWorld()) {
         int x = (int) getLocalPlayer().getPosX();
         int y = (int) getLocalPlayer().getPosY();
         int z = (int) getLocalPlayer().getPosZ();
@@ -157,7 +161,7 @@ public interface Common {
 
   static void reloadChunks() {
     addScheduledTask(() -> {
-      if(isInWorld()) {
+      if (isInWorld()) {
         getWorldRenderer().loadRenderers();
       }
     });
@@ -233,7 +237,7 @@ public interface Common {
   //
 
   static void requiresMainThreadExecution() {
-    if(!MC.isOnExecutionThread()) {
+    if (!MC.isOnExecutionThread()) {
       throw new IllegalStateException("Must be executed on main thread!");
     }
   }
@@ -263,7 +267,7 @@ public interface Common {
   //
 
   static void printMessage(ITextComponent component) {
-    if(getLocalPlayer() != null) {
+    if (getLocalPlayer() != null) {
       getLocalPlayer().sendStatusMessage(component, false);
     }
   }
@@ -294,5 +298,10 @@ public interface Common {
 
   static void printError(String str, Object... fmt) {
     printColored(TextFormatting.RED, String.format(str, fmt));
+  }
+
+  static boolean debuggerReleaseControl() {
+    GLFW.glfwSetInputMode(Minecraft.getInstance().getMainWindow().getHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    return true;
   }
 }

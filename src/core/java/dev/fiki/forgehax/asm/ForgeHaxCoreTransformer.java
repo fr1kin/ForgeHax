@@ -62,7 +62,8 @@ public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommo
         BoatEntityPatch.class,
         LivingEntityPatch.class,
         EntityPatch.class,
-        ChunkRenderRebuildTaskPatch.class,
+        ChunkRenderDispatcher$ChunkRender$RebuildTaskPatch.class,
+        ChunkRenderDispatcher$ChunkRenderPatch.class,
         ClientEntityPlayerPatch.class,
         GameRendererPatch.class,
         IVertexBuilderPatch.class,
@@ -72,7 +73,9 @@ public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommo
         PlayerEntityPatch.class,
         PlayerTabOverlayPatch.class,
         BoatRendererPatch.class,
-        VisGraphPatch.class
+        ViewFrustumPatch.class,
+        VisGraphPatch.class,
+        WorldRendererPatch.class
     );
   }
 
