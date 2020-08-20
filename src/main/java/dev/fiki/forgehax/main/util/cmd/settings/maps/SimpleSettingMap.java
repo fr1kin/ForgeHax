@@ -6,6 +6,7 @@ import dev.fiki.forgehax.main.util.cmd.AbstractSettingMap;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.main.util.cmd.value.IValue;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import lombok.Getter;
 import lombok.Singular;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -28,8 +30,9 @@ public final class SimpleSettingMap<K, V> extends AbstractSettingMap<K, V, Map<K
       String name, @Singular Collection<String> aliases, String description,
       @Singular Collection<EnumFlag> flags,
       Supplier<Map<K, V>> supplier,
-      IArgument<K> keyArgument, IArgument<V> valueArgument) {
-    super(parent, name, aliases, description, flags, supplier);
+      IArgument<K> keyArgument, IArgument<V> valueArgument,
+      @Singular List<ICommandListener> listeners) {
+    super(parent, name, aliases, description, flags, supplier, listeners);
     this.keyArgumentConverter = keyArgument;
     this.valueArgumentConverter = valueArgument;
 

@@ -232,14 +232,29 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
 
   public interface IKeyDownListener extends ICommandListener {
     void onKeyDown(KeyBinding key);
+
+    @Override
+    default Class<? extends ICommandListener> getListenerClassType() {
+      return IKeyDownListener.class;
+    }
   }
 
   public interface IKeyPressedListener extends ICommandListener {
     void onKeyPressed(KeyBinding key);
+
+    @Override
+    default Class<? extends ICommandListener> getListenerClassType() {
+      return IKeyPressedListener.class;
+    }
   }
 
   public interface IKeyReleasedListener extends ICommandListener {
     void onKeyReleased(KeyBinding key);
+
+    @Override
+    default Class<? extends ICommandListener> getListenerClassType() {
+      return IKeyReleasedListener.class;
+    }
   }
 
   public static class KeyBindingSettingBuilder {

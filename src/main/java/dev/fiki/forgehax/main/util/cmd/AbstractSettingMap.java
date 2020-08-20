@@ -1,9 +1,15 @@
 package dev.fiki.forgehax.main.util.cmd;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import lombok.NonNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -11,14 +17,21 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractSettingMap<K, V, M extends Map<K, V>>
     extends AbstractParentCommand implements ISettingMap<K, V, M> {
+  private final Multimap<Class<? extends ICommandListener>, ICommandListener> listeners =
+      Multimaps.newListMultimap(Maps.newConcurrentMap(), Lists::newCopyOnWriteArrayList);
+
   protected final M wrapping;
 
   public AbstractSettingMap(IParentCommand parent,
       String name, Collection<String> aliases, String description,
       Collection<EnumFlag> flags,
-      @NonNull Supplier<M> supplier) {
+      @NonNull Supplier<M> supplier, List<ICommandListener> listeners) {
     super(parent, name, aliases, description, flags);
     this.wrapping = supplier.get();
+
+    for (ICommandListener listener : listeners) {
+      addListener(listener);
+    }
   }
 
   protected String printableKey(K o) {
@@ -111,5 +124,15 @@ public abstract class AbstractSettingMap<K, V, M extends Map<K, V>>
             .map(entry -> printableKey(entry.getKey()) + " = " + printableValue(entry.getValue()))
             .collect(Collectors.joining(", ")) +
         "}";
+  }
+
+  @Override
+  public <T extends ICommandListener> List<T> getListeners(Class<T> type) {
+    return (List<T>) listeners.get(type);
+  }
+
+  @Override
+  public boolean addListeners(Class<? extends ICommandListener> type, Collection<? extends ICommandListener> listener) {
+    return listeners.putAll(type, listener);
   }
 }

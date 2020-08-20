@@ -6,12 +6,14 @@ import dev.fiki.forgehax.main.util.cmd.AbstractSettingCollection;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.main.util.cmd.value.IValue;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -23,8 +25,9 @@ class BaseSimpleSettingCollection<E, L extends Collection<E>> extends AbstractSe
   public BaseSimpleSettingCollection(IParentCommand parent, String name, Set<String> aliases, String description,
       Set<EnumFlag> flags,
       Supplier<L> supplier, Collection<E> defaultTo,
-      @NonNull IArgument<E> argument) {
-    super(parent, name, aliases, description, flags, supplier, defaultTo);
+      @NonNull IArgument<E> argument,
+      List<ICommandListener> listeners) {
+    super(parent, name, aliases, description, flags, supplier, defaultTo, listeners);
     this.converterArgument = argument;
 
     newSimpleCommand()

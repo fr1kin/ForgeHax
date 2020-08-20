@@ -144,17 +144,18 @@ public interface Common {
   static void reloadChunkSmooth() {
     addScheduledTask(() -> {
       if (isInWorld()) {
-        int x = (int) getLocalPlayer().getPosX();
-        int y = (int) getLocalPlayer().getPosY();
-        int z = (int) getLocalPlayer().getPosZ();
+        int x = (int) getLocalPlayer().getPosX() >> 4;
+        int z = (int) getLocalPlayer().getPosZ() >> 4;
 
-        int distance = getGameSettings().renderDistanceChunks * 16;
+        int distance = getGameSettings().renderDistanceChunks;
 
-        getWorldRenderer().markBlockRangeForRenderUpdate(
-            x - distance, y - distance,
-            z - distance, x + distance,
-            y + distance, z + distance
-        );
+        for (int i = x - distance; i < x + distance; i++) {
+          for (int k = z - distance; k < z + distance; k++) {
+            for (int j = 0; j < 16; j++) {
+              getWorldRenderer().markForRerender(i, j, k);
+            }
+          }
+        }
       }
     });
   }

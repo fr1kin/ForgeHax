@@ -6,13 +6,12 @@ import com.google.gson.JsonObject;
 import dev.fiki.forgehax.main.util.cmd.AbstractSettingMap;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
+import lombok.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -28,8 +27,9 @@ public final class CustomSettingMap<K extends IJsonSerializable, V extends IJson
       String name, Collection<String> aliases, String description,
       Collection<EnumFlag> flags,
       Supplier<Map<K, V>> supplier,
-      @NonNull Supplier<K> keySupplier, @NonNull Supplier<V> valueSupplier) {
-    super(parent, name, aliases, description, flags, supplier);
+      @NonNull Supplier<K> keySupplier, @NonNull Supplier<V> valueSupplier,
+      @Singular List<ICommandListener> listeners) {
+    super(parent, name, aliases, description, flags, supplier, listeners);
     this.keySupplier = keySupplier;
     this.valueSupplier = valueSupplier;
     onFullyConstructed();

@@ -5,12 +5,14 @@ import com.google.gson.JsonElement;
 import dev.fiki.forgehax.main.util.cmd.AbstractSettingCollection;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -23,8 +25,9 @@ class BaseCustomSettingCollection<E extends IJsonSerializable, L extends Collect
       String name, Set<String> aliases, String description,
       Set<EnumFlag> flags,
       Supplier<L> supplier, Collection<E> defaultTo,
-      @NonNull Supplier<E> valueSupplier) {
-    super(parent, name, aliases, description, flags, supplier, defaultTo);
+      @NonNull Supplier<E> valueSupplier,
+      List<ICommandListener> listeners) {
+    super(parent, name, aliases, description, flags, supplier, defaultTo, listeners);
     this.valueSupplier = valueSupplier;
   }
 

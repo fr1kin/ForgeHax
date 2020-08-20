@@ -9,6 +9,10 @@ public interface IListenable {
     return addListeners(type, Collections.singleton(listener));
   }
 
+  default <T extends ICommandListener> boolean addListener(T listener) {
+    return addListeners(listener.getListenerClassType(), Collections.singleton(listener));
+  }
+
   boolean addListeners(Class<? extends ICommandListener> type, Collection<? extends ICommandListener> listener);
 
   <T extends ICommandListener> List<T> getListeners(Class<T> type);

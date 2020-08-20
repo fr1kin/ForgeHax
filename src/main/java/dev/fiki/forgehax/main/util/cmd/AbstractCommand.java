@@ -3,7 +3,7 @@ package dev.fiki.forgehax.main.util.cmd;
 import com.google.common.collect.ImmutableSet;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
-import dev.fiki.forgehax.main.util.cmd.listener.IUpdateConfiguration;
+import dev.fiki.forgehax.main.util.cmd.listener.IOnUpdate;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -53,7 +53,7 @@ public abstract class AbstractCommand implements ICommand {
   }
 
   protected void callUpdateListeners() {
-    invokeListeners(IUpdateConfiguration.class, l -> l.onUpdate(this));
+    invokeListeners(IOnUpdate.class, l -> l.onUpdate(this));
     writeConfiguration();
   }
 

@@ -5,6 +5,7 @@ import dev.fiki.forgehax.asm.events.render.CullCavesEvent;
 import dev.fiki.forgehax.asm.hooks.XrayHooks;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.listener.Listeners;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
@@ -15,7 +16,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.reloadChunks;
+import static dev.fiki.forgehax.main.Common.isInWorld;
+import static dev.fiki.forgehax.main.Common.reloadChunkSmooth;
 
 @RegisterMod(
     name = "XRay",
@@ -32,6 +34,7 @@ public class XrayMod extends ToggleMod {
           .label("block")
           .build())
       .supplier(Sets::newHashSet)
+      .listener(Listeners.onUpdate(o -> reloadWorldChunks()))
       .build();
 
   public final IntegerSetting opacity = newIntegerSetting()
@@ -43,7 +46,7 @@ public class XrayMod extends ToggleMod {
       .flag(EnumFlag.EXECUTOR_MAIN_THREAD)
       .changedListener((from, to) -> {
         XrayHooks.setBlockAlphaOverride(to.floatValue() / 255.f);
-        reloadChunks();
+        reloadWorldChunks();
       })
       .build();
 
@@ -51,8 +54,17 @@ public class XrayMod extends ToggleMod {
       .name("fullbright")
       .description("Light blocks up as much as possible")
       .defaultTo(true)
-      .changedListener(((from, to) -> XrayHooks.setFullbright(to)))
+      .changedListener(((from, to) -> {
+        XrayHooks.setFullbright(to);
+        reloadWorldChunks();
+      }))
       .build();
+
+  private void reloadWorldChunks() {
+    if (isEnabled() && isInWorld()) {
+      reloadChunkSmooth();
+    }
+  }
 
   @Override
   public void onEnabled() {
@@ -64,7 +76,7 @@ public class XrayMod extends ToggleMod {
     XrayHooks.setBlockAlphaOverride(opacity.floatValue() / 255.f);
     XrayHooks.setShouldXrayBlock(state -> blocks.contains(state.getBlock()));
 
-    reloadChunks();
+    reloadWorldChunks();
   }
 
   @Override
@@ -76,7 +88,9 @@ public class XrayMod extends ToggleMod {
     XrayHooks.setFullbright(false);
     XrayHooks.setShouldXrayBlock(state -> false);
 
-    reloadChunks();
+    if (isInWorld()) {
+      reloadChunkSmooth();
+    }
   }
 
   @SubscribeEvent

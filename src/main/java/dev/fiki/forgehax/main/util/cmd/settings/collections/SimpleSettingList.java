@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.util.cmd.settings.collections;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import lombok.Builder;
 import lombok.Singular;
 
@@ -18,14 +19,19 @@ public final class SimpleSettingList<E> extends BaseSimpleSettingCollection<E, L
       String name, @Singular Set<String> aliases, String description,
       @Singular Set<EnumFlag> flags,
       Supplier<List<E>> supplier, @Singular("defaultsTo") Collection<E> defaultTo,
-      IArgument<E> argument) {
-    super(parent, name, aliases, description, flags, supplier, defaultTo, argument);
+      IArgument<E> argument,
+      @Singular List<ICommandListener> listeners) {
+    super(parent, name, aliases, description, flags, supplier, defaultTo, argument, listeners);
     onFullyConstructed();
   }
 
   @Override
   public boolean addAll(int i, Collection<? extends E> collection) {
-    return this.wrapping.addAll(collection);
+    boolean ret = this.wrapping.addAll(collection);
+    if (ret) {
+      callUpdateListeners();
+    }
+    return ret;
   }
 
   @Override
@@ -35,17 +41,29 @@ public final class SimpleSettingList<E> extends BaseSimpleSettingCollection<E, L
 
   @Override
   public E set(int i, E e) {
-    return wrapping.set(i, e);
+    E v = wrapping.set(i, e);
+    if (v != null) {
+      callUpdateListeners();
+    }
+    return v;
   }
 
   @Override
   public void add(int i, E e) {
+    int beforeSize = size();
     wrapping.add(i, e);
+    if (size() != beforeSize) {
+      callUpdateListeners();
+    }
   }
 
   @Override
   public E remove(int i) {
-    return wrapping.remove(i);
+    E ret = wrapping.remove(i);
+    if (ret != null) {
+      callUpdateListeners();
+    }
+    return ret;
   }
 
   @Override

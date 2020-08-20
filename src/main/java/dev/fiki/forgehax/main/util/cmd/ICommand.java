@@ -61,12 +61,12 @@ public interface ICommand extends IListenable, IJsonSerializable {
 
   @Override
   default boolean addListeners(Class<? extends ICommandListener> type, Collection<? extends ICommandListener> listener) {
-    return false;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   default <T extends ICommandListener> List<T> getListeners(Class<T> type) {
-    return Collections.emptyList();
+    throw new UnsupportedOperationException();
   }
 
   @Override

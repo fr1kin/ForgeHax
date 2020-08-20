@@ -2,7 +2,6 @@ package dev.fiki.forgehax.main.util.cmd;
 
 import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
-import dev.fiki.forgehax.main.util.typeconverter.IConverter;
 
 public interface ISetting<E> extends ICommand, IJsonSerializable {
   E getValue();
@@ -19,5 +18,10 @@ public interface ISetting<E> extends ICommand, IJsonSerializable {
 
   interface ISettingValueChanged<E> extends ICommandListener {
     void onValueChanged(E from, E to);
+
+    @Override
+    default Class<? extends ICommandListener> getListenerClassType() {
+      return ISettingValueChanged.class;
+    }
   }
 }

@@ -12,6 +12,7 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.events.ClientWorldEvent;
 import dev.fiki.forgehax.main.events.RenderEvent;
 import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
+import dev.fiki.forgehax.main.util.cmd.listener.Listeners;
 import dev.fiki.forgehax.main.util.cmd.settings.maps.SimpleSettingMap;
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.color.Colors;
@@ -59,6 +60,8 @@ public class Markers extends ToggleMod implements Common {
 
   @FieldMapping(parentClass = WorldRenderer.class, value = "world")
   private final ReflectionField<ClientWorld> WorldRenderer_world;
+  @FieldMapping(parentClass = WorldRenderer.class, value = "viewFrustum")
+  private final ReflectionField<ViewFrustum> WorldRenderer_viewFrustum;
 
   private final SimpleSettingMap<Block, Color> blocks = newSettingMap(Block.class, Color.class)
       .name("blocks")
@@ -72,20 +75,45 @@ public class Markers extends ToggleMod implements Common {
           .defaultValue(Colors.WHITE)
           .optional()
           .build())
+      .listener(Listeners.onUpdate(o -> reloadWorldChunks()))
       .build();
 
   private MarkerDispatcher dispatcher = null;
   private MarkerWorker[] workers = new MarkerWorker[0];
 
-  private ViewFrustum viewFrustum;
-
   private int chunksX = 0;
   private int chunksY = 16;
   private int chunksZ = 0;
 
-  private void unloadMarkers() {
-    viewFrustum = null;
+  private void reloadWorldChunks() {
+    if (isEnabled() && isInWorld()) {
+      reloadChunkSmooth();
+    }
+  }
 
+  private void loadMarkers(ViewFrustum viewFrustum) {
+    unloadMarkers();
+
+    dispatcher = new MarkerDispatcher(pool);
+    dispatcher.setWorld(WorldRenderer_world.get(getWorldRenderer()));
+    dispatcher.setBlockToColor(state -> blocks.get(state.getBlock()));
+
+    workers = new MarkerWorker[viewFrustum.renderChunks.length];
+
+    for (int i = 0; i < workers.length; i++) {
+      ChunkRenderDispatcher.ChunkRender chunkRender = viewFrustum.renderChunks[i];
+      BlockPos pos = chunkRender.getPosition().toImmutable();
+
+      MarkerWorker worker = workers[i] = new MarkerWorker(dispatcher);
+      worker.setPosition(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    chunksX = ViewFrustum_countChunksX.get(viewFrustum);
+    chunksY = ViewFrustum_countChunksY.get(viewFrustum);
+    chunksZ = ViewFrustum_countChunksZ.get(viewFrustum);
+  }
+
+  private void unloadMarkers() {
     if (dispatcher != null) {
       dispatcher.kill();
       dispatcher = null;
@@ -117,9 +145,16 @@ public class Markers extends ToggleMod implements Common {
     }
   }
 
+  private ViewFrustum getViewFrustum() {
+    return WorldRenderer_viewFrustum.get(getWorldRenderer());
+  }
+
   @Override
   protected void onEnabled() {
-    reloadChunks();
+    if (isInWorld()) {
+      loadMarkers(getViewFrustum());
+      reloadWorldChunks();
+    }
   }
 
   @Override
@@ -139,37 +174,20 @@ public class Markers extends ToggleMod implements Common {
 
   @SubscribeEvent
   public void onFrustumInit(ViewFrustumInitialized event) {
-    unloadMarkers();
-
-    ViewFrustum viewFrustum = this.viewFrustum = event.getViewFrustum();
-
-    dispatcher = new MarkerDispatcher(pool);
-    dispatcher.setWorld(WorldRenderer_world.get(getWorldRenderer()));
-    dispatcher.setBlockToColor(state -> blocks.get(state.getBlock()));
-
-    workers = new MarkerWorker[viewFrustum.renderChunks.length];
-
-    for (int i = 0; i < workers.length; i++) {
-      ChunkRenderDispatcher.ChunkRender chunkRender = viewFrustum.renderChunks[i];
-      BlockPos pos = chunkRender.getPosition().toImmutable();
-
-      MarkerWorker worker = workers[i] = new MarkerWorker(dispatcher);
-      worker.setPosition(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    chunksX = ViewFrustum_countChunksX.get(viewFrustum);
-    chunksY = ViewFrustum_countChunksY.get(viewFrustum);
-    chunksZ = ViewFrustum_countChunksZ.get(viewFrustum);
+    loadMarkers(event.getViewFrustum());
   }
 
   @SubscribeEvent
   public void onChunkPositionUpdate(UpdateChunkPositionEvent event) {
-    MarkerWorker worker = workers[getWorkerIndex(event.getIx(), event.getIy(), event.getIz())];
+    int i = getWorkerIndex(event.getIx(), event.getIy(), event.getIz());
+    if (i < workers.length) {
+      MarkerWorker worker = workers[i];
 
-    if (worker != null) {
-      worker.setPosition(event.getX(), event.getY(), event.getZ());
-    } else {
-      getLogger().warn("Could not update chunk region {} {} {}", event.getX(), event.getY(), event.getZ());
+      if (worker != null) {
+        worker.setPosition(event.getX(), event.getY(), event.getZ());
+      } else {
+        getLogger().warn("Could not update chunk region {} {} {}", event.getX(), event.getY(), event.getZ());
+      }
     }
   }
 

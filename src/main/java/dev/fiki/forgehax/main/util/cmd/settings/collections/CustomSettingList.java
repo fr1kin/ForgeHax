@@ -2,6 +2,7 @@ package dev.fiki.forgehax.main.util.cmd.settings.collections;
 
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
 import lombok.Builder;
 import lombok.Singular;
@@ -19,15 +20,16 @@ public final class CustomSettingList<E extends IJsonSerializable>
       String name, @Singular Set<String> aliases, String description,
       @Singular Set<EnumFlag> flags,
       Supplier<List<E>> supplier, @Singular("defaultsTo") Collection<E> defaultTo,
-      Supplier<E> valueSupplier) {
-    super(parent, name, aliases, description, flags, supplier, defaultTo, valueSupplier);
+      Supplier<E> valueSupplier,
+      @Singular List<ICommandListener> listeners) {
+    super(parent, name, aliases, description, flags, supplier, defaultTo, valueSupplier, listeners);
     onFullyConstructed();
   }
 
   @Override
   public boolean addAll(int i, Collection<? extends E> collection) {
     boolean ret = this.wrapping.addAll(collection);
-    if(ret) {
+    if (ret) {
       callUpdateListeners();
     }
     return ret;
@@ -40,19 +42,28 @@ public final class CustomSettingList<E extends IJsonSerializable>
 
   @Override
   public E set(int i, E e) {
-    return wrapping.set(i, e);
+    E v = wrapping.set(i, e);
+    if (v != null) {
+      callUpdateListeners();
+    }
+    return v;
   }
 
   @Override
   public void add(int i, E e) {
+    int beforeSize = size();
     wrapping.add(i, e);
-    callUpdateListeners();
+    if (size() != beforeSize) {
+      callUpdateListeners();
+    }
   }
 
   @Override
   public E remove(int i) {
     E ret = wrapping.remove(i);
-    callUpdateListeners();
+    if (ret != null) {
+      callUpdateListeners();
+    }
     return ret;
   }
 
