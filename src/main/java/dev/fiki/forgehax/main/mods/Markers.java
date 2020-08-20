@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
+import dev.fiki.forgehax.asm.events.render.CullCavesEvent;
 import dev.fiki.forgehax.asm.events.world.ChunkRenderRebuildEvent;
 import dev.fiki.forgehax.asm.events.world.UpdateChunkPositionEvent;
 import dev.fiki.forgehax.asm.events.world.ViewFrustumInitialized;
@@ -69,6 +70,7 @@ public class Markers extends ToggleMod implements Common {
       .valueArgument(Arguments.newColorArgument()
           .label("color")
           .defaultValue(Colors.WHITE)
+          .optional()
           .build())
       .build();
 
@@ -128,6 +130,11 @@ public class Markers extends ToggleMod implements Common {
   @SubscribeEvent
   public void onWorldUnload(ClientWorldEvent.Unload event) {
     onDisabled();
+  }
+
+  @SubscribeEvent
+  public void onCullCaves(CullCavesEvent event) {
+    event.setCanceled(true);
   }
 
   @SubscribeEvent
