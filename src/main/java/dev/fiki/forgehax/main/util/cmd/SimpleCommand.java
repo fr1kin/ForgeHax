@@ -1,34 +1,51 @@
 package dev.fiki.forgehax.main.util.cmd;
 
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
-import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
-import lombok.*;
+import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Singular;
+import lombok.SneakyThrows;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Getter
 public final class SimpleCommand extends AbstractCommand {
   private final List<IArgument<?>> arguments;
-  private final ICommandConsumer executor;
+  private final Function<ArgumentList, ICommand> executor;
 
   @Builder
   public SimpleCommand(IParentCommand parent,
       String name, @Singular Collection<String> aliases, String description,
-      @Singular Collection<EnumFlag> flags,
-      @Singular List<IArgument<?>> arguments, @NonNull ICommandConsumer executor) {
+      @Singular Collection<EnumFlag> flags, @Singular List<IArgument<?>> arguments,
+      Consumer<ArgumentList> executor, Function<ArgumentList, ICommand> executorWithReturn) {
     super(parent, name, aliases, description, flags);
     this.arguments = arguments;
-    this.executor = executor;
+
+    if (executor == null && executorWithReturn == null) {
+      throw new NullPointerException("executor or composedExecutor must be non null");
+    }
+
+    if (executorWithReturn != null) {
+      this.executor = executorWithReturn;
+    } else {
+      this.executor = args -> {
+        executor.accept(args);
+        return null;
+      };
+    }
+
     onFullyConstructed();
   }
 
   @SneakyThrows
   @Override
   public ICommand onExecute(ArgumentList args) {
-    executor.onExecute(args);
-    return null;
+    return executor.apply(args);
   }
 
   public interface ICommandConsumer {
