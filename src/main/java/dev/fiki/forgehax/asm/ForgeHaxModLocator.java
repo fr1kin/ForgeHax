@@ -1,5 +1,6 @@
-package dev.fiki.forgehax.asm.utils;
+package dev.fiki.forgehax.asm;
 
+import dev.fiki.forgehax.asm.utils.EZ;
 import net.minecraftforge.fml.loading.moddiscovery.AbstractJarFileLocator;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileParser;

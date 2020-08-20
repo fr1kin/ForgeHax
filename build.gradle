@@ -57,25 +57,13 @@ sourceSets {
     compileClasspath += main.compileClasspath
   }
 
-  common {
-    compileClasspath += main.compileClasspath
-  }
-
-  core {
-    compileClasspath += main.compileClasspath + common.output
-  }
-
   main {
     if (isJenkinsBuilding) {
       java {
         exclude 'dev/fiki/forgehax/main/mods/ForgeModListSpoofer.java'
       }
     }
-    compileClasspath += api.output + common.output + core.output
-  }
-
-  allSourceSets {
-    compileClasspath += main.runtimeClasspath + core.runtimeClasspath + common.runtimeClasspath
+    compileClasspath += api.output
   }
 }
 
@@ -90,11 +78,9 @@ minecraft {
       property 'forge.logging.console.level', 'debug'
       property 'forgehax.logging.level', 'debug'
 
-      setIdeaModule project.getName() + '_' + sourceSets.allSourceSets.name
-
       mods {
         ForgeHax {
-          sources sourceSets.main, sourceSets.core, sourceSets.common
+          sources sourceSets.main
         }
       }
     }
@@ -104,7 +90,6 @@ minecraft {
 mapper {
   annotatedWith 'dev/fiki/forgehax/main/util/modloader/RegisterMod'
 
-  include sourceSets.core
   include sourceSets.main
 }
 
@@ -113,11 +98,7 @@ dependencies {
   implementation group: 'org.ow2.asm', name: 'asm-util', version: '7.2'
 
   compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-  coreAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-  commonAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-  allSourceSetsAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
   minecraft "net.minecraftforge:forge:${forgeVersion}"
 
@@ -142,9 +123,6 @@ jar {
         "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
     ])
   }
-
-  from sourceSets.common.output
-  from sourceSets.core.output
 }
 
 processResources {

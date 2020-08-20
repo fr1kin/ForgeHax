@@ -1,11 +1,11 @@
 package dev.fiki.forgehax.asm.utils;
 
 import com.google.common.collect.ImmutableList;
+import org.objectweb.asm.tree.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-
-import org.objectweb.asm.tree.*;
 
 public class ASMPattern {
 

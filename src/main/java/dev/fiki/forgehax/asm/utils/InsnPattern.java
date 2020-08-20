@@ -1,7 +1,8 @@
 package dev.fiki.forgehax.asm.utils;
 
-import java.util.Objects;
 import org.objectweb.asm.tree.AbstractInsnNode;
+
+import java.util.Objects;
 
 public class InsnPattern {
   
