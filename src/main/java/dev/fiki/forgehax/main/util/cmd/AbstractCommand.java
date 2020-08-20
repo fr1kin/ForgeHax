@@ -54,6 +54,7 @@ public abstract class AbstractCommand implements ICommand {
 
   protected void callUpdateListeners() {
     invokeListeners(IUpdateConfiguration.class, l -> l.onUpdate(this));
+    writeConfiguration();
   }
 
   @Override

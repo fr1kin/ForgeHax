@@ -27,7 +27,7 @@ public class HelpCommand extends CommandMod {
         .description("Save all configurations")
         .flag(EnumFlag.EXECUTOR_ASYNC)
         .executor(args -> {
-          getRootCommand().serialize();
+          getRootCommand().writeConfiguration();
           args.inform("All configurations saved");
         })
         .build();

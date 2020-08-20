@@ -8,16 +8,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import dev.fiki.forgehax.main.util.cmd.argument.ConverterArgument;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
+import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.listener.ICommandListener;
-import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
 import dev.fiki.forgehax.main.util.typeconverter.IConverter;
 import lombok.Getter;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 public abstract class AbstractSetting<E> extends AbstractCommand implements ISetting<E> {
@@ -52,18 +49,19 @@ public abstract class AbstractSetting<E> extends AbstractCommand implements ISet
 
   @Override
   public boolean setValue(E value) {
-    if (getConverter().comparator() != null
+    Comparator<E> comparator = getConverter().comparator();
+    if (comparator != null
         && getValue() != null
         && value != null) {
-      if (getMinValue() != null && getConverter().comparator().compare(value, getMinValue()) < 0) {
+      if (getMinValue() != null && comparator.compare(value, getMinValue()) < 0) {
         value = getMinValue();
-      } else if (getMaxValue() != null && getConverter().comparator().compare(value, getMaxValue()) > 0) {
+      } else if (getMaxValue() != null && comparator.compare(value, getMaxValue()) > 0) {
         value = getMaxValue();
       }
     }
 
     // update only if no listener returns false and the value is different
-    if ((getConverter().comparator() != null && getConverter().comparator().compare(value, getValue()) != 0)
+    if ((comparator != null && comparator.compare(value, getValue()) != 0)
         || !Objects.equals(value, getValue())) {
       final E newValue = value;
       final E oldValue = this.value;

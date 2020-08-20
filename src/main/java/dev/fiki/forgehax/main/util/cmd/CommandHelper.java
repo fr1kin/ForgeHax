@@ -1,7 +1,16 @@
 package dev.fiki.forgehax.main.util.cmd;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import lombok.SneakyThrows;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.StringTokenizer;
@@ -99,6 +108,30 @@ public class CommandHelper {
       // don't care, execute on current thread
       return new SameThreadExecutor();
     }
+  }
+
+  public static Executor getWriteExecutor(ICommand command) {
+    if (command.containsFlag(EnumFlag.SERIALIZE_ASYNC)) {
+      return getAsyncThreadExecutor();
+    } else {
+      return new SameThreadExecutor();
+    }
+  }
+
+  @SneakyThrows
+  public static void writeConfigFile(JsonElement root, Path file) {
+    Files.write(file,
+        createGson().toJson(root).getBytes(StandardCharsets.UTF_8),
+        StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+  }
+
+  @SneakyThrows
+  public static JsonElement readConfigFile(Path file) {
+    return new JsonParser().parse(new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
+  }
+
+  public static Gson createGson() {
+    return new GsonBuilder().setPrettyPrinting().create();
   }
 
   private static class SameThreadExecutor implements Executor {

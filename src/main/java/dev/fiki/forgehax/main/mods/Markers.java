@@ -82,6 +82,8 @@ public class Markers extends ToggleMod implements Common {
   private int chunksZ = 0;
 
   private void unloadMarkers() {
+    viewFrustum = null;
+
     if (dispatcher != null) {
       dispatcher.kill();
       dispatcher = null;
@@ -132,7 +134,7 @@ public class Markers extends ToggleMod implements Common {
   public void onFrustumInit(ViewFrustumInitialized event) {
     unloadMarkers();
 
-    viewFrustum = event.getViewFrustum();
+    ViewFrustum viewFrustum = this.viewFrustum = event.getViewFrustum();
 
     dispatcher = new MarkerDispatcher(pool);
     dispatcher.setWorld(WorldRenderer_world.get(getWorldRenderer()));

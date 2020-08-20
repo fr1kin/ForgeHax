@@ -2,10 +2,8 @@ package dev.fiki.forgehax.main.util.mod;
 
 import com.google.common.base.Strings;
 import dev.fiki.forgehax.main.util.cmd.AbstractParentCommand;
-import dev.fiki.forgehax.main.util.cmd.ICommand;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
-import dev.fiki.forgehax.main.util.cmd.listener.IUpdateConfiguration;
 import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -13,7 +11,6 @@ import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static dev.fiki.forgehax.main.Common.getLogger;
@@ -25,13 +22,6 @@ import static dev.fiki.forgehax.main.util.cmd.flag.EnumFlag.MOD_REGISTERED;
 public abstract class AbstractMod extends AbstractParentCommand {
   // category of the mod
   private final Category category;
-
-  AbstractMod(Category category, String name, String desc, Set<EnumFlag> flags) {
-    super(getRootCommand(), name, Collections.emptySet(), desc, flags);
-    this.category = category;
-
-    onFullyConstructed();
-  }
 
   @SneakyThrows
   AbstractMod(IParentCommand parent) {
@@ -54,6 +44,8 @@ public abstract class AbstractMod extends AbstractParentCommand {
     }
 
     this.category = info.category();
+
+    addFlag(EnumFlag.SERIALIZED_NODE);
 
     onFullyConstructed();
   }
@@ -101,7 +93,7 @@ public abstract class AbstractMod extends AbstractParentCommand {
   public final void load() {
     getLogger().debug("Loading mod {}", getName());
 
-    readConfig();
+    readConfiguration();
     if (isEnabled()) {
       start();
     }
@@ -114,7 +106,7 @@ public abstract class AbstractMod extends AbstractParentCommand {
   public final void unload() {
     getLogger().debug("Unloading mod {}", getName());
 
-    saveConfig();
+    writeConfiguration();
     stop();
     onUnload();
   }
@@ -162,23 +154,6 @@ public abstract class AbstractMod extends AbstractParentCommand {
     return false;
   }
 
-  public void saveConfig() {
-    getRootCommand().serialize(this);
-  }
-
-  public void readConfig() {
-    getRootCommand().deserialize(this);
-  }
-
-  /**
-   * Called when a child command updates
-   *
-   * @param command child command
-   */
-  protected void onChildUpdateConfiguration(ICommand command) {
-    saveConfig();
-  }
-
   /**
    * Called when the mod is loaded
    */
@@ -210,16 +185,5 @@ public abstract class AbstractMod extends AbstractParentCommand {
   @Override
   public String toString() {
     return getName() + ": " + getDescription();
-  }
-
-  @Override
-  public boolean addChild(ICommand command) {
-    boolean ret = super.addChild(command);
-
-    if (ret) {
-      command.addListener(IUpdateConfiguration.class, this::onChildUpdateConfiguration);
-    }
-
-    return ret;
   }
 }

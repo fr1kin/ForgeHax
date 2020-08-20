@@ -1,6 +1,9 @@
 package dev.fiki.forgehax.main.util.mod;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import dev.fiki.forgehax.main.util.cmd.ICommand;
+import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 
 import static dev.fiki.forgehax.main.Common.getRootCommand;
 
@@ -11,6 +14,7 @@ public class CommandMod extends AbstractMod {
 
   public CommandMod() {
     super(null);
+    deleteFlag(EnumFlag.SERIALIZED_NODE);
   }
 
   @Override
@@ -38,5 +42,24 @@ public class CommandMod extends AbstractMod {
   @Override
   public boolean addChild(ICommand command) {
     return getRootCommand().addChild(command);
+  }
+
+  @Override
+  public JsonElement serialize() {
+    return JsonNull.INSTANCE;
+  }
+
+  @Override
+  public void deserialize(JsonElement json) {
+  }
+
+  @Override
+  public boolean writeConfiguration() {
+    return false;
+  }
+
+  @Override
+  public boolean readConfiguration() {
+    return false;
   }
 }

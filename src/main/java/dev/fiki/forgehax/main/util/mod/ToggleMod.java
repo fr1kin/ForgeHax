@@ -6,8 +6,6 @@ import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import lombok.Getter;
 import net.minecraft.client.settings.KeyBinding;
 
-import java.util.Collections;
-
 @Getter
 public class ToggleMod extends KeyBoundMod {
   private final BooleanSetting enabledSetting;
@@ -17,23 +15,6 @@ public class ToggleMod extends KeyBoundMod {
         .name("toggle")
         .description("Toggles the mods enable state ")
         .executor(args -> getEnabledSetting().setValue(!getEnabledSetting().getValue()))
-        .build();
-  }
-
-  @Deprecated
-  public ToggleMod(Category category, String modName, boolean defaultValue, String description) {
-    super(category, modName, description, Collections.emptySet());
-    this.enabledSetting = newBooleanSetting()
-        .name("enabled")
-        .description("Enables the mod")
-        .defaultTo(defaultValue)
-        .changedListener((from, to) -> {
-          if(to) {
-            start();
-          } else {
-            stop();
-          }
-        })
         .build();
   }
 
@@ -71,7 +52,7 @@ public class ToggleMod extends KeyBoundMod {
   }
   
   @Override
-  public void enable() {
+  public final void enable() {
     enabledSetting.setValue(true);
   }
   

@@ -77,7 +77,7 @@ public class ForgeHax {
       di.addInstance(logger, "logger");
 
       rootCommand = new RootCommand();
-      rootCommand.setConfigDir(getBaseDirectory().resolve("config"));
+      rootCommand.setConfigurationDirectory(getBaseDirectory().resolve("config"));
       di.addInstance(rootCommand);
 
       modManager = new ModManager(dependencyInjector);

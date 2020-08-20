@@ -2,6 +2,8 @@ package dev.fiki.forgehax.main.util.cmd;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
 import dev.fiki.forgehax.main.util.cmd.execution.ArgumentList;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
@@ -110,6 +112,41 @@ public abstract class AbstractParentCommand extends AbstractCommand implements I
               .forEach(s -> args.inform(s));
           return null;
         });
+  }
+
+  @Override
+  public JsonElement serialize() {
+    JsonObject head = new JsonObject();
+
+    for (ICommand child : getChildren()) {
+      try {
+        head.add(child.getName(), child.serialize());
+      } catch (UnsupportedOperationException e) {
+        getLog().debug("{} does not support serialization", child.getFullName());
+      } catch (Throwable t) {
+        getLog().error("Failed to serialize {}", child.getFullName());
+      }
+    }
+
+    return head;
+  }
+
+  @Override
+  public void deserialize(JsonElement json) {
+    JsonObject head = json.getAsJsonObject();
+
+    for (ICommand child : getChildren()) {
+      JsonElement element = head.get(child.getName());
+      if (element != null) {
+        try {
+          child.deserialize(element);
+        } catch (UnsupportedOperationException e) {
+          getLog().debug("{} does not support deserialization", child.getFullName());
+        } catch (Throwable t) {
+          getLog().error("Failed to deserialize {}", child.getFullName());
+        }
+      }
+    }
   }
 
   @AllArgsConstructor
