@@ -23,9 +23,9 @@ public class ArgumentList {
 
     List<IValue<?>> values = Lists.newArrayList();
     for(IArgument<?> arg : command.getArguments()) {
-      if(length < arg.getMinArgumentsConsumed()) {
+      if(length <= 0 || length < arg.getMinArgumentsConsumed()) {
         if(arg.isOptional()) {
-          values.add(new Value<>(null, arg));
+          values.add(new Value(arg.getDefaultValue(), arg));
           continue;
         } else {
           throw new IllegalStateException("expected "
