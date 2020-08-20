@@ -4,17 +4,23 @@ package dev.fiki.forgehax.main.util.color;
  * Created on 2/6/2018 by fr1kin
  */
 public interface Colors {
-  Color WHITE = Color.of(255, 255, 255);
-  Color BLACK = Color.of(0, 0, 0);
-  Color RED = Color.of(255, 0, 0);
-  Color GREEN = Color.of(0, 255, 0);
-  Color BLUE = Color.of(0, 0, 255);
-  Color CYAN = Color.of(0, 255, 255);
-  Color ORANGE = Color.of(255, 128, 0);
-  Color PURPLE = Color.of(163, 73, 163);
-  Color MAGENTA = Color.of(255, 0, 255);
-  Color GRAY = Color.of(127, 127, 127);
-  Color DARK_RED = Color.of(64, 0, 0);
-  Color DARK_GRAY = Color.of(33, 33, 33);
-  Color YELLOW = Color.of(255, 255, 0);
+  ColorMap MAP = new ColorMap();
+
+  static ColorMap map() {
+    return MAP;
+  }
+  
+  Color WHITE = MAP.getNonNull("white");
+  Color BLACK = MAP.getNonNull("black");
+  Color RED = MAP.getNonNull("red");
+  Color GREEN = MAP.getNonNull("green");
+  Color BLUE = MAP.getNonNull("blue");
+  Color CYAN = MAP.getNonNull("cyan");
+  Color ORANGE = MAP.getNonNull("orange");
+  Color PURPLE = MAP.getNonNull("purple");
+  Color MAGENTA = MAP.getNonNull("magenta");
+  Color GRAY = MAP.getNonNull("gray");
+  Color DARK_RED = MAP.getNonNull("dark_red");
+  Color DARK_GRAY = MAP.getNonNull("dark_gray");
+  Color YELLOW = MAP.getNonNull("yellow");
 }
