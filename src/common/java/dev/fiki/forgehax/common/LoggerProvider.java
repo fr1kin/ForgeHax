@@ -29,6 +29,8 @@ public class LoggerProvider {
 
     Level customLevel = Level.getLevel(System.getProperty("forgehax.logging.level", "info").toUpperCase());
 
+    coreLogger.getContext().addPropertyChangeListener(o -> coreLogger.setLevel(customLevel));
+
     PatternLayout layout = PatternLayout.newBuilder()
         .withPattern("%highlight{[%d{HH:mm:ss}][%level][%c{1}][%t][%C{1}::%M@%L]: %m%n}")
         .build();

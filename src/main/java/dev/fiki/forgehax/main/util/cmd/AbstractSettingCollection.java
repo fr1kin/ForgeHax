@@ -5,7 +5,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -22,6 +25,10 @@ public abstract class AbstractSettingCollection<E, L extends Collection<E>>
     super(parent, name, aliases, description, flags);
     this.wrapping = supplier.get();
     this.wrapping.addAll(defaultTo);
+  }
+
+  protected String printableValue(E o) {
+    return String.valueOf(o);
   }
 
   @Override
@@ -121,8 +128,11 @@ public abstract class AbstractSettingCollection<E, L extends Collection<E>>
 
   @Override
   public void clear() {
+    int beforeSize = size();
     wrapping.clear();
-    callUpdateListeners();
+    if (size() != beforeSize) {
+      callUpdateListeners();
+    }
   }
 
   @Override
@@ -130,7 +140,7 @@ public abstract class AbstractSettingCollection<E, L extends Collection<E>>
     return getName() +
         " = [" +
         wrapping.stream()
-            .map(Objects::toString)
+            .map(this::printableValue)
             .collect(Collectors.joining(", ")) +
         "]";
   }

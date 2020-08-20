@@ -21,6 +21,14 @@ public abstract class AbstractSettingMap<K, V, M extends Map<K, V>>
     this.wrapping = supplier.get();
   }
 
+  protected String printableKey(K o) {
+    return String.valueOf(o);
+  }
+
+  protected String printableValue(V o) {
+    return String.valueOf(o);
+  }
+
   @Override
   public int size() {
     return wrapping.size();
@@ -56,20 +64,28 @@ public abstract class AbstractSettingMap<K, V, M extends Map<K, V>>
   @Override
   public V remove(Object o) {
     V ret = wrapping.remove(o);
-    callUpdateListeners();
+    if (ret != null) {
+      callUpdateListeners();
+    }
     return ret;
   }
 
   @Override
   public void putAll(Map<? extends K, ? extends V> map) {
+    int beforeSize = size();
     wrapping.putAll(map);
-    callUpdateListeners();
+    if (size() != beforeSize) {
+      callUpdateListeners();
+    }
   }
 
   @Override
   public void clear() {
+    int beforeSize = size();
     wrapping.clear();
-    callUpdateListeners();
+    if (size() != beforeSize) {
+      callUpdateListeners();
+    }
   }
 
   @Override
@@ -92,7 +108,7 @@ public abstract class AbstractSettingMap<K, V, M extends Map<K, V>>
     return getName() +
         " = {" +
         wrapping.entrySet().stream()
-            .map(entry -> entry.getKey() + " = " + entry.getValue())
+            .map(entry -> printableKey(entry.getKey()) + " = " + printableValue(entry.getValue()))
             .collect(Collectors.joining(", ")) +
         "}";
   }

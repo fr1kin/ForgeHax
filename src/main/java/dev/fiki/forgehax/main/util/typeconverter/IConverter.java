@@ -8,5 +8,9 @@ public interface IConverter<E> {
   E parse(String value);
   String convert(E value);
 
+  default String print(E value) {
+    return convert(value);
+  }
+
   Comparator<E> comparator();
 }

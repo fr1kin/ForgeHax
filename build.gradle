@@ -86,8 +86,8 @@ minecraft {
     client {
       workingDirectory project.file('run')
 
-      property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-      property 'forge.logging.console.level', 'info'
+//      property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+      property 'forge.logging.console.level', 'debug'
       property 'forgehax.logging.level', 'debug'
 
       setIdeaModule project.getName() + '_' + sourceSets.allSourceSets.name

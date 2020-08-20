@@ -131,4 +131,14 @@ public final class SimpleSettingMap<K, V> extends AbstractSettingMap<K, V, Map<K
       this.wrapping.put(keyConverter.parse(element.getKey()), valueConverter.parse(element.getValue().getAsString()));
     }
   }
+
+  @Override
+  protected String printableKey(K o) {
+    return getKeyArgumentConverter().print(o);
+  }
+
+  @Override
+  protected String printableValue(V o) {
+    return getValueArgumentConverter().print(o);
+  }
 }

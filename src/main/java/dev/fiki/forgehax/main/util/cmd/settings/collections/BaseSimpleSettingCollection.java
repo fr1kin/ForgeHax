@@ -111,4 +111,9 @@ class BaseSimpleSettingCollection<E, L extends Collection<E>> extends AbstractSe
       this.wrapping.add(converter.parse(element.getAsString()));
     }
   }
+
+  @Override
+  protected String printableValue(E o) {
+    return getConverterArgument().print(o);
+  }
 }
