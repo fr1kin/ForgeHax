@@ -14,6 +14,9 @@ public enum Category {
   PLAYER("Player", "Mods that interact with the local player"),
   RENDER("Render", "2D/3D rendering mods"),
   WORLD("World", "Any mod that has to do with the world"),
+  CHAT("Chat", "Chat related mods"),
+  UI("UI", "User interface related"),
+  EXPLOIT("Exploit", "Exploit prevention or execution"),
   MISC("Misc", "Miscellaneous"),
   SERVICE("Service", "Background mods"),
   ;

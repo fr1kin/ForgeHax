@@ -98,11 +98,11 @@ public class ForgeHax {
 
       ReflectionProviders.all(dependencyInjector);
 
-      if (!modManager.searchPackage("dev.fiki.forgehax.main.mods")) {
-        logger.error("Could not find any mods to load. Verify the right package is listed");
-
-        // ForgeHax won't do anything without mods so stop loading here
-        return;
+      if (!modManager.searchPackage("dev.fiki.forgehax.main.commands")
+          || !modManager.searchPackage("dev.fiki.forgehax.main.managers")
+          || !modManager.searchPackage("dev.fiki.forgehax.main.services")
+          || !modManager.searchPackage("dev.fiki.forgehax.main.mods")) {
+        throw new Error("Failed to find mods. Verify the right package(s) are listed");
       }
 
       if (!modManager.searchPluginDirectory(getBaseDirectory().resolve("plugins"))) {
@@ -115,7 +115,7 @@ public class ForgeHax {
       // call AbstractMod::load
       modManager.startupMods();
 
-      // add shutdown hook to serialize all settings and
+      // add shutdown hook to serialize all settings
       LoggerProvider.addShutdownHook(this::shutdown);
     } catch (Throwable t) {
       getLogger().error("Fatal error loading ForgeHax!");

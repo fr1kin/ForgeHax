@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.util.entity;
 
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.mods.managers.RotationManager;
+import dev.fiki.forgehax.main.managers.RotationManager;
 import dev.fiki.forgehax.main.util.Switch;
 import dev.fiki.forgehax.main.util.math.Angle;
 import net.minecraft.entity.Entity;

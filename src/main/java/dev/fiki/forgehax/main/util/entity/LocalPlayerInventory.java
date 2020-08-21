@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.util.entity;
 
-import dev.fiki.forgehax.main.mods.services.HotbarSelectionService;
-import dev.fiki.forgehax.main.mods.services.HotbarSelectionService.ResetFunction;
+import dev.fiki.forgehax.main.services.HotbarSelectionService;
+import dev.fiki.forgehax.main.services.HotbarSelectionService.ResetFunction;
 import dev.fiki.forgehax.main.util.entity.LocalPlayerInventory.InvItem.SlotWrapper;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;
