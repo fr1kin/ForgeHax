@@ -16,6 +16,7 @@ import lombok.Singular;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,13 @@ public final class SimpleSettingMap<K, V> extends AbstractSettingMap<K, V, Map<K
           IValue<K> key = args.getFirst();
           IValue<V> value = args.getSecond();
 
-          V previous = this.put(key.getValue(), value.getValue());
+          K k = key.getValue();
+          V v = value.getValue();
+
+          Objects.requireNonNull(k, key.getConverter().getLabel() + " argument is invalid or missing");
+          Objects.requireNonNull(v, value.getConverter().getLabel() + " argument is invalid or missing");
+
+          V previous = this.put(k, v);
           if (previous == null) {
             args.inform("Added entry \"%s\", \"%s\" to map",
                 key.getStringValue(), value.getStringValue());
@@ -66,7 +73,11 @@ public final class SimpleSettingMap<K, V> extends AbstractSettingMap<K, V, Map<K
         .executor(args -> {
           IValue<K> key = args.getFirst();
 
-          V removed = this.remove(key.getValue());
+          K k = key.getValue();
+
+          Objects.requireNonNull(k, key.getConverter().getLabel() + " argument is invalid or missing");
+
+          V removed = this.remove(k);
           if (removed != null) {
             args.inform("Removed key \"%s\" from map", key.getStringValue());
           } else {

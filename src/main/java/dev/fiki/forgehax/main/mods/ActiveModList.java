@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods;
 
 import dev.fiki.forgehax.main.mods.services.TickRateService;
+import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
@@ -25,6 +26,7 @@ import static dev.fiki.forgehax.main.Common.*;
     name = "ActiveMods",
     description = "Shows a list of all active mods",
     category = Category.RENDER,
+    flags = EnumFlag.HIDDEN,
     enabled = true
 )
 public class ActiveModList extends HudMod {
