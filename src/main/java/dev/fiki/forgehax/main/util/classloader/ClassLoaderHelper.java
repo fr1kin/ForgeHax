@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.util.classloader;
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.main.ForgeHax;
 import dev.fiki.forgehax.main.util.Streamables;
+import lombok.SneakyThrows;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import org.objectweb.asm.Type;
@@ -28,14 +29,18 @@ import static dev.fiki.forgehax.main.Common.getLogger;
 import static dev.fiki.forgehax.main.util.FileHelper.*;
 
 public class ClassLoaderHelper {
-  private static Class<?> MODJAR_CLASS;
+  private static Class<?> MODJAR_URLCONNECTION_CLASS;
 
-  static {
-    try {
-      MODJAR_CLASS = Class.forName("net.minecraftforge.fml.loading.ModJarURLHandler$ModJarURLConnection");
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
+  @SneakyThrows
+  public static Class<?> getModjarUrlconnectionClass() {
+    if (MODJAR_URLCONNECTION_CLASS == null) {
+      MODJAR_URLCONNECTION_CLASS = Class.forName("net.minecraftforge.fml.loading.ModJarURLHandler$ModJarURLConnection");
     }
+    return MODJAR_URLCONNECTION_CLASS;
+  }
+
+  public static String getForgeHaxPath() {
+    return Type.getInternalName(ForgeHax.class) + ".class";
   }
 
   private static void collectPathRecursively(Path directory, List<Path> collected)
@@ -186,8 +191,8 @@ public class ClassLoaderHelper {
     final String jarPackageDir = asFilePath(packageIn, "/");
     final String packageFileDir = asFilePath(packageIn, File.separator);
 
-    final String forgehaxMainPath = Type.getInternalName(ForgeHax.class) + ".class";
-    final URL url = classLoader.getResource(forgehaxMainPath);
+    final String mainPath = getForgeHaxPath();
+    final URL url = classLoader.getResource(mainPath);
 
     Objects.requireNonNull(url, "ForgeHax url resource could not be found!");
 
@@ -195,8 +200,8 @@ public class ClassLoaderHelper {
 
     getLogger().debug("Connecting to jar using {}", connection.getClass());
 
-    if (connection.getClass().equals(MODJAR_CLASS)) {
-      final ModFile modFile = FMLLoader.getLoadingModList().getModFileById(connection.getURL().getHost()).getFile();
+    if (isFMLConnection(connection)) {
+      final ModFile modFile = getModFileInModJar(connection);
 
       final Path jar = modFile.getFilePath();
       if (Files.isRegularFile(jar)) {
@@ -224,7 +229,7 @@ public class ClassLoaderHelper {
       }
 
       // remove ForgeHax.class classpath
-      path = path.substring(0, path.indexOf(forgehaxMainPath));
+      path = path.substring(0, path.indexOf(mainPath));
       path += jarPackageDir;
 
       // the root directory to the jar/folder containing the classes
@@ -269,6 +274,14 @@ public class ClassLoaderHelper {
         })
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
+  }
+
+  public static boolean isFMLConnection(URLConnection connection) {
+    return connection.getClass().equals(getModjarUrlconnectionClass());
+  }
+
+  public static ModFile getModFileInModJar(URLConnection connection) {
+    return FMLLoader.getLoadingModList().getModFileById(connection.getURL().getHost()).getFile();
   }
 
   public static class UnknownConnectionTypeException extends Exception {
