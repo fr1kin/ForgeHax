@@ -50,7 +50,7 @@ public class XrayHooks {
   public static boolean changeBrightness(int[] brightness, float[] colorMul) {
     final int mode = rendering.get();
     if (fullbright || mode == RENDER_XRAYED) {
-      Arrays.fill(brightness, 12582912);
+      Arrays.fill(brightness, 0xF000F0);
       Arrays.fill(colorMul, 1.f);
       if (mode == RENDER_XRAYED) {
         return false;
