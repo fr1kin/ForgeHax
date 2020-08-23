@@ -17,7 +17,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.UUID;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
+import static dev.fiki.forgehax.main.Common.getNetworkManager;
 
 @RegisterMod(
     name = "AutoLog",
@@ -54,7 +55,7 @@ public class AutoLog extends ToggleMod {
           || (noTotem.getValue()
           && !((getLocalPlayer().getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING)
           || getLocalPlayer().getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING))) {
-        autoReconnect.hasAutoLogged = true;
+        autoReconnect.setForceDisconnected(true);
         getNetworkManager().closeChannel(new StringTextComponent("Health too low (" + health + ")"));
         disable();
       }
@@ -65,7 +66,7 @@ public class AutoLog extends ToggleMod {
   public void onPacketRecieved(PacketInboundEvent event) {
     if (event.getPacket() instanceof SSpawnPlayerPacket) {
       if (disconnectOnNewPlayer.getValue()) {
-        autoReconnect.hasAutoLogged = true; // dont automatically reconnect
+        autoReconnect.setForceDisconnected(true); // dont automatically reconnect
         UUID id = ((SSpawnPlayerPacket) event.getPacket()).getUniqueId();
         
         NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(id);

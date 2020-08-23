@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.util.mod;
 
 import com.google.common.base.Strings;
+import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.AbstractParentCommand;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
 import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
@@ -19,7 +20,7 @@ import static dev.fiki.forgehax.main.util.cmd.flag.EnumFlag.HIDDEN;
 import static dev.fiki.forgehax.main.util.cmd.flag.EnumFlag.MOD_REGISTERED;
 
 @Getter
-public abstract class AbstractMod extends AbstractParentCommand {
+public abstract class AbstractMod extends AbstractParentCommand implements Common {
   // category of the mod
   private final Category category;
 
