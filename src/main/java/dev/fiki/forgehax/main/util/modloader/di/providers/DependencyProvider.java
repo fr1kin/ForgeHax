@@ -1,10 +1,7 @@
 package dev.fiki.forgehax.main.util.modloader.di.providers;
 
 import dev.fiki.forgehax.main.util.modloader.di.DependencyInjector;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.AnnotatedElement;
@@ -48,6 +45,7 @@ public interface DependencyProvider {
   @Getter
   @Builder
   @AllArgsConstructor
+  @ToString
   class BuildContext {
     @Nullable
     private final String qualifier;

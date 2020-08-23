@@ -40,7 +40,7 @@ public class ReflectionProviders {
           .map(e -> e.getAnnotation(ClassMapping.class))
           .filter(Objects::nonNull)
           .findFirst()
-          .orElseThrow(() -> new FailedToInitializeException("Could not find any ClassMapping annotation"));
+          .orElseThrow(() -> new FailedToInitializeException("Could not find any ClassMapping annotation: " + ctx));
 
       return NAME_TO_CLASS.computeIfAbsent(ASMClass.unmap(mapping), ReflectionClass::new);
     }
@@ -59,7 +59,7 @@ public class ReflectionProviders {
           .map(e -> e.getAnnotation(FieldMapping.class))
           .filter(Objects::nonNull)
           .findFirst()
-          .orElseThrow(() -> new FailedToInitializeException("Could not find any FieldMapping annotation"));
+          .orElseThrow(() -> new FailedToInitializeException("Could not find any FieldMapping annotation: " + ctx));
 
       return NAME_TO_FIELD.computeIfAbsent(ASMField.unmap(mapping), field -> new ReflectionField<>(
           NAME_TO_CLASS.computeIfAbsent(field.getParentClass(), ReflectionClass::new),
@@ -81,7 +81,7 @@ public class ReflectionProviders {
           .map(e -> e.getAnnotation(MethodMapping.class))
           .filter(Objects::nonNull)
           .findFirst()
-          .orElseThrow(() -> new FailedToInitializeException("Could not find any MethodMapping annotation"));
+          .orElseThrow(() -> new FailedToInitializeException("Could not find any MethodMapping annotation: " + ctx));
 
       return NAME_TO_METHOD.computeIfAbsent(ASMMethod.unmap(mapping), method -> new ReflectionMethod<>(
           NAME_TO_CLASS.computeIfAbsent(method.getParentClass(), ReflectionClass::new),

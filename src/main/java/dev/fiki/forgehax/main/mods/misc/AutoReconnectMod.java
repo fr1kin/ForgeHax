@@ -1,73 +1,151 @@
 package dev.fiki.forgehax.main.mods.misc;
 
-import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
+import dev.fiki.forgehax.api.mapper.FieldMapping;
+import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.main.util.SimpleTimer;
+import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
 import dev.fiki.forgehax.main.util.events.ClientWorldEvent;
+import dev.fiki.forgehax.main.util.events.PreClientTickEvent;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
+import dev.fiki.forgehax.main.util.reflection.types.ReflectionMethod;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import net.minecraft.client.gui.IBidiRenderer;
+import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static dev.fiki.forgehax.main.Common.getDisplayScreen;
+import static dev.fiki.forgehax.main.Common.setDisplayScreen;
 
 @RegisterMod(
     name = "AutoReconnect",
     description = "Automatically reconnects to server",
-    category = Category.MISC
+    category = Category.MISC,
+    flags = EnumFlag.HIDDEN
 )
+@RequiredArgsConstructor
 public class AutoReconnectMod extends ToggleMod {
+  @MethodMapping(parentClass = Screen.class, value = "addButton")
+  private final ReflectionMethod<Widget> Screen_addButton;
+  @FieldMapping(parentClass = ConnectingScreen.class, value = "previousGuiScreen")
+  private final ReflectionField<Screen> ConnectingScreen_previousGuiScreen;
 
-  private static ServerData lastConnectedServer;
+  public final LongSetting delay = newLongSetting()
+      .name("delay")
+      .description("Delay between each reconnect attempt (in seconds)")
+      .defaultTo(5)
+      .build();
 
-  // used to disable autoreconnecting without disabling the entire mod
-  public boolean hasAutoLogged = false;
+  private final SimpleTimer timer = new SimpleTimer();
 
-  public void updateLastConnectedServer() {
-    ServerData data = Common.MC.getCurrentServerData();
-    if (data != null) {
-      lastConnectedServer = data;
+  @Setter
+  private boolean forceDisconnected = false;
+  private ServerData lastServer = null;
+  private Screen previousScreen = null;
+  private Button button = null;
+
+  private String reconnectMessage() {
+    String time = "";
+    long ms = delay.intValue() * 1000 - timer.getTimeElapsed();
+
+    // minutes
+    if (ms >= 1000 * 60) {
+      long mins = ms / (1000*60);
+      time = mins + "m";
+      ms -= mins * (1000*60);
+    }
+
+    // seconds
+    if (ms >= 1000) {
+      long sec = ms / 1000;
+      time += sec + "s";
+      ms -= sec * 1000;
+    }
+
+    // miliseconds
+    if (ms > 0) {
+      time += String.format("%03dms", ms);
+    } else {
+      return "Reconnecting now";
+    }
+
+    return "Reconnecting in " + time;
+  }
+
+  private void reconnect() {
+    if (previousScreen != null && lastServer != null) {
+      timer.reset();
+      button = null;
+      setDisplayScreen(new ConnectingScreen(previousScreen, MC, lastServer));
     }
   }
 
-  public final DoubleSetting delay = newDoubleSetting()
-      .name("delay")
-      .description("Delay between each reconnect attempt")
-      .defaultTo(5.D)
-      .build();
+  @Override
+  protected void onDisabled() {
+    timer.reset();
+    button = null;
+    previousScreen = null;
+    forceDisconnected = false;
+  }
 
   @SubscribeEvent
   public void onGuiOpened(GuiOpenEvent event) {
-    if (!hasAutoLogged && event.getGui() instanceof DisconnectedScreen) {
-      DisconnectedScreen screen = (DisconnectedScreen) event.getGui();
-      // TODO: 1.15 add button to screen using reflection
+    if (event.getGui() instanceof ConnectingScreen) {
+      // in the connecting screen constructor the server data is set
+      lastServer = MC.getCurrentServerData();
+      forceDisconnected = false;
+      previousScreen = ConnectingScreen_previousGuiScreen.get(event.getGui());
+    } else if (!forceDisconnected && event.getGui() instanceof DisconnectedScreen) {
+      timer.start();
+    } else {
+      timer.reset();
+      button = null;
+    }
+  }
+
+  @SubscribeEvent
+  public void onTick(PreClientTickEvent event) {
+    if (lastServer == null) {
+      lastServer = MC.getCurrentServerData();
     }
 
-//    if (!hasAutoLogged) {
-//      if (event.getGui() instanceof DisconnectedScreen
-//          && !(event.getGui() instanceof GuiDisconnectedOverride)) {
-//        updateLastConnectedServer();
-//        DisconnectedScreen disconnected = (DisconnectedScreen) event.getGui();
-//        event.setGui(
-//            new GuiDisconnectedOverride(
-//                FastReflection.Fields.GuiDisconnected_parentScreen.get(disconnected),
-//                "connect.failed",
-//                FastReflection.Fields.GuiDisconnected_message.get(disconnected),
-//                FastReflection.Fields.GuiDisconnected_reason.get(disconnected),
-//                delay.get()));
-//      }
-//    }
+    if (timer.isStarted() && getDisplayScreen() instanceof DisconnectedScreen) {
+      if (button != null) {
+        button.setMessage(new StringTextComponent(reconnectMessage()));
+      } else {
+        DisconnectedScreen screen = (DisconnectedScreen) getDisplayScreen();
+
+        int textHeight = IBidiRenderer.field_243257_a.func_241862_a() * 9;
+        button = new Button(
+            screen.width / 2 - 100,
+            Math.min(screen.height / 2 + textHeight / 2 + 9, screen.height - 30) + 33,
+            200, 20,
+            new StringTextComponent(reconnectMessage()),
+            b -> reconnect());
+
+        Screen_addButton.invoke(screen, button);
+      }
+
+      if (timer.getTimeElapsed() >= delay.intValue() * 1000) {
+        reconnect();
+      }
+    }
   }
 
   @SubscribeEvent
   public void onWorldLoad(ClientWorldEvent.Load event) {
-    // we got on the server or stopped joining, now undo queue
-    hasAutoLogged = false; // make mod work when you rejoin
-  }
-
-  @SubscribeEvent
-  public void onWorldUnload(ClientWorldEvent.Unload event) {
-    updateLastConnectedServer();
+    forceDisconnected = false;
   }
 
   /*
