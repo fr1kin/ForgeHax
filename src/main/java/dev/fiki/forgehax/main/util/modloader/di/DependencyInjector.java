@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nullable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Comparator;
 import java.util.List;
@@ -21,8 +22,6 @@ public class DependencyInjector {
       Comparator.comparing(DependencyProvider::getTargetClass, Comparator.comparing(Class::getName))
           .thenComparing(DependencyProvider::getQualifier, Comparator.comparing(Strings::nullToEmpty, String::compareTo)));
 
-  private boolean injected = false;
-
   public void provider(DependencyProvider provider) {
     if (!exists(provider.getTargetClass(), provider.getQualifier())) {
       dependencies.add(provider);
@@ -34,10 +33,6 @@ public class DependencyInjector {
     if (!exists(clazz, qualifier)) {
       DependencyProvider dp = new SingletonDependency(clazz, qualifier);
       dependencies.add(dp);
-
-      if (injected) {
-        getSingletonInstance(dp);
-      }
     } else {
       throw new Error("Failed to add dependency because a similar one already exists");
     }
@@ -110,6 +105,11 @@ public class DependencyInjector {
     return getDependency(clazz, null);
   }
 
+  public Stream<DependencyProvider> getDependenciesAnnotatedWith(final Class<? extends Annotation> annotationClass) {
+    return dependencies.stream()
+        .filter(dep -> dep.getTargetClass().isAnnotationPresent(annotationClass));
+  }
+
   @SneakyThrows
   public <T> T getInstance(Class<T> clazz, String qualifier) {
     return (T) getSingletonInstance(getDependency(clazz, qualifier));
@@ -126,20 +126,6 @@ public class DependencyInjector {
         .map(baseClass::cast);
   }
 
-  public void inject() {
-    injected = true;
-    for (DependencyProvider provider : dependencies) {
-      if (provider.shouldInitialize()) {
-        // call getInstance for the first time
-        try {
-          getSingletonInstance(provider);
-        } catch (Throwable t) {
-          throw new Error("Failed to initialize class " + provider.getTargetClass(), t);
-        }
-      }
-    }
-  }
-
   public static String extractQualifier(AnnotatedElement element) {
     if (element.isAnnotationPresent(Injected.class)) {
       return Strings.emptyToNull(element.getAnnotation(Injected.class).value());
@@ -149,7 +135,7 @@ public class DependencyInjector {
 
   @SneakyThrows
   private Object getSingletonInstance(DependencyProvider provider) {
-    return provider.getInstance(DependencyProvider.noBuildContext(), DependencyProvider.createLoadChain(this));
+    return provider.getInstance(this);
   }
 
   public static class NoSuchDependency extends Exception {

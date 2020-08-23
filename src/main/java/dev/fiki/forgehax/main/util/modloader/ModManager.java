@@ -96,6 +96,18 @@ public class ModManager extends AbstractClassLoader<AbstractMod> {
     return mods.stream();
   }
 
+  public void loadMods() {
+    di.getDependenciesAnnotatedWith(RegisterMod.class)
+        .forEach(dep -> {
+          try {
+            dep.getInstance(di);
+          } catch (Throwable t) {
+            getLogger().warn("Failed to load mod {}", dep.getTargetClass().getSimpleName());
+            getLogger().warn(t, t);
+          }
+        });
+  }
+
   public void startupMods() {
     getLogger().debug("Mod startup");
 

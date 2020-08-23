@@ -110,7 +110,7 @@ public class ForgeHax {
       }
 
       // inject all dependencies
-      di.inject();
+      modManager.loadMods();
 
       // call AbstractMod::load
       modManager.startupMods();

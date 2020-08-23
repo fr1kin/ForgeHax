@@ -28,6 +28,11 @@ public interface DependencyProvider {
   Object getInstance(BuildContext ctx, LoadChain chain) throws
       FailedToInitializeException, DependencyInjector.NoSuchDependency;
 
+  default Object getInstance(DependencyInjector injector) throws
+      FailedToInitializeException, DependencyInjector.NoSuchDependency {
+    return getInstance(noBuildContext(), new LoadChain(injector));
+  }
+
   static String getElementQualifier(AnnotatedElement element) {
     return DependencyInjector.extractQualifier(element);
   }
@@ -60,12 +65,12 @@ public interface DependencyProvider {
   @Getter
   @RequiredArgsConstructor
   class LoadChain {
-    private final DependencyInjector manager;
+    private final DependencyInjector injector;
     private final Stack<DependencyProvider> stack = new Stack<>();
 
     public Object getOrCreate(BuildContext ctx, Class<?> target)
         throws FailedToInitializeException, DependencyInjector.NoSuchDependency {
-      DependencyProvider dep = manager.getDependency(target, ctx.getQualifier());
+      DependencyProvider dep = injector.getDependency(target, ctx.getQualifier());
 
       if (stack.contains(dep)) {
         throw new Error("Circular dependency injection! Load stack: " +
