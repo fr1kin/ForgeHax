@@ -11,7 +11,7 @@ import dev.fiki.forgehax.main.util.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.main.util.events.PlayerConnectEvent;
 import dev.fiki.forgehax.main.util.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.events.RenderEvent;
-import dev.fiki.forgehax.main.util.math.Plane;
+import dev.fiki.forgehax.main.util.math.ScreenPos;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -120,7 +120,7 @@ public class LogoutSpot extends ToggleMod {
     synchronized (spots) {
       spots.forEach(spot -> {
         Vector3d top = spot.getTopVec();
-        Plane upper = VectorUtils.toScreen(top);
+        ScreenPos upper = VectorUtils.toScreen(top);
         if (upper.isVisible()) {
           double distance = getLocalPlayer().getPositionVec().distanceTo(top);
           String name = String.format("%s (%.1f)", spot.getName(), distance);

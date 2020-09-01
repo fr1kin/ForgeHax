@@ -11,34 +11,6 @@ import static dev.fiki.forgehax.main.Common.*;
 
 public class VectorUtils implements Common {
   // Credits to Gregor and P47R1CK for the 3D vector transformation code
-
-//    if(dot > 0) {
-//      return new Plane(0.D, 0.D, false);
-//    }
-//
-//    // vertical fov
-//    double fov = FastReflection.Methods.GameRenderer_getFOVModifier.invoke(getGameRenderer(),
-//        getGameRenderer().getActiveRenderInfo(), MC.getRenderPartialTicks(), true);
-//
-//    double frameWidth = getMainWindow().getFramebufferWidth();
-//    double frameHeight = getMainWindow().getFramebufferHeight();
-//
-//    // aspect ratio (w/h)
-//    double aspectRatio = frameWidth / frameHeight;
-//
-//    // horizontal fov
-//    //double fovHorizontal = Math.atan(aspectRatio * Math.tan(Math.toRadians(fov) / 2.f));
-//    double fovVertical = Math.toRadians(getGameSettings().fov - (fov - 70));
-//    double fovHorizontal = (1.d / Math.tan(fovVertical / 2.d));
-//
-//    double d = (screenHeight) / fovHorizontal;
-//
-//    double scalar = d / dot;
-//    Vector3d projection = dir.scale(scalar);
-//
-//    double pointX = 0.5f * screenWidth + right.dotProduct(projection);
-//    double pointY = 0.5f * screenHeight - up.dotProduct(projection);
-
   @Getter
   private static Matrix4f projectionMatrix = new Matrix4f();
   @Getter
@@ -52,54 +24,54 @@ public class VectorUtils implements Common {
 
     projectionViewMatrix = projectionMatrix.copy();
     projectionViewMatrix.mul(viewMatrix);
+//    projectionViewMatrix.invert();
   }
 
   /**
    * Convert 3D coord into 2D coordinate projected onto the screen
    */
-  public static Plane toScreen(Vector3d vector) {
+  public static ScreenPos toScreen(double x, double y, double z) {
+    // 0.05 = near plane, which i found in GameRenderer::getProjectionMatrix
+    final float NEAR_PLANE = 0.05f;
+
     final double screenWidth = getScreenWidth();
     final double screenHeight = getScreenHeight();
 
     Vector3d camera = getGameRenderer().getActiveRenderInfo().getProjectedView();
-    Vector3d dir = camera.subtract(vector);
+    Vector3d dir = camera.subtract(x, y, z);
 
     Vector4f pos = new Vector4f((float) dir.getX(), (float) dir.getY(), (float) dir.getZ(), 1.f);
-
     pos.transform(projectionViewMatrix);
-    double w = pos.getW();
-    pos.perspectiveDivide();
 
-    double halfWidth = screenWidth / 2.d;
-    double halfHeight = screenHeight / 2.d;
+    float w = pos.getW();
+    if (w < NEAR_PLANE && w != 0) {
+      pos.perspectiveDivide();
+    } else {
+      // epic trick to get off screen coordinates to be in the correct orientation
+      // then we scale the coordinate because we want it to be off screen
+      float scale = (float) Math.max(screenWidth, screenHeight);
+      pos.setX(pos.getX() * -1 * scale);
+      pos.setY(pos.getY() * -1 * scale);
+    }
 
-    double pointX = (halfWidth * pos.getX()) + (pos.getX() + halfWidth);
-    double pointY = -(halfHeight * pos.getY()) + (pos.getY() + halfHeight);
+    double hw = screenWidth / 2.d;
+    double hh = screenHeight / 2.d;
+    double pointX = (hw * pos.getX()) + (pos.getX() + hw);
+    double pointY = -(hh * pos.getY()) + (pos.getY() + hh);
 
-    return new Plane(pointX, pointY, w < 0.1d);
+    return new ScreenPos(pointX, pointY,
+        pointX >= 0
+            && pointX < screenWidth
+            && pointY >= 0
+            && pointY < screenHeight);
   }
 
-  public static Plane toScreen(double x, double y, double z) {
-    return toScreen(new Vector3d(x, y, z));
+  public static ScreenPos toScreen(Vector3d vec) {
+    return toScreen(vec.getX(), vec.getY(), vec.getZ());
   }
 
-  @Deprecated
-  public static ScreenPos _toScreen(double x, double y, double z) {
-    Plane plane = toScreen(x, y, z);
-    return new ScreenPos(plane.getX(), plane.getY(), plane.isVisible());
-  }
-
-  @Deprecated
-  public static ScreenPos _toScreen(Vector3d Vector3d) {
-    return _toScreen(Vector3d.x, Vector3d.y, Vector3d.z);
-  }
-
-  /**
-   * Convert a vector to a angle
-   */
-  @Deprecated
-  public static Object vectorAngle(Vector3d Vector3d) {
-    return null;
+  public static ScreenPos toScreen(Vector3i vec) {
+    return toScreen(vec.getX(), vec.getY(), vec.getZ());
   }
 
   public static Vector3d multiplyBy(Vector3d vec1, Vector3d vec2) {
@@ -116,24 +88,5 @@ public class VectorUtils implements Common {
 
   public static Vector3d toFPIVector(Vector3i vec) {
     return new Vector3d(vec.getX(), vec.getY(), vec.getZ());
-  }
-
-  @Deprecated
-  public static class ScreenPos {
-
-    public final int x;
-    public final int y;
-    public final boolean isVisible;
-
-    public final double xD;
-    public final double yD;
-
-    public ScreenPos(double x, double y, boolean isVisible) {
-      this.x = (int) x;
-      this.y = (int) y;
-      this.xD = x;
-      this.yD = y;
-      this.isVisible = isVisible;
-    }
   }
 }

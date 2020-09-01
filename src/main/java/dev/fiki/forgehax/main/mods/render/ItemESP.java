@@ -7,7 +7,7 @@ import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.events.Render2DEvent;
-import dev.fiki.forgehax.main.util.math.Plane;
+import dev.fiki.forgehax.main.util.math.ScreenPos;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -56,8 +56,8 @@ public class ItemESP extends ToggleMod {
           Vector3d bottomPos = EntityUtils.getInterpolatedPos(entity, event.getPartialTicks());
           Vector3d topPos = bottomPos.add(0.D, entity.getRenderBoundingBox().maxY - entity.getPosY(), 0.D);
 
-          Plane top = VectorUtils.toScreen(topPos);
-          Plane bot = VectorUtils.toScreen(bottomPos);
+          ScreenPos top = VectorUtils.toScreen(topPos);
+          ScreenPos bot = VectorUtils.toScreen(bottomPos);
 
           if (!top.isVisible() && !bot.isVisible()) {
             return;

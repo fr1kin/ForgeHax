@@ -5,6 +5,7 @@ import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
+import dev.fiki.forgehax.main.util.math.ScreenPos;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -72,16 +73,15 @@ public class WaifuESP extends ToggleMod {
         Vector3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
         Vector3d topVec =
             bottomVec.add(new Vector3d(0, (entity.getRenderBoundingBox().maxY - entity.getPosY()), 0));
-        VectorUtils.ScreenPos top = VectorUtils._toScreen(topVec.x, topVec.y, topVec.z);
-        VectorUtils.ScreenPos bot = VectorUtils._toScreen(bottomVec.x, bottomVec.y, bottomVec.z);
-        if (top.isVisible || bot.isVisible) {
+        ScreenPos top = VectorUtils.toScreen(topVec.x, topVec.y, topVec.z);
+        ScreenPos bot = VectorUtils.toScreen(bottomVec.x, bottomVec.y, bottomVec.z);
+        if (top.isVisible() || bot.isVisible()) {
 
-          int height = (bot.y - top.y);
+          int height = (bot.getYAsInteger() - top.getYAsInteger());
           int width = height;
 
-          int x =
-              (int) (top.x - (width / 1.8)); // normally 2.0 but lowering it shifts it to the left
-          int y = top.y;
+          int x = (int) (top.getXAsInteger() - (width / 1.8)); // normally 2.0 but lowering it shifts it to the left
+          int y = top.getYAsInteger();
 
           // draw waifu
           Common.MC.getTextureManager().bindTexture(waifu);

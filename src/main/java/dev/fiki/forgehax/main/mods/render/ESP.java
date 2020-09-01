@@ -24,7 +24,7 @@ import dev.fiki.forgehax.main.util.entity.EnchantmentUtils.ItemEnchantment;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
 import dev.fiki.forgehax.main.util.events.Render2DEvent;
-import dev.fiki.forgehax.main.util.math.Plane;
+import dev.fiki.forgehax.main.util.math.ScreenPos;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -162,8 +162,8 @@ public class ESP extends ToggleMod implements Fonts {
           Vector3d bottomPos = EntityUtils.getInterpolatedPos(living, partialTicks);
           Vector3d topPos = bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.getPosY(), 0.D);
 
-          Plane top = VectorUtils.toScreen(topPos);
-          Plane bot = VectorUtils.toScreen(bottomPos);
+          ScreenPos top = VectorUtils.toScreen(topPos);
+          ScreenPos bot = VectorUtils.toScreen(bottomPos);
 
           // stop here if neither are visible
           if (!top.isVisible() && !bot.isVisible()) {

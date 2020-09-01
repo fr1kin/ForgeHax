@@ -11,7 +11,7 @@ import dev.fiki.forgehax.main.util.entity.EntityUtils;
 import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
 import dev.fiki.forgehax.main.util.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
-import dev.fiki.forgehax.main.util.math.Plane;
+import dev.fiki.forgehax.main.util.math.ScreenPos;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
 import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.ToggleMod;
@@ -121,7 +121,7 @@ public class Tracers extends ToggleMod implements Colors {
 
               Vector3d entityPos =
                   EntityUtils.getInterpolatedEyePos(entity, Common.MC.getRenderPartialTicks());
-              Plane screenPos = VectorUtils.toScreen(entityPos);
+              ScreenPos screenPos = VectorUtils.toScreen(entityPos);
 
               Color color = er.getColor().setAlpha(alpha.getValue());
               color4f(color.getRedAsFloat(),
