@@ -21,7 +21,6 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import static dev.fiki.forgehax.main.Common.MC;
 import static dev.fiki.forgehax.main.Common.getGameRenderer;
 
 @RegisterMod
@@ -37,25 +36,14 @@ public class RenderEventService extends ServiceMod {
     final float partialTicks = MC.getRenderPartialTicks();
 
     MatrixStack stack = new MatrixStack();
-    stack.getLast().getMatrix().mul(
-        gameRenderer.getProjectionMatrix(activeRenderInfo, partialTicks, true));
-
+    stack.getLast().getMatrix().mul(gameRenderer.getProjectionMatrix(activeRenderInfo, partialTicks, true));
     GameRenderer_hurtCameraEffect.invoke(gameRenderer, stack, partialTicks);
 
     Matrix4f projectionMatrix = stack.getLast().getMatrix();
-
-//    net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup cameraSetup =
-//        net.minecraftforge.client.ForgeHooksClient.onCameraSetup(gameRenderer, activeRenderInfo, partialTicks);
-//    activeRenderInfo.setAnglesInternal(cameraSetup.getYaw(), cameraSetup.getPitch());
-//    stack.rotate(Vector3f.ZP.rotationDegrees(cameraSetup.getRoll()));
-
-//    stack.rotate(Vector3f.XP.rotationDegrees(activeRenderInfo.getPitch()));
-//    stack.rotate(Vector3f.YP.rotationDegrees(activeRenderInfo.getYaw() + 180.0F));
-
     VectorUtils.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().getLast().getMatrix());
 
-//    pushMatrix();
-//    RenderSystem.multMatrix(event.getMatrixStack().getLast().getMatrix());
+    RenderSystem.pushMatrix();
+    RenderSystem.multMatrix(event.getMatrixStack().getLast().getMatrix());
 
     RenderSystem.disableTexture();
     RenderSystem.enableBlend();
@@ -80,7 +68,7 @@ public class RenderEventService extends ServiceMod {
     RenderSystem.enableDepthTest();
     RenderSystem.enableCull();
 
-//    popMatrix();
+    RenderSystem.popMatrix();
   }
 
   @SubscribeEvent(priority = EventPriority.LOW)
