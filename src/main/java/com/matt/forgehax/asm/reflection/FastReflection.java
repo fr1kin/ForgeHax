@@ -178,7 +178,17 @@ public interface FastReflection extends ASMCommon {
         .setName("entityID")
         .autoAssign()
         .asField();
-    
+
+    /**
+     * Session
+     */
+    FastField<Session> Minecraft_session =
+        FastTypeBuilder.create()
+            .setInsideClass(Minecraft.class)
+            .setName("session")
+            .autoAssign()
+            .asField();
+
     /**
      * SPacketPlayerPosLook
      */

@@ -1,6 +1,10 @@
 package com.matt.forgehax.util;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,6 +12,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.matt.forgehax.Helper.printError;
+import static com.matt.forgehax.Helper.printInform;
 
 /**
  * Created on 5/30/2017 by fr1kin
@@ -97,12 +104,23 @@ public class FileManager {
   }
   
   public Path getMkBaseDirectory(String... names) {
-    return getMkDirectory(
-        getBasePath(), expandPaths(names).collect(Collectors.joining(File.separator)));
+    return getMkDirectory(getBasePath(), expandPaths(names).collect(Collectors.joining(File.separator)));
   }
   
   public Path getMkConfigDirectory(String... names) {
     return getMkDirectory(
         getConfig(), expandPaths(names).collect(Collectors.joining(File.separator)));
+  }
+
+  public static void save(final File file, final JsonObject jsonObject) {
+    try {
+      FileWriter fileWriter = new FileWriter(file);
+      fileWriter.write(new GsonBuilder().setPrettyPrinting().create().toJson(jsonObject));
+      fileWriter.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+      printError("Failed to save the submitted data.");
+      printInform("The exception is: " + e.getMessage());
+    }
   }
 }
