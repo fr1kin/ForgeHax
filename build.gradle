@@ -12,7 +12,7 @@ buildscript {
     forgehaxVersion = "3.1.0-${forgehaxCommit}"
 
     minecraftVersion = '1.16.2'
-    forgeVersion = "${minecraftVersion}-33.0.5"
+    forgeVersion = "${minecraftVersion}-33.0.31"
 
     fmlVersion = '2.0.0-milestone.1'
     lombokVersion = '1.18.12'
