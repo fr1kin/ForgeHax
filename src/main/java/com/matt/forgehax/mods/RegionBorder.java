@@ -18,19 +18,39 @@ public class RegionBorder extends ToggleMod {
 
 
   private final Setting<Integer> chunkDistance =
-    getCommandStub()
-      .builders()
-      .<Integer>newSettingBuilder()
-      .name("chunk-distance")
-      .description("how many chunks in front of the region the border should be drawn. I you don't want it just set it to 0 so it is like the normal region border.")
-      .defaultTo(5)
-      .build();
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("chunk-distance")
+          .description("how many chunks in front of the region the border should be drawn. I you don't want it just set it to 0 so it is like the normal region border.")
+          .defaultTo(5)
+          .build();
 
-  private final Setting<Boolean> drawRegionBorder = getCommandStub().builders().<Boolean>newSettingBuilder()
-    .name("draw-region-border")
-    .description("whether you even want to draw the actual region border.")
-    .defaultTo(true)
-    .build();
+  private final Setting<Boolean> drawRegionBorder =
+      getCommandStub().builders()
+          .<Boolean>newSettingBuilder()
+          .name("draw-region-border")
+          .description("whether you even want to draw the actual region border.")
+          .defaultTo(true)
+          .build();
+
+  private final Setting<Integer> minY =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("min-y")
+          .description("From where the outline should be rendered.")
+          .defaultTo(0)
+          .build();
+
+  private final Setting<Integer> maxY =
+      getCommandStub()
+          .builders()
+          .<Integer>newSettingBuilder()
+          .name("max-y")
+          .description("To where the outline should be rendered.")
+          .defaultTo(255)
+          .build();
 
 
   public RegionBorder() {
@@ -39,17 +59,19 @@ public class RegionBorder extends ToggleMod {
 
   /**
    * to draw the border
+   *
    * @param event
    */
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     event.getBuffer().begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
-    BlockPos from = new BlockPos((((int) MC.player.posX) / 512) * 512, 0, (((int) MC.player.posZ) / 512) * 512);
-    BlockPos to = from.add(511, 256, 511);
+    // this might be easier to read with declaring BlockPos?
+    BlockPos from = new BlockPos((((int) MC.player.posX) / 512) * 512, minY.get(), (((int) MC.player.posZ) / 512) * 512);
+    BlockPos to = from.add(511, maxY.get(), 511);
 
     int color = Colors.ORANGE.toBuffer();
-    if(drawRegionBorder.getAsBoolean()) {
+    if (drawRegionBorder.getAsBoolean()) {
       GeometryTessellator.drawCuboid(event.getBuffer(), from, to, GeometryMasks.Line.ALL, color);
     }
 
