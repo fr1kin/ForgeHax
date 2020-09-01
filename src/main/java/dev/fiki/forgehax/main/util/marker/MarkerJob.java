@@ -66,12 +66,21 @@ public class MarkerJob implements Comparable<MarkerJob> {
         stack.translate(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
 
         AxisAlignedBB bb = state.getShape(world, pos).getBoundingBox();
+        AxisAlignedBB box = bb.offset(pos);
 
         int flags = GeometryMasks.Line.ALL;
         for (Direction dir : Direction.values()) {
-          BlockState other = world.getBlockState(pos.offset(dir));
+          BlockPos otherPos = pos.offset(dir);
+          BlockState other = world.getBlockState(otherPos);
           if (block.equals(other.getBlock())) {
-            flags &= ~GeometryMasks.Line.getFlagForDirection(dir);
+            AxisAlignedBB otherBox = other.getShape(world, otherPos).getBoundingBox().offset(otherPos);
+            double max = box.getMax(dir.getAxis());
+            double min = box.getMin(dir.getAxis());
+            double otherMax = otherBox.getMax(dir.getAxis());
+            double otherMin = otherBox.getMin(dir.getAxis());
+            if (max == otherMax || max == otherMin || min == otherMax || min == otherMin || box.intersects(otherBox)) {
+              flags &= ~GeometryMasks.Line.getFlagForDirection(dir);
+            }
           }
         }
 
