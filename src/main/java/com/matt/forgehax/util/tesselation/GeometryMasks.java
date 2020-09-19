@@ -38,19 +38,19 @@ public final class GeometryMasks {
   }
   
   public static final class Line {
-
-    public static final int DOWN_WEST = 0x001;
-    public static final int UP_WEST = 0x002;
-    public static final int DOWN_EAST = 0x004;
-    public static final int UP_EAST = 0x008;
-    public static final int DOWN_NORTH = 0x010;
-    public static final int UP_NORTH = 0x020;
-    public static final int DOWN_SOUTH = 0x040;
-    public static final int UP_SOUTH = 0x080;
-    public static final int NORTH_WEST = 0x100;
-    public static final int NORTH_EAST = 0x200;
-    public static final int SOUTH_WEST = 0x400;
-    public static final int SOUTH_EAST = 0x800;
+    
+    public static final int DOWN_WEST = 0x11;
+    public static final int UP_WEST = 0x12;
+    public static final int DOWN_EAST = 0x21;
+    public static final int UP_EAST = 0x22;
+    public static final int DOWN_NORTH = 0x05;
+    public static final int UP_NORTH = 0x06;
+    public static final int DOWN_SOUTH = 0x09;
+    public static final int UP_SOUTH = 0x0A;
+    public static final int NORTH_WEST = 0x14;
+    public static final int NORTH_EAST = 0x24;
+    public static final int SOUTH_WEST = 0x18;
+    public static final int SOUTH_EAST = 0x28;
     public static final int ALL =
         DOWN_WEST
             | UP_WEST
