@@ -11,8 +11,8 @@ buildscript {
 
     forgehaxVersion = "3.1.0-${forgehaxCommit}"
 
-    minecraftVersion = '1.16.2'
-    forgeVersion = "${minecraftVersion}-33.0.31"
+    minecraftVersion = '1.16.3'
+    forgeVersion = '34.1.0'
 
     fmlVersion = '2.0.0-milestone.1'
     lombokVersion = '1.18.12'
@@ -100,7 +100,7 @@ dependencies {
   compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-  minecraft "net.minecraftforge:forge:${forgeVersion}"
+  minecraft "net.minecraftforge:forge:${minecraftVersion}-${forgeVersion}"
 
   testCompile group: 'junit', name: 'junit', version: '4.12'
   testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
