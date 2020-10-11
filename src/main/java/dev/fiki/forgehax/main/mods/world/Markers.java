@@ -14,7 +14,7 @@ import dev.fiki.forgehax.main.util.cmd.listener.Listeners;
 import dev.fiki.forgehax.main.util.cmd.settings.maps.SimpleSettingMap;
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.color.Colors;
-import dev.fiki.forgehax.main.util.events.ClientWorldEvent;
+import dev.fiki.forgehax.main.util.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.main.util.events.RenderEvent;
 import dev.fiki.forgehax.main.util.marker.MarkerDispatcher;
 import dev.fiki.forgehax.main.util.marker.MarkerWorker;
@@ -163,7 +163,7 @@ public class Markers extends ToggleMod implements Common {
   }
 
   @SubscribeEvent
-  public void onWorldUnload(ClientWorldEvent.Unload event) {
+  public void onDisconnect(DisconnectFromServerEvent event) {
     onDisabled();
   }
 
