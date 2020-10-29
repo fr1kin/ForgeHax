@@ -89,6 +89,8 @@ public class BookBot extends ToggleMod {
         .description("Start book bot. Can optionally set the starting position")
         .argument(Arguments.newIntegerArgument()
             .label("page")
+            .optional()
+            .defaultValue(0)
             .build())
         .executor(args -> {
           if (writerThread != null) {
