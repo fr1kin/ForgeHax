@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.util.cmd.execution;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import dev.fiki.forgehax.main.util.cmd.ICommand;
 import dev.fiki.forgehax.main.util.cmd.argument.IArgument;
 import dev.fiki.forgehax.main.util.cmd.value.IValue;
@@ -12,18 +13,17 @@ import lombok.NonNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 
 @AllArgsConstructor
 public class ArgumentList {
   public static ArgumentList createList(ICommand command, String[] args, IConsole output) {
     // iterate over all the argument(s) and construct a value
     // from each argument with the given arguments
-    int start = 0;
-    int length = args.length;
-
+    Queue<String> q = Queues.newArrayDeque(Arrays.asList(args));
     List<IValue<?>> values = Lists.newArrayList();
     for(IArgument<?> arg : command.getArguments()) {
-      if(length <= 0 || length < arg.getMinArgumentsConsumed()) {
+      if(q.isEmpty() || q.size() < arg.getMinArgumentsConsumed()) {
         if(arg.isOptional()) {
           values.add(new Value(arg.getDefaultValue(), arg));
           continue;
@@ -31,26 +31,22 @@ public class ArgumentList {
           throw new IllegalStateException("expected "
               + arg.getMinArgumentsConsumed()
               + " arguments, got "
-              + length);
+              + q.size());
         }
       }
 
-      int range = Math.min(arg.getMaxArgumentsConsumed(), length);
+      // number of arguments to consume (exclusive)
+      int range = Math.min(arg.getMaxArgumentsConsumed(), q.size());
 
-      // remove the arguments from this list
-      length -= range;
+      String[] valueFrom = new String[range];
+      for (int i = 0; i < valueFrom.length; i++) {
+        valueFrom[i] = q.poll();
+      }
 
-      String[] valueFrom = Arrays.copyOfRange(args, start, range);
       values.add(new Value(arg.parse(String.join(" ", valueFrom)), arg));
-
-      start = range;
     }
 
-    String[] unused = start >= args.length
-        ? new String[0]
-        : Arrays.copyOfRange(args, start, args.length);
-
-    return new ArgumentList(values, unused, output);
+    return new ArgumentList(values, q.toArray(new String[0]), output);
   }
 
   private final List<IValue<?>> arguments;
