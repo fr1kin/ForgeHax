@@ -7,7 +7,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class BlockType extends AbstractRegistryType<Block> {
   @Override
-  protected IForgeRegistry<Block> getRegistry() {
+  public IForgeRegistry<Block> getRegistry() {
     return ForgeRegistries.BLOCKS;
   }
 

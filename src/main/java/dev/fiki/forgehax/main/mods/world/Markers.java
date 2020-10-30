@@ -25,19 +25,24 @@ import dev.fiki.forgehax.main.util.modloader.di.Injected;
 import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -77,6 +82,45 @@ public class Markers extends ToggleMod implements Common {
           .build())
       .listener(Listeners.onUpdate(o -> reloadWorldChunks()))
       .build();
+
+  {
+    blocks.newSimpleCommand()
+        .name("bulk-add")
+        .description("Add all matching a given string.")
+        .argument(Arguments.newStringArgument()
+            .label("search blocks")
+            .maxArgumentsConsumed(1)
+            .build())
+        .argument(Arguments.newColorArgument()
+            .label("color")
+            .defaultValue(Colors.WHITE)
+            .optional()
+            .build())
+        .executor(args -> {
+          final String searchString = args.<String>getFirst().getValue();
+          final String lower = searchString.toLowerCase();
+          final Color color = args.<Color>getSecond().getValue();
+
+          Set<Block> blocks = StreamSupport.stream(getBlockRegistry().spliterator(), false)
+              .filter(block -> Blocks.AIR != block)
+              .filter(block -> block.getRegistryName() != null)
+              .filter(block -> block.getRegistryName().toString().toLowerCase().contains(lower))
+              .collect(Collectors.toSet());
+
+          if (blocks.isEmpty()) {
+            args.warn("Found no blocks matching name %s", searchString);
+          } else {
+            args.inform("Adding blocks %s with color %s",
+                blocks.stream()
+                    .map(Block::getRegistryName)
+                    .map(ResourceLocation::toString)
+                    .collect(Collectors.joining(", ")),
+                args.getSecond().getStringValue());
+            blocks.forEach(block -> this.blocks.put(block, color));
+          }
+        })
+        .build();
+  }
 
   private MarkerDispatcher dispatcher = null;
   private MarkerWorker[] workers = new MarkerWorker[0];

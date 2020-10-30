@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
 public class Utils implements Common {
-  
+
   public static <E extends Enum<?>> String[] toArray(E[] o) {
     String[] output = new String[o.length];
     for (int i = 0; i < output.length; i++) {
@@ -28,7 +28,7 @@ public class Utils implements Common {
     }
     return output;
   }
-  
+
   public static UUID stringToUUID(String uuid) {
     if (uuid.contains("-")) {
       // if it contains the hyphen we don't have to manually put them in
@@ -40,7 +40,7 @@ public class Utils implements Common {
       return UUID.fromString(matcher.replaceAll("$1-$2-$3-$4-$5"));
     }
   }
-  
+
   public static double normalizeAngle(double angle) {
     while (angle <= -180) {
       angle += 360;
@@ -50,40 +50,40 @@ public class Utils implements Common {
     }
     return angle;
   }
-  
+
   public static double clamp(double value, double min, double max) {
     return Math.max(min, Math.min(max, value));
   }
-  
+
   public static float clamp(float value, float min, float max) {
     return Math.max(min, Math.min(max, value));
   }
-  
+
   public static Angle getLookAtAngles(Vector3d start, Vector3d end) {
     return AngleHelper.getAngleFacingInDegrees(end.subtract(start)).normalize();
   }
-  
+
   public static Angle getLookAtAngles(Vector3d end) {
     return getLookAtAngles(EntityUtils.getEyePos(getLocalPlayer()), end);
   }
-  
+
   public static Angle getLookAtAngles(Entity entity) {
     return getLookAtAngles(EntityUtils.getOBBCenter(entity));
   }
-  
+
   public static double scale(
       double x, double from_min, double from_max, double to_min, double to_max) {
     return to_min + (to_max - to_min) * ((x - from_min) / (from_max - from_min));
   }
-  
+
   public static <T> boolean isInRange(Collection<T> list, int index) {
     return list != null && index >= 0 && index < list.size();
   }
-  
+
   public static <T> T defaultTo(T value, T defaultTo) {
     return value == null ? defaultTo : value;
   }
-  
+
   public static List<ItemStack> getShulkerContents(ItemStack stack) { // TODO: move somewhere else
     NonNullList<ItemStack> contents = NonNullList.withSize(27, ItemStack.EMPTY);
     CompoundNBT compound = stack.getTag();
@@ -95,5 +95,30 @@ public class Utils implements Common {
       }
     }
     return contents;
+  }
+
+  public static String createRegexFromGlob(String glob) {
+    StringBuilder out = new StringBuilder("^");
+    for (int i = 0; i < glob.length(); ++i) {
+      final char c = glob.charAt(i);
+      switch (c) {
+        case '*':
+          out.append(".*");
+          break;
+        case '?':
+          out.append('.');
+          break;
+        case '.':
+          out.append("\\.");
+          break;
+        case '\\':
+          out.append("\\\\");
+          break;
+        default:
+          out.append(c);
+      }
+    }
+    out.append('$');
+    return out.toString();
   }
 }

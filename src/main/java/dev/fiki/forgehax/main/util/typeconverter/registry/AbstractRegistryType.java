@@ -8,7 +8,7 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 import java.util.Comparator;
 
 abstract class AbstractRegistryType<E extends IForgeRegistryEntry<E>> extends TypeConverter<E> {
-  protected abstract IForgeRegistry<E> getRegistry();
+  public abstract IForgeRegistry<E> getRegistry();
 
   @Override
   public String label() {

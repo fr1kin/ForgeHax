@@ -6,7 +6,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class EffectType extends AbstractRegistryType<Effect> {
   @Override
-  protected IForgeRegistry<Effect> getRegistry() {
+  public IForgeRegistry<Effect> getRegistry() {
     return ForgeRegistries.POTIONS;
   }
 }
