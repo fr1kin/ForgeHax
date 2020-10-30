@@ -122,7 +122,7 @@ public class AutoFishMod extends ToggleMod {
 
         // check if the bobber is not moving at all
         if (bobber.getMotion().subtract(0, bobber.getMotion().getY(), 0).lengthSquared() == 0) {
-          notInWater = !getWorld().getBlockState(bobber.func_233580_cy_()).getMaterial().isLiquid();
+          notInWater = !getWorld().getBlockState(bobber.getPosition()).getMaterial().isLiquid();
         }
 
         if (notInWater || (recastDelay.getValue() != 0 && (ticksHookDeployed > recastDelay.getValue()))) {

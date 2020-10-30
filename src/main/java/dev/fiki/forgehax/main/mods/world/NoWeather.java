@@ -113,7 +113,7 @@ public class NoWeather extends ToggleMod {
     if (isRaining
         && showStatus.getValue()
         && isInWorld()) {
-      Biome biome = getWorld().getBiome(getLocalPlayer().func_233580_cy_());
+      Biome biome = getWorld().getBiome(getLocalPlayer().getPosition());
       boolean canRain = Biome.RainType.RAIN.equals(biome.getPrecipitation());
       boolean canSnow = Biome.RainType.SNOW.equals(biome.getPrecipitation());
 

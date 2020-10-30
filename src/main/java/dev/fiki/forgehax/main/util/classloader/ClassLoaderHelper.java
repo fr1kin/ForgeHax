@@ -11,6 +11,7 @@ import sun.net.www.protocol.file.FileURLConnection;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -223,7 +224,7 @@ public class ClassLoaderHelper {
       // remove the initial '/' or 'file:/' appended to the path
       path = path.substring(path.indexOf('/') + 1);
 
-      if(!System.getProperty("os.name").toLowerCase().contains("win")) {
+      if (!System.getProperty("os.name").toLowerCase().contains("win")) {
         // add the / back to unix based systems
         path = "/" + path;
       }
@@ -263,8 +264,7 @@ public class ClassLoaderHelper {
       final ClassLoader classLoader, Collection<Path> paths) {
     Objects.requireNonNull(classLoader);
     Objects.requireNonNull(paths);
-    return paths
-        .stream()
+    return paths.stream()
         .map(path -> {
           try {
             return Class.forName(asPackagePath(path), false, classLoader);
@@ -280,8 +280,15 @@ public class ClassLoaderHelper {
     return connection.getClass().equals(getModjarUrlconnectionClass());
   }
 
+  @SneakyThrows
   public static ModFile getModFileInModJar(URLConnection connection) {
-    return FMLLoader.getLoadingModList().getModFileById(connection.getURL().getHost()).getFile();
+    // getURL() is overwritten in latest forge, so we must get the url field from the URLConnection class
+    // via reflection
+    final Field urlField = URLConnection.class.getDeclaredField("url");
+    urlField.setAccessible(true);
+    final String hostname = ((URL) urlField.get(connection)).getHost();
+    return Objects.requireNonNull(FMLLoader.getLoadingModList().getModFileById(hostname),
+        "Failed to find ForgeHax mod file! (" + hostname + ")").getFile();
   }
 
   public static class UnknownConnectionTypeException extends Exception {

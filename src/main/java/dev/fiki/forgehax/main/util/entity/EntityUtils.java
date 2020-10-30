@@ -34,7 +34,7 @@ public class EntityUtils implements Common {
   public static boolean isBatsDisabled = false;
 
   public static boolean isZombiePigmanAggressive(ZombifiedPiglinEntity entity) {
-    return entity.func_230256_F__() > 0;
+    return entity.getAngerTime() > 0;
   }
 
   /**
@@ -49,12 +49,12 @@ public class EntityUtils implements Common {
       if (((ZombifiedPiglinEntity) entity).isAggressive() || isZombiePigmanAggressive((ZombifiedPiglinEntity) entity)) {
         if (!isZombiePigmanAggressive((ZombifiedPiglinEntity) entity)) {
           // set pigmens anger to 400 if it hasn't been angered already
-          ((IAngerable) entity).func_230260_a__(400);
+          ((IAngerable) entity).setAngerTime(400);
         }
         return true;
       }
     } else if (entity instanceof WolfEntity) {
-      return ((WolfEntity) entity).func_230256_F__() > 0 && !getLocalPlayer().equals(((WolfEntity) entity).getOwner());
+      return ((WolfEntity) entity).getAngerTime() > 0 && !getLocalPlayer().equals(((WolfEntity) entity).getOwner());
     } else if (entity instanceof EndermanEntity) {
       return ((EndermanEntity) entity).isScreaming();
     }

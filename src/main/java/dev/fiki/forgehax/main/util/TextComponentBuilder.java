@@ -20,7 +20,7 @@ public class TextComponentBuilder {
   }
 
   public TextComponentBuilder color(TextFormatting color) {
-    style().setColor(Color.func_240743_a_(color.getColor()));
+    style().setColor(Color.fromTextFormatting(color));
     return this;
   }
 

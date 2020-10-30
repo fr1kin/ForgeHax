@@ -114,7 +114,7 @@ public class ConsoleInputScreen extends Screen {
   }
 
   @Override
-  public void removed() {
+  public void onClose() {
     MC.keyboardListener.enableRepeatEvents(false);
   }
 

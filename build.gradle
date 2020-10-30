@@ -12,14 +12,14 @@ buildscript {
     forgehaxVersion = "3.1.0-${forgehaxCommit}"
 
     minecraftVersion = '1.16.3'
-    forgeVersion = '34.1.0'
+    forgeVersion = '34.1.35'
 
     fmlVersion = '2.0.0-milestone.1'
     lombokVersion = '1.18.12'
 
-    mcpVersion = '1.16.1'
+    mcpVersion = '1.16.3'
     mcpChannel = 'snapshot'
-    mcpMapping = '20200707'
+    mcpMapping = '20201028'
   }
   repositories {
     mavenCentral()

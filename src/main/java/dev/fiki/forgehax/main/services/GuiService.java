@@ -39,7 +39,7 @@ public class GuiService extends ServiceMod {
 
   private void onBindPressed(KeyBinding bind) {
     if(getDisplayScreen() != null
-        && getDisplayScreen().getFocused() instanceof TextFieldWidget) {
+        && getDisplayScreen().getListener() instanceof TextFieldWidget) {
       return;
     }
 

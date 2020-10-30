@@ -244,7 +244,7 @@ public class MatrixNotifications extends ToggleMod {
       once = true;
 
       if (on_connected.getValue()) {
-        BlockPos pos = Common.getLocalPlayer().func_233580_cy_();
+        BlockPos pos = Common.getLocalPlayer().getPosition();
         if (pos.getX() != 0 && pos.getZ() != 0) {
           ping("Connected to %s", getServerName());
         } else {

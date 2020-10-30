@@ -30,6 +30,6 @@ public class WolfRelationProvider extends EntityRelationProvider<WolfEntity> {
 
   @Override
   public RelationState getCurrentRelationState(WolfEntity entity) {
-    return entity.func_230256_F__() > 0 && !entity.isOwner(getLocalPlayer()) ? RelationState.HOSTILE : RelationState.NEUTRAL;
+    return entity.getAngerTime() > 0 && !entity.isOwner(getLocalPlayer()) ? RelationState.HOSTILE : RelationState.NEUTRAL;
   }
 }

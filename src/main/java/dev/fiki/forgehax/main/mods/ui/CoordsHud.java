@@ -9,7 +9,6 @@ import dev.fiki.forgehax.main.util.mod.Category;
 import dev.fiki.forgehax.main.util.mod.HudMod;
 import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.world.DimensionType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -69,7 +68,7 @@ public class CoordsHud extends HudMod {
     thisY = player.getPosY();
     thisZ = player.getPosZ();
 
-    double thisFactor = player.worldClient.func_230315_m_().func_242725_p().equals(DimensionType.field_242711_b) ? 8d : 1d;
+    double thisFactor = player.worldClient.getDimensionType().getCoordinateScale();
     double otherFactor = thisFactor != 1d ? 1d : 8d;
     double travelFactor = thisFactor / otherFactor;
     otherX = thisX * travelFactor;

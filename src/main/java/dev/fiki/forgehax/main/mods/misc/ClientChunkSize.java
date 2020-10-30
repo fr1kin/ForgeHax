@@ -80,7 +80,7 @@ public class ClientChunkSize extends ToggleMod {
       return;
     }
 
-    Chunk chunk = getWorld().getChunkAt(getLocalPlayer().func_233580_cy_());
+    Chunk chunk = getWorld().getChunkAt(getLocalPlayer().getPosition());
     if (chunk.isEmpty()) {
       return;
     }

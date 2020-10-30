@@ -109,7 +109,7 @@ public class AutoCrystalMod extends ToggleMod {
           .getEntitiesWithinAABB(EnderCrystalEntity.class, bb).stream()
           // Re-check timer, since it may have been reset in a previous iteration
           .filter(__ -> timer.hasTimeElapsed(delay.getValue()))
-          .filter(e -> e.func_233580_cy_().getY() - getLocalPlayer().func_233580_cy_().getY() >= minHeight.getValue())
+          .filter(e -> e.getPosition().getY() - getLocalPlayer().getPosition().getY() >= minHeight.getValue())
           .filter(playerWithinDistance(maxDistance.getValue()))
           .filter(playerWithinDistance(minDistance.getValue()).negate())
           .filter(e -> !checkEnemy.getValue() || enemyWithinDistance(e, maxEnemyDistance.getValue()))

@@ -564,13 +564,12 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public int compareTo(GuiShulkerViewer o) {
-      return Integer.compare(priority, o.priority);
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
     }
 
     @Override
-    protected void func_230450_a_(MatrixStack p_230450_1_, float p_230450_2_, int p_230450_3_, int p_230450_4_) {
-
+    public int compareTo(GuiShulkerViewer o) {
+      return Integer.compare(priority, o.priority);
     }
   }
 

@@ -28,7 +28,7 @@ public class PigZombieRelationProvider extends EntityRelationProvider<ZombifiedP
 
   @Override
   public RelationState getCurrentRelationState(ZombifiedPiglinEntity entity) {
-    return (entity.isAggressive() || entity.func_230256_F__() > 0)
+    return (entity.isAggressive() || entity.getAngerTime() > 0)
         ? RelationState.HOSTILE
         : RelationState.NEUTRAL;
   }

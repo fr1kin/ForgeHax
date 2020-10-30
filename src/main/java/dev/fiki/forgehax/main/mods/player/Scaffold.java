@@ -120,7 +120,7 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
     currentTarget = null;
 
     Vector3d directionVector = Vector3d.ZERO;
-    BlockPos below = getLocalPlayer().func_233580_cy_().down();
+    BlockPos below = getLocalPlayer().getPosition().down();
     if(BlockHelper.isBlockReplaceable(below)) {
       currentTarget = below;
       predicted = true;

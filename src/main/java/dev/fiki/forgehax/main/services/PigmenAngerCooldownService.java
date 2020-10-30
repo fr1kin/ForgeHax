@@ -14,9 +14,9 @@ public class PigmenAngerCooldownService extends ServiceMod {
       // update pigmens anger level
       ZombifiedPiglinEntity pigman = (ZombifiedPiglinEntity) event.getEntityLiving();
       if (pigman.isAggressive()) {
-        pigman.func_230260_a__(400);
-      } else if (pigman.func_230256_F__() > 0) {
-        pigman.func_230260_a__(pigman.func_230256_F__() - 1);
+        pigman.setAngerTime(400);
+      } else if (pigman.getAngerTime() > 0) {
+        pigman.setAngerTime(pigman.getAngerTime() - 1);
       }
     }
   }
