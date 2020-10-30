@@ -73,9 +73,9 @@ public class ClipCommand extends CommandMod {
             return;
           }
 
-          double x = args.<Double>getFirst().getValueOrDefault();
-          double y = args.<Double>getSecond().getValueOrDefault();
-          double z = args.<Double>getThird().getValueOrDefault();
+          double x = args.<Double>getFirst().getValue();
+          double y = args.<Double>getSecond().getValue();
+          double z = args.<Double>getThird().getValue();
 
           Entity local = getMountedEntityOrPlayer();
           setPosition(local, local.getPosX() + x, local.getPosY() + y, local.getPosZ() + z);
@@ -97,7 +97,7 @@ public class ClipCommand extends CommandMod {
             return;
           }
 
-          double y = args.<Double>getFirst().getValueOrDefault();
+          double y = args.<Double>getFirst().getValue();
           offsetY(y);
         })
         .build();
@@ -117,7 +117,7 @@ public class ClipCommand extends CommandMod {
             return;
           }
 
-          double offset = args.<Double>getFirst().getValueOrDefault();
+          double offset = args.<Double>getFirst().getValue();
 
           Vector3d dir = getLocalPlayer().getLookVec().normalize();
           final Entity local = getLocalPlayer();
