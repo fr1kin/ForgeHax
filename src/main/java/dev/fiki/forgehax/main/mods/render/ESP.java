@@ -4,8 +4,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.main.util.cmd.AbstractParentCommand;
 import dev.fiki.forgehax.main.util.cmd.ICommand;
 import dev.fiki.forgehax.main.util.cmd.IParentCommand;
@@ -87,8 +85,6 @@ public class ESP extends ToggleMod implements Fonts {
       .targetRelation(RelationState.FRIENDLY)
       .color(Colors.BLUE)
       .build();
-
-  private int highestAbsorbtionLevel = 0;
 
   private Color getColorLevel(float scale) {
     return Color.of((int) ((255 - scale) * 255), (int) (255 * scale), 0);
@@ -355,13 +351,11 @@ public class ESP extends ToggleMod implements Fonts {
         });
 
     //
+
     MC.getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
     MC.getTextureManager().getTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE)
         .setBlurMipmapDirect(false, false);
-    RenderSystem.defaultAlphaFunc();
-    RenderSystem.enableDepthTest();
-    RenderSystem.enableBlend();
-    RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+
     RenderHelper.disableStandardItemLighting();
     RenderHelper.setupGuiFlatDiffuseLighting();
 
@@ -372,10 +366,7 @@ public class ESP extends ToggleMod implements Fonts {
     MC.getRenderTypeBuffers().getBufferSource().finish();
     buffers.finish();
 
-    RenderSystem.enableDepthTest();
-    RenderHelper.setupGui3DDiffuseLighting();
-    RenderHelper.disableStandardItemLighting();
-    RenderSystem.disableTexture();
+    RenderHelper.enableStandardItemLighting();
   }
 
   private DrawingSetting.DrawingSettingBuilder newDrawingSetting() {
