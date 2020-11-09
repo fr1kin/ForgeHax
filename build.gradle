@@ -9,10 +9,10 @@ buildscript {
       return out.toString().trim()
     }.call()
 
-    forgehaxVersion = "3.1.0-${forgehaxCommit}"
+    forgehaxVersion = "3.2.0-${forgehaxCommit}"
 
-    minecraftVersion = '1.16.3'
-    forgeVersion = '34.1.35'
+    minecraftVersion = '1.16.4'
+    forgeVersion = '35.0.7'
 
     fmlVersion = '2.0.0-milestone.1'
     lombokVersion = '1.18.12'
