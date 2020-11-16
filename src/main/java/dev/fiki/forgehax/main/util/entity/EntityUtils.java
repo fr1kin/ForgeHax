@@ -1,16 +1,15 @@
 package dev.fiki.forgehax.main.util.entity;
 
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.entity.mobtypes.EntityRelations;
-import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.IAngerable;
-import net.minecraft.entity.LivingEntity;
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.entity.*;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.EndermanEntity;
 import net.minecraft.entity.monster.ZombifiedPiglinEntity;
+import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -19,46 +18,45 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import static dev.fiki.forgehax.main.Common.*;
 
 public class EntityUtils implements Common {
+  @Getter
+  @Setter
+  private static boolean isBatsDisabled = false;
 
   @SuppressWarnings("unchecked")
   public static RelationState getRelationship(Entity entity) {
-    return EntityRelations.getProvider(entity)
-        .map(provider -> provider.getCurrentRelationState(entity))
-        .orElse(RelationState.HOSTILE);
-  }
-
-  public static boolean isBatsDisabled = false;
-
-  public static boolean isZombiePigmanAggressive(ZombifiedPiglinEntity entity) {
-    return entity.getAngerTime() > 0;
-  }
-
-  /**
-   * Checks if the mob could be possibly hostile towards us (we can't detect their attack target
-   * easily) Current entities: PigZombie: Aggressive if arms are raised, when arms are put down a
-   * internal timer is slowly ticked down from 400 Wolf: Aggressive if the owner isn't the local
-   * player and the wolf is angry Enderman: Aggressive if making screaming sounds
-   */
-  public static boolean isMobAggressive(Entity entity) {
-    if (entity instanceof ZombifiedPiglinEntity) {
-      // arms raised = aggressive, angry = either game or we have set the anger cooldown
-      if (((ZombifiedPiglinEntity) entity).isAggressive() || isZombiePigmanAggressive((ZombifiedPiglinEntity) entity)) {
-        if (!isZombiePigmanAggressive((ZombifiedPiglinEntity) entity)) {
-          // set pigmens anger to 400 if it hasn't been angered already
-          ((IAngerable) entity).setAngerTime(400);
-        }
-        return true;
-      }
-    } else if (entity instanceof WolfEntity) {
-      return ((WolfEntity) entity).getAngerTime() > 0 && !getLocalPlayer().equals(((WolfEntity) entity).getOwner());
-    } else if (entity instanceof EndermanEntity) {
-      return ((EndermanEntity) entity).isScreaming();
+    if (isBatsDisabled() && entity instanceof BatEntity) {
+      return RelationState.INVALID;
     }
-    return false;
+    return isMobAggressive(entity) ? RelationState.HOSTILE : RelationState.FRIENDLY;
+  }
+
+  public static boolean isMobAggressive(Entity entity) {
+    // if the owner is the local player, then the entity is (probably) not aggressive towards him
+    if (entity instanceof TameableEntity) {
+      final UUID owner = ((TameableEntity) entity).getOwnerId();
+      if (owner != null && getLocalPlayer() != null && owner.equals(getLocalPlayer().getUniqueID())) {
+        return false;
+      }
+    }
+
+    boolean aggressive = false;
+
+    // this is usually networked, so it will be the primary method of detecting if a mob is angry
+    if (entity instanceof MobEntity) {
+      aggressive = ((MobEntity) entity).isAggressive();
+    }
+
+    // this is usually server side only, but it can be networked for some entities
+    if (!aggressive && entity instanceof IAngerable) {
+      aggressive = ((IAngerable) entity).func_233678_J__();
+    }
+
+    return aggressive;
   }
 
   /**

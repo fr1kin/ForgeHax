@@ -8,7 +8,7 @@ import dev.fiki.forgehax.main.util.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.main.util.color.Color;
 import dev.fiki.forgehax.main.util.color.Colors;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
+import dev.fiki.forgehax.main.util.entity.RelationState;
 import dev.fiki.forgehax.main.util.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.math.AngleHelper;
 import dev.fiki.forgehax.main.util.math.ScreenPos;

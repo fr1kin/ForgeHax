@@ -1,4 +1,4 @@
-package dev.fiki.forgehax.main.util.entity.mobtypes;
+package dev.fiki.forgehax.main.util.entity;
 
 /**
  * Created on 6/27/2017 by fr1kin

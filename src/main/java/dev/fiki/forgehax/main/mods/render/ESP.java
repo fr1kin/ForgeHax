@@ -20,7 +20,7 @@ import dev.fiki.forgehax.main.util.draw.font.Fonts;
 import dev.fiki.forgehax.main.util.entity.EnchantmentUtils;
 import dev.fiki.forgehax.main.util.entity.EnchantmentUtils.ItemEnchantment;
 import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.entity.mobtypes.RelationState;
+import dev.fiki.forgehax.main.util.entity.RelationState;
 import dev.fiki.forgehax.main.util.events.Render2DEvent;
 import dev.fiki.forgehax.main.util.math.ScreenPos;
 import dev.fiki.forgehax.main.util.math.VectorUtils;
