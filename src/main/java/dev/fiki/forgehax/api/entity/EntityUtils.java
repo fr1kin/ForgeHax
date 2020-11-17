@@ -7,7 +7,6 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.EndermanEntity;
 import net.minecraft.entity.monster.ZombifiedPiglinEntity;
-import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.passive.WolfEntity;
@@ -29,9 +28,6 @@ public class EntityUtils implements Common {
 
   @SuppressWarnings("unchecked")
   public static RelationState getRelationship(Entity entity) {
-    if (isBatsDisabled() && entity instanceof BatEntity) {
-      return RelationState.INVALID;
-    }
     return isMobAggressive(entity) ? RelationState.HOSTILE : RelationState.FRIENDLY;
   }
 
@@ -111,7 +107,7 @@ public class EntityUtils implements Common {
   public static boolean isFriendlyMob(Entity entity) {
     return (EntityClassification.CREATURE.equals(entity.getClassification(false))
         && !EntityUtils.isNeutralMob(entity))
-        || (EntityClassification.AMBIENT.equals(entity.getClassification(false)) && !isBatsDisabled)
+        || EntityClassification.AMBIENT.equals(entity.getClassification(false))
         || entity instanceof VillagerEntity
         || entity instanceof IronGolemEntity
         || (isNeutralMob(entity) && !EntityUtils.isMobAggressive(entity));

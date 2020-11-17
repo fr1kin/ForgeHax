@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.render;
 
-import dev.fiki.forgehax.api.entity.EntityUtils;
+import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -13,24 +13,20 @@ import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
-    name = "AntiBats",
-    description = "666 KILL BATS 666",
+    name = "NoBats",
+    description = "Will mute bat noises and optionally not render them",
     category = Category.RENDER
 )
-public class AntiBatsMod extends ToggleMod {
-  @Override
-  public void onEnabled() {
-    EntityUtils.setBatsDisabled(true);
-  }
-
-  @Override
-  public void onDisabled() {
-    EntityUtils.setBatsDisabled(false);
-  }
+public class NoBats extends ToggleMod {
+  private final BooleanSetting invisible = newBooleanSetting()
+      .name("invisible")
+      .description("Make bats invisible to the player")
+      .defaultTo(false)
+      .build();
 
   @SubscribeEvent
   public void onRenderLiving(RenderLivingEvent.Pre<? extends LivingEntity, ? extends EntityModel<?>> event) {
-    if (event.getEntity() instanceof BatEntity) {
+    if (invisible.isEnabled() && event.getEntity() instanceof BatEntity) {
       event.setCanceled(true);
     }
   }
