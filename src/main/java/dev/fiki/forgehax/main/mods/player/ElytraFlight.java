@@ -1,17 +1,17 @@
 package dev.fiki.forgehax.main.mods.player;
 
+import dev.fiki.forgehax.api.Switch.Handle;
+import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
+import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
+import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
+import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.movement.ClampMotionSpeedEvent;
 import dev.fiki.forgehax.asm.events.movement.ElytraFlyMovementEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.Switch.Handle;
-import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
-import dev.fiki.forgehax.main.util.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 

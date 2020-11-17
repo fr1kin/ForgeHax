@@ -1,10 +1,10 @@
 package dev.fiki.forgehax.main.mods.chat;
 
+import dev.fiki.forgehax.api.cmd.settings.StringSetting;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import joptsimple.internal.Strings;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

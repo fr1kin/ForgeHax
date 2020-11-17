@@ -1,11 +1,11 @@
 package dev.fiki.forgehax.main.services;
 
+import dev.fiki.forgehax.api.entity.PlayerInfo;
+import dev.fiki.forgehax.api.entity.PlayerInfoHelper;
+import dev.fiki.forgehax.api.events.ChatMessageEvent;
+import dev.fiki.forgehax.api.mod.ServiceMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.util.entity.PlayerInfo;
-import dev.fiki.forgehax.main.util.entity.PlayerInfoHelper;
-import dev.fiki.forgehax.main.util.events.ChatMessageEvent;
-import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import joptsimple.internal.Strings;
 import net.minecraft.network.play.server.SChatPacket;
 import net.minecraftforge.common.MinecraftForge;

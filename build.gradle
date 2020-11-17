@@ -88,7 +88,7 @@ minecraft {
 }
 
 mapper {
-  annotatedWith 'dev/fiki/forgehax/main/util/modloader/RegisterMod'
+  annotatedWith 'dev/fiki/forgehax/api/modloader/RegisterMod'
 
   include sourceSets.main
 }

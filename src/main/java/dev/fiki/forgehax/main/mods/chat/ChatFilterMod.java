@@ -2,10 +2,10 @@ package dev.fiki.forgehax.main.mods.chat;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import dev.fiki.forgehax.api.cmd.settings.collections.CustomSettingSet;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.serialization.IJsonSerializable;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.util.cmd.settings.collections.CustomSettingSet;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.serialization.IJsonSerializable;
 import net.minecraft.network.play.server.SChatPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 

@@ -1,13 +1,13 @@
 package dev.fiki.forgehax.main.mods.render;
 
+import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
+import dev.fiki.forgehax.api.color.Colors;
+import dev.fiki.forgehax.api.draw.SurfaceHelper;
+import dev.fiki.forgehax.api.events.Render2DEvent;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
-import dev.fiki.forgehax.main.util.color.Colors;
-import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
-import dev.fiki.forgehax.main.util.events.Render2DEvent;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 

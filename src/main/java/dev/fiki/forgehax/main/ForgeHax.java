@@ -1,15 +1,15 @@
 package dev.fiki.forgehax.main;
 
 import com.google.common.base.Strings;
+import dev.fiki.forgehax.api.FileManager;
+import dev.fiki.forgehax.api.cmd.RootCommand;
+import dev.fiki.forgehax.api.draw.BufferProvider;
+import dev.fiki.forgehax.api.modloader.ModManager;
+import dev.fiki.forgehax.api.modloader.di.DependencyInjector;
+import dev.fiki.forgehax.api.modloader.di.providers.ReflectionProviders;
+import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import dev.fiki.forgehax.common.LoggerProvider;
 import dev.fiki.forgehax.main.ui.ConsoleInterface;
-import dev.fiki.forgehax.main.util.FileManager;
-import dev.fiki.forgehax.main.util.cmd.RootCommand;
-import dev.fiki.forgehax.main.util.draw.BufferProvider;
-import dev.fiki.forgehax.main.util.modloader.ModManager;
-import dev.fiki.forgehax.main.util.modloader.di.DependencyInjector;
-import dev.fiki.forgehax.main.util.modloader.di.providers.ReflectionProviders;
-import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;

@@ -1,12 +1,12 @@
 package dev.fiki.forgehax.main.mods.player;
 
+import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
+import dev.fiki.forgehax.api.key.BindingHelper;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.asm.events.LeftClickCounterUpdateEvent;
-import dev.fiki.forgehax.main.util.entity.LocalPlayerUtils;
-import dev.fiki.forgehax.main.util.key.BindingHelper;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

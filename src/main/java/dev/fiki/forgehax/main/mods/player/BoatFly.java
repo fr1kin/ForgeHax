@@ -1,17 +1,17 @@
 package dev.fiki.forgehax.main.mods.player;
 
+import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
+import dev.fiki.forgehax.api.entity.EntityUtils;
+import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.PreClientTickEvent;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
+import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import dev.fiki.forgehax.asm.events.RenderBoatEvent;
 import dev.fiki.forgehax.asm.events.boat.ClampBoatEvent;
 import dev.fiki.forgehax.asm.events.boat.RowBoatEvent;
-import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
-import dev.fiki.forgehax.main.util.entity.EntityUtils;
-import dev.fiki.forgehax.main.util.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.events.PreClientTickEvent;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.ReflectionTools;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.util.MovementInput;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

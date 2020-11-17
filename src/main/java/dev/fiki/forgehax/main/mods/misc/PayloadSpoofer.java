@@ -2,13 +2,13 @@ package dev.fiki.forgehax.main.mods.misc;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import dev.fiki.forgehax.api.cmd.argument.Arguments;
+import dev.fiki.forgehax.api.cmd.settings.collections.SimpleSettingSet;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
-import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CCustomPayloadPacket;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;

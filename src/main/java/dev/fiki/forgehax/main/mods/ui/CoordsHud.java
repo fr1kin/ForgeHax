@@ -1,13 +1,13 @@
 package dev.fiki.forgehax.main.mods.ui;
 
-import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.main.util.color.Colors;
-import dev.fiki.forgehax.main.util.draw.SurfaceHelper;
-import dev.fiki.forgehax.main.util.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.math.AlignHelper;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.HudMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.api.color.Colors;
+import dev.fiki.forgehax.api.draw.SurfaceHelper;
+import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.math.AlignHelper;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.HudMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

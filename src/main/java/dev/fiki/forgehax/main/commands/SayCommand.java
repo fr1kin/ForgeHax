@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.main.commands;
 
-import dev.fiki.forgehax.main.util.PacketHelper;
-import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
-import dev.fiki.forgehax.main.util.mod.CommandMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.api.PacketHelper;
+import dev.fiki.forgehax.api.cmd.argument.Arguments;
+import dev.fiki.forgehax.api.mod.CommandMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import net.minecraft.network.play.client.CChatMessagePacket;
 
 @RegisterMod

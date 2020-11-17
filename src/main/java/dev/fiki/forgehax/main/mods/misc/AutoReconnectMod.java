@@ -1,17 +1,17 @@
 package dev.fiki.forgehax.main.mods.misc;
 
+import dev.fiki.forgehax.api.SimpleTimer;
+import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.api.cmd.settings.LongSetting;
+import dev.fiki.forgehax.api.events.ClientWorldEvent;
+import dev.fiki.forgehax.api.events.PreClientTickEvent;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mapper.MethodMapping;
-import dev.fiki.forgehax.main.util.SimpleTimer;
-import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
-import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
-import dev.fiki.forgehax.main.util.events.ClientWorldEvent;
-import dev.fiki.forgehax.main.util.events.PreClientTickEvent;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
-import dev.fiki.forgehax.main.util.reflection.types.ReflectionMethod;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
+import dev.fiki.forgehax.api.reflection.types.ReflectionField;
+import dev.fiki.forgehax.api.reflection.types.ReflectionMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.minecraft.client.gui.IBidiRenderer;

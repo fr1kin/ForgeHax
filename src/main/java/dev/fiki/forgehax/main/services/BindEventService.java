@@ -1,11 +1,11 @@
 package dev.fiki.forgehax.main.services;
 
+import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
+import dev.fiki.forgehax.api.key.BindingHelper;
+import dev.fiki.forgehax.api.key.KeyBindingEx;
+import dev.fiki.forgehax.api.mod.ServiceMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
-import dev.fiki.forgehax.main.util.key.BindingHelper;
-import dev.fiki.forgehax.main.util.key.KeyBindingEx;
-import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.network.play.client.CClientSettingsPacket;
@@ -14,7 +14,7 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 
-import static dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting.*;
+import static dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting.*;
 
 @RegisterMod
 public class BindEventService extends ServiceMod {

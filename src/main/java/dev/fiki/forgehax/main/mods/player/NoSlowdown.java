@@ -1,13 +1,13 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import com.google.common.collect.Sets;
+import dev.fiki.forgehax.api.cmd.argument.Arguments;
+import dev.fiki.forgehax.api.cmd.settings.collections.SimpleSettingSet;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.BlockEntityCollisionEvent;
 import dev.fiki.forgehax.asm.events.movement.PlayerSlowdownEvent;
-import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
-import dev.fiki.forgehax.main.util.cmd.settings.collections.SimpleSettingSet;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

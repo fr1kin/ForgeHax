@@ -1,18 +1,18 @@
 package dev.fiki.forgehax.main.mods.combat;
 
+import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
+import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
+import dev.fiki.forgehax.api.reflection.types.ReflectionField;
 import dev.fiki.forgehax.asm.events.movement.ApplyCollisionMotionEvent;
 import dev.fiki.forgehax.asm.events.movement.EntityBlockSlipApplyEvent;
 import dev.fiki.forgehax.asm.events.movement.PushedByBlockEvent;
 import dev.fiki.forgehax.asm.events.movement.PushedByLiquidEvent;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.util.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.DoubleSetting;
-import dev.fiki.forgehax.main.util.math.VectorUtils;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;

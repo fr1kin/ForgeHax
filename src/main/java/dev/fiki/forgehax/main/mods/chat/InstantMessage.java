@@ -1,12 +1,12 @@
 package dev.fiki.forgehax.main.mods.chat;
 
+import dev.fiki.forgehax.api.cmd.settings.StringSetting;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
+import dev.fiki.forgehax.api.reflection.types.ReflectionField;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.types.ReflectionField;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -15,7 +15,8 @@ import net.minecraft.network.login.server.SLoginSuccessPacket;
 import net.minecraft.network.play.client.CChatMessagePacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getDisplayScreen;
+import static dev.fiki.forgehax.main.Common.getLogger;
 
 @RegisterMod(
     name = "InstantMessage",

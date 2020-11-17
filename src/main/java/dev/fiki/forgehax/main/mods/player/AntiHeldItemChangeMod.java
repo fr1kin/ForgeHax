@@ -1,11 +1,11 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
+import dev.fiki.forgehax.api.reflection.types.ReflectionMethod;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
-import dev.fiki.forgehax.main.util.reflection.types.ReflectionMethod;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.play.client.CHeldItemChangePacket;

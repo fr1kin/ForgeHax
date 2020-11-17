@@ -2,12 +2,12 @@ package dev.fiki.forgehax.main.services;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import dev.fiki.forgehax.api.cmd.settings.LongSetting;
+import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.mod.ServiceMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
+import dev.fiki.forgehax.api.spam.SpamMessage;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.cmd.settings.LongSetting;
-import dev.fiki.forgehax.main.util.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
-import dev.fiki.forgehax.main.util.spam.SpamMessage;
 import joptsimple.internal.Strings;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 

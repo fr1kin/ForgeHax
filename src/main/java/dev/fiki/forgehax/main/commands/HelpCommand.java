@@ -1,14 +1,14 @@
 package dev.fiki.forgehax.main.commands;
 
 import com.mojang.authlib.GameProfile;
-import dev.fiki.forgehax.main.util.cmd.AbstractCommand;
-import dev.fiki.forgehax.main.util.cmd.CommandHelper;
-import dev.fiki.forgehax.main.util.cmd.ICommand;
-import dev.fiki.forgehax.main.util.cmd.argument.Arguments;
-import dev.fiki.forgehax.main.util.cmd.flag.EnumFlag;
-import dev.fiki.forgehax.main.util.cmd.value.IValue;
-import dev.fiki.forgehax.main.util.mod.CommandMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.api.cmd.AbstractCommand;
+import dev.fiki.forgehax.api.cmd.CommandHelper;
+import dev.fiki.forgehax.api.cmd.ICommand;
+import dev.fiki.forgehax.api.cmd.argument.Arguments;
+import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
+import dev.fiki.forgehax.api.cmd.value.IValue;
+import dev.fiki.forgehax.api.mod.CommandMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
 
 import java.util.stream.Collectors;

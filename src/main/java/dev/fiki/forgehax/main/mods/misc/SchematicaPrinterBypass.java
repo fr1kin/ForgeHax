@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.misc;
 
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
+import dev.fiki.forgehax.api.mod.ToggleMod;
 
 //@RegisterMod(
 //    name = "PrinterBypass",

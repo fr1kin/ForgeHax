@@ -1,13 +1,13 @@
 package dev.fiki.forgehax.main.services;
 
+import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
+import dev.fiki.forgehax.api.events.PreClientTickEvent;
+import dev.fiki.forgehax.api.key.KeyConflictContexts;
+import dev.fiki.forgehax.api.key.KeyInputs;
+import dev.fiki.forgehax.api.mod.ServiceMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.ui.ConsoleInputScreen;
 import dev.fiki.forgehax.main.ui.ConsoleInterface;
-import dev.fiki.forgehax.main.util.cmd.settings.KeyBindingSetting;
-import dev.fiki.forgehax.main.util.events.PreClientTickEvent;
-import dev.fiki.forgehax.main.util.key.KeyConflictContexts;
-import dev.fiki.forgehax.main.util.key.KeyInputs;
-import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.settings.KeyBinding;

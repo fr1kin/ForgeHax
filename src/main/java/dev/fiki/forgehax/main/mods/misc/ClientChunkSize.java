@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods.misc;
 
-import dev.fiki.forgehax.main.util.SimpleTimer;
-import dev.fiki.forgehax.main.util.events.PreClientTickEvent;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
+import dev.fiki.forgehax.api.SimpleTimer;
+import dev.fiki.forgehax.api.events.PreClientTickEvent;
+import dev.fiki.forgehax.api.mod.ToggleMod;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.util.math.ChunkPos;

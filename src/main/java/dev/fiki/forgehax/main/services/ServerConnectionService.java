@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.main.services;
 
-import dev.fiki.forgehax.main.util.events.ConnectToServerEvent;
-import dev.fiki.forgehax.main.util.events.DisconnectFromServerEvent;
-import dev.fiki.forgehax.main.util.mod.ServiceMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.api.events.ConnectToServerEvent;
+import dev.fiki.forgehax.api.events.DisconnectFromServerEvent;
+import dev.fiki.forgehax.api.mod.ServiceMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

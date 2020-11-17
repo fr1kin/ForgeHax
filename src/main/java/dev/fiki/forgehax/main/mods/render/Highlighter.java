@@ -1,12 +1,12 @@
 package dev.fiki.forgehax.main.mods.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.fiki.forgehax.main.util.cmd.settings.StringSetting;
-import dev.fiki.forgehax.main.util.color.Color;
-import dev.fiki.forgehax.main.util.entity.EnchantmentUtils;
-import dev.fiki.forgehax.main.util.mod.Category;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
-import dev.fiki.forgehax.main.util.modloader.RegisterMod;
+import dev.fiki.forgehax.api.cmd.settings.StringSetting;
+import dev.fiki.forgehax.api.color.Color;
+import dev.fiki.forgehax.api.entity.EnchantmentUtils;
+import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.mod.ToggleMod;
+import dev.fiki.forgehax.api.modloader.RegisterMod;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;

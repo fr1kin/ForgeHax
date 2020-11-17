@@ -1,11 +1,11 @@
 package dev.fiki.forgehax.main.mods.chat;
 
+import dev.fiki.forgehax.api.PacketHelper;
+import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
+import dev.fiki.forgehax.api.cmd.settings.PatternSetting;
+import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
-import dev.fiki.forgehax.main.util.PacketHelper;
-import dev.fiki.forgehax.main.util.cmd.settings.EnumSetting;
-import dev.fiki.forgehax.main.util.cmd.settings.PatternSetting;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
 import net.minecraft.network.play.client.CChatMessagePacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 

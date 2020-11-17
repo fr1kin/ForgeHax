@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.render;
 
-import dev.fiki.forgehax.main.util.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.main.util.mod.ToggleMod;
+import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
+import dev.fiki.forgehax.api.mod.ToggleMod;
 
 // TODO: 1.15 fix this
 //@RegisterMod(
