@@ -25,9 +25,9 @@ displayURL="fiki.dev" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
 #logoFile="examplemod.png" #optional
 # A text field displayed in the mod UI
-#credits="" #optional
+credits="Rain#4705 for the logo" #optional
 # A text field displayed in the mod UI
-authors="fr1kin, 0x22, Babbaj, & more" #optional
+authors="fr1kin, Babbaj, 0x22, & more" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
 Hax 4 Forge

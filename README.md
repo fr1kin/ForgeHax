@@ -41,3 +41,5 @@ Sometimes when building, the config.properties resource will not be tokenized. T
 ## FAQ
 
 Read the FAQ on the [wiki](https://github.com/fr1kin/ForgeHax/wiki/FAQ)
+
+###### Credit to Rain#4705 for the logo
