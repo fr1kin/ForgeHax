@@ -1,28 +1,45 @@
 package dev.fiki.forgehax.main.mods.player;
 
+import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.entity.LocalPlayerInventory;
+import dev.fiki.forgehax.api.events.PreClientTickEvent;
+import dev.fiki.forgehax.api.extension.GeneralEx;
+import dev.fiki.forgehax.api.extension.ItemEx;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.api.task.TaskChain;
-import dev.fiki.forgehax.main.Common;
+import dev.fiki.forgehax.api.modloader.di.Injected;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CClickWindowPacket;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Comparator;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod(
     name = "AutoHotbarReplenish",
     description = "Will replenish tools or block stacks automatically",
-    category = Category.PLAYER
+    category = Category.PLAYER,
+    flags = EnumFlag.EXECUTOR_MAIN_THREAD
 )
+@RequiredArgsConstructor
+@ExtensionMethod({GeneralEx.class, ItemEx.class, LocalPlayerEx.class})
 public class AutoHotbarReplenish extends ToggleMod {
+  @Injected
+  private final Executor main;
+  @Injected("async")
+  private final Executor async;
 
   private final IntegerSetting durability_threshold = newIntegerSetting()
       .name("durability-threshold")
@@ -46,182 +63,139 @@ public class AutoHotbarReplenish extends ToggleMod {
       .defaultTo(1)
       .build();
 
-  private final BooleanSetting no_gui = newBooleanSetting()
+  private final BooleanSetting noGui = newBooleanSetting()
       .name("no-gui")
       .description("Don't run when a gui is open")
       .defaultTo(true)
       .build();
 
-  private TaskChain<Runnable> tasks = TaskChain.empty();
-  private long tickCount = 0;
+  private AtomicReference<CompletableFuture<?>> worker = new AtomicReference<>(CompletableFuture.completedFuture(null));
 
-  private boolean processing(int index) {
-    if (tick_delay.getValue() == 0) {
-      return true; // process all
-    } else if (tick_delay.getValue() < 0) {
-      return index < Math.abs(tick_delay.getValue()); // process n tasks per tick
-    } else {
-      return index == 0 && tickCount % tick_delay.getValue() == 0;
-    }
+  private boolean isMonitoring(Slot slot) {
+    val stack = slot.getStack();
+    return stack.canBeDamaged() || stack.isStackable();
   }
 
-  private boolean isMonitoring(LocalPlayerInventory.InvItem item) {
-    return item.isItemDamageable() || item.isStackable();
+  private boolean isAboveThreshold(ItemStack stack) {
+    return stack.canBeDamaged()
+        ? stack.getDurability() > durability_threshold.getValue()
+        : stack.getStackCount() > stack_threshold.getValue();
   }
 
-  private boolean isAboveThreshold(LocalPlayerInventory.InvItem item) {
-    return item.isItemDamageable()
-        ? item.getDurability() > durability_threshold.getValue()
-        : item.getStackCount() > stack_threshold.getValue();
+  private boolean isAboveThreshold(Slot slot) {
+    return isAboveThreshold(slot.getStack());
   }
 
-  private int getDamageOrCount(LocalPlayerInventory.InvItem item) {
-    return item.isNull()
-        ? 0
-        : item.isItemDamageable() ? item.getDurability() : item.getStackCount();
+  private boolean isExchangeable(ItemStack stack) {
+    return !stack.canBeDamaged() || isAboveThreshold(stack);
   }
 
-  private void tryPlacingHeldItem() {
-    LocalPlayerInventory.InvItem holding = LocalPlayerInventory.getMouseHeld();
+  private boolean isExchangeable(Slot slot) {
+    return isExchangeable(slot.getStack());
+  }
 
-    if (holding.isEmpty()) // all is good
-    {
-      return;
-    }
+  @SneakyThrows
+  private void sleepTicks(int ticks) {
+    // 20 ticks a second = 1 tick every 50ms
+    Thread.sleep(50L * Math.max(ticks, 0));
+  }
 
-    LocalPlayerInventory.InvItem item;
-    if (holding.isDamageable()) {
-      item =
-          LocalPlayerInventory.getSlotStorageInventory()
-              .stream()
-              .filter(LocalPlayerInventory.InvItem::isNull)
-              .findAny()
-              .orElse(LocalPlayerInventory.InvItem.EMPTY);
-    } else {
-      item =
-          LocalPlayerInventory.getSlotStorageInventory()
-              .stream()
-              .filter(inv -> inv.isNull() || holding.isItemsEqual(inv))
-              .filter(inv -> inv.isNull() || !inv.isStackMaxed())
-              .max(Comparator.comparing(LocalPlayerInventory.InvItem::getStackCount))
-              .orElse(LocalPlayerInventory.InvItem.EMPTY);
-    }
+  private Executor asyncExecutor() {
+    return tick_delay.intValue() <= 0 ? Runnable::run : async;
+  }
 
-    if (item == LocalPlayerInventory.InvItem.EMPTY) {
-      click(holding, 0, ClickType.PICKUP);
-    } else {
-      click(item, 0, ClickType.PICKUP);
-      if (LocalPlayerInventory.getMouseHeld().nonEmpty()) {
-        throw new RuntimeException();
-      }
+  private void stopWorker() {
+    val w = worker.getAndSet(CompletableFuture.completedFuture(null));
+    if (w != null) {
+      w.cancel(true);
     }
   }
 
   @Override
   protected void onDisabled() {
-    Common.addScheduledTask(() -> {
-      tasks = TaskChain.empty();
-      tickCount = 0;
-    });
+    stopWorker();
   }
 
   @SubscribeEvent
-  public void onTick(TickEvent.ClientTickEvent event) {
-    if (!TickEvent.Phase.START.equals(event.phase) || Common.getLocalPlayer() == null) {
-      return;
-    }
-
+  public void onTick(PreClientTickEvent event) {
     // only process when a gui isn't opened by the player
-    if (Common.getDisplayScreen() != null && no_gui.getValue()) {
+    if (!isInWorld() || (getDisplayScreen() != null && noGui.getValue())) {
       return;
     }
 
-    if (tasks.isEmpty()) {
-      final List<LocalPlayerInventory.InvItem> slots = LocalPlayerInventory.getSlotStorageInventory();
+    if (worker.get().isDone()) {
+      val lp = getLocalPlayer();
 
-      tasks = LocalPlayerInventory.getHotbarInventory()
-          .stream()
-          .filter(LocalPlayerInventory.InvItem::nonNull)
+      // get all items in hotbar
+      worker.set(lp.getHotbarSlots().stream()
+          // only track the ones that can be replaced or filtered
           .filter(this::isMonitoring)
-          .filter(item -> !isAboveThreshold(item))
-          .filter(item -> slots.stream()
+          // filter out items that are not ready to be replenished
+          .negated(this::isAboveThreshold)
+          // filter out items that do not have replenishments
+          .filter(slot -> lp.getTopSlots().stream()
               .filter(this::isMonitoring)
-              .filter(inv -> !inv.isItemDamageable() || isAboveThreshold(inv))
-              .anyMatch(item::isItemsEqual))
-          .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
-          .map(hotbarItem ->
-              TaskChain.<Runnable>builder()
-                  .then(() -> {
-                    // pick up item
-                    verifyHotbar(hotbarItem);
-                    click(
-                        slots.stream()
-                            .filter(LocalPlayerInventory.InvItem::nonNull)
-                            .filter(this::isMonitoring)
-                            .filter(hotbarItem::isItemsEqual)
-                            .filter(inv -> !inv.isDamageable() || isAboveThreshold(inv))
-                            .max(Comparator.comparingInt(this::getDamageOrCount))
-                            .orElseThrow(RuntimeException::new),
-                        0,
-                        ClickType.PICKUP);
-                  })
-                  .then(() -> {
-                    // place item into hotbar
+              // all stackables and tools above threshold
+              .filter(this::isExchangeable)
+              .map(Slot::getStack)
+              .anyMatch(slot.getStack()::isItemEqualIgnoreDurability))
+          .min(Comparator.comparingInt(ItemEx::getDistanceFromSelected))
+          .map(hotbarSlot -> {
+            final ItemStack stack = hotbarSlot.getStack();
 
-                    verifyHotbar(hotbarItem);
-                    click(hotbarItem, 0, ClickType.PICKUP);
-                  })
-                  .then(this::tryPlacingHeldItem)
-                  .build())
-          .orElse(TaskChain.empty());
+            // if the item can be damaged then it is a tool
+            if (stack.canBeDamaged()) {
+              return lp.getTopSlots().stream()
+                  .filter(this::isMonitoring)
+                  .filter(this::isExchangeable)
+                  .filter(s -> stack.isItemEqualIgnoreDurability(s.getStack()))
+                  // get the item with the best matching enchantments
+                  .max(Comparator.comparing(Slot::getStack, ItemEx::compareEnchantments))
+                  .map(slot -> CompletableFuture.runAsync(() -> {}, main)
+                      .thenRun(() -> slot.click(ClickType.SWAP, hotbarSlot.getHotbarIndex()))
+                      .waitTicks(tick_delay.intValue(), asyncExecutor(), main))
+                  .orElse(null);
+            } else {
+              return lp.getTopSlots().stream()
+                  .filter(this::isMonitoring)
+                  .filter(this::isExchangeable)
+                  .filter(s -> stack.isItemEqualIgnoreDurability(s.getStack()))
+                  // get the slot with the least amount of items in the stack because
+                  // this may require the fewest clicks to complete
+                  .min(Comparator.comparing(Slot::getStack, Comparator.comparingInt(ItemStack::getCount)))
+                  .map(slot -> CompletableFuture.supplyAsync(() -> slot.click(ClickType.PICKUP, 0), main)
+                      .waitTicks(tick_delay.intValue(), asyncExecutor(), main)
+                      // this will place the item into the hotbar
+                      .thenApply(itemStack -> hotbarSlot.click(ClickType.PICKUP, 0))
+                      // cleanup
+                      .thenCompose(stack1 -> {
+                        // if we dont get an empty item stack result, then we are still carrying an item
+                        // and need to deposit it back to where it was
+                        if (!stack1.isEmpty()) {
+                          return CompletableFuture.runAsync(() -> {}, main)
+                              .waitTicks(tick_delay.intValue(), asyncExecutor(), main)
+                              .thenApply(o -> slot.click(ClickType.PICKUP, 0))
+                              .thenCompose(stack2 -> {
+                                // we picked up something that managed to get in our inventory
+                                // time to dumpster it
+                                if (!stack2.isEmpty()) {
+                                  return CompletableFuture.runAsync(() -> {}, main)
+                                      .waitTicks(tick_delay.intValue(), asyncExecutor(), main)
+                                      .thenRun(() -> lp.throwHeldItem());
+                                }
+                                return CompletableFuture.completedFuture(null);
+                              });
+                        } else {
+                          // otherwise we don't have to care
+                          return CompletableFuture.completedFuture(null);
+                        }
+                      })
+                      .waitTicks(tick_delay.intValue(), asyncExecutor(), main)
+                  )
+                  .orElse(null);
+            }
+          })
+          .orElse(CompletableFuture.completedFuture(null)));
     }
-
-    // process the next click task
-    int n = 0;
-    while (processing(n++) && tasks.hasNext()) {
-      try {
-        tasks.next().run();
-      } catch (Throwable t) {
-        tasks = TaskChain.singleton(this::tryPlacingHeldItem);
-      }
-    }
-
-    ++tickCount;
-  }
-
-  //
-  //
-  //
-
-  private static void verifyHotbar(LocalPlayerInventory.InvItem hotbarItem) {
-    LocalPlayerInventory.InvItem current = LocalPlayerInventory.getHotbarInventory().get(hotbarItem.getIndex());
-    if (!hotbarItem.isItemsEqual(current)) {
-      throw new IllegalArgumentException();
-    }
-  }
-
-  private static void verifyHeldItem(LocalPlayerInventory.InvItem staticItem) {
-  }
-
-  private static void clickWindow(
-      int slotIdIn, int usedButtonIn, ClickType modeIn, ItemStack clickedItemIn) {
-    Common.sendNetworkPacket(new CClickWindowPacket(
-        0,
-        slotIdIn,
-        usedButtonIn,
-        modeIn,
-        clickedItemIn,
-        LocalPlayerInventory.getOpenContainer().getNextTransactionID(LocalPlayerInventory.getInventory())));
-  }
-
-  private static ItemStack click(LocalPlayerInventory.InvItem item, int usedButtonIn, ClickType modeIn) {
-    if (item.getIndex() == -1) {
-      throw new IllegalArgumentException();
-    }
-    ItemStack ret;
-    clickWindow(item.getSlotNumber(), usedButtonIn, modeIn,
-        ret = LocalPlayerInventory.getOpenContainer().slotClick(item.getSlotNumber(), usedButtonIn,
-            modeIn, Common.getLocalPlayer()));
-    return ret;
   }
 }

@@ -3,11 +3,12 @@ package dev.fiki.forgehax.main.mods.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
-import dev.fiki.forgehax.api.entity.EntityUtils;
+import dev.fiki.forgehax.api.extension.EntityEx;
+import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.math.ScreenPos;
-import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.ToggleMod;
-import dev.fiki.forgehax.main.Common;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -24,11 +25,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import static dev.fiki.forgehax.main.Common.*;
+
 //@RegisterMod(
 //    name = "WaifuESP",
 //    description = "overlay cute animes over players",
 //    category = Category.RENDER
 //)
+@ExtensionMethod({EntityEx.class, VectorEx.class})
 public class WaifuESP extends ToggleMod {
 
   public final BooleanSetting noRenderPlayers = newBooleanSetting()
@@ -42,8 +46,7 @@ public class WaifuESP extends ToggleMod {
 
   private final String waifuUrl = "https://raw.githubusercontent.com/forgehax/assets/master/img/waifu_v01.png";
 
-  private final File waifuCache =
-      Common.getFileManager().getBaseResolve("cache/waifu.png").toFile();
+  private final File waifuCache = getFileManager().getBaseResolve("cache/waifu.png").toFile();
 
   private <T> BufferedImage getImage(T source, ThrowingFunction<T, BufferedImage> readFunction) {
     try {
@@ -55,10 +58,10 @@ public class WaifuESP extends ToggleMod {
   }
 
   private boolean shouldDraw(LivingEntity entity) {
-    return (!entity.equals(Common.getLocalPlayer())
-        && EntityUtils.isAlive(entity)
-        && EntityUtils.isValidEntity(entity)
-        && (EntityUtils.isPlayer(entity)));
+    return entity.isPlayerType()
+        && !entity.isLocalPlayer()
+        && entity.isReallyAlive()
+        && entity.isValidEntity();
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -67,14 +70,14 @@ public class WaifuESP extends ToggleMod {
       return;
     }
 
-    for (Entity entity : Common.getWorld().getAllEntities()) {
-      if (EntityUtils.isLiving(entity) && shouldDraw((LivingEntity) entity)) {
+    for (Entity entity : getWorld().getAllEntities()) {
+      if (entity.isLiving() && shouldDraw((LivingEntity) entity)) {
         LivingEntity living = (LivingEntity) (entity);
-        Vector3d bottomVec = EntityUtils.getInterpolatedPos(living, event.getPartialTicks());
+        Vector3d bottomVec = living.getInterpolatedPos(event.getPartialTicks());
         Vector3d topVec =
             bottomVec.add(new Vector3d(0, (entity.getRenderBoundingBox().maxY - entity.getPosY()), 0));
-        ScreenPos top = VectorUtils.toScreen(topVec.x, topVec.y, topVec.z);
-        ScreenPos bot = VectorUtils.toScreen(bottomVec.x, bottomVec.y, bottomVec.z);
+        ScreenPos top = VectorUtil.toScreen(topVec);
+        ScreenPos bot = VectorUtil.toScreen(bottomVec);
         if (top.isVisible() || bot.isVisible()) {
 
           int height = (bot.getYAsInteger() - top.getYAsInteger());
@@ -84,7 +87,7 @@ public class WaifuESP extends ToggleMod {
           int y = top.getYAsInteger();
 
           // draw waifu
-          Common.MC.getTextureManager().bindTexture(waifu);
+          MC.getTextureManager().bindTexture(waifu);
 
           RenderSystem.color4f(1.f, 1.f, 1.f, 1.f);
           SurfaceHelper.drawScaledCustomSizeModalRect(
@@ -96,14 +99,14 @@ public class WaifuESP extends ToggleMod {
 
   @SubscribeEvent
   public void onRenderPlayer(RenderPlayerEvent.Pre event) {
-    if (noRenderPlayers.getValue() && !event.getEntity().equals(Common.MC.player)) {
+    if (noRenderPlayers.getValue() && !event.getEntity().equals(MC.player)) {
       event.setCanceled(true);
     }
   }
 
   @Override
   public void onLoad() {
-    Common.addScheduledTask(
+    addScheduledTask(
         () -> {
           try {
             BufferedImage image;
@@ -120,14 +123,14 @@ public class WaifuESP extends ToggleMod {
               }
             }
             if (image == null) {
-              Common.getLogger().warn("Failed to download waifu image");
+              getLogger().warn("Failed to download waifu image");
               return;
             }
 
             // TODO: 1.15 BufferedImage -> NativeImage
             DynamicTexture dynamicTexture = new DynamicTexture(null);
-            dynamicTexture.loadTexture(Common.MC.getResourceManager());
-            waifu = Common.MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
+            dynamicTexture.loadTexture(MC.getResourceManager());
+            waifu = MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
           } catch (Exception e) {
             e.printStackTrace();
           }

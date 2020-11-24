@@ -87,4 +87,9 @@ public class Color4F extends Color {
   public float[] toFloatArray() {
     return Arrays.copyOf(color, color.length);
   }
+
+  @Override
+  public boolean isBufferType() {
+    return false;
+  }
 }

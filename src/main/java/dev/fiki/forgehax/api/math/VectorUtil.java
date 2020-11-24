@@ -9,7 +9,7 @@ import net.minecraft.util.math.vector.Vector4f;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-public class VectorUtils implements Common {
+public class VectorUtil implements Common {
   // Credits to Gregor and P47R1CK for the 3D vector transformation code
   @Getter
   private static Matrix4f projectionMatrix = new Matrix4f();

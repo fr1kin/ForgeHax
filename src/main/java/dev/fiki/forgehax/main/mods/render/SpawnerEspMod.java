@@ -4,27 +4,29 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
 import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.extension.VectorEx;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import net.minecraft.block.BlockState;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import static dev.fiki.forgehax.main.Common.getWorld;
-import static dev.fiki.forgehax.main.Common.worldTileEntities;
 
 @RegisterMod(
     name = "SpawnerESP",
-    description = "Spawner esp",
+    description = "Spawner ESP",
     category = Category.RENDER
 )
+@ExtensionMethod({VectorEx.class, VertexBuilderEx.class})
 public class SpawnerEspMod extends ToggleMod {
   private final ColorSetting spawnerColor = newColorSetting()
       .name("spawner-color")
@@ -40,33 +42,35 @@ public class SpawnerEspMod extends ToggleMod {
 
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    if(spawnerColor.getValue().getAlpha() <= 0) {
+    if (spawnerColor.getValue().getAlpha() <= 0) {
       return;
     }
 
-    BufferBuilderEx buffer = event.getBuffer();
+    val stack = event.getMatrixStack();
+    val buffer = event.getBuffer();
+    stack.push();
+    stack.translateVec(event.getProjectedPos().scale(-1));
+
     buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
-    buffer.setTranslation(event.getProjectedPos().scale(-1));
-
-    worldTileEntities()
-        .filter(MobSpawnerTileEntity.class::isInstance)
-        .forEach(ent -> {
-          BlockState state = ent.getBlockState();
-          VoxelShape voxel = state.getCollisionShape(getWorld(), ent.getPos());
-          if(!voxel.isEmpty()) {
-            buffer.putOutlinedCuboid(voxel.getBoundingBox().offset(ent.getPos()),
-                GeometryMasks.Line.ALL, spawnerColor.getValue());
-          }
-        });
+    for (TileEntity ent : getWorld().loadedTileEntityList) {
+      if (ent instanceof MobSpawnerTileEntity) {
+        val state = ent.getBlockState();
+        val voxel = state.getCollisionShape(getWorld(), ent.getPos());
+        if (!voxel.isEmpty()) {
+          buffer.outlinedCube(voxel.getBoundingBox().offset(ent.getPos()),
+              GeometryMasks.Line.ALL, spawnerColor.getValue(), stack.getLastMatrix());
+        }
+      }
+    }
 
     RenderSystem.enableBlend();
-    if(antiAliasing.getValue()) {
+    if (antiAliasing.getValue()) {
       GL11.glEnable(GL11.GL_LINE_SMOOTH);
     }
 
     buffer.draw();
-
     GL11.glDisable(GL11.GL_LINE_SMOOTH);
+    stack.pop();
   }
 }

@@ -3,32 +3,27 @@ package dev.fiki.forgehax.main.mods.player;
 import com.google.common.collect.Lists;
 import dev.fiki.forgehax.api.BlockHelper;
 import dev.fiki.forgehax.api.BlockHelper.BlockTraceInfo;
-import dev.fiki.forgehax.api.PacketHelper;
-import dev.fiki.forgehax.api.Utils;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.common.PriorityEnum;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
-import dev.fiki.forgehax.api.entity.LocalPlayerInventory;
-import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.api.events.RenderEvent;
-import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.extension.*;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import dev.fiki.forgehax.main.managers.RotationManager;
 import dev.fiki.forgehax.main.managers.RotationManager.RotationState.Local;
-import dev.fiki.forgehax.main.services.HotbarSelectionService.ResetFunction;
 import dev.fiki.forgehax.main.services.SneakService;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.block.Block;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.BlockItem;
-import net.minecraft.network.play.client.CAnimateHandPacket;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
@@ -52,6 +47,7 @@ import static net.minecraft.network.play.client.CEntityActionPacket.Action;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
+@ExtensionMethod({GeneralEx.class, ItemEx.class, LocalPlayerEx.class, EntityEx.class, VectorEx.class, VertexBuilderEx.class})
 public class Scaffold extends ToggleMod implements RotationManager.MovementUpdateListener {
   private final SneakService sneaks;
   private final ReflectionTools reflection;
@@ -106,12 +102,12 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
         + " ["
         + "ticks = " + tickCount + ", "
         + "vel = " + (getLocalPlayer() == null
-          ? "(0.00, 0.00)"
-          : String.format("(%.2f, %.2f)", getLocalPlayer().getMotion().getX(), getLocalPlayer().getMotion().getZ()))
+        ? "(0.00, 0.00)"
+        : String.format("(%.2f, %.2f)", getLocalPlayer().getMotion().getX(), getLocalPlayer().getMotion().getZ()))
         + ", "
         + "pos = " + (currentTarget == null
-          ? "(0, 0, 0)"
-          : String.format("(%d, %d, %d)", currentTarget.getX(), currentTarget.getY(), currentTarget.getZ()))
+        ? "(0, 0, 0)"
+        : String.format("(%d, %d, %d)", currentTarget.getX(), currentTarget.getY(), currentTarget.getZ()))
         + "]";
   }
 
@@ -119,21 +115,22 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
   public void onLocalPlayerMovementUpdate(Local state) {
     currentTarget = null;
 
+    val lp = getLocalPlayer();
     Vector3d directionVector = Vector3d.ZERO;
-    BlockPos below = getLocalPlayer().getPosition().down();
-    if(BlockHelper.isBlockReplaceable(below)) {
+    BlockPos below = lp.getPosition().down();
+    if (BlockHelper.isBlockReplaceable(below)) {
       currentTarget = below;
       predicted = true;
-    } else if(motionPrediction.isEnabled()) {
+    } else if (motionPrediction.isEnabled()) {
       // try and get the block the player will be over
-      Vector3d motion = getLocalPlayer().getMotion();
+      Vector3d motion = lp.getMotion();
       // ignore y motion
       Vector3d vel = new Vector3d(motion.getX(), 0.d, motion.getZ()).normalize();
 
       // must be moving
-      if(vel.lengthSquared() > 0.d) {
+      if (vel.lengthSquared() > 0.d) {
         double modX, modZ;
-        if(Math.abs(vel.getX()) > Math.abs(vel.getZ())) {
+        if (Math.abs(vel.getX()) > Math.abs(vel.getZ())) {
           modX = vel.getX() < 0.d ? -1.d : 1.d;
           modZ = 0.d;
         } else {
@@ -143,7 +140,7 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
 
         directionVector = new Vector3d(modX, 0.d, modZ);
         BlockPos forward = below.add(directionVector.getX(), directionVector.getY(), directionVector.getZ());
-        if(BlockHelper.isBlockReplaceable(forward)) {
+        if (BlockHelper.isBlockReplaceable(forward)) {
           currentTarget = forward;
           predicted = true;
         }
@@ -151,40 +148,38 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
     }
 
     // no valid block found
-    if(currentTarget == null) {
+    if (currentTarget == null) {
       return;
     }
 
-    LocalPlayerInventory.InvItem items =
-        LocalPlayerInventory.getHotbarInventory()
-            .stream()
-            .filter(LocalPlayerInventory.InvItem::nonNull)
-            .filter(item -> item.getItem() instanceof BlockItem)
-            .filter(item -> Block.getBlockFromItem(item.getItem()).getDefaultState().isOpaqueCube(getWorld(), BlockPos.ZERO))
-            .max(Comparator.comparingInt(LocalPlayerInventory::getHotbarDistance))
-            .orElse(LocalPlayerInventory.InvItem.EMPTY);
+    final Slot items = lp.getHotbarSlots().stream()
+        .filter(Slot::getHasStack)
+        .filter(slot -> slot.getStack().getItem() instanceof BlockItem)
+        .filter(slot -> slot.getStack().getBlockForItem().getDefaultState().isOpaqueCube(getWorld(), BlockPos.ZERO))
+        .min(Comparator.comparingInt(ItemEx::getDistanceFromSelected))
+        .orElse(null);
 
-    if (items.isNull()) {
+    if (items == null) {
       return;
     }
 
     boolean isPredictedTarget = directionVector.lengthSquared() > 0.d;
 
-    final Vector3d realEyes = getLocalPlayer().getEyePosition(1.f);
+    final Vector3d realEyes = lp.getEyePos();
     final Vector3d eyes = isPredictedTarget
         ? realEyes.add(directionVector)
         : realEyes;
-    final Vector3d dir = LocalPlayerUtils.getServerDirectionVector();
+    final Vector3d dir = lp.getServerDirectionVector();
 
     BlockTraceInfo trace =
         Optional.ofNullable(BlockHelper.getPlaceableBlockSideTrace(eyes, dir, currentTarget))
-            .filter(tr -> tr.isPlaceable(items))
+            .filter(tr -> lp.canPlaceBlock(items.getStack().getBlockForItem(), tr.getPos()))
             .orElseGet(() -> horizontal.stream()
                 .map(currentTarget::offset)
                 .filter(BlockHelper::isBlockReplaceable)
                 .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
                 .filter(Objects::nonNull)
-                .filter(tr -> tr.isPlaceable(items))
+                .filter(tr -> lp.canPlaceBlock(items.getStack().getBlockForItem(), tr.getPos()))
                 .max(Comparator.comparing(BlockTraceInfo::isSneakRequired))
                 .orElse(null));
 
@@ -195,52 +190,46 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
     currentTarget = trace.getPos();
     predicted = false;
     Vector3d hit = trace.getHitVec();
-    state.setServerAngles(Utils.getLookAtAngles(hit));
+    state.setServerAngles(lp.getLookAngles(hit));
 
     // cannot place yet because of delay
-    if(tickCount++ < delay.intValue()) {
+    if (tickCount++ < delay.intValue()) {
       return;
     }
 
     // block is too far away or not visible
-    if(placeDistance.doubleValue() > 0.d
-        ? getLocalPlayer().getPositionVec().distanceTo(trace.getCenterPos()) < placeDistance.doubleValue()
+    if (placeDistance.doubleValue() > 0.d
+        ? lp.getPositionVec().distanceTo(trace.getCenterPos()) < placeDistance.doubleValue()
         : isPredictedTarget) {
       return;
     }
 
     final BlockTraceInfo tr = trace;
     state.invokeLater(rs -> {
-      ResetFunction func = LocalPlayerInventory.setSelected(items);
+      final Runnable resetSelected = lp.setSelectedSlot(items, t -> true);
 
-      boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
+      boolean sneak = tr.isSneakRequired() && !lp.isCrouchSneaking();
       if (sneak) {
         // send start sneaking packet
-        PacketHelper.ignoreAndSend(
-            new CEntityActionPacket(getLocalPlayer(), Action.PRESS_SHIFT_KEY));
+        getNetworkManager().dispatchSilentNetworkPacket(new CEntityActionPacket(lp, Action.PRESS_SHIFT_KEY));
 
         sneaks.setSneaking(true);
         sneaks.setSuppressing(true);
       }
 
-      if (getPlayerController()
-          .func_217292_a(
-              getLocalPlayer(),
-              getWorld(),
-              Hand.MAIN_HAND,
-              new BlockRayTraceResult(tr.getHitVec(), tr.getOppositeSide(), tr.getPos(), false))
-          .isSuccessOrConsume()) {
-        sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+      val blockTr = new BlockRayTraceResult(tr.getHitVec(), tr.getOppositeSide(), tr.getPos(), false);
+      if (lp.placeBlock(Hand.MAIN_HAND, blockTr).isSuccessOrConsume()) {
+        lp.swingHandSilently();
       }
 
       if (sneak) {
         sneaks.setSneaking(false);
         sneaks.setSuppressing(false);
 
-        sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), Action.RELEASE_SHIFT_KEY));
+        getNetworkManager().dispatchNetworkPacket(new CEntityActionPacket(lp, Action.RELEASE_SHIFT_KEY));
       }
 
-      func.revert();
+      resetSelected.run();
 
       reflection.Minecraft_rightClickDelayTimer.set(MC, delay.getValue());
       tickCount = 0;
@@ -250,19 +239,22 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
   @SubscribeEvent
   public void onRender(RenderEvent event) {
     final BlockPos current = currentTarget;
-    if(debug.isEnabled() && current != null) {
-      BufferBuilderEx buffer = event.getBuffer();
+    if (debug.isEnabled() && current != null) {
+      val buffer = event.getBuffer();
+      val stack = event.getMatrixStack();
+      stack.push();
 
       buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
-      buffer.setTranslation(event.getProjectedPos().scale(-1));
+      stack.translateVec(event.getProjectedPos().scale(-1));
 
-      Vector3d pos = VectorUtils.toFPIVector(current);
-      buffer.putOutlinedCuboid(pos, pos.add(1.D, 1.D, 1.D), GeometryMasks.Line.ALL,
-          predicted ? Colors.YELLOW : Colors.ORANGE);
+      buffer.outlinedCube(current, current.add(1.D, 1.D, 1.D), GeometryMasks.Line.ALL,
+          predicted ? Colors.YELLOW : Colors.ORANGE, stack.getLastMatrix());
 
       GL11.glEnable(GL11.GL_LINE_SMOOTH);
       buffer.draw();
       GL11.glDisable(GL11.GL_LINE_SMOOTH);
+
+      stack.pop();
     }
   }
 }

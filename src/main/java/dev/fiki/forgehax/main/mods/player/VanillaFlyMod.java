@@ -3,8 +3,8 @@ package dev.fiki.forgehax.main.mods.player;
 import dev.fiki.forgehax.api.Switch.Handle;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -49,7 +49,7 @@ public class VanillaFlyMod extends ToggleMod {
   @FieldMapping(parentClass = SPlayerPositionLookPacket.class, value = "z")
   private final ReflectionField<Double> SPlayerPositionLookPacket_z;
 
-  private Handle fly = LocalPlayerUtils.getFlySwitch().createHandle(getName());
+  private Handle fly = LocalPlayerEx.getFlySwitch().createHandle(getName());
 
   @SuppressWarnings("WeakerAccess")
   public final BooleanSetting groundSpoof = newBooleanSetting()

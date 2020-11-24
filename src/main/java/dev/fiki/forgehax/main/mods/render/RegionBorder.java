@@ -3,12 +3,15 @@ package dev.fiki.forgehax.main.mods.render;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
 import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.extension.VectorEx;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,6 +23,7 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
     description = "Shows a border in front of the edge of the region you are in",
     category = Category.RENDER
 )
+@ExtensionMethod({VectorEx.class, VertexBuilderEx.class})
 public class RegionBorder extends ToggleMod {
   private final IntegerSetting chunkDistance = newIntegerSetting()
       .name("chunk-distance")
@@ -41,7 +45,10 @@ public class RegionBorder extends ToggleMod {
    */
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    BufferBuilderEx builder = event.getBuffer();
+    val stack = event.getMatrixStack();
+    val builder = event.getBuffer();
+    stack.push();
+
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
     BlockPos from = new BlockPos((((int) getLocalPlayer().getPosX()) / 512) * 512,
@@ -49,17 +56,17 @@ public class RegionBorder extends ToggleMod {
     BlockPos to = from.add(511, 256, 511);
 
     if (drawRegionBorder.getValue()) {
-      builder.putOutlinedCuboid(from, to, GeometryMasks.Line.ALL, Colors.ORANGE);
+      builder.outlinedCube(from, to, GeometryMasks.Line.ALL, Colors.ORANGE, stack.getLastMatrix());
     }
 
     final int chunkDistanceSetting = chunkDistance.getValue() * 16;
     from = from.add(chunkDistanceSetting, 0, chunkDistanceSetting);
     to = to.add(-chunkDistanceSetting, 0, -chunkDistanceSetting);
 
-    builder.putOutlinedCuboid(from, to, GeometryMasks.Line.ALL, Colors.YELLOW);
+    builder.outlinedCube(from, to, GeometryMasks.Line.ALL, Colors.YELLOW, stack.getLastMatrix());
 
     builder.draw();
+    stack.pop();
   }
-
 }
 

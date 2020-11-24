@@ -12,7 +12,7 @@ import java.util.Map;
 @Getter
 public class BufferProvider {
   private final IRenderTypeBuffer.Impl bufferSource;
-  private final BufferBuilderEx defaultBuffer = new BufferBuilderEx(Tessellator.getInstance());
+  private final BufferBuilder defaultBuffer = Tessellator.getInstance().getBuffer();
 
   public BufferProvider() {
     BufferMap buffers = new BufferMap()
@@ -28,15 +28,15 @@ public class BufferProvider {
     this.bufferSource = IRenderTypeBuffer.getImpl(buffers.build(), defaultBuffer);
   }
 
-  public BufferBuilderEx getBuffer(RenderType renderType) {
-    return (BufferBuilderEx) getBufferSource().getBuffer(renderType);
+  public BufferBuilder getBuffer(RenderType renderType) {
+    return (BufferBuilder) getBufferSource().getBuffer(renderType);
   }
 
   private static class BufferMap {
     Map<RenderType, BufferBuilder> buffers = new Object2ObjectLinkedOpenHashMap<>();
 
     public BufferMap add(RenderType type) {
-      buffers.put(type, new BufferBuilderEx(new BufferBuilder(type.getBufferSize())));
+      buffers.put(type, new BufferBuilder(type.getBufferSize()));
       return this;
     }
 

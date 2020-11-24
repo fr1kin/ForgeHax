@@ -1,46 +1,34 @@
 package dev.fiki.forgehax.main.mods.player;
 
-import dev.fiki.forgehax.api.BlockHelper;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.entity.LocalPlayerInventory;
+import dev.fiki.forgehax.api.extension.ItemEx;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.PlayerAttackEntityEvent;
 import dev.fiki.forgehax.asm.events.PlayerDamageBlockEvent;
-import dev.fiki.forgehax.main.Common;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Comparator;
-import java.util.Optional;
 
-import static net.minecraft.enchantment.Enchantments.EFFICIENCY;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
 @RegisterMod(
     name = "AutoTool",
     description = "Automatically switch to the best tool",
     category = Category.PLAYER
 )
+@ExtensionMethod({ItemEx.class, LocalPlayerEx.class})
 public class AutoTool extends ToggleMod {
-
-  private static AutoTool instance = null;
-
-  public static AutoTool getInstance() {
-    return instance;
-  }
-
   private final BooleanSetting tools = newBooleanSetting()
       .name("tools")
       .description("Enables AutoTool when tools")
@@ -53,13 +41,13 @@ public class AutoTool extends ToggleMod {
       .defaultTo(true)
       .build();
 
-  private final BooleanSetting revert_back = newBooleanSetting()
+  private final BooleanSetting revertBack = newBooleanSetting()
       .name("revert-back")
       .description("Revert back to the previous item")
       .defaultTo(true)
       .build();
 
-  private final IntegerSetting durability_threshold = newIntegerSetting()
+  private final IntegerSetting durabilityThreshold = newIntegerSetting()
       .name("durability-threshold")
       .description("Will filter out items with a damage equal to or less than the threshold. Set to 0 to disable.")
       .defaultTo(0)
@@ -67,121 +55,63 @@ public class AutoTool extends ToggleMod {
       .max((int) Short.MAX_VALUE)
       .build();
 
-  {
-    instance = this;
+  private boolean isInvincible(ItemStack stack) {
+    // can't break nothing (hand)
+    return !stack.isEmpty() || !stack.isDamageable();
   }
 
-  private boolean isInvincible(LocalPlayerInventory.InvItem item) {
-    return item.isNull() || !item.getItem().isDamageable();
+  private boolean isDurabilityGood(ItemStack stack) {
+    return durabilityThreshold.getValue() < 1
+        || isInvincible(stack)
+        || stack.getDurability() > durabilityThreshold.getValue();
   }
 
-  private boolean isDurabilityGood(LocalPlayerInventory.InvItem item) {
-    return durability_threshold.getValue() < 1
-        || isInvincible(item)
-        || item.getDurability() > durability_threshold.getValue();
+  private boolean isDurabilityGood(Slot slot) {
+    return isDurabilityGood(slot.getStack());
   }
 
-  private boolean isSilkTouchable(LocalPlayerInventory.InvItem item, BlockState state, BlockPos pos) {
-    // TODO: 1.15 have to figure out if an item can be silk touched by looking it up in the loot tables now
-    return false;
-//    return LocalPlayerInventory.getSelected().getIndex() == item.getIndex()
-//        && getEnchantmentLevel(Enchantments.SILK_TOUCH, item) > 0
-//        && state.getBlock().canSilkHarvest(getWorld(), pos, state, getLocalPlayer());
-  }
-
-  private double getDigSpeed(LocalPlayerInventory.InvItem item, BlockState state, BlockPos pos) {
-    double str = item.getItemStack().getDestroySpeed(state);
-    int eff = getEnchantmentLevel(EFFICIENCY, item);
-    return state.getPlayerRelativeBlockHardness(Common.getLocalPlayer(), Common.getWorld(), pos) > 0.D
-        ? Math.max(str + (str > 1.D ? (eff * eff + 1.D) : 0.D), 0.D)
-        : 1.D;
-  }
-
-  private double getAttackDamage(LocalPlayerInventory.InvItem item) {
-    return Optional.ofNullable(
-        item.getItemStack()
-            .getAttributeModifiers(EquipmentSlotType.MAINHAND)
-            .get(Attributes.ATTACK_DAMAGE)) // attack damage
-        .map(at -> at.stream().findAny().map(AttributeModifier::getAmount).orElse(0.D))
-        .orElse(0.D);
-  }
-
-  private double getAttackSpeed(LocalPlayerInventory.InvItem item) {
-    return Optional.ofNullable(item.getItemStack()
-        .getAttributeModifiers(EquipmentSlotType.MAINHAND)
-        .get(Attributes.ATTACK_DAMAGE))
-        .map(at -> at.stream()
-            .findAny()
-            .map(AttributeModifier::getAmount)
-            .map(Math::abs)
-            .orElse(0.D))
-        .orElse(0.D);
-  }
-
-  private double getEntityAttackModifier(LocalPlayerInventory.InvItem item, Entity target) {
-    return EnchantmentHelper.getModifierForCreature(
-        item.getItemStack(),
-        Optional.ofNullable(target)
-            .filter(LivingEntity.class::isInstance)
-            .map(LivingEntity.class::cast)
-            .map(LivingEntity::getCreatureAttribute)
-            .orElse(CreatureAttribute.UNDEFINED));
-  }
-
-  private double calculateDPS(LocalPlayerInventory.InvItem item, Entity target) {
-    return (getAttackDamage(item) + 1.D + getEntityAttackModifier(item, target))
-        / (getAttackSpeed(item) + 1.D);
-  }
-
-  private int getEnchantmentLevel(Enchantment enchantment, LocalPlayerInventory.InvItem item) {
-    return EnchantmentHelper.getEnchantmentLevel(enchantment, item.getItemStack());
-  }
-
-  private LocalPlayerInventory.InvItem getBestTool(BlockPos pos) {
-    LocalPlayerInventory.InvItem current = LocalPlayerInventory.getSelected();
-
-    if (!BlockHelper.isBlockPlaceable(pos) || Common.getWorld().isAirBlock(pos)) {
-      return current;
+  private Slot getBestTool(BlockPos pos) {
+    val lp = getLocalPlayer();
+    // we should be able to mine
+    if (!lp.canPlaceBlocksAt(pos) && !lp.getWorld().isAirBlock(pos)) {
+      return lp.getHotbarSlots().stream()
+          .filter(this::isDurabilityGood)
+          // prefer the fastest digging tool
+          .max(Comparator.comparing(Slot::getStack,
+              Comparator.<ItemStack>comparingDouble(stack -> lp.getDiggingSpeedAt(stack, pos))
+                  // if all the same speed, then choose a tool that will not lose durability
+                  .thenComparing(this::isInvincible))
+              // find the tool closest in the hotbar
+              .thenComparing(ItemEx::getDistanceFromSelected, Comparator.reverseOrder()))
+          .orElse(lp.getSelectedSlot());
     }
-
-    final BlockState state = Common.getWorld().getBlockState(pos);
-    return LocalPlayerInventory.getHotbarInventory()
-        .stream()
-        .filter(this::isDurabilityGood)
-        .max(
-            Comparator.<LocalPlayerInventory.InvItem>comparingDouble(item -> getDigSpeed(item, state, pos))
-                .thenComparing(item -> isSilkTouchable(item, state, pos))
-                .thenComparing(this::isInvincible)
-                .thenComparing(LocalPlayerInventory::getHotbarDistance))
-        .orElse(current);
+    return lp.getSelectedSlot();
   }
 
-  private LocalPlayerInventory.InvItem getBestWeapon(Entity target) {
-    LocalPlayerInventory.InvItem current = LocalPlayerInventory.getSelected();
-    return LocalPlayerInventory.getHotbarInventory()
-        .stream()
+  private Slot getBestWeapon(Entity target) {
+    val lp = getLocalPlayer();
+    return lp.getHotbarSlots().stream()
         .filter(this::isDurabilityGood)
-        .max(
-            Comparator.<LocalPlayerInventory.InvItem>comparingDouble(item -> calculateDPS(item, target))
-                .thenComparing(item -> getEnchantmentLevel(Enchantments.FIRE_ASPECT, item))
-                .thenComparing(item -> getEnchantmentLevel(Enchantments.SWEEPING, item))
-                .thenComparing(this::isInvincible)
-                .thenComparing(LocalPlayerInventory::getHotbarDistance))
-        .orElse(current);
+        .max(Comparator.comparing(Slot::getStack,
+            Comparator.<ItemStack>comparingDouble(stack -> stack.getAttackDamageInterval(target))
+                .thenComparingInt(stack -> stack.getEnchantmentLevel(Enchantments.FIRE_ASPECT))
+                .thenComparingInt(stack -> stack.getEnchantmentLevel(Enchantments.SWEEPING))
+                .thenComparing(this::isInvincible))
+            .thenComparing(ItemEx::getDistanceFromSelected, Comparator.reverseOrder()))
+        .orElse(lp.getSelectedSlot());
   }
 
   public void selectBestTool(BlockPos pos) {
     if (isEnabled() && tools.getValue()) {
-      LocalPlayerInventory.setSelected(getBestTool(pos), revert_back.getValue(), ticks -> ticks > 5);
+      getLocalPlayer().setSelectedSlot(getBestTool(pos), revertBack.isEnabled(), ticks -> ticks > 5);
     }
   }
 
   public void selectBestWeapon(Entity target) {
     if (isEnabled() && weapons.getValue()) {
-      LocalPlayerInventory.setSelected(
-          getBestWeapon(target),
-          revert_back.getValue(),
-          ticks -> Common.getLocalPlayer().getCooledAttackStrength(0.f) >= 1.f && ticks > 30);
+      val lp = getLocalPlayer();
+      lp.setSelectedSlot(getBestWeapon(target), revertBack.isEnabled(),
+          ticks -> lp.getCooledAttackStrength(0.f) >= 1.f && ticks > 30);
     }
   }
 

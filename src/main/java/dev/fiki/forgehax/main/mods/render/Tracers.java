@@ -6,16 +6,17 @@ import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.entity.EntityUtils;
 import dev.fiki.forgehax.api.entity.RelationState;
 import dev.fiki.forgehax.api.events.Render2DEvent;
-import dev.fiki.forgehax.api.math.AngleHelper;
+import dev.fiki.forgehax.api.extension.EntityEx;
+import dev.fiki.forgehax.api.math.AngleUtil;
 import dev.fiki.forgehax.api.math.ScreenPos;
-import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.Common;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.vector.Vector3d;
@@ -34,6 +35,7 @@ import static org.lwjgl.opengl.GL11.glEnd;
     description = "See where other players are",
     category = Category.RENDER
 )
+@ExtensionMethod({EntityEx.class})
 public class Tracers extends ToggleMod implements Colors {
 
   enum Mode {
@@ -119,9 +121,8 @@ public class Tracers extends ToggleMod implements Colors {
               Entity entity = er.getEntity();
               RelationState relationship = er.getRelationship();
 
-              Vector3d entityPos =
-                  EntityUtils.getInterpolatedEyePos(entity, Common.MC.getRenderPartialTicks());
-              ScreenPos screenPos = VectorUtils.toScreen(entityPos);
+              Vector3d entityPos = entity.getInterpolatedEyePos(MC.getRenderPartialTicks());
+              ScreenPos screenPos = VectorUtil.toScreen(entityPos);
 
               Color color = er.getColor().setAlpha(alpha.getValue());
               color4f(color.getRedAsFloat(),
@@ -188,7 +189,7 @@ public class Tracers extends ToggleMod implements Colors {
                   }
 
                   // normalize
-                  ang = (float) AngleHelper.normalizeInDegrees(ang);
+                  ang = (float) AngleUtil.normalizeInDegrees(ang);
 
                   // --------------------
 
@@ -246,7 +247,7 @@ public class Tracers extends ToggleMod implements Colors {
     public EntityRelations(Entity entity) {
       Objects.requireNonNull(entity);
       this.entity = entity;
-      this.relationship = EntityUtils.getRelationship(entity);
+      this.relationship = entity.getPlayerRelationship();
     }
 
     public Entity getEntity() {

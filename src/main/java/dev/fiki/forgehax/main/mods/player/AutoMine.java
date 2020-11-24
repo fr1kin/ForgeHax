@@ -1,24 +1,25 @@
 package dev.fiki.forgehax.main.mods.player;
 
-import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.key.BindingHelper;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.BlockControllerProcessEvent;
 import dev.fiki.forgehax.asm.events.LeftClickCounterUpdateEvent;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static dev.fiki.forgehax.main.Common.getGameSettings;
-import static dev.fiki.forgehax.main.Common.isInWorld;
+import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod(
     name = "AutoMine",
     description = "Auto mine blocks",
     category = Category.PLAYER
 )
+@ExtensionMethod({LocalPlayerEx.class})
 public class AutoMine extends ToggleMod {
 
   private boolean pressed = false;
@@ -47,7 +48,7 @@ public class AutoMine extends ToggleMod {
 
     switch (event.phase) {
       case START: {
-        RayTraceResult tr = LocalPlayerUtils.getBlockViewTrace();
+        RayTraceResult tr = getLocalPlayer().getBlockViewTrace();
 
         if (RayTraceResult.Type.MISS.equals(tr.getType())) {
           setPressed(false);

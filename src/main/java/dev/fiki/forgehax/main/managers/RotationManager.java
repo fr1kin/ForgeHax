@@ -1,12 +1,12 @@
 package dev.fiki.forgehax.main.managers;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.api.Utils;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.api.events.ClientWorldEvent;
+import dev.fiki.forgehax.api.extension.GeneralEx;
 import dev.fiki.forgehax.api.math.Angle;
-import dev.fiki.forgehax.api.math.AngleHelper;
+import dev.fiki.forgehax.api.math.AngleUtil;
 import dev.fiki.forgehax.api.mod.ServiceMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.task.SimpleManagerContainer;
@@ -17,6 +17,7 @@ import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import dev.fiki.forgehax.main.managers.RotationManager.RotationState.Local;
 import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.vector.Vector3d;
@@ -31,6 +32,7 @@ import java.util.function.Consumer;
  * Created on 6/15/2017 by fr1kin
  */
 @RegisterMod
+@ExtensionMethod({GeneralEx.class})
 public class RotationManager extends ServiceMod {
 
   // copy/pasted from ToggleMod
@@ -229,7 +231,7 @@ public class RotationManager extends ServiceMod {
   private static void setPlayerAngles(ClientPlayerEntity player, Angle angles) {
     Angle original = getPlayerAngles(player);
     Angle diff = angles.normalize().sub(original.normalize()).normalize();
-    player.rotationPitch = Utils.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
+    player.rotationPitch = GeneralEx.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
     player.rotationYaw = original.getYaw() + diff.getYaw();
   }
 
@@ -238,8 +240,8 @@ public class RotationManager extends ServiceMod {
   }
 
   private static float clampAngle(float from, float to, float clamp) {
-    return AngleHelper.normalizeInDegrees(
-        from + Utils.clamp(AngleHelper.normalizeInDegrees(to - from), -clamp, clamp));
+    return AngleUtil.normalizeInDegrees(
+        from + GeneralEx.clamp(AngleUtil.normalizeInDegrees(to - from), -clamp, clamp));
   }
 
   private static Angle clampAngle(Angle from, Angle to, float clamp) {

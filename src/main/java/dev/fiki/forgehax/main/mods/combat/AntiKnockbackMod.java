@@ -3,7 +3,7 @@ package dev.fiki.forgehax.main.mods.combat;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
-import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -157,13 +157,13 @@ public class AntiKnockbackMod extends ToggleMod {
     } else if (explosions.getValue() && event.getPacket() instanceof SExplosionPacket) {
       Vector3d multiplier = getMultiplier();
       Vector3d motion = getPacketMotion(event.getPacket());
-      setPacketMotion(event.getPacket(), VectorUtils.multiplyBy(motion, multiplier));
+      setPacketMotion(event.getPacket(), VectorUtil.multiplyBy(motion, multiplier));
     } else if (velocity.getValue() && event.getPacket() instanceof SEntityVelocityPacket) {
       if (((SEntityVelocityPacket) event.getPacket()).getEntityID() == getLocalPlayer().getEntityId()) {
         Vector3d multiplier = getMultiplier();
         if (multiplier.lengthSquared() > 0.D) {
           setPacketMotion(event.getPacket(),
-              VectorUtils.multiplyBy(getPacketMotion(event.getPacket()), multiplier));
+              VectorUtil.multiplyBy(getPacketMotion(event.getPacket()), multiplier));
         } else {
           event.setCanceled(true);
         }
@@ -197,7 +197,7 @@ public class AntiKnockbackMod extends ToggleMod {
     if (push.getValue() && getLocalPlayer() != null && getLocalPlayer().equals(event.getEntity())) {
       addEntityVelocity(
           event.getEntity(),
-          VectorUtils.multiplyBy(
+          VectorUtil.multiplyBy(
               new Vector3d(event.getMotionX(), event.getMotionY(), event.getMotionZ()),
               getMultiplier()));
       event.setCanceled(true);

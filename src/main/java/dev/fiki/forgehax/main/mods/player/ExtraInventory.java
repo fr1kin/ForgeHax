@@ -2,18 +2,17 @@ package dev.fiki.forgehax.main.mods.player;
 
 import com.google.common.base.MoreObjects;
 import dev.fiki.forgehax.api.SimpleTimer;
-import dev.fiki.forgehax.api.Utils;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.LongSetting;
-import dev.fiki.forgehax.api.entity.LocalPlayerInventory;
 import dev.fiki.forgehax.api.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.api.mod.Category;
+import dev.fiki.forgehax.api.extension.GeneralEx;
+import dev.fiki.forgehax.api.extension.ItemEx;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.ToggleMod;
-import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.ReflectionHelper;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
-import dev.fiki.forgehax.main.Common;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.util.InputMappings;
@@ -32,13 +31,15 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static dev.fiki.forgehax.main.Common.getLogger;
+import static dev.fiki.forgehax.main.Common.*;
 
-@RegisterMod(
-    name = "ExtraInventory",
-    description = "Allows one to carry up to 5 extra items in their inventory",
-    category = Category.PLAYER
-)
+//@RegisterMod(
+//    name = "ExtraInventory",
+//    description = "Allows one to carry up to 5 extra items in their inventory",
+//    category = Category.PLAYER
+//)
+@ExtensionMethod({GeneralEx.class, ItemEx.class, LocalPlayerEx.class})
+@Deprecated // TODO: redo this entire shitstain
 public class ExtraInventory extends ToggleMod {
   private static final int GUI_INVENTORY_ID = 0;
 
@@ -90,11 +91,9 @@ public class ExtraInventory extends ToggleMod {
           checkContainerIntegrity();
           checkSlotIntegrity(source, srcCopy);
 
-          ItemStack moved =
-              getCurrentContainer()
-                  .slotClick(source.slotNumber, 0, ClickType.PICKUP, Common.getLocalPlayer());
-          Common.getNetworkManager()
-              .sendPacket(newClickPacket(source.slotNumber, 0, ClickType.PICKUP, moved));
+          ItemStack moved = getCurrentContainer().slotClick(source.getSlotNumber(), 0, ClickType.PICKUP, getLocalPlayer());
+          getNetworkManager().dispatchNetworkPacket(newClickPacket(source.getSlotNumber(),
+              0, ClickType.PICKUP, moved));
 
           return null; // stop task
         };
@@ -110,11 +109,10 @@ public class ExtraInventory extends ToggleMod {
           checkSlotIntegrity(source, srcCopy);
           checkSlotIntegrity(dst, dstCopy);
 
-          ItemStack moved =
-              getCurrentContainer()
-                  .slotClick(source.slotNumber, 0, ClickType.PICKUP, Common.getLocalPlayer());
-          Common.getNetworkManager()
-              .sendPacket(newClickPacket(source.slotNumber, 0, ClickType.PICKUP, moved));
+          ItemStack moved = getCurrentContainer()
+              .slotClick(source.getSlotNumber(), 0, ClickType.PICKUP, getLocalPlayer());
+          getNetworkManager().dispatchNetworkPacket(newClickPacket(source.getSlotNumber(), 0,
+              ClickType.PICKUP, moved));
 
           final Slot srcCopy2 = copyOfSlot(source); // copy the new source
 
@@ -126,9 +124,9 @@ public class ExtraInventory extends ToggleMod {
 
             final ItemStack moved2 =
                 getCurrentContainer()
-                    .slotClick(dst.slotNumber, 0, ClickType.PICKUP, Common.getLocalPlayer());
-            Common.getNetworkManager()
-                .sendPacket(newClickPacket(dst.slotNumber, 0, ClickType.PICKUP, moved2));
+                    .slotClick(dst.getSlotNumber(), 0, ClickType.PICKUP, getLocalPlayer());
+            getNetworkManager()
+                .dispatchNetworkPacket(newClickPacket(dst.getSlotNumber(), 0, ClickType.PICKUP, moved2));
 
             return null; // stop task
           };
@@ -141,13 +139,13 @@ public class ExtraInventory extends ToggleMod {
   private Slot getSlot(EasyIndex index) {
     switch (index) {
       case HOLDING:
-        return new Slot(LocalPlayerInventory.getInventory(), -999, 0, 0);
+        return getLocalPlayer().getMouseHeldSlot();
       case CRAFTING_0:
       case CRAFTING_1:
       case CRAFTING_2:
       case CRAFTING_3:
         return getPlayerContainer()
-            .filter(container -> Utils.isInRange(container.inventorySlots, index.getSlotIndex()))
+            .filter(container -> container.inventorySlots.containsIndex(index.getSlotIndex()))
             .map(container -> container.inventorySlots.get(index.getSlotIndex()))
             .orElse(null);
       case NONE:
@@ -159,7 +157,7 @@ public class ExtraInventory extends ToggleMod {
   private ItemStack getItemStack(EasyIndex index) {
     switch (index) {
       case HOLDING:
-        return LocalPlayerInventory.getInventory().getItemStack();
+        return getLocalPlayer().getMouseHeldItem();
       default:
         return Optional.ofNullable(getSlot(index)).map(Slot::getStack).orElse(ItemStack.EMPTY);
     }
@@ -177,16 +175,16 @@ public class ExtraInventory extends ToggleMod {
     return getMainInventory()
         .stream()
         .max(Comparator.comparingInt(ExtraInventory::getItemValue))
-        .map(item -> LocalPlayerInventory.getInventory().getSlotFor(item))
+        .map(item -> getLocalPlayer().getInventory().getSlotFor(item))
         .map(getCurrentContainer()::getSlot)
         .orElse(null);
   }
 
   private void closeGui() {
     if (guiNeedsClose.compareAndSet(true, false)) {
-      if (Common.getLocalPlayer() != null) {
+      if (getLocalPlayer() != null) {
         guiCloseGuard = true;
-        Common.getLocalPlayer().closeScreen();
+        getLocalPlayer().closeScreen();
         if (openedGui != null) {
           openedGui.onClose();
           openedGui = null;
@@ -206,7 +204,7 @@ public class ExtraInventory extends ToggleMod {
 
   @Override
   protected void onDisabled() {
-    Common.addScheduledTask(() -> {
+    addScheduledTask(() -> {
       closeGui();
       reset();
     });
@@ -217,7 +215,7 @@ public class ExtraInventory extends ToggleMod {
     if (auto_store.getValue() && (!clickTimer.isStarted() || clickTimer.hasTimeElapsed(delay.getValue()))) {
       // start a click task if one should be
       if (nextClickTask == null) {
-        PlayerInventory inventory = LocalPlayerInventory.getInventory();
+        PlayerInventory inventory = getLocalPlayer().getInventory();
         // check if inventory is full
         if (inventory.getFirstEmptyStack() == -1) { // TODO: check only top part of inventory
           // find available slot
@@ -229,8 +227,8 @@ public class ExtraInventory extends ToggleMod {
               // open and close the gui to create open instance
 
               if (openedGui == null) {
-                Common.setDisplayScreen(new InventoryScreen(Common.getLocalPlayer()));
-                Common.setDisplayScreen(null);
+                setDisplayScreen(new InventoryScreen(getLocalPlayer()));
+                setDisplayScreen(null);
               }
 
               nextClickTask = getSlotSettingTask(best, next);
@@ -280,17 +278,17 @@ public class ExtraInventory extends ToggleMod {
 
   class GuiInventoryWrapper extends InventoryScreen {
     GuiInventoryWrapper() {
-      super(Common.getLocalPlayer());
+      super(getLocalPlayer());
       // provide anything that doesn't cause a nullpointer exception, will be
       // overwritten anyway
     }
 
     @Override
     public boolean charTyped(char typedChar, int keyCode) {
-      if (isEnabled() && (keyCode == 1 || Common.getGameSettings().keyBindInventory
+      if (isEnabled() && (keyCode == 1 || getGameSettings().keyBindInventory
           .isActiveAndMatches(InputMappings.getInputByCode(keyCode, 0)))) {
         guiNeedsClose.set(true);
-        Common.setDisplayScreen(null);
+        setDisplayScreen(null);
         return true;
       } else {
         return super.charTyped(typedChar, keyCode);
@@ -306,7 +304,7 @@ public class ExtraInventory extends ToggleMod {
   }
 
   private static List<ItemStack> getMainInventory() {
-    List<ItemStack> inventory = LocalPlayerInventory.getInventory().mainInventory;
+    List<ItemStack> inventory = getLocalPlayer().getMainInventory();
     return inventory.subList(PlayerInventory.getHotbarSize(), inventory.size());
   }
 
@@ -320,11 +318,10 @@ public class ExtraInventory extends ToggleMod {
         || Items.TOTEM_OF_UNDYING.equals(item)) {
       return 100 * stack.getCount(); // very important
     } else if (item instanceof BlockItem && ((BlockItem) (item)).getBlock() instanceof ShulkerBoxBlock) {
-      return 5 + (loopGuard ? 0
-          : Utils.getShulkerContents(stack)
-          .stream()
-          .mapToInt(ExtraInventory::getItemValueSafe)
-          .sum());
+      return 5 + (loopGuard ? 0 :
+          stack.getShulkerContents().stream()
+              .mapToInt(ExtraInventory::getItemValueSafe)
+              .sum());
     } else {
       return 5;
     }
@@ -339,7 +336,7 @@ public class ExtraInventory extends ToggleMod {
   }
 
   private static Container getCurrentContainer() {
-    return MoreObjects.firstNonNull(LocalPlayerInventory.getOpenContainer(), LocalPlayerInventory.getContainer());
+    return MoreObjects.firstNonNull(getLocalPlayer().getOpenContainer(), getLocalPlayer().getContainer());
   }
 
   private static Optional<PlayerContainer> getPlayerContainer() {
@@ -356,7 +353,7 @@ public class ExtraInventory extends ToggleMod {
         usedButtonIn,
         modeIn,
         clickedItemIn,
-        getCurrentContainer().getNextTransactionID(LocalPlayerInventory.getInventory()));
+        getCurrentContainer().getNextTransactionID(getLocalPlayer().getInventory()));
   }
 
   private static Slot copyOfSlot(Slot slot) {
@@ -375,7 +372,7 @@ public class ExtraInventory extends ToggleMod {
         && s2 != null
         && (s1.inventory != s2.inventory
         || s1.getSlotIndex() != s2.getSlotIndex()
-        || s1.slotNumber != s2.slotNumber
+        || s1.getSlotNumber() != s2.getSlotNumber()
         || s1.getStack() != s2.getStack())) {
       fail();
     }
@@ -395,7 +392,7 @@ public class ExtraInventory extends ToggleMod {
 
     private DuplicateSlot(Slot original) {
       super(original.inventory, original.getSlotIndex(), original.xPos, original.yPos);
-      this.slotNumber = original.slotNumber;
+      this.slotNumber = original.getSlotNumber();
       this.stack = original.getStack();
     }
 

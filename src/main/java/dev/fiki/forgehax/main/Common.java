@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main;
 
 import dev.fiki.forgehax.api.FileManager;
+import dev.fiki.forgehax.api.PacketHelper;
 import dev.fiki.forgehax.api.TextComponentBuilder;
 import dev.fiki.forgehax.api.cmd.RootCommand;
 import dev.fiki.forgehax.api.draw.BufferProvider;
@@ -231,6 +232,10 @@ public interface Common {
       return true;
     }
     return false;
+  }
+
+  static void sendIgnoredNetworkPacket(IPacket<?> packet) {
+    PacketHelper.ignoreAndSend(packet);
   }
 
   //

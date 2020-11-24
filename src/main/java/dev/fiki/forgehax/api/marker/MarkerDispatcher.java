@@ -2,7 +2,6 @@ package dev.fiki.forgehax.api.marker;
 
 import com.google.common.collect.Queues;
 import dev.fiki.forgehax.api.color.Color;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.block.BlockState;
@@ -26,7 +25,7 @@ public class MarkerDispatcher {
   private final Executor executor;
   private final DelegatedTaskExecutor<Runnable> delegatedTaskExecutor;
 
-  final Queue<BufferBuilderEx> freeBuilders;
+  final Queue<BufferBuilder> freeBuilders;
   final Queue<MarkerJob> workers = Queues.newPriorityQueue();
   final Queue<Runnable> uploadTasks = Queues.newConcurrentLinkedQueue();
 
@@ -39,7 +38,6 @@ public class MarkerDispatcher {
     this.delegatedTaskExecutor = DelegatedTaskExecutor.create(executor, "Marker Renderer");
 
     this.freeBuilders = Queues.newArrayDeque(Stream.generate(() -> new BufferBuilder(256))
-        .map(BufferBuilderEx::new)
         .limit(Math.max(1, Runtime.getRuntime().availableProcessors() / 2))
         .collect(Collectors.toList()));
   }
@@ -52,14 +50,15 @@ public class MarkerDispatcher {
         return;
       }
 
-      final BufferBuilderEx buffer = freeBuilders.poll();
+      final BufferBuilder buffer = freeBuilders.poll();
 
       if (buffer == null) {
         getLogger().warn("Not enough builders!");
         return;
       }
 
-      CompletableFuture.runAsync(() -> {}, executor)
+      CompletableFuture.runAsync(() -> {
+      }, executor)
           .thenCompose(v -> job.execute(buffer))
           .whenComplete((success, ex) -> {
             if (ex != null) {

@@ -15,7 +15,7 @@ buildscript {
     forgeVersion = '35.0.7'
 
     fmlVersion = '2.0.0-milestone.1'
-    lombokVersion = '1.18.12'
+    lombokVersion = '1.18.16'
 
     mcpVersion = '1.16.3'
     mcpChannel = 'snapshot'

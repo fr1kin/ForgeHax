@@ -2,12 +2,11 @@ package dev.fiki.forgehax.main.mods.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.api.entity.EntityUtils;
+import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.main.Common;
-import net.minecraft.entity.LivingEntity;
+import lombok.experimental.ExtensionMethod;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -17,6 +16,7 @@ import org.lwjgl.opengl.GL11;
     description = "Render living models behind walls",
     category = Category.RENDER
 )
+@ExtensionMethod({EntityEx.class})
 public class ChamsMod extends ToggleMod {
 
   public final BooleanSetting players = newBooleanSetting()
@@ -36,15 +36,6 @@ public class ChamsMod extends ToggleMod {
       .description("Enables friendly mobs")
       .defaultTo(true)
       .build();
-
-  public boolean shouldDraw(LivingEntity entity) {
-    return !entity.equals(Common.MC.player)
-        && entity.isAlive()
-        && ((mobs_hostile.getValue() && EntityUtils.isHostileMob(entity))
-        || // check this first
-        (players.getValue() && EntityUtils.isPlayer(entity))
-        || (mobs_friendly.getValue() && EntityUtils.isFriendlyMob(entity)));
-  }
 
   @SubscribeEvent
   public void onPreRenderLiving(RenderLivingEvent.Pre event) {

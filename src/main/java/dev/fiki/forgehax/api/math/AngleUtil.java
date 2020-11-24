@@ -1,12 +1,11 @@
 package dev.fiki.forgehax.api.math;
 
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
 
 /**
  * Created on 6/21/2017 by fr1kin
  */
-public class AngleHelper {
+public class AngleUtil {
   
   public static final long DEFAULT_N = 1000000000L; // 9 decimal places
   public static final double DEFAULT_EPSILON = (1.D / (double) DEFAULT_N);
@@ -65,22 +64,5 @@ public class AngleHelper {
   
   public static float normalizeInDegrees(float ang) {
     return MathHelper.wrapDegrees(ang);
-  }
-  
-  public static Angle getAngleFacingInRadians(Vector3d vector) {
-    double pitch, yaw;
-    if (vector.x == 0 && vector.z == 0) {
-      yaw = 0.D;
-      pitch = HALF_PI;
-    } else {
-      yaw = Math.atan2(vector.z, vector.x) - HALF_PI;
-      double mag = Math.sqrt(vector.x * vector.x + vector.z * vector.z);
-      pitch = -Math.atan2(vector.y, mag);
-    }
-    return Angle.radians((float) pitch, (float) yaw);
-  }
-  
-  public static Angle getAngleFacingInDegrees(Vector3d vector) {
-    return getAngleFacingInRadians(vector).inDegrees();
   }
 }

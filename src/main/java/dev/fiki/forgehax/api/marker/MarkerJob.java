@@ -1,25 +1,25 @@
 package dev.fiki.forgehax.api.marker;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import dev.fiki.forgehax.api.color.Color;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
+import dev.fiki.forgehax.api.extension.VectorEx;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.block.Block;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 @RequiredArgsConstructor
+@ExtensionMethod({VectorEx.class, VertexBuilderEx.class})
 public class MarkerJob implements Comparable<MarkerJob> {
   private final MarkerWorker worker;
   private final double distanceSq;
@@ -30,7 +30,7 @@ public class MarkerJob implements Comparable<MarkerJob> {
     return worker.vertexBuffer;
   }
 
-  public CompletableFuture<Boolean> execute(BufferBuilderEx buffer) {
+  public CompletableFuture<Boolean> execute(BufferBuilder buffer) {
     if (finished.get()) {
       return CompletableFuture.completedFuture(false);
     } else if (!worker.shouldStayLoaded()) {
@@ -39,22 +39,19 @@ public class MarkerJob implements Comparable<MarkerJob> {
       return CompletableFuture.completedFuture(false);
     }
 
-    final Vector3d renderPos = worker.dispatcher.renderPosition;
-    final BlockPos start = worker.position.toImmutable();
-    final BlockPos end = start.add(15, 15, 15);
-    final World world = worker.dispatcher.getWorld();
-    final Function<BlockState, Color> blockToColor = worker.dispatcher.blockToColor;
-
-    MatrixStack stack = new MatrixStack();
+    val renderPos = worker.dispatcher.renderPosition;
+    val start = worker.position.toImmutable();
+    val end = start.add(15, 15, 15);
+    val world = worker.dispatcher.getWorld();
+    val blockToColor = worker.dispatcher.blockToColor;
+    val stack = new MatrixStack();
     boolean startedDrawing = false;
 
-    buffer.setMatrixStack(stack);
-
     for (BlockPos pos : BlockPos.getAllInBoxMutable(start, end)) {
-      BlockState state = world.getBlockState(pos);
-      Color color = blockToColor.apply(state);
+      val state = world.getBlockState(pos);
+      val color = blockToColor.apply(state);
       if (color != null) {
-        Block block = state.getBlock();
+        val block = state.getBlock();
 
         if (!startedDrawing) {
           buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
@@ -84,8 +81,7 @@ public class MarkerJob implements Comparable<MarkerJob> {
           }
         }
 
-        buffer.putOutlinedCuboid(bb, flags, color);
-
+        buffer.outlinedCube(bb, flags, color, stack.getLastMatrix());
         stack.pop();
       }
     }

@@ -2,9 +2,9 @@ package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
-import dev.fiki.forgehax.api.entity.EntityUtils;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.events.PreClientTickEvent;
+import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -83,7 +83,7 @@ public class BoatFly extends ToggleMod {
 
   @SubscribeEvent
   public void onRenderBoat(RenderBoatEvent event) {
-    if (EntityUtils.isDrivenByPlayer(event.getBoat()) && setYaw.getValue()) {
+    if (EntityEx.isDrivenByPlayer(event.getBoat()) && setYaw.getValue()) {
       float yaw = getLocalPlayer().rotationYaw;
       event.getBoat().rotationYaw = yaw;
       event.setYaw(yaw);

@@ -4,19 +4,20 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.fiki.forgehax.api.Utils;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
-import dev.fiki.forgehax.api.entity.LocalPlayerInventory;
+import dev.fiki.forgehax.api.extension.ItemEx;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.key.KeyConflictContexts;
 import dev.fiki.forgehax.api.key.KeyInputs;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.services.ChatCommandService;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -60,6 +61,7 @@ import static dev.fiki.forgehax.main.Common.*;
     description = "View the contents of a shulker box",
     category = Category.UI
 )
+@ExtensionMethod({ItemEx.class, LocalPlayerEx.class})
 public class ShulkerViewer extends ToggleMod {
 
   private static final ResourceLocation SHULKER_GUI_TEXTURE =
@@ -171,9 +173,7 @@ public class ShulkerViewer extends ToggleMod {
   }
 
   private Optional<GuiShulkerViewer> getInCache(int index) {
-    return Utils.isInRange(guiCache, index)
-        ? Optional.ofNullable(guiCache.get(index))
-        : Optional.empty();
+    return Optional.ofNullable(guiCache.get(index));
   }
 
   private void clearCache() {
@@ -194,7 +194,7 @@ public class ShulkerViewer extends ToggleMod {
 
   private GuiShulkerViewer newShulkerGui(ItemStack parentShulker, int priority) {
     return new GuiShulkerViewer(
-        new ShulkerContainer(new ShulkerInventory(Utils.getShulkerContents(parentShulker)), 27),
+        new ShulkerContainer(new ShulkerInventory(parentShulker.getShulkerContents()), 27),
         parentShulker,
         priority);
   }
@@ -302,7 +302,7 @@ public class ShulkerViewer extends ToggleMod {
         }
 
         // show stats for held item
-        ItemStack stackHeld = LocalPlayerInventory.getInventory().getItemStack();
+        ItemStack stackHeld = getLocalPlayer().getMouseHeldItem();
         if (stackHeld.isEmpty() || !isItemShulkerBox(stackHeld.getItem())) {
           setInCache(CACHE_HOLDING_INDEX, null);
         } else if (!ItemStack.areItemStacksEqual(

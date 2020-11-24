@@ -6,25 +6,29 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.cmd.execution.IConsole;
 import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
-import dev.fiki.forgehax.api.draw.BufferProvider;
 import dev.fiki.forgehax.api.draw.RenderTypeEx;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
+import dev.fiki.forgehax.api.extension.VectorEx;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.main.Common;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.settings.KeyBinding;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 import java.util.ListIterator;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-@Getter @Setter
+@Getter
+@Setter
+@ExtensionMethod({VectorEx.class, VertexBuilderEx.class})
 public class ConsoleInterface implements IGuiEventListener, IConsole {
   private final List<ConsoleEntry> entries = Lists.newCopyOnWriteArrayList();
   private final List<String> entered = Lists.newArrayList();
@@ -44,7 +48,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
   private int scrollOffset = 0;
 
   void addEntered(String text) {
-    if(entered.isEmpty() || !entered.get(0).equals(text)) {
+    if (entered.isEmpty() || !entered.get(0).equals(text)) {
       entered.add(0, text);
     }
   }
@@ -62,7 +66,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
     entries.add(entry);
     currentLineCount += entry.getLineCount();
 
-    if(entries.size() > maxSize) {
+    if (entries.size() > maxSize) {
       ConsoleEntry top = entries.remove(0);
       currentLineCount -= top.getLineCount();
     }
@@ -70,7 +74,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
 
   public void onRescale(int screenWidth, int screenHeight) {
     int lines = 0;
-    for(ConsoleEntry entry : entries) {
+    for (ConsoleEntry entry : entries) {
       entry.updateMessages();
       lines += entry.getLineCount();
     }
@@ -86,7 +90,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
   }
 
   public void onTick() {
-    for(ConsoleEntry entry : entries) {
+    for (ConsoleEntry entry : entries) {
       entry.tick();
     }
   }
@@ -97,12 +101,10 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
 
     final boolean consoleOpen = isConsoleOpen();
 
-    BufferProvider buffers = getBufferProvider();
-    IRenderTypeBuffer.Impl source = buffers.getBufferSource();
-    BufferBuilderEx main = buffers.getBuffer(RenderTypeEx.glTriangle());
-
-    MatrixStack stack = new MatrixStack();
-    main.setMatrixStack(stack);
+    val buffers = getBufferProvider();
+    val source = buffers.getBufferSource();
+    val main = buffers.getBuffer(RenderTypeEx.glTriangle());
+    val stack = new MatrixStack();
 
     ListIterator<ConsoleEntry> it = entries.listIterator(entries.size());
 
@@ -111,11 +113,11 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
     stack.translate(0.f, maxLines * lineHeight, 0.f);
 
     int linesConsumed = 0;
-    while(it.hasPrevious() && linesConsumed < maxLines) {
+    while (it.hasPrevious() && linesConsumed < maxLines) {
       ConsoleEntry entry = it.previous();
       int index = it.previousIndex() + 1;
 
-      if(!consoleOpen && entry.getTicksExisted() >= getMessageDuration() + getFadeOutDuration()) {
+      if (!consoleOpen && entry.getTicksExisted() >= getMessageDuration() + getFadeOutDuration()) {
         // this message and every message before it have faded out
         // stop rendering here
         break;
@@ -124,14 +126,14 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
       Color bgColor = (index & 0x1) == 0 ? Colors.BLACK : Colors.DARK_GRAY;
 
       int entryLinesConsuming = Math.min(entry.getLineCount(), (maxLines - linesConsumed));
-      for(int i = 0; i < entryLinesConsuming; ++i, ++linesConsumed) {
+      for (int i = 0; i < entryLinesConsuming; ++i, ++linesConsumed) {
         stack.push();
         stack.translate(0.f, linesConsumed * -lineHeight, 0.f);
 
         String message = entry.getMessages().get(entryLinesConsuming - 1 - i);
 
-        main.putRect(0, 0, getLineWidth(), lineHeight,
-            bgColor.setAlpha(entry.getAlphaDecay(175)));
+        main.rect(GL11.GL_TRIANGLES, 0, 0, getLineWidth(), lineHeight,
+            bgColor.setAlpha(entry.getAlphaDecay(175)), stack.getLastMatrix());
 
         stack.translate(getPadding(), getPadding(), 50.f);
 
@@ -151,7 +153,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
   }
 
   public void onKeyPressed(KeyBinding binding) {
-    if(isConsoleOpen()) {
+    if (isConsoleOpen()) {
       return; // already exists
     }
 

@@ -3,30 +3,28 @@ package dev.fiki.forgehax.main.mods.player;
 import com.mojang.datafixers.util.Pair;
 import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.entity.LocalPlayerInventory;
-import dev.fiki.forgehax.api.events.ForgeHaxEvent;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.extension.ItemEx;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import dev.fiki.forgehax.asm.events.ItemStoppedUsedEvent;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.item.Food;
-import net.minecraft.item.ItemGroup;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.Hand;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
 @RegisterMod(
     name = "AutoEat",
@@ -34,12 +32,8 @@ import static dev.fiki.forgehax.main.Common.*;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
+@ExtensionMethod({ItemEx.class, LocalPlayerEx.class})
 public class AutoEatMod extends ToggleMod {
-  private static final List<Effect> BAD_POTIONS =
-      StreamSupport.stream(ForgeRegistries.POTIONS.spliterator(), false)
-          .filter(effect -> !effect.isBeneficial())
-          .collect(Collectors.toList());
-
   enum Sorting {
     POINTS,
     SATURATION,
@@ -47,187 +41,157 @@ public class AutoEatMod extends ToggleMod {
     ;
   }
 
-  private final ReflectionTools reflection;
-
   private final EnumSetting<Sorting> sorting = newEnumSetting(Sorting.class)
       .name("sorting")
       .description("Method used to find best food item to use")
       .defaultTo(Sorting.RATIO)
       .build();
 
-  private final IntegerSetting fail_safe_multiplier = newIntegerSetting()
+  private final IntegerSetting failSafeMultiplier = newIntegerSetting()
       .name("fail-safe-multiplier")
-      .description(
-          "Will attempt to eat again after use ticks * multiplier has elapsed. Set to 0 to disable")
+      .description("Will attempt to eat again after use ticks * multiplier has elapsed. Set to 0 to disable")
       .defaultTo(10)
       .min(0)
       .max(20)
       .build();
 
-  private final IntegerSetting select_wait = newIntegerSetting()
+  private final IntegerSetting selectWait = newIntegerSetting()
       .name("select-wait")
       .description("Number of ticks to wait before starting to eat a food item after switching to it in the hotbar.")
       .defaultTo(10)
       .min(0)
       .build();
 
-  private Food food = null;
-  private boolean eating = false;
+  private Slot targetSlot = null;
   private int eatingTicks = 0;
   private int selectedTicks = 0;
-  private int lastHotbarIndex = -1;
+  private Runnable resetSelected = null;
 
   private void reset() {
-    if (eatingTicks > 0) {
-      addScheduledTask(() -> MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_STOP)));
-    }
-    food = null;
-    eating = false;
+    targetSlot = null;
     eatingTicks = 0;
     selectedTicks = 0;
-  }
-
-  private boolean isFoodItem(LocalPlayerInventory.InvItem inv) {
-    return ItemGroup.FOOD.equals(inv.getItem().getGroup());
-  }
-
-  private boolean isFishFood(LocalPlayerInventory.InvItem inv) {
-    return ItemGroup.FOOD.equals(inv.getItem().getGroup());
-  }
-
-  private Food toFood(LocalPlayerInventory.InvItem inv) {
-    return inv.getItem().getFood();
-  }
-
-  private boolean isGoodFood(LocalPlayerInventory.InvItem inv) {
-    return inv.getItem().getFood().getEffects().stream()
-        .map(Pair::getFirst)
-        .map(EffectInstance::getPotion)
-        .anyMatch(BAD_POTIONS::contains);
-  }
-
-  private int getHealAmount(LocalPlayerInventory.InvItem inv) {
-    return toFood(inv).getHealing();
-  }
-
-  private double getSaturationAmount(LocalPlayerInventory.InvItem inv) {
-    return toFood(inv).getSaturation();
-  }
-
-  private int getHealthLevel(LocalPlayerInventory.InvItem inv) {
-    return Math.min(getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv), 20);
-  }
-
-  private double getSaturationLevel(LocalPlayerInventory.InvItem inv) {
-    return Math.min(getLocalPlayer().getFoodStats().getSaturationLevel()
-        + getHealAmount(inv) * getSaturationAmount(inv) * 2.D, 20.D);
-  }
-
-  private double getPreferenceValue(LocalPlayerInventory.InvItem inv) {
-    switch (sorting.getValue()) {
-      case POINTS:
-        return getHealAmount(inv);
-      case SATURATION:
-        return getSaturationAmount(inv);
-      case RATIO:
-      default:
-        return (getHealAmount(inv) * getSaturationAmount(inv) * 2.D) / getHealAmount(inv);
+    if (resetSelected != null) {
+      resetSelected.run();
+      resetSelected = null;
     }
   }
 
-  private boolean shouldEat(LocalPlayerInventory.InvItem inv) {
-    return getLocalPlayer().getFoodStats().getFoodLevel() + getHealAmount(inv) < 20;
+  private boolean isGoodFood(Slot slot) {
+    val stack = slot.getStack();
+    return stack.getItem().isFood() &&
+        stack.getItem().getFood().getEffects().stream()
+            .map(Pair::getFirst)
+            .map(EffectInstance::getPotion)
+            .allMatch(Effect::isBeneficial);
   }
 
-  private int getLongestEatingTicks(Food food) {
-    return food.getEffects().stream()
-        .map(Pair::getFirst)
-        .map(EffectInstance::getDuration)
-        .max(Integer::compareTo)
-        .orElse(20);
+  private float getPreferenceValue(Slot slot) {
+    val stack = slot.getStack();
+    val food = stack.getItem().getFood();
+    switch (sorting.getValue()) {
+      case POINTS:
+        return food.getHealing();
+      case SATURATION:
+        return food.getSaturation();
+      case RATIO:
+      default:
+        return (food.getHealing() * food.getSaturation() * 2.f) / (float) food.getHealing();
+    }
   }
 
-  private boolean checkFailsafe() {
-    return (fail_safe_multiplier.getValue() == 0
-        || eatingTicks < getLongestEatingTicks(food) * fail_safe_multiplier.getValue());
+  private boolean shouldEat(ClientPlayerEntity lp, Slot slot) {
+    return lp.getFoodStats().getFoodLevel()
+        + slot.getStack().getItem().getFood().getHealing() < 20;
+  }
+
+  private int getLongestEatingTicks(ItemStack stack) {
+    return stack.getItem().getFood().isFastEating() ? 0 : stack.getUseDuration();
+  }
+
+  private boolean isEatingTooLong() {
+    return targetSlot != null
+        && failSafeMultiplier.intValue() > 0
+        && eatingTicks > getLongestEatingTicks(targetSlot.getStack()) * failSafeMultiplier.intValue();
+  }
+
+  private boolean shouldRevertSelected(ClientPlayerEntity lp) {
+    return selectedTicks <= 0 && !lp.isActivelyEating();
   }
 
   @Override
   protected void onEnabled() {
     reset();
-    selectedTicks = 0;
-    lastHotbarIndex = -1;
   }
 
   @SubscribeEvent
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (getLocalPlayer().isCreative()) {
+    final ClientPlayerEntity lp = getLocalPlayer();
+    if (lp.isCreative()) {
       return;
     }
 
-    int currentSelected = LocalPlayerInventory.getSelected().getIndex();
+    boolean wasEating = lp.isActivelyEating();
 
-    boolean wasEating = eating;
-    eating = false;
+    if (targetSlot == null) {
+      Slot foodSlot = lp.getPrimarySlots().stream()
+          .filter(Slot::getHasStack)
+          .filter(this::isGoodFood)
+          // prefer items in the hotbar
+          .max(Comparator.comparing(ItemEx::isInHotbar)
+              // get the food with the preferred healing properties
+              .thenComparingDouble(this::getPreferenceValue)
+              // select the item closest to the hotbar
+              .thenComparing(ItemEx::getDistanceFromSelected, Comparator.reverseOrder()))
+          .orElse(null);
 
-    LocalPlayerInventory.getHotbarInventory()
-        .stream()
-        .filter(LocalPlayerInventory.InvItem::nonEmpty)
-        .filter(this::isFoodItem)
-        .filter(this::isGoodFood)
-        .max(Comparator.comparingDouble(this::getPreferenceValue)
-            .thenComparing(LocalPlayerInventory::getHotbarDistance))
-        .filter(this::shouldEat)
-        .ifPresent(best -> {
-          food = best.getItem().getFood();
-
-          LocalPlayerInventory.setSelected(best, ticks -> !eating);
-
-          eating = true;
-
-          if (!checkFailsafe()) {
-            reset();
-            eating = true;
-            return;
-          }
-
-          if (currentSelected != best.getIndex()) {
-            MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_SELECT_FOOD));
-            lastHotbarIndex = best.getIndex();
-            selectedTicks = 0;
-          }
-
-          if (selectedTicks > select_wait.getValue()) {
-            if (!wasEating) {
-              MinecraftForge.EVENT_BUS.post(new ForgeHaxEvent(ForgeHaxEvent.Type.EATING_START));
-            }
-
-            reflection.Minecraft_rightClickDelayTimer.set(MC, 4);
-            getPlayerController().processRightClick(getLocalPlayer(), getWorld(), Hand.MAIN_HAND);
-
-            ++eatingTicks;
-          }
-        });
-
-    if (lastHotbarIndex != -1) {
-      if (lastHotbarIndex == LocalPlayerInventory.getSelected().getIndex()) {
-        selectedTicks++;
-      } else {
-        selectedTicks = 0;
+      if (foodSlot != null && shouldEat(lp, foodSlot)) {
+        reset();
+        // if the selected item is in our inventory we gotta swap items
+        if (!foodSlot.isInHotbar()) {
+          final Slot availableSlot = lp.getHotbarSlots().stream()
+              .min(Comparator.comparing(Slot::getHasStack)
+                  .thenComparing(Slot::getStack, Comparator.comparing(ItemEx::isFoodItem, Comparator.reverseOrder())))
+              .orElseThrow(() -> new Error("You should not see this error"));
+          // set current selected item
+          resetSelected = lp.forceSelectedSlot(availableSlot);
+          // item in hotbar with food item
+          foodSlot.click(ClickType.SWAP, availableSlot.getHotbarIndex());
+          foodSlot = availableSlot;
+        } else {
+          resetSelected = lp.forceSelectedSlot(foodSlot);
+        }
+        targetSlot = foodSlot.toImmutable();
       }
     }
 
-    lastHotbarIndex = LocalPlayerInventory.getSelected().getIndex();
+    if (targetSlot != null
+        && shouldEat(lp, targetSlot)
+        && !isEatingTooLong()) {
+      if (lp.getSelectedSlot().isEqual(targetSlot)) {
+        ++selectedTicks;
+      } else if (eatingTicks > 0 || selectedTicks > selectWait.intValue() + 1) {
+        // we need to reset and retry
+        reset();
+      }
 
-    if (wasEating && !eating) {
+      if (selectedTicks > selectWait.intValue()) {
+        if (!wasEating) {
+          getLog().debug("Started eating {}", targetSlot.getStack());
+        }
+
+        lp.rightClick(Hand.MAIN_HAND);
+        ++eatingTicks;
+      }
+    } else {
       reset();
     }
   }
 
   @SubscribeEvent
   public void onStopUse(ItemStoppedUsedEvent event) {
-    if (food != null && eating && eatingTicks > 0) {
-      if (checkFailsafe()) {
+    if (targetSlot != null && eatingTicks > 0) {
+      if (!isEatingTooLong()) {
         event.setCanceled(true);
       } else {
         reset();

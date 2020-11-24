@@ -1,25 +1,21 @@
 package dev.fiki.forgehax.main.mods.player;
 
-import dev.fiki.forgehax.api.entity.EntityUtils;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.entity.Entity;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
-import static dev.fiki.forgehax.main.Common.getWorld;
 
 @RegisterMod(
     name = "Jesus",
@@ -27,6 +23,7 @@ import static dev.fiki.forgehax.main.Common.getWorld;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
+@ExtensionMethod({EntityEx.class})
 public class Jesus extends ToggleMod {
   private static final AxisAlignedBB WATER_WALK_AA =
       new AxisAlignedBB(0.D, 0.D, 0.D, 1.D, 0.99D, 1.D);
@@ -37,7 +34,7 @@ public class Jesus extends ToggleMod {
   @SubscribeEvent
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (!freecam.isEnabled()) {
-      if (EntityUtils.isInWater(getLocalPlayer()) && !getLocalPlayer().isCrouching()) {
+      if (getLocalPlayer().isInWaterMotionState() && !getLocalPlayer().isCrouching()) {
         double velY = 0.1;
         if (getLocalPlayer().getRidingEntity() != null
             && !(getLocalPlayer().getRidingEntity() instanceof BoatEntity)) {
@@ -74,9 +71,9 @@ public class Jesus extends ToggleMod {
   @SubscribeEvent
   public void onPacketSending(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CPlayerPacket) {
-      if (EntityUtils.isAboveWater(getLocalPlayer(), true)
-          && !EntityUtils.isInWater(getLocalPlayer())
-          && !isAboveLand(getLocalPlayer())) {
+      if (getLocalPlayer().isAboveWater(true)
+          && !getLocalPlayer().isInWaterMotionState()
+          && !getLocalPlayer().isAboveLand()) {
         int ticks = getLocalPlayer().ticksExisted % 2;
         double y = common.CPacketPlayer_y.get(event.getPacket());
         if (ticks == 0) {
@@ -84,29 +81,5 @@ public class Jesus extends ToggleMod {
         }
       }
     }
-  }
-
-  @SuppressWarnings("deprecation")
-  private static boolean isAboveLand(Entity entity) {
-    if (entity == null) {
-      return false;
-    }
-
-    double y = entity.getPosY() - 0.01;
-
-    for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
-      for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
-        BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
-        if (VoxelShapes.fullCube().equals(getWorld().getBlockState(pos).getCollisionShape(getWorld(), pos))) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  private static boolean isAboveBlock(Entity entity, BlockPos pos) {
-    return entity.getPosY() >= pos.getY();
   }
 }

@@ -4,18 +4,23 @@ import com.google.common.collect.Sets;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.events.PlayerConnectEvent;
 import dev.fiki.forgehax.api.events.Render2DEvent;
 import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.extension.VectorEx;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.math.ScreenPos;
-import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -34,6 +39,7 @@ import static dev.fiki.forgehax.main.Common.*;
     description = "Show where a player logs out",
     category = Category.RENDER
 )
+@ExtensionMethod({VectorEx.class, VertexBuilderEx.class})
 public class LogoutSpot extends ToggleMod {
   private final BooleanSetting render = newBooleanSetting()
       .name("render")
@@ -41,13 +47,13 @@ public class LogoutSpot extends ToggleMod {
       .defaultTo(true)
       .build();
 
-  private final IntegerSetting max_distance = newIntegerSetting()
+  private final IntegerSetting maxDistance = newIntegerSetting()
       .name("max-distance")
       .description("Distance from box before deleting it")
       .defaultTo(320)
       .build();
 
-  private final BooleanSetting print_message = newBooleanSetting()
+  private final BooleanSetting printMessage = newBooleanSetting()
       .name("print-message")
       .description("Print connect/disconnect messages in chat")
       .defaultTo(true)
@@ -70,7 +76,7 @@ public class LogoutSpot extends ToggleMod {
   }
 
   private void printWarning(String fmt, Object... args) {
-    if (print_message.getValue()) {
+    if (printMessage.getValue()) {
       printWarning(fmt, args);
     }
   }
@@ -99,12 +105,10 @@ public class LogoutSpot extends ToggleMod {
     if (player != null && getLocalPlayer() != null && !getLocalPlayer().equals(player)) {
       AxisAlignedBB bb = player.getBoundingBox();
       synchronized (spots) {
-        if (spots.add(
-            new LogoutPos(
-                event.getPlayerInfo().getUuid(),
-                event.getPlayerInfo().getName(),
-                new Vector3d(bb.maxX, bb.maxY, bb.maxZ),
-                new Vector3d(bb.minX, bb.minY, bb.minZ)))) {
+        if (spots.add(new LogoutPos(
+            event.getPlayerInfo().getUuid(),
+            event.getPlayerInfo().getName(),
+            bb.getMaxs(), bb.getMins()))) {
           printWarning("%s has disconnected!", event.getPlayerInfo().getName());
         }
       }
@@ -120,14 +124,14 @@ public class LogoutSpot extends ToggleMod {
     synchronized (spots) {
       spots.forEach(spot -> {
         Vector3d top = spot.getTopVec();
-        ScreenPos upper = VectorUtils.toScreen(top);
+        ScreenPos upper = VectorUtil.toScreen(top);
         if (upper.isVisible()) {
           double distance = getLocalPlayer().getPositionVec().distanceTo(top);
           String name = String.format("%s (%.1f)", spot.getName(), distance);
           SurfaceHelper.drawTextShadow(
               name,
-              (float)(upper.getX() - (SurfaceHelper.getStringWidth(name) / 2.f)),
-              (float)(upper.getY() - (SurfaceHelper.getStringHeight() + 1.f)),
+              (float) (upper.getX() - (SurfaceHelper.getStringWidth(name) / 2.f)),
+              (float) (upper.getY() - (SurfaceHelper.getStringHeight() + 1.f)),
               Colors.RED.toBuffer());
         }
       });
@@ -140,23 +144,29 @@ public class LogoutSpot extends ToggleMod {
       return;
     }
 
-    BufferBuilderEx builder = event.getBuffer();
+    val stack = event.getMatrixStack();
+    val builder = event.getBuffer();
+    stack.push();
+
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
     synchronized (spots) {
-      spots.forEach(spot -> builder.putOutlinedCuboid(spot.getMins(), spot.getMaxs(),
-          GeometryMasks.Line.ALL, Colors.RED));
+      for (LogoutPos spot : spots) {
+        builder.outlinedCube(spot.getMins(), spot.getMaxs(),
+            GeometryMasks.Line.ALL, Colors.RED, stack.getLastMatrix());
+      }
     }
 
     builder.draw();
+    stack.pop();
   }
 
   @SubscribeEvent
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
-    if (max_distance.getValue() > 0) {
+    if (maxDistance.getValue() > 0) {
       synchronized (spots) {
         spots.removeIf(pos -> getLocalPlayer().getPositionVec().distanceTo(pos.getTopVec())
-            > max_distance.getValue());
+            > maxDistance.getValue());
       }
     }
   }
@@ -171,34 +181,13 @@ public class LogoutSpot extends ToggleMod {
     reset();
   }
 
+  @Getter
+  @AllArgsConstructor
   private static class LogoutPos {
     final UUID id;
     final String name;
     final Vector3d maxs;
     final Vector3d mins;
-
-    private LogoutPos(UUID uuid, String name, Vector3d maxs, Vector3d mins) {
-      this.id = uuid;
-      this.name = name;
-      this.maxs = maxs;
-      this.mins = mins;
-    }
-
-    public UUID getId() {
-      return id;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Vector3d getMaxs() {
-      return maxs;
-    }
-
-    public Vector3d getMins() {
-      return mins;
-    }
 
     public Vector3d getTopVec() {
       return new Vector3d(

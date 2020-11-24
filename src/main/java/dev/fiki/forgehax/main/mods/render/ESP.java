@@ -2,10 +2,7 @@ package dev.fiki.forgehax.main.mods.render;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.fiki.forgehax.api.cmd.AbstractParentCommand;
-import dev.fiki.forgehax.api.cmd.ICommand;
 import dev.fiki.forgehax.api.cmd.IParentCommand;
 import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
@@ -13,27 +10,29 @@ import dev.fiki.forgehax.api.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import dev.fiki.forgehax.api.draw.RenderTypeEx;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
 import dev.fiki.forgehax.api.draw.font.Fonts;
 import dev.fiki.forgehax.api.entity.EnchantmentUtils;
 import dev.fiki.forgehax.api.entity.EnchantmentUtils.ItemEnchantment;
-import dev.fiki.forgehax.api.entity.EntityUtils;
 import dev.fiki.forgehax.api.entity.RelationState;
 import dev.fiki.forgehax.api.events.Render2DEvent;
+import dev.fiki.forgehax.api.extension.EntityEx;
+import dev.fiki.forgehax.api.extension.VectorEx;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.math.ScreenPos;
-import dev.fiki.forgehax.api.math.VectorUtils;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ArmorItem;
@@ -44,6 +43,7 @@ import net.minecraftforge.client.event.RenderNameplateEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 
@@ -54,12 +54,10 @@ import static dev.fiki.forgehax.main.Common.*;
     description = "Shows entity locations and info",
     category = Category.RENDER
 )
+@ExtensionMethod({EntityEx.class, VectorEx.class, VertexBuilderEx.class})
 public class ESP extends ToggleMod implements Fonts {
-
   private static final int HEALTHBAR_WIDTH = 15;
   private static final int HEALTHBAR_HEIGHT = 3;
-
-  private final Map<RelationState, DrawingSetting> settingCache = Maps.newHashMap();
 
   private final DrawingSetting playerOptions = newDrawingSetting()
       .name("players")
@@ -90,41 +88,22 @@ public class ESP extends ToggleMod implements Fonts {
     return Color.of((int) ((255 - scale) * 255), (int) (255 * scale), 0);
   }
 
-  @Override
-  public boolean addChild(ICommand command) {
-    boolean ret = super.addChild(command);
-
-    if (ret && command instanceof DrawingSetting) {
-      DrawingSetting setting = (DrawingSetting) command;
-      for (RelationState state : setting.getRelations()) {
-        DrawingSetting prev = settingCache.put(state, setting);
-        if (prev != null) {
-          getLogger().warn("Drawing option {} overwrote option {} state {}", setting.getName(),
-              state.name(), prev.getName());
-        }
-      }
+  private DrawingSetting getDrawingSetting(RelationState relationState) {
+    switch (relationState) {
+      case PLAYER:
+        return playerOptions;
+      case FRIENDLY:
+        return friendlyOptions;
+      case HOSTILE:
+        return hostileOptions;
+      default:
+        return null;
     }
-
-    return ret;
-  }
-
-  @Override
-  public boolean deleteChild(ICommand command) {
-    boolean ret = super.deleteChild(command);
-
-    if (ret && command instanceof DrawingSetting) {
-      DrawingSetting setting = (DrawingSetting) command;
-      for (RelationState state : setting.getRelations()) {
-        settingCache.remove(state, setting);
-      }
-    }
-
-    return ret;
   }
 
   @SubscribeEvent
   public void onRenderPlayerNameTag(RenderNameplateEvent event) {
-    if (EntityUtils.isPlayer(event.getEntity())) {
+    if (event.getEntity().isPlayerType()) {
       event.setResult(Event.Result.DENY);
     }
   }
@@ -135,220 +114,229 @@ public class ESP extends ToggleMod implements Fonts {
     final double screenWidth = event.getScreenWidth();
     final double screenHeight = event.getScreenHeight();
 
-    final IRenderTypeBuffer.Impl buffers = getBufferProvider().getBufferSource();
-    final BufferBuilderEx triangles = getBufferProvider().getBuffer(RenderTypeEx.glTriangle());
-    final MatrixStack stack = event.getMatrixStack();
+    val buffers = getBufferProvider().getBufferSource();
+    val triangles = getBufferProvider().getBuffer(RenderTypeEx.glTriangle());
+    val stack = event.getMatrixStack();
 
-    final EquipmentList selfEquipmentList = new EquipmentList(getLocalPlayer());
+    val selfEquipmentList = new EquipmentList(getLocalPlayer());
 
-    worldEntities()
-        .filter(EntityUtils::isLiving)
-        .filter(EntityUtils::notLocalPlayer)
-        .filter(EntityUtils::isAlive)
-        .filter(EntityUtils::isValidEntity)
-        .map(LivingEntity.class::cast)
-        .forEach(living -> {
-          final DrawingSetting settings = settingCache.get(EntityUtils.getRelationship(living));
+    for (Entity ent : getWorld().getAllEntities()) {
+      if (ent.isLiving()
+          && !ent.isLocalPlayer()
+          && ent.isReallyAlive()
+          && ent.isValidEntity()) {
+        LivingEntity living = (LivingEntity) ent;
 
-          // no option exists
-          if (settings == null || !settings.getEnabled().getValue()) {
-            return;
-          }
+        final DrawingSetting settings = getDrawingSetting(living.getPlayerRelationship());
 
-          Vector3d bottomPos = EntityUtils.getInterpolatedPos(living, partialTicks);
-          Vector3d topPos = bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.getPosY(), 0.D);
+        // no option exists
+        if (settings == null || !settings.getEnabled().getValue()) {
+          continue;
+        }
 
-          ScreenPos top = VectorUtils.toScreen(topPos);
-          ScreenPos bot = VectorUtils.toScreen(bottomPos);
+        final Vector3d bottomPos = living.getInterpolatedPos(partialTicks);
+        final Vector3d topPos = bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.getPosY(), 0.D);
 
-          // stop here if neither are visible
-          if (!top.isVisible() && !bot.isVisible()) {
-            return;
-          }
+        final ScreenPos top = topPos.toScreen();
+        final ScreenPos bot = bottomPos.toScreen();
 
-          double topX = top.getX();
-          double topY = top.getY() + 1.D;
-          double botX = bot.getX();
-          double botY = bot.getY() + 1.D;
-          double height = (bot.getY() - top.getY());
-          double width = height;
+        // stop here if neither are visible
+        if (!top.isVisible() && !bot.isVisible()) {
+          continue;
+        }
 
-          float offsetY = 1.f;
-          float textScale = 1.f;
+        double topX = top.getX();
+        double topY = top.getY() + 1.D;
+        double botX = bot.getX();
+        double botY = bot.getY() + 1.D;
+        double height = (bot.getY() - top.getY());
+        double width = height;
 
-          if (settings.isHealthEnabled()) {
-            float hp = MathHelper.clamp(living.getHealth(), 0, living.getMaxHealth()) / living.getMaxHealth();
-            Color color = (living.getHealth() + living.getAbsorptionAmount() > living.getMaxHealth())
-                // if above 20 hp bar is yellow
-                ? Colors.YELLOW
-                // turn red as the bar goes down
-                : getColorLevel(hp);
+        float offsetY = 1.f;
+        float textScale = 1.f;
 
-            switch (settings.getHealth().getValue()) {
-              case TEXT: {
-                stack.push();
-                stack.translate(topX, topY - offsetY - 1, 0.f);
-                String text = Math.round(hp * 100.f) + "%";
+        if (settings.isHealthEnabled()) {
+          float hp = MathHelper.clamp(living.getHealth(), 0, living.getMaxHealth()) / living.getMaxHealth();
+          Color color = (living.getHealth() + living.getAbsorptionAmount() > living.getMaxHealth())
+              // if above 20 hp bar is yellow
+              ? Colors.YELLOW
+              // turn red as the bar goes down
+              : getColorLevel(hp);
 
-                float x = (float) (SurfaceHelper.getStringWidth(text) / 2.f);
-                float y = (float) SurfaceHelper.getStringHeight();
+          switch (settings.getHealth().getValue()) {
+            case TEXT: {
+              stack.push();
+              stack.translate(topX, topY - offsetY - 1, 0.f);
+              String text = Math.round(hp * 100.f) + "%";
 
-                stack.scale(textScale, textScale, 0.f);
-                stack.translate(-x, -y, 0.d);
+              float x = (float) (SurfaceHelper.getStringWidth(text) / 2.f);
+              float y = (float) SurfaceHelper.getStringHeight();
 
-                SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
-                    text, 0, 0, color, true);
+              stack.scale(textScale, textScale, 0.f);
+              stack.translate(-x, -y, 0.d);
 
-                offsetY += SurfaceHelper.getStringHeight() + 1.f;
-                stack.pop();
-                break;
-              }
-              case BAR: {
-                final float barHeight = 4;
-                float barWidth = (float) Math.max(width, 14.f);
+              SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+                  text, 0, 0, color, true);
 
-                float x = (float) (topX - (barWidth / 2.f));
-                float y = (float) (topY - barHeight - 1.f) - offsetY;
+              offsetY += SurfaceHelper.getStringHeight() + 1.f;
+              stack.pop();
+              break;
+            }
+            case BAR: {
+              final float barHeight = 4;
+              float barWidth = (float) Math.max(width, 14.f);
 
-                float barRemaining = Math.round(((1.f - hp) * (barWidth - 3)));
+              float x = (float) (topX - (barWidth / 2.f));
+              float y = (float) (topY - barHeight - 1.f) - offsetY;
 
-                triangles.putRect(x, y, barWidth, barHeight, Colors.BLACK);
-                triangles.putRect(x + 1 + barRemaining, y + 1, barWidth - 2 - barRemaining, barHeight - 2, color);
+              float barRemaining = Math.round(((1.f - hp) * (barWidth - 3)));
 
-                offsetY += barHeight + 1.f;
-                break;
-              }
+              triangles.rect(GL11.GL_TRIANGLES, x, y, barWidth, barHeight, Colors.BLACK, stack.getLastMatrix());
+              triangles.rect(GL11.GL_TRIANGLES,
+                  x + 1 + barRemaining, y + 1,
+                  barWidth - 2 - barRemaining, barHeight - 2,
+                  color, stack.getLastMatrix());
+
+              offsetY += barHeight + 1.f;
+              break;
             }
           }
+        }
 
-          if (settings.isNametagEnabled()) {
-            stack.push();
-            stack.translate(topX, topY - offsetY - 1, 0.f);
+        if (settings.isNametagEnabled()) {
+          stack.push();
+          stack.translate(topX, topY - offsetY - 1, 0.f);
 
-            String name = living.getName().getString();
-            if(name == null || name.isEmpty()) {
-              name = living.getScoreboardName();
-            }
-
-            float x = (float) (SurfaceHelper.getStringWidth(name) / 2.f);
-            float y = (float) SurfaceHelper.getStringHeight();
-
-            stack.scale(textScale, textScale, 0.f);
-            stack.translate(-x, -y, 0.d);
-
-            SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
-                name, 0, 0, Colors.WHITE, true);
-
-            offsetY += SurfaceHelper.getStringHeight() + 2.f;
-            stack.pop();
+          String name = living.getName().getString();
+          if (name == null || name.isEmpty()) {
+            name = living.getScoreboardName();
           }
 
-          if (settings.isArmorEnabled()) {
-            final int itemSize = 12;
+          float x = (float) (SurfaceHelper.getStringWidth(name) / 2.f);
+          float y = (float) SurfaceHelper.getStringHeight();
+
+          stack.scale(textScale, textScale, 0.f);
+          stack.translate(-x, -y, 0.d);
+
+          SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+              name, 0, 0, Colors.WHITE, true);
+
+          offsetY += SurfaceHelper.getStringHeight() + 2.f;
+          stack.pop();
+        }
+
+        if (settings.isArmorEnabled()) {
+          final int itemSize = 12;
+
+          stack.push();
+
+          EquipmentList equipmentList = new EquipmentList(living);
+
+          float x = (float) (topX - (equipmentList.getRenderCount() * itemSize / 2.f));
+          float y = (float) (topY - itemSize - offsetY);
+
+          stack.translate(x, y, 0.f);
+
+          for (EquipmentList.Equipment equipment : equipmentList) {
+            if (!equipment.shouldRender()) {
+              // null or empty item
+              continue;
+            }
+
+            val itemStack = equipment.getItemStack();
 
             stack.push();
+            stack.translate(equipment.getRenderOffset() * itemSize, 0.f, 0.f);
 
-            EquipmentList equipmentList = new EquipmentList(living);
+            List<ItemEnchantment> enchantments = equipment.getEnchantments();
+            if (!enchantments.isEmpty()) {
+              final float enchantTextScale = 0.5f;
 
-            float x = (float) (topX - (equipmentList.getRenderCount() * itemSize / 2.f));
-            float y = (float) (topY - itemSize - offsetY);
-
-            stack.translate(x, y, 0.f);
-
-            for(EquipmentList.Equipment equipment : equipmentList) {
-              if(!equipment.shouldRender()) {
-                // null or empty item
-                continue;
-              }
-
-              ItemStack itemStack = equipment.getItemStack();
+              // get the local players equivalent
+              val selfEquipment = selfEquipmentList.getByType(equipment.getType());
 
               stack.push();
-              stack.translate(equipment.getRenderOffset() * itemSize, 0.f, 0.f);
 
-              List<ItemEnchantment> enchantments = equipment.getEnchantments();
-              if(!enchantments.isEmpty()) {
-                final float enchantTextScale = 0.5f;
+              stack.translate(0.f, -1.f, 0.f);
+              stack.scale(enchantTextScale, enchantTextScale, 0.f);
+              stack.translate(0.f, -enchantments.size() * SurfaceHelper.getStringHeight(), 0.f);
 
-                // get the local players equivalent
-                EquipmentList.Equipment selfEquipment = selfEquipmentList.getByType(equipment.getType());
-
+              enchantments.sort(null);
+              int j = 0;
+              for (ItemEnchantment enchantment : enchantments) {
                 stack.push();
+                stack.translate(1f, j++ * SurfaceHelper.getStringHeight(), -50.f);
 
-                stack.translate(0.f, -1.f, 0.f);
-                stack.scale(enchantTextScale, enchantTextScale, 0.f);
-                stack.translate(0.f, -enchantments.size() * SurfaceHelper.getStringHeight(), 0.f);
+                // render enchantment short name
+                SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+                    enchantment.getShortName(), 0, 0, Colors.WHITE, true);
 
-                enchantments.sort(null);
-                int j = 0;
-                for(ItemEnchantment enchantment : enchantments) {
-                  stack.push();
-                  stack.translate(1f, j++ * SurfaceHelper.getStringHeight(), -50.f);
+                if (enchantment.isMultiLevel()) {
+                  // render level
+                  String level = String.valueOf(enchantment.getLevel());
+                  stack.translate(itemSize + SurfaceHelper.getStringWidth(level) - 2f, 0.f, 0.f);
 
-                  // render enchantment short name
-                  SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
-                      enchantment.getShortName(), 0, 0, Colors.WHITE, true);
+                  Color color = Colors.ORANGE;
 
-                  if(enchantment.isMultiLevel()) {
-                    // render level
-                    String level = String.valueOf(enchantment.getLevel());
-                    stack.translate(itemSize + SurfaceHelper.getStringWidth(level) - 2f, 0.f, 0.f);
-
-                    Color color = Colors.ORANGE;
-
-                    ItemEnchantment selfEnchantment = selfEquipment.getEnchantmentById(enchantment.getEnchantment());
-                    if(selfEnchantment != null) {
-                      int cmp = enchantment.getLevel() - selfEnchantment.getLevel();
-                      if(cmp == 0) {
-                        color = Colors.CYAN;
-                      } else if(cmp < 0) {
-                        color = Colors.GREEN;
-                      } else {
-                        color = Colors.ORANGE;
-                      }
+                  val selfEnchantment = selfEquipment.getEnchantmentById(enchantment.getEnchantment());
+                  if (selfEnchantment != null) {
+                    int cmp = enchantment.getLevel() - selfEnchantment.getLevel();
+                    if (cmp == 0) {
+                      color = Colors.CYAN;
+                    } else if (cmp < 0) {
+                      color = Colors.GREEN;
+                    } else {
+                      color = Colors.ORANGE;
                     }
-
-                    SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
-                        level, 0, 0, color, true);
                   }
 
-                  stack.pop();
+                  SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+                      level, 0, 0, color, true);
                 }
+
                 stack.pop();
               }
-
-              if(itemStack.getItem().showDurabilityBar(itemStack)) {
-                stack.push();
-                float dur = (float) (itemStack.getMaxDamage() - itemStack.getDamage()) / (float) itemStack.getMaxDamage();
-                String text = Math.round(dur * 100.f) + "%";
-
-                stack.scale(0.5f, 0.5f, 150);
-
-                SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
-                    text, 0, 0, getColorLevel(dur), true);
-                stack.pop();
-              }
-
-              stack.translate(itemSize / 2.f, itemSize / 2.f, 0);
-              stack.scale(1.f, -1.f, 1.f);
-              stack.scale(itemSize, itemSize, 0);
-
-              SurfaceHelper.renderItem(living, itemStack, stack, MC.getRenderTypeBuffers().getBufferSource());
-
               stack.pop();
             }
 
+            if (itemStack.getItem().showDurabilityBar(itemStack)) {
+              stack.push();
+              float dur = (float) (itemStack.getMaxDamage() - itemStack.getDamage()) / (float) itemStack.getMaxDamage();
+              String text = Math.round(dur * 100.f) + "%";
+
+              stack.scale(0.5f, 0.5f, 150);
+
+              SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+                  text, 0, 0, getColorLevel(dur), true);
+              stack.pop();
+            }
+
+            stack.translate(itemSize / 2.f, itemSize / 2.f, 0);
+            stack.scale(1.f, -1.f, 1.f);
+            stack.scale(itemSize, itemSize, 0);
+
+            SurfaceHelper.renderItem(living, itemStack, stack, MC.getRenderTypeBuffers().getBufferSource());
+
             stack.pop();
           }
 
-          if (settings.isBoxEnabled()) {
-            float x = (float) (topX - (width / 2.d));
-            float y = (float) topY;
+          stack.pop();
+        }
 
-            triangles.putRectInLoop(x - 1, y - 1, width + 2, height + 2, 3, Colors.BLACK);
-            triangles.putRectInLoop(x, y, width, height, 1, settings.getColor().getValue());
-          }
-        });
+        if (settings.isBoxEnabled()) {
+          float x = (float) (topX - (width / 2.d));
+          float y = (float) topY;
+
+          triangles.outlinedRect(GL11.GL_TRIANGLES,
+              x - 1, y - 1,
+              width + 2, height + 2,
+              3, Colors.BLACK, stack.getLastMatrix());
+          triangles.outlinedRect(GL11.GL_TRIANGLES,
+              x, y, width, height,
+              1, settings.getColor().getValue(), stack.getLastMatrix());
+        }
+      }
+    }
 
     //
 
@@ -482,8 +470,7 @@ public class ESP extends ToggleMod implements Fonts {
       LEGGINGS,
       BOOTS,
       OFF_HAND,
-      UNKNOWN
-      ;
+      UNKNOWN;
     }
 
     private final List<Equipment> equipment = Lists.newArrayListWithCapacity(6);
@@ -496,8 +483,8 @@ public class ESP extends ToggleMod implements Fonts {
       // add armor
       List<ItemStack> armors = Lists.newArrayList(living.getArmorInventoryList());
       Collections.reverse(armors);
-      for(ItemStack stack : armors) {
-        if(stack.getItem() instanceof ArmorItem) {
+      for (ItemStack stack : armors) {
+        if (stack.getItem() instanceof ArmorItem) {
           ArmorItem armorItem = (ArmorItem) stack.getItem();
           switch (armorItem.getEquipmentSlot()) {
             case HEAD:
@@ -528,11 +515,11 @@ public class ESP extends ToggleMod implements Fonts {
       equipment.add(new Equipment(stack, type, stack.isEmpty() ? -1 : renderCount));
 
       // increment if not empty
-      if(!stack.isEmpty()) renderCount++;
+      if (!stack.isEmpty()) renderCount++;
     }
 
     public Equipment getByType(EquipmentType type) {
-      if(!EquipmentType.UNKNOWN.equals(type)) {
+      if (!EquipmentType.UNKNOWN.equals(type)) {
         for (Equipment equipment : this) {
           if (equipment.getType().equals(type)) {
             return equipment;
@@ -567,8 +554,8 @@ public class ESP extends ToggleMod implements Fonts {
       }
 
       public ItemEnchantment getEnchantmentById(Enchantment other) {
-        for(ItemEnchantment enchantment : getEnchantments()) {
-          if(enchantment.getEnchantment().equals(other)) {
+        for (ItemEnchantment enchantment : getEnchantments()) {
+          if (enchantment.getEnchantment().equals(other)) {
             return enchantment;
           }
         }

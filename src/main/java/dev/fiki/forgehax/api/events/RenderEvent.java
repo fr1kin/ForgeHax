@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.api.events;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import lombok.Getter;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -24,7 +24,7 @@ public class RenderEvent extends Event {
     this.partialTicks = MC.getRenderPartialTicks();
   }
 
-  public BufferBuilderEx getBuffer() {
+  public final BufferBuilder getBuffer() {
     return getBufferProvider().getDefaultBuffer();
   }
 }

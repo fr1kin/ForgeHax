@@ -1,9 +1,8 @@
 package dev.fiki.forgehax.api;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.api.entity.LocalPlayerInventory;
-import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
-import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
+import dev.fiki.forgehax.api.math.VectorUtil;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -120,10 +119,10 @@ public class BlockHelper {
     return stream
         .map(side -> new BlockTraceInfo(pos.offset(side), side))
         .filter(info -> isBlockPlaceable(info.getPos()))
-        .filter(info -> LocalPlayerUtils.isInReach(eyes, info.getHitVec()))
+        .filter(info -> LocalPlayerEx.isInReach(null, eyes, info.getHitVec()))
         .filter(info -> BlockHelper.doesTraceHitBlockSide(eyes, info.getHitVec(), info.getPos(), info.getOppositeSide()))
         .min(Comparator.<BlockTraceInfo>comparingInt(info -> info.isSneakRequired() ? 1 : 0)
-            .thenComparing(info -> VectorUtils.getCrosshairDistance(eyes, normal, info.getCenterPos())))
+            .thenComparing(info -> VectorUtil.getCrosshairDistance(eyes, normal, info.getCenterPos())))
         .orElse(null);
   }
 
@@ -139,7 +138,7 @@ public class BlockHelper {
   public static BlockTraceInfo getBlockSideTrace(Vector3d eyes, BlockPos pos, Direction side) {
     return Optional.of(newBlockTrace(pos, side))
         .filter(tr -> BlockHelper.doesTraceHitBlockSide(eyes, tr.getHitVec(), tr.getPos(), side.getOpposite()))
-        .filter(tr -> LocalPlayerUtils.isInReach(eyes, tr.getHitVec()))
+        .filter(tr -> LocalPlayerEx.isInReach(null, eyes, tr.getHitVec()))
         .orElse(null);
   }
 
@@ -147,7 +146,7 @@ public class BlockHelper {
     return Arrays.stream(Direction.values())
         .map(side -> BlockHelper.getBlockSideTrace(eyes, pos, side))
         .filter(Objects::nonNull)
-        .min(Comparator.comparingDouble(i -> VectorUtils.getCrosshairDistance(eyes, normal, i.getCenterPos())))
+        .min(Comparator.comparingDouble(i -> VectorUtil.getCrosshairDistance(eyes, normal, i.getCenterPos())))
         .orElse(null);
   }
 
@@ -162,8 +161,8 @@ public class BlockHelper {
       this.pos = pos;
       this.side = side;
       Vector3d obb = BlockHelper.getOBBCenter(pos);
-      this.centerPos = VectorUtils.toFPIVector(pos).add(obb);
-      this.hitVec = this.centerPos.add(obb.mul(VectorUtils.toFPIVector(getOppositeSide().getDirectionVec())));
+      this.centerPos = VectorUtil.toFPIVector(pos).add(obb);
+      this.hitVec = this.centerPos.add(obb.mul(VectorUtil.toFPIVector(getOppositeSide().getDirectionVec())));
     }
 
     public Direction getOppositeSide() {
@@ -172,14 +171,6 @@ public class BlockHelper {
 
     public BlockState getBlockState() {
       return getWorld().getBlockState(getPos());
-    }
-
-    public boolean isPlaceable(LocalPlayerInventory.InvItem inv) {
-      return Optional.of(inv.getItem())
-          .filter(BlockItem.class::isInstance)
-          .map(BlockItem.class::cast)
-          .filter(item -> item.getBlock().getDefaultState().isOpaqueCube(getWorld(), getPos()))
-          .isPresent();
     }
 
     public boolean isSneakRequired() {
@@ -197,7 +188,7 @@ public class BlockHelper {
     private final BlockPos pos;
 
     public Vector3d getCenteredPos() {
-      return VectorUtils.toFPIVector(getPos()).add(getOBBCenter(getPos()));
+      return VectorUtil.toFPIVector(getPos()).add(getOBBCenter(getPos()));
     }
 
     public ItemStack asItemStack() {

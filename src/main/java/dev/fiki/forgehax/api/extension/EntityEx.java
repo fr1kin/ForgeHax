@@ -1,8 +1,7 @@
-package dev.fiki.forgehax.api.entity;
+package dev.fiki.forgehax.api.extension;
 
-import dev.fiki.forgehax.main.Common;
-import lombok.Getter;
-import lombok.Setter;
+import dev.fiki.forgehax.api.entity.RelationState;
+import dev.fiki.forgehax.api.math.Angle;
 import net.minecraft.entity.*;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.monster.EndermanEntity;
@@ -14,20 +13,18 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
 import static dev.fiki.forgehax.main.Common.*;
 
-public class EntityUtils implements Common {
-  @Getter
-  @Setter
-  private static boolean isBatsDisabled = false;
-
+public final class EntityEx {
   @SuppressWarnings("unchecked")
-  public static RelationState getRelationship(Entity entity) {
+  public static RelationState getPlayerRelationship(Entity entity) {
     return isMobAggressive(entity) ? RelationState.HOSTILE : RelationState.FRIENDLY;
   }
 
@@ -58,14 +55,14 @@ public class EntityUtils implements Common {
   /**
    * Check if the mob is an instance of EntityLivingBase
    */
-  public static boolean isLiving(Entity entity) {
+  public static boolean isLivingType(@Nullable Entity entity) {
     return entity instanceof LivingEntity;
   }
 
   /**
    * If the entity is a player
    */
-  public static boolean isPlayer(Entity entity) {
+  public static boolean isPlayerType(Entity entity) {
     return entity instanceof PlayerEntity;
   }
 
@@ -77,19 +74,14 @@ public class EntityUtils implements Common {
     return !isLocalPlayer(entity);
   }
 
-  public static boolean isFakeLocalPlayer(Entity entity) {
-    return entity != null && entity.getEntityId() == -100;
-  }
-
   public static boolean isValidEntity(Entity entity) {
     Entity riding = getLocalPlayer().getRidingEntity();
     return entity.ticksExisted > 1
-        && !isFakeLocalPlayer(entity)
         && (riding == null || !riding.equals(entity));
   }
 
-  public static boolean isAlive(Entity entity) {
-    return isLiving(entity) && entity.isAlive() && ((LivingEntity) (entity)).getHealth() > 0;
+  public static boolean isReallyAlive(Entity entity) {
+    return isLivingType(entity) && entity.isAlive() && ((LivingEntity) (entity)).getHealth() > 0;
   }
 
   /**
@@ -106,11 +98,11 @@ public class EntityUtils implements Common {
    */
   public static boolean isFriendlyMob(Entity entity) {
     return (EntityClassification.CREATURE.equals(entity.getClassification(false))
-        && !EntityUtils.isNeutralMob(entity))
+        && !EntityEx.isNeutralMob(entity))
         || EntityClassification.AMBIENT.equals(entity.getClassification(false))
         || entity instanceof VillagerEntity
         || entity instanceof IronGolemEntity
-        || (isNeutralMob(entity) && !EntityUtils.isMobAggressive(entity));
+        || (isNeutralMob(entity) && !EntityEx.isMobAggressive(entity));
   }
 
   /**
@@ -118,8 +110,8 @@ public class EntityUtils implements Common {
    */
   public static boolean isHostileMob(Entity entity) {
     return (EntityClassification.MONSTER.equals(entity.getClassification(false))
-        && !EntityUtils.isNeutralMob(entity))
-        || EntityUtils.isMobAggressive(entity);
+        && !EntityEx.isNeutralMob(entity))
+        || EntityEx.isMobAggressive(entity);
   }
 
   /**
@@ -177,7 +169,13 @@ public class EntityUtils implements Common {
   public static Vector3d getOBBCenter(Entity entity) {
     AxisAlignedBB obb = entity.getBoundingBox();
     return new Vector3d(
-        (obb.maxX + obb.minX) / 2.D, (obb.maxY + obb.minY) / 2.D, (obb.maxZ + obb.minZ) / 2.D);
+        (obb.maxX + obb.minX) / 2.D,
+        (obb.maxY + obb.minY) / 2.D,
+        (obb.maxZ + obb.minZ) / 2.D);
+  }
+
+  public static Angle getLookAngles(Entity origin, Vector3d end) {
+    return VectorEx.getAngleFacingInDegrees(end.subtract(getEyePos(origin))).normalize();
   }
 
   public static boolean isDrivenByPlayer(Entity entityIn) {
@@ -193,14 +191,9 @@ public class EntityUtils implements Common {
       return false;
     }
 
-    double y =
-        entity.getPosY()
-            - (packet
-            ? 0.03
-            : (EntityUtils.isPlayer(entity)
-            ? 0.2
-            : 0.5)); // increasing this seems to flag more in NCP but needs to be increased
+    // increasing this seems to flag more in NCP but needs to be increased
     // so the player lands on solid water
+    double y = entity.getPosY() - (packet ? 0.03 : (EntityEx.isPlayerType(entity) ? 0.2 : 0.5));
 
     for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
       for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
@@ -215,7 +208,7 @@ public class EntityUtils implements Common {
     return false;
   }
 
-  public static boolean isInWater(Entity entity) {
+  public static boolean isInWaterMotionState(Entity entity) {
     if (entity == null) {
       return false;
     }
@@ -227,6 +220,25 @@ public class EntityUtils implements Common {
         BlockPos pos = new BlockPos(x, (int) y, z);
 
         if (getWorld().getBlockState(pos).getMaterial().isLiquid()) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  public static boolean isAboveLand(Entity entity) {
+    if (entity == null) {
+      return false;
+    }
+
+    double y = entity.getPosY() - 0.01;
+
+    for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
+      for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
+        BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
+        if (VoxelShapes.fullCube().equals(getWorld().getBlockState(pos).getCollisionShape(getWorld(), pos))) {
           return true;
         }
       }

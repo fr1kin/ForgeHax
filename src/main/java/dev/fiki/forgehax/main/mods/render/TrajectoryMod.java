@@ -1,13 +1,20 @@
 package dev.fiki.forgehax.main.mods.render;
 
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
-import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
+import dev.fiki.forgehax.api.extension.VectorEx;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.projectile.Projectile;
 import dev.fiki.forgehax.api.projectile.SimulationResult;
+import lombok.experimental.ExtensionMethod;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,7 +22,6 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.Iterator;
 
-import static com.mojang.blaze3d.systems.RenderSystem.*;
 import static dev.fiki.forgehax.main.Common.getGameRenderer;
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
@@ -24,59 +30,45 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
     description = "Draws projectile trajectory",
     category = Category.RENDER
 )
+@ExtensionMethod({LocalPlayerEx.class, VectorEx.class, VertexBuilderEx.class})
 public class TrajectoryMod extends ToggleMod {
-
   @SubscribeEvent
   public void onRender(RenderEvent event) {
-    Projectile projectile =
-        Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItemMainhand());
+    final ClientPlayerEntity lp = getLocalPlayer();
+    final Projectile projectile = Projectile.getProjectileByItemStack(lp.getHeldItemMainhand());
     if (!projectile.isNull()) {
-      SimulationResult result =
-          projectile.getSimulatedTrajectoryFromEntity(
-              getLocalPlayer(),
-              LocalPlayerUtils.getViewAngles(),
-              projectile.getForce(
-                  getLocalPlayer().getHeldItemMainhand().getUseDuration()
-                      - getLocalPlayer().getItemInUseCount()),
-              0);
+      final SimulationResult result = projectile.getSimulatedTrajectoryFromEntity(
+          lp, lp.getViewAngles(),
+          projectile.getForce(lp.getHeldItemMainhand().getUseDuration() - lp.getItemInUseCount()),
+          0);
       if (result == null) {
         return;
       }
 
       if (result.getPathTraveled().size() > 1) {
-        pushMatrix();
-        enableDepthTest();
-        lineWidth(2.0f);
+        final MatrixStack stack = event.getMatrixStack();
+        final BufferBuilder buffer = event.getBuffer();
 
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
-        BufferBuilderEx buffer = event.getBuffer();
-        buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+        final Vector3d pos = getGameRenderer().getActiveRenderInfo().getRenderViewEntity().getEyePosition(1.f);
+        stack.push();
+        stack.translateVec(pos.scale(-1d));
 
-        Vector3d pos = getGameRenderer().getActiveRenderInfo().getRenderViewEntity().getEyePosition(1.f);
-        event.getBuffer().setTranslation(pos.scale(-1d));
-
-        Iterator<Vector3d> it = result.getPathTraveled().iterator();
+        final Iterator<Vector3d> it = result.getPathTraveled().iterator();
         Vector3d previous = it.next();
         while (it.hasNext()) {
-          Vector3d next = it.next();
-          buffer.pos(previous.getX(), previous.getY(), previous.getZ())
-              .color(255, 255, 255, 255)
-              .endVertex();
-          buffer.pos(next.x, next.y, next.z)
-              .color(255, 255, 255, 255)
-              .endVertex();
+          final Vector3d next = it.next();
+          buffer.line(previous, next, Colors.WHITE, stack.getLastMatrix());
           previous = next;
         }
 
-
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
         buffer.draw();
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
-
-        lineWidth(1.0f);
-        disableDepthTest();
-
-        popMatrix();
+        RenderSystem.lineWidth(1.0f);
+        RenderSystem.disableDepthTest();
+        stack.pop();
       }
     }
   }

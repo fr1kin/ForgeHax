@@ -5,14 +5,17 @@ import dev.fiki.forgehax.api.cmd.argument.Arguments;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.LongSetting;
 import dev.fiki.forgehax.api.cmd.settings.StringSetting;
-import dev.fiki.forgehax.api.entity.LocalPlayerInventory;
+import dev.fiki.forgehax.api.extension.ItemEx;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.main.Common;
+import lombok.experimental.ExtensionMethod;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.EditBookScreen;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.WritableBookItem;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.network.play.client.CEditBookPacket;
@@ -28,11 +31,14 @@ import java.util.Collection;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
+import static dev.fiki.forgehax.main.Common.*;
+
 @RegisterMod(
     name = "BookBot",
     description = "Automatically write books",
     category = Category.MISC
 )
+@ExtensionMethod({ItemEx.class, LocalPlayerEx.class})
 public class BookBot extends ToggleMod {
 
   private static final int MAX_CHARACTERS_PER_PAGE = 256;
@@ -50,18 +56,18 @@ public class BookBot extends ToggleMod {
         // 3 digits seems like a reasonable upper limit
         String str = to.replaceAll(NUMBER_TOKEN, "XXX");
         if (str.length() > 32) {
-          Common.printWarning("Final book names longer than 32 letters will cause crashes!"
+          printWarning("Final book names longer than 32 letters will cause crashes!"
               + "Current length (assuming 3 digits): %d", str.length());
         }
       })
       .build();
-  
+
   private final BooleanSetting sign = newBooleanSetting()
       .name("sign")
       .description("finalize the book with title and authorship")
       .defaultTo(true)
       .build();
-  
+
   private final StringSetting file = newStringSetting()
       .name("file")
       .description("Name of the file inside the forgehax directory to use")
@@ -187,7 +193,7 @@ public class BookBot extends ToggleMod {
 
           if (writer != null) {
             try (BufferedWriter out = Files.newBufferedWriter(
-                Common.getFileManager().getBaseResolve(fname),
+                getFileManager().getBaseResolve(fname),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
               out.write(writer.contents);
@@ -264,7 +270,7 @@ public class BookBot extends ToggleMod {
       throw new RuntimeException("No file name set");
     }
 
-    Path data = Common.getFileManager().getBaseResolve(file.getValue());
+    Path data = getFileManager().getBaseResolve(file.getValue());
 
     if (!Files.exists(data)) {
       throw new RuntimeException("File not found");
@@ -272,7 +278,7 @@ public class BookBot extends ToggleMod {
     if (!Files.isRegularFile(data)) {
       throw new RuntimeException("Not a file type");
     }
-    
+
     String text;
     try {
       text = new String(Files.readAllBytes(data), StandardCharsets.UTF_8);
@@ -283,7 +289,7 @@ public class BookBot extends ToggleMod {
     String name = data.getFileName().toString();
     if (name.endsWith(".txt") || name.endsWith(".book")) {
       return new BookWriter(this, name.endsWith(".txt") ? parseText(text, prettify.getValue()) : text,
-        sign.getValue());
+          sign.getValue());
     } else {
       throw new RuntimeException("File is not a .txt or .book type");
     }
@@ -411,12 +417,12 @@ public class BookBot extends ToggleMod {
       // publish the book
       if (signBook) {
         stack.setTagInfo("author",
-            StringNBT.valueOf(Common.getLocalPlayer().getGameProfile().getName()));
+            StringNBT.valueOf(getLocalPlayer().getGameProfile().getName()));
         stack.setTagInfo("title", StringNBT.valueOf(parent.name.getValue()
             .replaceAll(NUMBER_TOKEN, "" + getBook())
             .trim()));
       }
-      Common.sendNetworkPacket(new CEditBookPacket(stack, signBook, Hand.MAIN_HAND.ordinal()));
+      sendNetworkPacket(new CEditBookPacket(stack, signBook, Hand.MAIN_HAND.ordinal()));
     }
 
     @Override
@@ -432,59 +438,57 @@ public class BookBot extends ToggleMod {
           sleep();
 
           // wait for screen
-          if (Common.MC.currentScreen != null) {
+          if (getDisplayScreen() != null) {
             this.status = Status.AWAITING_GUI_CLOSE;
             continue;
           }
 
           // search for empty book
-          int slot = -1;
-          ItemStack selected = null;
-          for (int i = 0; i < LocalPlayerInventory.getHotbarSize(); i++) {
-            ItemStack stack = Common.getLocalPlayer().inventory.getStackInSlot(i);
-            if (!stack.equals(ItemStack.EMPTY)
-                && stack.getItem() instanceof WritableBookItem
-                // written but unsigned books
-                && (null == stack.getTag() || null == stack.getTag().get("pages"))) {
-              slot = i;
-              selected = stack;
-              break;
-            }
-          }
+          final ClientPlayerEntity lp = getLocalPlayer();
+          final Slot selected = lp.getHotbarSlots().stream()
+              .filter(s -> {
+                final ItemStack stack = s.getStack();
+                return !stack.isEmpty()
+                    && Items.WRITABLE_BOOK.equals(stack.getItem())
+                    // written but unsigned books
+                    && (stack.getTag() == null || stack.getTag().get("pages") == null);
+              })
+              .findAny()
+              .orElse(null);
 
           // make sure we found a book
-          if (slot == -1) {
+          if (selected == null) {
             this.status = Status.NEED_EMPTY_BOOKS_IN_HOTBAR;
             continue;
           }
 
           // set selected item to that slot
-          while (Common.getLocalPlayer().inventory.currentItem != slot) {
-            Common.getLocalPlayer().inventory.currentItem = slot;
+          while (lp.getSelectedSlot() != selected) {
+            lp.forceSelectedSlot(selected);
             this.status = Status.CHANGING_HELD_ITEM;
             sleep();
           }
 
-          final ItemStack item = selected;
+          final ItemStack item = selected.getStack();
 
           // open the book gui screen
           this.status = Status.OPENING_BOOK;
-          Common.addScheduledTask(() -> Common.getLocalPlayer().openBook(item, Hand.MAIN_HAND));
+          addScheduledTask(() -> getLocalPlayer().openBook(item, Hand.MAIN_HAND));
 
           // wait for gui to open
-          while (!(Common.getDisplayScreen() instanceof EditBookScreen)) {
+          while (!(getDisplayScreen() instanceof EditBookScreen)) {
             sleep();
           }
 
           // send book to server
           this.status = Status.WRITING_BOOK;
-          Common.addScheduledTask(() -> {
+          addScheduledTask(() -> {
             sendBook(item);
-            Common.setDisplayScreen(null);
+            setDisplayScreen(null);
           });
 
           // wait for screen to close
-          while (Common.getDisplayScreen() != null) {
+          while (getDisplayScreen() != null) {
             sleep();
           }
         }

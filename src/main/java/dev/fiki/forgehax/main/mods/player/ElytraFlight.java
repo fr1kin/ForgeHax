@@ -4,8 +4,8 @@ import dev.fiki.forgehax.api.Switch.Handle;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -48,7 +48,7 @@ public class ElytraFlight extends ToggleMod {
       .defaultTo(FlyMode.SLOW_FALL)
       .build();
 
-  private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getName());
+  private final Handle flying = LocalPlayerEx.getFlySwitch().createHandle(getName());
 
   @Override
   protected void onEnabled() {

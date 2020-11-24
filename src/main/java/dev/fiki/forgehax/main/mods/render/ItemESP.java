@@ -5,13 +5,14 @@ import dev.fiki.forgehax.api.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
-import dev.fiki.forgehax.api.entity.EntityUtils;
 import dev.fiki.forgehax.api.events.Render2DEvent;
+import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.math.ScreenPos;
-import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -26,6 +27,7 @@ import static dev.fiki.forgehax.main.Common.worldEntities;
     description = "ESP for items",
     category = Category.RENDER
 )
+@ExtensionMethod({EntityEx.class})
 public class ItemESP extends ToggleMod {
 
   private final FloatSetting scale = newFloatSetting()
@@ -53,11 +55,11 @@ public class ItemESP extends ToggleMod {
         .map(ItemEntity.class::cast)
         .filter(entity -> entity.ticksExisted > 1)
         .forEach(entity -> {
-          Vector3d bottomPos = EntityUtils.getInterpolatedPos(entity, event.getPartialTicks());
+          Vector3d bottomPos = entity.getInterpolatedPos(event.getPartialTicks());
           Vector3d topPos = bottomPos.add(0.D, entity.getRenderBoundingBox().maxY - entity.getPosY(), 0.D);
 
-          ScreenPos top = VectorUtils.toScreen(topPos);
-          ScreenPos bot = VectorUtils.toScreen(bottomPos);
+          ScreenPos top = VectorUtil.toScreen(topPos);
+          ScreenPos bot = VectorUtil.toScreen(bottomPos);
 
           if (!top.isVisible() && !bot.isVisible()) {
             return;

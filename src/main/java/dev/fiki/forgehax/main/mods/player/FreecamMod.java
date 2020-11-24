@@ -4,10 +4,10 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.Switch.Handle;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.api.events.ClientWorldEvent;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.math.Angle;
 import dev.fiki.forgehax.api.mock.MockClientEntityPlayer;
@@ -19,6 +19,7 @@ import dev.fiki.forgehax.api.reflection.types.ReflectionField;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -41,6 +42,7 @@ import static dev.fiki.forgehax.main.Common.*;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
+@ExtensionMethod({LocalPlayerEx.class})
 public class FreecamMod extends ToggleMod {
   private final ReflectionTools reflection;
 
@@ -53,7 +55,7 @@ public class FreecamMod extends ToggleMod {
       .defaultTo(0.05f)
       .build();
 
-  private final Handle flying = LocalPlayerUtils.getFlySwitch().createHandle(getName());
+  private final Handle flying = LocalPlayerEx.getFlySwitch().createHandle(getName());
 
   private Vector3d pos = Vector3d.ZERO;
   private Angle angle = Angle.ZERO;
@@ -80,7 +82,7 @@ public class FreecamMod extends ToggleMod {
     }
 
     pos = self.getPositionVec();
-    angle = LocalPlayerUtils.getViewAngles();
+    angle = self.getViewAngles();
 
     mockPlayer = new MockClientEntityPlayer(self);
     mockPlayer.mockFields();

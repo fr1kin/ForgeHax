@@ -37,14 +37,6 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
  * 2D rendering
  */
 public class SurfaceHelper {
-  public static BufferBuilderEx getBufferBuilder(Tessellator tessellator) {
-    return new BufferBuilderEx(tessellator);
-  }
-
-  public static BufferBuilderEx getDefaultBufferBuilder() {
-    return getBufferBuilder(Tessellator.getInstance());
-  }
-
   static void _rect(BufferBuilder builder,
       double x, double y, double w, double h,
       Color color) {

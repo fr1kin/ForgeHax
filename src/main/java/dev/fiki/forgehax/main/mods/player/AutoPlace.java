@@ -2,51 +2,52 @@ package dev.fiki.forgehax.main.mods.player;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.fiki.forgehax.api.BlockHelper;
 import dev.fiki.forgehax.api.BlockHelper.BlockTraceInfo;
 import dev.fiki.forgehax.api.BlockHelper.UniqueBlock;
-import dev.fiki.forgehax.api.PacketHelper;
-import dev.fiki.forgehax.api.Utils;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.api.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
-import dev.fiki.forgehax.api.entity.EntityUtils;
-import dev.fiki.forgehax.api.entity.LocalPlayerInventory;
-import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.extension.*;
 import dev.fiki.forgehax.api.key.KeyConflictContexts;
 import dev.fiki.forgehax.api.key.KeyInputs;
 import dev.fiki.forgehax.api.math.Angle;
-import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import dev.fiki.forgehax.main.managers.RotationManager;
 import dev.fiki.forgehax.main.managers.RotationManager.RotationState.Local;
-import dev.fiki.forgehax.main.services.HotbarSelectionService.ResetFunction;
 import dev.fiki.forgehax.main.services.SneakService;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CAnimateHandPacket;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.GL11;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,7 @@ import static dev.fiki.forgehax.main.Common.*;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
+@ExtensionMethod({GeneralEx.class, ItemEx.class, LocalPlayerEx.class, EntityEx.class, VectorEx.class, VertexBuilderEx.class})
 public class AutoPlace extends ToggleMod implements RotationManager.MovementUpdateListener {
   enum Stage {
     SELECT_BLOCKS,
@@ -178,23 +180,6 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
         .anyMatch(side -> BlockHelper.isBlockReplaceable(info.getPos().offset(side)));
   }
 
-  private Direction getBestFacingMatch(final String input) {
-    return Arrays.stream(Direction.values())
-        .filter(side -> side.getName2().toLowerCase().contains(input.toLowerCase()))
-        .min(Comparator.comparing(e -> e.getName2().toLowerCase(),
-            Comparator.<String>comparingInt(n -> StringUtils.getLevenshteinDistance(n, input.toLowerCase()))
-                .thenComparing(n -> n.startsWith(input))))
-        .orElseGet(() -> {
-          Direction[] values = Direction.values();
-          try {
-            int index = Integer.parseInt(input);
-            return values[MathHelper.clamp(index, 0, values.length - 1)];
-          } catch (NumberFormatException e) {
-            return values[0];
-          }
-        });
-  }
-
   private void showInfo(String filter) {
     addScheduledTask(() -> {
       if ("selected".startsWith(filter)) {
@@ -243,48 +228,40 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
       return;
     }
 
-    RenderSystem.pushMatrix();
-
-    RenderSystem.disableTexture();
-    RenderSystem.enableBlend();
-    RenderSystem.disableAlphaTest();
-    RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-    RenderSystem.shadeModel(GL11.GL_SMOOTH);
-    RenderSystem.disableDepthTest();
-
-    final BufferBuilderEx builder = event.getBuffer();
-    final Vector3d renderPos = EntityUtils.getInterpolatedPos(getLocalPlayer(), event.getPartialTicks());
+    final MatrixStack stack = event.getMatrixStack();
+    final BufferBuilder builder = event.getBuffer();
+    final Vector3d renderPos = getLocalPlayer().getInterpolatedPos(MC.getRenderPartialTicks());
 
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
-    renderingBlocks.forEach(pos -> {
-          BlockState state = getWorld().getBlockState(pos);
-          AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).getBoundingBox();
-          builder.setTranslation(VectorUtils.toFPIVector(pos).subtract(renderPos));
-          builder.putOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.GREEN.setAlpha(150));
-        });
+    for (BlockPos pos : renderingBlocks) {
+      stack.push();
+
+      final BlockState state = getWorld().getBlockState(pos);
+      final AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).getBoundingBox();
+
+      stack.translateVec(pos.subtract(renderPos));
+      builder.outlinedCube(bb, GeometryMasks.Line.ALL, Colors.GREEN.setAlpha(150), stack.getLastMatrix());
+
+      stack.pop();
+    }
 
     // poz
     final BlockPos current = this.currentRenderingTarget;
 
     if (current != null) {
-      BlockState state = getWorld().getBlockState(current);
-      AxisAlignedBB bb = state.getCollisionShape(getWorld(), current).getBoundingBox();
-      builder.setTranslation(VectorUtils.toFPIVector(current).subtract(renderPos));
-      builder.putOutlinedCuboid(bb, GeometryMasks.Line.ALL, Colors.RED.setAlpha(150));
+      stack.push();
+
+      final BlockState state = getWorld().getBlockState(current);
+      final AxisAlignedBB bb = state.getCollisionShape(getWorld(), current).getBoundingBox();
+
+      stack.translateVec(current.subtract(renderPos));
+      builder.outlinedCube(bb, GeometryMasks.Line.ALL, Colors.RED.setAlpha(150), stack.getLastMatrix());
+
+      stack.pop();
     }
 
     builder.draw();
-
-    RenderSystem.shadeModel(GL11.GL_FLAT);
-    RenderSystem.disableBlend();
-    RenderSystem.enableAlphaTest();
-    RenderSystem.enableTexture();
-    RenderSystem.enableDepthTest();
-    RenderSystem.enableCull();
-
-    GL11.glDisable(GL11.GL_LINE_SMOOTH);
-    RenderSystem.popMatrix();
   }
 
   @SubscribeEvent
@@ -300,7 +277,7 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
         }
 
         if (bindSelect.isKeyDown() && bindSelectToggle.compareAndSet(false, true)) {
-          BlockRayTraceResult tr = LocalPlayerUtils.getBlockViewTrace();
+          final BlockRayTraceResult tr = getLocalPlayer().getBlockViewTrace();
           if (RayTraceResult.Type.MISS.equals(tr.getType())) {
             return;
           }
@@ -343,9 +320,9 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
         }
 
         if (bindSelect.isKeyDown() && bindSelectToggle.compareAndSet(false, true)) {
-          LocalPlayerInventory.InvItem selected = LocalPlayerInventory.getSelected();
+          final ItemStack selected = getLocalPlayer().getOffhandItem();
 
-          if (selected.isNull()) {
+          if (selected.isEmpty()) {
             printWarning("No item selected!");
             return;
           }
@@ -407,22 +384,22 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
       currentRenderingTarget = null;
     }
 
-    LocalPlayerInventory.InvItem items = LocalPlayerInventory.getHotbarInventory().stream()
-        .filter(LocalPlayerInventory.InvItem::nonNull)
-        .filter(inv -> inv.getItem().equals(selectedItem.getItem()))
-        .filter(inv -> BlockHelper.isItemBlockPlaceable(inv.getItem()))
-        .findFirst()
-        .orElse(LocalPlayerInventory.InvItem.EMPTY);
+    val lp = getLocalPlayer();
+    final Slot placingBlocks = lp.getHotbarSlots().stream()
+        .filter(Slot::getHasStack)
+        .filter(slot -> slot.getStack().isItemEqual(selectedItem))
+        .filter(slot -> lp.canPlaceBlock(slot.getStack().getBlockForItem()))
+        .findAny()
+        .orElse(null);
 
-    if (items.isNull()) {
+    if (placingBlocks == null) {
       return;
     }
 
-    final Vector3d eyes = getLocalPlayer().getEyePosition(1.f);
-    final Vector3d dir =
-        client_angles.getValue()
-            ? LocalPlayerUtils.getDirectionVector()
-            : LocalPlayerUtils.getServerDirectionVector();
+    final Vector3d eyes = lp.getEyePos();
+    final Vector3d dir = client_angles.getValue()
+        ? lp.getDirectionVector()
+        : lp.getServerDirectionVector();
 
     List<UniqueBlock> blocks =
         BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance()).stream()
@@ -431,7 +408,7 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
             .filter(this::isValidBlock)
             .filter(this::isClickable)
             .sorted(Comparator.comparingDouble(info ->
-                VectorUtils.getCrosshairDistance(eyes, dir, BlockHelper.getOBBCenter(info.getPos()))))
+                VectorUtil.getCrosshairDistance(eyes, dir, BlockHelper.getOBBCenter(info.getPos()))))
             .collect(Collectors.toList());
 
     if (blocks.isEmpty()) {
@@ -454,23 +431,21 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
 
       final UniqueBlock at = blocks.get(index++);
       if (!check_neighbors.getValue()) {
-        trace =
-            sides.stream()
-                .map(side -> BlockHelper.getBlockSideTrace(eyes, at.getPos(), side))
-                .filter(Objects::nonNull)
-                .filter(tr -> tr.isPlaceable(items))
-                .max(Comparator.comparing(BlockTraceInfo::isSneakRequired)
-                    .thenComparing(i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenterPos())))
-                .orElse(null);
+        trace = sides.stream()
+            .map(side -> BlockHelper.getBlockSideTrace(eyes, at.getPos(), side))
+            .filter(Objects::nonNull)
+            .filter(tr -> lp.canPlaceBlock(placingBlocks.getStack().getBlockForItem(), tr.getPos()))
+            .max(Comparator.comparing(BlockTraceInfo::isSneakRequired)
+                .thenComparing(i -> -VectorUtil.getCrosshairDistance(eyes, dir, i.getCenterPos())))
+            .orElse(null);
       } else {
-        trace =
-            sides.stream()
-                .map(side -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().offset(side)))
-                .filter(Objects::nonNull)
-                .filter(tr -> tr.isPlaceable(items))
-                .max(Comparator.comparing(BlockTraceInfo::isSneakRequired)
-                    .thenComparing(i -> -VectorUtils.getCrosshairDistance(eyes, dir, i.getCenterPos())))
-                .orElse(null);
+        trace = sides.stream()
+            .map(side -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().offset(side)))
+            .filter(Objects::nonNull)
+            .filter(tr -> lp.canPlaceBlock(placingBlocks.getStack().getBlockForItem(), tr.getPos()))
+            .max(Comparator.comparing(BlockTraceInfo::isSneakRequired)
+                .thenComparing(i -> -VectorUtil.getCrosshairDistance(eyes, dir, i.getCenterPos())))
+            .orElse(null);
       }
     } while (trace == null);
 
@@ -483,40 +458,38 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
       currentRenderingTarget = trace.getPos();
     }
 
-    Angle va = Utils.getLookAtAngles(trace.getHitVec());
+    Angle va = lp.getLookAngles(trace.getHitVec());
     state.setViewAngles(va, silent.getValue());
 
     final BlockTraceInfo tr = trace;
     state.invokeLater(rs -> {
-      ResetFunction func = LocalPlayerInventory.setSelected(items);
+      final Runnable resetSelected = lp.setSelectedSlot(placingBlocks, ticks -> true);
 
-      boolean sneak = tr.isSneakRequired() && !LocalPlayerUtils.isSneaking();
+      boolean sneak = tr.isSneakRequired() && !lp.isCrouchSneaking();
       if (sneak) {
         // send start sneaking packet
-        PacketHelper.ignoreAndSend(new CEntityActionPacket(getLocalPlayer(),
+        getNetworkManager().dispatchSilentNetworkPacket(new CEntityActionPacket(lp,
             CEntityActionPacket.Action.PRESS_SHIFT_KEY));
 
         sneaks.setSuppressing(true);
         sneaks.setSneaking(true);
       }
 
-      if (getPlayerController().func_217292_a(
-          getLocalPlayer(),
-          getWorld(),
-          Hand.MAIN_HAND,
-          new BlockRayTraceResult(tr.getHitVec(), tr.getOppositeSide(), tr.getPos(), false)).isSuccessOrConsume()) {
+      val blockTr = new BlockRayTraceResult(tr.getHitVec(), tr.getOppositeSide(), tr.getPos(), false);
+      if (lp.placeBlock(Hand.MAIN_HAND, blockTr).isSuccessOrConsume()) {
         // stealth send swing packet
-        sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+        lp.swingHandSilently();
       }
 
       if (sneak) {
         sneaks.setSneaking(false);
         sneaks.setSuppressing(false);
 
-        sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
+        getNetworkManager().dispatchNetworkPacket(new CEntityActionPacket(lp,
+            CEntityActionPacket.Action.RELEASE_SHIFT_KEY));
       }
 
-      func.revert();
+      resetSelected.run();
 
       // set the block place delay
       reflection.Minecraft_rightClickDelayTimer.set(MC, cooldown.getValue());

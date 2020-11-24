@@ -440,6 +440,12 @@ public abstract class Color {
   public void glSetColor3f() {
     RenderSystem.color3f(getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat());
   }
+
+  public abstract boolean isBufferType();
+
+  public final boolean isFloatType() {
+    return !isBufferType();
+  }
   
   @Override
   public String toString() {

@@ -8,13 +8,15 @@ import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.LongSetting;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
 import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
+import lombok.experimental.ExtensionMethod;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -33,6 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
     description = "Show new chunks",
     category = Category.MISC
 )
+@ExtensionMethod({VertexBuilderEx.class})
 public class ChunkLogger extends ToggleMod {
   enum ShowChunkEnum {
     ALL,
@@ -156,7 +159,7 @@ public class ChunkLogger extends ToggleMod {
       return;
     }
 
-    BufferBuilderEx builder = event.getBuffer();
+    BufferBuilder builder = event.getBuffer();
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
     List<ChunkData> copy;
@@ -184,8 +187,8 @@ public class ChunkLogger extends ToggleMod {
           break;
       }
 
-      builder.putOutlinedCuboid(chunk.bbox, GeometryMasks.Quad.ALL,
-          chunk.isNewChunk() ? Colors.WHITE : Colors.RED);
+      builder.outlinedCube(chunk.bbox, GeometryMasks.Quad.ALL,
+          chunk.isNewChunk() ? Colors.WHITE : Colors.RED, null);
     });
 
     builder.draw();

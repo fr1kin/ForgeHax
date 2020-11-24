@@ -7,17 +7,18 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.cmd.execution.CommandExecutor;
 import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.draw.BufferBuilderEx;
-import dev.fiki.forgehax.api.draw.BufferProvider;
 import dev.fiki.forgehax.api.draw.RenderTypeEx;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
+import dev.fiki.forgehax.api.extension.VectorEx;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
+import lombok.val;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.recipebook.RecipeBookGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
@@ -25,6 +26,7 @@ import net.minecraft.util.SharedConstants;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -32,6 +34,7 @@ import java.util.function.Predicate;
 
 import static dev.fiki.forgehax.main.Common.*;
 
+@ExtensionMethod({VectorEx.class, VertexBuilderEx.class})
 public class ConsoleInputScreen extends Screen {
   private final ConsoleInterface ci;
   private final KeyBinding keyBinding;
@@ -61,9 +64,9 @@ public class ConsoleInputScreen extends Screen {
   }
 
   public synchronized void setPreviousScreen(Screen previousScreen) {
-    if(previousScreen instanceof InventoryScreen ) {
+    if (previousScreen instanceof InventoryScreen) {
       RecipeBookGui gui = ((InventoryScreen) previousScreen).getRecipeGui();
-      if(gui.isVisible()) {
+      if (gui.isVisible()) {
         gui.toggleVisibility();
       }
     }
@@ -76,15 +79,15 @@ public class ConsoleInputScreen extends Screen {
   }
 
   public int getY() {
-    return (int)(ci.getCurrentTotalHeight() + ci.getMargin() + 2.f);
+    return (int) (ci.getCurrentTotalHeight() + ci.getMargin() + 2.f);
   }
 
   public int getWidth() {
-    return (int)(ci.getLineWidth());
+    return (int) (ci.getLineWidth());
   }
 
   public int getHeight() {
-    return (int)(ci.getLineHeight() + 2.f);
+    return (int) (ci.getLineHeight() + 2.f);
   }
 
   public void setResponder(Consumer<String> responder) {
@@ -98,7 +101,7 @@ public class ConsoleInputScreen extends Screen {
 
   @Override
   public void resize(Minecraft mc, int screenWidth, int screenHeight) {
-    if(processPreviousScreen) {
+    if (processPreviousScreen) {
       synchronized (this) {
         if (previousScreen != null) {
           try {
@@ -122,7 +125,7 @@ public class ConsoleInputScreen extends Screen {
   public void tick() {
     ++this.cursorCounter;
 
-    if(processPreviousScreen) {
+    if (processPreviousScreen) {
       synchronized (this) {
         if (previousScreen != null) {
           try {
@@ -351,12 +354,12 @@ public class ConsoleInputScreen extends Screen {
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int keyAction) {
-    if(cursorCounter <= 1) {
+    if (cursorCounter <= 1) {
       return false;
     }
 
     this.shiftDown = Screen.hasShiftDown();
-    if(keyBinding.getKey().getKeyCode() == keyCode) {
+    if (keyBinding.getKey().getKeyCode() == keyCode) {
       closing = true;
       setDisplayScreen(previousScreen);
       return true;
@@ -385,7 +388,7 @@ public class ConsoleInputScreen extends Screen {
         case GLFW.GLFW_KEY_ENTER:
         case GLFW.GLFW_KEY_KP_ENTER:
           String text = getText().trim();
-          if(!text.isEmpty()) {
+          if (!text.isEmpty()) {
             CommandExecutor.builder()
                 .console(ci)
                 .exceptionHandler(((throwable, output) -> {
@@ -412,13 +415,13 @@ public class ConsoleInputScreen extends Screen {
 //        case GLFW.GLFW_KEY_INSERT:
         case GLFW.GLFW_KEY_DOWN:
         case GLFW.GLFW_KEY_PAGE_DOWN:
-          if(ci.hasEnteredHistory()) {
+          if (ci.hasEnteredHistory()) {
             setText(ci.getEnteredByRollingIndex(historyIndex--));
           }
           return true;
         case GLFW.GLFW_KEY_UP:
         case GLFW.GLFW_KEY_PAGE_UP:
-          if(ci.hasEnteredHistory()) {
+          if (ci.hasEnteredHistory()) {
             setText(ci.getEnteredByRollingIndex(historyIndex++));
           }
           return true;
@@ -501,7 +504,7 @@ public class ConsoleInputScreen extends Screen {
 
   @Override
   public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
-    if(processPreviousScreen) {
+    if (processPreviousScreen) {
       synchronized (this) {
         if (previousScreen != null
             && previousScreen.getMinecraft() != null) {
@@ -517,18 +520,17 @@ public class ConsoleInputScreen extends Screen {
       }
     }
 
-    BufferProvider buffers = getBufferProvider();
-    IRenderTypeBuffer.Impl source = buffers.getBufferSource();
-    BufferBuilderEx main = buffers.getBuffer(RenderTypeEx.glTriangle());
+    val buffers = getBufferProvider();
+    val source = buffers.getBufferSource();
+    val main = buffers.getBuffer(RenderTypeEx.glTriangle());
 
-    main.setMatrixStack(stack);
-
-    main.putRect(getX(), getY(), getWidth(), getHeight(), Colors.BLACK.setAlpha(200));
+    main.rect(GL11.GL_TRIANGLES, getX(), getY(), getWidth(), getHeight(),
+        Colors.BLACK.setAlpha(200), stack.getLastMatrix());
 
     stack.push();
     stack.translate(2.f, 2.f, 0.f);
 
-    final Color color = Color.of(224, 224, 224, 0);
+    val color = Color.of(224, 224, 224, 0);
     int cursorOffset = this.cursorPosition - this.lineScrollOffset;
     int selectionLength = this.selectionEnd - this.lineScrollOffset;
 
@@ -578,7 +580,8 @@ public class ConsoleInputScreen extends Screen {
       if (endStringVisible) {
         stack.push();
         stack.translate(0.f, 0.f, 100.f);
-        main.putRect(endX, y - 1, 1, 10, Color.of(208, 208, 208, 255));
+        main.rect(GL11.GL_TRIANGLES, endX, y - 1, 1, 10,
+            Color.of(208, 208, 208, 255), stack.getLastMatrix());
         stack.pop();
       } else {
         SurfaceHelper.renderString(source, stack.getLast().getMatrix(), "_",

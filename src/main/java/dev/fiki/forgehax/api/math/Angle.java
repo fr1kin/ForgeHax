@@ -22,9 +22,9 @@ public abstract class Angle {
   
   public static Angle radians(double pitch, double yaw, double roll) {
     return radians(
-        (float) AngleHelper.roundAngle(pitch),
-        (float) AngleHelper.roundAngle(yaw),
-        (float) AngleHelper.roundAngle(roll));
+        (float) AngleUtil.roundAngle(pitch),
+        (float) AngleUtil.roundAngle(yaw),
+        (float) AngleUtil.roundAngle(roll));
   }
   
   public static Angle radians(double pitch, double yaw) {
@@ -41,9 +41,9 @@ public abstract class Angle {
   
   public static Angle degrees(double pitch, double yaw, double roll) {
     return degrees(
-        (float) AngleHelper.roundAngle(pitch),
-        (float) AngleHelper.roundAngle(yaw),
-        (float) AngleHelper.roundAngle(roll));
+        (float) AngleUtil.roundAngle(pitch),
+        (float) AngleUtil.roundAngle(yaw),
+        (float) AngleUtil.roundAngle(roll));
   }
   
   public static Angle degrees(double pitch, double yaw) {
@@ -166,7 +166,7 @@ public abstract class Angle {
   
   @Override
   public boolean equals(Object obj) {
-    return this == obj || (obj instanceof Angle && AngleHelper.isEqual(this, (Angle) obj));
+    return this == obj || (obj instanceof Angle && AngleUtil.isEqual(this, (Angle) obj));
   }
   
   @Override
@@ -198,9 +198,9 @@ public abstract class Angle {
     @Override
     public Angle normalize() {
       return newInstance(
-          AngleHelper.normalizeInDegrees(getPitch()),
-          AngleHelper.normalizeInDegrees(getYaw()),
-          AngleHelper.normalizeInDegrees(getRoll()));
+          AngleUtil.normalizeInDegrees(getPitch()),
+          AngleUtil.normalizeInDegrees(getYaw()),
+          AngleUtil.normalizeInDegrees(getRoll()));
     }
     
     @Override
@@ -242,9 +242,9 @@ public abstract class Angle {
     @Override
     public Angle normalize() {
       return newInstance(
-          AngleHelper.normalizeInRadians(getPitch()),
-          AngleHelper.normalizeInRadians(getYaw()),
-          AngleHelper.normalizeInRadians(getRoll()));
+          AngleUtil.normalizeInRadians(getPitch()),
+          AngleUtil.normalizeInRadians(getYaw()),
+          AngleUtil.normalizeInRadians(getRoll()));
     }
     
     @Override

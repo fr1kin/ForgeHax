@@ -3,19 +3,23 @@ package dev.fiki.forgehax.main.mods.player;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.api.common.PriorityEnum;
-import dev.fiki.forgehax.api.entity.LocalPlayerUtils;
+import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.math.Angle;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.managers.RotationManager;
 import dev.fiki.forgehax.main.managers.RotationManager.RotationState;
+import lombok.experimental.ExtensionMethod;
+
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
 @RegisterMod(
     name = "YawLock",
     description = "Locks yaw to prevent moving into walls",
     category = Category.PLAYER
 )
+@ExtensionMethod({LocalPlayerEx.class})
 public class YawLockMod extends ToggleMod
     implements RotationManager.MovementUpdateListener {
 
@@ -38,7 +42,7 @@ public class YawLockMod extends ToggleMod
   }
 
   private Angle getSnapAngle() {
-    Angle va = LocalPlayerUtils.getViewAngles().normalize();
+    Angle va = getLocalPlayer().getViewAngles().normalize();
     return va.setYaw(auto.getValue() ? getYawDirection(va.getYaw()) : angle.getValue());
   }
 

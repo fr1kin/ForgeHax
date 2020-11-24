@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.events.Render2DEvent;
 import dev.fiki.forgehax.api.events.RenderEvent;
 import dev.fiki.forgehax.api.mapper.MethodMapping;
-import dev.fiki.forgehax.api.math.VectorUtils;
+import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.ServiceMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.types.ReflectionMethod;
@@ -40,7 +40,7 @@ public class RenderEventService extends ServiceMod {
     GameRenderer_hurtCameraEffect.invoke(gameRenderer, stack, partialTicks);
 
     Matrix4f projectionMatrix = stack.getLast().getMatrix();
-    VectorUtils.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().getLast().getMatrix());
+    VectorUtil.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().getLast().getMatrix());
 
     RenderSystem.pushMatrix();
     RenderSystem.multMatrix(event.getMatrixStack().getLast().getMatrix());

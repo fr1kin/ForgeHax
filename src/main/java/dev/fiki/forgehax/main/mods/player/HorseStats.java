@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
-import dev.fiki.forgehax.api.entity.EntityUtils;
+import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -47,7 +47,7 @@ public class HorseStats extends ToggleMod {
 
   @SubscribeEvent
   public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
-    if (EntityUtils.isDrivenByPlayer(event.getEntity())
+    if (EntityEx.isDrivenByPlayer(event.getEntity())
         && getMountedEntity() instanceof AbstractHorseEntity) {
 
       double newSpeed = speed.getValue();

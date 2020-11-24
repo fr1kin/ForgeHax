@@ -85,4 +85,9 @@ public class ColorBuffer extends Color {
   public float[] toFloatArray() {
     return new float[]{getRedAsFloat(), getGreenAsFloat(), getBlueAsFloat(), getAlphaAsFloat()};
   }
+
+  @Override
+  public boolean isBufferType() {
+    return true;
+  }
 }

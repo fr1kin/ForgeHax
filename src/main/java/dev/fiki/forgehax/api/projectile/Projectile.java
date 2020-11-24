@@ -1,9 +1,11 @@
 package dev.fiki.forgehax.api.projectile;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.api.entity.EntityUtils;
+import dev.fiki.forgehax.api.extension.EntityEx;
+import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.math.Angle;
-import dev.fiki.forgehax.api.math.AngleHelper;
+import dev.fiki.forgehax.api.math.AngleUtil;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.Item;
@@ -23,6 +25,7 @@ import static dev.fiki.forgehax.main.Common.getWorld;
 /**
  * Created on 6/21/2017 by fr1kin
  */
+@ExtensionMethod({VectorEx.class})
 public enum Projectile implements IProjectile {
   NULL() {
     @Override
@@ -231,7 +234,7 @@ public enum Projectile implements IProjectile {
     Vector3d start = shooterPos.subtract(targetPos);
     
     double pitch;
-    double yaw = AngleHelper.getAngleFacingInRadians(targetPos.subtract(shooterPos)).getYaw();
+    double yaw = targetPos.subtract(shooterPos).getAngleFacingInRadians().getYaw();
     
     // to find the pitch we use this equation
     // https://en.wikipedia.org/wiki/Trajectory_of_a_projectile#Angle_.7F.27.22.60UNIQ--postMath-00000010-QINU.60.22.27.7F_required_to_hit_coordinate_.28x.2Cy.29
@@ -272,7 +275,7 @@ public enum Projectile implements IProjectile {
       return false;
     }
     
-    Vector3d targetPos = EntityUtils.getOBBCenter(targetEntity);
+    Vector3d targetPos = EntityEx.getOBBCenter(targetEntity);
     
     double min = getMinForce();
     double max = getMaxForce();
@@ -353,15 +356,15 @@ public enum Projectile implements IProjectile {
   }
   
   private static Vector3d getEntityShootPos(Entity entity) {
-    return EntityUtils.getEyePos(entity).subtract(0.D, SHOOT_POS_OFFSET, 0.D);
+    return EntityEx.getEyePos(entity).subtract(0.D, SHOOT_POS_OFFSET, 0.D);
   }
   
   private static Vector3d getShootPosFacing(Entity entity, Angle angleFacing) {
     return getEntityShootPos(entity)
         .subtract(
-            Math.cos(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D,
+            Math.cos(angleFacing.inRadians().getYaw() - AngleUtil.HALF_PI) * 0.16D,
             0.D,
-            Math.sin(angleFacing.inRadians().getYaw() - AngleHelper.HALF_PI) * 0.16D);
+            Math.sin(angleFacing.inRadians().getYaw() - AngleUtil.HALF_PI) * 0.16D);
   }
   
   private static Angle getAngleFacing(Angle angle) {
