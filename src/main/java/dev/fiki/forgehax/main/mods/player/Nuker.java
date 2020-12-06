@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import dev.fiki.forgehax.api.BlockHelper;
 import dev.fiki.forgehax.api.BlockHelper.BlockTraceInfo;
 import dev.fiki.forgehax.api.BlockHelper.UniqueBlock;
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
@@ -13,7 +14,6 @@ import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.key.KeyConflictContexts;
 import dev.fiki.forgehax.api.key.KeyInputs;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.math.Angle;
 import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.Category;
@@ -54,7 +54,7 @@ import static dev.fiki.forgehax.main.Common.*;
 @RequiredArgsConstructor
 @ExtensionMethod({LocalPlayerEx.class, EntityEx.class})
 public class Nuker extends ToggleMod implements RotationManager.MovementUpdateListener {
-  @FieldMapping(parentClass = PlayerController.class, value = "curBlockDamageMP")
+  @MapField(parentClass = PlayerController.class, value = "curBlockDamageMP")
   private final ReflectionField<Float> PlayerController_curBlockDamageMP;
 
   private final List<Block> targets = Lists.newArrayList();

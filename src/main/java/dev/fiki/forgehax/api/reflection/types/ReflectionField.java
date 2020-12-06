@@ -31,7 +31,7 @@ public class ReflectionField<V> {
 
   private Field getCached() {
     if(!failed && cached == null) {
-      cached = field.stream()
+      cached = field.getDelegates()
           .map(type -> {
             Field ret = null;
             try {

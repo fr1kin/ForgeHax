@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
@@ -11,18 +11,13 @@ import dev.fiki.forgehax.asm.utils.transforming.Patch;
 import net.minecraft.entity.player.PlayerEntity;
 import org.objectweb.asm.tree.*;
 
-@ClassMapping(PlayerEntity.class)
+@MapClass(PlayerEntity.class)
 public class PlayerEntityPatch extends Patch {
 
   @Inject
-  @MethodMapping("isStayingOnGroundSurface")
+  @MapMethod("isStayingOnGroundSurface")
   public void isStayingOnGroundSurface(MethodNode method,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldClipBlockEdge",
-          args = {PlayerEntity.class},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldClipBlockEdge") ASMMethod hook) {
     AbstractInsnNode ret = ASMPattern.builder()
         .codeOnly()
         .opcode(IRETURN)
@@ -45,14 +40,9 @@ public class PlayerEntityPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("isPushedByWater")
+  @MapMethod("isPushedByWater")
   public void isPushedByWater(MethodNode method,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldBePushedByLiquid",
-          args = {PlayerEntity.class},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldBePushedByLiquid") ASMMethod hook) {
     AbstractInsnNode ret = ASMPattern.builder()
         .codeOnly()
         .opcode(IRETURN)

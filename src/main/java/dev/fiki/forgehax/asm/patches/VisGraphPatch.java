@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
@@ -12,18 +12,13 @@ import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
 
-@ClassMapping(VisGraph.class)
+@MapClass(VisGraph.class)
 public class VisGraphPatch extends Patch {
 
   @Inject
-  @MethodMapping("setOpaqueCube")
+  @MapMethod("setOpaqueCube")
   public void setOpaqueCube(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldDisableCaveCulling",
-          args = {},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldDisableCaveCulling") ASMMethod hook) {
     AbstractInsnNode top = main.instructions.getFirst();
     AbstractInsnNode bottom = ASMHelper.findPattern(main.instructions.getFirst(), new int[]{RETURN}, "x");
 
@@ -41,14 +36,9 @@ public class VisGraphPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("computeVisibility")
+  @MapMethod("computeVisibility")
   public void computeVisibility(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldDisableCaveCulling",
-          args = {},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldDisableCaveCulling") ASMMethod hook) {
     AbstractInsnNode node = ASMHelper.findPattern(main.instructions.getFirst(), new int[]{SIPUSH, IF_ICMPGE}, "xx");
 
     Objects.requireNonNull(node, "Find pattern failed for node");

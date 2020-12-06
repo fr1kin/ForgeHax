@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.misc;
 
-import dev.fiki.forgehax.api.mapper.FieldMapping;
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -26,7 +26,7 @@ import java.awt.datatransfer.StringSelection;
 )
 @RequiredArgsConstructor
 public class SignTextMod extends ToggleMod {
-  @FieldMapping(parentClass = SignTileEntity.class, value = "signText")
+  @MapField(parentClass = SignTileEntity.class, value = "signText")
   private final ReflectionField<ITextComponent[]> SignTileEntity_signText;
 
   @SubscribeEvent

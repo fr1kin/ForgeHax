@@ -154,7 +154,7 @@ public class ASMHelper {
     Objects.requireNonNull(method.getParentClass(), "Method requires assigned parent class");
     return new MethodInsnNode(
       opcode,
-      method.getParentClass().getName(),
+      method.getParentClass().getClassName(),
       method.getName(),
       method.getDescriptorString(),
       false);

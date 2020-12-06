@@ -2,8 +2,8 @@ package dev.fiki.forgehax.asm.patches;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.XrayHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
@@ -15,36 +15,21 @@ import net.minecraft.client.renderer.model.BakedQuad;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-@ClassMapping(IVertexBuilder.class)
+@MapClass(IVertexBuilder.class)
 public class IVertexBuilderPatch extends Patch {
   @Inject
   @ConditionalInject("!OptiFine")
-  @MethodMapping(
-      value = "addQuad",
-      args = {MatrixStack.Entry.class, BakedQuad.class, float[].class, float.class, float.class, float.class,
+  @MapMethod(
+      name = "addQuad",
+      argTypes = {MatrixStack.Entry.class, BakedQuad.class, float[].class, float.class, float.class, float.class,
           int[].class, int.class, boolean.class},
-      ret = void.class
+      retType = void.class
   )
   public void addQuad(MethodNode node,
-      @MethodMapping("addVertex") ASMMethod addVertex,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "isXrayBlocks",
-          args = {},
-          ret = boolean.class
-      ) ASMMethod isXrayEnabled,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "changeBrightness",
-          args = {int[].class, float[].class},
-          ret = boolean.class
-      ) ASMMethod changeBrightness,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "getBlockAlphaOverride",
-          args = {},
-          ret = float.class
-      ) ASMMethod getBlockAlphaOverride) {
+      @MapMethod("addVertex") ASMMethod addVertex,
+      @MapMethod(parentClass = XrayHooks.class, name = "isXrayBlocks") ASMMethod isXrayEnabled,
+      @MapMethod(parentClass = XrayHooks.class, name = "changeBrightness") ASMMethod changeBrightness,
+      @MapMethod(parentClass = XrayHooks.class, name = "getBlockAlphaOverride") ASMMethod getBlockAlphaOverride) {
     LocalVariableNode lvLights = ASMHelper.getLocalVariable(node, "combinedLightsIn", Type.getType(int[].class))
         .orElseThrow(() -> new Error("Could not find local variable combinedLightsIn"));
     LocalVariableNode lvColors = ASMHelper.getLocalVariable(node, "colorMuls", Type.getType(float[].class))
@@ -99,32 +84,18 @@ public class IVertexBuilderPatch extends Patch {
 
   @Inject
   @ConditionalInject("OptiFine")
-  @MethodMapping(
-      value = "addQuad",
-      args = {MatrixStack.Entry.class, BakedQuad.class, float[].class,
+  @MapMethod(
+      name = "addQuad",
+      argTypes = {MatrixStack.Entry.class, BakedQuad.class, float[].class,
           float.class, float.class, float.class, float.class,
           int[].class, int.class, boolean.class},
-      ret = void.class
+      retType = void.class,
+      allowInvalid = true
   )
   public void addQuadOptiFine(MethodNode node,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "isXrayBlocks",
-          args = {},
-          ret = boolean.class
-      ) ASMMethod isXrayEnabled,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "changeBrightness",
-          args = {int[].class, float[].class},
-          ret = boolean.class
-      ) ASMMethod changeBrightness,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "getBlockAlphaOverride",
-          args = {},
-          ret = float.class
-      ) ASMMethod getBlockAlphaOverride) {
+      @MapMethod(parentClass = XrayHooks.class, name = "isXrayBlocks") ASMMethod isXrayEnabled,
+      @MapMethod(parentClass = XrayHooks.class, name = "changeBrightness") ASMMethod changeBrightness,
+      @MapMethod(parentClass = XrayHooks.class, name = "getBlockAlphaOverride") ASMMethod getBlockAlphaOverride) {
     LocalVariableNode lvLights = ASMHelper.getLocalVariable(node, "combinedLightsIn", Type.getType(int[].class))
         .orElseThrow(() -> new Error("Could not find local variable combinedLightsIn"));
     LocalVariableNode lvColors = ASMHelper.getLocalVariable(node, "colorMuls", Type.getType(float[].class))

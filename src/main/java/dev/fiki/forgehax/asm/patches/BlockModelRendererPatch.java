@@ -2,8 +2,8 @@ package dev.fiki.forgehax.asm.patches;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.XrayHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
@@ -21,35 +21,19 @@ import org.objectweb.asm.tree.*;
 
 import java.util.Random;
 
-@ClassMapping(BlockModelRenderer.class)
+@MapClass(BlockModelRenderer.class)
 public class BlockModelRendererPatch extends Patch {
 
   @Inject
-  @MethodMapping(
-      value = "renderModelSmooth",
-      args = {IBlockDisplayReader.class, IBakedModel.class, BlockState.class, BlockPos.class, MatrixStack.class,
+  @MapMethod(
+      name = "renderModelSmooth",
+      argTypes = {IBlockDisplayReader.class, IBakedModel.class, BlockState.class, BlockPos.class, MatrixStack.class,
           IVertexBuilder.class, boolean.class, Random.class, long.class, int.class, IModelData.class},
-      ret = boolean.class
-  )
+      retType = boolean.class)
   public void renderModelSmooth(MethodNode node,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "isXrayBlocks",
-          args = {},
-          ret = boolean.class
-      ) ASMMethod isXrayEnabled,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "shouldMakeTransparent",
-          args = {BlockState.class},
-          ret = boolean.class
-      ) ASMMethod shouldMakeTransparent,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "blockRenderFinished",
-          args = {},
-          ret = void.class
-      ) ASMMethod blockRenderFinished) {
+      @MapMethod(parentClass = XrayHooks.class, name = "isXrayBlocks") ASMMethod isXrayEnabled,
+      @MapMethod(parentClass = XrayHooks.class, name = "shouldMakeTransparent") ASMMethod shouldMakeTransparent,
+      @MapMethod(parentClass = XrayHooks.class, name = "blockRenderFinished") ASMMethod blockRenderFinished) {
     AbstractInsnNode ret = ASMPattern.builder()
         .codeOnly()
         .opcode(IRETURN)
@@ -80,31 +64,15 @@ public class BlockModelRendererPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping(
+  @MapMethod(
       value = "renderModelFlat",
-      args = {IBlockDisplayReader.class, IBakedModel.class, BlockState.class, BlockPos.class, MatrixStack.class,
+      argTypes = {IBlockDisplayReader.class, IBakedModel.class, BlockState.class, BlockPos.class, MatrixStack.class,
           IVertexBuilder.class, boolean.class, Random.class, long.class, int.class, IModelData.class},
-      ret = boolean.class
-  )
+      retType = boolean.class)
   public void renderModelFlat(MethodNode node,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "isXrayBlocks",
-          args = {},
-          ret = boolean.class
-      ) ASMMethod isXrayEnabled,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "shouldMakeTransparent",
-          args = {BlockState.class},
-          ret = boolean.class
-      ) ASMMethod shouldMakeTransparent,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "blockRenderFinished",
-          args = {},
-          ret = void.class
-      ) ASMMethod blockRenderFinished) {
+      @MapMethod(parentClass = XrayHooks.class, name = "isXrayBlocks") ASMMethod isXrayEnabled,
+      @MapMethod(parentClass = XrayHooks.class, name = "shouldMakeTransparent") ASMMethod shouldMakeTransparent,
+      @MapMethod(parentClass = XrayHooks.class, name = "blockRenderFinished") ASMMethod blockRenderFinished) {
     renderModelSmooth(node, isXrayEnabled, shouldMakeTransparent, blockRenderFinished);
   }
 }

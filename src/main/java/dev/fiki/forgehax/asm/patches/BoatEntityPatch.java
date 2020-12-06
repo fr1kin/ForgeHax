@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
@@ -12,10 +12,8 @@ import dev.fiki.forgehax.asm.utils.transforming.Patch;
 import net.minecraft.entity.item.BoatEntity;
 import org.objectweb.asm.tree.*;
 
-@ClassMapping(BoatEntity.class)
+@MapClass(BoatEntity.class)
 public class BoatEntityPatch extends Patch {
-
-
 //  @RegisterTransformer("ForgeHaxHooks.isBoatSetYawActivated")
 //  public static class ControlBoat extends MethodTransformer {
 //
@@ -89,14 +87,9 @@ public class BoatEntityPatch extends Patch {
 //  }
 
   @Inject
-  @MethodMapping("applyYawToEntity")
+  @MapMethod("applyYawToEntity")
   public void applyYawToEntity(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldClampBoat",
-          args = {BoatEntity.class},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldClampBoat") ASMMethod hook) {
     InsnPattern nodes = ASMPattern.builder()
         .codeOnly()
         .opcodes(FLOAD, LDC, LDC, INVOKESTATIC, FSTORE)

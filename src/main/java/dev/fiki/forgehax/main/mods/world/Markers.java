@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.mods.world;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.argument.Arguments;
 import dev.fiki.forgehax.api.cmd.listener.Listeners;
 import dev.fiki.forgehax.api.cmd.settings.maps.SimpleSettingMap;
@@ -10,7 +11,6 @@ import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.api.events.RenderEvent;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.marker.MarkerDispatcher;
 import dev.fiki.forgehax.api.marker.MarkerWorker;
 import dev.fiki.forgehax.api.mod.Category;
@@ -56,16 +56,16 @@ public class Markers extends ToggleMod implements Common {
   @Injected("threadpool")
   private final ExecutorService pool;
 
-  @FieldMapping(parentClass = ViewFrustum.class, value = "countChunksX")
+  @MapField(parentClass = ViewFrustum.class, value = "countChunksX")
   private final ReflectionField<Integer> ViewFrustum_countChunksX;
-  @FieldMapping(parentClass = ViewFrustum.class, value = "countChunksY")
+  @MapField(parentClass = ViewFrustum.class, value = "countChunksY")
   private final ReflectionField<Integer> ViewFrustum_countChunksY;
-  @FieldMapping(parentClass = ViewFrustum.class, value = "countChunksZ")
+  @MapField(parentClass = ViewFrustum.class, value = "countChunksZ")
   private final ReflectionField<Integer> ViewFrustum_countChunksZ;
 
-  @FieldMapping(parentClass = WorldRenderer.class, value = "world")
+  @MapField(parentClass = WorldRenderer.class, value = "world")
   private final ReflectionField<ClientWorld> WorldRenderer_world;
-  @FieldMapping(parentClass = WorldRenderer.class, value = "viewFrustum")
+  @MapField(parentClass = WorldRenderer.class, value = "viewFrustum")
   private final ReflectionField<ViewFrustum> WorldRenderer_viewFrustum;
 
   private final SimpleSettingMap<Block, Color> blocks = newSettingMap(Block.class, Color.class)

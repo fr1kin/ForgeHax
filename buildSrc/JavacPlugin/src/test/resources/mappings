@@ -1,0 +1,3 @@
+dev/fiki/javac/remapper/template/SampleClass abcd
+ F aField a field_2342353 null null
+ M foo b method_2582853 (Ljava/lang/Object;)Ljava/lang/Object; (La;)La;

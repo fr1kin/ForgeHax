@@ -1,11 +1,11 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.Switch.Handle;
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -37,16 +37,16 @@ import static java.util.Objects.isNull;
 public class VanillaFlyMod extends ToggleMod {
   private final ReflectionTools common;
 
-  @FieldMapping(parentClass = CPlayerPacket.class, value = "moving")
+  @MapField(parentClass = CPlayerPacket.class, value = "moving")
   private final ReflectionField<Boolean> CPacketPlayer_moving;
 
-  @FieldMapping(parentClass = SPlayerPositionLookPacket.class, value = "x")
+  @MapField(parentClass = SPlayerPositionLookPacket.class, value = "x")
   private final ReflectionField<Double> SPlayerPositionLookPacket_x;
 
-  @FieldMapping(parentClass = SPlayerPositionLookPacket.class, value = "y")
+  @MapField(parentClass = SPlayerPositionLookPacket.class, value = "y")
   private final ReflectionField<Double> SPlayerPositionLookPacket_y;
 
-  @FieldMapping(parentClass = SPlayerPositionLookPacket.class, value = "z")
+  @MapField(parentClass = SPlayerPositionLookPacket.class, value = "z")
   private final ReflectionField<Double> SPlayerPositionLookPacket_z;
 
   private Handle fly = LocalPlayerEx.getFlySwitch().createHandle(getName());

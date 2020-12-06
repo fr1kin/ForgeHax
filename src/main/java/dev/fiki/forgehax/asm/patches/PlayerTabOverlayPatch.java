@@ -1,8 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MappedFormat;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
@@ -17,17 +16,12 @@ import org.objectweb.asm.tree.*;
  * Created by Babbaj on 8/9/2017. thanks 086 :3
  */
 
-@ClassMapping(PlayerTabOverlayGui.class)
+@MapClass(PlayerTabOverlayGui.class)
 public class PlayerTabOverlayPatch extends Patch {
   @Inject
-  @MethodMapping(value = "func_238523_a_", format = MappedFormat.SRG)
+  @MapMethod("func_238523_a_")
   public void render(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldIncreaseTabListSize",
-          args = {},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldIncreaseTabListSize") ASMMethod hook) {
     InsnPattern nodes = ASMPattern.builder()
         .codeOnly()
         .opcodes(ALOAD,

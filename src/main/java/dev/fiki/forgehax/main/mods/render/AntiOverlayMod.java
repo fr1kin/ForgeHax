@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.render;
 
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.events.RenderEvent;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -24,7 +24,7 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 public class AntiOverlayMod extends ToggleMod {
-  @FieldMapping(parentClass = GameRenderer.class, value = "itemActivationItem")
+  @MapField(parentClass = GameRenderer.class, value = "itemActivationItem")
   private final ReflectionField<ItemStack> GameRenderer_itemActivationItem;
 
   /**

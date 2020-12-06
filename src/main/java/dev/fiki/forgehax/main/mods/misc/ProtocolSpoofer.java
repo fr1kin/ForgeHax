@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods.misc;
 
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -21,7 +21,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 )
 @RequiredArgsConstructor
 public class ProtocolSpoofer extends ToggleMod {
-  @FieldMapping(parentClass = CHandshakePacket.class, value = "protocolVersion")
+  @MapField(parentClass = CHandshakePacket.class, value = "protocolVersion")
   private final ReflectionField<Integer> CKeepAlivePacket_protocolVersion;
 
   private final IntegerSetting version = newIntegerSetting()

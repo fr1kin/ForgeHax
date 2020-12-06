@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.player;
 
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -19,7 +19,7 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 )
 @RequiredArgsConstructor
 public class PortalGui extends ToggleMod {
-  @FieldMapping(parentClass = Entity.class, value = "inPortal")
+  @MapField(parentClass = Entity.class, value = "inPortal")
   private final ReflectionField<Boolean> Entity_inPortal;
 
   @SubscribeEvent

@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.MarkerHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
@@ -15,18 +15,13 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-@ClassMapping(ViewFrustum.class)
+@MapClass(ViewFrustum.class)
 public class ViewFrustumPatch extends Patch {
 
   @Inject
-  @MethodMapping("createRenderChunks")
+  @MapMethod("createRenderChunks")
   public void createRenderChunks(MethodNode node,
-      @MethodMapping(
-          parentClass = MarkerHooks.class,
-          value = "onCreateRenderChunks",
-          args = {ViewFrustum.class},
-          ret = void.class
-      ) ASMMethod onCreateRenderChunks) {
+      @MapMethod(parentClass = MarkerHooks.class, name = "onCreateRenderChunks") ASMMethod onCreateRenderChunks) {
     AbstractInsnNode ret = ASMHelper.findReturn(RETURN, node);
 
     InsnList list = new InsnList();
@@ -37,18 +32,10 @@ public class ViewFrustumPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("updateChunkPositions")
+  @MapMethod("updateChunkPositions")
   public void updateChunkPositions(MethodNode node,
-      @MethodMapping(
-          parentClass = ChunkRenderDispatcher.ChunkRender.class,
-          value = "setPosition"
-      ) ASMMethod setPosition,
-      @MethodMapping(
-          parentClass = MarkerHooks.class,
-          value = "onUpdateChunkPosition",
-          args = {int.class, int.class, int.class, int.class, int.class, int.class},
-          ret = void.class
-      ) ASMMethod onUpdateChunkPosition) {
+      @MapMethod(parentClass = ChunkRenderDispatcher.ChunkRender.class, name = "setPosition") ASMMethod setPosition,
+      @MapMethod(parentClass = MarkerHooks.class, name = "onUpdateChunkPosition") ASMMethod onUpdateChunkPosition) {
     AbstractInsnNode call = ASMPattern.builder()
         .codeOnly()
         .custom(an -> setPosition.matchesInvoke(INVOKEVIRTUAL, an))

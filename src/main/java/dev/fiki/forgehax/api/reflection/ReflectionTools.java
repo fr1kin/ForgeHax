@@ -1,7 +1,6 @@
 package dev.fiki.forgehax.api.reflection;
 
-import dev.fiki.forgehax.api.mapper.FieldMapping;
-import dev.fiki.forgehax.api.mapper.MappingScan;
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.reflection.types.ReflectionField;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import net.minecraft.network.play.client.CPlayerPacket;
 
 import java.util.Map;
 
-@MappingScan
 @RequiredArgsConstructor
 public class ReflectionTools {
   @Getter
@@ -26,38 +24,38 @@ public class ReflectionTools {
 
   //
 
-  @FieldMapping(parentClass = CPlayerPacket.class, value = "y")
+  @MapField(parentClass = CPlayerPacket.class, value = "y")
   public final ReflectionField<Double> CPacketPlayer_y;
-  @FieldMapping(parentClass = CPlayerPacket.class, value = "onGround")
+  @MapField(parentClass = CPlayerPacket.class, value = "onGround")
   public final ReflectionField<Boolean> CPacketPlayer_onGround;
 
   //
 
-  @FieldMapping(parentClass = Entity.class, value = "onGround")
+  @MapField(parentClass = Entity.class, value = "onGround")
   public final ReflectionField<Boolean> Entity_onGround;
 
   //
 
-  @FieldMapping(parentClass = Minecraft.class, value = "leftClickCounter")
+  @MapField(parentClass = Minecraft.class, value = "leftClickCounter")
   public final ReflectionField<Integer> Minecraft_leftClickCounter;
-  @FieldMapping(parentClass = Minecraft.class, value = "rightClickDelayTimer")
+  @MapField(parentClass = Minecraft.class, value = "rightClickDelayTimer")
   public final ReflectionField<Integer> Minecraft_rightClickDelayTimer;
 
   //
 
-  @FieldMapping(parentClass = BufferBuilder.class, value = "drawMode")
+  @MapField(parentClass = BufferBuilder.class, value = "drawMode")
   public final ReflectionField<Integer> BufferBuilder_drawMode;
 
   //
 
-  @FieldMapping(parentClass = KeyBinding.class, value = "pressTime")
+  @MapField(parentClass = KeyBinding.class, value = "pressTime")
   public final ReflectionField<Integer> KeyBinding_pressTime;
-  @FieldMapping(parentClass = KeyBinding.class, value = "pressed")
+  @MapField(parentClass = KeyBinding.class, value = "pressed")
   public final ReflectionField<Boolean> KeyBinding_pressed;
 
   //
 
-  @FieldMapping(parentClass = InputMappings.Input.class, value = "REGISTRY")
+  @MapField(parentClass = InputMappings.Input.class, value = "REGISTRY")
   public final ReflectionField<Map<String, InputMappings.Input>> InputMappings_Input_REGISTRY;
 
 }

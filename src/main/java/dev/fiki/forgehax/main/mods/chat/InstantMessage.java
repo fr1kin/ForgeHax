@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.chat;
 
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.StringSetting;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -25,7 +25,7 @@ import static dev.fiki.forgehax.main.Common.getLogger;
 )
 @RequiredArgsConstructor
 public class InstantMessage extends ToggleMod {
-  @FieldMapping(parentClass = ConnectingScreen.class, value = "networkManager")
+  @MapField(parentClass = ConnectingScreen.class, value = "networkManager")
   private final ReflectionField<NetworkManager> ConnectingScreen_networkManager;
 
   private final StringSetting message = newStringSetting()

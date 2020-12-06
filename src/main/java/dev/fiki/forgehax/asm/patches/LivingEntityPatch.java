@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapField;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
@@ -11,22 +11,16 @@ import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
 import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.Patch;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import org.objectweb.asm.tree.*;
 
-@ClassMapping(LivingEntity.class)
+@MapClass(LivingEntity.class)
 public class LivingEntityPatch extends Patch {
 
   @Inject
-  @MethodMapping("travel")
+  @MapMethod("travel")
   public void travel(MethodNode node,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "onEntityBlockSlipApply",
-          args = {float.class, LivingEntity.class, BlockPos.class},
-          ret = float.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "onEntityBlockSlipApply") ASMMethod hook) {
     AbstractInsnNode first = ASMPattern.builder()
         .codeOnly()
         // float f5 = this.world.getBlockState(....
@@ -48,20 +42,15 @@ public class LivingEntityPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("travel")
+  @MapMethod("travel")
   public void travel_Elytra(MethodNode node,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldApplyElytraMovement",
-          args = {boolean.class, LivingEntity.class},
-          ret = boolean.class
-      ) ASMMethod hook,
-      @MethodMapping("isElytraFlying") ASMMethod isElytraFlying) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldApplyElytraMovement") ASMMethod hook,
+      @MapMethod("isElytraFlying") ASMMethod isElytraFlying) {
     AbstractInsnNode flyingNode = ASMPattern.builder()
         .codeOnly()
         .custom(n -> {
           if (n instanceof MethodInsnNode) {
-            return isElytraFlying.isNameEqual(((MethodInsnNode) n).name);
+            return isElytraFlying.anyNameEqual(((MethodInsnNode) n).name);
           }
           return false;
         })
@@ -80,25 +69,17 @@ public class LivingEntityPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("livingTick")
+  @MapMethod("livingTick")
   public void transform(MethodNode node,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldClampMotion",
-          args = {LivingEntity.class},
-          ret = boolean.class
-      ) ASMMethod hook,
-      @FieldMapping(
-          parentClass = Vector3d.class,
-          value = "z"
-      ) ASMField vec3d_z) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldClampMotion") ASMMethod hook,
+      @MapField(parentClass = Vector3d.class, value = "z") ASMField vec3d_z) {
     // double d5 = Vector3d.z;
     // >HERE<
     AbstractInsnNode postStore = ASMPattern.builder()
         .custom(n -> {
           if (n instanceof FieldInsnNode && n.getOpcode() == GETFIELD) {
             FieldInsnNode mn = (FieldInsnNode) n;
-            return vec3d_z.isNameEqual(mn.name);
+            return vec3d_z.anyNameEquals(mn.name);
           }
           return false;
         })

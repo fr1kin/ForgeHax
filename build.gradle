@@ -75,7 +75,7 @@ minecraft {
       workingDirectory project.file('run')
 
 //      property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-      property 'forge.logging.console.level', 'debug'
+      property 'forge.logging.console.level', 'info'
       property 'forgehax.logging.level', 'debug'
 
       mods {
@@ -88,8 +88,6 @@ minecraft {
 }
 
 mapper {
-  annotatedWith 'dev/fiki/forgehax/api/modloader/RegisterMod'
-
   include sourceSets.main
 }
 

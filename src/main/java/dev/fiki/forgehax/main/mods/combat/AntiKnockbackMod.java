@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods.combat;
 
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -35,18 +35,18 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 public class AntiKnockbackMod extends ToggleMod {
-  @FieldMapping(parentClass = SEntityVelocityPacket.class, value = "motionX")
+  @MapField(parentClass = SEntityVelocityPacket.class, value = "motionX")
   private final ReflectionField<Integer> SEntityVelocityPacket_motionX;
-  @FieldMapping(parentClass = SEntityVelocityPacket.class, value = "motionY")
+  @MapField(parentClass = SEntityVelocityPacket.class, value = "motionY")
   private final ReflectionField<Integer> SEntityVelocityPacket_motionY;
-  @FieldMapping(parentClass = SEntityVelocityPacket.class, value = "motionZ")
+  @MapField(parentClass = SEntityVelocityPacket.class, value = "motionZ")
   private final ReflectionField<Integer> SEntityVelocityPacket_motionZ;
 
-  @FieldMapping(parentClass = SExplosionPacket.class, value = "motionX")
+  @MapField(parentClass = SExplosionPacket.class, value = "motionX")
   private final ReflectionField<Float> SExplosionPacket_motionX;
-  @FieldMapping(parentClass = SExplosionPacket.class, value = "motionY")
+  @MapField(parentClass = SExplosionPacket.class, value = "motionY")
   private final ReflectionField<Float> SExplosionPacket_motionY;
-  @FieldMapping(parentClass = SExplosionPacket.class, value = "motionZ")
+  @MapField(parentClass = SExplosionPacket.class, value = "motionZ")
   private final ReflectionField<Float> SExplosionPacket_motionZ;
 
   private final DoubleSetting multiplier_x = newDoubleSetting()

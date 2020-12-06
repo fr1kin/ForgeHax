@@ -2,9 +2,9 @@ package dev.fiki.forgehax.main.services;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.api.events.Render2DEvent;
 import dev.fiki.forgehax.api.events.RenderEvent;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
 import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.ServiceMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -26,7 +26,7 @@ import static dev.fiki.forgehax.main.Common.getGameRenderer;
 @RegisterMod
 @RequiredArgsConstructor
 public class RenderEventService extends ServiceMod {
-  @MethodMapping(parentClass = GameRenderer.class, value = "hurtCameraEffect")
+  @MapMethod(parentClass = GameRenderer.class, value = "hurtCameraEffect")
   private final ReflectionMethod<Void> GameRenderer_hurtCameraEffect;
 
   @SubscribeEvent

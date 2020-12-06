@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.services;
 
 import dev.fiki.forgehax.api.PacketHelper;
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.ServiceMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.types.ReflectionField;
@@ -19,7 +19,7 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 @RequiredArgsConstructor
 @ExtensionMethod({LocalPlayerEx.class})
 public class SneakService extends ServiceMod {
-  @FieldMapping(parentClass = CEntityActionPacket.class, value = "entityID")
+  @MapField(parentClass = CEntityActionPacket.class, value = "entityID")
   private final ReflectionField<Integer> CEntityActionPacket_entityID;
   
   private boolean suppressing = false;

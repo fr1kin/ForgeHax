@@ -1,0 +1,61 @@
+plugins {
+  id 'java'
+}
+
+group 'dev.fiki.forgehax.javac'
+
+sourceSets {
+  templates {}
+}
+
+ext {
+  unpackedLombok = file("$project.buildDir/lombok")
+}
+
+configurations {
+  lombok
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  lombok group: 'org.projectlombok', name: 'lombok', version: '1.18.16'
+
+//  compileOnly group: 'org.kohsuke.metainf-services', name: 'metainf-services', version: '1.8'
+
+  compile files("${System.properties['java.home']}/../lib/tools.jar")
+  compile project(':Annotations')
+  compile files(unpackedLombok)
+
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.0'
+  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.0'
+  testCompile group: 'commons-io', name: 'commons-io', version: '2.8.0'
+  testCompile group: 'com.google.testing.compile', name: 'compile-testing', version: '0.19'
+  testCompile group: 'org.ow2.asm', name: 'asm-debug-all', version: '5.2'
+  testCompile group: 'org.assertj', name: 'assertj-core', version: '3.18.1'
+}
+
+task unpackLombok {
+  inputs.files configurations.lombok
+  outputs.dir unpackedLombok
+
+  doLast {
+    copy {
+      from zipTree(configurations.lombok.singleFile)
+      into unpackedLombok
+      include 'lombok/**/*'
+      rename "(.*)[.]SCL[.]lombok", '$1.class'
+    }
+  }
+}
+
+test {
+  dependsOn unpackLombok
+
+  environment 'REMAPPER_FILE', file('src/test/resources/mappings').getAbsolutePath()
+  useJUnitPlatform()
+}
+
+tasks.compileJava.dependsOn unpackLombok

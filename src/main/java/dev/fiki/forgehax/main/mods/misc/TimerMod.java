@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.main.mods.misc;
 
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -23,10 +23,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 )
 @RequiredArgsConstructor
 public class TimerMod extends ToggleMod {
-  @FieldMapping(parentClass = Minecraft.class, value = "timer")
+  @MapField(parentClass = Minecraft.class, value = "timer")
   public final ReflectionField<Timer> Minecraft_timer;
 
-  @FieldMapping(parentClass = Timer.class, value = "tickLength")
+  @MapField(parentClass = Timer.class, value = "tickLength")
   public final ReflectionField<Float> Timer_tickLength;
 
   public final FloatSetting factor = newFloatSetting()

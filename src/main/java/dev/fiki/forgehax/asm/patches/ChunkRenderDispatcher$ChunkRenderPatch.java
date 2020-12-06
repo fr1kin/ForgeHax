@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.MarkerHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
@@ -13,18 +13,13 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-@ClassMapping(ChunkRenderDispatcher.ChunkRender.class)
+@MapClass(ChunkRenderDispatcher.ChunkRender.class)
 public class ChunkRenderDispatcher$ChunkRenderPatch extends Patch {
 
   @Inject
-  @MethodMapping("rebuildChunkLater")
+  @MapMethod("rebuildChunkLater")
   public void rebuildChunkLater(MethodNode node,
-      @MethodMapping(
-          parentClass = MarkerHooks.class,
-          value = "onRebuildChunk",
-          args = {ChunkRenderDispatcher.ChunkRender.class, boolean.class},
-          ret = void.class
-      ) ASMMethod onRebuildChunk) {
+      @MapMethod(parentClass = MarkerHooks.class, name = "onRebuildChunk") ASMMethod onRebuildChunk) {
     InsnList list = new InsnList();
     list.add(new VarInsnNode(ALOAD, 0));
     list.add(new InsnNode(ICONST_1));
@@ -34,14 +29,9 @@ public class ChunkRenderDispatcher$ChunkRenderPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("rebuildChunk")
+  @MapMethod("rebuildChunk")
   public void rebuildChunk(MethodNode node,
-      @MethodMapping(
-          parentClass = MarkerHooks.class,
-          value = "onRebuildChunk",
-          args = {ChunkRenderDispatcher.ChunkRender.class, boolean.class},
-          ret = void.class
-      ) ASMMethod onRebuildChunk) {
+      @MapMethod(parentClass = MarkerHooks.class, name = "onRebuildChunk") ASMMethod onRebuildChunk) {
     InsnList list = new InsnList();
     list.add(new VarInsnNode(ALOAD, 0));
     list.add(new InsnNode(ICONST_0));

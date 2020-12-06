@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.events.NearClippingPlaneEvent;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
@@ -11,18 +11,14 @@ import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
 import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.Patch;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraftforge.eventbus.api.Event;
 import org.objectweb.asm.tree.*;
 
-@ClassMapping(GameRenderer.class)
+@MapClass(GameRenderer.class)
 public class GameRendererPatch extends Patch {
   @Inject
-  @MethodMapping("hurtCameraEffect")
+  @MapMethod("hurtCameraEffect")
   public void hurtCameraEffect(MethodNode node,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldStopHurtcamEffect",
-          ret = boolean.class) ASMMethod callback) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldStopHurtcamEffect") ASMMethod callback) {
     AbstractInsnNode returnCall = ASMPattern.builder()
         .codeOnly()
         .opcodes(RETURN)
@@ -42,13 +38,10 @@ public class GameRendererPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("getProjectionMatrix")
+  @MapMethod("getProjectionMatrix")
   public void getProjectionMatrix(MethodNode node,
-      @ClassMapping(NearClippingPlaneEvent.class) ASMClass nearClippingPlaneEvent,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "fireEvent_v",
-          args = Event.class) ASMMethod fireEvent) {
+      @MapClass(NearClippingPlaneEvent.class) ASMClass nearClippingPlaneEvent,
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "fireEvent_v") ASMMethod fireEvent) {
     LdcInsnNode nearPlaneNum = ASMPattern.builder().codeOnly()
         .constant(0.05F)
         .find(node)
@@ -56,13 +49,13 @@ public class GameRendererPatch extends Patch {
 
     final InsnList params = new InsnList();
     params.add(new LdcInsnNode(nearPlaneNum.cst));
-    final InsnList newEvent = ASMHelper.newInstance(nearClippingPlaneEvent.getName(), "(F)V", params);
+    final InsnList newEvent = ASMHelper.newInstance(nearClippingPlaneEvent.getClassName(), "(F)V", params);
 
     final InsnList list = new InsnList();
     list.add(newEvent);
     list.add(new InsnNode(DUP));
     list.add(ASMHelper.call(INVOKESTATIC, fireEvent));
-    list.add(new FieldInsnNode(GETFIELD, nearClippingPlaneEvent.getName(), "value", "F"));
+    list.add(new FieldInsnNode(GETFIELD, nearClippingPlaneEvent.getClassName(), "value", "F"));
 
     node.instructions.insert(nearPlaneNum, list);
     node.instructions.remove(nearPlaneNum);

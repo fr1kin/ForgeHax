@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.hooks.PushHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
@@ -12,18 +12,13 @@ import dev.fiki.forgehax.asm.utils.transforming.Patch;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import org.objectweb.asm.tree.*;
 
-@ClassMapping(ClientPlayerEntity.class)
+@MapClass(ClientPlayerEntity.class)
 public class ClientEntityPlayerPatch extends Patch {
 
   @Inject
-  @MethodMapping("livingTick")
+  @MapMethod("livingTick")
   public void livingTick(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldSlowdownPlayer",
-          args = {ClientPlayerEntity.class},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldSlowdownPlayer") ASMMethod hook) {
     AbstractInsnNode skipNode = ASMPattern.builder()
         .codeOnly()
         .opcodes(ALOAD, INVOKEVIRTUAL, IFEQ, ALOAD, INVOKEVIRTUAL, IFNE)
@@ -41,24 +36,11 @@ public class ClientEntityPlayerPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("tick")
+  @MapMethod("tick")
   public void tick(MethodNode main,
-      @MethodMapping(
-          parentClass = ClientPlayerEntity.class,
-          value = "onUpdateWalkingPlayer"
-      ) ASMMethod onUpdateWalkingPlayer,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "onUpdateWalkingPlayerPre",
-          args = {ClientPlayerEntity.class},
-          ret = boolean.class
-      ) ASMMethod updateWalkingPlayerPre,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "onUpdateWalkingPlayerPost",
-          args = {ClientPlayerEntity.class},
-          ret = void.class
-      ) ASMMethod updateWalkingPlayerPost) {
+      @MapMethod(parentClass = ClientPlayerEntity.class, name = "onUpdateWalkingPlayer") ASMMethod onUpdateWalkingPlayer,
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "onUpdateWalkingPlayerPre") ASMMethod updateWalkingPlayerPre,
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "onUpdateWalkingPlayerPost") ASMMethod updateWalkingPlayerPost) {
     // <pre>
     // this.onUpdateWalkingPlayer();
     // <post>
@@ -66,7 +48,7 @@ public class ClientEntityPlayerPatch extends Patch {
     AbstractInsnNode walkingUpdateCall = ASMPattern.builder()
         .custom(n -> {
           if (n instanceof MethodInsnNode) {
-            return onUpdateWalkingPlayer.isNameEqual(((MethodInsnNode) n).name);
+            return onUpdateWalkingPlayer.anyNameEqual(((MethodInsnNode) n).name);
           }
           return false;
         })
@@ -92,14 +74,9 @@ public class ClientEntityPlayerPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("isRowingBoat")
+  @MapMethod("isRowingBoat")
   public void isRowingBoat(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldNotRowBoat",
-          args = {ClientPlayerEntity.class},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldNotRowBoat") ASMMethod hook) {
     AbstractInsnNode ret = ASMPattern.builder()
         .codeOnly()
         .opcode(IRETURN)
@@ -122,14 +99,9 @@ public class ClientEntityPlayerPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("shouldBlockPushPlayer")
+  @MapMethod("shouldBlockPushPlayer")
   public void shouldBlockPushPlayer(MethodNode node,
-      @MethodMapping(
-          parentClass = PushHooks.class,
-          value = "onPushedByBlock",
-          args = {ClientPlayerEntity.class},
-          ret = boolean.class
-      ) ASMMethod onPushedByBlock) {
+      @MapMethod(parentClass = PushHooks.class, name = "onPushedByBlock") ASMMethod onPushedByBlock) {
     InsnNode ret = ASMHelper.findReturn(IRETURN, node);
 
     LabelNode disabled = new LabelNode();

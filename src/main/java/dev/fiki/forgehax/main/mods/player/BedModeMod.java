@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.player;
 
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -20,7 +20,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 )
 @RequiredArgsConstructor
 public class BedModeMod extends ToggleMod {
-  @FieldMapping(parentClass = PlayerEntity.class, value = "sleepTimer")
+  @MapField(parentClass = PlayerEntity.class, value = "sleepTimer")
   public final ReflectionField<Integer> PlayerEntity_sleepTimer;
 
   @SubscribeEvent

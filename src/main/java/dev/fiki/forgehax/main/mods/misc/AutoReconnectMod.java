@@ -1,12 +1,12 @@
 package dev.fiki.forgehax.main.mods.misc;
 
 import dev.fiki.forgehax.api.SimpleTimer;
+import dev.fiki.forgehax.api.asm.MapField;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.settings.LongSetting;
 import dev.fiki.forgehax.api.events.ClientWorldEvent;
 import dev.fiki.forgehax.api.events.PreClientTickEvent;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -36,9 +36,9 @@ import static dev.fiki.forgehax.main.Common.setDisplayScreen;
 )
 @RequiredArgsConstructor
 public class AutoReconnectMod extends ToggleMod {
-  @MethodMapping(parentClass = Screen.class, value = "addButton")
+  @MapMethod(parentClass = Screen.class, value = "addButton")
   private final ReflectionMethod<Widget> Screen_addButton;
-  @FieldMapping(parentClass = ConnectingScreen.class, value = "previousGuiScreen")
+  @MapField(parentClass = ConnectingScreen.class, value = "previousGuiScreen")
   private final ReflectionField<Screen> ConnectingScreen_previousGuiScreen;
 
   public final LongSetting delay = newLongSetting()

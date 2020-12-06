@@ -1,143 +1,92 @@
 package dev.fiki.forgehax.asm.utils.asmtype;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MappedFormat;
-import lombok.*;
+import dev.fiki.forgehax.api.asm.runtime.Format;
+import dev.fiki.forgehax.api.asm.runtime.RtMapClass;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Stream;
 
-public abstract class ASMClass implements Formattable<ASMClass> {
-  public static ASMClass unmap(@NonNull ClassMapping mapping) {
-    return ASMClass.auto(mapping._name(), mapping._obfName());
+public interface ASMClass {
+  static ASMClass from(@NonNull RtMapClass map) {
+    return new Primary(map);
   }
 
-  public static ASMClass single(String name) {
-    return new Single(name);
-  }
+  String getClassName();
 
-  public static ASMClass multi(String name, String obfName) {
-    return new Container(name, obfName);
-  }
+  Format getFormat();
 
-  public static ASMClass auto(String name, String obfName) {
-    name = Util.emptyToNull(name);
-    obfName = Util.emptyToNull(obfName);
-    if (obfName == null) {
-      return single(name);
-    } else {
-      return multi(name, obfName);
-    }
-  }
+  ASMClass setFormat(Format format);
 
-  public abstract String getName();
+  Stream<? extends ASMClass> getDelegates();
 
-  @Override
-  public String toString() {
-    return getName();
-  }
-
-  @Getter
-  @EqualsAndHashCode(callSuper = false)
-  @RequiredArgsConstructor
-  static private class Single extends ASMClass {
-    private final String name;
-  }
-
-  @Getter
-  @RequiredArgsConstructor
-  static private class Multi extends ASMClass {
-    private final ASMClass parent;
-    private final String name;
-    private final MappedFormat format;
-
-    @Override
-    public ASMClass format(MappedFormat format) {
-      return getParent().format(format);
-    }
-
-    @Override
-    public Stream<ASMClass> stream() {
-      return getParent().stream();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-
-      Multi multi = (Multi) o;
-
-      if (!parent.equals(multi.parent)) return false;
-      return name.equals(multi.name);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = parent.hashCode();
-      result = 31 * result + name.hashCode();
-      return result;
-    }
-  }
-
-  static private class Container extends ASMClass {
-    private final ASMClass mapped;
-    private final ASMClass obfuscated;
-
-    @Getter
-    @Setter
-    private MappedFormat format = MappedFormat.MAPPED;
-
-    public Container(@NonNull String className, @NonNull String obfuscatedClassName) {
-      this.mapped = new Multi(this, className, MappedFormat.MAPPED);
-      this.obfuscated = new Multi(this, obfuscatedClassName, MappedFormat.OBFUSCATED);
-    }
-
-    @Override
-    public String getName() {
-      return format(getFormat()).getName();
-    }
-
-    @Override
-    public ASMClass format(MappedFormat format) {
-      switch (format) {
-        case MAPPED:
-        case SRG:
-          return this.mapped;
-        case OBFUSCATED:
-          return this.obfuscated;
-      }
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Stream<ASMClass> stream() {
-      return Stream.of(mapped, obfuscated);
-    }
-
+  abstract class Base implements ASMClass {
     @Override
     public String toString() {
-      return stream()
-          .map(Object::toString)
-          .collect(Collectors.joining(","));
+      return getClassName();
     }
 
     @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(Object obj) {
+      return obj == this || (obj instanceof ASMClass && this.getClassName().equals(((ASMClass) obj).getClassName()));
+    }
+  }
 
-      Container container = (Container) o;
+  final class Primary extends Base {
+    private final Delegate[] delegates;
 
-      if (!mapped.getName().equals(container.mapped.getName())) return false;
-      return obfuscated.getName().equals(container.obfuscated.getName());
+    Primary(RtMapClass map) {
+      this.delegates = new Delegate[Format.values().length];
+      this.delegates[Format.NORMAL.ordinal()] = new Delegate(this, map.className(), Format.NORMAL);
+      for (RtMapClass.Alternative alt : map.alternatives()) {
+        this.delegates[alt.format().ordinal()] = new Delegate(this, alt.className(), alt.format());
+      }
     }
 
     @Override
-    public int hashCode() {
-      int result = mapped.getName().hashCode();
-      result = 31 * result + obfuscated.getName().hashCode();
-      return result;
+    public String getClassName() {
+      return setFormat(getFormat()).getClassName();
+    }
+
+    @Override
+    public Format getFormat() {
+      return ASMEnv.getCurrentClassFormat();
+    }
+
+    @Override
+    public ASMClass setFormat(Format format) {
+      return delegates[format.ordinal()];
+    }
+
+    @Override
+    public Stream<? extends Delegate> getDelegates() {
+      return Arrays.stream(delegates).filter(Objects::nonNull);
+    }
+  }
+
+  @Getter
+  @RequiredArgsConstructor
+  final class Delegate extends Base {
+    private final Primary owner;
+
+    @EqualsAndHashCode.Include
+    private final String className;
+
+    @EqualsAndHashCode.Exclude
+    private final Format format;
+
+    @Override
+    public ASMClass setFormat(Format format) {
+      return owner.setFormat(format);
+    }
+
+    @Override
+    public Stream<? extends ASMClass> getDelegates() {
+      return owner.getDelegates();
     }
   }
 }

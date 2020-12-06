@@ -4,12 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.StringSetting;
 import dev.fiki.forgehax.api.events.ClientWorldEvent;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -80,7 +80,7 @@ public class MatrixNotifications extends ToggleMod {
     }
   }
 
-  @FieldMapping(parentClass = DisconnectedScreen.class, value = "message")
+  @MapField(parentClass = DisconnectedScreen.class, value = "message")
   private final ReflectionField<ITextComponent> DisconnectedScreen_message;
 
   @Injected("async")

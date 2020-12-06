@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.api.modloader.di.providers;
 
 import com.google.common.collect.Maps;
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.runtime.RtMapClass;
+import dev.fiki.forgehax.api.asm.runtime.RtMapField;
+import dev.fiki.forgehax.api.asm.runtime.RtMapMethod;
 import dev.fiki.forgehax.api.modloader.di.DependencyInjector;
 import dev.fiki.forgehax.api.reflection.types.ReflectionClass;
 import dev.fiki.forgehax.api.reflection.types.ReflectionField;
@@ -35,14 +35,14 @@ public class ReflectionProviders {
     @Override
     public Object getInstance(BuildContext ctx, LoadChain chain) throws
         FailedToInitializeException, DependencyInjector.NoSuchDependency {
-      ClassMapping mapping = Stream.of(ctx.getContextParameter(), ctx.getContextField())
+      RtMapClass mapping = Stream.of(ctx.getContextParameter(), ctx.getContextField())
           .filter(Objects::nonNull)
-          .map(e -> e.getAnnotation(ClassMapping.class))
+          .map(e -> e.getAnnotation(RtMapClass.class))
           .filter(Objects::nonNull)
           .findFirst()
           .orElseThrow(() -> new FailedToInitializeException("Could not find any ClassMapping annotation: " + ctx));
 
-      return NAME_TO_CLASS.computeIfAbsent(ASMClass.unmap(mapping), ReflectionClass::new);
+      return NAME_TO_CLASS.computeIfAbsent(ASMClass.from(mapping), ReflectionClass::new);
     }
   }
 
@@ -54,14 +54,14 @@ public class ReflectionProviders {
     @Override
     public Object getInstance(BuildContext ctx, LoadChain chain) throws
         FailedToInitializeException, DependencyInjector.NoSuchDependency {
-      FieldMapping mapping = Stream.of(ctx.getContextParameter(), ctx.getContextField())
+      RtMapField mapping = Stream.of(ctx.getContextParameter(), ctx.getContextField())
           .filter(Objects::nonNull)
-          .map(e -> e.getAnnotation(FieldMapping.class))
+          .map(e -> e.getAnnotation(RtMapField.class))
           .filter(Objects::nonNull)
           .findFirst()
           .orElseThrow(() -> new FailedToInitializeException("Could not find any FieldMapping annotation: " + ctx));
 
-      return NAME_TO_FIELD.computeIfAbsent(ASMField.unmap(mapping), field -> new ReflectionField<>(
+      return NAME_TO_FIELD.computeIfAbsent(ASMField.from(mapping), field -> new ReflectionField<>(
           NAME_TO_CLASS.computeIfAbsent(field.getParentClass(), ReflectionClass::new),
           field
       ));
@@ -76,14 +76,14 @@ public class ReflectionProviders {
     @Override
     public Object getInstance(BuildContext ctx, LoadChain chain) throws
         FailedToInitializeException, DependencyInjector.NoSuchDependency {
-      MethodMapping mapping = Stream.of(ctx.getContextParameter(), ctx.getContextField())
+      RtMapMethod mapping = Stream.of(ctx.getContextParameter(), ctx.getContextField())
           .filter(Objects::nonNull)
-          .map(e -> e.getAnnotation(MethodMapping.class))
+          .map(e -> e.getAnnotation(RtMapMethod.class))
           .filter(Objects::nonNull)
           .findFirst()
           .orElseThrow(() -> new FailedToInitializeException("Could not find any MethodMapping annotation: " + ctx));
 
-      return NAME_TO_METHOD.computeIfAbsent(ASMMethod.unmap(mapping), method -> new ReflectionMethod<>(
+      return NAME_TO_METHOD.computeIfAbsent(ASMMethod.from(mapping), method -> new ReflectionMethod<>(
           NAME_TO_CLASS.computeIfAbsent(method.getParentClass(), ReflectionClass::new),
           method
       ));

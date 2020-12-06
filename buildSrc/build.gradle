@@ -1,11 +1,5 @@
-sourceSets {
-  api {
-    compileClasspath += main.compileClasspath
-  }
-
-  main {
-    compileClasspath += api.output
-  }
+plugins {
+  id 'java'
 }
 
 repositories {
@@ -14,17 +8,4 @@ repositories {
 
 dependencies {
   compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.13', ext: 'pom'
-  compile group: 'org.ow2.asm', name: 'asm-debug-all', version: '5.2'
 }
-
-jar {
-  from sourceSets.api.output
-}
-
-task apiJar(dependsOn: classes, type: Jar) {
-  classifier 'api'
-  from sourceSets.api.output
-  include 'dev/fiki/forgehax/**'
-}
-
-tasks.build.finalizedBy apiJar

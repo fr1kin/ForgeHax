@@ -3,9 +3,9 @@ package dev.fiki.forgehax.asm.utils.transforming;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.runtime.RtMapClass;
+import dev.fiki.forgehax.api.asm.runtime.RtMapField;
+import dev.fiki.forgehax.api.asm.runtime.RtMapMethod;
 import dev.fiki.forgehax.asm.ASMCommon;
 import dev.fiki.forgehax.asm.ForgeHaxCoreTransformer;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMClass;
@@ -37,7 +37,7 @@ public class PatchScanner implements ASMCommon {
   public PatchScanner(ForgeHaxCoreTransformer core, Patch patch) {
     // collect all the method transformers and create a transformer object to wrap the method call
     for (Method method : patch.getClass().getMethods()) {
-      if (method.isAnnotationPresent(Inject.class) && method.isAnnotationPresent(MethodMapping.class)) {
+      if (method.isAnnotationPresent(Inject.class) && method.isAnnotationPresent(RtMapMethod.class)) {
 
         ConditionalInject condition = method.getAnnotation(ConditionalInject.class);
 
@@ -56,27 +56,27 @@ public class PatchScanner implements ASMCommon {
         }
 
         transformers.add(new InternalMethodTransformer(patch, method,
-            ASMMethod.unmap(method.getAnnotation(MethodMapping.class))));
+            ASMMethod.from(method.getAnnotation(RtMapMethod.class))));
       }
     }
   }
 
   private static Object getMappedType(Class<?> type, AnnotatedElement e) {
     if (ASMClass.class.isAssignableFrom(type)) {
-      if (e.isAnnotationPresent(ClassMapping.class)) {
-        return ASMClass.unmap(e.getAnnotation(ClassMapping.class));
+      if (e.isAnnotationPresent(RtMapClass.class)) {
+        return ASMClass.from(e.getAnnotation(RtMapClass.class));
       } else {
         throw new Error("ASMClass parameter must have a ClassMapping annotation");
       }
     } else if (ASMField.class.isAssignableFrom(type)) {
-      if (e.isAnnotationPresent(FieldMapping.class)) {
-        return ASMField.unmap(e.getAnnotation(FieldMapping.class));
+      if (e.isAnnotationPresent(RtMapField.class)) {
+        return ASMField.from(e.getAnnotation(RtMapField.class));
       } else {
         throw new Error("ASMField parameter must have a MethodMapping annotation");
       }
     } else if (ASMMethod.class.isAssignableFrom(type)) {
-      if (e.isAnnotationPresent(MethodMapping.class)) {
-        return ASMMethod.unmap(e.getAnnotation(MethodMapping.class));
+      if (e.isAnnotationPresent(RtMapMethod.class)) {
+        return ASMMethod.from(e.getAnnotation(RtMapMethod.class));
       } else {
         throw new Error("ASMMethod parameter must have a MethodMapping annotation");
       }
@@ -101,7 +101,7 @@ public class PatchScanner implements ASMCommon {
     @SneakyThrows
     public ClassNode transform(ClassNode input, ITransformerVotingContext context) {
       for (MethodNode node : input.methods) {
-        if (getTargetMethod().isNameEqual(node.name) && getTargetMethod().isDescriptorEqual(node.desc)) {
+        if (getTargetMethod().anyNameEqual(node.name) && getTargetMethod().anyDescriptorEqual(node.desc)) {
           // build the list of arguments
           List<Object> arguments = new ArrayList<>();
           for (Parameter parameter : getMethod().getParameters()) {
@@ -144,7 +144,7 @@ public class PatchScanner implements ASMCommon {
     @Nonnull
     @Override
     public Set<Target> targets() {
-      return Collections.singleton(Target.targetClass(getTargetMethod().getParentClass().getName()));
+      return Collections.singleton(Target.targetClass(getTargetMethod().getParentClass().getClassName()));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.player;
 
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -24,7 +24,7 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 public class AntiHeldItemChangeMod extends ToggleMod {
-  @MethodMapping(parentClass = KeyBinding.class, value = "unpressKey")
+  @MapMethod(parentClass = KeyBinding.class, value = "unpressKey")
   private final ReflectionMethod<Void> KeyBinding_unpressKey;
 
   @SubscribeEvent

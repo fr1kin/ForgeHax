@@ -1,9 +1,9 @@
 package dev.fiki.forgehax.main.mods.player;
 
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -33,7 +33,7 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 public class AutoFishMod extends ToggleMod {
-  @MethodMapping(parentClass = Minecraft.class, value = "rightClickMouse")
+  @MapMethod(parentClass = Minecraft.class, value = "rightClickMouse")
   private final ReflectionMethod<Void> Minecraft_rightClickMouse;
 
   private int ticksCastDelay = 0;

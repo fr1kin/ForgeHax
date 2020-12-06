@@ -3,12 +3,12 @@ package dev.fiki.forgehax.main.mods.player;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.Switch.Handle;
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.api.events.ClientWorldEvent;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.events.RenderEvent;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.math.Angle;
 import dev.fiki.forgehax.api.mock.MockClientEntityPlayer;
 import dev.fiki.forgehax.api.mod.Category;
@@ -46,7 +46,7 @@ import static dev.fiki.forgehax.main.Common.*;
 public class FreecamMod extends ToggleMod {
   private final ReflectionTools reflection;
 
-  @FieldMapping(parentClass = NetworkPlayerInfo.class, value = "gameType")
+  @MapField(parentClass = NetworkPlayerInfo.class, value = "gameType")
   private final ReflectionField<GameType> NetworkPlayerInfo_gameType;
 
   private final FloatSetting speed = newFloatSetting()

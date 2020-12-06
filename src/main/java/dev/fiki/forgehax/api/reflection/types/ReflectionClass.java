@@ -18,10 +18,10 @@ public class ReflectionClass<E> {
 
   private Class<E> getCached() {
     if(!failed && cached == null) {
-      cached = classInfo.stream()
+      cached = classInfo.getDelegates()
           .map(clazz -> {
             try {
-              return (Class<E>) Class.forName(clazz.getName().replace('/', '.'));
+              return (Class<E>) Class.forName(clazz.getClassName().replace('/', '.'));
             } catch (ClassNotFoundException | ClassCastException e) {
               // hopefully there is a working format
             }
@@ -31,7 +31,7 @@ public class ReflectionClass<E> {
           .findAny()
           .orElseGet(() -> {
             failed = true;
-            getLogger().error("Failed to load class \"{}\"", classInfo.getName());
+            getLogger().error("Failed to load class \"{}\"", classInfo.getClassName());
             return null;
           });
     }
@@ -39,7 +39,7 @@ public class ReflectionClass<E> {
   }
 
   public String getName() {
-    return classInfo.getName();
+    return classInfo.getClassName();
   }
 
   public Class<E> get() {

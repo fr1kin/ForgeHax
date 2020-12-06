@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
@@ -9,22 +9,16 @@ import dev.fiki.forgehax.asm.utils.InsnPattern;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
 import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.Patch;
-import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
 import org.objectweb.asm.tree.*;
 
-@ClassMapping(NetworkManager.class)
+@MapClass(NetworkManager.class)
 public class NetManagerPatch extends Patch {
 
   @Inject
-  @MethodMapping("dispatchPacket")
+  @MapMethod("dispatchPacket")
   public void dispatchPacket(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "onPacketOutbound",
-          args = {NetworkManager.class, IPacket.class},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "onPacketOutbound") ASMMethod hook) {
     // get node at the very top
     AbstractInsnNode top = main.instructions.getFirst();
 
@@ -51,14 +45,9 @@ public class NetManagerPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("channelRead0")
+  @MapMethod("channelRead0")
   public void channelRead0(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "onPacketInbound",
-          args = {NetworkManager.class, IPacket.class},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "onPacketInbound") ASMMethod hook) {
     // try {
     // >FIRST<
     // processPacket(...

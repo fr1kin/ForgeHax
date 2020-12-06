@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.mapper.extractor
 
-import dev.fiki.forgehax.api.mapper.MappedFormat
 import dev.fiki.forgehax.mapper.type.ClassInfo
 import dev.fiki.forgehax.mapper.type.FieldInfo
+import dev.fiki.forgehax.mapper.type.MappedFormat
 import dev.fiki.forgehax.mapper.type.MethodInfo
 
 class TSrgImporter implements Importer {

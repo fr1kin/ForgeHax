@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.main.mods.player;
 
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
-import dev.fiki.forgehax.api.mapper.FieldMapping;
 import dev.fiki.forgehax.api.math.Angle;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -26,10 +26,10 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 @RequiredArgsConstructor
 @ExtensionMethod({LocalPlayerEx.class})
 public class NoRotate extends ToggleMod {
-  @FieldMapping(parentClass = SPlayerPositionLookPacket.class, value = "yaw")
+  @MapField(parentClass = SPlayerPositionLookPacket.class, value = "yaw")
   private final ReflectionField<Float> SPlayerPositionLookPacket_yaw;
 
-  @FieldMapping(parentClass = SPlayerPositionLookPacket.class, value = "pitch")
+  @MapField(parentClass = SPlayerPositionLookPacket.class, value = "pitch")
   private final ReflectionField<Float> SPlayerPositionLookPacket_pitch;
 
   @SubscribeEvent

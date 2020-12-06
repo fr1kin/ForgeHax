@@ -1,7 +1,5 @@
 package dev.fiki.forgehax.mapper.type
 
-import dev.fiki.forgehax.api.mapper.MappedFormat
-
 class ClassInfo {
   String name, obfName;
   Map<String, MethodInfo> srgToMethod = new HashMap<>()

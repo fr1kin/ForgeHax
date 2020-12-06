@@ -1,12 +1,12 @@
 package dev.fiki.forgehax.main.mods.render;
 
 import com.google.common.collect.Sets;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.api.cmd.argument.Arguments;
 import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -25,7 +25,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 )
 @RequiredArgsConstructor
 public class AntiEffectsMod extends ToggleMod {
-  @MethodMapping(parentClass = LivingEntity.class, value = "resetPotionEffectMetadata")
+  @MapMethod(parentClass = LivingEntity.class, value = "resetPotionEffectMetadata")
   private final ReflectionMethod<Void> LivingEntity_resetPotionEffectMetadata;
 
   private final BooleanSetting noParticles = newBooleanSetting()

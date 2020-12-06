@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.XrayHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
@@ -17,31 +17,16 @@ import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
 
-@ClassMapping(value = ChunkRenderDispatcher.ChunkRender.class, innerClassNames = "RebuildTask")
+@MapClass(classType = ChunkRenderDispatcher.ChunkRender.class, innerClassName = "RebuildTask")
 public class ChunkRenderDispatcher$ChunkRender$RebuildTaskPatch extends Patch {
 
   @Inject
   @ConditionalInject("!OptiFine")
-  @MethodMapping("compile")
+  @MapMethod("compile")
   public void compile(MethodNode node,
-      @MethodMapping(
-          parentClass = RenderTypeLookup.class,
-          value = "canRenderInLayer",
-          args = {BlockState.class, RenderType.class},
-          ret = boolean.class
-      ) ASMMethod canRenderInLayer,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "isXrayBlocks",
-          args = {},
-          ret = boolean.class
-      ) ASMMethod isXrayEnabled,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "canRenderInLayerOverride",
-          args = {BlockState.class, RenderType.class},
-          ret = boolean.class
-      ) ASMMethod canRenderInLayerOverride) {
+      @MapMethod(parentClass = RenderTypeLookup.class, name = "canRenderInLayer", argTypes = {BlockState.class, RenderType.class}) ASMMethod canRenderInLayer,
+      @MapMethod(parentClass = XrayHooks.class, name = "isXrayBlocks") ASMMethod isXrayEnabled,
+      @MapMethod(parentClass = XrayHooks.class, name = "canRenderInLayerOverride") ASMMethod canRenderInLayerOverride) {
 
     AbstractInsnNode layerCheck = ASMPattern.builder()
         .codeOnly()
@@ -84,20 +69,10 @@ public class ChunkRenderDispatcher$ChunkRender$RebuildTaskPatch extends Patch {
 
   @Inject
   @ConditionalInject("OptiFine")
-  @MethodMapping("compile")
+  @MapMethod("compile")
   public void compileOptiFine(MethodNode node,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "isXrayBlocks",
-          args = {},
-          ret = boolean.class
-      ) ASMMethod isXrayEnabled,
-      @MethodMapping(
-          parentClass = XrayHooks.class,
-          value = "canRenderInLayerOverride",
-          args = {BlockState.class, RenderType.class},
-          ret = boolean.class
-      ) ASMMethod canRenderInLayerOverride) {
+      @MapMethod(parentClass = XrayHooks.class, name = "isXrayBlocks") ASMMethod isXrayEnabled,
+      @MapMethod(parentClass = XrayHooks.class, name = "canRenderInLayerOverride") ASMMethod canRenderInLayerOverride) {
 
     AbstractInsnNode reflectField = ASMPattern.builder()
         .codeOnly()
@@ -110,7 +85,7 @@ public class ChunkRenderDispatcher$ChunkRender$RebuildTaskPatch extends Patch {
     JumpInsnNode jumpToRenderLayer = (JumpInsnNode) reflectField.getPrevious().getPrevious().getPrevious();
 
     JumpInsnNode skipRenderLayer = null;
-    for(AbstractInsnNode next = reflectField; next != null; next = next.getNext()) {
+    for (AbstractInsnNode next = reflectField; next != null; next = next.getNext()) {
       if (next.getOpcode() == GOTO) {
         skipRenderLayer = (JumpInsnNode) next;
         break;

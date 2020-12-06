@@ -1,31 +1,25 @@
 package dev.fiki.forgehax.asm.patches;
 
-import dev.fiki.forgehax.api.mapper.ClassMapping;
-import dev.fiki.forgehax.api.mapper.MethodMapping;
+import dev.fiki.forgehax.api.asm.MapClass;
+import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
 import dev.fiki.forgehax.asm.utils.transforming.Inject;
 import dev.fiki.forgehax.asm.utils.transforming.Patch;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import org.objectweb.asm.tree.*;
 
 import java.util.Objects;
 
-@ClassMapping(Entity.class)
+@MapClass(Entity.class)
 public class EntityPatch extends Patch {
 
   @Inject
-  @MethodMapping("applyEntityCollision")
+  @MapMethod("applyEntityCollision")
   public void applyEntityCollision(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "onApplyCollisionMotion",
-          args = {Entity.class, Entity.class, double.class, double.class},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, name = "onApplyCollisionMotion") ASMMethod hook) {
     // @ this.addVelocity(-d0, 0.0D, -d1);
     AbstractInsnNode thisEntityPreNode =
         ASMHelper.findPattern(
@@ -81,14 +75,9 @@ public class EntityPatch extends Patch {
   }
 
   @Inject
-  @MethodMapping("doBlockCollisions")
+  @MapMethod("doBlockCollisions")
   public void transform(MethodNode main,
-      @MethodMapping(
-          parentClass = ForgeHaxHooks.class,
-          value = "shouldApplyBlockEntityCollisions",
-          args = {Entity.class, BlockState.class},
-          ret = boolean.class
-      ) ASMMethod hook) {
+      @MapMethod(parentClass = ForgeHaxHooks.class, value = "shouldApplyBlockEntityCollisions") ASMMethod hook) {
     // >HERE<
     // blockstate.onEntityCollision(this.world, ...
     AbstractInsnNode pre = ASMPattern.builder()

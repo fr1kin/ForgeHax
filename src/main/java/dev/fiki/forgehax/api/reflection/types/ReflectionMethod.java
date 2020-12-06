@@ -29,7 +29,7 @@ public class ReflectionMethod<V> {
 
   private Method getCached() {
     if(!failed && cached == null) {
-      cached = method.stream()
+      cached = method.getDelegates()
           .map(type -> {
             for(Method classMethod : parentClass.get().getDeclaredMethods()) {
               Type methodDescriptor = Type.getType(classMethod);

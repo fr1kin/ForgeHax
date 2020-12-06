@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.main.mods.player;
 
-import dev.fiki.forgehax.api.mapper.FieldMapping;
+import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -21,7 +21,7 @@ import static dev.fiki.forgehax.main.Common.getPlayerController;
 )
 @RequiredArgsConstructor
 public class AntiHunger extends ToggleMod {
-  @FieldMapping(parentClass = CPlayerPacket.class, value = "onGround")
+  @MapField(parentClass = CPlayerPacket.class, value = "onGround")
   private final ReflectionField<Boolean> CPacketPlayer_onGround;
 
   @SubscribeEvent
