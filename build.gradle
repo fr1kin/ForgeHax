@@ -124,6 +124,7 @@ jar {
 }
 
 processResources {
+  from 'logo.png'
   filesMatching('**/config.properties') {
     //noinspection UnnecessaryQualifiedReference
     it.filter org.apache.tools.ant.filters.ReplaceTokens, tokens: [
