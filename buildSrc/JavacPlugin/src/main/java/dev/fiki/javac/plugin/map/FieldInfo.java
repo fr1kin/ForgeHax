@@ -1,4 +1,4 @@
-package dev.fiki.javac.remapper.map;
+package dev.fiki.javac.plugin.map;
 
 import dev.fiki.forgehax.api.asm.runtime.Format;
 

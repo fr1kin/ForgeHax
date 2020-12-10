@@ -1,5 +1,6 @@
 package dev.fiki.javac.remapper;
 
+import dev.fiki.javac.plugin.type.TypeUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;

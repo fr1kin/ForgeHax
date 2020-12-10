@@ -1,7 +1,7 @@
-package dev.fiki.javac.remapper.map;
+package dev.fiki.javac.plugin.map;
 
 import dev.fiki.forgehax.api.asm.runtime.Format;
-import dev.fiki.javac.remapper.TypeRef;
+import dev.fiki.javac.plugin.type.TypeRef;
 
 import java.io.BufferedReader;
 import java.io.IOException;

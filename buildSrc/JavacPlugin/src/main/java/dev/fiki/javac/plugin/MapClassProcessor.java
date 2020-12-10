@@ -1,4 +1,4 @@
-package dev.fiki.javac.remapper;
+package dev.fiki.javac.plugin;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
@@ -8,13 +8,15 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Names;
 import dev.fiki.forgehax.api.asm.MapClass;
 import dev.fiki.forgehax.api.asm.runtime.Format;
-import dev.fiki.javac.remapper.map.ClassInfo;
-import dev.fiki.javac.remapper.map.Mappings;
+import dev.fiki.javac.plugin.map.ClassInfo;
+import dev.fiki.javac.plugin.map.Mappings;
+import dev.fiki.javac.plugin.type.TypeUtil;
 import lombok.core.AnnotationValues;
 import lombok.core.HandlerPriority;
 import lombok.javac.JavacAnnotationHandler;
 import lombok.javac.JavacNode;
 import lombok.javac.JavacTreeMaker;
+import org.kohsuke.MetaInfServices;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.util.Elements;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 import static com.sun.tools.javac.tree.JCTree.*;
 import static lombok.javac.handlers.JavacHandlerUtil.genTypeRef;
 
+@MetaInfServices(JavacAnnotationHandler.class)
 @HandlerPriority(65536)
 public class MapClassProcessor extends JavacAnnotationHandler<MapClass> {
   public static final String RT_MAP_CLASS = "dev.fiki.forgehax.api.asm.runtime.RtMapClass";

@@ -1,4 +1,4 @@
-package dev.fiki.javac.remapper;
+package dev.fiki.javac.plugin;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
@@ -8,19 +8,23 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Names;
 import dev.fiki.forgehax.api.asm.MapMethod;
 import dev.fiki.forgehax.api.asm.runtime.Format;
-import dev.fiki.javac.remapper.map.Mappings;
-import dev.fiki.javac.remapper.map.MethodInfo;
+import dev.fiki.javac.plugin.map.Mappings;
+import dev.fiki.javac.plugin.map.MethodInfo;
+import dev.fiki.javac.plugin.type.TypeRef;
+import dev.fiki.javac.plugin.type.TypeUtil;
 import lombok.core.AnnotationValues;
 import lombok.core.HandlerPriority;
 import lombok.javac.JavacAnnotationHandler;
 import lombok.javac.JavacNode;
 import lombok.javac.JavacTreeMaker;
+import org.kohsuke.MetaInfServices;
 
 import java.util.stream.Collectors;
 
 import static com.sun.tools.javac.tree.JCTree.*;
 import static lombok.javac.handlers.JavacHandlerUtil.genTypeRef;
 
+@MetaInfServices(JavacAnnotationHandler.class)
 @HandlerPriority(65536)
 public class MapMethodProcessor extends JavacAnnotationHandler<MapMethod> {
   public static final String RT_MAP_METHOD = "dev.fiki.forgehax.api.asm.runtime.RtMapMethod";

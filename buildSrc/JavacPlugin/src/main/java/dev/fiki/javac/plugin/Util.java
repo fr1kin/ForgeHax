@@ -1,4 +1,4 @@
-package dev.fiki.javac.remapper;
+package dev.fiki.javac.plugin;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;

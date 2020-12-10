@@ -23,7 +23,7 @@ repositories {
 dependencies {
   lombok group: 'org.projectlombok', name: 'lombok', version: '1.18.16'
 
-//  compileOnly group: 'org.kohsuke.metainf-services', name: 'metainf-services', version: '1.8'
+  compileOnly group: 'org.kohsuke.metainf-services', name: 'metainf-services', version: '1.8'
 
   compile files("${System.properties['java.home']}/../lib/tools.jar")
   compile project(':Annotations')
