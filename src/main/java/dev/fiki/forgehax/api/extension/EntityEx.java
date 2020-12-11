@@ -25,6 +25,9 @@ import static dev.fiki.forgehax.main.Common.*;
 public final class EntityEx {
   @SuppressWarnings("unchecked")
   public static RelationState getPlayerRelationship(Entity entity) {
+    if (entity instanceof PlayerEntity) {
+      return RelationState.PLAYER;
+    }
     return isMobAggressive(entity) ? RelationState.HOSTILE : RelationState.FRIENDLY;
   }
 
