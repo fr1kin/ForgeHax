@@ -1,5 +1,6 @@
 package dev.fiki.javac.plugin;
 
+import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
@@ -147,5 +148,34 @@ class Util {
         .filter(sym -> target.contentEquals(sym.getSimpleName()))
         .findAny()
         .orElseThrow(() -> new Error("Could not find target" + target + " in " + className));
+  }
+
+  public static boolean typesEqual(Type[] a, List<Type> b) {
+    if (a.length != b.size()) {
+      return false;
+    } else {
+      for (int i = 0; i < a.length; i++) {
+        if (!a[i].tsym.equals(b.get(i).tsym)) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  public static boolean containsMethod(Symbol.ClassSymbol symbol,
+      String methodName, Type returnType, Type... argumentTypes) {
+    Scope members = symbol.members();
+    for (Scope.Entry e = members.elems; e != null; e = e.sibling) {
+      if (e.sym instanceof Symbol.MethodSymbol) {
+        Symbol.MethodSymbol ms = (Symbol.MethodSymbol) e.sym;
+        if (methodName.contentEquals(ms.getSimpleName())
+            && (returnType == null || returnType.tsym.equals(ms.getReturnType().tsym))
+            && (argumentTypes == null || argumentTypes.length < 1 || Util.typesEqual(argumentTypes, ms.type.getParameterTypes()))) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

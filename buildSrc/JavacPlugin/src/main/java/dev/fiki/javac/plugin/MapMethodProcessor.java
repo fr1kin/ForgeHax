@@ -152,7 +152,7 @@ public class MapMethodProcessor extends JavacAnnotationHandler<MapMethod> {
         .filter(Symbol.MethodSymbol.class::isInstance)
         .map(Symbol.MethodSymbol.class::cast)
         .filter(sym -> methodName == null || methodName.contentEquals(sym.getSimpleName()))
-        .filter(sym -> argumentTypes == null || typesEqual(argumentTypes, sym.type.getParameterTypes()))
+        .filter(sym -> argumentTypes == null || Util.typesEqual(argumentTypes, sym.type.getParameterTypes()))
         .filter(sym -> returnType == null || returnType.tsym.equals(sym.getReturnType().tsym))
         .collect(Collectors.toList());
 
@@ -167,19 +167,6 @@ public class MapMethodProcessor extends JavacAnnotationHandler<MapMethod> {
       return null;
     } else {
       return symbols.get(0);
-    }
-  }
-
-  private static boolean typesEqual(Type[] a, List<Type> b) {
-    if (a.length != b.size()) {
-      return false;
-    } else {
-      for (int i = 0; i < a.length; i++) {
-        if (!a[i].tsym.equals(b.get(i).tsym)) {
-          return false;
-        }
-      }
-      return true;
     }
   }
 
