@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import dev.fiki.forgehax.api.FileManager;
 import dev.fiki.forgehax.api.cmd.RootCommand;
 import dev.fiki.forgehax.api.draw.BufferProvider;
+import dev.fiki.forgehax.api.event.EventBus;
 import dev.fiki.forgehax.api.modloader.ModManager;
 import dev.fiki.forgehax.api.modloader.di.DependencyInjector;
 import dev.fiki.forgehax.api.modloader.di.providers.ReflectionProviders;
@@ -51,6 +52,8 @@ public class ForgeHax {
 
   private BufferProvider bufferProvider;
 
+  private EventBus eventBus;
+
   public ForgeHax() {
     instance = this;
 
@@ -94,6 +97,9 @@ public class ForgeHax {
 
       bufferProvider = new BufferProvider();
       di.addInstance(bufferProvider);
+
+      eventBus = new EventBus();
+      di.addInstance(eventBus);
 
       di.module(ConsoleInterface.class, "cli");
       di.module(ReflectionTools.class);

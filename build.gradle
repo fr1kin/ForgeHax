@@ -94,7 +94,7 @@ minecraft {
 }
 
 mapper {
-  include sourceSets.main
+  include sourceSets.main, sourceSets.test
 }
 
 dependencies {
@@ -106,13 +106,20 @@ dependencies {
 
   minecraft "net.minecraftforge:forge:${minecraftVersion}-${forgeVersion}"
 
-  testCompile group: 'junit', name: 'junit', version: '4.12'
-  testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
+  testCompileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+  testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.0'
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.0'
+  testCompile group: 'org.assertj', name: 'assertj-core', version: '3.18.1'
 }
 
 compileJava {
   // this will allow use to read a constructors parameter names at runtime
   options.compilerArgs << '-parameters'
+}
+
+test {
+  useJUnitPlatform()
 }
 
 jar {

@@ -33,12 +33,14 @@ class MapperExtension {
     project.dependencies.add(sourceSet.annotationProcessorConfigurationName, pluginJar)
   }
 
-  void include(SourceSet sourceSet) {
-    // add the api dependency to the project
-    dependencyOnly(sourceSet)
+  void include(SourceSet... sourceSets) {
+    sourceSets.each { SourceSet sourceSet ->
+      // add the api dependency to the project
+      dependencyOnly(sourceSet)
 
-    project.tasks.find { it.getName() == sourceSet.getCompileJavaTaskName() }.with {
-      it.dependsOn importSourcesTask
+      project.tasks.find { it.getName() == sourceSet.getCompileJavaTaskName() }.with {
+        it.dependsOn importSourcesTask
+      }
     }
   }
 }

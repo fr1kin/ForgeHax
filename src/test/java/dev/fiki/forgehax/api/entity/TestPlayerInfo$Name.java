@@ -1,16 +1,19 @@
 package dev.fiki.forgehax.api.entity;
 
 import com.google.common.collect.Lists;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
-/** Created on 8/1/2017 by fr1kin */
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * Created on 8/1/2017 by fr1kin
+ */
 public class TestPlayerInfo$Name {
   @Test
-  public void testOrdering() {
+  void testOrdering() {
     List<PlayerInfo.Name> names = Lists.newArrayList();
     names.add(new PlayerInfo.Name("AutismBot", 1474329415000L));
     names.add(new PlayerInfo.Name("TheCoonSlayer_", 1466373999000L));
@@ -27,12 +30,12 @@ public class TestPlayerInfo$Name {
     // sort
     Collections.sort(names);
 
-    Assert.assertTrue(names.size() == actualList.size());
+    assertEquals(names.size(), actualList.size());
 
     for (int i = 0; i < actualList.size(); i++) {
       PlayerInfo.Name expecting = actualList.get(i);
       PlayerInfo.Name actual = names.get(i);
-      Assert.assertEquals(expecting, actual);
+      assertEquals(expecting, actual);
     }
   }
 }
