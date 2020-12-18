@@ -17,14 +17,13 @@ import lombok.core.HandlerPriority;
 import lombok.javac.JavacAnnotationHandler;
 import lombok.javac.JavacNode;
 import lombok.javac.JavacTreeMaker;
-import org.kohsuke.MetaInfServices;
 
 import java.util.stream.Collectors;
 
 import static com.sun.tools.javac.tree.JCTree.*;
 import static lombok.javac.handlers.JavacHandlerUtil.genTypeRef;
 
-@MetaInfServices(JavacAnnotationHandler.class)
+//@MetaInfServices(JavacAnnotationHandler.class)
 @HandlerPriority(65536)
 public class MapMethodProcessor extends JavacAnnotationHandler<MapMethod> {
   public static final String RT_MAP_METHOD = "dev.fiki.forgehax.api.asm.runtime.RtMapMethod";

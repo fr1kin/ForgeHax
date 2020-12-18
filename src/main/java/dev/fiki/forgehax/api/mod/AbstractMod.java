@@ -8,7 +8,6 @@ import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.Common;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -16,8 +15,7 @@ import java.util.stream.Stream;
 
 import static dev.fiki.forgehax.api.cmd.flag.EnumFlag.HIDDEN;
 import static dev.fiki.forgehax.api.cmd.flag.EnumFlag.MOD_REGISTERED;
-import static dev.fiki.forgehax.main.Common.getLogger;
-import static dev.fiki.forgehax.main.Common.getRootCommand;
+import static dev.fiki.forgehax.main.Common.*;
 
 @Getter
 public abstract class AbstractMod extends AbstractParentCommand implements Common {
@@ -135,7 +133,7 @@ public abstract class AbstractMod extends AbstractParentCommand implements Commo
   public final boolean register() {
     if (!isRegistered()) {
       addFlag(MOD_REGISTERED);
-      MinecraftForge.EVENT_BUS.register(this);
+      getEventBus().register(this);
       return true;
     }
 
@@ -148,7 +146,7 @@ public abstract class AbstractMod extends AbstractParentCommand implements Commo
   public final boolean unregister() {
     if (isRegistered()) {
       deleteFlag(MOD_REGISTERED);
-      MinecraftForge.EVENT_BUS.unregister(this);
+      getEventBus().unregister(this);
       return true;
     }
 

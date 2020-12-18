@@ -1,0 +1,18 @@
+version: '2.4'
+services:
+  cibuild:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - userId=${USER_ID}
+        - groupId=${GROUP_ID}
+        - gradleHome=/opt/forgehax/.gradle_cache
+    network_mode: host
+    volumes:
+      - ./build/libs:/opt/forgehax/build/libs:Z
+      - gradle-cache:/opt/forgehax/.gradle_cache:Z
+    command: "build --stacktrace"
+
+volumes:
+  gradle-cache:

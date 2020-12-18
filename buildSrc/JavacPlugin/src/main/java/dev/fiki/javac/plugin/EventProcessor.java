@@ -7,10 +7,8 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 import dev.fiki.forgehax.api.event.Cancelable;
 import lombok.javac.JavacASTAdapter;
-import lombok.javac.JavacASTVisitor;
 import lombok.javac.JavacNode;
 import lombok.javac.JavacTreeMaker;
-import org.kohsuke.MetaInfServices;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.util.Elements;
@@ -20,7 +18,7 @@ import java.util.Objects;
 import static com.sun.tools.javac.tree.JCTree.*;
 import static lombok.javac.handlers.JavacHandlerUtil.*;
 
-@MetaInfServices(JavacASTVisitor.class)
+//@MetaInfServices(JavacASTVisitor.class)
 public class EventProcessor extends JavacASTAdapter {
   private static final String LISTENER_LIST_FIELD_NAME = "LISTENER_LIST";
   private static final String GET_LISTENER_LIST_METHOD_NAME = "getListenerList";
