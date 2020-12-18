@@ -4,8 +4,10 @@ import com.google.common.base.MoreObjects;
 import dev.fiki.forgehax.api.SimpleTimer;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.LongSetting;
+import dev.fiki.forgehax.api.common.PriorityEnum;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.events.DisconnectFromServerEvent;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.extension.GeneralEx;
 import dev.fiki.forgehax.api.extension.ItemEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
@@ -24,8 +26,6 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.*;
 import net.minecraft.network.play.client.CClickWindowPacket;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -210,7 +210,7 @@ public class ExtraInventory extends ToggleMod {
     });
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (auto_store.getValue() && (!clickTimer.isStarted() || clickTimer.hasTimeElapsed(delay.getValue()))) {
       // start a click task if one should be
@@ -251,12 +251,12 @@ public class ExtraInventory extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onDisconnectToServer(DisconnectFromServerEvent event) {
     onDisabled();
   }
 
-  @SubscribeEvent(priority = EventPriority.LOWEST)
+  @SubscribeListener(priority = PriorityEnum.LOWEST)
   public void onGuiOpen(GuiOpenEvent event) {
     if (guiCloseGuard) {
       // do not close the gui when this mod executes closeWindow()
@@ -269,7 +269,7 @@ public class ExtraInventory extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketSent(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CClickWindowPacket) {
       clickTimer.start();

@@ -1,7 +1,7 @@
 package dev.fiki.forgehax.api.events;
 
+import dev.fiki.forgehax.api.event.Event;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraftforge.eventbus.api.Event;
 
 public abstract class ClientWorldEvent extends Event {
   private final ClientWorld world;

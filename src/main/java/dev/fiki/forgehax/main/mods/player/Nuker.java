@@ -8,8 +8,9 @@ import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
-import dev.fiki.forgehax.api.common.PriorityEnum;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.entity.PlayerRotationEvent;
 import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.key.KeyConflictContexts;
@@ -20,9 +21,7 @@ import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.types.ReflectionField;
-import dev.fiki.forgehax.asm.events.BlockControllerProcessEvent;
-import dev.fiki.forgehax.main.managers.RotationManager;
-import dev.fiki.forgehax.main.managers.RotationManager.RotationState.Local;
+import dev.fiki.forgehax.asm.events.game.BlockControllerProcessEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 import net.minecraft.block.Block;
@@ -31,14 +30,11 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.multiplayer.PlayerController;
-import net.minecraft.network.play.client.CAnimateHandPacket;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,7 +49,7 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 @ExtensionMethod({LocalPlayerEx.class, EntityEx.class})
-public class Nuker extends ToggleMod implements RotationManager.MovementUpdateListener {
+public class Nuker extends ToggleMod {
   @MapField(parentClass = PlayerController.class, value = "curBlockDamageMP")
   private final ReflectionField<Float> PlayerController_curBlockDamageMP;
 
@@ -180,16 +176,10 @@ public class Nuker extends ToggleMod implements RotationManager.MovementUpdateLi
 
   @Override
   protected void onEnabled() {
-    RotationManager.getManager().register(this, PriorityEnum.HIGH);
     printInform("Select blocks by looking at it and pressing %s", selectBind.getKeyName());
   }
 
-  @Override
-  protected void onDisabled() {
-    RotationManager.getManager().unregister(this);
-  }
-
-  @SubscribeEvent
+  @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (selectBind.isKeyDown() && attackToggle.compareAndSet(false, true)) {
       Block info = Blocks.AIR;
@@ -220,15 +210,15 @@ public class Nuker extends ToggleMod implements RotationManager.MovementUpdateLi
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onBlockClick(BlockControllerProcessEvent event) {
     if (currentTarget != null) {
       event.setLeftClicked(false); // no block manual breaking while the nuker is running
     }
   }
 
-  @Override
-  public void onLocalPlayerMovementUpdate(Local state) {
+  @SubscribeListener
+  public void onLocalPlayerMovementUpdate(PlayerRotationEvent event) {
     if (targets.isEmpty()) {
       resetBlockBreaking();
       return;
@@ -287,12 +277,12 @@ public class Nuker extends ToggleMod implements RotationManager.MovementUpdateLi
     }
 
     Angle va = lp.getLookAngles(trace.getHitVec());
-    state.setServerAngles(va);
+    event.setViewAngles(va);
 
     final BlockTraceInfo tr = trace;
-    state.invokeLater(rs -> {
+    event.onFocusGained(() -> {
       if (getPlayerController().onPlayerDamageBlock(tr.getPos(), tr.getOppositeSide())) {
-        getNetworkManager().sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
+        lp.swingHandSilently();
         updateBlockBreaking(tr.getPos());
       } else {
         resetBlockBreaking();

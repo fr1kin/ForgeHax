@@ -2,6 +2,7 @@ package dev.fiki.forgehax.main.services;
 
 import dev.fiki.forgehax.api.SimpleTimer;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.events.ConnectToServerEvent;
 import dev.fiki.forgehax.api.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.api.mod.ServiceMod;
@@ -9,7 +10,6 @@ import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import lombok.Getter;
 import net.minecraft.network.play.server.SUpdateTimePacket;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -21,7 +21,7 @@ import static dev.fiki.forgehax.main.Common.getLogger;
  */
 @RegisterMod
 public class TickRateService extends ServiceMod {
-  
+
   /**
    * Ticks per second maximum and minimum
    */
@@ -69,7 +69,7 @@ public class TickRateService extends ServiceMod {
   }
 
   private double calculateAverage(int count, long total) {
-    if(count != 0) {
+    if (count != 0) {
       // prevent dividing by 0
       return clampTickrate((double) total / (double) count);
     }
@@ -79,8 +79,8 @@ public class TickRateService extends ServiceMod {
   private void calculateCurrentTickrate() {
     int count = 0;
     long total = 0;
-    for(TickrateTimer timer : data) {
-      if(timer != null && timer.isStopped()) {
+    for (TickrateTimer timer : data) {
+      if (timer != null && timer.isStopped()) {
         count++;
         total += timer.getTickrate();
       }
@@ -104,7 +104,7 @@ public class TickRateService extends ServiceMod {
 
     // add the still running tick monitor to the
     TickrateTimer timer = data[currentIndex];
-    if(timer != null && timer.isRunning()) {
+    if (timer != null && timer.isRunning()) {
       count++;
       total += timer.getTickrate();
     }
@@ -119,33 +119,33 @@ public class TickRateService extends ServiceMod {
   @Override
   protected void onLoad() {
     // update data array if the size if different
-    if(data.length != sampleSize.getValue()) {
+    if (data.length != sampleSize.getValue()) {
       updateTickDelayArray(sampleSize.getValue());
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onConnect(ConnectToServerEvent event) {
     // reset all tick data
     resetData();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onDisconnect(DisconnectFromServerEvent event) {
     // reset all tick data
     resetData();
   }
-  
-  @SubscribeEvent
+
+  @SubscribeListener
   public void onPacketInbound(PacketInboundEvent event) {
     if (event.getPacket() instanceof SUpdateTimePacket) {
       SimpleTimer timer = data[currentIndex];
-      if(timer == null) {
+      if (timer == null) {
         // this is the first time packet the player will receive
         data[currentIndex] = new TickrateTimer(true);
         // the new time should be started
       } else {
-        if(!timer.isStarted()) {
+        if (!timer.isStarted()) {
           // :thinking:
           getLogger().warn("TickMonitor timer not started, this should not happen!");
           timer.start();
@@ -158,7 +158,7 @@ public class TickRateService extends ServiceMod {
           currentIndex = ++currentIndex % data.length;
           // create and start the next timer
           SimpleTimer next = data[currentIndex];
-          if(next == null) {
+          if (next == null) {
             // if no timer object exists currently, create a new one
             data[currentIndex] = new TickrateTimer(true);
           } else {

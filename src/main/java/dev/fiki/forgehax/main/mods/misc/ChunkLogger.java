@@ -9,7 +9,8 @@ import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.LongSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
 import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -21,8 +22,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 import java.util.Objects;
@@ -139,13 +138,7 @@ public class ChunkLogger extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onChunkLoad(ChunkEvent.Load event) {
-    if (chunks != null) {
-    }
-  }
-
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketInbound(PacketInboundEvent event) {
     if (event.getPacket() instanceof SChunkDataPacket) {
       SChunkDataPacket packet = (SChunkDataPacket) event.getPacket();
@@ -153,8 +146,8 @@ public class ChunkLogger extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
     if (chunks == null) {
       return;
     }

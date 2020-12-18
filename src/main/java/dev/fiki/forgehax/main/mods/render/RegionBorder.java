@@ -4,7 +4,8 @@ import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
 import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.mod.Category;
@@ -14,7 +15,6 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
@@ -43,9 +43,9 @@ public class RegionBorder extends ToggleMod {
    *
    * @param event
    */
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
-    val stack = event.getMatrixStack();
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
+    val stack = event.getStack();
     val builder = event.getBuffer();
     stack.push();
 

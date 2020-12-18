@@ -4,7 +4,8 @@ import dev.fiki.forgehax.api.Switch.Handle;
 import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -20,7 +21,6 @@ import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -83,7 +83,7 @@ public class VanillaFlyMod extends ToggleMod {
     fly.disable();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     PlayerEntity player = Common.getLocalPlayer();
     if (isNull(player)) {
@@ -99,7 +99,7 @@ public class VanillaFlyMod extends ToggleMod {
     player.abilities.setFlySpeed(0.05f * flySpeed.getValue());
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketSending(PacketOutboundEvent event) {
     PlayerEntity player = Common.getLocalPlayer();
     if (isNull(player)) {
@@ -128,7 +128,7 @@ public class VanillaFlyMod extends ToggleMod {
     common.CPacketPlayer_onGround.set(packet, true);
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketRecieving(PacketInboundEvent event) {
     PlayerEntity player = Common.getLocalPlayer();
     if (isNull(player)) {

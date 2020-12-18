@@ -11,4 +11,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface SubscribeListener {
   PriorityEnum priority() default PriorityEnum.DEFAULT;
+  int flags() default ListenerFlags.NONE;
 }

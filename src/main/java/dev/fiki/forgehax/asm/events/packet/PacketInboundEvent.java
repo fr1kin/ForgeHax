@@ -1,16 +1,12 @@
 package dev.fiki.forgehax.asm.events.packet;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import dev.fiki.forgehax.api.event.Cancelable;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
 
-@Getter
-@AllArgsConstructor
 @Cancelable
-public class PacketInboundEvent extends Event {
-  private final NetworkManager manager;
-  private final IPacket<?> packet;
+public class PacketInboundEvent extends PacketEvent {
+  public PacketInboundEvent(NetworkManager manager, IPacket<?> packet) {
+    super(manager, packet);
+  }
 }

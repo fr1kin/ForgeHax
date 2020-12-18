@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.asm.MapMethod;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.play.client.CHeldItemChangePacket;
 import net.minecraft.network.play.server.SSetSlotPacket;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -27,7 +27,7 @@ public class AntiHeldItemChangeMod extends ToggleMod {
   @MapMethod(parentClass = KeyBinding.class, value = "unpressKey")
   private final ReflectionMethod<Void> KeyBinding_unpressKey;
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketReceived(PacketInboundEvent event) {
     if (event.getPacket() instanceof SSetSlotPacket && getLocalPlayer() != null) {
       int currentSlot = getLocalPlayer().inventory.currentItem;

@@ -1,16 +1,14 @@
 package dev.fiki.forgehax.main.mods.render;
 
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.EntitySoundEvent;
+import dev.fiki.forgehax.api.events.render.LivingRenderEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.util.SoundEvents;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
     name = "NoBats",
@@ -24,15 +22,15 @@ public class NoBats extends ToggleMod {
       .defaultTo(false)
       .build();
 
-  @SubscribeEvent
-  public void onRenderLiving(RenderLivingEvent.Pre<? extends LivingEntity, ? extends EntityModel<?>> event) {
-    if (invisible.isEnabled() && event.getEntity() instanceof BatEntity) {
+  @SubscribeListener
+  public void onRenderLiving(LivingRenderEvent.Pre<?, ?> event) {
+    if (invisible.isEnabled() && event.getLiving() instanceof BatEntity) {
       event.setCanceled(true);
     }
   }
 
-  @SubscribeEvent
-  public void onPlaySound(PlaySoundAtEntityEvent event) {
+  @SubscribeListener
+  public void onPlaySound(EntitySoundEvent event) {
     if (event.getSound().equals(SoundEvents.ENTITY_BAT_AMBIENT)
         || event.getSound().equals(SoundEvents.ENTITY_BAT_DEATH)
         || event.getSound().equals(SoundEvents.ENTITY_BAT_HURT)

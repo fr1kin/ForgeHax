@@ -1,12 +1,12 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.key.BindingHelper;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -34,7 +34,7 @@ public class AutoWalkMod extends ToggleMod {
     BindingHelper.restoreContextHandler(getGameSettings().keyBindForward);
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
     getGameSettings().keyBindForward.setPressed(true);
 

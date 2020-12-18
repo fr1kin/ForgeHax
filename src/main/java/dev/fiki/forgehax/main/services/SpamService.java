@@ -3,13 +3,13 @@ package dev.fiki.forgehax.main.services;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dev.fiki.forgehax.api.cmd.settings.LongSetting;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.mod.ServiceMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.spam.SpamMessage;
 import dev.fiki.forgehax.main.Common;
 import joptsimple.internal.Strings;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @RegisterMod
 public class SpamService extends ServiceMod {
   private static final List<SpamMessage> SENDING = Lists.newCopyOnWriteArrayList();
-  
+
   public static boolean send(SpamMessage spam) {
     if (!SENDING.contains(spam)) {
       return SENDING.add(spam);
@@ -26,7 +26,7 @@ public class SpamService extends ServiceMod {
       return false;
     }
   }
-  
+
   public static boolean isActivatorPresent(String activator) {
     if (activator == null) {
       return false;
@@ -38,26 +38,26 @@ public class SpamService extends ServiceMod {
     }
     return false;
   }
-  
+
   public static boolean isEmpty() {
     return SENDING.isEmpty();
   }
-  
+
   public final LongSetting delay = newLongSetting()
-          .name("delay")
-          .description("Delay between each message in ms")
-          .defaultTo(5000L)
-          .changedListener(
-              (from, to) -> {
-                nextSendMs = 0L;
-              })
-          .build();
-  
+      .name("delay")
+      .description("Delay between each message in ms")
+      .defaultTo(5000L)
+      .changedListener(
+          (from, to) -> {
+            nextSendMs = 0L;
+          })
+      .build();
+
   /**
    * Next time to send a message
    */
   private long nextSendMs = 0L;
-  
+
   private Map<String, AtomicLong> customDelays = Maps.newConcurrentMap();
 
   {
@@ -74,8 +74,8 @@ public class SpamService extends ServiceMod {
             })
         .build();
   }
-  
-  @SubscribeEvent
+
+  @SubscribeListener
   public void onTick(LocalPlayerUpdateEvent event) {
     if (!SENDING.isEmpty() && System.currentTimeMillis() > nextSendMs) {
       SENDING

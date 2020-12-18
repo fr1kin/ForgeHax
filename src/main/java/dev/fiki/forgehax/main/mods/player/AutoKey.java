@@ -4,7 +4,8 @@ import com.google.common.collect.Maps;
 import dev.fiki.forgehax.api.cmd.argument.Arguments;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.maps.SimpleSettingMap;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.key.BindingHelper;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -13,7 +14,6 @@ import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import dev.fiki.forgehax.api.reflection.types.ReflectionField;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Created by Babbaj on 1/30/2018.
@@ -56,7 +56,7 @@ public class AutoKey extends ToggleMod {
 
   private long lastTimeMillis;
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     final int lastClick = (int) (System.currentTimeMillis() - lastTimeMillis);
     if (lastClick >= delay.getValue()) {

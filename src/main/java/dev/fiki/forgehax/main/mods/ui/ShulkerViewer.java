@@ -8,7 +8,12 @@ import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.api.color.Colors;
+import dev.fiki.forgehax.api.common.PriorityEnum;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.GuiChangedEvent;
+import dev.fiki.forgehax.api.events.render.GuiRenderEvent;
+import dev.fiki.forgehax.api.events.render.TooltipRenderEvent;
 import dev.fiki.forgehax.api.extension.ItemEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.key.KeyConflictContexts;
@@ -16,7 +21,6 @@ import dev.fiki.forgehax.api.key.KeyInputs;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.main.services.ChatCommandService;
 import lombok.experimental.ExtensionMethod;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
@@ -38,11 +42,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.event.RenderTooltipEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 
 import javax.annotation.Nonnull;
@@ -255,8 +254,8 @@ public class ShulkerViewer extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onPreTooptipRender(RenderTooltipEvent.Pre event) {
+  @SubscribeListener
+  public void onPreTooptipRender(TooltipRenderEvent.Pre event) {
     if (!(getDisplayScreen() instanceof ContainerScreen) || isModGeneratedToolTip) {
       return;
     }
@@ -264,20 +263,20 @@ public class ShulkerViewer extends ToggleMod {
     if (isMouseInShulkerGui) {
       // do not render tool tips that are inside the region of our shulker gui
       event.setCanceled(true);
-    } else if (isItemShulkerBox(event.getStack().getItem())) {
+    } else if (isItemShulkerBox(event.getItemStack().getItem())) {
       event.setCanceled(true); // do not draw normal tool tip
     }
   }
 
-  @SubscribeEvent
-  public void onGuiChanged(GuiOpenEvent event) {
+  @SubscribeListener
+  public void onGuiChanged(GuiChangedEvent event) {
     if (event.getGui() == null) {
       reset();
     }
   }
 
-  @SubscribeEvent(priority = EventPriority.LOWEST)
-  public void onRender(GuiScreenEvent.DrawScreenEvent.Post event) {
+  @SubscribeListener(priority = PriorityEnum.LOWEST)
+  public void onRender(GuiRenderEvent.Post event) {
     if (!(getDisplayScreen() instanceof ContainerScreen)) {
       return;
     }
@@ -332,7 +331,7 @@ public class ShulkerViewer extends ToggleMod {
         if (ui != null) {
           ui.posX = offsetX;
           ui.posY = offsetY;
-          ui.render(event.getMatrixStack(), event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
+          ui.render(event.getStack(), event.getMouseX(), event.getMouseY(), event.getRenderPartialTicks());
           offsetY += SHULKER_GUI_SIZE + 1;
         }
       }
@@ -359,11 +358,9 @@ public class ShulkerViewer extends ToggleMod {
           Colors.GREEN.toBuffer(),
           1);
       SurfaceHelper.drawTextShadow(
-          "Type in chat \""
-              + ChatCommandService.getActivationCharacter()
+          "Type in console \""
               + getName()
               + "\" for more options, and \""
-              + ChatCommandService.getActivationCharacter()
               + getName()
               + " "
               + help_text.getName()

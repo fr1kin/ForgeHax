@@ -1,7 +1,8 @@
 package dev.fiki.forgehax.main.mods.combat;
 
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.extension.ItemEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
@@ -12,7 +13,6 @@ import lombok.val;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getDisplayScreen;
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
@@ -40,7 +40,7 @@ public class AutoTotemMod extends ToggleMod {
     return String.format(super.getDisplayText() + "[%d]", totemCount);
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     val lp = getLocalPlayer();
     if (!lp.getOffhandSlot().getHasStack()

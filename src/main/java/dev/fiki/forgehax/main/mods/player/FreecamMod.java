@@ -5,9 +5,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.Switch.Handle;
 import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.api.events.ClientWorldEvent;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.render.LivingRenderEvent;
+import dev.fiki.forgehax.api.events.render.NametagRenderEvent;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
+import dev.fiki.forgehax.api.events.world.WorldLoadEvent;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.math.Angle;
 import dev.fiki.forgehax.api.mock.MockClientEntityPlayer;
@@ -29,10 +32,6 @@ import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameType;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderNameplateEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -140,7 +139,7 @@ public class FreecamMod extends ToggleMod {
     previousGameType = null;
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (mockPlayer == null) {
       setupMockPlayer();
@@ -153,8 +152,8 @@ public class FreecamMod extends ToggleMod {
     getLocalPlayer().fallDistance = 0;
   }
 
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
     if (mockPlayer != null) {
       // mock player cant move so no need to lerp its pos and yaw
       Vector3d pos = mockPlayer.getPositionVec().subtract(event.getProjectedPos());
@@ -182,12 +181,12 @@ public class FreecamMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onWorldLoad(ClientWorldEvent.Load event) {
+  @SubscribeListener
+  public void onWorldLoad(WorldLoadEvent event) {
     mockPlayer = null;
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketSend(PacketOutboundEvent event) {
     if(mockPlayer == null) return;
 
@@ -196,7 +195,7 @@ public class FreecamMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketReceived(PacketInboundEvent event) {
     if (mockPlayer == null || getLocalPlayer() == null) {
       return;
@@ -210,22 +209,22 @@ public class FreecamMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onEntityRender(RenderLivingEvent.Pre<?, ?> event) {
+  @SubscribeListener
+  public void onEntityRender(LivingRenderEvent.Pre<?, ?> event) {
     if (mockPlayer != null
-        && mockPlayer != event.getEntity()
+        && mockPlayer != event.getLiving()
         && getLocalPlayer() != null
-        && getLocalPlayer().equals(event.getEntity())) {
+        && getLocalPlayer().equals(event.getLiving())) {
       event.setCanceled(true);
     }
   }
 
-  @SubscribeEvent
-  public void onRenderTag(RenderNameplateEvent event) {
+  @SubscribeListener
+  public void onRenderTag(NametagRenderEvent event) {
     if (mockPlayer != null
         && getLocalPlayer() != null
         && getLocalPlayer().equals(event.getEntity())) {
-      event.setResult(Event.Result.DENY);
+      event.setCanceled(true);
     }
   }
 }

@@ -2,7 +2,7 @@ package dev.fiki.forgehax.api.events;
 
 import com.google.common.base.Strings;
 import dev.fiki.forgehax.api.entity.PlayerInfo;
-import net.minecraftforge.eventbus.api.Event;
+import dev.fiki.forgehax.api.event.Event;
 
 import javax.annotation.Nullable;
 

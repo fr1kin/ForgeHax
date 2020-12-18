@@ -2,13 +2,14 @@ package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.extension.ItemEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.asm.events.PlayerAttackEntityEvent;
-import dev.fiki.forgehax.asm.events.PlayerDamageBlockEvent;
+import dev.fiki.forgehax.asm.events.player.PlayerAttackEntityEvent;
+import dev.fiki.forgehax.asm.events.player.PlayerDamageBlockEvent;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import net.minecraft.enchantment.Enchantments;
@@ -16,7 +17,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Comparator;
 
@@ -115,12 +115,12 @@ public class AutoTool extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onBlockBreak(PlayerDamageBlockEvent event) {
     selectBestTool(event.getPos());
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onAttackEntity(PlayerAttackEntityEvent event) {
     selectBestWeapon(event.getVictim());
   }

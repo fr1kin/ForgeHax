@@ -1,16 +1,17 @@
 package dev.fiki.forgehax.main.mods.player;
 
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.PostGameTickEvent;
+import dev.fiki.forgehax.api.events.game.PreGameTickEvent;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.key.BindingHelper;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.asm.events.BlockControllerProcessEvent;
-import dev.fiki.forgehax.asm.events.LeftClickCounterUpdateEvent;
+import dev.fiki.forgehax.asm.events.game.BlockControllerProcessEvent;
+import dev.fiki.forgehax.asm.events.game.LeftClickCounterUpdateEvent;
 import lombok.experimental.ExtensionMethod;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -40,37 +41,34 @@ public class AutoMine extends ToggleMod {
     BindingHelper.restoreContextHandler(getGameSettings().keyBindAttack);
   }
 
-  @SubscribeEvent
-  public void onTick(TickEvent.ClientTickEvent event) {
-    if (!isInWorld()) {
-      return;
-    }
+  @SubscribeListener
+  public void onTick(PreGameTickEvent event) {
+    if (isInWorld()) {
+      RayTraceResult tr = getLocalPlayer().getBlockViewTrace();
 
-    switch (event.phase) {
-      case START: {
-        RayTraceResult tr = getLocalPlayer().getBlockViewTrace();
-
-        if (RayTraceResult.Type.MISS.equals(tr.getType())) {
-          setPressed(false);
-          return;
-        }
-
-        setPressed(true);
-        break;
-      }
-      case END:
+      if (RayTraceResult.Type.MISS.equals(tr.getType())) {
         setPressed(false);
-        break;
+        return;
+      }
+
+      setPressed(true);
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
+  public void onTick(PostGameTickEvent event) {
+    if (isInWorld()) {
+      setPressed(false);
+    }
+  }
+
+  @SubscribeListener
   public void onLeftClickCouterUpdate(LeftClickCounterUpdateEvent event) {
     // prevent the leftClickCounter from changing
     event.setCanceled(true);
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onBlockCounterUpdate(BlockControllerProcessEvent event) {
     // bug fix - left click is actually false after processing the key bindings
     // this will set that boolean to the correct value

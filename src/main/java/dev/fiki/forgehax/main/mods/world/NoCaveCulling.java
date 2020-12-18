@@ -1,10 +1,10 @@
 package dev.fiki.forgehax.main.mods.world;
 
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.render.CullCavesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.reloadChunkSmooth;
 
@@ -25,7 +25,7 @@ public class NoCaveCulling extends ToggleMod {
     reloadChunkSmooth();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onCullCaves(CullCavesEvent event) {
     event.setCanceled(true);
   }

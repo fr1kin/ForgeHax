@@ -9,7 +9,6 @@ import dev.fiki.forgehax.api.mod.ToggleMod;
 //    category = Category.RENDER
 //)
 public class NoSkylightUpdates extends ToggleMod {
-//  @SubscribeEvent
 //  public void onLightingUpdate(WorldCheckLightForEvent event) {
 //
 //    if (event.getEnumSkyBlock() == EnumSkyBlock.SKY) {

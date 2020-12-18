@@ -2,7 +2,11 @@ package dev.fiki.forgehax.main.mods.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
+import dev.fiki.forgehax.api.common.PriorityEnum;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.LivingRenderEvent;
+import dev.fiki.forgehax.api.events.render.RenderPlaneEvent;
 import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.math.ScreenPos;
@@ -14,10 +18,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -64,8 +64,8 @@ public class WaifuESP extends ToggleMod {
         && entity.isValidEntity();
   }
 
-  @SubscribeEvent(priority = EventPriority.LOWEST)
-  public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
+  @SubscribeListener(priority = PriorityEnum.LOWEST)
+  public void onRenderGameOverlayEvent(RenderPlaneEvent.Back event) {
     if (waifu == null) {
       return;
     }
@@ -97,9 +97,11 @@ public class WaifuESP extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onRenderPlayer(RenderPlayerEvent.Pre event) {
-    if (noRenderPlayers.getValue() && !event.getEntity().equals(MC.player)) {
+  @SubscribeListener
+  public void onRenderPlayer(LivingRenderEvent.Pre<?, ?> event) {
+    if (noRenderPlayers.getValue()
+        && event.getLiving().isPlayerType()
+        && !event.getLiving().equals(getLocalPlayer())) {
       event.setCanceled(true);
     }
   }
@@ -139,7 +141,6 @@ public class WaifuESP extends ToggleMod {
 
   @FunctionalInterface
   private interface ThrowingFunction<T, R> {
-
     R apply(T obj) throws IOException;
   }
 }

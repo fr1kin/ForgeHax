@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.api.extension;
 
-import dev.fiki.forgehax.api.PacketHelper;
+import dev.fiki.forgehax.asm.events.packet.PacketEvent;
 import lombok.extern.log4j.Log4j2;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
@@ -16,7 +16,7 @@ public class GeneralEx {
   public static void dispatchNetworkPacket(NetworkManager nm, IPacket<?> packet, boolean silent) {
     if (nm != null) {
       if (silent) {
-        PacketHelper.ignore(packet);
+        PacketEvent.ignore(packet);
       }
       nm.sendPacket(packet);
     } else {

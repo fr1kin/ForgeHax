@@ -6,7 +6,8 @@ import dev.fiki.forgehax.api.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
 import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.extension.VertexBuilderEx;
@@ -26,7 +27,6 @@ import net.minecraft.entity.item.minecart.HopperMinecartEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import static dev.fiki.forgehax.main.Common.getWorld;
@@ -112,9 +112,9 @@ public class StorageESPMod extends ToggleMod {
     return null;
   }
 
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
-    val stack = event.getMatrixStack();
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
+    val stack = event.getStack();
     val buffer = event.getBuffer();
     stack.push();
     stack.translateVec(event.getProjectedPos().scale(-1));

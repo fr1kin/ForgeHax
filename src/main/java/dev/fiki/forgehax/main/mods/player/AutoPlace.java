@@ -12,8 +12,10 @@ import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
 import dev.fiki.forgehax.api.cmd.settings.collections.SimpleSettingSet;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.entity.PlayerRotationEvent;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
 import dev.fiki.forgehax.api.extension.*;
 import dev.fiki.forgehax.api.key.KeyConflictContexts;
 import dev.fiki.forgehax.api.key.KeyInputs;
@@ -23,8 +25,6 @@ import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.ReflectionTools;
-import dev.fiki.forgehax.main.managers.RotationManager;
-import dev.fiki.forgehax.main.managers.RotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.services.SneakService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
@@ -42,7 +42,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Comparator;
 import java.util.List;
@@ -60,7 +59,7 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 @ExtensionMethod({GeneralEx.class, ItemEx.class, LocalPlayerEx.class, EntityEx.class, VectorEx.class, VertexBuilderEx.class})
-public class AutoPlace extends ToggleMod implements RotationManager.MovementUpdateListener {
+public class AutoPlace extends ToggleMod {
   enum Stage {
     SELECT_BLOCKS,
     SELECT_REPLACEMENT,
@@ -212,23 +211,17 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
   }
 
   @Override
-  protected void onEnabled() {
-    RotationManager.getManager().register(this);
-  }
-
-  @Override
   protected void onDisabled() {
-    RotationManager.getManager().unregister(this);
     printToggle.set(false);
   }
 
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
     if (!render.getValue() || MC.getRenderViewEntity() == null) {
       return;
     }
 
-    final MatrixStack stack = event.getMatrixStack();
+    final MatrixStack stack = event.getStack();
     final BufferBuilder builder = event.getBuffer();
     final Vector3d renderPos = getLocalPlayer().getInterpolatedPos(MC.getRenderPartialTicks());
 
@@ -264,7 +257,7 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
     builder.draw();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
     reset();
 
@@ -368,8 +361,8 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
     }
   }
 
-  @Override
-  public void onLocalPlayerMovementUpdate(Local state) {
+  @SubscribeListener
+  public void onLocalPlayerMovementUpdate(PlayerRotationEvent event) {
     if (!Stage.READY.equals(stage)) {
       renderingBlocks.clear();
       currentRenderingTarget = null;
@@ -459,10 +452,11 @@ public class AutoPlace extends ToggleMod implements RotationManager.MovementUpda
     }
 
     Angle va = lp.getLookAngles(trace.getHitVec());
-    state.setViewAngles(va, silent.getValue());
+    event.setViewAngles(va);
+    event.setSilent(silent.isEnabled());
 
     final BlockTraceInfo tr = trace;
-    state.invokeLater(rs -> {
+    event.onFocusGained(() -> {
       final Runnable resetSelected = lp.setSelectedSlot(placingBlocks, ticks -> true);
 
       boolean sneak = tr.isSneakRequired() && !lp.isCrouchSneaking();

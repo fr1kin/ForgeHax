@@ -9,14 +9,14 @@ import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.common.PriorityEnum;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.PlayerRotationEvent;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
 import dev.fiki.forgehax.api.extension.*;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.ReflectionTools;
-import dev.fiki.forgehax.main.managers.RotationManager;
-import dev.fiki.forgehax.main.managers.RotationManager.RotationState.Local;
 import dev.fiki.forgehax.main.services.SneakService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
@@ -30,7 +30,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Comparator;
@@ -48,7 +47,7 @@ import static net.minecraft.network.play.client.CEntityActionPacket.Action;
 )
 @RequiredArgsConstructor
 @ExtensionMethod({GeneralEx.class, ItemEx.class, LocalPlayerEx.class, EntityEx.class, VectorEx.class, VertexBuilderEx.class})
-public class Scaffold extends ToggleMod implements RotationManager.MovementUpdateListener {
+public class Scaffold extends ToggleMod {
   private final SneakService sneaks;
   private final ReflectionTools reflection;
 
@@ -85,15 +84,9 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
 
   @Override
   protected void onEnabled() {
-    RotationManager.getManager().register(this, PriorityEnum.HIGHEST);
     currentTarget = null;
     predicted = false;
     tickCount = 0;
-  }
-
-  @Override
-  protected void onDisabled() {
-    RotationManager.getManager().unregister(this);
   }
 
   @Override
@@ -111,8 +104,8 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
         + "]";
   }
 
-  @Override
-  public void onLocalPlayerMovementUpdate(Local state) {
+  @SubscribeListener(priority = PriorityEnum.HIGH)
+  public void onLocalPlayerMovementUpdate(PlayerRotationEvent event) {
     currentTarget = null;
 
     val lp = getLocalPlayer();
@@ -190,7 +183,7 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
     currentTarget = trace.getPos();
     predicted = false;
     Vector3d hit = trace.getHitVec();
-    state.setServerAngles(lp.getLookAngles(hit));
+    event.setViewAngles(lp.getLookAngles(hit));
 
     // cannot place yet because of delay
     if (tickCount++ < delay.intValue()) {
@@ -205,7 +198,7 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
     }
 
     final BlockTraceInfo tr = trace;
-    state.invokeLater(rs -> {
+    event.onFocusGained(() -> {
       final Runnable resetSelected = lp.setSelectedSlot(items, t -> true);
 
       boolean sneak = tr.isSneakRequired() && !lp.isCrouchSneaking();
@@ -236,12 +229,12 @@ public class Scaffold extends ToggleMod implements RotationManager.MovementUpdat
     });
   }
 
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
     final BlockPos current = currentTarget;
     if (debug.isEnabled() && current != null) {
       val buffer = event.getBuffer();
-      val stack = event.getMatrixStack();
+      val stack = event.getStack();
       stack.push();
 
       buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);

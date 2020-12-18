@@ -7,7 +7,8 @@ import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.entity.RelationState;
-import dev.fiki.forgehax.api.events.Render2DEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderPlaneEvent;
 import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.math.AngleUtil;
 import dev.fiki.forgehax.api.math.ScreenPos;
@@ -20,7 +21,6 @@ import lombok.experimental.ExtensionMethod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Objects;
@@ -89,8 +89,8 @@ public class Tracers extends ToggleMod implements Colors {
       .defaultTo(true)
       .build();
 
-  @SubscribeEvent
-  public void onDrawScreen(Render2DEvent event) {
+  @SubscribeListener
+  public void onDrawScreen(RenderPlaneEvent.Back event) {
 
     enableBlend();
     blendFuncSeparate(

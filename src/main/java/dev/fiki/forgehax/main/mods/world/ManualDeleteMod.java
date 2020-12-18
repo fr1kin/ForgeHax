@@ -1,5 +1,7 @@
 package dev.fiki.forgehax.main.mods.world;
 
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.MouseInputEvent;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -7,8 +9,6 @@ import dev.fiki.forgehax.api.modloader.RegisterMod;
 import lombok.experimental.ExtensionMethod;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -20,8 +20,8 @@ import static dev.fiki.forgehax.main.Common.*;
 @ExtensionMethod({LocalPlayerEx.class})
 public class ManualDeleteMod extends ToggleMod {
 
-  @SubscribeEvent
-  public void onInput(InputEvent.MouseInputEvent event) {
+  @SubscribeListener
+  public void onInput(MouseInputEvent event) {
     if (!isInWorld()) {
       return;
     }

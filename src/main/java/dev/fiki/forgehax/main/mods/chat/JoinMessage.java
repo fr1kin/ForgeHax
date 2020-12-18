@@ -11,6 +11,7 @@ import dev.fiki.forgehax.api.cmd.settings.collections.CustomSettingSet;
 import dev.fiki.forgehax.api.common.PriorityEnum;
 import dev.fiki.forgehax.api.entity.PlayerInfoHelper;
 import dev.fiki.forgehax.api.entry.CustomMessageEntry;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.events.ChatMessageEvent;
 import dev.fiki.forgehax.api.events.PlayerConnectEvent;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -19,7 +20,6 @@ import dev.fiki.forgehax.api.spam.SpamTokens;
 import dev.fiki.forgehax.main.services.SpamService;
 import joptsimple.internal.Strings;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Map;
 import java.util.UUID;
@@ -131,7 +131,7 @@ public class JoinMessage extends ToggleMod {
         new SpamMessage(replyMessage, "JOIN_MESSAGE_REPLY", 0, null, PriorityEnum.HIGHEST));
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPlayerChat(ChatMessageEvent event) {
     String[] args = event.getMessage().split(" ");
 
@@ -187,7 +187,7 @@ public class JoinMessage extends ToggleMod {
         });
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPlayerConnect(PlayerConnectEvent.Join event) {
     CustomMessageEntry entry = messages.search(e -> e.getPlayer().equals(event.getPlayerInfo().getUuid()))
         .orElse(null);

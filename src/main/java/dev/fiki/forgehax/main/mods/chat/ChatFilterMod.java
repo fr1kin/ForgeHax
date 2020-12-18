@@ -3,11 +3,11 @@ package dev.fiki.forgehax.main.mods.chat;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import dev.fiki.forgehax.api.cmd.settings.collections.CustomSettingSet;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.serialization.IJsonSerializable;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import net.minecraft.network.play.server.SChatPacket;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -30,7 +30,7 @@ public class ChatFilterMod extends ToggleMod {
       .supplier(MemeSet::new)
       .build();
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onChatMessage(PacketInboundEvent event) {
     if (event.getPacket() instanceof SChatPacket) {
       final SChatPacket packet = (SChatPacket) event.getPacket();

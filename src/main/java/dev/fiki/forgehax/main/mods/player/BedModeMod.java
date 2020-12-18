@@ -1,7 +1,8 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.asm.MapField;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.screen.SleepInMultiplayerScreen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
     name = "BedMode",
@@ -23,12 +23,12 @@ public class BedModeMod extends ToggleMod {
   @MapField(parentClass = PlayerEntity.class, value = "sleepTimer")
   public final ReflectionField<Integer> PlayerEntity_sleepTimer;
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     PlayerEntity_sleepTimer.set(Common.getLocalPlayer(), 0);
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onGuiUpdate(GuiOpenEvent event) {
     if (event.getGui() instanceof SleepInMultiplayerScreen) {
       event.setCanceled(true);

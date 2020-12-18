@@ -5,7 +5,8 @@ import dev.fiki.forgehax.api.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
-import dev.fiki.forgehax.api.events.Render2DEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderPlaneEvent;
 import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.math.ScreenPos;
 import dev.fiki.forgehax.api.math.VectorUtil;
@@ -17,7 +18,6 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getBufferProvider;
 import static dev.fiki.forgehax.main.Common.worldEntities;
@@ -43,8 +43,8 @@ public class ItemESP extends ToggleMod {
       .defaultTo(Colors.WHITE)
       .build();
 
-  @SubscribeEvent
-  public void onRender2D(final Render2DEvent event) {
+  @SubscribeListener
+  public void onRender2D(final RenderPlaneEvent.Back event) {
     final float scale = this.scale.getValue() == 0 ? 1.f : this.scale.getValue();
 
     final IRenderTypeBuffer.Impl buffers = getBufferProvider().getBufferSource();

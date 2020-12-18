@@ -2,7 +2,8 @@ package dev.fiki.forgehax.main.mods.render;
 
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
 import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.mod.Category;
@@ -12,7 +13,6 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
@@ -23,9 +23,9 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 )
 @ExtensionMethod({VectorEx.class, VertexBuilderEx.class})
 public class ChunkBorder extends ToggleMod {
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
-    val stack = event.getMatrixStack();
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
+    val stack = event.getStack();
     val builder = event.getBuffer();
     stack.push();
 
@@ -39,6 +39,5 @@ public class ChunkBorder extends ToggleMod {
     builder.draw();
     stack.pop();
   }
-
 }
 

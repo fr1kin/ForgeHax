@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods.player;
 
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -9,7 +10,6 @@ import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Objects;
 
@@ -32,7 +32,7 @@ public class PacketFlyMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     double[] dir = moveLooking(0);
     double xDir = dir[0];
@@ -92,7 +92,7 @@ public class PacketFlyMod extends ToggleMod {
     return new double[]{getLocalPlayer().rotationYaw * 360 / 360 * 180 / 180, 0};
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onOutgoingPacketSent(PacketInboundEvent event) {
     if (event.getPacket() instanceof SPlayerPositionLookPacket) {
       event.setCanceled(true);

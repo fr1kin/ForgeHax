@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import dev.fiki.forgehax.api.cmd.argument.Arguments;
 import dev.fiki.forgehax.api.cmd.settings.collections.SimpleSettingSet;
+import dev.fiki.forgehax.api.common.PriorityEnum;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -12,8 +14,6 @@ import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CCustomPayloadPacket;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Scanner;
 
@@ -46,7 +46,7 @@ public class PayloadSpoofer extends ToggleMod {
     return false;
   }
 
-  @SubscribeEvent(priority = EventPriority.HIGHEST)
+  @SubscribeListener(priority = PriorityEnum.HIGHEST)
   public void onIncomingPacket(PacketInboundEvent event) {
     if (event.getPacket() instanceof SCustomPayloadPlayPacket) {
       String channel = ((SCustomPayloadPlayPacket) event.getPacket()).getChannelName().toString();
@@ -57,7 +57,7 @@ public class PayloadSpoofer extends ToggleMod {
     }
   }
 
-  @SubscribeEvent(priority = EventPriority.HIGHEST)
+  @SubscribeListener(priority = PriorityEnum.HIGHEST)
   public void onOutgoingPacket(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CCustomPayloadPacket) {
       String channel = ((CCustomPayloadPacket) event.getPacket()).getName().toString();

@@ -3,7 +3,8 @@ package dev.fiki.forgehax.main.mods.player;
 import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.events.PreClientTickEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.PreGameTickEvent;
 import dev.fiki.forgehax.api.extension.GeneralEx;
 import dev.fiki.forgehax.api.extension.ItemEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
@@ -18,7 +19,6 @@ import lombok.val;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Comparator;
 import java.util.concurrent.CompletableFuture;
@@ -116,8 +116,8 @@ public class AutoHotbarReplenish extends ToggleMod {
     stopWorker();
   }
 
-  @SubscribeEvent
-  public void onTick(PreClientTickEvent event) {
+  @SubscribeListener
+  public void onTick(PreGameTickEvent event) {
     // only process when a gui isn't opened by the player
     if (!isInWorld() || (getDisplayScreen() != null && noGui.getValue())) {
       return;
@@ -151,7 +151,8 @@ public class AutoHotbarReplenish extends ToggleMod {
                   .filter(s -> stack.isItemEqualIgnoreDurability(s.getStack()))
                   // get the item with the best matching enchantments
                   .max(Comparator.comparing(Slot::getStack, ItemEx::compareEnchantments))
-                  .map(slot -> CompletableFuture.runAsync(() -> {}, main)
+                  .map(slot -> CompletableFuture.runAsync(() -> {
+                  }, main)
                       .thenRun(() -> slot.click(ClickType.SWAP, hotbarSlot.getHotbarIndex()))
                       .waitTicks(tick_delay.intValue(), asyncExecutor(), main))
                   .orElse(null);
@@ -172,14 +173,16 @@ public class AutoHotbarReplenish extends ToggleMod {
                         // if we dont get an empty item stack result, then we are still carrying an item
                         // and need to deposit it back to where it was
                         if (!stack1.isEmpty()) {
-                          return CompletableFuture.runAsync(() -> {}, main)
+                          return CompletableFuture.runAsync(() -> {
+                          }, main)
                               .waitTicks(tick_delay.intValue(), asyncExecutor(), main)
                               .thenApply(o -> slot.click(ClickType.PICKUP, 0))
                               .thenCompose(stack2 -> {
                                 // we picked up something that managed to get in our inventory
                                 // time to dumpster it
                                 if (!stack2.isEmpty()) {
-                                  return CompletableFuture.runAsync(() -> {}, main)
+                                  return CompletableFuture.runAsync(() -> {
+                                  }, main)
                                       .waitTicks(tick_delay.intValue(), asyncExecutor(), main)
                                       .thenRun(() -> lp.throwHeldItem());
                                 }

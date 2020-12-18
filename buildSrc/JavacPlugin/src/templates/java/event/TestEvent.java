@@ -4,6 +4,8 @@ import dev.fiki.forgehax.api.event.Cancelable;
 import dev.fiki.forgehax.api.event.Event;
 import dev.fiki.forgehax.api.event.ListenerList;
 
+import java.util.Map;
+
 @Cancelable
 public class TestEvent extends Event {
   private final int a;
@@ -33,5 +35,25 @@ public class TestEvent extends Event {
 
   public ListenerList callParentListenerList() {
     return Event.listenerList();
+  }
+}
+
+@Cancelable
+class GenericTestEvent<A extends Object, B extends Number, C extends CharSequence, D> extends Event {
+  private final A a;
+  private final B b;
+  private final Map<C, D> cd;
+
+  public GenericTestEvent(A a, B b, Map<C, D> cd) {
+    this.a = a;
+    this.b = b;
+    this.cd = cd;
+  }
+
+  public static class Nested<A extends Object, B extends Number, C extends CharSequence, D>
+      extends GenericTestEvent<A, B, C, D> {
+    public Nested(A a, B b, Map<C, D> cd) {
+      super(a, b, cd);
+    }
   }
 }

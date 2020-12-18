@@ -1,7 +1,8 @@
 package dev.fiki.forgehax.asm.events.render;
 
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+
+import dev.fiki.forgehax.api.event.Cancelable;
+import dev.fiki.forgehax.api.event.Event;
 
 @Cancelable
 public class CullCavesEvent extends Event {

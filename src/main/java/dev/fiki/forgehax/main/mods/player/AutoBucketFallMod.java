@@ -1,6 +1,8 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.extension.ItemEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
@@ -19,8 +21,6 @@ import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Comparator;
 
@@ -53,8 +53,8 @@ public class AutoBucketFallMod extends ToggleMod {
 
   private final ItemStack WATER_BUCKET = new ItemStack(Items.WATER_BUCKET);
 
-  @SubscribeEvent
-  public void onClientTick(TickEvent.ClientTickEvent event) {
+  @SubscribeListener
+  public void onClientTick(LocalPlayerUpdateEvent event) {
     val lp = getLocalPlayer();
     if (lp == null
         || lp.fallDistance < settingFallHeight.getValue()

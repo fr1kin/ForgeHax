@@ -3,14 +3,14 @@ package dev.fiki.forgehax.main.mods.ui;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.render.RenderPlaneEvent;
 import dev.fiki.forgehax.api.math.AlignHelper;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.HudMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,7 @@ public class CoordsHud extends HudMod {
   double otherX;
   double otherZ;
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     ClientPlayerEntity player = getLocalPlayer();
     thisX = player.getPosX();
@@ -75,8 +75,8 @@ public class CoordsHud extends HudMod {
     otherZ = thisZ * travelFactor;
   }
 
-  @SubscribeEvent
-  public void onRenderOverlay(RenderGameOverlayEvent.Text event) {
+  @SubscribeListener
+  public void onRenderOverlay(RenderPlaneEvent.Back event) {
     List<String> text = new ArrayList<>();
 
     if (!translate.getValue() || (translate.getValue() && multiline.getValue())) {

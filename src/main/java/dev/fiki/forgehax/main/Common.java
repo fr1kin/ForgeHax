@@ -1,10 +1,10 @@
 package dev.fiki.forgehax.main;
 
 import dev.fiki.forgehax.api.FileManager;
-import dev.fiki.forgehax.api.PacketHelper;
 import dev.fiki.forgehax.api.TextComponentBuilder;
 import dev.fiki.forgehax.api.cmd.RootCommand;
 import dev.fiki.forgehax.api.draw.BufferProvider;
+import dev.fiki.forgehax.api.event.EventBus;
 import dev.fiki.forgehax.api.modloader.ModManager;
 import net.minecraft.block.Block;
 import net.minecraft.client.GameSettings;
@@ -77,6 +77,10 @@ public interface Common {
 
   static BufferProvider getBufferProvider() {
     return getForgeHax().getBufferProvider();
+  }
+
+  static EventBus getEventBus() {
+    return getForgeHax().getEventBus();
   }
 
   //
@@ -232,10 +236,6 @@ public interface Common {
       return true;
     }
     return false;
-  }
-
-  static void sendIgnoredNetworkPacket(IPacket<?> packet) {
-    PacketHelper.ignoreAndSend(packet);
   }
 
   //

@@ -1,6 +1,6 @@
 package dev.fiki.forgehax.api.events;
 
-import net.minecraftforge.eventbus.api.Event;
+import dev.fiki.forgehax.api.event.Event;
 
 public class ForgeHaxEvent extends Event {
   

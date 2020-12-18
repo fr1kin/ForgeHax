@@ -1,13 +1,14 @@
 package dev.fiki.forgehax.main.mods.chat;
 
 import dev.fiki.forgehax.api.cmd.settings.StringSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.main.Common;
 import joptsimple.internal.Strings;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
 @RegisterMod(
     name = "AutoReply",
@@ -33,10 +34,10 @@ public class AutoReply extends ToggleMod {
       .defaultTo("whispers: ")
       .build();
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onClientChat(ClientChatReceivedEvent event) {
     String message = (event.getMessage().getUnformattedComponentText());
-    if (message.contains(search.getValue()) && !message.startsWith(Common.MC.getSession().getUsername())) {
+    if (message.contains(search.getValue()) && !message.startsWith(MC.getSession().getUsername())) {
       String append;
       switch (mode.getValue().toUpperCase()) {
         case "REPLY":
@@ -47,7 +48,7 @@ public class AutoReply extends ToggleMod {
           append = Strings.EMPTY;
           break;
       }
-      Common.getLocalPlayer().sendChatMessage(append + reply.getValue());
+      getLocalPlayer().sendChatMessage(append + reply.getValue());
     }
   }
 }

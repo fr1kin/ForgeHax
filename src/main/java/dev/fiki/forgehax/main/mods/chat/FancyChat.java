@@ -1,13 +1,14 @@
 package dev.fiki.forgehax.main.mods.chat;
 
-import dev.fiki.forgehax.api.PacketHelper;
 import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.api.cmd.settings.PatternSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.extension.GeneralEx;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import dev.fiki.forgehax.main.Common;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.network.play.client.CChatMessagePacket;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 //    description = "meme text",
 //    category = Category.CHAT
 //)
+@ExtensionMethod({GeneralEx.class})
 public class FancyChat extends ToggleMod {
 
   private enum Mode {
@@ -140,10 +142,9 @@ public class FancyChat extends ToggleMod {
       .defaultTo(Pattern.compile("(pm|tell|msg|message|w|whisper|nick|mail)"))
       .build();
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketSent(PacketOutboundEvent event) {
-    if (event.getPacket() instanceof CChatMessagePacket
-        && !PacketHelper.isIgnored(event.getPacket())) {
+    if (event.getPacket() instanceof CChatMessagePacket) {
 
       boolean is0Arg = false;
       boolean is1Arg = false;
@@ -201,8 +202,7 @@ public class FancyChat extends ToggleMod {
 
         if (Common.getNetworkManager() != null) {
           CChatMessagePacket packet = new CChatMessagePacket(messageOut);
-          PacketHelper.ignore(packet);
-          Common.getNetworkManager().sendPacket(packet);
+          Common.getNetworkManager().dispatchSilentNetworkPacket(packet);
           event.setCanceled(true);
         }
       }

@@ -1,7 +1,12 @@
 package dev.fiki.forgehax.main.services;
 
 import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
-import dev.fiki.forgehax.api.events.PreClientTickEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.PreGameTickEvent;
+import dev.fiki.forgehax.api.events.render.GuiChangedEvent;
+import dev.fiki.forgehax.api.events.render.GuiInitializeEvent;
+import dev.fiki.forgehax.api.events.render.GuiRenderEvent;
+import dev.fiki.forgehax.api.events.render.RenderPlaneEvent;
 import dev.fiki.forgehax.api.key.KeyConflictContexts;
 import dev.fiki.forgehax.api.key.KeyInputs;
 import dev.fiki.forgehax.api.mod.ServiceMod;
@@ -11,10 +16,6 @@ import dev.fiki.forgehax.main.ui.ConsoleInterface;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -25,7 +26,7 @@ import static dev.fiki.forgehax.main.Common.*;
 @RequiredArgsConstructor
 public class GuiService extends ServiceMod {
   private final ConsoleInterface cli;
-  
+
   private final KeyBindingSetting guiBind = newKeyBindingSetting()
       .name("bind")
       .description("Bind to open the gui")
@@ -38,7 +39,7 @@ public class GuiService extends ServiceMod {
       .build();
 
   private void onBindPressed(KeyBinding bind) {
-    if(getDisplayScreen() != null
+    if (getDisplayScreen() != null
         && getDisplayScreen().getListener() instanceof TextFieldWidget) {
       return;
     }
@@ -46,34 +47,34 @@ public class GuiService extends ServiceMod {
     cli.onKeyPressed(bind);
   }
 
-  @SubscribeEvent
-  public void onGuiInit(GuiScreenEvent.InitGuiEvent.Pre event) {
+  @SubscribeListener
+  public void onGuiInit(GuiInitializeEvent.Pre event) {
     cli.onRescale(getScreenWidth(), getScreenHeight());
   }
 
-  @SubscribeEvent
-  public void onRenderOverlay(RenderGameOverlayEvent.Post event) {
-    if(getDisplayScreen() == null && RenderGameOverlayEvent.ElementType.ALL.equals(event.getType())) {
+  @SubscribeListener
+  public void onRenderOverlay(RenderPlaneEvent.Top event) {
+    if (getDisplayScreen() == null) {
       cli.onRender();
     }
   }
 
-  @SubscribeEvent
-  public void onRenderGui(GuiScreenEvent.DrawScreenEvent.Post event) {
-    if(getDisplayScreen() != null) {
+  @SubscribeListener
+  public void onRenderGui(GuiRenderEvent.Post event) {
+    if (getDisplayScreen() != null) {
       cli.onRender();
     }
   }
 
-  @SubscribeEvent
-  public void onTick(PreClientTickEvent event) {
+  @SubscribeListener
+  public void onTick(PreGameTickEvent event) {
     cli.onTick();
   }
 
-  @SubscribeEvent
-  public void onGuiOpen(GuiOpenEvent event) {
+  @SubscribeListener
+  public void onGuiOpen(GuiChangedEvent event) {
     ConsoleInputScreen con = cli.getConsoleScreen();
-    if(con != null
+    if (con != null
         && !con.isClosing()
         && event.getGui() != con
         && cli.isConsoleOpen()) {

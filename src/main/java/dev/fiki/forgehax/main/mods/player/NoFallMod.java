@@ -1,7 +1,8 @@
 package dev.fiki.forgehax.main.mods.player;
 
-import dev.fiki.forgehax.api.PacketHelper;
 import dev.fiki.forgehax.api.asm.MapField;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.extension.GeneralEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -9,8 +10,8 @@ import dev.fiki.forgehax.api.reflection.types.ReflectionField;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import dev.fiki.forgehax.main.Common;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
     name = "NoFall",
@@ -18,17 +19,17 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
+@ExtensionMethod({GeneralEx.class})
 public class NoFallMod extends ToggleMod {
   @MapField(parentClass = CPlayerPacket.class, value = "onGround")
   private final ReflectionField<Boolean> CPacketPlayer_onGround;
 
   private float lastFallDistance = 0;
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketSend(PacketInboundEvent event) {
     if (event.getPacket() instanceof CPlayerPacket
-        && !(event.getPacket() instanceof CPlayerPacket.RotationPacket)
-        && !PacketHelper.isIgnored(event.getPacket())) {
+        && !(event.getPacket() instanceof CPlayerPacket.RotationPacket)) {
       CPlayerPacket packetPlayer = (CPlayerPacket) event.getPacket();
       if (CPacketPlayer_onGround.get(packetPlayer) && lastFallDistance >= 4) {
         CPlayerPacket packet =
@@ -47,10 +48,8 @@ public class NoFallMod extends ToggleMod {
                 ((CPlayerPacket) event.getPacket()).getYaw(0),
                 ((CPlayerPacket) event.getPacket()).getPitch(0),
                 true);
-        PacketHelper.ignore(packet);
-        PacketHelper.ignore(reposition);
-        Common.sendNetworkPacket(packet);
-        Common.sendNetworkPacket(reposition);
+        Common.getNetworkManager().dispatchSilentNetworkPacket(packet);
+        Common.getNetworkManager().dispatchSilentNetworkPacket(reposition);
         lastFallDistance = 0;
       } else {
         lastFallDistance = Common.getLocalPlayer().fallDistance;

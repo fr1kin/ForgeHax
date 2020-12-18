@@ -9,8 +9,9 @@ import dev.fiki.forgehax.api.cmd.listener.Listeners;
 import dev.fiki.forgehax.api.cmd.settings.maps.SimpleSettingMap;
 import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.events.DisconnectFromServerEvent;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
 import dev.fiki.forgehax.api.marker.MarkerDispatcher;
 import dev.fiki.forgehax.api.marker.MarkerWorker;
 import dev.fiki.forgehax.api.mod.Category;
@@ -36,7 +37,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Set;
@@ -206,22 +206,22 @@ public class Markers extends ToggleMod implements Common {
     addScheduledTask(this::unloadMarkers);
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onDisconnect(DisconnectFromServerEvent event) {
     onDisabled();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onCullCaves(CullCavesEvent event) {
     event.setCanceled(true);
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onFrustumInit(ViewFrustumInitialized event) {
     loadMarkers(event.getViewFrustum());
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onChunkPositionUpdate(UpdateChunkPositionEvent event) {
     int i = getWorkerIndex(event.getIx(), event.getIy(), event.getIz());
     if (i < workers.length) {
@@ -235,7 +235,7 @@ public class Markers extends ToggleMod implements Common {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onRebuildChunk(ChunkRenderRebuildEvent event) {
     if (dispatcher == null) {
       return;
@@ -251,13 +251,13 @@ public class Markers extends ToggleMod implements Common {
     }
   }
 
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
     if (dispatcher == null) {
       return;
     }
 
-    MatrixStack stack = event.getMatrixStack();
+    MatrixStack stack = event.getStack();
     Vector3d vec = event.getProjectedPos();
 
     dispatcher.updateChunks();

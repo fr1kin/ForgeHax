@@ -2,21 +2,19 @@ package dev.fiki.forgehax.main.services;
 
 import dev.fiki.forgehax.api.entity.PlayerInfo;
 import dev.fiki.forgehax.api.entity.PlayerInfoHelper;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.events.ChatMessageEvent;
 import dev.fiki.forgehax.api.mod.ServiceMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import joptsimple.internal.Strings;
 import net.minecraft.network.play.server.SChatPacket;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static dev.fiki.forgehax.main.Common.getLocalPlayer;
-import static dev.fiki.forgehax.main.Common.getLogger;
+import static dev.fiki.forgehax.main.Common.*;
 
 @RegisterMod
 public class ChatIdentifierService extends ServiceMod {
@@ -52,7 +50,7 @@ public class ChatIdentifierService extends ServiceMod {
   }
 
   @SuppressWarnings("Duplicates")
-  @SubscribeEvent
+  @SubscribeListener
   public void onChatMessage(PacketInboundEvent event) {
     if (getLocalPlayer() == null || getLocalPlayer().connection == null) {
       return;
@@ -62,23 +60,21 @@ public class ChatIdentifierService extends ServiceMod {
       if (!Strings.isNullOrEmpty(message)) {
         // normal public messages
         if (extract(message, MESSAGE_PATTERNS,
-            (info, msg) -> MinecraftForge.EVENT_BUS.post(ChatMessageEvent.newPublicChat(info, msg)))) {
+            (info, msg) -> getEventBus().post(ChatMessageEvent.newPublicChat(info, msg)))) {
           return;
         }
 
         // private messages to the local player
         if (extract(message, INCOMING_PRIVATE_MESSAGES,
             (info, msg) -> PlayerInfoHelper.getOrCreate(getLocalPlayer().getGameProfile())
-                .thenAccept(selfInfo -> MinecraftForge.EVENT_BUS.post(
-                    ChatMessageEvent.newPrivateChat(info, selfInfo, msg))))) {
+                .thenAccept(selfInfo -> getEventBus().post(ChatMessageEvent.newPrivateChat(info, selfInfo, msg))))) {
           return;
         }
 
         // outgoing pms from local player
         if (extract(message, OUTGOING_PRIVATE_MESSAGES,
             (info, msg) -> PlayerInfoHelper.getOrCreate(getLocalPlayer().getGameProfile())
-                .thenAccept(selfInfo -> MinecraftForge.EVENT_BUS.post(
-                    ChatMessageEvent.newPrivateChat(selfInfo, info, msg))))) {
+                .thenAccept(selfInfo -> getEventBus().post(ChatMessageEvent.newPrivateChat(selfInfo, info, msg))))) {
           return;
         }
 

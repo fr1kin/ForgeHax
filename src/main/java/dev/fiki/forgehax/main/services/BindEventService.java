@@ -1,6 +1,10 @@
 package dev.fiki.forgehax.main.services;
 
 import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.KeyInputEvent;
+import dev.fiki.forgehax.api.events.game.MouseInputEvent;
+import dev.fiki.forgehax.api.events.render.GuiChangedEvent;
 import dev.fiki.forgehax.api.key.BindingHelper;
 import dev.fiki.forgehax.api.key.KeyBindingEx;
 import dev.fiki.forgehax.api.mod.ServiceMod;
@@ -9,9 +13,6 @@ import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.network.play.client.CClientSettingsPacket;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 
 import static dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting.*;
@@ -41,8 +42,8 @@ public class BindEventService extends ServiceMod {
     }
   }
 
-  @SubscribeEvent
-  public void onKeyboardEvent(InputEvent.KeyInputEvent event) {
+  @SubscribeListener
+  public void onKeyboardEvent(KeyInputEvent event) {
     for (KeyBindingSetting setting : getRegistry()) {
       if (InputMappings.Type.KEYSYM.equals(setting.getKeyInput().getType())
           && setting.getKeyBinding().matchesKey(event.getKey(), event.getScanCode())
@@ -52,8 +53,8 @@ public class BindEventService extends ServiceMod {
     }
   }
 
-  @SubscribeEvent
-  public void onMouseEvent(InputEvent.MouseInputEvent event) {
+  @SubscribeListener
+  public void onMouseEvent(MouseInputEvent event) {
     for (KeyBindingSetting setting : getRegistry()) {
       if (InputMappings.Type.MOUSE.equals(setting.getKeyInput().getType())
           && setting.getKeyCode() == event.getButton()
@@ -63,17 +64,17 @@ public class BindEventService extends ServiceMod {
     }
   }
 
-  @SubscribeEvent
-  public void onGuiOpened(GuiOpenEvent event) {
+  @SubscribeListener
+  public void onGuiOpened(GuiChangedEvent event) {
     if (!bindConfigLoaded && event.getGui() instanceof MainMenuScreen) {
       bindConfigLoaded = true;
       // TODO: load config
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketOutgoing(PacketOutboundEvent event) {
-    if(BindingHelper.isSuppressingSettingsPacket()
+    if (BindingHelper.isSuppressingSettingsPacket()
         && event.getPacket() instanceof CClientSettingsPacket) {
       event.setCanceled(false);
     }

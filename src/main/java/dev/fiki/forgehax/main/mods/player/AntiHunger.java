@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.asm.MapField;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -9,7 +10,6 @@ import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 import static dev.fiki.forgehax.main.Common.getPlayerController;
@@ -24,7 +24,7 @@ public class AntiHunger extends ToggleMod {
   @MapField(parentClass = CPlayerPacket.class, value = "onGround")
   private final ReflectionField<Boolean> CPacketPlayer_onGround;
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketSending(PacketOutboundEvent event) {
     if(getLocalPlayer() == null || getLocalPlayer().isElytraFlying()) {
       // this will break elytra flying

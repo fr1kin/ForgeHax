@@ -3,13 +3,13 @@ package dev.fiki.forgehax.main.mods.render;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
-import dev.fiki.forgehax.api.events.Render2DEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderPlaneEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.Common;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
     name = "Compass",
@@ -32,8 +32,8 @@ public class CompassMod extends ToggleMod {
     E
   }
 
-  @SubscribeEvent
-  public void onRender(Render2DEvent event) {
+  @SubscribeListener
+  public void onRender(RenderPlaneEvent.Back event) {
     final double centerX = event.getScreenWidth() / 2.D;
     final double centerY = event.getScreenHeight() * 0.8D;
 
@@ -44,9 +44,7 @@ public class CompassMod extends ToggleMod {
           (float) (centerX + getX(rad)),
           (float) (centerY + getY(rad)),
           dir == Direction.N ? Colors.RED.toBuffer() : Colors.WHITE.toBuffer());
-
     }
-
   }
 
   private double getX(double rad) {

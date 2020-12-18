@@ -4,7 +4,8 @@ import dev.fiki.forgehax.api.SimpleTimer;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -16,7 +17,6 @@ import net.minecraft.network.play.client.CUseEntityPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.function.Predicate;
 
@@ -92,7 +92,7 @@ public class AutoCrystalMod extends ToggleMod {
         .anyMatch(p -> e.getDistanceSq(p) < dist * dist);
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onTick(LocalPlayerUpdateEvent event) {
     if (getLocalPlayer() != null) {
       // Short-circuit if the timer check will fail

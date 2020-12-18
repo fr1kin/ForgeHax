@@ -6,4 +6,8 @@ public interface EventListener {
   default int getPriority() {
     return 0;
   }
+
+  default int getFlags() {
+    return 0;
+  }
 }

@@ -1,10 +1,10 @@
 package dev.fiki.forgehax.asm.events.movement;
 
+import dev.fiki.forgehax.api.event.Event;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
-import net.minecraftforge.eventbus.api.Event;
 
 @Getter
 public class EntityBlockSlipApplyEvent extends Event {

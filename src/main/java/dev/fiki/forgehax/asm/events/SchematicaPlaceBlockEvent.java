@@ -1,12 +1,12 @@
 package dev.fiki.forgehax.asm.events;
 
+import dev.fiki.forgehax.api.event.Event;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Created by Babbaj on 9/20/2017.

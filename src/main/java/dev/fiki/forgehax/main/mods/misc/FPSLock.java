@@ -1,11 +1,11 @@
 package dev.fiki.forgehax.main.mods.misc;
 
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.events.PreClientTickEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.PreGameTickEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 
 import static dev.fiki.forgehax.main.Common.*;
@@ -61,8 +61,8 @@ public class FPSLock extends ToggleMod {
     getMainWindow().setFramerateLimit(getGameSettings().framerateLimit);
   }
 
-  @SubscribeEvent
-  void onTick(PreClientTickEvent event) {
+  @SubscribeListener
+  void onTick(PreGameTickEvent event) {
     getMainWindow().setFramerateLimit(getFps());
   }
 }

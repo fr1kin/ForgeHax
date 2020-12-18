@@ -1,10 +1,10 @@
 package dev.fiki.forgehax.asm.events.movement;
 
+import dev.fiki.forgehax.api.event.Cancelable;
+import dev.fiki.forgehax.api.event.Event;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.entity.Entity;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
 
 @Getter
 @AllArgsConstructor

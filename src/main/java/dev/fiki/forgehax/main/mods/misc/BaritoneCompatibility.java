@@ -1,15 +1,15 @@
 package dev.fiki.forgehax.main.mods.misc;
 
 import dev.fiki.forgehax.api.cmd.settings.StringSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.events.ForgeHaxEvent;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.world.WorldUnloadEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.Common;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
     name = "BaritoneCompatibility",
@@ -48,12 +48,12 @@ public class BaritoneCompatibility extends ToggleMod {
     off = once = false;
   }
 
-  @SubscribeEvent
-  public void onWorldUnload(WorldEvent.Unload event) {
+  @SubscribeListener
+  public void onWorldUnload(WorldUnloadEvent event) {
     onDisabled();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onTick(LocalPlayerUpdateEvent event) {
     if (!once) {
       once = true;
@@ -64,7 +64,7 @@ public class BaritoneCompatibility extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onEvent(ForgeHaxEvent event) {
     if (Common.getLocalPlayer() == null) {
       return;

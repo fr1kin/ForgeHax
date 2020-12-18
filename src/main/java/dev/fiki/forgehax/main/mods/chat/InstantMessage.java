@@ -2,6 +2,7 @@ package dev.fiki.forgehax.main.mods.chat;
 
 import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.StringSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -13,7 +14,6 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.login.server.SLoginSuccessPacket;
 import net.minecraft.network.play.client.CChatMessagePacket;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getDisplayScreen;
 import static dev.fiki.forgehax.main.Common.getLogger;
@@ -34,7 +34,7 @@ public class InstantMessage extends ToggleMod {
       .defaultTo("Never fear on {SRVNAME}, {NAME} is here!")
       .build();
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketIn(PacketInboundEvent event) {
     if (event.getPacket() instanceof SLoginSuccessPacket) {
       if (getDisplayScreen() instanceof ConnectingScreen) {

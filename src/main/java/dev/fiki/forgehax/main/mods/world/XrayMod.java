@@ -7,6 +7,7 @@ import dev.fiki.forgehax.api.cmd.listener.Listeners;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.collections.SimpleSettingSet;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -14,7 +15,6 @@ import dev.fiki.forgehax.asm.events.render.CullCavesEvent;
 import dev.fiki.forgehax.asm.hooks.XrayHooks;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.isInWorld;
 import static dev.fiki.forgehax.main.Common.reloadChunkSmooth;
@@ -93,7 +93,7 @@ public class XrayMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onCullCaves(CullCavesEvent event) {
     event.setCanceled(true);
   }

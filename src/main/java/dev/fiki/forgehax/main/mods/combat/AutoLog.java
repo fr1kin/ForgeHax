@@ -2,7 +2,8 @@ package dev.fiki.forgehax.main.mods.combat;
 
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -13,7 +14,6 @@ import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.item.Items;
 import net.minecraft.network.play.server.SSpawnPlayerPacket;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.UUID;
 
@@ -47,7 +47,7 @@ public class AutoLog extends ToggleMod {
           .defaultTo(false)
           .build();
   
-  @SubscribeEvent
+  @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (getLocalPlayer() != null) {
       int health = (int) (getLocalPlayer().getHealth() + getLocalPlayer().getAbsorptionAmount());
@@ -62,7 +62,7 @@ public class AutoLog extends ToggleMod {
     }
   }
   
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketRecieved(PacketInboundEvent event) {
     if (event.getPacket() instanceof SSpawnPlayerPacket) {
       if (disconnectOnNewPlayer.getValue()) {

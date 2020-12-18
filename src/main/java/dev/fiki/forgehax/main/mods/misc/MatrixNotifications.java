@@ -8,8 +8,10 @@ import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.StringSetting;
-import dev.fiki.forgehax.api.events.ClientWorldEvent;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.render.GuiChangedEvent;
+import dev.fiki.forgehax.api.events.world.WorldLoadEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -23,8 +25,6 @@ import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
@@ -236,7 +236,7 @@ public class MatrixNotifications extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onTick(LocalPlayerUpdateEvent event) {
     joined = true;
 
@@ -254,8 +254,8 @@ public class MatrixNotifications extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onWorldUnload(ClientWorldEvent.Load event) {
+  @SubscribeListener
+  public void onWorldUnload(WorldLoadEvent event) {
     once = false;
     position = 0;
 
@@ -264,8 +264,8 @@ public class MatrixNotifications extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onGuiOpened(GuiOpenEvent event) {
+  @SubscribeListener
+  public void onGuiOpened(GuiChangedEvent event) {
     if (event.getGui() instanceof DisconnectedScreen && joined) {
       joined = false;
 
@@ -282,7 +282,7 @@ public class MatrixNotifications extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketRecieve(PacketInboundEvent event) {
     if (event.getPacket() instanceof SChatPacket) {
       SChatPacket packet = (SChatPacket) event.getPacket();
@@ -290,7 +290,7 @@ public class MatrixNotifications extends ToggleMod {
         ITextComponent comp = packet.getChatComponent();
         if (comp.getSiblings().size() >= 2) {
           String text = comp.getSiblings().get(0).getUnformattedComponentText();
-          if ("Position in queue: " .equals(text)) {
+          if ("Position in queue: ".equals(text)) {
             try {
               int pos = Integer.parseInt(comp.getSiblings().get(1).getUnformattedComponentText());
               if (pos != position) {
@@ -313,7 +313,6 @@ public class MatrixNotifications extends ToggleMod {
   }
 
   private static class AllowAllHostsVerifier implements X509HostnameVerifier {
-
     @Override
     public void verify(String host, SSLSocket ssl) throws IOException {
     }

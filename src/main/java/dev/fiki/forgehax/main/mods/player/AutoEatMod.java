@@ -3,13 +3,14 @@ package dev.fiki.forgehax.main.mods.player;
 import com.mojang.datafixers.util.Pair;
 import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.extension.ItemEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.asm.events.ItemStoppedUsedEvent;
+import dev.fiki.forgehax.asm.events.game.ItemStoppedUsedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -20,7 +21,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.Hand;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Comparator;
 
@@ -124,7 +124,7 @@ public class AutoEatMod extends ToggleMod {
     reset();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
     final ClientPlayerEntity lp = getLocalPlayer();
     if (lp.isCreative()) {
@@ -188,7 +188,7 @@ public class AutoEatMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onStopUse(ItemStoppedUsedEvent event) {
     if (targetSlot != null && eatingTicks > 0) {
       if (!isEatingTooLong()) {

@@ -3,13 +3,13 @@ package dev.fiki.forgehax.main.mods.player;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
 import dev.fiki.forgehax.api.common.PriorityEnum;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.math.Angle;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import dev.fiki.forgehax.main.managers.RotationManager;
-import dev.fiki.forgehax.main.managers.RotationManager.RotationState;
 import lombok.experimental.ExtensionMethod;
 
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
@@ -20,9 +20,7 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
     category = Category.PLAYER
 )
 @ExtensionMethod({LocalPlayerEx.class})
-public class YawLockMod extends ToggleMod
-    implements RotationManager.MovementUpdateListener {
-
+public class YawLockMod extends ToggleMod {
   public final BooleanSetting auto = newBooleanSetting()
       .name("auto")
       .description("Automatically finds angle to snap to based on the direction you're facing")
@@ -51,18 +49,8 @@ public class YawLockMod extends ToggleMod
     return super.getDebugDisplayText() + " [" + String.format("%.4f", getSnapAngle().getYaw()) + "]";
   }
 
-  @Override
-  protected void onEnabled() {
-    RotationManager.getManager().register(this, PriorityEnum.LOWEST);
-  }
-
-  @Override
-  protected void onDisabled() {
-    RotationManager.getManager().unregister(this);
-  }
-
-  @Override
-  public void onLocalPlayerMovementUpdate(RotationState.Local state) {
-    state.setViewAngles(getSnapAngle());
+  @SubscribeListener(priority = PriorityEnum.LOWEST)
+  public void onUpdate(LocalPlayerUpdateEvent event) {
+    event.getPlayer().setViewAngles(getSnapAngle());
   }
 }

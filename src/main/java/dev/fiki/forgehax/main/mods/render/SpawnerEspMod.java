@@ -5,7 +5,8 @@ import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
 import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.mod.Category;
@@ -16,7 +17,6 @@ import lombok.val;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import static dev.fiki.forgehax.main.Common.getWorld;
@@ -40,13 +40,13 @@ public class SpawnerEspMod extends ToggleMod {
       .defaultTo(false)
       .build();
 
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
     if (spawnerColor.getValue().getAlpha() <= 0) {
       return;
     }
 
-    val stack = event.getMatrixStack();
+    val stack = event.getStack();
     val buffer = event.getBuffer();
     stack.push();
     stack.translateVec(event.getProjectedPos().scale(-1));

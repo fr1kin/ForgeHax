@@ -1,8 +1,8 @@
 package dev.fiki.forgehax.asm.events.world;
 
+import dev.fiki.forgehax.api.event.Event;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraftforge.eventbus.api.Event;
 
 @Getter
 @RequiredArgsConstructor

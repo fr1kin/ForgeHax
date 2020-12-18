@@ -3,7 +3,8 @@ package dev.fiki.forgehax.main.mods.render;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.color.Colors;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.extension.VertexBuilderEx;
@@ -17,7 +18,6 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Iterator;
@@ -32,8 +32,8 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 )
 @ExtensionMethod({LocalPlayerEx.class, VectorEx.class, VertexBuilderEx.class})
 public class TrajectoryMod extends ToggleMod {
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
     final ClientPlayerEntity lp = getLocalPlayer();
     final Projectile projectile = Projectile.getProjectileByItemStack(lp.getHeldItemMainhand());
     if (!projectile.isNull()) {
@@ -46,7 +46,7 @@ public class TrajectoryMod extends ToggleMod {
       }
 
       if (result.getPathTraveled().size() > 1) {
-        final MatrixStack stack = event.getMatrixStack();
+        final MatrixStack stack = event.getStack();
         final BufferBuilder buffer = event.getBuffer();
 
         buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);

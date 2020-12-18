@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods.player;
 
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
 import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -13,7 +14,6 @@ import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
@@ -31,7 +31,7 @@ public class Jesus extends ToggleMod {
   private final FreecamMod freecam;
   private final ReflectionTools common;
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (!freecam.isEnabled()) {
       if (getLocalPlayer().isInWaterMotionState() && !getLocalPlayer().isCrouching()) {
@@ -68,7 +68,7 @@ public class Jesus extends ToggleMod {
 //    }
 //  }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketSending(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CPlayerPacket) {
       if (getLocalPlayer().isAboveWater(true)

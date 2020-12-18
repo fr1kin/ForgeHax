@@ -20,6 +20,7 @@ public final class EventListenerWrapper implements EventListener {
   private final Method method;
   private final EventListener instance;
   private final int priority;
+  private final int flags;
 
   @SneakyThrows
   EventListenerWrapper(Object declaringInstance, Method method) {
@@ -39,14 +40,43 @@ public final class EventListenerWrapper implements EventListener {
         .getConstructor(declaringInstance.getClass())
         .newInstance(declaringInstance);
 
-    this.priority = method.isAnnotationPresent(SubscribeListener.class)
-        ? method.getAnnotation(SubscribeListener.class).priority().ordinal()
-        : PriorityEnum.DEFAULT.ordinal();
+    if (method.isAnnotationPresent(SubscribeListener.class)) {
+      SubscribeListener an = method.getAnnotation(SubscribeListener.class);
+      this.priority = an.priority().ordinal();
+      this.flags = an.flags();
+    } else {
+      this.priority = PriorityEnum.DEFAULT.ordinal();
+      this.flags = ListenerFlags.NONE;
+    }
+  }
+
+  public Class<?> getEventType() {
+    return method.getParameterTypes()[0];
   }
 
   @Override
-  public void run(Event event) {
+  public final void run(Event event) {
     instance.run(event);
+  }
+
+  @Override
+  public String toString() {
+    return getDeclaringInstance().getClass().getCanonicalName() + "::" + getMethod().getName();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    EventListenerWrapper that = (EventListenerWrapper) o;
+
+    return method.equals(that.method);
+  }
+
+  @Override
+  public int hashCode() {
+    return method.hashCode();
   }
 
   private static Class<?> getOrCreateWrapperClass(Method method) {

@@ -1,12 +1,16 @@
 package dev.fiki.forgehax.main.commands;
 
-import dev.fiki.forgehax.api.PacketHelper;
 import dev.fiki.forgehax.api.cmd.argument.Arguments;
+import dev.fiki.forgehax.api.extension.GeneralEx;
 import dev.fiki.forgehax.api.mod.CommandMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.network.play.client.CChatMessagePacket;
 
+import static dev.fiki.forgehax.main.Common.getNetworkManager;
+
 @RegisterMod
+@ExtensionMethod({GeneralEx.class})
 public class SayCommand extends CommandMod {
 
   {
@@ -18,7 +22,7 @@ public class SayCommand extends CommandMod {
             .build())
         .executor(args -> {
           String msg = args.getFirst().getStringValue();
-          PacketHelper.ignoreAndSend(new CChatMessagePacket(msg));
+          getNetworkManager().dispatchSilentNetworkPacket(new CChatMessagePacket(msg));
         })
         .build();
   }

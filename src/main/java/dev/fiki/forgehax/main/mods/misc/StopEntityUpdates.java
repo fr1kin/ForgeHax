@@ -1,11 +1,11 @@
 package dev.fiki.forgehax.main.mods.misc;
 
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import net.minecraft.network.play.server.SEntityMetadataPacket;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
     name = "StopEntityUpdates",
@@ -13,8 +13,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
     category = Category.MISC
 )
 public class StopEntityUpdates extends ToggleMod {
-
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketIn(PacketInboundEvent event) {
     if (event.getPacket() instanceof SEntityMetadataPacket) {
       event.setCanceled(true);

@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.mods.combat;
 import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.DoubleSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.math.VectorUtil;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
@@ -22,7 +23,6 @@ import net.minecraft.network.play.server.SEntityStatusPacket;
 import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.network.play.server.SExplosionPacket;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ConcurrentModificationException;
 
@@ -150,7 +150,7 @@ public class AntiKnockbackMod extends ToggleMod {
   /**
    * Stops TNT and knockback velocity
    */
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketReceived(PacketInboundEvent event) {
     if (!isInWorld()) {
       return;
@@ -192,7 +192,7 @@ public class AntiKnockbackMod extends ToggleMod {
   /**
    * Stops velocity from collision
    */
-  @SubscribeEvent
+  @SubscribeListener
   public void onApplyCollisionMotion(ApplyCollisionMotionEvent event) {
     if (push.getValue() && getLocalPlayer() != null && getLocalPlayer().equals(event.getEntity())) {
       addEntityVelocity(
@@ -204,14 +204,14 @@ public class AntiKnockbackMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPushOutOfBlocks(PushedByBlockEvent event) {
     if (blocks.getValue()) {
       event.setCanceled(true);
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onBlockSlip(EntityBlockSlipApplyEvent event) {
     if (slipping.getValue()
         && getLocalPlayer() != null
@@ -220,7 +220,7 @@ public class AntiKnockbackMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPushedByLiquid(PushedByLiquidEvent event) {
     if (water.isEnabled()) {
       event.setCanceled(true);

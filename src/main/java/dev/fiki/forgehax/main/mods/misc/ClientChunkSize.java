@@ -1,14 +1,14 @@
 package dev.fiki.forgehax.main.mods.misc;
 
 import dev.fiki.forgehax.api.SimpleTimer;
-import dev.fiki.forgehax.api.events.PreClientTickEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.PreGameTickEvent;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ChunkLoader;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.io.*;
 import java.text.NumberFormat;
@@ -74,8 +74,8 @@ public class ClientChunkSize extends ToggleMod {
         size == -1 ? "<error>" : toFormattedBytes(size), difference(size - previousSize));
   }
 
-  @SubscribeEvent
-  public void onTick(PreClientTickEvent event) {
+  @SubscribeListener
+  public void onTick(PreGameTickEvent event) {
     if (!isInWorld() || running) {
       return;
     }

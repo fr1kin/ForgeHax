@@ -1,23 +1,24 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import com.google.common.collect.Lists;
-import dev.fiki.forgehax.api.PacketHelper;
 import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.extension.GeneralEx;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,6 +32,7 @@ import static dev.fiki.forgehax.main.Common.*;
     category = Category.PLAYER
 )
 @RequiredArgsConstructor
+@ExtensionMethod({GeneralEx.class})
 public class StepMod extends ToggleMod {
   private static final float DEFAULT_STEP_HEIGHT = 0.6f;
 
@@ -116,9 +118,9 @@ public class StepMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    PlayerEntity player = (PlayerEntity) event.getEntityLiving();
+    PlayerEntity player = event.getPlayer();
     if (player == null) {
       return;
     }
@@ -137,12 +139,12 @@ public class StepMod extends ToggleMod {
 
   private CPlayerPacket previousPositionPacket = null;
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketSending(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CPlayerPacket.PositionPacket
         || event.getPacket() instanceof CPlayerPacket.PositionRotationPacket) {
       CPlayerPacket packetPlayer = (CPlayerPacket) event.getPacket();
-      if (previousPositionPacket != null && !PacketHelper.isIgnored(event.getPacket())) {
+      if (previousPositionPacket != null) {
         double diffY = packetPlayer.getY(0.f) - previousPositionPacket.getY(0.f);
         // y difference must be positive
         // greater than 1, but less than 1.5
@@ -162,8 +164,7 @@ public class StepMod extends ToggleMod {
                   packetPlayer.getZ(0.f),
                   packetPlayer.isOnGround()));
           for (IPacket toSend : sendList) {
-            PacketHelper.ignore(toSend);
-            getNetworkManager().sendPacket(toSend);
+            getNetworkManager().dispatchSilentNetworkPacket(toSend);
           }
           event.setCanceled(true);
         }

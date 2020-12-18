@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.mods.misc;
 import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.FloatSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -14,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.play.server.SUpdateTimePacket;
 import net.minecraft.util.Timer;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
     name = "Timer",
@@ -65,7 +65,7 @@ public class TimerMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketPreceived(PacketInboundEvent event) {
     if (event.getPacket() instanceof SUpdateTimePacket && tpsSync.getValue()) {
       TickRateService monitor = TickRateService.getInstance();

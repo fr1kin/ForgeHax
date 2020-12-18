@@ -10,13 +10,16 @@ import dev.fiki.forgehax.api.cmd.settings.ColorSetting;
 import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
+import dev.fiki.forgehax.api.common.PriorityEnum;
 import dev.fiki.forgehax.api.draw.RenderTypeEx;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
 import dev.fiki.forgehax.api.draw.font.Fonts;
 import dev.fiki.forgehax.api.entity.EnchantmentUtils;
 import dev.fiki.forgehax.api.entity.EnchantmentUtils.ItemEnchantment;
 import dev.fiki.forgehax.api.entity.RelationState;
-import dev.fiki.forgehax.api.events.Render2DEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.NametagRenderEvent;
+import dev.fiki.forgehax.api.events.render.RenderPlaneEvent;
 import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.extension.VertexBuilderEx;
@@ -39,10 +42,6 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.client.event.RenderNameplateEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.*;
@@ -101,22 +100,22 @@ public class ESP extends ToggleMod implements Fonts {
     }
   }
 
-  @SubscribeEvent
-  public void onRenderPlayerNameTag(RenderNameplateEvent event) {
+  @SubscribeListener
+  public void onRenderPlayerNameTag(NametagRenderEvent event) {
     if (event.getEntity().isPlayerType()) {
-      event.setResult(Event.Result.DENY);
+      event.setCanceled(true);
     }
   }
 
-  @SubscribeEvent(priority = EventPriority.LOW)
-  public void onRender2D(final Render2DEvent event) {
+  @SubscribeListener(priority = PriorityEnum.LOW)
+  public void onRender2D(final RenderPlaneEvent.Back event) {
     final float partialTicks = event.getPartialTicks();
     final double screenWidth = event.getScreenWidth();
     final double screenHeight = event.getScreenHeight();
 
     val buffers = getBufferProvider().getBufferSource();
     val triangles = getBufferProvider().getBuffer(RenderTypeEx.glTriangle());
-    val stack = event.getMatrixStack();
+    val stack = event.getStack();
 
     val selfEquipmentList = new EquipmentList(getLocalPlayer());
 

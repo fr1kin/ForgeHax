@@ -31,7 +31,6 @@ public class BlockHighlightMod extends ToggleMod {
     return colorVal / 255.f;
   }
 
-//  @SubscribeEvent
 //  public void onRenderBoxPre(DrawBlockBoundingBoxEvent.Pre event) {
 //    GlStateManager.disableDepthTest();
 //    GlStateManager.lineWidth(width.get());
@@ -41,7 +40,6 @@ public class BlockHighlightMod extends ToggleMod {
 //    event.blue = toFloat(blue.get());
 //  }
 //
-//  @SubscribeEvent
 //  public void onRenderBoxPost(DrawBlockBoundingBoxEvent.Post event) {
 //    GlStateManager.enableDepthTest();
 //  }

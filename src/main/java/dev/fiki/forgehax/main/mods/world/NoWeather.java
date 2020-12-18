@@ -1,7 +1,9 @@
 package dev.fiki.forgehax.main.mods.world;
 
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
-import dev.fiki.forgehax.api.events.ClientWorldEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.PreGameTickEvent;
+import dev.fiki.forgehax.api.events.world.WorldChangeEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -9,8 +11,6 @@ import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import net.minecraft.network.play.server.SChangeGameStatePacket;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -74,30 +74,30 @@ public class NoWeather extends ToggleMod {
     resetState();
   }
 
-  @SubscribeEvent
-  public void onWorldChange(ClientWorldEvent event) {
+  @SubscribeListener
+  public void onWorldChange(WorldChangeEvent event) {
     saveState(event.getWorld());
   }
 
-  @SubscribeEvent
-  public void onWorldTick(TickEvent.ClientTickEvent event) {
+  @SubscribeListener
+  public void onWorldTick(PreGameTickEvent event) {
     disableRain();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketIncoming(PacketInboundEvent event) {
     if (event.getPacket() instanceof SChangeGameStatePacket) {
       SChangeGameStatePacket.State state = ((SChangeGameStatePacket) event.getPacket()).func_241776_b_();
       float strength = ((SChangeGameStatePacket) event.getPacket()).getValue();
       boolean isRainState = false;
-      if(state == SChangeGameStatePacket.field_241765_b_) {
+      if (state == SChangeGameStatePacket.field_241765_b_) {
         isRainState = false;
         setState(false, 0.f, 0.f);
-      } else if(state == SChangeGameStatePacket.field_241766_c_) {
+      } else if (state == SChangeGameStatePacket.field_241766_c_) {
         // start rain
         isRainState = true;
         setState(true, 1.f, 1.f);
-      } else if(state == SChangeGameStatePacket.field_241771_h_) {
+      } else if (state == SChangeGameStatePacket.field_241771_h_) {
         // fade value: sky brightness
         isRainState = true; // needs to be cancelled to avoid flicker
       }

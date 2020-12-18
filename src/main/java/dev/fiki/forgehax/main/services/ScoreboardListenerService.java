@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import dev.fiki.forgehax.api.SimpleTimer;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.entity.PlayerInfoHelper;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.events.ConnectToServerEvent;
 import dev.fiki.forgehax.api.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.api.events.PlayerConnectEvent;
@@ -13,12 +14,11 @@ import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
 import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
 import net.minecraft.network.play.server.SPlayerListItemPacket;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import static dev.fiki.forgehax.main.Common.getEventBus;
 
 @RegisterMod
 public class ScoreboardListenerService extends ServiceMod {
-
   private final IntegerSetting wait = newIntegerSetting()
       .name("wait")
       .description("Time to wait after joining world")
@@ -29,17 +29,17 @@ public class ScoreboardListenerService extends ServiceMod {
 
   private boolean ignore = false;
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onClientConnect(ConnectToServerEvent event) {
     ignore = false;
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onClientDisconnect(DisconnectFromServerEvent event) {
     ignore = false;
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketIn(PacketInboundEvent event) {
     if (ignore && timer.isStarted() && timer.hasTimeElapsed(wait.getValue())) {
       ignore = false;
@@ -54,29 +54,27 @@ public class ScoreboardListenerService extends ServiceMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onScoreboardEvent(PacketInboundEvent event) {
     if (event.getPacket() instanceof SPlayerListItemPacket) {
       final SPlayerListItemPacket packet = (SPlayerListItemPacket) event.getPacket();
       switch (packet.getAction()) {
         case ADD_PLAYER:
           // provided a profile name and uuid
-          for(SPlayerListItemPacket.AddPlayerData data : packet.getEntries()) {
+          for (SPlayerListItemPacket.AddPlayerData data : packet.getEntries()) {
             GameProfile profile = data.getProfile();
             PlayerInfoHelper.getOrCreate(profile)
                 .thenApply(info -> info.setConnected(true))
-                .thenAccept(info -> MinecraftForge.EVENT_BUS.post(
-                    new PlayerConnectEvent.Join(info, info.toGameProfile())));
+                .thenAccept(info -> getEventBus().post(new PlayerConnectEvent.Join(info, info.toGameProfile())));
           }
           break;
         case REMOVE_PLAYER:
           // only provided the uuid
-          for(SPlayerListItemPacket.AddPlayerData data : packet.getEntries()) {
+          for (SPlayerListItemPacket.AddPlayerData data : packet.getEntries()) {
             GameProfile profile = data.getProfile();
             PlayerInfoHelper.getOrCreateByUuid(profile.getId())
                 .thenApply(info -> info.setConnected(false))
-                .thenAccept(info -> MinecraftForge.EVENT_BUS.post(
-                    new PlayerConnectEvent.Leave(info, info.toGameProfile())));
+                .thenAccept(info -> getEventBus().post(new PlayerConnectEvent.Leave(info, info.toGameProfile())));
           }
           break;
       }

@@ -2,6 +2,8 @@ package dev.fiki.forgehax.main.mods.combat;
 
 import dev.fiki.forgehax.api.cmd.settings.*;
 import dev.fiki.forgehax.api.common.PriorityEnum;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.PlayerRotationEvent;
 import dev.fiki.forgehax.api.extension.EntityEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.extension.VectorEx;
@@ -11,8 +13,6 @@ import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.projectile.Projectile;
-import dev.fiki.forgehax.main.managers.RotationManager;
-import dev.fiki.forgehax.main.managers.RotationManager.RotationState;
 import dev.fiki.forgehax.main.services.TickRateService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 @ExtensionMethod({Objects.class, LocalPlayerEx.class, EntityEx.class, VectorEx.class})
-public class Aimbot extends ToggleMod implements RotationManager.MovementUpdateListener {
+public class Aimbot extends ToggleMod {
   enum Selector {
     CROSSHAIR,
     DISTANCE,
@@ -257,18 +257,16 @@ public class Aimbot extends ToggleMod implements RotationManager.MovementUpdateL
 
   @Override
   protected void onEnabled() {
-    RotationManager.getManager().register(this, PriorityEnum.HIGHEST);
     BindingHelper.disableContextHandler(getGameSettings().keyBindAttack);
   }
 
   @Override
   public void onDisabled() {
-    RotationManager.getManager().unregister(this);
     BindingHelper.restoreContextHandler(getGameSettings().keyBindAttack);
   }
 
-  @Override
-  public void onLocalPlayerMovementUpdate(RotationState.Local state) {
+  @SubscribeListener(priority = PriorityEnum.HIGHEST)
+  public void onLocalPlayerMovementUpdate(PlayerRotationEvent event) {
     val lp = getLocalPlayer();
     Vector3d pos = lp.getEyePos();
     Vector3d look = lp.getLookVec();
@@ -288,13 +286,14 @@ public class Aimbot extends ToggleMod implements RotationManager.MovementUpdateL
     final Entity tar = t;
     Projectile projectile = getHeldProjectile();
 
-    if (projectile.isNull() || !projectileAimbot.getValue()) {
+    if (projectile.isNull() || projectileAimbot.isDisabled()) {
       // melee aimbot
       Angle va = lp.getLookAngles(getAttackPosition(tar));
-      state.setViewAngles(va, silent.getValue());
+      event.setViewAngles(va);
+      event.setSilent(silent.isEnabled());
 
       if (canAttack(lp, tar)) {
-        state.invokeLater(rs -> {
+        event.onFocusGained(() -> {
           lp.attackEntity(tar);
           lp.swingArm(Hand.MAIN_HAND);
         });

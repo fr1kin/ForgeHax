@@ -266,8 +266,7 @@ public class EventProcessor extends JavacASTAdapter {
           }
 
           // only care about class extensions
-          type = type.supertype_field instanceof Type.ClassType
-              ? (Type.ClassType) type.supertype_field : null;
+          type = getClassSuperType(type);
         }
       }
     }
@@ -282,8 +281,18 @@ public class EventProcessor extends JavacASTAdapter {
   private static boolean extendsClass(final Type eventClass, Type type) {
     if (type instanceof Type.ClassType) {
       Type.ClassType ct = (Type.ClassType) type;
-      return eventClass.equals(ct) || extendsClass(eventClass, ct.supertype_field);
+      return eventClass.tsym.equals(ct.tsym) || extendsClass(eventClass, getClassSuperType(ct));
     }
     return false;
+  }
+
+  private static Type.ClassType getClassSuperType(Type type) {
+    if (type.tsym != null && type.tsym.type instanceof Type.ClassType) {
+      Type.ClassType ct = (Type.ClassType) type.tsym.type;
+      if (ct.supertype_field instanceof Type.ClassType) {
+        return (Type.ClassType) ct.supertype_field;
+      }
+    }
+    return null;
   }
 }

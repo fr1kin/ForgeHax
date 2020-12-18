@@ -1,10 +1,10 @@
 package dev.fiki.forgehax.main.mods.render;
 
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.render.HurtCamEffectEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
     name = "AntiHurtcam",
@@ -12,7 +12,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
     category = Category.RENDER
 )
 public class AntiHurtCamMod extends ToggleMod {
-  @SubscribeEvent
+  @SubscribeListener
   public void onHurtCamEffect(HurtCamEffectEvent event) {
     event.setCanceled(true);
   }

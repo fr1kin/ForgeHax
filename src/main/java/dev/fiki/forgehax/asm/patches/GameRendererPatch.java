@@ -2,7 +2,7 @@ package dev.fiki.forgehax.asm.patches;
 
 import dev.fiki.forgehax.api.asm.MapClass;
 import dev.fiki.forgehax.api.asm.MapMethod;
-import dev.fiki.forgehax.asm.events.NearClippingPlaneEvent;
+import dev.fiki.forgehax.asm.events.render.NearClippingPlaneEvent;
 import dev.fiki.forgehax.asm.hooks.ForgeHaxHooks;
 import dev.fiki.forgehax.asm.utils.ASMHelper;
 import dev.fiki.forgehax.asm.utils.ASMPattern;

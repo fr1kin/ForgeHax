@@ -1,6 +1,8 @@
 package dev.fiki.forgehax.main.mods.misc;
 
 import dev.fiki.forgehax.api.asm.MapField;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.game.MouseInputEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -13,8 +15,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -29,8 +29,8 @@ public class SignTextMod extends ToggleMod {
   @MapField(parentClass = SignTileEntity.class, value = "signText")
   private final ReflectionField<ITextComponent[]> SignTileEntity_signText;
 
-  @SubscribeEvent
-  public void onInput(InputEvent.MouseInputEvent event) {
+  @SubscribeListener
+  public void onInput(MouseInputEvent event) {
     // TODO: 1.15 mouse input
     if (event.getButton() == 2 /*&& Mouse.getEventButtonState()*/) { // on middle click
       RayTraceResult result = Common.getLocalPlayer().pick(999, 0, false);

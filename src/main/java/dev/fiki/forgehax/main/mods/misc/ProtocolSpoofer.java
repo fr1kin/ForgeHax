@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.mods.misc;
 import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
@@ -11,7 +12,6 @@ import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.network.handshake.client.CHandshakePacket;
 import net.minecraft.util.SharedConstants;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @RegisterMod(
     name = "ProtocolSpoofer",
@@ -30,7 +30,7 @@ public class ProtocolSpoofer extends ToggleMod {
       .defaultTo(SharedConstants.getVersion().getProtocolVersion())
       .build();
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPacketEvent(PacketOutboundEvent event) {
     if (event.getPacket() instanceof CHandshakePacket) {
       CKeepAlivePacket_protocolVersion.set(event.getPacket(), version.intValue());

@@ -2,7 +2,7 @@ package dev.fiki.forgehax.api.events;
 
 import com.mojang.authlib.GameProfile;
 import dev.fiki.forgehax.api.entity.PlayerInfo;
-import net.minecraftforge.eventbus.api.Event;
+import dev.fiki.forgehax.api.event.Event;
 
 import java.util.Objects;
 
@@ -29,14 +29,12 @@ public class PlayerConnectEvent extends Event {
   }
   
   public static class Join extends PlayerConnectEvent {
-    
     public Join(PlayerInfo playerInfo, GameProfile profile) {
       super(playerInfo, profile);
     }
   }
   
   public static class Leave extends PlayerConnectEvent {
-    
     public Leave(PlayerInfo playerInfo, GameProfile profile) {
       super(playerInfo, profile);
     }

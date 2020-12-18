@@ -1,13 +1,13 @@
 package dev.fiki.forgehax.main.mods.player;
 
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
-import dev.fiki.forgehax.api.events.PostClientTickEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.game.PostGameTickEvent;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.Common;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,8 +28,8 @@ public class AutoRespawnMod extends ToggleMod {
   private boolean isDead = false;
   private int deadTicks = 0;
 
-  @SubscribeEvent
-  public void onClientTick(PostClientTickEvent ev) {
+  @SubscribeListener
+  public void onClientTick(PostGameTickEvent ev) {
     if (isDead) {
       deadTicks++;
       if (deadTicks > delay.getValue()) {
@@ -40,7 +40,7 @@ public class AutoRespawnMod extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (Common.getLocalPlayer().getHealth() <= 0) {
       // TODO: does this even work???

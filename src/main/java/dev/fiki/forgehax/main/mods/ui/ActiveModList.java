@@ -6,6 +6,8 @@ import dev.fiki.forgehax.api.cmd.settings.EnumSetting;
 import dev.fiki.forgehax.api.cmd.settings.LongSetting;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
+import dev.fiki.forgehax.api.event.SubscribeListener;
+import dev.fiki.forgehax.api.events.render.RenderPlaneEvent;
 import dev.fiki.forgehax.api.math.AlignHelper;
 import dev.fiki.forgehax.api.mod.AbstractMod;
 import dev.fiki.forgehax.api.mod.Category;
@@ -13,8 +15,6 @@ import dev.fiki.forgehax.api.mod.HudMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.services.TickRateService;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -84,10 +84,10 @@ public class ActiveModList extends HudMod {
   private String generateTickRateText() {
     String text = "Tick-rate: ";
     TickRateService monitor = TickRateService.getInstance();
-    if(!monitor.isEmpty()) {
+    if (!monitor.isEmpty()) {
       text += String.format("%1.2f", monitor.getRealtimeTickrate());
 
-      if(showLag.getValue()) {
+      if (showLag.getValue()) {
         text += " : ";
         TickRateService.TickrateTimer current = monitor.getCurrentTimer();
         if (current != null
@@ -104,8 +104,8 @@ public class ActiveModList extends HudMod {
     return text;
   }
 
-  @SubscribeEvent
-  public void onRenderScreen(RenderGameOverlayEvent.Text event) {
+  @SubscribeListener
+  public void onRenderScreen(RenderPlaneEvent.Back event) {
     int align = alignment.getValue().ordinal();
 
     List<String> text = new ArrayList<>();

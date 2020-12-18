@@ -4,8 +4,8 @@ import com.google.common.base.MoreObjects;
 import dev.fiki.forgehax.api.Switch;
 import dev.fiki.forgehax.api.entity.HeldSlot;
 import dev.fiki.forgehax.api.math.Angle;
-import dev.fiki.forgehax.main.managers.RotationManager;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.val;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -41,6 +41,10 @@ public class LocalPlayerEx {
   @Getter
   private static final SelectedItemData selectedItemData = new SelectedItemData();
 
+  @Getter
+  @Setter
+  private static Angle serverAngles = null;
+
   public static ClientWorld getWorld(ClientPlayerEntity lp) {
     return lp.worldClient;
   }
@@ -49,20 +53,31 @@ public class LocalPlayerEx {
    * Gets the players current view angles
    */
   public static Angle getViewAngles(ClientPlayerEntity lp) {
-    return Angle.degrees(lp.rotationPitch, lp.rotationYaw);
+    return lp == null ? Angle.ZERO : Angle.degrees(lp.rotationPitch, lp.rotationYaw);
   }
 
-  public static Angle getServerViewAngles(@Nullable ClientPlayerEntity lp) {
-    return RotationManager.getState().getRenderServerViewAngles();
+  public static void setViewAngles(ClientPlayerEntity lp, Angle angles) {
+    Angle original = getViewAngles(lp);
+    Angle diff = angles.normalize().sub(original.normalize()).normalize();
+    lp.rotationPitch = GeneralEx.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
+    lp.rotationYaw = original.getYaw() + diff.getYaw();
+  }
+
+  public static void setViewAngles(ClientPlayerEntity lp, float pitch, float yaw) {
+    setViewAngles(lp, Angle.degrees(pitch, yaw));
+  }
+
+  public static void setViewAnglesRaw(ClientPlayerEntity lp, float pitch, float yaw) {
+    lp.rotationPitch = pitch;
+    lp.rotationYaw = yaw;
+  }
+
+  public static Angle getServerAngles(@Nullable ClientPlayerEntity lp) {
+    return serverAngles == null ? Angle.ZERO : serverAngles;
   }
 
   public static Vector3d getVelocity(ClientPlayerEntity lp) {
     return lp.getMotion();
-  }
-
-  public static void setViewAngles(ClientPlayerEntity lp, float pitch, float yaw) {
-    lp.rotationPitch = pitch;
-    lp.rotationYaw = yaw;
   }
 
   public static boolean isCrouchSneaking(ClientPlayerEntity lp) {
@@ -83,7 +98,7 @@ public class LocalPlayerEx {
   }
 
   public static Vector3d getServerDirectionVector(ClientPlayerEntity lp) {
-    return getServerViewAngles(lp).getDirectionVector().normalize();
+    return getServerAngles(lp).getDirectionVector().normalize();
   }
 
   public static RayTraceResult getViewTrace(@Nullable ClientPlayerEntity lp) {

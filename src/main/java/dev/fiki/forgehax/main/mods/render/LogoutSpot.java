@@ -4,12 +4,15 @@ import com.google.common.collect.Sets;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.color.Colors;
+import dev.fiki.forgehax.api.common.PriorityEnum;
 import dev.fiki.forgehax.api.draw.GeometryMasks;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
-import dev.fiki.forgehax.api.events.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.event.SubscribeListener;
 import dev.fiki.forgehax.api.events.PlayerConnectEvent;
-import dev.fiki.forgehax.api.events.Render2DEvent;
-import dev.fiki.forgehax.api.events.RenderEvent;
+import dev.fiki.forgehax.api.events.entity.LocalPlayerUpdateEvent;
+import dev.fiki.forgehax.api.events.render.RenderPlaneEvent;
+import dev.fiki.forgehax.api.events.render.RenderSpaceEvent;
+import dev.fiki.forgehax.api.events.world.WorldChangeEvent;
 import dev.fiki.forgehax.api.extension.VectorEx;
 import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.math.ScreenPos;
@@ -25,9 +28,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Set;
 import java.util.UUID;
@@ -86,7 +86,7 @@ public class LogoutSpot extends ToggleMod {
     reset();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPlayerConnect(PlayerConnectEvent.Join event) {
     synchronized (spots) {
       if (spots.removeIf(spot -> spot.getId().equals(event.getPlayerInfo().getUuid()))) {
@@ -95,7 +95,7 @@ public class LogoutSpot extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPlayerDisconnect(PlayerConnectEvent.Leave event) {
     if (!isInWorld()) {
       return;
@@ -115,8 +115,8 @@ public class LogoutSpot extends ToggleMod {
     }
   }
 
-  @SubscribeEvent(priority = EventPriority.LOW)
-  public void onRenderGameOverlayEvent(Render2DEvent event) {
+  @SubscribeListener(priority = PriorityEnum.LOW)
+  public void onRenderGameOverlayEvent(RenderPlaneEvent.Back event) {
     if (!render.getValue()) {
       return;
     }
@@ -138,13 +138,13 @@ public class LogoutSpot extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onRender(RenderEvent event) {
+  @SubscribeListener
+  public void onRender(RenderSpaceEvent event) {
     if (!render.getValue()) {
       return;
     }
 
-    val stack = event.getMatrixStack();
+    val stack = event.getStack();
     val builder = event.getBuffer();
     stack.push();
 
@@ -161,7 +161,7 @@ public class LogoutSpot extends ToggleMod {
     stack.pop();
   }
 
-  @SubscribeEvent
+  @SubscribeListener
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (maxDistance.getValue() > 0) {
       synchronized (spots) {
@@ -171,13 +171,8 @@ public class LogoutSpot extends ToggleMod {
     }
   }
 
-  @SubscribeEvent
-  public void onWorldUnload(WorldEvent.Unload event) {
-    reset();
-  }
-
-  @SubscribeEvent
-  public void onWorldLoad(WorldEvent.Load event) {
+  @SubscribeListener
+  public void onWorldChange(WorldChangeEvent event) {
     reset();
   }
 
