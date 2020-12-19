@@ -29,6 +29,8 @@ public class TimerMod extends ToggleMod {
   @MapField(parentClass = Timer.class, value = "tickLength")
   public final ReflectionField<Float> Timer_tickLength;
 
+  private final TickRateService tickRateService;
+
   public final FloatSetting factor = newFloatSetting()
       .name("speed")
       .description("how fast to make the game run")
@@ -68,9 +70,8 @@ public class TimerMod extends ToggleMod {
   @SubscribeListener
   public void onPacketPreceived(PacketInboundEvent event) {
     if (event.getPacket() instanceof SUpdateTimePacket && tpsSync.getValue()) {
-      TickRateService monitor = TickRateService.getInstance();
-      if (!monitor.isEmpty()) {
-        setSpeed((float) (DEFAULT_SPEED / (monitor.getTickrate() / 20.f)));
+      if (!tickRateService.isEmpty()) {
+        setSpeed((float) (DEFAULT_SPEED / (tickRateService.getTickrate() / 20.f)));
       }
     } else {
       updateTimer();
@@ -85,9 +86,8 @@ public class TimerMod extends ToggleMod {
   @Override
   public String getDisplayText() {
     if (tpsSync.getValue()) {
-      TickRateService monitor = TickRateService.getInstance();
-      if (!monitor.isEmpty()) {
-        return String.format("%s[%.2f]", super.getDisplayText(), monitor.getTickrate() / 20);
+      if (!tickRateService.isEmpty()) {
+        return String.format("%s[%.2f]", super.getDisplayText(), tickRateService.getTickrate() / 20);
       }
     } else {
       return String.format("%s[%.2f]", super.getDisplayText(), factor.getValue());

@@ -14,6 +14,7 @@ import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.HudMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.services.TickRateService;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.screen.ChatScreen;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import static dev.fiki.forgehax.main.Common.*;
     flags = EnumFlag.HIDDEN,
     enabled = true
 )
+@RequiredArgsConstructor
 public class ActiveModList extends HudMod {
   private final BooleanSetting tps_meter = newBooleanSetting()
       .name("tps-meter")
@@ -61,6 +63,8 @@ public class ActiveModList extends HudMod {
       .defaultTo(SortMode.ALPHABETICAL)
       .build();
 
+  private final TickRateService tickRateService;
+
   @Override
   protected AlignHelper.Align getDefaultAlignment() {
     return AlignHelper.Align.TOPLEFT;
@@ -83,13 +87,12 @@ public class ActiveModList extends HudMod {
 
   private String generateTickRateText() {
     String text = "Tick-rate: ";
-    TickRateService monitor = TickRateService.getInstance();
-    if (!monitor.isEmpty()) {
-      text += String.format("%1.2f", monitor.getRealtimeTickrate());
+    if (!tickRateService.isEmpty()) {
+      text += String.format("%1.2f", tickRateService.getRealtimeTickrate());
 
       if (showLag.getValue()) {
         text += " : ";
-        TickRateService.TickrateTimer current = monitor.getCurrentTimer();
+        TickRateService.TickrateTimer current = tickRateService.getCurrentTimer();
         if (current != null
             && current.getTimeElapsed() > timeoutDisplay.getValue()) {
           text += String.format("%01.1fs", (float) (current.getTimeElapsed() - 1000L) / 1000.f);

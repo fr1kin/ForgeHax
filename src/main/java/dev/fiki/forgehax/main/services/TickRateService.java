@@ -8,7 +8,6 @@ import dev.fiki.forgehax.api.events.DisconnectFromServerEvent;
 import dev.fiki.forgehax.api.mod.ServiceMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.packet.PacketInboundEvent;
-import lombok.Getter;
 import net.minecraft.network.play.server.SUpdateTimePacket;
 
 import javax.annotation.Nullable;
@@ -32,9 +31,6 @@ public class TickRateService extends ServiceMod {
     return Math.min(MAX_TICKRATE, Math.max(MIN_TICKRATE, rate));
   }
 
-  @Getter
-  private static TickRateService instance;
-
   private final IntegerSetting sampleSize = newIntegerSetting()
       .name("sample-size")
       .description("Number of ticks to record")
@@ -49,10 +45,6 @@ public class TickRateService extends ServiceMod {
   private int currentCount = 0;
   private long currentTotal = 0;
   private double currentTickrate;
-
-  {
-    instance = this;
-  }
 
   private void resetData() {
     Arrays.fill(data, null);
