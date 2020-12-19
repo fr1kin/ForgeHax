@@ -23,8 +23,33 @@ public final class ByteSetting extends NumberSetting<Byte> {
   }
 
   @Override
+  public int intValue() {
+    return byteValue();
+  }
+
+  @Override
+  public long longValue() {
+    return byteValue();
+  }
+
+  @Override
+  public float floatValue() {
+    return byteValue();
+  }
+
+  @Override
+  public double doubleValue() {
+    return byteValue();
+  }
+
+  @Override
   public byte byteValue() {
     return getValue();
+  }
+
+  @Override
+  public short shortValue() {
+    return byteValue();
   }
 
   @Override

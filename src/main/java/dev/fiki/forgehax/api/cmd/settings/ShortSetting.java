@@ -23,6 +23,31 @@ public final class ShortSetting extends NumberSetting<Short> {
   }
 
   @Override
+  public int intValue() {
+    return shortValue();
+  }
+
+  @Override
+  public long longValue() {
+    return shortValue();
+  }
+
+  @Override
+  public float floatValue() {
+    return shortValue();
+  }
+
+  @Override
+  public double doubleValue() {
+    return shortValue();
+  }
+
+  @Override
+  public byte byteValue() {
+    return (byte) shortValue();
+  }
+
+  @Override
   public short shortValue() {
     return getValue();
   }

@@ -12,7 +12,7 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public final class CharacterSetting extends AbstractSetting<Character> {
+public final class CharacterSetting extends AbstractSetting<Character> implements CharSequence {
   @Builder
   public CharacterSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -26,5 +26,28 @@ public final class CharacterSetting extends AbstractSetting<Character> {
   @Override
   public IConverter<Character> getConverter() {
     return TypeConverters.CHARACTER;
+  }
+
+  @Override
+  public int length() {
+    return 1;
+  }
+
+  @Override
+  public char charAt(int index) {
+    if (index == 0) {
+      return getValue();
+    } else {
+      throw new IndexOutOfBoundsException("Tried to get character at index #" + index);
+    }
+  }
+
+  @Override
+  public CharSequence subSequence(int start, int end) {
+    if (start == 0 && end == 1) {
+      return String.valueOf(getValue());
+    } else {
+      throw new IndexOutOfBoundsException("Cannot copy sequence index " + start + " to " + end);
+    }
   }
 }

@@ -23,8 +23,33 @@ public final class FloatSetting extends NumberSetting<Float> {
   }
 
   @Override
+  public int intValue() {
+    return (int) floatValue();
+  }
+
+  @Override
+  public long longValue() {
+    return (long) floatValue();
+  }
+
+  @Override
   public float floatValue() {
     return getValue();
+  }
+
+  @Override
+  public double doubleValue() {
+    return floatValue();
+  }
+
+  @Override
+  public byte byteValue() {
+    return (byte) floatValue();
+  }
+
+  @Override
+  public short shortValue() {
+    return (short) floatValue();
   }
 
   @Override

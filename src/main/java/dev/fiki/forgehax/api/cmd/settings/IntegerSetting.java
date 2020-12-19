@@ -28,6 +28,31 @@ public final class IntegerSetting extends NumberSetting<Integer> {
   }
 
   @Override
+  public long longValue() {
+    return intValue();
+  }
+
+  @Override
+  public float floatValue() {
+    return intValue();
+  }
+
+  @Override
+  public double doubleValue() {
+    return intValue();
+  }
+
+  @Override
+  public byte byteValue() {
+    return (byte) intValue();
+  }
+
+  @Override
+  public short shortValue() {
+    return (short) intValue();
+  }
+
+  @Override
   public IConverter<Integer> getConverter() {
     return TypeConverters.INTEGER;
   }

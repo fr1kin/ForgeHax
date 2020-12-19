@@ -12,7 +12,7 @@ import lombok.Singular;
 import java.util.List;
 import java.util.Set;
 
-public final class StringSetting extends AbstractSetting<String> {
+public final class StringSetting extends AbstractSetting<String> implements CharSequence {
   @Builder
   public StringSetting(IParentCommand parent,
       String name, @Singular Set<String> aliases, String description,
@@ -31,5 +31,20 @@ public final class StringSetting extends AbstractSetting<String> {
   @Override
   protected int getMaxArguments() {
     return Integer.MAX_VALUE;
+  }
+
+  @Override
+  public int length() {
+    return getValue().length();
+  }
+
+  @Override
+  public char charAt(int index) {
+    return getValue().charAt(index);
+  }
+
+  @Override
+  public CharSequence subSequence(int start, int end) {
+    return getValue().subSequence(start, end);
   }
 }

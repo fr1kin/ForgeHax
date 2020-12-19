@@ -23,8 +23,33 @@ public final class LongSetting extends NumberSetting<Long> {
   }
 
   @Override
+  public int intValue() {
+    return (int) longValue();
+  }
+
+  @Override
   public long longValue() {
     return getValue();
+  }
+
+  @Override
+  public float floatValue() {
+    return longValue();
+  }
+
+  @Override
+  public double doubleValue() {
+    return longValue();
+  }
+
+  @Override
+  public byte byteValue() {
+    return (byte) longValue();
+  }
+
+  @Override
+  public short shortValue() {
+    return (short) longValue();
   }
 
   @Override

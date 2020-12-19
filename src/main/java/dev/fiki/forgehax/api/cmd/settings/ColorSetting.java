@@ -33,4 +33,8 @@ public final class ColorSetting extends AbstractSetting<Color> {
   protected int getMaxArguments() {
     return 4;
   }
+
+  public String getColorName() {
+    return getValue().getName();
+  }
 }

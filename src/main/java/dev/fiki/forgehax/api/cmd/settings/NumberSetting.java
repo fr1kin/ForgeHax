@@ -18,27 +18,15 @@ abstract class NumberSetting<E extends Number> extends AbstractSetting<E> {
         max == null ? null : numberConverter.apply(max));
   }
 
-  public int intValue() {
-    return getValue() == null ? 0 : getValue().intValue();
-  }
+  public abstract int intValue();
 
-  public long longValue() {
-    return getValue() == null ? 0 : getValue().longValue();
-  }
+  public abstract long longValue();
 
-  public float floatValue() {
-    return getValue() == null ? 0.f : getValue().floatValue();
-  }
+  public abstract float floatValue();
 
-  public double doubleValue() {
-    return getValue() == null ? 0.d : getValue().doubleValue();
-  }
+  public abstract double doubleValue();
 
-  public byte byteValue() {
-    return (byte) intValue();
-  }
+  public abstract byte byteValue();
 
-  public short shortValue() {
-    return (short) intValue();
-  }
+  public abstract short shortValue();
 }
