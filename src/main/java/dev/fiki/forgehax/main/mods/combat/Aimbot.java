@@ -184,7 +184,8 @@ public class Aimbot extends ToggleMod {
   }
 
   private Vector3d getAttackPosition(Entity entity) {
-    return entity.getInterpolatedAmount(1).add(0, entity.getEyeHeight() / 2.d, 0);
+    return entity.getInterpolatedEyePos(1);
+//    return entity.getEyePos();
   }
 
   /**
