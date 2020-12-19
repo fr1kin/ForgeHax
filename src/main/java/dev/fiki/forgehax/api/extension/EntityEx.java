@@ -2,13 +2,11 @@ package dev.fiki.forgehax.api.extension;
 
 import dev.fiki.forgehax.api.entity.RelationState;
 import dev.fiki.forgehax.api.math.Angle;
-import net.minecraft.entity.*;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.monster.EndermanEntity;
-import net.minecraft.entity.monster.ZombifiedPiglinEntity;
-import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.IAngerable;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -27,8 +25,11 @@ public final class EntityEx {
   public static RelationState getPlayerRelationship(Entity entity) {
     if (entity instanceof PlayerEntity) {
       return RelationState.PLAYER;
+    } else {
+      // friendly mobs can be aggressive so we must check that
+      return isMobAggressive(entity) ? RelationState.HOSTILE
+          : (isPeaceful(entity) ? RelationState.FRIENDLY : RelationState.HOSTILE);
     }
-    return isMobAggressive(entity) ? RelationState.HOSTILE : RelationState.FRIENDLY;
   }
 
   public static boolean isMobAggressive(Entity entity) {
@@ -88,33 +89,17 @@ public final class EntityEx {
   }
 
   /**
-   * If the mob by default wont attack the player, but will if the player attacks it
-   */
-  public static boolean isNeutralMob(Entity entity) {
-    return entity instanceof ZombifiedPiglinEntity
-        || entity instanceof WolfEntity
-        || entity instanceof EndermanEntity;
-  }
-
-  /**
    * If the mob is friendly (not aggressive)
    */
-  public static boolean isFriendlyMob(Entity entity) {
-    return (EntityClassification.CREATURE.equals(entity.getClassification(false))
-        && !EntityEx.isNeutralMob(entity))
-        || EntityClassification.AMBIENT.equals(entity.getClassification(false))
-        || entity instanceof VillagerEntity
-        || entity instanceof IronGolemEntity
-        || (isNeutralMob(entity) && !EntityEx.isMobAggressive(entity));
+  public static boolean isPeaceful(Entity entity) {
+    return entity.getClassification(false).getPeacefulCreature();
   }
 
   /**
    * If the mob is hostile
    */
-  public static boolean isHostileMob(Entity entity) {
-    return (EntityClassification.MONSTER.equals(entity.getClassification(false))
-        && !EntityEx.isNeutralMob(entity))
-        || EntityEx.isMobAggressive(entity);
+  public static boolean isHostile(Entity entity) {
+    return !entity.getClassification(false).getPeacefulCreature();
   }
 
   /**
