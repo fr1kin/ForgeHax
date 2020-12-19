@@ -23,6 +23,6 @@ node {
   } finally {
     // Pass or fail, ensure that the services and networks
     // created by Docker Compose are torn down.
-//    sh 'docker-compose -f docker-compose.yml down -v'
+    sh 'docker-compose -f docker-compose.yml down'
   }
 }

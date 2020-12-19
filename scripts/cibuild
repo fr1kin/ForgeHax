@@ -13,6 +13,12 @@ Build application for staging or a release.
 "
 }
 
+if [[ -n "${GIT_COMMIT}" ]]; then
+  GIT_COMMIT="${GIT_COMMIT:0:7}"
+else
+  GIT_COMMIT="$(git rev-parse --short HEAD)"
+fi
+
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   if [ "${1:-}" = "--help" ]; then
     usage
@@ -20,15 +26,9 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     mkdir -p ./build/libs
     rm -f ./build/libs/*.jar
 
-    export USER_ID=$(id -u)
-    export GROUP_ID=$(id -g)
-
-    docker-compose -f docker-compose.yml \
-      build cibuild
-
-    docker-compose -f docker-compose.yml \
+    USER=ci USER_ID=$(id -u) GROUP_ID=$(id -g) GIT_COMMIT="${GIT_COMMIT}" docker-compose -f docker-compose.yml \
       run --rm \
-      --user "${USER_ID}:${GROUP_ID}" \
+      --user "$(id -u):$(id -g)" \
       cibuild
   fi
 fi

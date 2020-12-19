@@ -1,8 +1,6 @@
 .gradle/
 .idea/
-.cache/
 build/
 logs/
 out/
 run/
-dist/

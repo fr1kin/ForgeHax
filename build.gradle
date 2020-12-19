@@ -18,8 +18,12 @@ ext {
       }
       return out.toString().trim()
     } catch (Throwable t) {
-      logger.warn('Unable to obtain the latest git commit hash. Probably did not clone project using git clone')
-      return 'latest'
+      String commit = System.getenv('GIT_COMMIT')
+      if (commit == null) {
+        logger.warn('Unable to obtain the latest git commit hash.')
+        return 'latest'
+      }
+      return commit
     }
   }.call()
 

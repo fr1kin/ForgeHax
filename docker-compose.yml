@@ -1,18 +1,24 @@
 version: '2.4'
+
 services:
   cibuild:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - userId=${USER_ID}
-        - groupId=${GROUP_ID}
-        - gradleHome=/opt/forgehax/.gradle_cache
+        - user=${USER}
+        - uid=${USER_ID}
+        - gid=${GROUP_ID}
+        - cache=/home/${USER}/.cache
+    environment:
+      - GIT_COMMIT=${GIT_COMMIT}
     network_mode: host
     volumes:
-      - ./build/libs:/opt/forgehax/build/libs:Z
-      - gradle-cache:/opt/forgehax/.gradle_cache:Z
-    command: "build --stacktrace"
+      - ./:/home/${USER}/src:Z
+      - ./build/libs:/home/${USER}/.minecraft/mods:Z
+      - ./scripts/init:/home/${USER}/init:Z
+      - cached:/home/${USER}/.cache:Z
+    command: "clean build --stacktrace"
 
 volumes:
-  gradle-cache:
+  cached:

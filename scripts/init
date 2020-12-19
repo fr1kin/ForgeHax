@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# copy all files to build dir
+cp -a $SRC_DIR/. $BUILD_DIR
+
+cd $BUILD_DIR
+
+chmod +x gradlew
+
+# not really needed for jenkins but helps with testing builds locally
+rm -rf build
+rm -rf buildSrc/.gradle
+rm -rf buildSrc/build
+rm -rf buildSrc/Annotations/build
+rm -rf buildSrc/JavacPlugin/build
+
+# run gradle with commands
+./gradlew "$@"
