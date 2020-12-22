@@ -1,41 +1,38 @@
 package dev.fiki.forgehax.api.reflection.types;
 
 import dev.fiki.forgehax.asm.utils.asmtype.ASMClass;
+import dev.fiki.forgehax.main.Common;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Objects;
 
-@Getter
 @RequiredArgsConstructor
 @Log4j2
-public class ReflectionClass<E> {
+public final class ReflectionClass<E> {
   private final ASMClass classInfo;
 
-  private Class<E> cached = null;
-  private boolean failed = false;
+  @Getter(lazy = true)
+  private final Class<E> entity = lookupClass();
 
-  private Class<E> getCached() {
-    if (!failed && cached == null) {
-      cached = classInfo.getDelegates()
-          .map(clazz -> {
-            try {
-              return (Class<E>) Class.forName(clazz.getClassName().replace('/', '.'));
-            } catch (ClassNotFoundException | ClassCastException e) {
-              // hopefully there is a working format
-            }
-            return (Class<E>) null;
-          })
-          .filter(Objects::nonNull)
-          .findAny()
-          .orElseGet(() -> {
-            failed = true;
-            log.error("Failed to load class \"{}\"", classInfo.getClassName());
-            return null;
-          });
+  @SuppressWarnings("unchecked")
+  private Class<E> lookupClass() {
+    return (Class<E>) classInfo.getDelegates()
+        .map(this::findClass)
+        .filter(Objects::nonNull)
+        .findAny()
+        .orElseThrow(() -> new Error("Class \"" + classInfo + "\" could not be found"));
+  }
+
+  private Class<?> findClass(ASMClass clazz) {
+    try {
+      return Class.forName(clazz.getClassName().replace('/', '.'));
+    } catch (ClassNotFoundException | ClassCastException e) {
+      Common.getLogger().debug("Class {} is not valid", clazz);
+      Common.getLogger().debug(e, e);
     }
-    return cached;
+    return null;
   }
 
   public String getName() {
@@ -43,6 +40,26 @@ public class ReflectionClass<E> {
   }
 
   public Class<E> get() {
-    return getCached();
+    return getEntity();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ReflectionClass<?> that = (ReflectionClass<?>) o;
+
+    return classInfo.equals(that.classInfo);
+  }
+
+  @Override
+  public int hashCode() {
+    return classInfo.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "RC:" + classInfo;
   }
 }

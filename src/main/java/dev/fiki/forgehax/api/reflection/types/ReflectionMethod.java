@@ -1,11 +1,14 @@
 package dev.fiki.forgehax.api.reflection.types;
 
 import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
+import dev.fiki.forgehax.main.Common;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.SneakyThrows;
 import org.objectweb.asm.Type;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -13,59 +16,70 @@ import java.util.Objects;
  * Created on 5/25/2017 by fr1kin
  */
 
-@Getter
 @RequiredArgsConstructor
-@Log4j2
-public class ReflectionMethod<V> {
+public final class ReflectionMethod<V> {
   private final ReflectionClass<?> parentClass;
   private final ASMMethod method;
 
-  private Method cached = null;
-  private boolean failed = false;
+  @Getter(lazy = true)
+  private final MethodHandle invoker = findInvoker();
 
   public String getName() {
     return method.getName();
   }
 
-  private Method getCached() {
-    if (!failed && cached == null) {
-      cached = method.getDelegates()
-          .map(type -> {
-            for (Method classMethod : parentClass.get().getDeclaredMethods()) {
-              Type methodDescriptor = Type.getType(classMethod);
-              if (type.getName().equals(classMethod.getName()) && type.getDescriptor().equals(methodDescriptor)) {
-                classMethod.setAccessible(true);
-                return classMethod;
-              }
-            }
-            return null;
-          })
-          .filter(Objects::nonNull)
-          .findAny()
-          .orElseGet(() -> {
-            failed = true;
-            log.error("Failed to lookup method {}::{}", parentClass.getName(), getName());
-            return null;
-          });
-    }
-    return cached;
+  private Method lookupMethod() {
+    return method.getDelegates()
+        .map(this::findMethod)
+        .filter(Objects::nonNull)
+        .findAny()
+        .orElseThrow(() -> new Error("Method \"" + method + "\" could not be found"));
   }
 
-  public <E> V invoke(E instance, Object... args) {
-    try {
-      //noinspection unchecked
-      return (V) Objects.requireNonNull(getCached()).invoke(instance, args);
-    } catch (Throwable t) {
-      if (!failed) {
-        failed = true;
-        log.error("Invoke failed for method {}::{}", parentClass.getName(), getName());
-        log.error(t, t);
+  private Method findMethod(ASMMethod method) {
+    for (Method m : parentClass.get().getDeclaredMethods()) {
+      Type methodDescriptor = Type.getType(m);
+      if (method.getName().equals(m.getName()) && method.getDescriptor().equals(methodDescriptor)) {
+        m.setAccessible(true);
+        return m;
       }
     }
+    Common.getLogger().debug("Method {} is not valid", method);
     return null;
   }
 
+  @SneakyThrows
+  private MethodHandle findInvoker() {
+    return MethodHandles.lookup().unreflect(lookupMethod());
+  }
+
+  @SneakyThrows
+  public V invoke(Object... args) {
+    return (V) getInvoker().invokeWithArguments(args);
+  }
+
+  @SneakyThrows
   public V invokeStatic(Object... args) {
-    return invoke(null, args);
+    return (V) getInvoker().invokeWithArguments(args);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ReflectionMethod<?> that = (ReflectionMethod<?>) o;
+
+    return method.equals(that.method);
+  }
+
+  @Override
+  public int hashCode() {
+    return method.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "RM:" + method;
   }
 }

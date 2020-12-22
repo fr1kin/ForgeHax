@@ -1,102 +1,100 @@
 package dev.fiki.forgehax.api.reflection.types;
 
-import dev.fiki.forgehax.api.reflection.ReflectionHelper;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
+import dev.fiki.forgehax.main.Common;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
+import lombok.SneakyThrows;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
  * Created on 5/25/2017 by fr1kin
  */
-@Getter
 @RequiredArgsConstructor
-@Log4j2
-public class ReflectionField<V> {
+public final class ReflectionField<V> {
   private final ReflectionClass<?> parentClass;
   private final ASMField field;
 
-  @Setter
-  private boolean definalize;
-  private Field cached;
-  private boolean failed;
+  @Getter(lazy = true)
+  private final MethodHandle getter = findGetter();
+  @Getter(lazy = true)
+  private final MethodHandle setter = findSetter();
 
   public String getName() {
     return field.getName();
   }
 
-  private Field getCached() {
-    if (!failed && cached == null) {
-      cached = field.getDelegates()
-          .map(type -> {
-            Field ret = null;
-            try {
-              ret = parentClass.get().getDeclaredField(type.getName());
-              ret.setAccessible(true);
-              if (definalize) {
-                ReflectionHelper.makeMutable(ret);
-              }
-            } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
-              ;
-            }
-            return ret;
-          })
-          .filter(Objects::nonNull)
-          .findAny()
-          .orElseGet(() -> {
-            failed = true;
-            log.error("Failed to lookup field {}::{}", parentClass.getName(), getName());
-            return null;
-          });
-    }
-    return cached;
+  private Field findField() {
+    return field.getDelegates()
+        .map(this::lookupField)
+        .filter(Objects::nonNull)
+        .findAny()
+        .orElseThrow(() -> new Error("Field \"" + field + "\" could not be found"));
   }
 
-  public <E> V get(E instance, V defaultValue) {
+  private Field lookupField(ASMField field) {
     try {
-      //noinspection unchecked
-      return (V) getCached().get(instance);
-    } catch (Exception e) {
-      if (!failed) {
-        failed = true;
-        log.error("Failed to ::get on field {}::{}", parentClass.getName(), getName());
-        log.error(e, e);
-      }
+      Field f = parentClass.get().getDeclaredField(field.getName());
+      f.setAccessible(true);
+      return f;
+    } catch (NoSuchFieldException | ClassCastException e) {
+      Common.getLogger().debug("Field {} is not valid", field);
+      Common.getLogger().debug(e, e);
     }
-    return defaultValue;
+    return null;
   }
 
+  @SneakyThrows
+  private MethodHandle findGetter() {
+    return MethodHandles.lookup().unreflectGetter(findField());
+  }
+
+  @SneakyThrows
+  private MethodHandle findSetter() {
+    return MethodHandles.lookup().unreflectSetter(findField());
+  }
+
+  @SneakyThrows
   public <E> V get(E instance) {
-    return get(instance, null);
+    return (V) getGetter().invoke(instance);
   }
 
-  public V getStatic(V defaultValue) {
-    return get(null, defaultValue);
-  }
-
+  @SneakyThrows
   public V getStatic() {
-    return get(null);
+    return (V) getGetter().invoke();
   }
 
-  public <E> boolean set(E instance, V to) {
-    try {
-      getCached().set(instance, to);
-      return true;
-    } catch (Exception e) {
-      if (!failed) {
-        failed = true;
-        log.error("Failed to ::get on field {}::{}", parentClass.getName(), getName());
-        log.error(e, e);
-      }
-    }
-    return false;
+  @SneakyThrows
+  public <E> void set(E instance, V to) {
+    getSetter().invoke(instance, to);
   }
 
-  public boolean setStatic(V to) {
-    return set(null, to);
+  @SneakyThrows
+  public void setStatic(V to) {
+    getSetter().invoke(to);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ReflectionField<?> that = (ReflectionField<?>) o;
+
+    return field.equals(that.field);
+  }
+
+  @Override
+  public int hashCode() {
+    return field.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "RF:" + field;
   }
 }
