@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.asm.utils;
 
 import cpw.mods.modlauncher.ClassTransformer;
+import lombok.extern.log4j.Log4j2;
 import net.minecraftforge.fml.loading.ModDirTransformerDiscoverer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.MarkerManager;
@@ -17,11 +18,8 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 
-import static dev.fiki.forgehax.asm.ASMCommon.getLogger;
-
-
+@Log4j2
 public class EZ {
-
   public static void inject() {
     getJarPath().ifPresent(ModDirTransformerDiscoverer.getExtraLocators()::add);
   }
@@ -53,7 +51,7 @@ public class EZ {
   }
 
   public static void enableClassDumping() {
-    getLogger().info("Enabling class dumping!");
+    log.info("Enabling class dumping!");
 
     MarkerManager.getMarker("CLASSDUMP");
 
@@ -65,12 +63,12 @@ public class EZ {
       enableDumpingProperties(logger);
 
       logger.getContext().addPropertyChangeListener(event -> {
-        getLogger().warn("CLASSDUMP properties changed! Attempting to revert");
+        log.warn("CLASSDUMP properties changed! Attempting to revert");
         enableDumpingProperties(logger);
       });
     } catch (Throwable e) {
-      getLogger().error("Failed to activate class dumping: {}", e.getMessage());
-      getLogger().error(e, e);
+      log.error("Failed to activate class dumping: {}", e.getMessage());
+      log.error(e, e);
     }
   }
 

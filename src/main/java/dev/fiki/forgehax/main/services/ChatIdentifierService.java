@@ -14,7 +14,8 @@ import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getEventBus;
+import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 
 @RegisterMod
 public class ChatIdentifierService extends ServiceMod {
@@ -78,7 +79,7 @@ public class ChatIdentifierService extends ServiceMod {
           return;
         }
 
-        getLogger().warn("Unable to process message \"{}\"", message);
+        log.warn("Unable to process message \"{}\"", message);
         // if reached here then the message is unrecognized
       }
     }

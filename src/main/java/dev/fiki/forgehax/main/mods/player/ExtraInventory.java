@@ -70,7 +70,7 @@ public class ExtraInventory extends ToggleMod {
       ReflectionHelper.shallowCopyOf(gui, wrapper); // copy all fields from the provided gui to the wrapper
       return wrapper;
     } catch (NoSuchFieldException | IllegalAccessException e) {
-      getLogger().error(e, e);
+      log.error(e, e);
       return null;
     }
   }

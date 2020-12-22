@@ -8,6 +8,8 @@ import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.main.Common;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -15,16 +17,19 @@ import java.util.stream.Stream;
 
 import static dev.fiki.forgehax.api.cmd.flag.EnumFlag.HIDDEN;
 import static dev.fiki.forgehax.api.cmd.flag.EnumFlag.MOD_REGISTERED;
-import static dev.fiki.forgehax.main.Common.*;
+import static dev.fiki.forgehax.main.Common.getEventBus;
+import static dev.fiki.forgehax.main.Common.getRootCommand;
 
 @Getter
 public abstract class AbstractMod extends AbstractParentCommand implements Common {
   // category of the mod
   private final Category category;
+  protected final Logger log;
 
   @SneakyThrows
   AbstractMod(IParentCommand parent) {
     super(parent, "invalid", Collections.emptySet(), "invalid", Collections.emptySet());
+    this.log = LogManager.getLogger(getClass());
 
     RegisterMod info = getClass().getAnnotation(RegisterMod.class);
     Objects.requireNonNull(info, "RegisterMod annotation required for default constructor!");
@@ -90,7 +95,7 @@ public abstract class AbstractMod extends AbstractParentCommand implements Commo
    * Load the mod
    */
   public final void load() {
-    getLogger().debug("Loading mod {}", getName());
+    log.debug("Loading mod {}", getName());
 
     readConfiguration();
     if (isEnabled()) {
@@ -103,7 +108,7 @@ public abstract class AbstractMod extends AbstractParentCommand implements Commo
    * Unload the mod
    */
   public final void unload() {
-    getLogger().debug("Unloading mod {}", getName());
+    log.debug("Unloading mod {}", getName());
 
     writeConfiguration();
     stop();
@@ -116,14 +121,14 @@ public abstract class AbstractMod extends AbstractParentCommand implements Commo
   protected final void start() {
     if (register()) {
       onEnabled();
-      getLogger().debug("{} enabled", getName());
+      log.debug("{} enabled", getName());
     }
   }
 
   protected final void stop() {
     if (unregister()) {
       onDisabled();
-      getLogger().debug("{} disabled", getName());
+      log.debug("{} disabled", getName());
     }
   }
 

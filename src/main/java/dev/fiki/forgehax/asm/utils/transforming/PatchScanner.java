@@ -6,7 +6,6 @@ import cpw.mods.modlauncher.api.TransformerVoteResult;
 import dev.fiki.forgehax.api.asm.runtime.RtMapClass;
 import dev.fiki.forgehax.api.asm.runtime.RtMapField;
 import dev.fiki.forgehax.api.asm.runtime.RtMapMethod;
-import dev.fiki.forgehax.asm.ASMCommon;
 import dev.fiki.forgehax.asm.ForgeHaxCoreTransformer;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMClass;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
@@ -14,6 +13,7 @@ import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -27,10 +27,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static dev.fiki.forgehax.asm.ASMCommon.getLogger;
-
 @Getter
-public class PatchScanner implements ASMCommon {
+@Log4j2
+public class PatchScanner {
   private final List<ITransformer<?>> transformers = new ArrayList<>();
 
   @SneakyThrows
@@ -47,10 +46,10 @@ public class PatchScanner implements ASMCommon {
           boolean exists = core.getOtherServices().contains(serviceName);
 
           if (not && exists) {
-            getLogger().info("Skipping {} because service {} is present", method.getName(), serviceName);
+            log.info("Skipping {} because service {} is present", method.getName(), serviceName);
             continue;
           } else if (!not && !exists) {
-            getLogger().info("Skipping {} because service {} is not present", method.getName(), serviceName);
+            log.info("Skipping {} because service {} is not present", method.getName(), serviceName);
             continue;
           }
         }
@@ -114,7 +113,7 @@ public class PatchScanner implements ASMCommon {
             }
           }
 
-          getLogger().debug("Attempting to transform method {}", getTargetMethod());
+          log.debug("Attempting to transform method {}", getTargetMethod());
 
           try {
             method.invoke(parent, arguments.toArray());
@@ -124,13 +123,13 @@ public class PatchScanner implements ASMCommon {
               t = t.getCause();
             }
 
-            getLogger().error("Failed to transform method {}!", getTargetMethod());
-            getLogger().error(t, t);
+            log.error("Failed to transform method {}!", getTargetMethod());
+            log.error(t, t);
           }
         }
       }
 
-      getLogger().error("Could not find and transform method {}!", getTargetMethod());
+      log.error("Could not find and transform method {}!", getTargetMethod());
 
       return input;
     }

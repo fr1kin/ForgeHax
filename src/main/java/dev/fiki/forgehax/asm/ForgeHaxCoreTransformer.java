@@ -5,6 +5,7 @@ import cpw.mods.modlauncher.api.IEnvironment;
 import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.IncompatibleEnvironmentException;
+import dev.fiki.forgehax.api.log.ForgeHaxLog4J2Configuration;
 import dev.fiki.forgehax.asm.patches.*;
 import dev.fiki.forgehax.asm.utils.EZ;
 import dev.fiki.forgehax.asm.utils.transforming.Patch;
@@ -12,6 +13,7 @@ import dev.fiki.forgehax.asm.utils.transforming.PatchScanner;
 import dev.fiki.forgehax.asm.utils.transforming.Wrappers;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
@@ -21,12 +23,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommon {
+@Log4j2
+public class ForgeHaxCoreTransformer implements ITransformationService {
   @Getter
   private List<String> otherServices = Collections.emptyList();
 
   public ForgeHaxCoreTransformer() {
-    LOGGER.info("ForgeHaxCore initializing");
+    ForgeHaxLog4J2Configuration.create();
+    log.info("ForgeHaxCore initializing");
   }
 
   @Nonnull
@@ -109,7 +113,7 @@ public class ForgeHaxCoreTransformer implements ITransformationService, ASMCommo
     try {
       return clazz.getDeclaredConstructor() != null;
     } catch (NoSuchMethodException ex) {
-      LOGGER.warn("Class \"{}\" has no zero-argument constructor!", clazz.getSimpleName());
+      log.warn("Class \"{}\" has no zero-argument constructor!", clazz.getSimpleName());
     }
     return false;
   }

@@ -1,6 +1,8 @@
 package dev.fiki.forgehax.asm;
 
+import dev.fiki.forgehax.api.log.ForgeHaxLog4J2Configuration;
 import dev.fiki.forgehax.asm.utils.EZ;
+import lombok.extern.log4j.Log4j2;
 import net.minecraftforge.fml.loading.moddiscovery.AbstractJarFileLocator;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileParser;
@@ -10,12 +12,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static dev.fiki.forgehax.asm.ASMCommon.getLogger;
-
+@Log4j2
 public class ForgeHaxModLocator extends AbstractJarFileLocator {
-
   public ForgeHaxModLocator() {
-    getLogger().debug("Created ForgeHaxModLocator");
+    ForgeHaxLog4J2Configuration.create();
+    log.debug("Created ForgeHaxModLocator");
   }
 
   @Override

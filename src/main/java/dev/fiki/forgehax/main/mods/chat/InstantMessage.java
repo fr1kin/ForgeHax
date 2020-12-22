@@ -16,7 +16,6 @@ import net.minecraft.network.login.server.SLoginSuccessPacket;
 import net.minecraft.network.play.client.CChatMessagePacket;
 
 import static dev.fiki.forgehax.main.Common.getDisplayScreen;
-import static dev.fiki.forgehax.main.Common.getLogger;
 
 @RegisterMod(
     name = "InstantMessage",
@@ -48,7 +47,7 @@ public class InstantMessage extends ToggleMod {
                 .replace("{IP}", serverIP)
                 .replace("{NAME}", MC.getSession().getUsername())));
       } else {
-        getLogger().warn("Did not send message as current screen is not GuiConnecting");
+        log.warn("Did not send message as current screen is not GuiConnecting");
       }
     }
   }

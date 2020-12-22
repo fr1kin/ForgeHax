@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import dev.fiki.forgehax.api.Streamables;
 import dev.fiki.forgehax.main.ForgeHax;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import org.objectweb.asm.Type;
@@ -27,8 +28,8 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.api.FileHelper.*;
-import static dev.fiki.forgehax.main.Common.getLogger;
 
+@Log4j2
 public class ClassLoaderHelper {
   private static Class<?> MODJAR_URLCONNECTION_CLASS;
 
@@ -199,7 +200,7 @@ public class ClassLoaderHelper {
 
     final URLConnection connection = url.openConnection();
 
-    getLogger().debug("Connecting to jar using {}", connection.getClass());
+    log.debug("Connecting to jar using {}", connection.getClass());
 
     if (isFMLConnection(connection)) {
       final ModFile modFile = getModFileInModJar(connection);

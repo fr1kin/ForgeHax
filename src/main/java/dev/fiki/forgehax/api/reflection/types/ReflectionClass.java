@@ -3,13 +3,13 @@ package dev.fiki.forgehax.api.reflection.types;
 import dev.fiki.forgehax.asm.utils.asmtype.ASMClass;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.Objects;
 
-import static dev.fiki.forgehax.main.Common.getLogger;
-
 @Getter
 @RequiredArgsConstructor
+@Log4j2
 public class ReflectionClass<E> {
   private final ASMClass classInfo;
 
@@ -17,7 +17,7 @@ public class ReflectionClass<E> {
   private boolean failed = false;
 
   private Class<E> getCached() {
-    if(!failed && cached == null) {
+    if (!failed && cached == null) {
       cached = classInfo.getDelegates()
           .map(clazz -> {
             try {
@@ -31,7 +31,7 @@ public class ReflectionClass<E> {
           .findAny()
           .orElseGet(() -> {
             failed = true;
-            getLogger().error("Failed to load class \"{}\"", classInfo.getClassName());
+            log.error("Failed to load class \"{}\"", classInfo.getClassName());
             return null;
           });
     }

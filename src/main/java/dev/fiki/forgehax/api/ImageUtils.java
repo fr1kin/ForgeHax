@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.api;
 
 import dev.fiki.forgehax.main.Common;
+import lombok.extern.log4j.Log4j2;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -10,8 +11,9 @@ import java.net.URL;
 /**
  * Created by Babbaj on 11/7/2017.
  */
+@Log4j2
 public class ImageUtils implements Common {
-  
+
   public static BufferedImage createResizedCopy(
       Image originalImage, int scaledWidth, int scaledHeight, boolean preserveAlpha) {
     int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
@@ -24,24 +26,24 @@ public class ImageUtils implements Common {
     g.dispose();
     return scaledBI;
   }
-  
+
   public static BufferedImage getImageFromUrl(String link) {
     BufferedImage image = null;
     try {
       URL url = new URL(link);
       image = ImageIO.read(url);
     } catch (Exception e) {
-      Common.getLogger().error("Failed to download Image");
+      log.error("Failed to download Image");
     }
     return image;
   }
-  
+
   public static int[][] imageToArray(BufferedImage imageIn) {
     int width = imageIn.getWidth();
     int height = imageIn.getHeight();
-    
+
     int[][] data = new int[height][width]; // array of rows
-    
+
     for (int i = 0; i < height; i++) {
       for (int j = 0; j < width; j++) {
         data[i][j] = imageIn.getRGB(i, j);

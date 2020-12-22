@@ -4,6 +4,7 @@ import com.google.common.collect.Queues;
 import dev.fiki.forgehax.api.color.Color;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.concurrent.DelegatedTaskExecutor;
@@ -17,10 +18,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dev.fiki.forgehax.main.Common.getLogger;
-
 @Getter
 @Setter
+@Log4j2
 public class MarkerDispatcher {
   private final Executor executor;
   private final DelegatedTaskExecutor<Runnable> delegatedTaskExecutor;
@@ -53,7 +53,7 @@ public class MarkerDispatcher {
       final BufferBuilder buffer = freeBuilders.poll();
 
       if (buffer == null) {
-        getLogger().warn("Not enough builders!");
+        log.warn("Not enough builders!");
         return;
       }
 
@@ -62,8 +62,8 @@ public class MarkerDispatcher {
           .thenCompose(v -> job.execute(buffer))
           .whenComplete((success, ex) -> {
             if (ex != null) {
-              getLogger().error("MarkerDispatcher error in process: {}", ex.getMessage());
-              getLogger().error(ex, ex);
+              log.error("MarkerDispatcher error in process: {}", ex.getMessage());
+              log.error(ex, ex);
             }
 
             delegatedTaskExecutor.enqueue(() -> {

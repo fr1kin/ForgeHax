@@ -9,7 +9,7 @@ import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.listener.ICommandListener;
 import dev.fiki.forgehax.api.cmd.listener.IListenable;
 import dev.fiki.forgehax.api.serialization.IJsonSerializable;
-import dev.fiki.forgehax.main.Common;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
@@ -146,7 +146,7 @@ public interface ICommand extends IListenable, IJsonSerializable {
   }
 
   default Logger getLog() {
-    return Common.getLogger();
+    return LogManager.getLogger(getClass());
   }
 
   class MissingConfigurationDirectoryException extends RuntimeException {

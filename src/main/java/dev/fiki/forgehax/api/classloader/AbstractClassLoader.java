@@ -1,5 +1,7 @@
 package dev.fiki.forgehax.api.classloader;
 
+import lombok.extern.log4j.Log4j2;
+
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -11,11 +13,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.getLauncherClassLoader;
-import static dev.fiki.forgehax.main.Common.getLogger;
 
 /**
  * Created on 2/13/2018 by fr1kin
  */
+@Log4j2
 public abstract class AbstractClassLoader<E> {
   
   protected AbstractClassLoader() {
@@ -76,8 +78,8 @@ public abstract class AbstractClassLoader<E> {
         | IllegalAccessException
         | InvocationTargetException
         | NoSuchMethodException e) {
-      getLogger().error("Failed to create new instance of {}", clazz.getSimpleName());
-      getLogger().error(e, e);
+      log.error("Failed to create new instance of {}", clazz.getSimpleName());
+      log.error(e, e);
       return null;
     }
   }

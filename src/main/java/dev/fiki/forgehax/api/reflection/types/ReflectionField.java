@@ -5,17 +5,17 @@ import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
-
-import static dev.fiki.forgehax.main.Common.getLogger;
 
 /**
  * Created on 5/25/2017 by fr1kin
  */
 @Getter
 @RequiredArgsConstructor
+@Log4j2
 public class ReflectionField<V> {
   private final ReflectionClass<?> parentClass;
   private final ASMField field;
@@ -30,7 +30,7 @@ public class ReflectionField<V> {
   }
 
   private Field getCached() {
-    if(!failed && cached == null) {
+    if (!failed && cached == null) {
       cached = field.getDelegates()
           .map(type -> {
             Field ret = null;
@@ -49,13 +49,13 @@ public class ReflectionField<V> {
           .findAny()
           .orElseGet(() -> {
             failed = true;
-            getLogger().error("Failed to lookup field {}::{}", parentClass.getName(), getName());
+            log.error("Failed to lookup field {}::{}", parentClass.getName(), getName());
             return null;
           });
     }
     return cached;
   }
-  
+
   public <E> V get(E instance, V defaultValue) {
     try {
       //noinspection unchecked
@@ -63,25 +63,25 @@ public class ReflectionField<V> {
     } catch (Exception e) {
       if (!failed) {
         failed = true;
-        getLogger().error("Failed to ::get on field {}::{}", parentClass.getName(), getName());
-        getLogger().error(e, e);
+        log.error("Failed to ::get on field {}::{}", parentClass.getName(), getName());
+        log.error(e, e);
       }
     }
     return defaultValue;
   }
-  
+
   public <E> V get(E instance) {
     return get(instance, null);
   }
-  
+
   public V getStatic(V defaultValue) {
     return get(null, defaultValue);
   }
-  
+
   public V getStatic() {
     return get(null);
   }
-  
+
   public <E> boolean set(E instance, V to) {
     try {
       getCached().set(instance, to);
@@ -89,13 +89,13 @@ public class ReflectionField<V> {
     } catch (Exception e) {
       if (!failed) {
         failed = true;
-        getLogger().error("Failed to ::get on field {}::{}", parentClass.getName(), getName());
-        getLogger().error(e, e);
+        log.error("Failed to ::get on field {}::{}", parentClass.getName(), getName());
+        log.error(e, e);
       }
     }
     return false;
   }
-  
+
   public boolean setStatic(V to) {
     return set(null, to);
   }

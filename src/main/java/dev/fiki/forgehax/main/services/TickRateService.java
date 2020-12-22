@@ -13,8 +13,6 @@ import net.minecraft.network.play.server.SUpdateTimePacket;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 
-import static dev.fiki.forgehax.main.Common.getLogger;
-
 /**
  * Created on 11/14/2016 by fr1kin
  */
@@ -139,7 +137,7 @@ public class TickRateService extends ServiceMod {
       } else {
         if (!timer.isStarted()) {
           // :thinking:
-          getLogger().warn("TickMonitor timer not started, this should not happen!");
+          log.warn("TickMonitor timer not started, this should not happen!");
           timer.start();
         } else {
           // stop current timer and start the next timer

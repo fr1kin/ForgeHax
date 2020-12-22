@@ -5,14 +5,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.*;
+import lombok.extern.log4j.Log4j2;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.client.util.InputMappings.Type;
 
 import java.util.*;
 
-import static dev.fiki.forgehax.main.Common.getLogger;
-
 @Getter
+@Log4j2
 public class KeyInput {
   private static final List<KeyInput> REGISTRY = Lists.newArrayList();
   private static final Map<Integer, KeyInput> CODE_TO_KEYINPUT = Maps.newHashMap();
@@ -36,15 +36,15 @@ public class KeyInput {
   public static KeyInput getKeyInputByCode(int code) {
     return Optional.ofNullable(CODE_TO_KEYINPUT.get(code))
         .orElseGet(() -> {
-           getLogger().warn("Unknown key code \"{}\"", code);
-           return INVALID;
+          log.warn("Unknown key code \"{}\"", code);
+          return INVALID;
         });
   }
 
   public static KeyInput getKeyInputByName(String key) {
     return Optional.ofNullable(NAME_TO_KEYINPUT.get(key))
         .orElseGet(() -> {
-          getLogger().warn("Unknown key name \"{}\"", key);
+          log.warn("Unknown key name \"{}\"", key);
           return INVALID;
         });
   }
@@ -65,7 +65,7 @@ public class KeyInput {
     CODE_TO_KEYINPUT.put(getCode(), this);
     for (String key : getKeyNames()) {
       if (NAME_TO_KEYINPUT.put(key, this) != null) {
-        getLogger().warn("Duplicate key name \"{}\" replaced", key);
+        log.warn("Duplicate key name \"{}\" replaced", key);
       }
     }
   }

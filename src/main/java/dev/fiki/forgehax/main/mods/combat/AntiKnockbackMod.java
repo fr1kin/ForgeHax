@@ -182,7 +182,7 @@ public class AntiKnockbackMod extends ToggleMod {
             }
           }
         } catch (ConcurrentModificationException e) {
-          getLogger().warn("ConcurrentModificationException caused by packet::getEntity");
+          log.warn("ConcurrentModificationException caused by packet::getEntity");
           event.setCanceled(true);
         }
       }

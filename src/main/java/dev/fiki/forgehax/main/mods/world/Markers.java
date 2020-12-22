@@ -230,7 +230,7 @@ public class Markers extends ToggleMod implements Common {
       if (worker != null) {
         worker.setPosition(event.getX(), event.getY(), event.getZ());
       } else {
-        getLogger().warn("Could not update chunk region {} {} {}", event.getX(), event.getY(), event.getZ());
+        log.warn("Could not update chunk region {} {} {}", event.getX(), event.getY(), event.getZ());
       }
     }
   }
@@ -247,7 +247,7 @@ public class Markers extends ToggleMod implements Common {
     if (worker != null) {
       worker.scheduleUpdate();
     } else {
-      getLogger().warn("No worker for chunk @ {}", pos);
+      log.warn("No worker for chunk @ {}", pos);
     }
   }
 

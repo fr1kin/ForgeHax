@@ -13,7 +13,6 @@ import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.common.PriorityEnum;
 import dev.fiki.forgehax.api.draw.RenderTypeEx;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
-import dev.fiki.forgehax.api.draw.font.Fonts;
 import dev.fiki.forgehax.api.entity.EnchantmentUtils;
 import dev.fiki.forgehax.api.entity.EnchantmentUtils.ItemEnchantment;
 import dev.fiki.forgehax.api.entity.RelationState;
@@ -54,7 +53,7 @@ import static dev.fiki.forgehax.main.Common.*;
     category = Category.RENDER
 )
 @ExtensionMethod({EntityEx.class, VectorEx.class, VertexBuilderEx.class})
-public class ESP extends ToggleMod implements Fonts {
+public class ESP extends ToggleMod {
   private static final int HEALTHBAR_WIDTH = 15;
   private static final int HEALTHBAR_HEIGHT = 3;
 

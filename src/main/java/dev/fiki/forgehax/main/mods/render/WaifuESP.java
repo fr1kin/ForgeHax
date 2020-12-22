@@ -125,7 +125,7 @@ public class WaifuESP extends ToggleMod {
               }
             }
             if (image == null) {
-              getLogger().warn("Failed to download waifu image");
+              log.warn("Failed to download waifu image");
               return;
             }
 
