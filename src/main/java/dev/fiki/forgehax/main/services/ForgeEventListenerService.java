@@ -113,7 +113,6 @@ public final class ForgeEventListenerService extends ServiceMod {
     VectorUtil.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().getLast().getMatrix());
 
     RenderSystem.pushMatrix();
-    RenderSystem.multMatrix(event.getMatrixStack().getLast().getMatrix());
 
     RenderSystem.disableTexture();
     RenderSystem.enableBlend();

@@ -155,6 +155,8 @@ public class FreecamMod extends ToggleMod {
   @SubscribeListener
   public void onRender(RenderSpaceEvent event) {
     if (mockPlayer != null) {
+      MatrixStack stack = event.getStack();
+      stack.push();
       // mock player cant move so no need to lerp its pos and yaw
       Vector3d pos = mockPlayer.getPositionVec().subtract(event.getProjectedPos());
 
@@ -165,7 +167,7 @@ public class FreecamMod extends ToggleMod {
 
       MC.getRenderManager().renderEntityStatic(mockPlayer,
           pos.getX(), pos.getY(), pos.getZ(), mockPlayer.rotationYaw,
-          event.getPartialTicks(), new MatrixStack(),
+          event.getPartialTicks(), stack,
           buffer, MC.getRenderManager().getPackedLight(mockPlayer, event.getPartialTicks()));
 
 //      buffer.finish(RenderType.entitySolid(PlayerContainer.LOCATION_BLOCKS_TEXTURE));
@@ -178,6 +180,8 @@ public class FreecamMod extends ToggleMod {
       RenderSystem.color4f(1.f ,1.f ,1.f, 1.0f);
 
       buffer.finish();
+      stack.pop();
+//      RenderSystem.popMatrix();
     }
   }
 

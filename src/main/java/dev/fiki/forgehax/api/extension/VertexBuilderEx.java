@@ -359,6 +359,7 @@ public class VertexBuilderEx {
   }
 
   public static void draw(BufferBuilder builder) {
+    builder.finishDrawing();
     WorldVertexBufferUploader.draw(builder);
   }
 
