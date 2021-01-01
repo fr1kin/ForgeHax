@@ -12,6 +12,7 @@ services:
         - cache=/home/${USER}/.cache
     environment:
       - GIT_COMMIT=${GIT_COMMIT}
+      - JENKINS_BUILDING=${JENKINS_BUILDING}
     network_mode: host
     volumes:
       - ./:/home/${USER}/src:Z

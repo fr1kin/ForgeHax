@@ -60,7 +60,11 @@ configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-final isJenkinsBuilding = System.getProperty("jenkins") != null
+final isJenkinsBuilding = 'yes' == System.getenv("JENKINS_BUILDING")
+
+if (isJenkinsBuilding) {
+  logger.warn 'Jenkins detected. Certain modules will be omitted from this build'
+}
 
 sourceSets {
   api {

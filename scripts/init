@@ -14,5 +14,9 @@ rm -rf buildSrc/build
 rm -rf buildSrc/Annotations/build
 rm -rf buildSrc/JavacPlugin/build
 
-# run gradle with commands
-./gradlew "$@"
+if [ "${1:-}" == 'bash' ]; then
+  /bin/bash
+else
+  # run gradle with commands
+  ./gradlew "$@"
+fi

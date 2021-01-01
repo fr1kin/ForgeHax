@@ -25,8 +25,8 @@ RUN mkdir -p $home/forgehax \
     && chown -R $user:$user $home/forgehax
 
 # create the gradle cache and set its owner
-RUN mkdir -p $gradleHome \
-    && chown -R $user:$user $gradleHome
+RUN mkdir -p $cache && mkdir -p $gradleHome \
+    && chown -R $user:$user $cache
 
 # src code volume
 RUN mkdir -p $src \
@@ -37,7 +37,7 @@ RUN mkdir -p $home/.minecraft/mods \
     && chown -R $user:$user $home/.minecraft
 
 # this is the directory gradle will cache jars
-VOLUME $gradleHome
+VOLUME $cache
 
 # folder where minecraft a copy of the built jar will be copied
 VOLUME $home/.minecraft/mods

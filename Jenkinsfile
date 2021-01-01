@@ -11,9 +11,11 @@ node {
     // ANSI color codes to something that renders inside the Jenkins
     // console.
     stage('cibuild') {
-      wrap([$class: 'AnsiColorBuildWrapper']) {
-        sh './scripts/cibuild'
-        archiveArtifacts artifacts: '**/build/libs/ForgeHax*.jar', fingerprint: true
+      withEnv('JENKINS_BUILDING=yes') {
+        wrap([$class: 'AnsiColorBuildWrapper']) {
+          sh './scripts/cibuild'
+          archiveArtifacts artifacts: '**/build/libs/ForgeHax*.jar', fingerprint: true
+        }
       }
     }
   } catch (err) {

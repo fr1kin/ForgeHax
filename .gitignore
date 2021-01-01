@@ -16,3 +16,5 @@ private/src
 libs/journeymap*
 
 .gradle/
+
+.imgid
