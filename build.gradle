@@ -231,7 +231,4 @@ task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
   }
 }
 
-if (!isJenkinsBuilding) {
-  // run this task after build
-  build.finalizedBy copyJar
-}
+build.finalizedBy copyJar
