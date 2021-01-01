@@ -30,7 +30,7 @@ ext {
   forgehaxVersion = "3.2.0-${forgehaxCommit}"
 
   minecraftVersion = '1.16.4'
-  forgeVersion = '35.0.7'
+  forgeVersion = '35.1.4'
 
   fmlVersion = '2.0.0-milestone.1'
   lombokVersion = '1.18.16'
