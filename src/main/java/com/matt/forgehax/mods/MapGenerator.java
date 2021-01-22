@@ -37,6 +37,7 @@ public class MapGenerator {
 
   private static MapData updateMapData(World worldIn, int posX, int posZ) {
     MapData data = new MapData("cute");
+    int step = 0;
     if (worldIn.provider.getDimension() == data.dimension)
     {
       int i = 1 << data.scale;
@@ -51,12 +52,12 @@ public class MapGenerator {
         j1 /= 2;
       }
 
+      ++step;
       boolean flag = false;
 
       for (int k1 = l - j1 + 1; k1 < l + j1; ++k1)
       {
-//        if ((k1 & 15) == (mapdata$mapinfo.step & 15) || flag)
-        if ((k1 & 15) == (1 & 15) || flag)
+        if ((k1 & 15) == (step & 15) || flag)
         {
           flag = false;
           double d0 = 0.0D;
