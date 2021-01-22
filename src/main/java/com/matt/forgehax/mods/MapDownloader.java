@@ -1,33 +1,30 @@
 package com.matt.forgehax.mods;
 
-import static com.matt.forgehax.Helper.getWorld;
-import static com.matt.forgehax.util.ImageUtils.createResizedCopy;
-
 import com.matt.forgehax.Helper;
 import com.matt.forgehax.asm.events.PacketEvent;
-import com.matt.forgehax.asm.reflection.FastReflection;
 import com.matt.forgehax.util.FileManager;
+import com.matt.forgehax.util.MapUtils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
 import com.matt.forgehax.util.mod.loader.RegisterMod;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.imageio.ImageIO;
-
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.item.ItemMap;
-import net.minecraft.network.play.server.*;
+import net.minecraft.network.play.server.SPacketMaps;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.matt.forgehax.Helper.getWorld;
+import static com.matt.forgehax.util.ImageUtils.createResizedCopy;
 
 /**
  * Created by Babbaj on 11/6/2017.
@@ -129,41 +126,19 @@ public class MapDownloader extends ToggleMod {
       fileName = data.mapName;
     }
 
-    ResourceLocation location = findResourceLocation(data.mapName);
+    ResourceLocation location = MapUtils.findResourceLocation(data.mapName);
     if (location == null) {
       Helper.printMessage("Failed to find ResourceLocation");
       return;
     }
 
     DynamicTexture texture = (DynamicTexture) MC.getTextureManager().getTexture(location);
-    BufferedImage image = dynamicToImage(texture);
+    BufferedImage image = MapUtils.dynamicToImage(texture);
     if (scaledRes != null) {
       image = createResizedCopy(image, scaledRes, scaledRes, true);
     }
 
     saveImage(fileName, image);
-  }
-
-  private ResourceLocation findResourceLocation(String name) {
-    Map<ResourceLocation, ITextureObject> mapTextureObjects =
-        FastReflection.Fields.TextureManager_mapTextureObjects.get(MC.getTextureManager());
-
-    return mapTextureObjects
-        .keySet()
-        .stream()
-        .filter(k -> k.getResourcePath().contains(name))
-        .findFirst()
-        .orElse(null);
-  }
-
-  // TODO: generalize this
-  private BufferedImage dynamicToImage(DynamicTexture texture) {
-    int[] data = texture.getTextureData();
-
-    BufferedImage image = new BufferedImage(128, 128, 2);
-
-    image.setRGB(0, 0, image.getWidth(), image.getHeight(), data, 0, 128);
-    return image;
   }
 
   @Override

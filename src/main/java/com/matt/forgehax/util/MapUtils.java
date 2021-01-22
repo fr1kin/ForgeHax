@@ -1,4 +1,4 @@
-package com.matt.forgehax.mods;
+package com.matt.forgehax.util;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Iterables;
@@ -10,6 +10,7 @@ import net.minecraft.block.BlockDirt;
 import net.minecraft.block.BlockStone;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.MapItemRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.init.Blocks;
@@ -28,17 +29,17 @@ import java.util.Map;
 import static com.matt.forgehax.Globals.MC;
 import static com.matt.forgehax.util.ImageUtils.createResizedCopy;
 
-public class MapGenerator {
+public class MapUtils {
 
   public static BufferedImage render(World worldIn, int posX, int posZ) {
     MapData data = updateMapData(worldIn, posX, posZ);
-    return render(data, 512);
+    return render(worldIn, data, 512);
   }
 
-  private static MapData updateMapData(World worldIn, int posX, int posZ) {
-    MapData data = new MapData("cute");
+  private static MapData updateMapData(World world, int posX, int posZ) {
+    MapData data = new MapData("cute-" + System.currentTimeMillis());
     int step = 0;
-    if (worldIn.provider.getDimension() == data.dimension)
+//    if (world.provider.getDimension() == data.dimension)
     {
       int i = 1 << data.scale;
       int j = data.xCenter;
@@ -47,7 +48,7 @@ public class MapGenerator {
       int i1 = MathHelper.floor(posZ - (double)k) / i + 64;
       int j1 = 128 / i;
 
-      if (worldIn.provider.isNether())
+      if (world.provider.isNether())
       {
         j1 /= 2;
       }
@@ -72,7 +73,7 @@ public class MapGenerator {
               int k2 = (j / i + k1 - 64) * i;
               int l2 = (k / i + l1 - 64) * i;
               Multiset<MapColor> multiset = HashMultiset.<MapColor>create();
-              Chunk chunk = worldIn.getChunkFromBlockCoords(new BlockPos(k2, 0, l2));
+              Chunk chunk = world.getChunkFromBlockCoords(new BlockPos(k2, 0, l2));
 
               if (!chunk.isEmpty())
               {
@@ -81,18 +82,18 @@ public class MapGenerator {
                 int k3 = 0;
                 double d1 = 0.0D;
 
-                if (worldIn.provider.isNether())
+                if (world.provider.isNether())
                 {
                   int l3 = k2 + l2 * 231871;
                   l3 = l3 * l3 * 31287121 + l3 * 11;
 
                   if ((l3 >> 20 & 1) == 0)
                   {
-                    multiset.add(Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT).getMapColor(worldIn, BlockPos.ORIGIN), 10);
+                    multiset.add(Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT).getMapColor(world, BlockPos.ORIGIN), 10);
                   }
                   else
                   {
-                    multiset.add(Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.STONE).getMapColor(worldIn, BlockPos.ORIGIN), 100);
+                    multiset.add(Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.STONE).getMapColor(world, BlockPos.ORIGIN), 100);
                   }
 
                   d1 = 100.0D;
@@ -122,7 +123,7 @@ public class MapGenerator {
                             iblockstate = chunk.getBlockState(i4 + i3, k4, j4 + j3);
                             blockpos$mutableblockpos.setPos((chunk.x << 4) + i4 + i3, k4, (chunk.z << 4) + j4 + j3);
 
-                            if (iblockstate.getMapColor(worldIn, blockpos$mutableblockpos) != MapColor.AIR || k4 <= 0)
+                            if (iblockstate.getMapColor(world, blockpos$mutableblockpos) != MapColor.AIR || k4 <= 0)
                             {
                               break;
                             }
@@ -147,7 +148,7 @@ public class MapGenerator {
                       }
 
                       d1 += (double)k4 / (double)(i * i);
-                      multiset.add(iblockstate.getMapColor(worldIn, blockpos$mutableblockpos));
+                      multiset.add(iblockstate.getMapColor(world, blockpos$mutableblockpos));
                     }
                   }
                 }
@@ -207,8 +208,11 @@ public class MapGenerator {
     return data;
   }
 
-  private static BufferedImage render(MapData data, Integer scaledRes) {
-    MC.entityRenderer.getMapItemRenderer().renderMap(data, true);
+  private static BufferedImage render(World world, MapData data, Integer scaledRes) {
+    world.setData(data.mapName, data);
+    MapItemRenderer mapRenderer = MC.entityRenderer.getMapItemRenderer();
+    mapRenderer.updateMapTexture(data);
+    mapRenderer.renderMap(data, false);
     ResourceLocation location = findResourceLocation(data.mapName);
     if (location == null) {
       Helper.printMessage("Failed to find ResourceLocation");
@@ -222,14 +226,14 @@ public class MapGenerator {
     return image;
   }
 
-  private static BufferedImage dynamicToImage(DynamicTexture texture) {
+  public static BufferedImage dynamicToImage(DynamicTexture texture) {
     int[] data = texture.getTextureData();
     BufferedImage image = new BufferedImage(128, 128, 2);
     image.setRGB(0, 0, image.getWidth(), image.getHeight(), data, 0, 128);
     return image;
   }
 
-  private static ResourceLocation findResourceLocation(String name) {
+  public static ResourceLocation findResourceLocation(String name) {
     Map<ResourceLocation, ITextureObject> mapTextureObjects =
         FastReflection.Fields.TextureManager_mapTextureObjects.get(MC.getTextureManager());
 

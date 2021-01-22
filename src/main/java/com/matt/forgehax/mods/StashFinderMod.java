@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.EvictingQueue;
 import com.matt.forgehax.asm.events.PacketEvent;
 import com.matt.forgehax.events.RenderEvent;
+import com.matt.forgehax.util.MapUtils;
 import com.matt.forgehax.util.command.Setting;
 import com.matt.forgehax.util.mod.Category;
 import com.matt.forgehax.util.mod.ToggleMod;
@@ -20,7 +21,6 @@ import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -232,7 +232,7 @@ public class StashFinderMod extends ToggleMod { // implements IClientPlugin {
   private void saveMap(Chunk chunk, String fileName) {
     int x = chunk.x << 4;
     int z = chunk.z << 4;
-    BufferedImage image = MapGenerator.render(getWorld(), x, z);
+    BufferedImage image = MapUtils.render(getWorld(), x, z);
     if (image == null) {
       LOGGER.info("Could not render image");
     } else {
