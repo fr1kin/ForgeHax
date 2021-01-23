@@ -69,7 +69,7 @@ public class FreecamMod extends ToggleMod {
     
     angle = LocalPlayerUtils.getViewAngles();
     
-    originalPlayer = new EntityOtherPlayerMP(getWorld(), MC.getSession().getProfile());
+    originalPlayer = new EntityOtherPlayerMP(getWorld(), getLocalPlayer().getGameProfile());
     originalPlayer.copyLocationAndAnglesFrom(getLocalPlayer());
     originalPlayer.rotationYawHead = getLocalPlayer().rotationYawHead;
     originalPlayer.inventory = getLocalPlayer().inventory;
