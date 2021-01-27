@@ -422,7 +422,7 @@ public class BookBot extends ToggleMod {
             .replaceAll(NUMBER_TOKEN, "" + getBook())
             .trim()));
       }
-      sendNetworkPacket(new CEditBookPacket(stack, signBook, Hand.MAIN_HAND.ordinal()));
+      sendNetworkPacket(new CEditBookPacket(stack, signBook, getLocalPlayer().getSelectedIndex()));
     }
 
     @Override
