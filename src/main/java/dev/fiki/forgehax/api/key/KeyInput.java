@@ -8,7 +8,9 @@ import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.client.util.InputMappings.Type;
+import org.lwjgl.glfw.GLFW;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 @Getter
@@ -47,6 +49,15 @@ public class KeyInput {
           log.warn("Unknown key name \"{}\"", key);
           return INVALID;
         });
+  }
+
+  static void loadInputs() {
+    for (Field field : GLFW.class.getFields()) {
+      String name = field.getName();
+      if (name.startsWith("GLFW_KEY_")) {
+        String keyName = name.substring("GLFW_KEY_".length());
+      }
+    }
   }
 
   private Type type;

@@ -6,12 +6,16 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CPlayerPacket;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class ReflectionTools {
@@ -58,4 +62,19 @@ public class ReflectionTools {
   @MapField(parentClass = InputMappings.Input.class, value = "REGISTRY")
   public final ReflectionField<Map<String, InputMappings.Input>> InputMappings_Input_REGISTRY;
 
+  //
+
+  @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "buffer")
+  public final ReflectionField<BufferBuilder> IRenderTypeBuffer$Impl_buffer;
+  @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "fixedBuffers")
+  public final ReflectionField<Map<RenderType, BufferBuilder>> IRenderTypeBuffer$Impl_fixedBuffers;
+  @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "lastRenderType")
+  public final ReflectionField<Optional<RenderType>> IRenderTypeBuffer$Impl_lastRenderType;
+  @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "startedBuffers")
+  public final ReflectionField<Set<BufferBuilder>> IRenderTypeBuffer$Impl_startedBuffers;
+
+  //
+
+  @MapField(parentClass = RenderType.class, value = "needsSorting")
+  public final ReflectionField<Boolean> RenderType_needsSorting;
 }

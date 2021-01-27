@@ -2,11 +2,11 @@ package dev.fiki.forgehax.main.mods.ui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.fiki.forgehax.api.cmd.settings.BooleanSetting;
 import dev.fiki.forgehax.api.cmd.settings.IntegerSetting;
 import dev.fiki.forgehax.api.cmd.settings.KeyBindingSetting;
+import dev.fiki.forgehax.api.color.Color;
 import dev.fiki.forgehax.api.color.Colors;
 import dev.fiki.forgehax.api.common.PriorityEnum;
 import dev.fiki.forgehax.api.draw.SurfaceHelper;
@@ -16,19 +16,23 @@ import dev.fiki.forgehax.api.events.render.GuiRenderEvent;
 import dev.fiki.forgehax.api.events.render.TooltipRenderEvent;
 import dev.fiki.forgehax.api.extension.ItemEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.key.KeyConflictContexts;
 import dev.fiki.forgehax.api.key.KeyInputs;
+import dev.fiki.forgehax.api.mock.EmptyPlayerInventory;
 import dev.fiki.forgehax.api.mod.Category;
 import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import lombok.experimental.ExtensionMethod;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
@@ -36,20 +40,15 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.RecipeItemHelper;
-import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.client.gui.GuiUtils;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -60,7 +59,7 @@ import static dev.fiki.forgehax.main.Common.*;
     description = "View the contents of a shulker box",
     category = Category.UI
 )
-@ExtensionMethod({ItemEx.class, LocalPlayerEx.class})
+@ExtensionMethod({ItemEx.class, LocalPlayerEx.class, VertexBuilderEx.class})
 public class ShulkerViewer extends ToggleMod {
 
   private static final ResourceLocation SHULKER_GUI_TEXTURE =
@@ -378,7 +377,7 @@ public class ShulkerViewer extends ToggleMod {
   }
 
   class GuiShulkerViewer extends ContainerScreen<Container> implements Comparable<GuiShulkerViewer> {
-
+    private static final int Z_DEPTH = 500;
     private final ItemStack parentShulker;
     private final int priority;
 
@@ -386,7 +385,7 @@ public class ShulkerViewer extends ToggleMod {
     public int posY = 0;
 
     public GuiShulkerViewer(Container inventorySlotsIn, ItemStack parentShulker, int priority) {
-      super(inventorySlotsIn, new FakePlayerInventory(), new StringTextComponent("ShulkerViewer"));
+      super(inventorySlotsIn, new EmptyPlayerInventory(), new StringTextComponent("ShulkerViewer"));
       this.minecraft = MC;
       this.font = getFontRenderer();
       this.parentShulker = parentShulker;
@@ -418,150 +417,136 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
-      final int DEPTH = 500;
+    public void renderBackground(MatrixStack stack) {
+      final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
 
-      stack.push();
-      stack.translate(posX, posY, 0);
-
-      this.guiLeft = posX + 8;
-      this.guiTop = posY - 1;
-
-      RenderSystem.enableTexture();
-      RenderSystem.disableLighting();
-
-      RenderSystem.color4f(
-          1.f,
-          1.f,
-          1.f,
-          !isLocked()
-              ? (tooltip_opacity.getValue() / 255.f)
-              : (locked_opacity.getValue() / 255.f));
-
-      RenderSystem.enableBlend();
-      RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-          GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-          GlStateManager.SourceFactor.ONE,
-          GlStateManager.DestFactor.ZERO);
+      buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+      {
+        // width 176        = width of container
+        // height 16        = top of the gui
+        // height 54        = gui item boxes
+        // height 6         = bottom of the gui
+        buffer.texturedModalRect(0, 0, 0, 0, 176, 16, 0, stack.getLastMatrix());
+        buffer.texturedModalRect(0, 16, 0, 16, 176, 54, 0, stack.getLastMatrix());
+        buffer.texturedModalRect(0, 16 + 54, 0, 160, 176, 6, 0, stack.getLastMatrix());
+      }
 
       MC.getTextureManager().bindTexture(SHULKER_GUI_TEXTURE);
 
-      RenderSystem.enableBlend();
       RenderSystem.enableTexture();
+      RenderSystem.enableBlend();
       RenderSystem.defaultBlendFunc();
 
-      // width 176        = width of container
-      // height 16        = top of the gui
-      // height 54        = gui item boxes
-      // height 6         = bottom of the gui
-      GuiUtils.drawTexturedModalRect(0, 0, 0, 0, 176, 16, DEPTH);
-      GuiUtils.drawTexturedModalRect(0, 16, 0, 16, 176, 54, DEPTH);
-      GuiUtils.drawTexturedModalRect(0, 16 + 54, 0, 160, 176, 6, DEPTH);
+      Colors.WHITE.setAlpha(!isLocked() ? tooltip_opacity.intValue() : locked_opacity.intValue())
+          .glSetColor4f();
 
-      RenderSystem.enableTexture();
-      RenderSystem.disableDepthTest();
-      RenderSystem.enableAlphaTest();
+      buffer.draw();
 
-      RenderSystem.enableColorMaterial();
+      RenderSystem.disableTexture();
+      RenderSystem.disableBlend();
 
-      stack.push();
-      stack.translate(0, 0, DEPTH);
+      SurfaceHelper.renderString(buffer, stack.getLast().getMatrix(),
+          parentShulker.getDisplayName().getString(), 8.f, 6.f, Colors.BLACK, false).finish();
+    }
 
-      SurfaceHelper.drawText(parentShulker.getDisplayName().getString(),
-          8, 6, Colors.BLACK.toBuffer());
-
-      stack.pop();
-
-      net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-          new net.minecraftforge.client.event.GuiContainerEvent.DrawBackground(this, stack, mouseX, mouseY));
-
-//      getFontRenderer().drawString(parentShulker.getDisplayName().getFormattedText(),
-//          x + 8, y + 6, Colors.BLACK.toBuffer());
-
-      RenderSystem.enableDepthTest();
-
-      RenderHelper.enableStandardItemLighting();
-      RenderSystem.enableRescaleNormal();
-      RenderSystem.enableColorMaterial();
-      RenderSystem.enableLighting();
-
-      Slot hoveringOver = null;
+    @Override
+    protected void drawGuiContainerBackgroundLayer(MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
+      final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+      final IRenderTypeBuffer.Impl buffers = MC.getRenderTypeBuffers().getBufferSource();
 
       stack.push();
       stack.translate(8, -1, 0.f);
 
-      net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-          new net.minecraftforge.client.event.GuiContainerEvent.DrawForeground(this, stack, mouseX, mouseY));
-
       for (Slot slot : container.inventorySlots) {
         if (slot.getHasStack()) {
-          int px = slot.xPos;
-          int py = slot.yPos;
-          if (isPointInRegion(px, py, 16, 16, mouseX, mouseY)) {
-            hoveringOver = slot;
+          stack.push();
+          stack.translate(slot.xPos, slot.yPos, 50);
+
+          if (isPointInRegion(slot.xPos, slot.yPos, 16, 16, mouseX, mouseY)) {
+            stack.push();
+            stack.translate(0.f, 0.f, -5.f);
+
+            hoveredSlot = slot;
 
             RenderSystem.disableLighting();
             RenderSystem.disableDepthTest();
             RenderSystem.colorMask(true, true, true, false);
 
-            GuiUtils.drawGradientRect(stack.getLast().getMatrix(),
-                DEPTH,
-                hoveringOver.xPos,
-                hoveringOver.yPos,
-                hoveringOver.xPos + 16,
-                hoveringOver.yPos + 16,
-                Colors.WHITE.setAlpha(200).toBuffer(),
-                Colors.WHITE.setAlpha(200).toBuffer());
+            Color col = Colors.WHITE.setAlpha(200);
+            buffer.gradientRect(0, 0, 16, 16, col, col, stack.getLastMatrix());
+
+//            GuiUtils.drawGradientRect(stack.getLast().getMatrix(),
+//                0, 0, 0, 16, 16,
+//                Colors.WHITE.setAlpha(200).toBuffer(),
+//                Colors.WHITE.setAlpha(200).toBuffer());
 
             RenderSystem.enableLighting();
             RenderSystem.enableDepthTest();
+
+            stack.pop();
           }
 
-          SurfaceHelper.setItemRendererDepth(DEPTH + 1);
-          SurfaceHelper.drawItem(slot.getStack(), px, py);
-          SurfaceHelper.drawItemOverlay(slot.getStack(), px, py);
-          SurfaceHelper.setItemRendererDepth(0.f);
+          ItemStack itemStack = slot.getStack();
+          if (!SurfaceHelper.renderItemInGui(itemStack, stack, buffers)) {
+            RenderHelper.setupGuiFlatDiffuseLighting();
+          }
+
+          buffers.finish();
+          RenderHelper.setupGui3DDiffuseLighting();
+
+          SurfaceHelper.renderItemOverlay(buffer, stack, font, itemStack, 0, 0, null);
+
+          stack.pop();
         }
       }
 
       stack.pop();
+    }
 
-      RenderSystem.disableLighting();
+    @Override
+    protected void renderHoveredTooltip(MatrixStack stack, int x, int y) {
+      stack.push();
+      stack.translate(-posX, -posY, 100);
 
-      if (hoveringOver != null) {
-        // tool tip
-        RenderSystem.enableAlphaTest();
-        RenderSystem.color4f(1.f, 1.f, 1.f, 1.0f);
-
-        stack.push();
-        stack.translate(0, 0, DEPTH);
-
-        isModGeneratedToolTip = true;
-        try {
-          ItemStack itemStack = hoveringOver.getStack();
-          GuiUtils.preItemToolTip(itemStack);
-          renderTooltip(stack, itemStack, mouseX + 8, mouseY + 8);
-          GuiUtils.postItemToolTip();
-        } finally {
-          isModGeneratedToolTip = false;
-        }
-
-        stack.pop();
-        RenderSystem.enableDepthTest();
+      isModGeneratedToolTip = true;
+      try {
+        Colors.WHITE.glSetColor4f();
+        super.renderHoveredTooltip(stack, x, y);
+      } finally {
+        isModGeneratedToolTip = false;
       }
+
+      stack.pop();
+    }
+
+    @Override
+    public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+      stack.push();
+      stack.translate(posX, posY, Z_DEPTH);
+
+      this.guiLeft = posX + 8;
+      this.guiTop = posY - 1;
+
+      renderBackground(stack);
+
+      net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+          new net.minecraftforge.client.event.GuiContainerEvent.DrawBackground(this, stack, mouseX, mouseY));
+
+      drawGuiContainerBackgroundLayer(stack, partialTicks, mouseX, mouseY);
+
+      net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+          new net.minecraftforge.client.event.GuiContainerEvent.DrawForeground(this, stack, mouseX, mouseY));
+
+      renderHoveredTooltip(stack, mouseX + 8, mouseY + 8);
+
+      stack.pop();
 
       if (isPointInRegion(this.posX, this.posY, getWidth(), getHeight(), mouseX, mouseY)) {
         isMouseInShulkerGui = true;
       }
 
       RenderSystem.disableBlend();
-      RenderSystem.color4f(1.f, 1.f, 1.f, 1.0f);
-
-      stack.pop();
-    }
-
-    @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
+      RenderSystem.color4f(1.f, 1.f, 1.f, 1.f);
     }
 
     @Override
@@ -571,9 +556,8 @@ public class ShulkerViewer extends ToggleMod {
   }
 
   static class ShulkerContainer extends Container {
-
     public ShulkerContainer(ShulkerInventory inventory, int size) {
-      super(ContainerType.GENERIC_9X3, -1); // TODO: 1.15 should the id be -1?
+      super(ContainerType.GENERIC_9X3, -1);
       for (int i = 0; i < size; ++i) {
         int x = i % 9 * 18;
         int y = ((i / 9 + 1) * 18) + 1;
@@ -607,7 +591,7 @@ public class ShulkerViewer extends ToggleMod {
 
     @Override
     public ItemStack getStackInSlot(int index) {
-      return contents.get(index);
+      return (index >= 0 && index < contents.size()) ? contents.get(index) : ItemStack.EMPTY;
     }
 
     @Override
@@ -654,218 +638,6 @@ public class ShulkerViewer extends ToggleMod {
 
     @Override
     public void clear() {
-    }
-  }
-
-  private static class FakePlayerInventory extends PlayerInventory {
-
-    public FakePlayerInventory() {
-      super(null);
-    }
-
-    @Override
-    public ItemStack getCurrentItem() {
-      return ItemStack.EMPTY;
-    }
-
-    @Override
-    public int getFirstEmptyStack() {
-      return 0;
-    }
-
-    @Override
-    public void setPickedItemStack(ItemStack stack) {
-    }
-
-    @Override
-    public void pickItem(int index) {
-    }
-
-    @Override
-    public int getSlotFor(ItemStack stack) {
-      return 0;
-    }
-
-    @Override
-    public int findSlotMatchingUnusedItem(ItemStack p_194014_1_) {
-      return 0;
-    }
-
-    @Override
-    public int getBestHotbarSlot() {
-      return 0;
-    }
-
-    @Override
-    public void changeCurrentItem(double direction) {
-    }
-
-    @Override
-    public int storeItemStack(ItemStack itemStackIn) {
-      return 0;
-    }
-
-    @Override
-    public void tick() {
-    }
-
-    @Override
-    public boolean addItemStackToInventory(ItemStack itemStackIn) {
-      return false;
-    }
-
-    @Override
-    public boolean add(int slotIn, ItemStack stack) {
-      return false;
-    }
-
-    @Override
-    public void placeItemBackInInventory(World worldIn, ItemStack stack) {
-    }
-
-    @Override
-    public ItemStack decrStackSize(int index, int count) {
-      return ItemStack.EMPTY;
-    }
-
-    @Override
-    public void deleteStack(ItemStack stack) {
-    }
-
-    @Override
-    public ItemStack removeStackFromSlot(int index) {
-      return ItemStack.EMPTY;
-    }
-
-    @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
-    }
-
-    @Override
-    public float getDestroySpeed(BlockState state) {
-      return 1.f;
-    }
-
-    @Override
-    public ListNBT write(ListNBT nbtTagListIn) {
-      return nbtTagListIn;
-    }
-
-    @Override
-    public void read(ListNBT nbtTagListIn) {
-    }
-
-    @Override
-    public int getSizeInventory() {
-      return 0;
-    }
-
-    @Override
-    public boolean isEmpty() {
-      return true;
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int index) {
-      return ItemStack.EMPTY;
-    }
-
-    @Override
-    public ITextComponent getName() {
-      return new StringTextComponent("FakeInventory");
-    }
-
-    @Override
-    public ItemStack armorItemInSlot(int slotIn) {
-      return ItemStack.EMPTY;
-    }
-
-    @Override
-    public void dropAllItems() {
-    }
-
-    @Override
-    public void markDirty() {
-    }
-
-    @Override
-    public int getTimesChanged() {
-      return 0;
-    }
-
-    @Override
-    public void setItemStack(ItemStack itemStackIn) {
-    }
-
-    @Override
-    public ItemStack getItemStack() {
-      return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
-      return false;
-    }
-
-    @Override
-    public boolean hasItemStack(ItemStack itemStackIn) {
-      return false;
-    }
-
-    @Override
-    public void copyInventory(PlayerInventory playerInventory) {
-    }
-
-    @Override
-    public void clear() {
-    }
-
-    @Override
-    public void accountStacks(RecipeItemHelper p_201571_1_) {
-    }
-
-    @Override
-    public int getInventoryStackLimit() {
-      return 0;
-    }
-
-    @Override
-    public void openInventory(PlayerEntity player) {
-    }
-
-    @Override
-    public void closeInventory(PlayerEntity player) {
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int index, ItemStack stack) {
-      return false;
-    }
-
-    @Override
-    public int count(Item itemIn) {
-      return 0;
-    }
-
-    @Override
-    public boolean hasAny(Set<Item> set) {
-      return false;
-    }
-
-    @Override
-    public boolean hasCustomName() {
-      return false;
-    }
-
-    @Override
-    public ITextComponent getDisplayName() {
-      return new StringTextComponent("FakeInventory");
-    }
-
-    @Nullable
-    @Override
-    public ITextComponent getCustomName() {
-      return new StringTextComponent("FakeInventory");
     }
   }
 }

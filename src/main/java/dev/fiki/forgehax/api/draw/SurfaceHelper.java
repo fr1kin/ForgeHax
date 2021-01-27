@@ -6,8 +6,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.blaze3d.vertex.VertexBuilderUtils;
 import dev.fiki.forgehax.api.color.Color;
+import dev.fiki.forgehax.api.color.Colors;
+import dev.fiki.forgehax.api.extension.VertexBuilderEx;
 import dev.fiki.forgehax.api.math.AlignHelper;
+import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
@@ -18,18 +24,23 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.TransformationMatrix;
+import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import static com.mojang.blaze3d.systems.RenderSystem.*;
 import static dev.fiki.forgehax.api.math.AlignHelper.getFlowDirY2;
-import static dev.fiki.forgehax.main.Common.MC;
-import static dev.fiki.forgehax.main.Common.getFontRenderer;
+import static dev.fiki.forgehax.main.Common.*;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
@@ -308,36 +319,144 @@ public class SurfaceHelper {
         : bufferIn.getBuffer(renderTypeIn);
   }
 
-  public static void renderItem(LivingEntity living, ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
-//    stack.push();
-//
-//    IBakedModel model = MC.getItemRenderer().getItemModelWithOverrides(itemStack, living.world, living);
-//
-//    if (Items.TRIDENT.equals(itemStack.getItem())) {
-//      model = MC.getItemRenderer().getItemModelMesher().getModelManager()
-//          .getModel(new ModelResourceLocation("minecraft:trident#inventory"));
-//    }
-//
-//    model = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(stack, model,
-//        ItemCameraTransforms.TransformType.GUI, false);
-//
-//    stack.translate(-0.5D, -0.5D, -0.5D);
-//    if (!model.isBuiltInRenderer()) {
-//      RenderType rendertype = getRenderType(itemStack);
-//
-//      IVertexBuilder builder = ItemRenderer.getBuffer(buffer, rendertype, true, itemStack.hasEffect());
-//      renderModel(model, itemStack, 15728880, OverlayTexture.NO_OVERLAY, stack, builder);
-//    } else {
-//      itemStack.getItem().getItemStackTileEntityRenderer().func_239207_a_(itemStack,
-//          ItemCameraTransforms.TransformType.NONE,
-//          stack, buffer,
-//          15728880, OverlayTexture.NO_OVERLAY);
-//    }
-//
-//    stack.pop();
+  public static boolean renderItem(LivingEntity living, World world, ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
+    IBakedModel model = MC.getItemRenderer().getItemModelWithOverrides(itemStack, world, living);
     MC.getItemRenderer().renderItem(itemStack, ItemCameraTransforms.TransformType.GUI,
-        false, stack, buffer, 15728880, OverlayTexture.NO_OVERLAY,
-        MC.getItemRenderer().getItemModelWithOverrides(itemStack, living.getEntityWorld(), living));
+        false, stack, buffer, 15728880, OverlayTexture.NO_OVERLAY, model);
+    return model.isSideLit();
+  }
+
+  public static boolean renderItem(LivingEntity living, ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
+    return renderItem(living, living.getEntityWorld(), itemStack, stack, buffer);
+  }
+
+  public static boolean renderItem(ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
+    return renderItem(null, null, itemStack, stack, buffer);
+  }
+
+  public static boolean renderItemInGui(ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
+    try {
+      stack.push();
+      stack.translate(8, 8, 0);
+      stack.scale(1, -1, 1);
+      stack.scale(16, 16, 16);
+      return renderItem(getLocalPlayer(), null, itemStack, stack, buffer);
+    } finally {
+      stack.pop();
+    }
+  }
+
+  public static void finish(IRenderTypeBuffer buffers, RenderType renderType,
+      @Nullable Consumer<RenderType> pre, @Nullable Consumer<RenderType> post) {
+    final ReflectionTools reflections = ReflectionTools.getInstance();
+
+    BufferBuilder defaultBuilder = reflections.IRenderTypeBuffer$Impl_buffer.get(buffers);
+    BufferBuilder builder = reflections.IRenderTypeBuffer$Impl_fixedBuffers.get(buffers)
+        .getOrDefault(renderType, defaultBuilder);
+
+    boolean lastRender = Objects.equals(reflections.IRenderTypeBuffer$Impl_lastRenderType.get(buffers),
+        renderType.getRenderType());
+    if (lastRender || builder != defaultBuilder) {
+      if (reflections.IRenderTypeBuffer$Impl_startedBuffers.get(buffers).remove(builder)) {
+        if (builder.isDrawing()) {
+          if (reflections.RenderType_needsSorting.get(renderType)) {
+            builder.sortVertexData(0.f, 0.f, 0.f);
+          }
+
+          if (pre != null) {
+            pre.accept(renderType);
+          }
+
+          VertexBuilderEx.draw(builder);
+
+          if (post != null) {
+            post.accept(renderType);
+          }
+        }
+
+        if (lastRender) {
+          reflections.IRenderTypeBuffer$Impl_lastRenderType.set(buffers, Optional.empty());
+        }
+      }
+    }
+  }
+
+  public static void finish(final IRenderTypeBuffer buffers,
+      @Nullable final Consumer<RenderType> pre, @Nullable final Consumer<RenderType> post) {
+    final ReflectionTools reflections = ReflectionTools.getInstance();
+
+    reflections.IRenderTypeBuffer$Impl_lastRenderType.get(buffers).ifPresent(renderType -> {
+      IVertexBuilder builder = buffers.getBuffer(renderType);
+      if (builder == reflections.IRenderTypeBuffer$Impl_buffer.get(buffers)) {
+        finish(buffers, renderType, pre, post);
+      }
+    });
+
+    for (RenderType renderType : reflections.IRenderTypeBuffer$Impl_fixedBuffers.get(buffers).keySet()) {
+      finish(buffers, renderType, pre, post);
+    }
+  }
+
+  public static void renderItemOverlay(BufferBuilder buffer, MatrixStack matrixStack,
+      FontRenderer fr, ItemStack stack,
+      int x, int y, @Nullable String text) {
+    // copied from MC source
+    if (!stack.isEmpty()) {
+      if (stack.getCount() != 1 || text != null) {
+        String val = text == null ? String.valueOf(stack.getCount()) : text;
+        matrixStack.push();
+        matrixStack.translate((float)(x + 19 - 2 - fr.getStringWidth(val)), (float)(y + 6 + 3), 200.f);
+
+        renderString(buffer, matrixStack.getLast().getMatrix(), val, 0, 0, Colors.WHITE, true).finish();
+
+        matrixStack.pop();
+      }
+
+      if (stack.getItem().showDurabilityBar(stack)) {
+        RenderSystem.disableDepthTest();
+        RenderSystem.disableTexture();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.disableBlend();
+        double health = stack.getItem().getDurabilityForDisplay(stack);
+        int i = Math.round(13.0F - (float)health * 13.0F);
+        int j = stack.getItem().getRGBDurabilityForDisplay(stack);
+
+        buffer.begin(GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
+        VertexBuilderEx.rect(buffer, GL_TRIANGLES,
+            x + 2, y + 13, 13, 2,
+            Colors.BLACK, matrixStack.getLast().getMatrix());
+        VertexBuilderEx.rect(buffer, GL_TRIANGLES,
+            x + 2, y + 13, i, 1,
+            Color.of(j >> 16 & 255, j >> 8 & 255, j & 255, 255), matrixStack.getLast().getMatrix());
+        VertexBuilderEx.draw(buffer);
+
+        RenderSystem.enableBlend();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.enableTexture();
+        RenderSystem.enableDepthTest();
+      }
+
+      ClientPlayerEntity lp = getLocalPlayer();
+      float f3 = lp == null ? 0.0F : lp.getCooldownTracker()
+          .getCooldown(stack.getItem(), Minecraft.getInstance().getRenderPartialTicks());
+      if (f3 > 0.0F) {
+        RenderSystem.disableDepthTest();
+        RenderSystem.disableTexture();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
+        buffer.begin(GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
+        VertexBuilderEx.rect(buffer, GL_TRIANGLES,
+            x, y + MathHelper.floor(16.0F * (1.0F - f3)),
+            16, MathHelper.ceil(16.0F * f3),
+            Colors.WHITE.setAlpha(127), matrixStack.getLast().getMatrix());
+        VertexBuilderEx.draw(buffer);
+
+        RenderSystem.enableTexture();
+        RenderSystem.enableDepthTest();
+      }
+
+    }
   }
 
   public static void drawScaledCustomSizeModalRect(double x, double y,

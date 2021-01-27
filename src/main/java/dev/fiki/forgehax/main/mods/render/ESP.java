@@ -309,11 +309,7 @@ public class ESP extends ToggleMod {
               stack.pop();
             }
 
-            stack.translate(itemSize / 2.f, itemSize / 2.f, 0);
-            stack.scale(1.f, -1.f, 1.f);
-            stack.scale(itemSize, itemSize, 0);
-
-            SurfaceHelper.renderItem(living, itemStack, stack, MC.getRenderTypeBuffers().getBufferSource());
+            SurfaceHelper.renderItemInGui(itemStack, stack, MC.getRenderTypeBuffers().getBufferSource());
 
             stack.pop();
           }
@@ -352,7 +348,8 @@ public class ESP extends ToggleMod {
     MC.getRenderTypeBuffers().getBufferSource().finish();
     buffers.finish();
 
-    RenderHelper.enableStandardItemLighting();
+    RenderHelper.setupGui3DDiffuseLighting();
+//    RenderHelper.enableStandardItemLighting();
   }
 
   private DrawingSetting.DrawingSettingBuilder newDrawingSetting() {

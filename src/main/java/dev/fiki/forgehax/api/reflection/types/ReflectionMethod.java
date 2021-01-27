@@ -2,6 +2,7 @@ package dev.fiki.forgehax.api.reflection.types;
 
 import dev.fiki.forgehax.asm.utils.asmtype.ASMMethod;
 import dev.fiki.forgehax.main.Common;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -21,7 +22,7 @@ public final class ReflectionMethod<V> {
   private final ReflectionClass<?> parentClass;
   private final ASMMethod method;
 
-  @Getter(lazy = true)
+  @Getter(lazy = true, value = AccessLevel.PACKAGE)
   private final MethodHandle invoker = findInvoker();
 
   public String getName() {

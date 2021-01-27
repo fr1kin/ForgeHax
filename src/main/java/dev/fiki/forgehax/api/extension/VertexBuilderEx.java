@@ -144,29 +144,44 @@ public class VertexBuilderEx {
       float textureX, float textureY,
       float width, float height,
       double depth,
-      @Nullable Color color, @Nullable Matrix4f matrix) {
-    color(posD(builder, x, y + height, depth, matrix)
-        .tex(textureX + 0, textureY + height), color)
+      @Nullable Matrix4f matrix) {
+    posD(builder, x, y + height, depth, matrix)
+        .tex(textureX + 0, textureY + height)
         .endVertex();
-    color(posD(builder, x + width, y + height, depth, matrix)
-        .tex(textureX + width, textureY + height), color)
+    posD(builder, x + width, y + height, depth, matrix)
+        .tex(textureX + width, textureY + height)
         .endVertex();
-    color(posD(builder, x + width, y + 0, depth, matrix)
-        .tex(textureX + width, textureY + 0), color)
+    posD(builder, x + width, y + 0, depth, matrix)
+        .tex(textureX + width, textureY + 0)
         .endVertex();
-    color(posD(builder, x + 0, y + 0, depth, matrix)
-        .tex(textureX + 0, textureY + 0), color)
+    posD(builder, x + 0, y + 0, depth, matrix)
+        .tex(textureX + 0, textureY + 0)
         .endVertex();
     return builder;
   }
 
-  public static IVertexBuilder texturedRect(IVertexBuilder builder,
+  public static IVertexBuilder texturedModalRect(IVertexBuilder builder,
       double x, double y,
       float textureX, float textureY,
       float width, float height,
-      float depth,
+      double depth,
       @Nullable Matrix4f matrix) {
-    return texturedRect(builder, x, y, textureX, textureY, width, height, depth, null, matrix);
+    final float uScale = 1f / 0x100;
+    final float vScale = 1f / 0x100;
+
+    posD(builder, x, y + height, depth, matrix)
+        .tex(textureX * uScale, (textureY + height) * vScale)
+        .endVertex();
+    posD(builder, x + width, y + height, depth, matrix)
+        .tex((textureX + width) * uScale, (textureY + height) * vScale)
+        .endVertex();
+    posD(builder, x + width, y + 0, depth, matrix)
+        .tex((textureX + width) * uScale, textureY * vScale)
+        .endVertex();
+    posD(builder, x + 0, y + 0, depth, matrix)
+        .tex(textureX * uScale, textureY * vScale)
+        .endVertex();
+    return builder;
   }
 
   public static IVertexBuilder gradientRect(IVertexBuilder builder,

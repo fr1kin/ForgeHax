@@ -18,7 +18,6 @@ import static dev.fiki.forgehax.main.Common.getGameSettings;
 import static dev.fiki.forgehax.main.Common.requiresMainThreadExecution;
 
 public class BindingHelper {
-
   private static final Set<BindHandle> KEYS_HANDLES = Sets.newHashSet();
 
   @Getter
@@ -30,35 +29,27 @@ public class BindingHelper {
     InputMappings.Type.MOUSE.name();
   }
 
-  private static final IKeyConflictContext EMPTY = new IKeyConflictContext() {
-    @Override
-    public boolean isActive() {
-      return true;
-    }
-
-    @Override
-    public boolean conflicts(IKeyConflictContext other) {
-      return false;
-    }
-  };
-
   private static BindHandle getBindHandle(KeyBinding key) {
-    for(BindHandle handle : KEYS_HANDLES) {
-      if(handle.getKey() == key) {
-        return handle;
+    synchronized (KEYS_HANDLES) {
+      for (BindHandle handle : KEYS_HANDLES) {
+        if (handle.getKey() == key) {
+          return handle;
+        }
       }
     }
     return null;
   }
 
   public static void restoreContextHandlers(Collection<KeyBinding> keys) {
-    for(KeyBinding key : keys) {
+    for (KeyBinding key : keys) {
       BindHandle handle = getBindHandle(key);
-      if(handle != null) {
+      if (handle != null) {
         handle.restoreContext();
         // not being used anymore
-        if(handle.isRestored()) {
-          KEYS_HANDLES.remove(handle);
+        if (handle.isRestored()) {
+          synchronized (KEYS_HANDLES) {
+            KEYS_HANDLES.remove(handle);
+          }
         }
       }
     }
@@ -73,13 +64,15 @@ public class BindingHelper {
   }
 
   public static void disableContextHandlers(Collection<KeyBinding> keys) {
-    for(KeyBinding key : keys) {
+    for (KeyBinding key : keys) {
       BindHandle handle = getBindHandle(key);
 
       // create a new handle if one does not exist
-      if(handle == null) {
+      if (handle == null) {
         handle = new BindHandle(key);
-        KEYS_HANDLES.add(handle);
+        synchronized (KEYS_HANDLES) {
+          KEYS_HANDLES.add(handle);
+        }
       }
 
       // replace the current context handler
@@ -133,7 +126,7 @@ public class BindingHelper {
   }
 
   public static IKeyConflictContext getEmptyKeyConflictContext() {
-    return EMPTY;
+    return KeyConflictContexts.none();
   }
 
   public static void addBinding(KeyBinding binding) {
@@ -163,7 +156,7 @@ public class BindingHelper {
   }
 
   public static void saveGameSettings() {
-    if(getGameSettings() != null) {
+    if (getGameSettings() != null) {
       suppressingSettingsPacket = true;
       try {
         getGameSettings().saveOptions();

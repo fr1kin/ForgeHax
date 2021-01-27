@@ -2,6 +2,7 @@ package dev.fiki.forgehax.api.reflection.types;
 
 import dev.fiki.forgehax.asm.utils.asmtype.ASMField;
 import dev.fiki.forgehax.main.Common;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -19,9 +20,9 @@ public final class ReflectionField<V> {
   private final ReflectionClass<?> parentClass;
   private final ASMField field;
 
-  @Getter(lazy = true)
+  @Getter(lazy = true, value = AccessLevel.PACKAGE)
   private final MethodHandle getter = findGetter();
-  @Getter(lazy = true)
+  @Getter(lazy = true, value = AccessLevel.PACKAGE)
   private final MethodHandle setter = findSetter();
 
   public String getName() {
