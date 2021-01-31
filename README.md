@@ -1,9 +1,9 @@
 # ForgeHax
 ![](logo.png)
 
-[![](https://img.shields.io/badge/download-1.12.2%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/master/lastSuccessfulBuild/)
-[![](https://img.shields.io/badge/download-1.15.2%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.15/lastSuccessfulBuild/artifact/build/libs/)
-[![](https://img.shields.io/badge/download-1.16.4%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.16/lastSuccessfulBuild/artifact/build/libs/)
+[![](https://img.shields.io/badge/download-1.12.x%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/master/lastSuccessfulBuild/)
+[![](https://img.shields.io/badge/download-1.15.x%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.15/lastSuccessfulBuild/artifact/build/libs/)
+[![](https://img.shields.io/badge/download-1.16.x%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.16/lastSuccessfulBuild/artifact/build/libs/)
 
 [![Build Status](https://jenkins.nhackindustries.com/buildStatus/icon?job=ForgeHax/1.16)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.16)
 [![](https://img.shields.io/matrix/forgehax:nerdsin.space.svg?label=%23forgehax%3Anerdsin.space&logo=matrix)](https://matrix.to/#/#forgehax:nerdsin.space)

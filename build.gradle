@@ -27,10 +27,10 @@ ext {
     }
   }.call()
 
-  forgehaxVersion = "3.2.0-${forgehaxCommit}"
+  forgehaxVersion = "3.3.0-${forgehaxCommit}"
 
-  minecraftVersion = '1.16.4'
-  forgeVersion = '35.1.4'
+  minecraftVersion = '1.16.5'
+  forgeVersion = '36.0.13'
 
   fmlVersion = '2.0.0-milestone.1'
   lombokVersion = '1.18.16'
