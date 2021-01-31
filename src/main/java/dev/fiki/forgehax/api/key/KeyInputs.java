@@ -34,6 +34,36 @@ public interface KeyInputs {
       .code(GLFW.GLFW_MOUSE_BUTTON_MIDDLE)
       .build();
 
+  KeyInput MOUSE_4 = KeyInput.builder()
+      .type(Type.MOUSE)
+      .name("key.mouse.4")
+      .code(GLFW.GLFW_MOUSE_BUTTON_4)
+      .build();
+
+  KeyInput MOUSE_5 = KeyInput.builder()
+      .type(Type.MOUSE)
+      .name("key.mouse.5")
+      .code(GLFW.GLFW_MOUSE_BUTTON_5)
+      .build();
+
+  KeyInput MOUSE_6 = KeyInput.builder()
+      .type(Type.MOUSE)
+      .name("key.mouse.6")
+      .code(GLFW.GLFW_MOUSE_BUTTON_6)
+      .build();
+
+  KeyInput MOUSE_7 = KeyInput.builder()
+      .type(Type.MOUSE)
+      .name("key.mouse.7")
+      .code(GLFW.GLFW_MOUSE_BUTTON_7)
+      .build();
+
+  KeyInput MOUSE_8 = KeyInput.builder()
+      .type(Type.MOUSE)
+      .name("key.mouse.8")
+      .code(GLFW.GLFW_MOUSE_BUTTON_8)
+      .build();
+
   KeyInput KEY_0 = KeyInput.builder()
       .type(Type.KEYSYM)
       .name("key.keyboard.0")

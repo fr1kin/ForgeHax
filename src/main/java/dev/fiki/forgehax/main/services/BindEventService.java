@@ -7,6 +7,7 @@ import dev.fiki.forgehax.api.events.game.MouseInputEvent;
 import dev.fiki.forgehax.api.events.render.GuiChangedEvent;
 import dev.fiki.forgehax.api.key.BindingHelper;
 import dev.fiki.forgehax.api.key.KeyBindingEx;
+import dev.fiki.forgehax.api.key.KeyInput;
 import dev.fiki.forgehax.api.mod.ServiceMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.packet.PacketOutboundEvent;
@@ -45,7 +46,10 @@ public class BindEventService extends ServiceMod {
   @SubscribeListener
   public void onKeyboardEvent(KeyInputEvent event) {
     for (KeyBindingSetting setting : getRegistry()) {
-      if (InputMappings.Type.KEYSYM.equals(setting.getKeyInput().getType())
+      KeyInput input = setting.getKeyInput();
+      if (input != null
+          && input.getType() != null
+          && InputMappings.Type.KEYSYM.equals(input.getType())
           && setting.getKeyBinding().matchesKey(event.getKey(), event.getScanCode())
           && setting.getKeyBinding().checkConflicts()) {
         updateBindings(setting, event.getAction());
@@ -56,7 +60,10 @@ public class BindEventService extends ServiceMod {
   @SubscribeListener
   public void onMouseEvent(MouseInputEvent event) {
     for (KeyBindingSetting setting : getRegistry()) {
-      if (InputMappings.Type.MOUSE.equals(setting.getKeyInput().getType())
+      KeyInput input = setting.getKeyInput();
+      if (input != null
+          && input.getType() != null
+          && InputMappings.Type.MOUSE.equals(input.getType())
           && setting.getKeyCode() == event.getButton()
           && setting.getKeyBinding().checkConflicts()) {
         updateBindings(setting, event.getAction());
