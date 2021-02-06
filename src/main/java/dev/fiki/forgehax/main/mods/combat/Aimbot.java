@@ -114,7 +114,7 @@ public class Aimbot extends ToggleMod {
   private final BooleanSetting projectileAimbot = newBooleanSetting()
       .name("proj-aimbot")
       .description("Projectile aimbot")
-      .defaultTo(true)
+      .defaultTo(false)
       .build();
 
   private final BooleanSetting projectileAutoAttack = newBooleanSetting()
@@ -172,7 +172,8 @@ public class Aimbot extends ToggleMod {
   }
 
   private boolean isProjectileAimbotActivated() {
-    return projectileAimbot.getValue() && isHoldingProjectileItem();
+//    return projectileAimbot.getValue() && isHoldingProjectileItem();
+    return false;
   }
 
   private boolean isVisible(Entity target) {
