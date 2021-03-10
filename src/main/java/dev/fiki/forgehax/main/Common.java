@@ -100,12 +100,12 @@ public interface Common {
     return MC.gameSettings;
   }
 
-  static Stream<Entity> worldEntities() {
+  static Stream<Entity> getWorldEntities() {
     return !isInWorld() ? Stream.empty()
         : StreamSupport.stream(getWorld().getAllEntities().spliterator(), false);
   }
 
-  static Stream<TileEntity> worldTileEntities() {
+  static Stream<TileEntity> getWorldTileEntities() {
     return !isInWorld() ? Stream.empty()
         : getWorld().loadedTileEntityList.stream();
   }

@@ -19,7 +19,7 @@ public class NoRender extends ToggleMod {
   @SubscribeListener
   public void onClientTick(PreGameTickEvent event) {
     if (isInWorld()) {
-      worldEntities()
+      getWorldEntities()
           .filter(ItemEntity.class::isInstance)
           .map(ItemEntity.class::cast)
           .map(Entity::getEntityId)

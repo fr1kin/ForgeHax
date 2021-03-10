@@ -10,7 +10,9 @@ import dev.fiki.forgehax.api.cmd.value.IValue;
 import dev.fiki.forgehax.api.mod.CommandMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
+import net.minecraft.util.text.StringTextComponent;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.*;
@@ -84,12 +86,10 @@ public class HelpCommand extends CommandMod {
     newSimpleCommand()
         .name("loaded")
         .description("Loaded plugin list")
-        .executor(args -> {
-          args.inform(getModManager().getMods()
-              .map(AbstractCommand::getName)
-              .sorted(String.CASE_INSENSITIVE_ORDER)
-              .collect(Collectors.joining(", ")));
-        })
+        .executor(args -> args.inform(getModManager().getMods()
+            .map(AbstractCommand::getName)
+            .sorted(String.CASE_INSENSITIVE_ORDER)
+            .collect(Collectors.joining(", "))))
         .build();
   }
 
@@ -134,6 +134,24 @@ public class HelpCommand extends CommandMod {
         .description("Clears chat")
         .flag(EnumFlag.EXECUTOR_MAIN_THREAD)
         .executor(args -> MC.ingameGUI.getChatGUI().clearChatMessages(true))
+        .build();
+  }
+
+  {
+    newSimpleCommand()
+        .name("shutdown")
+        .description("Closes the client")
+        .flag(EnumFlag.EXECUTOR_ASYNC)
+        .executor(args -> {
+          args.inform("Shutting down...");
+          //getRootCommand().writeConfiguration();
+
+          if (!MC.isSingleplayer() && isInWorld()) {
+            Objects.requireNonNull(getNetworkManager()).closeChannel(new StringTextComponent("Shutting down"));
+          }
+
+          MC.shutdown();
+        })
         .build();
   }
 }

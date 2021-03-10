@@ -251,7 +251,7 @@ public class Aimbot extends ToggleMod {
   }
 
   private Entity findTarget(final Vector3d pos, final Vector3d viewNormal, final Angle angles) {
-    return worldEntities()
+    return getWorldEntities()
         .filter(entity -> filterTarget(pos, viewNormal, angles, entity))
         .min(Comparator.comparingDouble(entity -> selecting(pos, viewNormal, angles, entity)))
         .orElse(null);
