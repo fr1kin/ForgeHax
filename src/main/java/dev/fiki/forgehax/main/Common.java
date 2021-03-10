@@ -10,6 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
@@ -23,6 +24,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -42,10 +44,11 @@ import static org.lwjgl.glfw.GLFW.GLFW_CURSOR;
 import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
 
 public interface Common {
+
   Minecraft MC = Minecraft.getInstance();
 
   //
-  // forgehax
+  // ForgeHax
   //
 
   static ForgeHax getForgeHax() {
@@ -85,7 +88,7 @@ public interface Common {
   }
 
   //
-  // forge
+  // Forge
   //
 
   static ClassLoader getLauncherClassLoader() {
@@ -93,11 +96,20 @@ public interface Common {
   }
 
   //
-  // minecraft
+  // MC
   //
 
   static GameSettings getGameSettings() {
     return MC.gameSettings;
+  }
+
+  //
+  // World entities
+  // // TODO: this stuff might need to be try catched since mc doesn't have it synchronized
+  //
+
+  static Stream<AbstractClientPlayerEntity> getWorldPlayers() {
+    return !isInWorld() ? Stream.empty() : getWorld().getPlayers().stream();
   }
 
   static Stream<Entity> getWorldEntities() {
@@ -111,7 +123,7 @@ public interface Common {
   }
 
   //
-  // local player
+  // Local player
   //
 
   static ClientPlayerEntity getLocalPlayer() {
@@ -135,12 +147,20 @@ public interface Common {
   }
 
   //
-  // client world
+  // World client
   //
 
   @Nonnull // just to get the IDE to shutup
   static ClientWorld getWorld() {
     return getLocalPlayer() == null ? null : getLocalPlayer().worldClient;
+  }
+
+  static World getWorld(Entity entityIn) {
+    return entityIn.getEntityWorld();
+  }
+
+  static World getWorld(TileEntity tileEntityIn) {
+    return tileEntityIn.getWorld();
   }
 
   static boolean isInWorld() {
@@ -175,7 +195,7 @@ public interface Common {
   }
 
   //
-  // game screen
+  // Game screen
   //
 
   static MainWindow getMainWindow() {
@@ -215,7 +235,7 @@ public interface Common {
   }
 
   //
-  // registries
+  // Registries
   //
 
   static IForgeRegistry<Block> getBlockRegistry() {
@@ -223,7 +243,7 @@ public interface Common {
   }
 
   //
-  // networking
+  // Networking
   //
 
   static NetworkManager getNetworkManager() {
@@ -240,7 +260,7 @@ public interface Common {
   }
 
   //
-  // scheduler
+  // Scheduler
   //
 
   static void requiresMainThreadExecution() {
@@ -270,7 +290,7 @@ public interface Common {
   }
 
   //
-  // text output
+  // Text output
   //
 
   static void printMessage(ITextComponent component) {
