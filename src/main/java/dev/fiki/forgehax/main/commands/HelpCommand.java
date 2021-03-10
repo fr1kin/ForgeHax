@@ -136,22 +136,4 @@ public class HelpCommand extends CommandMod {
         .executor(args -> MC.ingameGUI.getChatGUI().clearChatMessages(true))
         .build();
   }
-
-  {
-    newSimpleCommand()
-        .name("shutdown")
-        .description("Closes the client")
-        .flag(EnumFlag.EXECUTOR_ASYNC)
-        .executor(args -> {
-          args.inform("Shutting down...");
-          //getRootCommand().writeConfiguration();
-
-          if (!MC.isSingleplayer() && isInWorld()) {
-            Objects.requireNonNull(getNetworkManager()).closeChannel(new StringTextComponent("Shutting down"));
-          }
-
-          MC.shutdown();
-        })
-        .build();
-  }
 }
