@@ -1,0 +1,63 @@
+name: build
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    outputs:
+      mc-version: ${{ steps.gradle.outputs.mc-version }}
+      forgehax-tag: ${{ steps.gradle.outputs.forgehax-tag }}
+      forgehax-version: ${{ steps.gradle.outputs.forgehax-version }}
+      forge-version: ${{ steps.gradle.outputs.forge-version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Cache .gradle/caches
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: ${{ runner.os }}-gradle-
+      - name: Cache .gradle/wrapper
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle-wrapper-
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Gradle build
+        id: gradle
+        run: ./gradlew setupActionsOutputs clean build
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.gradle.outputs.forgehax-version }}
+          path: build/libs/ForgeHax*.jar
+          retention-days: 7
+  release:
+    runs-on: ubuntu-20.04
+    needs: build
+    if: github.ref == 'refs/heads/1.16'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: ${{ needs.build.outputs.forgehax-version }}
+          path: jars/
+      - uses: papeloto/action-zip@v1
+        with:
+          recursive: false
+          files: jars/
+          dest: Release.zip
+      - uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifacts: Release.zip
+          tag: ${{ needs.build.outputs.mc-version }}-${{ needs.build.outputs.forgehax-tag }}
+          commit: ${{ github.sha }}
+          name: ForgeHax ${{ needs.build.outputs.forgehax-version }} for Minecraft ${{ needs.build.outputs.mc-version }}
+          body: Built using Forge MDK version ${{ needs.build.outputs.forge-version }}
+          token: ${{ secrets.GITHUB_TOKEN }}

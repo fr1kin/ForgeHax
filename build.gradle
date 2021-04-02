@@ -27,7 +27,8 @@ ext {
     }
   }.call()
 
-  forgehaxVersion = "3.3.0-${forgehaxCommit}"
+  forgehaxTag = '3.3.0'
+  forgehaxVersion = "${forgehaxTag}-${forgehaxCommit}"
 
   minecraftVersion = '1.16.5'
   forgeVersion = '36.0.13'
@@ -60,10 +61,10 @@ configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-final isJenkinsBuilding = 'yes' == System.getenv("JENKINS_BUILDING")
+final isCiBuilding = System.getenv().containsKey('CI')
 
-if (isJenkinsBuilding) {
-  logger.warn 'Jenkins detected. Certain modules will be omitted from this build'
+if (isCiBuilding) {
+  logger.warn 'CI build. Certain modules will be omitted from this build'
 }
 
 sourceSets {
@@ -72,7 +73,7 @@ sourceSets {
   }
 
   main {
-    if (isJenkinsBuilding) {
+    if (isCiBuilding) {
       java {
         exclude 'dev/fiki/forgehax/main/mods/ForgeModListSpoofer.java'
       }
@@ -229,6 +230,14 @@ task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
       }
     }
   }
+}
+
+task setupActionsOutputs() {
+  println 'GitHub Actions outputs'
+  println "::set-output name=mc-version::${minecraftVersion}"
+  println "::set-output name=forgehax-tag::${forgehaxTag}"
+  println "::set-output name=forgehax-version::${forgehaxVersion}"
+  println "::set-output name=forge-version::${forgeVersion}"
 }
 
 build.finalizedBy copyJar

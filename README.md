@@ -1,12 +1,10 @@
 # ForgeHax
 ![](logo.png)
 
-[![](https://img.shields.io/badge/download-1.12.x%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/master/lastSuccessfulBuild/)
-[![](https://img.shields.io/badge/download-1.15.x%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.15/lastSuccessfulBuild/artifact/build/libs/)
-[![](https://img.shields.io/badge/download-1.16.x%20latest-blue.svg?logo=java)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.16/lastSuccessfulBuild/artifact/build/libs/)
-
-[![Build Status](https://jenkins.nhackindustries.com/buildStatus/icon?job=ForgeHax/1.16)](https://jenkins.nhackindustries.com/job/ForgeHax/job/1.16)
+[![](https://img.shields.io/github/downloads/fr1kin/ForgeHax/total)](https://github.com/fr1kin/ForgeHax/releases)
 [![](https://img.shields.io/matrix/forgehax:nerdsin.space.svg?label=%23forgehax%3Anerdsin.space&logo=matrix)](https://matrix.to/#/#forgehax:nerdsin.space)
+
+![Build Status](https://github.com/fr1kin/ForgeHax/actions/workflows/ci.yml/badge.svg?branch=1.16)
 
 A Minecraft cheat that runs as a Forge mod.
 
@@ -14,8 +12,8 @@ A Minecraft cheat that runs as a Forge mod.
 
 1. Download the latest version of [Minecraft Forge](https://files.minecraftforge.net/) for the corresponding 
 ForgeHax Minecraft version (this is important if you want to run older versions of ForgeHax).
-2. Download the latest ForgeHax build by clicking the desired version badge shown above. 
-Do NOT install the jar that ends with `-sources.jar`. That one contains the source code and isn't compiled.
+2. Download the latest ForgeHax build by going to the [releases](https://github.com/fr1kin/ForgeHax/releases) section.
+Do NOT install the jar that contains `sources`. That one contains the source code and isn't compiled.
 3. Place the ForgeHax jar into the `.minecraft/mods/` directory. If you want to organize by Minecraft version, 
 you can place it under `.minecraft/mods/{mc.version}` where `mc.version` is 
 the version of Minecraft running (ex: `.minecraft/mods/1.12.2`). NOTE: This is will not work for 1.13+ version! You can
