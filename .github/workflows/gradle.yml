@@ -23,5 +23,5 @@ jobs:
       run: ./gradlew build
     - uses: actions/upload-artifact@v2
       with:
-      name: ForgeHax
-      path: build/libs/ForgeHax*.jar
+        name: ForgeHax
+        path: build/libs/ForgeHax*.jar
