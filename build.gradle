@@ -60,10 +60,10 @@ configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-final isCiBuilding = 'yes' == System.getenv("CI_BUILD")
+final isCiBuilding = System.getenv().containsKey('CI')
 
 if (isCiBuilding) {
-  logger.warn 'Jenkins detected. Certain modules will be omitted from this build'
+  logger.warn 'CI build. Certain modules will be omitted from this build'
 }
 
 sourceSets {
