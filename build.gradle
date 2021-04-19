@@ -27,7 +27,8 @@ ext {
     }
   }.call()
 
-  forgehaxVersion = "3.3.0-${forgehaxCommit}"
+  forgehaxTag = '3.3.0'
+  forgehaxVersion = "${forgehaxTag}-${forgehaxCommit}"
 
   minecraftVersion = '1.16.5'
   forgeVersion = '36.0.13'
@@ -234,6 +235,7 @@ task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
 task setupActionsOutputs() {
   println 'GitHub Actions outputs'
   println "::set-output name=mc-version::${minecraftVersion}"
+  println "::set-output name=forgehax-tag::${forgehaxTag}"
   println "::set-output name=forgehax-version::${forgehaxVersion}"
   println "::set-output name=forge-version::${forgeVersion}"
 }

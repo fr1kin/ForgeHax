@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       mc-version: ${{ steps.gradle.outputs.mc-version }}
+      forgehax-tag: ${{ steps.gradle.outputs.forgehax-tag }}
       forgehax-version: ${{ steps.gradle.outputs.forgehax-version }}
       forge-version: ${{ steps.gradle.outputs.forge-version }}
     steps:
@@ -39,6 +40,7 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           artifacts: ForgeHax*.jar
-          tag: ${{ needs.build.outputs.forgehax-version }}
+          tag: ${{ needs.build.outputs.forgehax-tag }}
+          commit: ${{ github.sha }}
           body: Built on Forge version ${{ needs.build.outputs.forge-version }}
           token: ${{ secrets.GITHUB_TOKEN }}
