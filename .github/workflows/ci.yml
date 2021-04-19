@@ -48,6 +48,7 @@ jobs:
           name: ${{ needs.build.outputs.forgehax-version }}
       - uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: ForgeHax*.jar
           tag: ${{ needs.build.outputs.forgehax-tag }}
           commit: ${{ github.sha }}
