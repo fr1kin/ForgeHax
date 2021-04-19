@@ -60,9 +60,9 @@ configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-final isJenkinsBuilding = 'yes' == System.getenv("JENKINS_BUILDING")
+final isCiBuilding = 'yes' == System.getenv("CI_BUILD")
 
-if (isJenkinsBuilding) {
+if (isCiBuilding) {
   logger.warn 'Jenkins detected. Certain modules will be omitted from this build'
 }
 
@@ -72,7 +72,7 @@ sourceSets {
   }
 
   main {
-    if (isJenkinsBuilding) {
+    if (isCiBuilding) {
       java {
         exclude 'dev/fiki/forgehax/main/mods/ForgeModListSpoofer.java'
       }
@@ -229,6 +229,12 @@ task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
       }
     }
   }
+}
+
+task setupActionsOutputs() {
+  println "::set-output name=mc-version::${minecraftVersion}"
+  println "::set-output name=forgehax-version::${forgehaxVersion}"
+  println "::set-output name=forge-version::${forgeVersion}"
 }
 
 build.finalizedBy copyJar

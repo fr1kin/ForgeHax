@@ -1,0 +1,43 @@
+name: Java CI with Gradle
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    outputs:
+      mc-version: ${{ steps.versions.output.mc-version }}
+      forgehax-version: ${{ steps.versions.output.forgehax-version }}
+      forge-version: ${{ steps.versions.output.forge-version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build
+        env:
+          CI_BUILDING: yes
+      - name: Versioning
+        run: /gradlew setupActionsOutputs
+        id: versions
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ForgeHax_${{ steps.versions.output.mc-version }}_${{ steps.versions.output.forgehax-version }}
+          path: build/libs/ForgeHax*.jar
+  release:
+    runs-on: ubuntu-20.04
+    needs: build
+    if: github.ref == 'refs/heads/1.16'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: ForgeHax_${{ steps.versions.output.mc-version }}_${{ steps.versions.output.forgehax-version }}
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: ForgeHax*.jar
+          body: Built on Forge version ${{ needs.build.outputs.forge-version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
