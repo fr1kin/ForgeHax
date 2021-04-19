@@ -6,9 +6,9 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     outputs:
-      mc-version: ${{ steps.gradle.output.mc-version }}
-      forgehax-version: ${{ steps.gradle.output.forgehax-version }}
-      forge-version: ${{ steps.gradle.output.forge-version }}
+      mc-version: ${{ steps.gradle.outputs.mc-version }}
+      forgehax-version: ${{ steps.gradle.outputs.forgehax-version }}
+      forge-version: ${{ steps.gradle.outputs.forge-version }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -25,7 +25,7 @@ jobs:
           gradle-version: wrapper
       - uses: actions/upload-artifact@v2
         with:
-          name: ${{ steps.gradle.output.forgehax-version }}
+          name: ${{ steps.gradle.outputs.forgehax-version }}
           path: build/libs/ForgeHax*.jar
   release:
     runs-on: ubuntu-20.04
