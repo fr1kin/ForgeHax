@@ -27,6 +27,7 @@ jobs:
         with:
           name: ${{ steps.gradle.outputs.forgehax-version }}
           path: build/libs/ForgeHax*.jar
+          retention-days: 7
   release:
     runs-on: ubuntu-20.04
     needs: build
@@ -38,5 +39,6 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           artifacts: ForgeHax*.jar
+          tag: ${{ needs.build.outputs.forgehax-version }}
           body: Built on Forge version ${{ needs.build.outputs.forge-version }}
           token: ${{ secrets.GITHUB_TOKEN }}
