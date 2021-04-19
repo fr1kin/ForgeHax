@@ -19,10 +19,12 @@ jobs:
         run: chmod +x gradlew
       - uses: burrunan/gradle-cache-action@v1
         name: Gradle with caching
-        id: gradle
         with:
-          arguments: build setupActionsOutputs --build-cache
+          arguments: build --build-cache
           gradle-version: wrapper
+      - name: Get version of ForgeHax, Forge, and Minecraft
+        run: ./gradlew setupActionsOutputs
+        id: gradle
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.gradle.output.forgehax-version }}
