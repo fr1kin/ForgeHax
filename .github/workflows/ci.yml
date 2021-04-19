@@ -50,7 +50,7 @@ jobs:
         with:
           allowUpdates: true
           artifacts: ForgeHax*.jar
-          tag: ${{ needs.build.outputs.forgehax-tag }}
+          tag: ${{ needs.build.outputs.mc-version }}-${{ needs.build.outputs.forgehax-tag }}
           commit: ${{ github.sha }}
           name: ForgeHax ${{ needs.build.outputs.forgehax-version }} for Minecraft ${{ needs.build.outputs.mc-version }}
           body: Built using Forge MDK version ${{ needs.build.outputs.forge-version }}
