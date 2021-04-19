@@ -32,7 +32,7 @@ jobs:
         run: chmod +x gradlew
       - name: Gradle build
         id: gradle
-        run: ./gradlew setupActionsOutputs clean build --build-cache
+        run: ./gradlew setupActionsOutputs clean build
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.gradle.outputs.forgehax-version }}
