@@ -1,6 +1,10 @@
-name: build
+name: FG3 build
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches: [ '1.16' ]
+  pull_request:
+    branches: [ '1.16' ]
 
 jobs:
   build:
