@@ -37,6 +37,8 @@ jobs:
       - name: Gradle build
         id: gradle
         run: ./gradlew setupActionsOutputs clean build
+        env:
+          CI: yes
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.gradle.outputs.forgehax-version }}

@@ -233,7 +233,6 @@ task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
 }
 
 task setupActionsOutputs() {
-  println 'GitHub Actions outputs'
   println "::set-output name=mc-version::${minecraftVersion}"
   println "::set-output name=forgehax-tag::${forgehaxTag}"
   println "::set-output name=forgehax-version::${forgehaxVersion}"
