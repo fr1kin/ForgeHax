@@ -17,7 +17,7 @@ public class ColorType extends TypeConverter<Color> {
 
   @Override
   public Color parse(String value) {
-    Color color = Colors.map().get(value);
+    Color color = Colors.map().color(value);
     if (color != null) {
       return color;
     } else {

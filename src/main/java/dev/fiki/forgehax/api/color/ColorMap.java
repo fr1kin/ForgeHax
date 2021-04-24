@@ -1,12 +1,18 @@
 package dev.fiki.forgehax.api.color;
 
-import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
-import java.util.Map;
+import javax.annotation.Nullable;
 
 public class ColorMap {
-  private final Map<String, Color> NAME_TO_COLOR = Maps.newTreeMap(String::compareToIgnoreCase);
-  private final Map<Integer, Color> HASH_TO_COLOR = Maps.newHashMap();
+  private final Object2IntOpenHashMap<String> NAME_TO_HASH = new Object2IntOpenHashMap<>();
+  private final Int2ObjectOpenHashMap<String> HASH_TO_NAME = new Int2ObjectOpenHashMap<>();
+
+  {
+    NAME_TO_HASH.defaultReturnValue(Integer.MAX_VALUE);
+    HASH_TO_NAME.defaultReturnValue(null);
+  }
 
   ColorMap() {
     register(128, 0, 0, "maroon");
@@ -151,38 +157,33 @@ public class ColorMap {
   }
 
   void register(int r, int g, int b, String... names) {
-    Color color = Color.of(r, g, b);
-    // use the first valid name
-    color.setName(names[0]);
-
-    HASH_TO_COLOR.put(color.toBuffer(), color);
-
+    int hash = Color.of(r, g, b).toBuffer();
     for (String name : names) {
-      NAME_TO_COLOR.put(name, color);
+      HASH_TO_NAME.put(hash, name);
+      NAME_TO_HASH.put(name, hash);
     }
   }
 
-  public Color get(String colorName) {
-    return NAME_TO_COLOR.get(colorName);
+  public int getHash(String colorName) {
+    return NAME_TO_HASH.getInt(colorName);
   }
 
-  public Color getNonNull(String colorName) {
-    Color color = get(colorName);
-    if (color == null) {
+  public String getName(int hash) {
+    return HASH_TO_NAME.get(hash);
+  }
+
+  @Nullable
+  public Color color(String colorName) {
+    return NAME_TO_HASH.containsKey(colorName) ? Color.of(getHash(colorName)) : null;
+  }
+
+  public Color colorNonNull(String colorName) {
+    Color ret = color(colorName);
+
+    if (ret == null) {
       throw new Error("Could not find color by name \"" + colorName + "\"");
     }
-    return color;
-  }
 
-  public Color getOrDefault(String colorName, Color defaultColor) {
-    return NAME_TO_COLOR.getOrDefault(colorName, defaultColor);
-  }
-
-  public Color getByHash(int hash) {
-    return HASH_TO_COLOR.get(hash);
-  }
-
-  public Color getByHash(Color color) {
-    return getByHash(color.toBuffer());
+    return ret;
   }
 }

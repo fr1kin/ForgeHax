@@ -1,9 +1,6 @@
 package dev.fiki.forgehax.api.color;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Objects;
 
@@ -72,9 +69,14 @@ public abstract class Color {
   //
   //
 
-  @Getter
-  @Setter(AccessLevel.PACKAGE)
-  private String name;
+  public final String getName() {
+    return Colors.map().getName(toBuffer());
+  }
+
+  public final Color setName(String... colorNames) {
+    Colors.map().register(getRed(), getGreen(), getBlue(), colorNames);
+    return this;
+  }
   
   /**
    * Set color by buffer

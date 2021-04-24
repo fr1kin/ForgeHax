@@ -10,17 +10,17 @@ public interface Colors {
     return MAP;
   }
   
-  Color WHITE = MAP.getNonNull("white");
-  Color BLACK = MAP.getNonNull("black");
-  Color RED = MAP.getNonNull("red");
-  Color GREEN = MAP.getNonNull("green");
-  Color BLUE = MAP.getNonNull("blue");
-  Color CYAN = MAP.getNonNull("cyan");
-  Color ORANGE = MAP.getNonNull("orange");
-  Color PURPLE = MAP.getNonNull("purple");
-  Color MAGENTA = MAP.getNonNull("magenta");
-  Color GRAY = MAP.getNonNull("gray");
-  Color DARK_RED = MAP.getNonNull("dark_red");
-  Color DARK_GRAY = MAP.getNonNull("dark_gray");
-  Color YELLOW = MAP.getNonNull("yellow");
+  Color WHITE = MAP.colorNonNull("white");
+  Color BLACK = MAP.colorNonNull("black");
+  Color RED = MAP.colorNonNull("red");
+  Color GREEN = MAP.colorNonNull("green");
+  Color BLUE = MAP.colorNonNull("blue");
+  Color CYAN = MAP.colorNonNull("cyan");
+  Color ORANGE = MAP.colorNonNull("orange");
+  Color PURPLE = MAP.colorNonNull("purple");
+  Color MAGENTA = MAP.colorNonNull("magenta");
+  Color GRAY = MAP.colorNonNull("gray");
+  Color DARK_RED = MAP.colorNonNull("dark_red");
+  Color DARK_GRAY = MAP.colorNonNull("dark_gray");
+  Color YELLOW = MAP.colorNonNull("yellow");
 }
