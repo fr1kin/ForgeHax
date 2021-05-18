@@ -98,6 +98,13 @@ public class ChunkRenderDispatcher$ChunkRender$RebuildTaskPatch extends Patch {
     // jump to skip rendering in this layer
     LabelNode defaultLayerCheck = new LabelNode();
 
+    int blockstateId = ASMHelper.getLocalVariable(node, "blockstate", null)
+        .map(lv -> lv.index)
+        .orElseThrow(() -> new Error("Could not find index for \"blockstate\" local variable"));
+    int rendertypeId = ASMHelper.getLocalVariable(node, "rendertype1", null)
+        .map(lv -> lv.index)
+        .orElseThrow(() -> new Error("Could not find index for \"rendertype1\" local variable"));
+
     // aloads for canRenderInLayer call
 
     InsnList pre = new InsnList();
@@ -106,8 +113,8 @@ public class ChunkRenderDispatcher$ChunkRender$RebuildTaskPatch extends Patch {
     // if we are not then jump over this code
     pre.add(new JumpInsnNode(IFEQ, defaultLayerCheck));
     // call override method
-    pre.add(new VarInsnNode(ALOAD, 18));
-    pre.add(new VarInsnNode(ALOAD, 24));
+    pre.add(new VarInsnNode(ALOAD, blockstateId));
+    pre.add(new VarInsnNode(ALOAD, rendertypeId));
     pre.add(ASMHelper.call(INVOKESTATIC, canRenderInLayerOverride));
     // goto return
     pre.add(new JumpInsnNode(IFNE, jumpToRenderLayer.label));
