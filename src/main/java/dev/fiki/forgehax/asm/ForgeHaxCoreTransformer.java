@@ -61,7 +61,8 @@ public class ForgeHaxCoreTransformer implements ITransformationService {
   @Nonnull
   @Override
   public List<ITransformer> transformers() {
-    return getTransformersForClasses(
+    return System.getProperty("forgehax.disable-transformers") != null ? Collections.emptyList()
+        : getTransformersForClasses(
         BlockModelRendererPatch.class,
         BoatEntityPatch.class,
         LivingEntityPatch.class,
