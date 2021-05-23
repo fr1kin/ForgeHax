@@ -27,7 +27,7 @@ ext {
     }
   }.call()
 
-  forgehaxTag = '3.3.0'
+  forgehaxTag = '3.3.1'
   forgehaxVersion = "${forgehaxTag}-${forgehaxCommit}"
 
   minecraftVersion = '1.16.5'
