@@ -20,7 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.vector.Vector3d;
 
 import static dev.fiki.forgehax.main.Common.getBufferProvider;
-import static dev.fiki.forgehax.main.Common.worldEntities;
+import static dev.fiki.forgehax.main.Common.getWorldEntities;
 
 @RegisterMod(
     name = "ItemESP",
@@ -50,7 +50,7 @@ public class ItemESP extends ToggleMod {
     final IRenderTypeBuffer.Impl buffers = getBufferProvider().getBufferSource();
     final MatrixStack stack = new MatrixStack();
 
-    worldEntities()
+    getWorldEntities()
         .filter(ItemEntity.class::isInstance)
         .map(ItemEntity.class::cast)
         .filter(entity -> entity.ticksExisted > 1)

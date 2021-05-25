@@ -10,7 +10,9 @@ import dev.fiki.forgehax.api.cmd.value.IValue;
 import dev.fiki.forgehax.api.mod.CommandMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import net.minecraft.client.network.play.NetworkPlayerInfo;
+import net.minecraft.util.text.StringTextComponent;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.*;
@@ -84,12 +86,10 @@ public class HelpCommand extends CommandMod {
     newSimpleCommand()
         .name("loaded")
         .description("Loaded plugin list")
-        .executor(args -> {
-          args.inform(getModManager().getMods()
-              .map(AbstractCommand::getName)
-              .sorted(String.CASE_INSENSITIVE_ORDER)
-              .collect(Collectors.joining(", ")));
-        })
+        .executor(args -> args.inform(getModManager().getMods()
+            .map(AbstractCommand::getName)
+            .sorted(String.CASE_INSENSITIVE_ORDER)
+            .collect(Collectors.joining(", "))))
         .build();
   }
 
