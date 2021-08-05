@@ -76,4 +76,49 @@ public class GeneralEx {
   public static double scale(double x, double from_min, double from_max, double to_min, double to_max) {
     return to_min + (to_max - to_min) * ((x - from_min) / (from_max - from_min));
   }
+
+  public static String globToRegex(String glob) {
+    StringBuilder builder = new StringBuilder("^");
+
+    boolean literal = false;
+    for (int i = 0; i < glob.length(); i++) {
+      char at = glob.charAt(i);
+      switch (at) {
+        case '*':
+        case '?':
+          // this is an expression, end literal if started
+          if (literal) {
+            builder.append("\\E");
+            literal = false;
+          }
+          // nasty
+          switch (at) {
+            case '*':
+              // do not allow repeated wildcards
+              if (i - 1 < 0 || glob.charAt(i - 1) != '*') {
+                // * = match any multiple characters
+                builder.append(".*");
+              }
+              break;
+            case '?':
+              // ? = match any single character
+              builder.append('.');
+          }
+          break;
+        default:
+          if (!literal) {
+            builder.append("\\Q");
+            literal = true;
+          }
+          builder.append(at);
+      }
+    }
+
+    // end literal if started
+    if (literal) {
+      builder.append("\\E");
+    }
+
+    return builder.append("$").toString();
+  }
 }

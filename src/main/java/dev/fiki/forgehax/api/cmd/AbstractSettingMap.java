@@ -43,6 +43,17 @@ public abstract class AbstractSettingMap<K, V, M extends Map<K, V>>
   }
 
   @Override
+  public boolean removeKeys(Collection<? extends K> collection) {
+    int beforeSize = size();
+    collection.forEach(wrapping::remove);
+    if (beforeSize != size()) {
+      callUpdateListeners();
+      return true;
+    }
+    return false;
+  }
+
+  @Override
   public int size() {
     return wrapping.size();
   }

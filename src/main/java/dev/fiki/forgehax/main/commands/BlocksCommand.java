@@ -1,14 +1,11 @@
 package dev.fiki.forgehax.main.commands;
 
+import dev.fiki.forgehax.api.BlockHelper;
 import dev.fiki.forgehax.api.cmd.argument.Arguments;
 import dev.fiki.forgehax.api.mod.CommandMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
-import net.minecraft.block.Block;
-import net.minecraft.util.ResourceLocation;
 
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static dev.fiki.forgehax.main.Common.getBlockRegistry;
 
@@ -17,7 +14,6 @@ import static dev.fiki.forgehax.main.Common.getBlockRegistry;
  */
 @RegisterMod
 public class BlocksCommand extends CommandMod {
-  
   {
     newSimpleCommand()
         .name("blocks")
@@ -28,11 +24,8 @@ public class BlocksCommand extends CommandMod {
         .executor(args -> {
           String find = args.getFirst().getStringValue();
 
-          args.inform(StreamSupport.stream(getBlockRegistry().spliterator(), false)
-              .map(Block::getRegistryName)
-              .filter(Objects::nonNull)
-              .map(ResourceLocation::toString)
-              .filter(block -> block.toLowerCase().contains(find))
+          args.inform(BlockHelper.getBlocksMatching(getBlockRegistry(), find).stream()
+              .map(BlockHelper::getBlockRegistryName)
               .limit(25)
               .collect(Collectors.joining(", ")));
         })

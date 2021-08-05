@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.main.mods.world;
 
 import com.google.common.collect.Sets;
+import dev.fiki.forgehax.api.BlockHelper;
 import dev.fiki.forgehax.api.cmd.argument.Arguments;
 import dev.fiki.forgehax.api.cmd.flag.EnumFlag;
 import dev.fiki.forgehax.api.cmd.listener.Listeners;
@@ -13,8 +14,12 @@ import dev.fiki.forgehax.api.mod.ToggleMod;
 import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.render.CullCavesEvent;
 import dev.fiki.forgehax.asm.hooks.XrayHooks;
+import dev.fiki.forgehax.main.Common;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static dev.fiki.forgehax.main.Common.isInWorld;
 import static dev.fiki.forgehax.main.Common.reloadChunkSmooth;
@@ -59,6 +64,63 @@ public class XrayMod extends ToggleMod {
         reloadWorldChunks();
       }))
       .build();
+
+  {
+    blocks.newSimpleCommand()
+        .name("match-add")
+        .alias("madd")
+        .alias("bulk-add")
+        .description("Add all matching a given string. Use ? to match exactly 1 character, and * to match 0 or more")
+        .argument(Arguments.newStringArgument()
+            .label("search blocks")
+            .maxArgumentsConsumed(1)
+            .build())
+        .executor(args -> {
+          final String searchString = args.<String>getFirst().getValue();
+          final Set<Block> blocks = BlockHelper.getBlocksMatching(Common.getBlockRegistry(), searchString);
+
+          if (blocks.isEmpty()) {
+            args.warn("Found no blocks matching %s.", searchString);
+            if (!searchString.contains(":")) {
+              args.warn("Did you mean \"minecraft:%s\"?", searchString);
+            }
+          } else {
+            args.inform("Adding blocks %s", blocks.stream()
+                .map(BlockHelper::getBlockRegistryName)
+                .collect(Collectors.joining(", ")));
+            this.blocks.addAll(blocks);
+          }
+        })
+        .build();
+
+    blocks.newSimpleCommand()
+        .name("match-remove")
+        .alias("mremove")
+        .alias("mdelete")
+        .alias("bulk-remove")
+        .description("Remove all matching a given string. Use ? to match exactly 1 character, and * to match 0 or more")
+        .argument(Arguments.newStringArgument()
+            .label("search blocks")
+            .maxArgumentsConsumed(1)
+            .build())
+        .executor(args -> {
+          final String searchString = args.<String>getFirst().getValue();
+          final Set<Block> blocks = BlockHelper.getBlocksMatching(this.blocks, searchString);
+
+          if (blocks.isEmpty()) {
+            args.warn("Found no blocks matching %s", searchString);
+            if (!searchString.contains(":")) {
+              args.warn("Did you mean \"minecraft:%s\"?", searchString);
+            }
+          } else {
+            args.inform("Removing blocks %s", blocks.stream()
+                .map(BlockHelper::getBlockRegistryName)
+                .collect(Collectors.joining(", ")));
+            this.blocks.removeAll(blocks);
+          }
+        })
+        .build();
+  }
 
   private void reloadWorldChunks() {
     if (isEnabled() && isInWorld()) {

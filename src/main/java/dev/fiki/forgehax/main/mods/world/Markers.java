@@ -3,6 +3,7 @@ package dev.fiki.forgehax.main.mods.world;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.fiki.forgehax.api.BlockHelper;
 import dev.fiki.forgehax.api.asm.MapField;
 import dev.fiki.forgehax.api.cmd.argument.Arguments;
 import dev.fiki.forgehax.api.cmd.listener.Listeners;
@@ -26,14 +27,12 @@ import dev.fiki.forgehax.asm.events.world.ViewFrustumInitialized;
 import dev.fiki.forgehax.main.Common;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
@@ -42,7 +41,6 @@ import org.lwjgl.opengl.GL11;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static dev.fiki.forgehax.main.Common.*;
 
@@ -85,8 +83,10 @@ public class Markers extends ToggleMod implements Common {
 
   {
     blocks.newSimpleCommand()
-        .name("bulk-add")
-        .description("Add all matching a given string.")
+        .name("match-add")
+        .alias("madd")
+        .alias("bulk-add")
+        .description("Add all matching a given string. Use ? to match exactly 1 character, and * to match 0 or more")
         .argument(Arguments.newStringArgument()
             .label("search blocks")
             .maxArgumentsConsumed(1)
@@ -98,25 +98,50 @@ public class Markers extends ToggleMod implements Common {
             .build())
         .executor(args -> {
           final String searchString = args.<String>getFirst().getValue();
-          final String lower = searchString.toLowerCase();
           final Color color = args.<Color>getSecond().getValue();
-
-          Set<Block> blocks = StreamSupport.stream(getBlockRegistry().spliterator(), false)
-              .filter(block -> Blocks.AIR != block)
-              .filter(block -> block.getRegistryName() != null)
-              .filter(block -> block.getRegistryName().toString().toLowerCase().contains(lower))
-              .collect(Collectors.toSet());
+          final Set<Block> blocks = BlockHelper.getBlocksMatching(getBlockRegistry(), searchString);
 
           if (blocks.isEmpty()) {
-            args.warn("Found no blocks matching name %s", searchString);
+            args.warn("Found no blocks matching %s.", searchString);
+            if (!searchString.contains(":")) {
+              args.warn("Did you mean \"minecraft:%s\"?", searchString);
+            }
           } else {
             args.inform("Adding blocks %s with color %s",
                 blocks.stream()
-                    .map(Block::getRegistryName)
-                    .map(ResourceLocation::toString)
+                    .map(BlockHelper::getBlockRegistryName)
                     .collect(Collectors.joining(", ")),
                 args.getSecond().getStringValue());
-            blocks.forEach(block -> this.blocks.put(block, color));
+            this.blocks.putAll(blocks.stream()
+                .collect(Collectors.toMap(block -> block, block -> color)));
+          }
+        })
+        .build();
+
+    blocks.newSimpleCommand()
+        .name("match-remove")
+        .alias("mremove")
+        .alias("mdelete")
+        .alias("bulk-remove")
+        .description("Remove all matching a given string. Use ? to match exactly 1 character, and * to match 0 or more")
+        .argument(Arguments.newStringArgument()
+            .label("search blocks")
+            .maxArgumentsConsumed(1)
+            .build())
+        .executor(args -> {
+          final String searchString = args.<String>getFirst().getValue();
+          final Set<Block> blocks = BlockHelper.getBlocksMatching(this.blocks.keySet(), searchString);
+
+          if (blocks.isEmpty()) {
+            args.warn("Found no blocks matching %s", searchString);
+            if (!searchString.contains(":")) {
+              args.warn("Did you mean \"minecraft:%s\"?", searchString);
+            }
+          } else {
+            args.inform("Removing blocks %s", blocks.stream()
+                .map(BlockHelper::getBlockRegistryName)
+                .collect(Collectors.joining(", ")));
+            this.blocks.removeKeys(blocks);
           }
         })
         .build();

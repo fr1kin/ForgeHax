@@ -1,6 +1,7 @@
 package dev.fiki.forgehax.api;
 
 import com.google.common.collect.Lists;
+import dev.fiki.forgehax.api.extension.GeneralEx;
 import dev.fiki.forgehax.api.extension.LocalPlayerEx;
 import dev.fiki.forgehax.api.math.VectorUtil;
 import lombok.AllArgsConstructor;
@@ -22,13 +23,15 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 import static dev.fiki.forgehax.main.Common.getWorld;
 
 public class BlockHelper {
-
   @Deprecated
   public static UniqueBlock newUniqueBlock(Block block, int metadata, BlockPos pos) {
     throw new UnsupportedOperationException();
@@ -41,6 +44,19 @@ public class BlockHelper {
 
   public static UniqueBlock newUniqueBlock(BlockPos pos) {
     return new UniqueBlock(getWorld().getBlockState(pos).getBlock(), pos);
+  }
+
+  public static Set<Block> getBlocksMatching(Iterable<Block> blocks, String match) {
+    final Pattern pattern = Pattern.compile(GeneralEx.globToRegex(match), Pattern.CASE_INSENSITIVE);
+    return StreamSupport.stream(blocks.spliterator(), false)
+        .filter(block -> block != Blocks.AIR)
+        .filter(block -> block.getRegistryName() != null)
+        .filter(block -> pattern.matcher(getBlockRegistryName(block)).matches())
+        .collect(Collectors.toSet());
+  }
+
+  public static String getBlockRegistryName(Block block) {
+    return block.getRegistryName().toString();
   }
 
   public static BlockTraceInfo newBlockTrace(BlockPos pos, Direction side) {
