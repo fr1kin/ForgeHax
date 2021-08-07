@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest a feature for ForgeHax
-title: "[FEATURE]"
+title: ""
 labels: feature
 assignees: ''
 

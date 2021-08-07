@@ -1,7 +1,7 @@
 ---
 name: Enhancement request
 about: Suggest an enhancement for ForgeHax.
-title: "[ENHANCEMENT]"
+title: ""
 labels: enhancement
 assignees: ''
 
