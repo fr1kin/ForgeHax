@@ -31,11 +31,11 @@ public class NoBats extends ToggleMod {
 
   @SubscribeListener
   public void onPlaySound(EntitySoundEvent event) {
-    if (event.getSound().equals(SoundEvents.ENTITY_BAT_AMBIENT)
-        || event.getSound().equals(SoundEvents.ENTITY_BAT_DEATH)
-        || event.getSound().equals(SoundEvents.ENTITY_BAT_HURT)
-        || event.getSound().equals(SoundEvents.ENTITY_BAT_LOOP)
-        || event.getSound().equals(SoundEvents.ENTITY_BAT_TAKEOFF)) {
+    if (event.getSound().equals(SoundEvents.BAT_AMBIENT)
+        || event.getSound().equals(SoundEvents.BAT_DEATH)
+        || event.getSound().equals(SoundEvents.BAT_HURT)
+        || event.getSound().equals(SoundEvents.BAT_LOOP)
+        || event.getSound().equals(SoundEvents.BAT_TAKEOFF)) {
       event.setVolume(0.f);
       event.setPitch(0.f);
       event.setCanceled(true);

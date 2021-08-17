@@ -128,16 +128,16 @@ public class RotationService extends ServiceMod {
       // when the server sets the rotation we use that instead
       final SPlayerPositionLookPacket packet = (SPlayerPositionLookPacket) event.getPacket();
 
-      float pitch = packet.getPitch();
-      float yaw = packet.getYaw();
+      float pitch = packet.getXRot();
+      float yaw = packet.getYRot();
 
       Angle va = getLocalPlayer().getViewAngles();
 
-      if (packet.getFlags().contains(SPlayerPositionLookPacket.Flags.X_ROT)) {
+      if (packet.getRelativeArguments().contains(SPlayerPositionLookPacket.Flags.X_ROT)) {
         pitch += va.getPitch();
       }
 
-      if (packet.getFlags().contains(SPlayerPositionLookPacket.Flags.Y_ROT)) {
+      if (packet.getRelativeArguments().contains(SPlayerPositionLookPacket.Flags.Y_ROT)) {
         yaw += va.getYaw();
       }
 

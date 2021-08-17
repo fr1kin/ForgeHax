@@ -42,8 +42,8 @@ import static dev.fiki.forgehax.main.Common.*;
 @Mod.EventBusSubscriber(Dist.CLIENT)
 @OnlyIn(Dist.CLIENT)
 public final class ForgeEventListenerService extends ServiceMod {
-  @MapMethod(parentClass = GameRenderer.class, value = "hurtCameraEffect")
-  private final ReflectionMethod<Void> GameRenderer_hurtCameraEffect;
+  @MapMethod(parentClass = GameRenderer.class, value = "bobHurt")
+  private final ReflectionMethod<Void> GameRenderer_bobHurt;
 
   @Override
   protected void onEnabled() {
@@ -102,15 +102,15 @@ public final class ForgeEventListenerService extends ServiceMod {
   @SubscribeEvent
   public void onRenderWorld(RenderWorldLastEvent event) {
     final GameRenderer gameRenderer = getGameRenderer();
-    final ActiveRenderInfo activeRenderInfo = gameRenderer.getActiveRenderInfo();
+    final ActiveRenderInfo activeRenderInfo = gameRenderer.getMainCamera();
     final float partialTicks = event.getPartialTicks();
 
     MatrixStack stack = new MatrixStack();
-    stack.getLast().getMatrix().mul(gameRenderer.getProjectionMatrix(activeRenderInfo, partialTicks, true));
-    GameRenderer_hurtCameraEffect.invoke(gameRenderer, stack, partialTicks);
+    stack.last().pose().multiply(gameRenderer.getProjectionMatrix(activeRenderInfo, partialTicks, true));
+    GameRenderer_bobHurt.invoke(gameRenderer, stack, partialTicks);
 
-    Matrix4f projectionMatrix = stack.getLast().getMatrix();
-    VectorUtil.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().getLast().getMatrix());
+    Matrix4f projectionMatrix = stack.last().pose();
+    VectorUtil.setProjectionViewMatrix(projectionMatrix, event.getMatrixStack().last().pose());
 
     RenderSystem.pushMatrix();
 
@@ -123,7 +123,7 @@ public final class ForgeEventListenerService extends ServiceMod {
 
     RenderSystem.lineWidth(1.f);
 
-    Vector3d projectedView = activeRenderInfo.getProjectedView();
+    Vector3d projectedView = activeRenderInfo.getPosition();
     getEventBus().post(new RenderSpaceEvent(event.getMatrixStack(), projectedView, partialTicks));
 
     RenderSystem.lineWidth(1.f);
@@ -239,7 +239,7 @@ public final class ForgeEventListenerService extends ServiceMod {
   @SubscribeEvent
   public void onGuiContainerDraw(GuiContainerEvent.DrawBackground event) {
     getEventBus().post(new GuiContainerRenderEvent.Background(event.getGuiContainer(), event.getMatrixStack(), event.getMouseX(),
-        event.getMouseY(), MC.getRenderPartialTicks()));
+        event.getMouseY(), MC.getDeltaFrameTime()));
   }
 
   @SubscribeEvent

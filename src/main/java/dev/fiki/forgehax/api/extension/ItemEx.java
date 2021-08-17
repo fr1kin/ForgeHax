@@ -15,6 +15,7 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -32,6 +33,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +44,11 @@ public class ItemEx {
 
   private static Enchantment lookupEnchantmentId(String name) {
     return ENCHANTMENT_CACHE.computeIfAbsent(name,
-        id -> ForgeRegistries.ENCHANTMENTS.getValue(ResourceLocation.tryCreate(id)));
+        id -> ForgeRegistries.ENCHANTMENTS.getValue(ResourceLocation.tryParse(id)));
   }
 
   public static boolean isFoodItem(Item item) {
-    return ItemGroup.FOOD == item.getGroup();
+    return ItemGroup.TAB_FOOD == item.getItemCategory();
   }
 
   public static boolean isFoodItem(ItemStack stack) {
@@ -59,11 +61,11 @@ public class ItemEx {
   }
 
   public static boolean canBeDamaged(ItemStack stack) {
-    return stack.getItem().isDamageable();
+    return stack.getItem().canBeDepleted();
   }
 
   public static int getDurability(ItemStack stack) {
-    return canBeDamaged(stack) ? stack.getMaxDamage() - stack.getDamage() : 0;
+    return canBeDamaged(stack) ? stack.getMaxDamage() - stack.getDamageValue() : 0;
   }
 
   public static int getStackCount(ItemStack stack) {
@@ -73,7 +75,7 @@ public class ItemEx {
   public static ListNBT getEnchantmentNBT(ItemStack stack) {
     return Items.ENCHANTED_BOOK == stack.getItem()
         ? EnchantedBookItem.getEnchantments(stack)
-        : stack.getEnchantmentTagList();
+        : stack.getEnchantmentTags();
   }
 
   public static Map<Enchantment, Integer> getEnchantments(ItemStack stack) {
@@ -134,29 +136,29 @@ public class ItemEx {
   }
 
   public static double getDiggingSpeed(ItemStack stack, PlayerEntity player, BlockState blockState, BlockPos blockPos) {
-    val speed = stack.getDestroySpeed(blockState);
-    val efficiencyLevel = getEnchantmentLevel(stack, Enchantments.EFFICIENCY);
+    float speed = stack.getDestroySpeed(blockState);
+    int efficiencyLevel = getEnchantmentLevel(stack, Enchantments.BLOCK_EFFICIENCY);
     // this is from mojangs own algorithm
-    return blockState.getPlayerRelativeBlockHardness(player, player.world, blockPos) > 0.D
+    return blockState.getDestroyProgress(player, player.level, blockPos) > 0.D
         ? Math.max(speed + (speed > 1.D ? (efficiencyLevel * efficiencyLevel + 1.D) : 0.D), 0.D)
         : 1.D;
   }
 
   public static double getAttackDamage(ItemStack stack) {
-    val attr = stack.getAttributeModifiers(EquipmentSlotType.MAINHAND)
+    Collection<AttributeModifier> attr = stack.getAttributeModifiers(EquipmentSlotType.MAINHAND)
         .get(Attributes.ATTACK_DAMAGE);
     return !attr.isEmpty() ? attr.iterator().next().getAmount() : 0.D;
   }
 
   public static double getAttackSpeed(ItemStack stack) {
-    val attr = stack.getAttributeModifiers(EquipmentSlotType.MAINHAND)
+    Collection<AttributeModifier> attr = stack.getAttributeModifiers(EquipmentSlotType.MAINHAND)
         .get(Attributes.ATTACK_SPEED);
     return !attr.isEmpty() ? Math.abs(attr.iterator().next().getAmount()) : 0.D;
   }
 
   public static double getEntityAttackModifier(ItemStack stack, @Nullable Entity target) {
-    return EnchantmentHelper.getModifierForCreature(stack, EntityEx.isLivingType(target)
-        ? ((LivingEntity) target).getCreatureAttribute()
+    return EnchantmentHelper.getDamageBonus(stack, EntityEx.isLivingType(target)
+        ? ((LivingEntity) target).getMobType()
         : CreatureAttribute.UNDEFINED);
   }
 
@@ -175,12 +177,12 @@ public class ItemEx {
   }
 
   public static int getSlotNumber(Slot slot) {
-    return slot.slotNumber;
+    return slot.index;
   }
 
   public static ItemStack click(Slot slot, ClickType clickType, int mouseButton) {
-    if (isLocalPlayerInventory(slot.inventory)) {
-      val inv = (PlayerInventory) slot.inventory;
+    if (isLocalPlayerInventory(slot.container)) {
+      val inv = (PlayerInventory) slot.container;
       val lp = (ClientPlayerEntity) inv.player;
       return LocalPlayerEx.sendWindowClick(lp, getSlotNumber(slot), mouseButton, clickType);
     } else {
@@ -204,12 +206,12 @@ public class ItemEx {
   }
 
   public static boolean isInHotbar(Slot slot) {
-    return isLocalPlayerInventory(slot.inventory)
+    return isLocalPlayerInventory(slot.container)
         && getSlotNumber(slot) >= 36 && getSlotNumber(slot) < 45;
   }
 
   public static boolean isInOffhand(Slot slot) {
-    return isLocalPlayerInventory(slot.inventory)
+    return isLocalPlayerInventory(slot.container)
         && getSlotNumber(slot) == 45;
   }
 
@@ -234,12 +236,12 @@ public class ItemEx {
   public static boolean isEqual(Slot slotA, Slot slotB) {
     return slotB != null
         && getSlotNumber(slotA) == getSlotNumber(slotB)
-        && ItemStack.areItemsEqual(slotA.getStack(), slotB.getStack());
+        && ItemStack.isSame(slotA.getItem(), slotB.getItem());
   }
 
   public static int getDistanceFromSelected(Slot slot) {
-    if (isLocalPlayerInventory(slot.inventory)) {
-      val inv = (PlayerInventory) slot.inventory;
+    if (isLocalPlayerInventory(slot.container)) {
+      val inv = (PlayerInventory) slot.container;
       val lp = (ClientPlayerEntity) inv.player;
       return Math.abs(getSlotNumber(LocalPlayerEx.getSelectedSlot(lp)) - getSlotNumber(slot));
     } else {

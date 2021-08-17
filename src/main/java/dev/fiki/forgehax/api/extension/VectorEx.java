@@ -11,15 +11,15 @@ import static dev.fiki.forgehax.api.math.AngleUtil.HALF_PI;
 
 public class VectorEx {
 //  public static Vector3d add(Vector3i vec0, Vector3d vec1) {
-//    return new Vector3d(vec0.getX() + vec1.getX(), vec0.getY() + vec1.getY(), vec0.getZ() + vec1.getZ());
+//    return new Vector3d(vec0.getX() + vec1.getX(), vec0.y() + vec1.getY(), vec0.getZ() + vec1.getZ());
 //  }
 
   public static Vector3d subtract(Vector3i vec0, Vector3d vec1) {
-    return new Vector3d(vec0.getX() - vec1.getX(), vec0.getY() - vec1.getY(), vec0.getZ() - vec1.getZ());
+    return new Vector3d(vec0.getX() - vec1.x(), vec0.getY() - vec1.y(), vec0.getZ() - vec1.z());
   }
 
   public static ScreenPos toScreen(Vector3d vec) {
-    return VectorUtil.toScreen(vec.getX(), vec.getY(), vec.getZ());
+    return VectorUtil.toScreen(vec.x(), vec.y(), vec.z());
   }
 
   public static ScreenPos toScreen(Vector3i vec) {
@@ -35,7 +35,7 @@ public class VectorEx {
   }
 
   public static Vector3i toIntVector(Vector3d vec) {
-    return new Vector3i(vec.getX(), vec.getY(), vec.getZ());
+    return new Vector3i(vec.x(), vec.y(), vec.z());
   }
 
   public static Vector3d getMaxs(AxisAlignedBB bb) {

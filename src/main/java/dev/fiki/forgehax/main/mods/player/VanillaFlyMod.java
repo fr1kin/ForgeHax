@@ -37,8 +37,8 @@ import static java.util.Objects.isNull;
 public class VanillaFlyMod extends ToggleMod {
   private final ReflectionTools common;
 
-  @MapField(parentClass = CPlayerPacket.class, value = "moving")
-  private final ReflectionField<Boolean> CPacketPlayer_moving;
+  @MapField(parentClass = CPlayerPacket.class, value = "hasPos")
+  private final ReflectionField<Boolean> CPacketPlayer_hasPos;
 
   @MapField(parentClass = SPlayerPositionLookPacket.class, value = "x")
   private final ReflectionField<Double> SPlayerPositionLookPacket_x;
@@ -90,13 +90,13 @@ public class VanillaFlyMod extends ToggleMod {
       return;
     }
 
-    if (!player.abilities.allowFlying) {
+    if (!player.abilities.mayfly) {
       fly.disable();
       fly.enable();
-      player.abilities.isFlying = false;
+      player.abilities.flying = false;
     }
 
-    player.abilities.setFlySpeed(0.05f * flySpeed.getValue());
+    player.abilities.setFlyingSpeed(0.05f * flySpeed.getValue());
   }
 
   @SubscribeListener
@@ -107,19 +107,19 @@ public class VanillaFlyMod extends ToggleMod {
     }
 
     if (!groundSpoof.getValue() || !(event.getPacket() instanceof CPlayerPacket)
-        || !player.abilities.isFlying) {
+        || !player.abilities.flying) {
       return;
     }
 
     CPlayerPacket packet = (CPlayerPacket) event.getPacket();
-    if (!CPacketPlayer_moving.get(packet)) {
+    if (!CPacketPlayer_hasPos.get(packet)) {
       return;
     }
 
-    AxisAlignedBB range = player.getBoundingBox().expand(0, -player.getPosY(), 0)
-        .contract(0, -player.getHeight(), 0);
-    List<AxisAlignedBB> collisionBoxes = player.world.getCollisionShapes(player, range)
-        .map(VoxelShape::getBoundingBox)
+    AxisAlignedBB range = player.getBoundingBox().inflate(0, -player.getY(), 0)
+        .contract(0, -player.getBbHeight(), 0);
+    List<AxisAlignedBB> collisionBoxes = player.level.getBlockCollisions(player, range)
+        .map(VoxelShape::bounds)
         .collect(Collectors.toList());
     AtomicReference<Double> newHeight = new AtomicReference<>(0D);
     collisionBoxes.forEach(box -> newHeight.set(Math.max(newHeight.get(), box.maxY)));
@@ -136,14 +136,14 @@ public class VanillaFlyMod extends ToggleMod {
     }
 
     if (!antiGround.getValue() || !(event.getPacket() instanceof SPlayerPositionLookPacket)
-        || !player.abilities.isFlying) {
+        || !player.abilities.flying) {
       return;
     }
 
     SPlayerPositionLookPacket packet = (SPlayerPositionLookPacket) event.getPacket();
 
-    double oldY = player.getPosY();
-    player.setPosition(
+    double oldY = player.getY();
+    player.moveTo(
         SPlayerPositionLookPacket_x.get(packet),
         SPlayerPositionLookPacket_y.get(packet),
         SPlayerPositionLookPacket_z.get(packet)
@@ -159,12 +159,12 @@ public class VanillaFlyMod extends ToggleMod {
      * to hopefully disable fly hacks. Well, sorry guys, this fly hack is smarter than that.
      */
     AxisAlignedBB range = player.getBoundingBox()
-        .expand(0, 256 - player.getHealth() - player.getPosY(), 0).contract(0, player.getHeight(), 0);
-    List<AxisAlignedBB> collisionBoxes = player.world.getCollisionShapes(player, range)
-        .map(VoxelShape::getBoundingBox)
+        .inflate(0, 256 - player.getHealth() - player.getY(), 0).contract(0, player.getBbHeight(), 0);
+    List<AxisAlignedBB> collisionBoxes = player.level.getBlockCollisions(player, range)
+        .map(VoxelShape::bounds)
         .collect(Collectors.toList());
     AtomicReference<Double> newY = new AtomicReference<>(256D);
-    collisionBoxes.forEach(box -> newY.set(Math.min(newY.get(), box.minY - player.getHeight())));
+    collisionBoxes.forEach(box -> newY.set(Math.min(newY.get(), box.minY - player.getBbHeight())));
 
     SPlayerPositionLookPacket_y.set(packet, Math.min(oldY, newY.get()));
   }

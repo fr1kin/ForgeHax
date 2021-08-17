@@ -157,14 +157,14 @@ public class Aimbot extends ToggleMod {
 
   private boolean canAttack(ClientPlayerEntity localPlayer, Entity target) {
     final float cdRatio = cooldownPercent.getValue() / 100F;
-    final float cdOffset = cdRatio <= 1F ? 0F : -(localPlayer.getCooldownPeriod() * (cdRatio - 1F));
-    return localPlayer.getCooledAttackStrength((float) getLagComp() + cdOffset)
+    final float cdOffset = cdRatio <= 1F ? 0F : -(localPlayer.getLuck() * (cdRatio - 1F));
+    return localPlayer.getAttackStrengthScale((float) getLagComp() + cdOffset)
         >= (Math.min(1F, cdRatio))
-        && (autoAttack.getValue() || getGameSettings().keyBindAttack.isKeyDown()); // need to work on this
+        && (autoAttack.getValue() || getGameSettings().keyAttack.isDown()); // need to work on this
   }
 
   private Projectile getHeldProjectile() {
-    return Projectile.getProjectileByItemStack(getLocalPlayer().getHeldItem(Hand.MAIN_HAND));
+    return Projectile.getProjectileByItemStack(getLocalPlayer().getItemInHand(Hand.MAIN_HAND));
   }
 
   private boolean isHoldingProjectileItem() {
@@ -180,7 +180,7 @@ public class Aimbot extends ToggleMod {
     if (isProjectileAimbotActivated() && projectileTraceCheck.getValue()) {
       return getHeldProjectile().canHitEntity(getLocalPlayer().getEyePos(), target);
     } else {
-      return !visCheck.getValue() || getLocalPlayer().canEntityBeSeen(target);
+      return !visCheck.getValue() || getLocalPlayer().canSee(target);
     }
   }
 
@@ -195,7 +195,7 @@ public class Aimbot extends ToggleMod {
   private boolean filterTarget(Vector3d pos, Vector3d viewNormal, Angle angles, Entity entity) {
     final Vector3d aimingPos = getAttackPosition(entity);
     return entity.nonNull()
-        && entity.isLiving()
+        && entity.showVehicleHealth()
         && entity.isReallyAlive()
         && entity.isValidEntity()
         && !entity.isLocalPlayer()
@@ -239,14 +239,14 @@ public class Aimbot extends ToggleMod {
   private double selecting(final Vector3d pos, final Vector3d viewNormal, final Angle angles, final Entity entity) {
     switch (selector.getValue()) {
       case DISTANCE:
-        return getAttackPosition(entity).subtract(pos).lengthSquared();
+        return getAttackPosition(entity).subtract(pos).lengthSqr();
       case CROSSHAIR:
       default:
         return getAttackPosition(entity)
             .subtract(pos)
             .normalize()
             .subtract(viewNormal)
-            .lengthSquared();
+            .lengthSqr();
     }
   }
 
@@ -259,19 +259,19 @@ public class Aimbot extends ToggleMod {
 
   @Override
   protected void onEnabled() {
-    BindingHelper.disableContextHandler(getGameSettings().keyBindAttack);
+    BindingHelper.disableContextHandler(getGameSettings().keyAttack);
   }
 
   @Override
   public void onDisabled() {
-    BindingHelper.restoreContextHandler(getGameSettings().keyBindAttack);
+    BindingHelper.restoreContextHandler(getGameSettings().keyAttack);
   }
 
   @SubscribeListener(priority = PriorityEnum.HIGHEST)
   public void onLocalPlayerMovementUpdate(PlayerRotationEvent event) {
     val lp = getLocalPlayer();
     Vector3d pos = lp.getEyePos();
-    Vector3d look = lp.getLookVec();
+    Vector3d look = lp.getForward();
     Angle angles = look.getAngleFacingInDegrees();
 
     Entity t = getTarget();
@@ -297,7 +297,7 @@ public class Aimbot extends ToggleMod {
       if (canAttack(lp, tar)) {
         event.onFocusGained(() -> {
           lp.attackEntity(tar);
-          lp.swingArm(Hand.MAIN_HAND);
+          lp.swing(Hand.MAIN_HAND);
         });
       }
     }

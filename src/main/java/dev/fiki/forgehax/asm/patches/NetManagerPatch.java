@@ -16,8 +16,8 @@ import org.objectweb.asm.tree.*;
 public class NetManagerPatch extends Patch {
 
   @Inject
-  @MapMethod("dispatchPacket")
-  public void dispatchPacket(MethodNode main,
+  @MapMethod("sendPacket")
+  public void sendPacket(MethodNode main,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onPacketOutbound") ASMMethod hook) {
     // get node at the very top
     AbstractInsnNode top = main.instructions.getFirst();

@@ -49,8 +49,8 @@ public class PayloadSpoofer extends ToggleMod {
   @SubscribeListener(priority = PriorityEnum.HIGHEST)
   public void onIncomingPacket(PacketInboundEvent event) {
     if (event.getPacket() instanceof SCustomPayloadPlayPacket) {
-      String channel = ((SCustomPayloadPlayPacket) event.getPacket()).getChannelName().toString();
-      PacketBuffer packetBuffer = ((SCustomPayloadPlayPacket) event.getPacket()).getBufferData();
+      String channel = ((SCustomPayloadPlayPacket) event.getPacket()).getName().toString();
+      PacketBuffer packetBuffer = ((SCustomPayloadPlayPacket) event.getPacket()).getData();
       if (isBlockedPacket(channel, packetBuffer)) {
         event.setCanceled(true);
       }

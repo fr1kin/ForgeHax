@@ -64,11 +64,11 @@ public class CoordsHud extends HudMod {
   @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     ClientPlayerEntity player = getLocalPlayer();
-    thisX = player.getPosX();
-    thisY = player.getPosY();
-    thisZ = player.getPosZ();
+    thisX = player.getX();
+    thisY = player.getY();
+    thisZ = player.getZ();
 
-    double thisFactor = player.worldClient.getDimensionType().getCoordinateScale();
+    double thisFactor = player.clientLevel.dimensionType().coordinateScale();
     double otherFactor = thisFactor != 1d ? 1d : 8d;
     double travelFactor = thisFactor / otherFactor;
     otherX = thisX * travelFactor;

@@ -31,11 +31,11 @@ public class KeyBindingEx extends KeyBinding {
   }
 
   public int getKeyPressedTime() {
-    return ReflectionTools.getInstance().KeyBinding_pressTime.get(this);
+    return ReflectionTools.getInstance().KeyBinding_clickCount.get(this);
   }
 
   public void setKeyPressedTime(int ticks) {
-    ReflectionTools.getInstance().KeyBinding_pressTime.set(this, ticks);
+    ReflectionTools.getInstance().KeyBinding_clickCount.set(this, ticks);
   }
 
   public void incrementPressedTime() {
@@ -43,7 +43,7 @@ public class KeyBindingEx extends KeyBinding {
   }
 
   public boolean isKeyDownUnchecked() {
-    return ReflectionTools.getInstance().KeyBinding_pressed.get(this);
+    return ReflectionTools.getInstance().KeyBinding_isDown.get(this);
   }
 
   public boolean checkConflicts() {
@@ -51,7 +51,7 @@ public class KeyBindingEx extends KeyBinding {
   }
 
   @Override
-  public void bind(InputMappings.Input key) {
+  public void setKey(InputMappings.Input key) {
     if(!Objects.equals(key, getKey())) {
       final InputMappings.Input previous = getKey();
       if(changeCallback != null) {
@@ -65,7 +65,7 @@ public class KeyBindingEx extends KeyBinding {
   }
 
   public void setBind(InputMappings.Input key) {
-    super.bind(key);
+    super.setKey(key);
   }
 
   public interface IBindChangeCallback {

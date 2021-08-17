@@ -50,8 +50,8 @@ import static dev.fiki.forgehax.main.Common.*;
 @RequiredArgsConstructor
 @ExtensionMethod({LocalPlayerEx.class, EntityEx.class})
 public class Nuker extends ToggleMod {
-  @MapField(parentClass = PlayerController.class, value = "curBlockDamageMP")
-  private final ReflectionField<Float> PlayerController_curBlockDamageMP;
+  @MapField(parentClass = PlayerController.class, value = "destroyProgress")
+  private final ReflectionField<Float> PlayerController_destroyProgress;
 
   private final List<Block> targets = Lists.newArrayList();
   private final AtomicBoolean attackToggle = new AtomicBoolean(false);
@@ -131,7 +131,7 @@ public class Nuker extends ToggleMod {
     if (!bounded.getValue()) {
       return true;
     } else {
-      Vector3d pos = ub.getCenteredPos().subtract(getLocalPlayer().getPositionVec());
+      Vector3d pos = ub.getCenteredPos().subtract(getLocalPlayer().position());
       return pos.x < width_upper.getValue()
           && pos.x > -width_lower.getValue()
           && pos.y < height_upper.getValue()
@@ -144,7 +144,7 @@ public class Nuker extends ToggleMod {
   private boolean isNeighborsLiquid(UniqueBlock ub) {
     return filter_liquids.getValue() &&
         Arrays.stream(Direction.values())
-            .map(side -> ub.getPos().offset(side))
+            .map(side -> ub.getPos().relative(side))
             .map(getWorld()::getBlockState)
             .map(BlockState::getMaterial)
             .anyMatch(Material::isLiquid);
@@ -155,21 +155,21 @@ public class Nuker extends ToggleMod {
   }
 
   private float getBlockBreakAmount() {
-    return PlayerController_curBlockDamageMP.get(getPlayerController());
+    return PlayerController_destroyProgress.get(getPlayerController());
   }
 
   private void updateBlockBreaking(BlockPos target) {
     if (target == null && currentTarget != null) {
       resetBlockBreaking();
     } else if (target != null && currentTarget == null) {
-      getPlayerController().resetBlockRemoving();
+      getPlayerController().stopDestroyBlock();
       currentTarget = target;
     }
   }
 
   private void resetBlockBreaking() {
     if (currentTarget != null) {
-      getPlayerController().resetBlockRemoving();
+      getPlayerController().stopDestroyBlock();
       currentTarget = null;
     }
   }
@@ -190,7 +190,7 @@ public class Nuker extends ToggleMod {
         printInform("Removed latest block %s", ub.toString());
         return;
       } else if (RayTraceResult.Type.BLOCK.equals(tr.getType())) {
-        info = getWorld().getBlockState(tr.getPos()).getBlock();
+        info = getWorld().getBlockState(tr.getBlockPos()).getBlock();
       }
 
       if (Blocks.AIR.equals(info)) {
@@ -235,7 +235,7 @@ public class Nuker extends ToggleMod {
     if (currentTarget != null) {
       // verify the current target is still valid
       trace = Optional.of(currentTarget)
-          .filter(pos -> !getWorld().isAirBlock(pos))
+          .filter(pos -> !getWorld().isEmptyBlock(pos))
           .map(BlockHelper::newUniqueBlock)
           .filter(this::isTargeting)
           .filter(this::isInBoundary)
@@ -248,9 +248,9 @@ public class Nuker extends ToggleMod {
     }
 
     if (currentTarget == null) {
-      List<UniqueBlock> blocks = BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance())
+      List<UniqueBlock> blocks = BlockHelper.getBlocksInRadius(eyes, getPlayerController().getPickRange())
           .stream()
-          .filter(pos -> !getWorld().isAirBlock(pos))
+          .filter(pos -> !getWorld().isEmptyBlock(pos))
           .map(BlockHelper::newUniqueBlock)
           .filter(this::isTargeting)
           .filter(this::isInBoundary)
@@ -281,7 +281,7 @@ public class Nuker extends ToggleMod {
 
     final BlockTraceInfo tr = trace;
     event.onFocusGained(() -> {
-      if (getPlayerController().onPlayerDamageBlock(tr.getPos(), tr.getOppositeSide())) {
+      if (getPlayerController().continueDestroyBlock(tr.getPos(), tr.getOppositeSide())) {
         lp.swingHandSilently();
         updateBlockBreaking(tr.getPos());
       } else {

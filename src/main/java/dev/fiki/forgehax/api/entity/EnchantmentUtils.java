@@ -30,7 +30,7 @@ public class EnchantmentUtils {
   }
 
   public static List<ItemEnchantment> getEnchantments(ItemStack stack) {
-    return getEnchantments(stack.getEnchantmentTagList());
+    return getEnchantments(stack.getEnchantmentTags());
   }
 
   @Getter
@@ -39,9 +39,9 @@ public class EnchantmentUtils {
     private static final Map<Enchantment, String> SHORT_ENCHANT_NAMES = Maps.newHashMap();
 
     static {
-      SHORT_ENCHANT_NAMES.put(Enchantments.PROTECTION, "P");
+      SHORT_ENCHANT_NAMES.put(Enchantments.ALL_DAMAGE_PROTECTION, "P");
       SHORT_ENCHANT_NAMES.put(Enchantments.FIRE_PROTECTION, "FP");
-      SHORT_ENCHANT_NAMES.put(Enchantments.FEATHER_FALLING, "FF");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FALL_PROTECTION, "FF");
       SHORT_ENCHANT_NAMES.put(Enchantments.BLAST_PROTECTION, "BP");
       SHORT_ENCHANT_NAMES.put(Enchantments.PROJECTILE_PROTECTION, "PP");
       SHORT_ENCHANT_NAMES.put(Enchantments.RESPIRATION, "Re");
@@ -55,18 +55,18 @@ public class EnchantmentUtils {
       SHORT_ENCHANT_NAMES.put(Enchantments.BANE_OF_ARTHROPODS, "BA");
       SHORT_ENCHANT_NAMES.put(Enchantments.KNOCKBACK, "Kn");
       SHORT_ENCHANT_NAMES.put(Enchantments.FIRE_ASPECT, "FA");
-      SHORT_ENCHANT_NAMES.put(Enchantments.LOOTING, "Lo");
-      SHORT_ENCHANT_NAMES.put(Enchantments.SWEEPING, "Sw");
-      SHORT_ENCHANT_NAMES.put(Enchantments.EFFICIENCY, "Ef");
+      SHORT_ENCHANT_NAMES.put(Enchantments.MOB_LOOTING, "Lo");
+      SHORT_ENCHANT_NAMES.put(Enchantments.SWEEPING_EDGE, "Sw");
+      SHORT_ENCHANT_NAMES.put(Enchantments.BLOCK_EFFICIENCY, "Ef");
       SHORT_ENCHANT_NAMES.put(Enchantments.SILK_TOUCH, "ST");
       SHORT_ENCHANT_NAMES.put(Enchantments.UNBREAKING, "Ub");
-      SHORT_ENCHANT_NAMES.put(Enchantments.FORTUNE, "Ft");
-      SHORT_ENCHANT_NAMES.put(Enchantments.POWER, "Po");
-      SHORT_ENCHANT_NAMES.put(Enchantments.PUNCH, "Pu");
-      SHORT_ENCHANT_NAMES.put(Enchantments.FLAME, "Fl");
-      SHORT_ENCHANT_NAMES.put(Enchantments.INFINITY, "Inf");
-      SHORT_ENCHANT_NAMES.put(Enchantments.LUCK_OF_THE_SEA, "LoTS");
-      SHORT_ENCHANT_NAMES.put(Enchantments.LURE, "Lu");
+      SHORT_ENCHANT_NAMES.put(Enchantments.BLOCK_FORTUNE, "Ft");
+      SHORT_ENCHANT_NAMES.put(Enchantments.POWER_ARROWS, "Po");
+      SHORT_ENCHANT_NAMES.put(Enchantments.PUNCH_ARROWS, "Pu");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FLAMING_ARROWS, "Fl");
+      SHORT_ENCHANT_NAMES.put(Enchantments.INFINITY_ARROWS, "Inf");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FISHING_LUCK, "LoTS");
+      SHORT_ENCHANT_NAMES.put(Enchantments.FISHING_SPEED, "Lu");
       SHORT_ENCHANT_NAMES.put(Enchantments.LOYALTY, "Lo");
       SHORT_ENCHANT_NAMES.put(Enchantments.IMPALING, "Im");
       SHORT_ENCHANT_NAMES.put(Enchantments.RIPTIDE, "Rt");
@@ -127,7 +127,7 @@ public class EnchantmentUtils {
 
     @Override
     public String toString() {
-      return enchantment.getDisplayName(level).getUnformattedComponentText();
+      return enchantment.getFullname(level).getContents();
     }
 
     @Override

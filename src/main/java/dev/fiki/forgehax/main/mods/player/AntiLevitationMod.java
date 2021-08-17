@@ -19,8 +19,8 @@ import net.minecraft.potion.Effects;
 public class AntiLevitationMod extends ToggleMod {
   @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (Common.getLocalPlayer().isPotionActive(Effects.LEVITATION)) {
-      Common.getLocalPlayer().removeActivePotionEffect(Effects.LEVITATION);
+    if (Common.getLocalPlayer().hasEffect(Effects.LEVITATION)) {
+      Common.getLocalPlayer().removeEffect(Effects.LEVITATION);
     }
   }
 }

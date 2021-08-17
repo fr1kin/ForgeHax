@@ -65,7 +65,7 @@ public class ConsoleInputScreen extends Screen {
 
   public synchronized void setPreviousScreen(Screen previousScreen) {
     if (previousScreen instanceof InventoryScreen) {
-      RecipeBookGui gui = ((InventoryScreen) previousScreen).getRecipeGui();
+      RecipeBookGui gui = ((InventoryScreen) previousScreen).getRecipeBookComponent();
       if (gui.isVisible()) {
         gui.toggleVisibility();
       }
@@ -96,7 +96,7 @@ public class ConsoleInputScreen extends Screen {
 
   @Override
   protected void init() {
-    MC.keyboardListener.enableRepeatEvents(true);
+    MC.keyboardHandler.setSendRepeatsToGui(true);
   }
 
   @Override
@@ -118,7 +118,7 @@ public class ConsoleInputScreen extends Screen {
 
   @Override
   public void onClose() {
-    MC.keyboardListener.enableRepeatEvents(false);
+    MC.keyboardHandler.setSendRepeatsToGui(false);
   }
 
   @Override
@@ -177,7 +177,7 @@ public class ConsoleInputScreen extends Screen {
    */
   public void writeText(String textToWrite) {
     String s = "";
-    String s1 = SharedConstants.filterAllowedCharacters(textToWrite);
+    String s1 = SharedConstants.filterText(textToWrite);
     int i = Math.min(this.cursorPosition, this.selectionEnd);
     int j = Math.max(this.cursorPosition, this.selectionEnd);
     int k = this.maxStringLength - this.text.length() - (i - j);
@@ -359,7 +359,7 @@ public class ConsoleInputScreen extends Screen {
     }
 
     this.shiftDown = Screen.hasShiftDown();
-    if (keyBinding.getKey().getKeyCode() == keyCode) {
+    if (keyBinding.getKey().getValue() == keyCode) {
       closing = true;
       setDisplayScreen(previousScreen);
       return true;
@@ -368,16 +368,16 @@ public class ConsoleInputScreen extends Screen {
       this.setSelectionPos(0);
       return true;
     } else if (Screen.isCopy(keyCode)) {
-      MC.keyboardListener.setClipboardString(this.getSelectedText());
+      MC.keyboardHandler.setClipboard(this.getSelectedText());
       return true;
     } else if (Screen.isPaste(keyCode)) {
       if (this.isEnabled) {
-        this.writeText(Minecraft.getInstance().keyboardListener.getClipboardString());
+        this.writeText(Minecraft.getInstance().keyboardHandler.getClipboard());
       }
 
       return true;
     } else if (Screen.isCut(keyCode)) {
-      Minecraft.getInstance().keyboardListener.setClipboardString(this.getSelectedText());
+      Minecraft.getInstance().keyboardHandler.setClipboard(this.getSelectedText());
       if (this.isEnabled) {
         this.writeText("");
       }
@@ -466,7 +466,7 @@ public class ConsoleInputScreen extends Screen {
   public boolean charTyped(char p_charTyped_1_, int p_charTyped_2_) {
     if (!this.canWrite()) {
       return false;
-    } else if (SharedConstants.isAllowedCharacter(p_charTyped_1_)) {
+    } else if (SharedConstants.isAllowedChatCharacter(p_charTyped_1_)) {
       if (this.isEnabled) {
         this.writeText(Character.toString(p_charTyped_1_));
       }
@@ -508,14 +508,14 @@ public class ConsoleInputScreen extends Screen {
       synchronized (this) {
         if (previousScreen != null
             && previousScreen.getMinecraft() != null) {
-          stack.push();
+          stack.pushPose();
           stack.translate(0.f, 0.f, -150.f);
           try {
             previousScreen.render(stack, 0, 0, partialTicks);
           } catch (Throwable t) {
             processPreviousScreen = false;
           }
-          stack.pop();
+          stack.popPose();
         }
       }
     }
@@ -527,14 +527,14 @@ public class ConsoleInputScreen extends Screen {
     main.rect(GL11.GL_TRIANGLES, getX(), getY(), getWidth(), getHeight(),
         Colors.BLACK.setAlpha(200), stack.getLastMatrix());
 
-    stack.push();
+    stack.pushPose();
     stack.translate(2.f, 2.f, 0.f);
 
     val color = Color.of(224, 224, 224, 0);
     int cursorOffset = this.cursorPosition - this.lineScrollOffset;
     int selectionLength = this.selectionEnd - this.lineScrollOffset;
 
-    String visibleText = ci.getFontRenderer().func_238412_a_(this.text.substring(this.lineScrollOffset),
+    String visibleText = ci.getFontRenderer().plainSubstrByWidth(this.text.substring(this.lineScrollOffset),
         this.getAdjustedWidth());
 
     boolean selectedTextVisible = cursorOffset >= 0 && cursorOffset <= visibleText.length();
@@ -550,7 +550,7 @@ public class ConsoleInputScreen extends Screen {
 
     if (!visibleText.isEmpty()) {
       String renderText = selectedTextVisible ? visibleText.substring(0, cursorOffset) : visibleText;
-      SurfaceHelper.renderString(source, stack.getLast().getMatrix(), renderText,
+      SurfaceHelper.renderString(source, stack.last().pose(), renderText,
           (float) getX(), (float) getY(),
           Colors.WHITE, true);
       offsetX += SurfaceHelper.getStringWidth(renderText) + 1;
@@ -567,42 +567,42 @@ public class ConsoleInputScreen extends Screen {
     }
 
     if (!visibleText.isEmpty() && selectedTextVisible && cursorOffset < visibleText.length()) {
-      SurfaceHelper.renderString(source, stack.getLast().getMatrix(), visibleText.substring(cursorOffset),
+      SurfaceHelper.renderString(source, stack.last().pose(), visibleText.substring(cursorOffset),
           offsetX, y, color, true);
     }
 
     if (!endStringVisible && this.suggestion != null) {
-      SurfaceHelper.renderString(source, stack.getLast().getMatrix(), this.suggestion,
+      SurfaceHelper.renderString(source, stack.last().pose(), this.suggestion,
           endX - 1, y, Colors.GRAY, true);
     }
 
     if (markerVisible) {
       if (endStringVisible) {
-        stack.push();
+        stack.pushPose();
         stack.translate(0.f, 0.f, 100.f);
         main.rect(GL11.GL_TRIANGLES, endX, y - 1, 1, 10,
             Color.of(208, 208, 208, 255), stack.getLastMatrix());
-        stack.pop();
+        stack.popPose();
       } else {
-        SurfaceHelper.renderString(source, stack.getLast().getMatrix(), "_",
+        SurfaceHelper.renderString(source, stack.last().pose(), "_",
             endX, y, color, true);
       }
     }
 
-    stack.pop();
+    stack.popPose();
 
-    stack.push();
+    stack.pushPose();
     stack.translate(0.f, 0.f, 50.f);
-    source.finish();
+    source.endBatch();
 
     if (selectionLength != cursorOffset) {
-      stack.push();
+      stack.pushPose();
       stack.translate(2.f, 2.f, 0.f);
-      int highlightX = x + ci.getFontRenderer().getStringWidth(visibleText.substring(0, selectionLength));
+      int highlightX = x + ci.getFontRenderer().width(visibleText.substring(0, selectionLength));
       this.drawSelectionBox(endX, y - 1, highlightX - 1, y + 1 + 9);
-      stack.pop();
+      stack.popPose();
     }
-    stack.pop();
+    stack.popPose();
   }
 
   /**
@@ -630,17 +630,17 @@ public class ConsoleInputScreen extends Screen {
     }
 
     Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder bufferbuilder = tessellator.getBuffer();
+    BufferBuilder bufferbuilder = tessellator.getBuilder();
     RenderSystem.color4f(0.0F, 0.0F, 255.0F, 255.0F);
     RenderSystem.disableTexture();
     RenderSystem.enableColorLogicOp();
     RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
     bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
-    bufferbuilder.pos((double) startX, (double) endY, 0.0D).endVertex();
-    bufferbuilder.pos((double) endX, (double) endY, 0.0D).endVertex();
-    bufferbuilder.pos((double) endX, (double) startY, 0.0D).endVertex();
-    bufferbuilder.pos((double) startX, (double) startY, 0.0D).endVertex();
-    tessellator.draw();
+    bufferbuilder.vertex((double) startX, (double) endY, 0.0D).endVertex();
+    bufferbuilder.vertex((double) endX, (double) endY, 0.0D).endVertex();
+    bufferbuilder.vertex((double) endX, (double) startY, 0.0D).endVertex();
+    bufferbuilder.vertex((double) startX, (double) startY, 0.0D).endVertex();
+    tessellator.end();
     RenderSystem.disableColorLogicOp();
     RenderSystem.enableTexture();
   }
@@ -712,10 +712,10 @@ public class ConsoleInputScreen extends Screen {
       }
 
       int j = this.getAdjustedWidth();
-      String s = ci.getFontRenderer().func_238412_a_(this.text.substring(this.lineScrollOffset), j);
+      String s = ci.getFontRenderer().plainSubstrByWidth(this.text.substring(this.lineScrollOffset), j);
       int k = s.length() + this.lineScrollOffset;
       if (this.selectionEnd == this.lineScrollOffset) {
-        this.lineScrollOffset -= ci.getFontRenderer().func_238413_a_(this.text, j, true).length();
+        this.lineScrollOffset -= ci.getFontRenderer().plainSubstrByWidth(this.text, j, true).length();
       }
 
       if (this.selectionEnd > k) {
@@ -738,6 +738,6 @@ public class ConsoleInputScreen extends Screen {
   }
 
   public int func_195611_j(int p_195611_1_) {
-    return p_195611_1_ > this.text.length() ? getX() : getX() + ci.getFontRenderer().getStringWidth(this.text.substring(0, p_195611_1_));
+    return p_195611_1_ > this.text.length() ? getX() : getX() + ci.getFontRenderer().width(this.text.substring(0, p_195611_1_));
   }
 }

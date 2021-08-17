@@ -25,8 +25,8 @@ import net.minecraft.potion.Effects;
 )
 @RequiredArgsConstructor
 public class AntiEffectsMod extends ToggleMod {
-  @MapMethod(parentClass = LivingEntity.class, value = "resetPotionEffectMetadata")
-  private final ReflectionMethod<Void> LivingEntity_resetPotionEffectMetadata;
+  @MapMethod(parentClass = LivingEntity.class, value = "removeEffectParticles")
+  private final ReflectionMethod<Void> LivingEntity_removeEffectParticles;
 
   private final BooleanSetting noParticles = newBooleanSetting()
       .name("no-particles")
@@ -42,7 +42,7 @@ public class AntiEffectsMod extends ToggleMod {
           .label("name")
           .build())
       .supplier(Sets::newHashSet)
-      .defaultsTo(Effects.NAUSEA)
+      .defaultsTo(Effects.CONFUSION)
       .defaultsTo(Effects.INVISIBILITY)
       .defaultsTo(Effects.BLINDNESS)
       .defaultsTo(Effects.WITHER)
@@ -50,16 +50,16 @@ public class AntiEffectsMod extends ToggleMod {
 
   @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    effects.forEach(event.getPlayer()::removeActivePotionEffect);
+    effects.forEach(event.getPlayer()::removeEffect);
 
     // removes particle effect
-    LivingEntity_resetPotionEffectMetadata.invoke(event.getPlayer());
+    LivingEntity_removeEffectParticles.invoke(event.getPlayer());
   }
 
   @SubscribeListener
   public void onLivingUpdate(LivingUpdateEvent event) {
     if (noParticles.getValue()) {
-      LivingEntity_resetPotionEffectMetadata.invoke(event.getLiving());
+      LivingEntity_removeEffectParticles.invoke(event.getLiving());
     }
   }
 }

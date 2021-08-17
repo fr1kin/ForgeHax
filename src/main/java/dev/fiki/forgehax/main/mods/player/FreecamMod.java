@@ -45,8 +45,8 @@ import static dev.fiki.forgehax.main.Common.*;
 public class FreecamMod extends ToggleMod {
   private final ReflectionTools reflection;
 
-  @MapField(parentClass = NetworkPlayerInfo.class, value = "gameType")
-  private final ReflectionField<GameType> NetworkPlayerInfo_gameType;
+  @MapField(parentClass = NetworkPlayerInfo.class, value = "gameMode")
+  private final ReflectionField<GameType> NetworkPlayerInfo_gameMode;
 
   private final FloatSetting speed = newFloatSetting()
       .name("speed")
@@ -73,34 +73,34 @@ public class FreecamMod extends ToggleMod {
 
     ClientPlayerEntity self = getLocalPlayer();
 
-    if (isRidingEntity = self.getRidingEntity() != null) {
-      ridingEntity = self.getRidingEntity();
+    if (isRidingEntity = self.getVehicle() != null) {
+      ridingEntity = self.getVehicle();
       self.stopRiding();
     } else {
-      pos = self.getPositionVec();
+      pos = self.position();
     }
 
-    pos = self.getPositionVec();
+    pos = self.position();
     angle = self.getViewAngles();
 
     mockPlayer = new MockClientEntityPlayer(self);
     mockPlayer.mockFields();
     mockPlayer.mockInventory();
 
-    mockPlayer.setVelocity(0, 0, 0);
+    mockPlayer.setDeltaMovement(0, 0, 0);
 
     mockPlayer.disableSwing();
     mockPlayer.disableInterpolation();
 
-    previousGameType = getPlayerController().getCurrentGameType();
-    getPlayerController().setGameType(GameType.SPECTATOR);
+    previousGameType = getPlayerController().getPlayerMode();
+    getPlayerController().setLocalMode(GameType.SPECTATOR);
 
     if (MC.getConnection() != null) {
       NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(self.getGameProfile().getId());
-      NetworkPlayerInfo_gameType.set(info, GameType.SPECTATOR);
+      NetworkPlayerInfo_gameMode.set(info, GameType.SPECTATOR);
     }
 
-    self.abilities.setFlySpeed(speed.getValue());
+    self.abilities.setFlyingSpeed(speed.getValue());
   }
 
   @Override
@@ -116,21 +116,21 @@ public class FreecamMod extends ToggleMod {
       return;
     }
 
-    getLocalPlayer().setPositionAndRotation(pos.getX(), pos.getY(), pos.getZ(), angle.getYaw(), angle.getPitch());
+    getLocalPlayer().moveTo(pos.x(), pos.y(), pos.z(), angle.getYaw(), angle.getPitch());
 
-    getLocalPlayer().noClip = false;
-    getLocalPlayer().setVelocity(0, 0, 0);
+    getLocalPlayer().noPhysics = false;
+    getLocalPlayer().setDeltaMovement(0, 0, 0);
 
     if (isRidingEntity) {
       getLocalPlayer().startRiding(ridingEntity, true);
     }
 
-    getPlayerController().setGameType(previousGameType);
-    getLocalPlayer().setGameType(previousGameType);
+    getPlayerController().setLocalMode(previousGameType);
+    getLocalPlayer().setGameMode(previousGameType);
 
     if (MC.getConnection() != null) {
       NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(getLocalPlayer().getGameProfile().getId());
-      NetworkPlayerInfo_gameType.set(info, previousGameType);
+      NetworkPlayerInfo_gameMode.set(info, previousGameType);
     }
 
     // cleanup
@@ -147,7 +147,7 @@ public class FreecamMod extends ToggleMod {
 
     flying.enable();
 
-    getLocalPlayer().noClip = true;
+    getLocalPlayer().noPhysics = true;
     reflection.Entity_onGround.set(getLocalPlayer(), false);
     getLocalPlayer().fallDistance = 0;
   }
@@ -156,19 +156,19 @@ public class FreecamMod extends ToggleMod {
   public void onRender(RenderSpaceEvent event) {
     if (mockPlayer != null) {
       MatrixStack stack = event.getStack();
-      stack.push();
+      stack.pushPose();
       // mock player cant move so no need to lerp its pos and yaw
-      Vector3d pos = mockPlayer.getPositionVec().subtract(event.getProjectedPos());
+      Vector3d pos = mockPlayer.position().subtract(event.getProjectedPos());
 
-      IRenderTypeBuffer.Impl buffer = MC.getRenderTypeBuffers().getBufferSource();
+      IRenderTypeBuffer.Impl buffer = MC.renderBuffers().bufferSource();
 
       RenderSystem.enableBlend();
       RenderSystem.color4f(1.f ,1.f ,1.f, 0.5f);
 
-      MC.getRenderManager().renderEntityStatic(mockPlayer,
-          pos.getX(), pos.getY(), pos.getZ(), mockPlayer.rotationYaw,
+      MC.getEntityRenderDispatcher().render(mockPlayer,
+          pos.x(), pos.y(), pos.z(), mockPlayer.yRot,
           event.getPartialTicks(), stack,
-          buffer, MC.getRenderManager().getPackedLight(mockPlayer, event.getPartialTicks()));
+          buffer, MC.getEntityRenderDispatcher().getPackedLightCoords(mockPlayer, event.getPartialTicks()));
 
 //      buffer.finish(RenderType.entitySolid(PlayerContainer.LOCATION_BLOCKS_TEXTURE));
 //      buffer.finish(RenderType.entityCutout(PlayerContainer.LOCATION_BLOCKS_TEXTURE));
@@ -179,8 +179,8 @@ public class FreecamMod extends ToggleMod {
 
       RenderSystem.color4f(1.f ,1.f ,1.f, 1.0f);
 
-      buffer.finish();
-      stack.pop();
+      buffer.endBatch();
+      stack.popPose();
 //      RenderSystem.popMatrix();
     }
   }
@@ -208,7 +208,7 @@ public class FreecamMod extends ToggleMod {
     if (event.getPacket() instanceof SPlayerPositionLookPacket) {
       SPlayerPositionLookPacket packet = (SPlayerPositionLookPacket) event.getPacket();
       pos = new Vector3d(packet.getX(), packet.getY(), packet.getZ());
-      angle = Angle.degrees(packet.getPitch(), packet.getYaw());
+      angle = Angle.degrees(packet.getXRot(), packet.getYRot());
       event.setCanceled(true);
     }
   }

@@ -19,13 +19,13 @@ import static dev.fiki.forgehax.main.Common.getPlayerController;
 )
 @RequiredArgsConstructor
 public class FastBreak extends ToggleMod {
-  @MapField(parentClass = PlayerController.class, value = "blockHitDelay")
-  private final ReflectionField<Integer> PlayerController_blockHitDelay;
+  @MapField(parentClass = PlayerController.class, value = "destroyDelay")
+  private final ReflectionField<Integer> PlayerController_destroyDelay;
 
   @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
     if (getPlayerController() != null) {
-      PlayerController_blockHitDelay.set(getPlayerController(), 0);
+      PlayerController_destroyDelay.set(getPlayerController(), 0);
     }
   }
 }

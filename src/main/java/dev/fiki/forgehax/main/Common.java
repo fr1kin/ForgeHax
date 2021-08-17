@@ -97,17 +97,17 @@ public interface Common {
   //
 
   static GameSettings getGameSettings() {
-    return MC.gameSettings;
+    return MC.options;
   }
 
   static Stream<Entity> worldEntities() {
     return !isInWorld() ? Stream.empty()
-        : StreamSupport.stream(getWorld().getAllEntities().spliterator(), false);
+        : StreamSupport.stream(getWorld().entitiesForRendering().spliterator(), false);
   }
 
   static Stream<TileEntity> worldTileEntities() {
     return !isInWorld() ? Stream.empty()
-        : getWorld().loadedTileEntityList.stream();
+        : getWorld().tickableBlockEntities.stream();
   }
 
   //
@@ -119,7 +119,7 @@ public interface Common {
   }
 
   static Entity getMountedEntity() {
-    return getLocalPlayer() == null ? null : getLocalPlayer().getRidingEntity();
+    return getLocalPlayer() == null ? null : getLocalPlayer().getVehicle();
   }
 
   static Entity getMountedEntityOrPlayer() {
@@ -131,7 +131,7 @@ public interface Common {
   }
 
   static PlayerController getPlayerController() {
-    return MC.playerController;
+    return MC.gameMode;
   }
 
   //
@@ -140,7 +140,7 @@ public interface Common {
 
   @Nonnull // just to get the IDE to shutup
   static ClientWorld getWorld() {
-    return getLocalPlayer() == null ? null : getLocalPlayer().worldClient;
+    return getLocalPlayer() == null ? null : getLocalPlayer().clientLevel;
   }
 
   static boolean isInWorld() {
@@ -150,15 +150,15 @@ public interface Common {
   static void reloadChunkSmooth() {
     addScheduledTask(() -> {
       if (isInWorld()) {
-        int x = (int) getLocalPlayer().getPosX() >> 4;
-        int z = (int) getLocalPlayer().getPosZ() >> 4;
+        int x = (int) getLocalPlayer().getX() >> 4;
+        int z = (int) getLocalPlayer().getZ() >> 4;
 
-        int distance = getGameSettings().renderDistanceChunks;
+        int distance = getGameSettings().renderDistance;
 
         for (int i = x - distance; i < x + distance; i++) {
           for (int k = z - distance; k < z + distance; k++) {
             for (int j = 0; j < 16; j++) {
-              getWorldRenderer().markForRerender(i, j, k);
+              getWorldRenderer().setSectionDirty(i, j, k);
             }
           }
         }
@@ -169,7 +169,7 @@ public interface Common {
   static void reloadChunks() {
     addScheduledTask(() -> {
       if (isInWorld()) {
-        getWorldRenderer().loadRenderers();
+        getWorldRenderer().allChanged();
       }
     });
   }
@@ -179,11 +179,11 @@ public interface Common {
   //
 
   static MainWindow getMainWindow() {
-    return MC.getMainWindow();
+    return MC.getWindow();
   }
 
   static FontRenderer getFontRenderer() {
-    return MC.fontRenderer;
+    return MC.font;
   }
 
   static GameRenderer getGameRenderer() {
@@ -191,15 +191,15 @@ public interface Common {
   }
 
   static WorldRenderer getWorldRenderer() {
-    return MC.worldRenderer;
+    return MC.levelRenderer;
   }
 
   static Screen getDisplayScreen() {
-    return MC.currentScreen;
+    return MC.screen;
   }
 
   static void setDisplayScreen(Screen screen) {
-    MC.displayGuiScreen(screen);
+    MC.setScreen(screen);
   }
 
   static void closeDisplayScreen() {
@@ -207,11 +207,11 @@ public interface Common {
   }
 
   static int getScreenWidth() {
-    return getMainWindow().getScaledWidth();
+    return getMainWindow().getGuiScaledWidth();
   }
 
   static int getScreenHeight() {
-    return getMainWindow().getScaledHeight();
+    return getMainWindow().getGuiScaledHeight();
   }
 
   //
@@ -227,13 +227,13 @@ public interface Common {
   //
 
   static NetworkManager getNetworkManager() {
-    return MC.getConnection() != null ? MC.getConnection().getNetworkManager() : null;
+    return MC.getConnection() != null ? MC.getConnection().getConnection() : null;
   }
 
   static boolean sendNetworkPacket(IPacket<?> packet) {
     NetworkManager nm = getNetworkManager();
     if (nm != null) {
-      nm.sendPacket(packet);
+      nm.send(packet);
       return true;
     }
     return false;
@@ -244,7 +244,7 @@ public interface Common {
   //
 
   static void requiresMainThreadExecution() {
-    if (!MC.isOnExecutionThread()) {
+    if (!MC.isSameThread()) {
       throw new IllegalStateException("Must be executed on main thread!");
     }
   }
@@ -275,7 +275,7 @@ public interface Common {
 
   static void printMessage(ITextComponent component) {
     if (getLocalPlayer() != null) {
-      getLocalPlayer().sendStatusMessage(component, false);
+      getLocalPlayer().displayClientMessage(component, false);
     }
   }
 
@@ -308,7 +308,7 @@ public interface Common {
   }
 
   static boolean debuggerReleaseControl() {
-    GLFW.glfwSetInputMode(Minecraft.getInstance().getMainWindow().getHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    GLFW.glfwSetInputMode(Minecraft.getInstance().getWindow().getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     return true;
   }
 }

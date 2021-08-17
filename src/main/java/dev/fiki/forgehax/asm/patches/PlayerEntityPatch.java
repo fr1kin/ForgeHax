@@ -40,8 +40,8 @@ public class PlayerEntityPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("isPushedByWater")
-  public void isPushedByWater(MethodNode method,
+  @MapMethod("isPushedByFluid")
+  public void isPushedByFluid(MethodNode method,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldBePushedByLiquid") ASMMethod hook) {
     AbstractInsnNode ret = ASMPattern.builder()
         .codeOnly()

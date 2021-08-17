@@ -52,12 +52,12 @@ public class SafeWalkMod extends ToggleMod {
   // TODO: 1.15
 
   private boolean isAbovePlayer(BlockPos pos) {
-    return pos.getY() >= Common.getLocalPlayer().getPosY();
+    return pos.getY() >= Common.getLocalPlayer().getY();
   }
 
   private boolean isAboveBlock(BlockPos pos, int minHeight) {
     for (int i = 0; i < minHeight; i++) {
-      if (hasCollisionBox(pos.down(i))) {
+      if (hasCollisionBox(pos.below(i))) {
         return true;
       }
     }

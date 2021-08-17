@@ -72,7 +72,7 @@ public class AutoHotbarReplenish extends ToggleMod {
   private AtomicReference<CompletableFuture<?>> worker = new AtomicReference<>(CompletableFuture.completedFuture(null));
 
   private boolean isMonitoring(Slot slot) {
-    val stack = slot.getStack();
+    ItemStack stack = slot.getItem();
     return stack.canBeDamaged() || stack.isStackable();
   }
 
@@ -83,7 +83,7 @@ public class AutoHotbarReplenish extends ToggleMod {
   }
 
   private boolean isAboveThreshold(Slot slot) {
-    return isAboveThreshold(slot.getStack());
+    return isAboveThreshold(slot.getItem());
   }
 
   private boolean isExchangeable(ItemStack stack) {
@@ -91,7 +91,7 @@ public class AutoHotbarReplenish extends ToggleMod {
   }
 
   private boolean isExchangeable(Slot slot) {
-    return isExchangeable(slot.getStack());
+    return isExchangeable(slot.getItem());
   }
 
   @SneakyThrows
@@ -137,20 +137,20 @@ public class AutoHotbarReplenish extends ToggleMod {
               .filter(this::isMonitoring)
               // all stackables and tools above threshold
               .filter(this::isExchangeable)
-              .map(Slot::getStack)
-              .anyMatch(slot.getStack()::isItemEqualIgnoreDurability))
+              .map(Slot::getItem)
+              .anyMatch(slot.getItem()::sameItemStackIgnoreDurability))
           .min(Comparator.comparingInt(ItemEx::getDistanceFromSelected))
           .map(hotbarSlot -> {
-            final ItemStack stack = hotbarSlot.getStack();
+            final ItemStack stack = hotbarSlot.getItem();
 
             // if the item can be damaged then it is a tool
             if (stack.canBeDamaged()) {
               return lp.getTopSlots().stream()
                   .filter(this::isMonitoring)
                   .filter(this::isExchangeable)
-                  .filter(s -> stack.isItemEqualIgnoreDurability(s.getStack()))
+                  .filter(s -> stack.sameItemStackIgnoreDurability(s.getItem()))
                   // get the item with the best matching enchantments
-                  .max(Comparator.comparing(Slot::getStack, ItemEx::compareEnchantments))
+                  .max(Comparator.comparing(Slot::getItem, ItemEx::compareEnchantments))
                   .map(slot -> CompletableFuture.runAsync(() -> {
                   }, main)
                       .thenRun(() -> slot.click(ClickType.SWAP, hotbarSlot.getHotbarIndex()))
@@ -160,10 +160,10 @@ public class AutoHotbarReplenish extends ToggleMod {
               return lp.getTopSlots().stream()
                   .filter(this::isMonitoring)
                   .filter(this::isExchangeable)
-                  .filter(s -> stack.isItemEqualIgnoreDurability(s.getStack()))
+                  .filter(s -> stack.sameItemStackIgnoreDurability(s.getItem()))
                   // get the slot with the least amount of items in the stack because
                   // this may require the fewest clicks to complete
-                  .min(Comparator.comparing(Slot::getStack, Comparator.comparingInt(ItemStack::getCount)))
+                  .min(Comparator.comparing(Slot::getItem, Comparator.comparingInt(ItemStack::getCount)))
                   .map(slot -> CompletableFuture.supplyAsync(() -> slot.click(ClickType.PICKUP, 0), main)
                       .waitTicks(tick_delay.intValue(), asyncExecutor(), main)
                       // this will place the item into the hotbar

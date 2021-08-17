@@ -31,12 +31,12 @@ public class AutoWhisperWhenSeen extends ToggleMod {
   public void onPacketReceived(PacketInboundEvent event) {
     if (event.getPacket() instanceof SSpawnPlayerPacket) {
       final SSpawnPlayerPacket packet = (SSpawnPlayerPacket) event.getPacket();
-      final UUID id = packet.getUniqueId();
+      final UUID id = packet.getPlayerId();
       Optional.ofNullable(MC.getConnection().getPlayerInfo(id))
-          .map(NetworkPlayerInfo::getGameProfile)
+          .map(NetworkPlayerInfo::getProfile)
           .map(GameProfile::getName)
           .ifPresent(name -> {
-            getLocalPlayer().sendChatMessage("/w " + name + " " + message.getValue());
+            getLocalPlayer().chat("/w " + name + " " + message.getValue());
           });
     }
   }

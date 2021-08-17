@@ -80,16 +80,15 @@ public class AutoCrystalMod extends ToggleMod {
   }
 
   private Predicate<Entity> playerWithinDistance(float dist) {
-    return k -> getLocalPlayer().getDistanceSq(k) < dist * dist;
+    return k -> getLocalPlayer().distanceToSqr(k) < dist * dist;
   }
 
   private boolean enemyWithinDistance(Entity e, float dist) {
     Vector3d delta = new Vector3d(dist, dist, dist);
-    AxisAlignedBB bb =
-        new AxisAlignedBB(e.getPositionVec().subtract(delta), e.getPositionVec().add(delta));
-    return getWorld().getEntitiesWithinAABB(PlayerEntity.class, bb).stream()
-        .filter(p -> !p.isEntityEqual(getLocalPlayer()))
-        .anyMatch(p -> e.getDistanceSq(p) < dist * dist);
+    AxisAlignedBB bb = new AxisAlignedBB(e.position().subtract(delta), e.position().add(delta));
+    return getWorld().getEntitiesOfClass(PlayerEntity.class, bb).stream()
+        .filter(p -> !p.is(getLocalPlayer()))
+        .anyMatch(p -> e.distanceToSqr(p) < dist * dist);
   }
 
   @SubscribeListener
@@ -103,18 +102,18 @@ public class AutoCrystalMod extends ToggleMod {
       Vector3d delta = new Vector3d(maxDistance.getValue(), maxDistance.getValue(), maxDistance.getValue());
       AxisAlignedBB bb =
           new AxisAlignedBB(
-              getLocalPlayer().getPositionVec().subtract(delta),
-              getLocalPlayer().getPositionVec().add(delta));
+              getLocalPlayer().position().subtract(delta),
+              getLocalPlayer().position().add(delta));
       getWorld()
-          .getEntitiesWithinAABB(EnderCrystalEntity.class, bb).stream()
+          .getEntitiesOfClass(EnderCrystalEntity.class, bb).stream()
           // Re-check timer, since it may have been reset in a previous iteration
           .filter(__ -> timer.hasTimeElapsed(delay.getValue()))
-          .filter(e -> e.getPosition().getY() - getLocalPlayer().getPosition().getY() >= minHeight.getValue())
+          .filter(e -> e.getY() - getLocalPlayer().getY() >= minHeight.getValue())
           .filter(playerWithinDistance(maxDistance.getValue()))
           .filter(playerWithinDistance(minDistance.getValue()).negate())
           .filter(e -> !checkEnemy.getValue() || enemyWithinDistance(e, maxEnemyDistance.getValue()))
           .forEach(e -> {
-            sendNetworkPacket(new CUseEntityPacket(e, e.isSneaking()));
+            sendNetworkPacket(new CUseEntityPacket(e, e.isShiftKeyDown()));
             sendNetworkPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
             timer.start();
           });

@@ -16,8 +16,8 @@ import org.objectweb.asm.tree.*;
 public class ClientEntityPlayerPatch extends Patch {
 
   @Inject
-  @MapMethod("livingTick")
-  public void livingTick(MethodNode main,
+  @MapMethod("aiStep")
+  public void aiStep(MethodNode main,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldSlowdownPlayer") ASMMethod hook) {
     AbstractInsnNode skipNode = ASMPattern.builder()
         .codeOnly()
@@ -38,7 +38,7 @@ public class ClientEntityPlayerPatch extends Patch {
   @Inject
   @MapMethod("tick")
   public void tick(MethodNode main,
-      @MapMethod(parentClass = ClientPlayerEntity.class, name = "onUpdateWalkingPlayer") ASMMethod onUpdateWalkingPlayer,
+      @MapMethod(parentClass = ClientPlayerEntity.class, name = "sendPosition") ASMMethod onUpdateWalkingPlayer,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onUpdateWalkingPlayerPre") ASMMethod updateWalkingPlayerPre,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onUpdateWalkingPlayerPost") ASMMethod updateWalkingPlayerPost) {
     // <pre>
@@ -74,8 +74,8 @@ public class ClientEntityPlayerPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("isRowingBoat")
-  public void isRowingBoat(MethodNode main,
+  @MapMethod("isHandsBusy")
+  public void isHandsBusy(MethodNode main,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldNotRowBoat") ASMMethod hook) {
     AbstractInsnNode ret = ASMPattern.builder()
         .codeOnly()
@@ -99,8 +99,8 @@ public class ClientEntityPlayerPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("shouldBlockPushPlayer")
-  public void shouldBlockPushPlayer(MethodNode node,
+  @MapMethod("suffocatesAt")
+  public void suffocatesAt(MethodNode node,
       @MapMethod(parentClass = PushHooks.class, name = "onPushedByBlock") ASMMethod onPushedByBlock) {
     InsnNode ret = ASMHelper.findReturn(IRETURN, node);
 

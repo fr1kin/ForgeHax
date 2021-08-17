@@ -49,6 +49,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -288,22 +289,22 @@ public class ShulkerViewer extends ToggleMod {
         // show stats for the item being hovered over
         Slot slotUnder = gui.getSlotUnderMouse();
         if (slotUnder == null
-            || !slotUnder.getHasStack()
-            || slotUnder.getStack().isEmpty()
+            || !slotUnder.hasItem()
+            || slotUnder.getItem().isEmpty()
             // TODO: 1.15 detect if item is a shulkerbox
-            || !isItemShulkerBox(slotUnder.getStack().getItem())) {
+            || !isItemShulkerBox(slotUnder.getItem().getItem())) {
           setInCache(CACHE_HOVERING_INDEX, null);
-        } else if (!ItemStack.areItemStacksEqual(
+        } else if (!ItemStack.isSame(
             getInCache(0).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY),
-            slotUnder.getStack())) {
-          setInCache(CACHE_HOVERING_INDEX, newShulkerGui(slotUnder.getStack(), 1));
+            slotUnder.getItem())) {
+          setInCache(CACHE_HOVERING_INDEX, newShulkerGui(slotUnder.getItem(), 1));
         }
 
         // show stats for held item
         ItemStack stackHeld = getLocalPlayer().getMouseHeldItem();
         if (stackHeld.isEmpty() || !isItemShulkerBox(stackHeld.getItem())) {
           setInCache(CACHE_HOLDING_INDEX, null);
-        } else if (!ItemStack.areItemStacksEqual(
+        } else if (!ItemStack.isSame(
             getInCache(1).map(GuiShulkerViewer::getParentShulker).orElse(ItemStack.EMPTY),
             stackHeld)) {
           setInCache(CACHE_HOLDING_INDEX, newShulkerGui(stackHeld, 0));
@@ -392,8 +393,8 @@ public class ShulkerViewer extends ToggleMod {
       this.priority = priority;
       this.width = getScreenWidth();
       this.height = getScreenHeight();
-      this.xSize = 176;
-      this.ySize = SHULKER_GUI_SIZE;
+      this.imageWidth = 176;
+      this.imageHeight = SHULKER_GUI_SIZE;
     }
 
     public ItemStack getParentShulker() {
@@ -409,16 +410,16 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     public int getWidth() {
-      return xSize;
+      return imageWidth;
     }
 
     public int getHeight() {
-      return ySize;
+      return imageHeight;
     }
 
     @Override
     public void renderBackground(MatrixStack stack) {
-      final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+      final BufferBuilder buffer = Tessellator.getInstance().getBuilder();
 
       buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
       {
@@ -431,7 +432,7 @@ public class ShulkerViewer extends ToggleMod {
         buffer.texturedModalRect(0, 16 + 54, 0, 160, 176, 6, 0, stack.getLastMatrix());
       }
 
-      MC.getTextureManager().bindTexture(SHULKER_GUI_TEXTURE);
+      MC.getTextureManager().bind(SHULKER_GUI_TEXTURE);
 
       RenderSystem.enableTexture();
       RenderSystem.enableBlend();
@@ -445,25 +446,25 @@ public class ShulkerViewer extends ToggleMod {
       RenderSystem.disableTexture();
       RenderSystem.disableBlend();
 
-      SurfaceHelper.renderString(buffer, stack.getLast().getMatrix(),
-          parentShulker.getDisplayName().getString(), 8.f, 6.f, Colors.BLACK, false).finish();
+      SurfaceHelper.renderString(buffer, stack.last().pose(),
+          parentShulker.getDisplayName().getString(), 8.f, 6.f, Colors.BLACK, false).endBatch();
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
-      final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-      final IRenderTypeBuffer.Impl buffers = MC.getRenderTypeBuffers().getBufferSource();
+    protected void renderBg(MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
+      final BufferBuilder buffer = Tessellator.getInstance().getBuilder();
+      final IRenderTypeBuffer.Impl buffers = MC.renderBuffers().bufferSource();
 
-      stack.push();
+      stack.pushPose();
       stack.translate(8, -1, 0.f);
 
-      for (Slot slot : container.inventorySlots) {
-        if (slot.getHasStack()) {
-          stack.push();
-          stack.translate(slot.xPos, slot.yPos, 50);
+      for (Slot slot : menu.slots) {
+        if (slot.hasItem()) {
+          stack.pushPose();
+          stack.translate(slot.x, slot.y, 50);
 
-          if (isPointInRegion(slot.xPos, slot.yPos, 16, 16, mouseX, mouseY)) {
-            stack.push();
+          if (isInRegion(slot.x, slot.y, 16, 16, mouseX, mouseY)) {
+            stack.pushPose();
             stack.translate(0.f, 0.f, -5.f);
 
             hoveredSlot = slot;
@@ -475,7 +476,7 @@ public class ShulkerViewer extends ToggleMod {
             Color col = Colors.WHITE.setAlpha(200);
             buffer.gradientRect(0, 0, 16, 16, col, col, stack.getLastMatrix());
 
-//            GuiUtils.drawGradientRect(stack.getLast().getMatrix(),
+//            GuiUtils.drawGradientRect(stack.last().pose(),
 //                0, 0, 0, 16, 16,
 //                Colors.WHITE.setAlpha(200).toBuffer(),
 //                Colors.WHITE.setAlpha(200).toBuffer());
@@ -483,65 +484,65 @@ public class ShulkerViewer extends ToggleMod {
             RenderSystem.enableLighting();
             RenderSystem.enableDepthTest();
 
-            stack.pop();
+            stack.popPose();
           }
 
-          ItemStack itemStack = slot.getStack();
+          ItemStack itemStack = slot.getItem();
           if (!SurfaceHelper.renderItemInGui(itemStack, stack, buffers)) {
-            RenderHelper.setupGuiFlatDiffuseLighting();
+            RenderHelper.setupForFlatItems();
           }
 
-          buffers.finish();
-          RenderHelper.setupGui3DDiffuseLighting();
+          buffers.endBatch();
+          RenderHelper.setupFor3DItems();
 
           SurfaceHelper.renderItemOverlay(buffer, stack, font, itemStack, 0, 0, null);
 
-          stack.pop();
+          stack.popPose();
         }
       }
 
-      stack.pop();
+      stack.popPose();
     }
 
     @Override
-    protected void renderHoveredTooltip(MatrixStack stack, int x, int y) {
-      stack.push();
+    protected void renderTooltip(MatrixStack stack, int x, int y) {
+      stack.pushPose();
       stack.translate(-posX, -posY, 100);
 
       isModGeneratedToolTip = true;
       try {
         Colors.WHITE.glSetColor4f();
-        super.renderHoveredTooltip(stack, x, y);
+        super.renderTooltip(stack, x, y);
       } finally {
         isModGeneratedToolTip = false;
       }
 
-      stack.pop();
+      stack.popPose();
     }
 
     @Override
     public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
-      stack.push();
+      stack.pushPose();
       stack.translate(posX, posY, Z_DEPTH);
 
-      this.guiLeft = posX + 8;
-      this.guiTop = posY - 1;
+      this.leftPos = posX + 8;
+      this.topPos = posY - 1;
 
       renderBackground(stack);
 
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
           new net.minecraftforge.client.event.GuiContainerEvent.DrawBackground(this, stack, mouseX, mouseY));
 
-      drawGuiContainerBackgroundLayer(stack, partialTicks, mouseX, mouseY);
+      renderBg(stack, partialTicks, mouseX, mouseY);
 
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
           new net.minecraftforge.client.event.GuiContainerEvent.DrawForeground(this, stack, mouseX, mouseY));
 
-      renderHoveredTooltip(stack, mouseX + 8, mouseY + 8);
+      renderTooltip(stack, mouseX + 8, mouseY + 8);
 
-      stack.pop();
+      stack.popPose();
 
-      if (isPointInRegion(this.posX, this.posY, getWidth(), getHeight(), mouseX, mouseY)) {
+      if (isInRegion(this.posX, this.posY, getWidth(), getHeight(), mouseX, mouseY)) {
         isMouseInShulkerGui = true;
       }
 
@@ -557,7 +558,7 @@ public class ShulkerViewer extends ToggleMod {
 
   static class ShulkerContainer extends Container {
     public ShulkerContainer(ShulkerInventory inventory, int size) {
-      super(ContainerType.GENERIC_9X3, -1);
+      super(ContainerType.GENERIC_9x3, -1);
       for (int i = 0; i < size; ++i) {
         int x = i % 9 * 18;
         int y = ((i / 9 + 1) * 18) + 1;
@@ -566,7 +567,7 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity playerIn) {
+    public boolean stillValid(PlayerEntity playerIn) {
       return false;
     }
   }
@@ -580,7 +581,40 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public int getSizeInventory() {
+    public int getMaxStackSize() {
+      return contents.size();
+    }
+
+    @Override
+    public void startOpen(PlayerEntity p_174889_1_) {
+    }
+
+    @Override
+    public void stopOpen(PlayerEntity p_174886_1_) {
+    }
+
+    @Override
+    public boolean canPlaceItem(int p_94041_1_, ItemStack p_94041_2_) {
+      return false;
+    }
+
+    @Override
+    public int countItem(Item p_213901_1_) {
+      return contents.stream()
+          .filter(stack -> p_213901_1_ == stack.getItem())
+          .mapToInt(ItemStack::getCount)
+          .sum();
+    }
+
+    @Override
+    public boolean hasAnyOf(Set<Item> p_213902_1_) {
+      return contents.stream()
+          .map(ItemStack::getItem)
+          .anyMatch(p_213902_1_::contains);
+    }
+
+    @Override
+    public int getContainerSize() {
       return contents.size();
     }
 
@@ -590,54 +624,38 @@ public class ShulkerViewer extends ToggleMod {
     }
 
     @Override
-    public ItemStack getStackInSlot(int index) {
-      return (index >= 0 && index < contents.size()) ? contents.get(index) : ItemStack.EMPTY;
+    public ItemStack getItem(int p_70301_1_) {
+      return contents.get(p_70301_1_);
     }
 
     @Override
-    public ItemStack decrStackSize(int index, int count) {
-      throw new UnsupportedOperationException();
+    public ItemStack removeItem(int p_70298_1_, int p_70298_2_) {
+      return ItemStack.EMPTY;
     }
 
     @Override
-    public ItemStack removeStackFromSlot(int index) {
-      throw new UnsupportedOperationException();
+    public ItemStack removeItemNoUpdate(int p_70304_1_) {
+      return ItemStack.EMPTY;
     }
 
     @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
-      throw new UnsupportedOperationException();
+    public void setItem(int p_70299_1_, ItemStack p_70299_2_) {
+
     }
 
     @Override
-    public int getInventoryStackLimit() {
-      return 27;
+    public void setChanged() {
+
     }
 
     @Override
-    public void markDirty() {
-    }
-
-    @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
+    public boolean stillValid(PlayerEntity p_70300_1_) {
       return false;
     }
 
     @Override
-    public void openInventory(PlayerEntity player) {
-    }
+    public void clearContent() {
 
-    @Override
-    public void closeInventory(PlayerEntity player) {
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int index, ItemStack stack) {
-      return index > 0 && index < contents.size() && contents.get(index).equals(stack);
-    }
-
-    @Override
-    public void clear() {
     }
   }
 }

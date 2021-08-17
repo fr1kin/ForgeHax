@@ -104,8 +104,8 @@ public class HelpCommand extends CommandMod {
             return;
           }
 
-          args.inform(MC.getConnection().getPlayerInfoMap().stream()
-              .map(NetworkPlayerInfo::getGameProfile)
+          args.inform(MC.getConnection().getOnlinePlayers().stream()
+              .map(NetworkPlayerInfo::getProfile)
               .map(GameProfile::getName)
               .collect(Collectors.joining(", ")));
         })
@@ -119,7 +119,7 @@ public class HelpCommand extends CommandMod {
         .flag(EnumFlag.EXECUTOR_MAIN_THREAD)
         .executor(args -> {
           if (getLocalPlayer() != null) {
-            getLocalPlayer().respawnPlayer();
+            getLocalPlayer().respawn();
             args.inform("Respawn packet sent");
           } else {
             args.error("Failed to send respawn packet (player is null)");
@@ -133,7 +133,7 @@ public class HelpCommand extends CommandMod {
         .name("chat-clear")
         .description("Clears chat")
         .flag(EnumFlag.EXECUTOR_MAIN_THREAD)
-        .executor(args -> MC.ingameGUI.getChatGUI().clearChatMessages(true))
+        .executor(args -> MC.gui.getChat().clearMessages(true))
         .build();
   }
 }

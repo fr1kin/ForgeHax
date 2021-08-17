@@ -25,22 +25,22 @@ public class AutoWalkMod extends ToggleMod {
 
   @Override
   protected void onEnabled() {
-    BindingHelper.disableContextHandler(getGameSettings().keyBindForward);
+    BindingHelper.disableContextHandler(getGameSettings().keyUp);
   }
 
   @Override
   public void onDisabled() {
-    getGameSettings().keyBindForward.setPressed(false);
-    BindingHelper.restoreContextHandler(getGameSettings().keyBindForward);
+    getGameSettings().keyUp.setDown(false);
+    BindingHelper.restoreContextHandler(getGameSettings().keyUp);
   }
 
   @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    getGameSettings().keyBindForward.setPressed(true);
+    getGameSettings().keyUp.setDown(true);
 
     if (stop_at_unloaded_chunks.getValue()) {
-      if (!getWorld().isAreaLoaded(getLocalPlayer().getPosition(), 1)) {
-        getGameSettings().keyBindForward.setPressed(false);
+      if (!getWorld().isAreaLoaded(getLocalPlayer().blockPosition(), 1)) {
+        getGameSettings().keyUp.setDown(false);
       }
     }
   }

@@ -22,8 +22,8 @@ public class NoRender extends ToggleMod {
       worldEntities()
           .filter(ItemEntity.class::isInstance)
           .map(ItemEntity.class::cast)
-          .map(Entity::getEntityId)
-          .forEach(getWorld()::removeEntityFromWorld);
+          .map(Entity::getId)
+          .forEach(getWorld()::removeEntity);
     }
   }
 }

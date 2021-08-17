@@ -40,14 +40,14 @@ public class ChamsMod extends ToggleMod {
   @SubscribeListener
   public void onPreRenderLiving(LivingRenderEvent.Pre<?, ?> event) {
     GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
-    GlStateManager.enablePolygonOffset();
-    GlStateManager.polygonOffset(1.0F, -1000000);
+    GlStateManager._enablePolygonOffset();
+    GlStateManager._polygonOffset(1.0F, -1000000);
   }
 
   @SubscribeListener
   public void onPostRenderLiving(LivingRenderEvent.Post<?, ?> event) {
     GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
-    GlStateManager.polygonOffset(1.0F, 1000000);
-    GlStateManager.disablePolygonOffset();
+    GlStateManager._polygonOffset(1.0F, 1000000);
+    GlStateManager._disablePolygonOffset();
   }
 }

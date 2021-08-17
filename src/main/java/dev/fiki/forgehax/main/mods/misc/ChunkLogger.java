@@ -207,9 +207,9 @@ public class ChunkLogger extends ToggleMod {
     int previousBlockCount;
 
     ChunkData(SChunkDataPacket packet) {
-      pos = new ChunkPos(packet.getChunkX(), packet.getChunkZ());
+      pos = new ChunkPos(packet.getX(), packet.getZ());
       bbox =
-          new AxisAlignedBB(pos.getXStart(), 0, pos.getZStart(), pos.getXEnd(), 255, pos.getZEnd());
+          new AxisAlignedBB(pos.getMinBlockX(), 0, pos.getMinBlockZ(), pos.getMaxBlockX(), 255, pos.getMaxBlockZ());
       isFullChunk = packet.isFullChunk();
       update(packet);
     }

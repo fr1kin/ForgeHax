@@ -35,7 +35,7 @@ public class AutoRespawnMod extends ToggleMod {
       if (deadTicks > delay.getValue()) {
         deadTicks = 0;
         isDead = false;
-        Common.getLocalPlayer().respawnPlayer();
+        Common.getLocalPlayer().respawn();
       }
     }
   }
@@ -46,9 +46,9 @@ public class AutoRespawnMod extends ToggleMod {
       // TODO: does this even work???
       if (!isDead) { // print once
         Common.printInform("Died at %.1f, %.1f, %.1f on %s",
-            Common.getLocalPlayer().getPosX(),
-            Common.getLocalPlayer().getPosY(),
-            Common.getLocalPlayer().getPosZ(),
+            Common.getLocalPlayer().getX(),
+            Common.getLocalPlayer().getY(),
+            Common.getLocalPlayer().getZ(),
             new SimpleDateFormat("HH:mm:ss").format(new Date())
         );
       }

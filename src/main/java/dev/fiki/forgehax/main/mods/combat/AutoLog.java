@@ -53,10 +53,10 @@ public class AutoLog extends ToggleMod {
       int health = (int) (getLocalPlayer().getHealth() + getLocalPlayer().getAbsorptionAmount());
       if (health <= threshold.getValue()
           || (noTotem.getValue()
-          && !((getLocalPlayer().getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING)
-          || getLocalPlayer().getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING))) {
+          && !((getLocalPlayer().getOffhandItem().getItem() == Items.TOTEM_OF_UNDYING)
+          || getLocalPlayer().getMainHandItem().getItem() == Items.TOTEM_OF_UNDYING))) {
         autoReconnect.setForceDisconnected(true);
-        getNetworkManager().closeChannel(new StringTextComponent("Health too low (" + health + ")"));
+        getNetworkManager().disconnect(new StringTextComponent("Health too low (" + health + ")"));
         disable();
       }
     }
@@ -67,12 +67,12 @@ public class AutoLog extends ToggleMod {
     if (event.getPacket() instanceof SSpawnPlayerPacket) {
       if (disconnectOnNewPlayer.getValue()) {
         autoReconnect.setForceDisconnected(true); // dont automatically reconnect
-        UUID id = ((SSpawnPlayerPacket) event.getPacket()).getUniqueId();
+        UUID id = ((SSpawnPlayerPacket) event.getPacket()).getPlayerId();
         
         NetworkPlayerInfo info = MC.getConnection().getPlayerInfo(id);
-        String name = info != null ? info.getGameProfile().getName() : "(Failed) " + id.toString();
+        String name = info != null ? info.getProfile().getName() : "(Failed) " + id.toString();
         
-        getNetworkManager().closeChannel(new StringTextComponent(name + " entered render distance"));
+        getNetworkManager().disconnect(new StringTextComponent(name + " entered render distance"));
         disable();
       }
     }

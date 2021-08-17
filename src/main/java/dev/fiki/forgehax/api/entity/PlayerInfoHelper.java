@@ -40,7 +40,7 @@ public class PlayerInfoHelper implements Common {
   }
 
   public static PlayerInfo registerOffline(String username) {
-    return register(username, PlayerEntity.getOfflineUUID(username));
+    return register(username, PlayerEntity.createPlayerUUID(username));
   }
 
   public static PlayerInfo registerOffline(UUID uuid) {
@@ -101,7 +101,7 @@ public class PlayerInfoHelper implements Common {
     PlayerInfo info = get(username);
     if (info == null) {
       return CompletableFuture.supplyAsync(() -> PlayerInfo.getUuidFromName(username), getPooledThreadExecutor())
-          .exceptionally(ex -> PlayerEntity.getOfflineUUID(username))
+          .exceptionally(ex -> PlayerEntity.createPlayerUUID(username))
           .thenApply(uuid -> registerOnline(username, uuid));
     }
     return CompletableFuture.completedFuture(info);

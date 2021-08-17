@@ -18,8 +18,8 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 @RequiredArgsConstructor
 @ExtensionMethod({LocalPlayerEx.class})
 public class SneakService extends ServiceMod {
-  @MapField(parentClass = CEntityActionPacket.class, value = "entityID")
-  private final ReflectionField<Integer> CEntityActionPacket_entityID;
+  @MapField(parentClass = CEntityActionPacket.class, value = "id")
+  private final ReflectionField<Integer> CEntityActionPacket_id;
 
   private boolean suppressing = false;
   private boolean sneakingClient = false;
@@ -49,8 +49,8 @@ public class SneakService extends ServiceMod {
   public void onPacketSend(PacketInboundEvent event) {
     if (event.getPacket() instanceof CEntityActionPacket) {
       CEntityActionPacket packet = (CEntityActionPacket) event.getPacket();
-      int id = CEntityActionPacket_entityID.get(packet);
-      if (getLocalPlayer().getEntityId() == id
+      int id = CEntityActionPacket_id.get(packet);
+      if (getLocalPlayer().getId() == id
           && (packet.getAction() == Action.RELEASE_SHIFT_KEY || packet.getAction() == Action.PRESS_SHIFT_KEY)) {
         sneakingClient = packet.getAction() == Action.PRESS_SHIFT_KEY;
         if (isSuppressing()) {

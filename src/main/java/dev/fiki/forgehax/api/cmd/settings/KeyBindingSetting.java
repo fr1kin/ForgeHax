@@ -115,15 +115,15 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
   }
 
   public void unbind() {
-    bind(INPUT_INVALID);
+    bind(UNKNOWN);
   }
 
   public int getKeyCode() {
-    return getKeyBinding().getKey().getKeyCode();
+    return getKeyBinding().getKey().getValue();
   }
 
   public boolean isKeyDown() {
-    return getKeyBinding().isKeyDown();
+    return getKeyBinding().isDown();
   }
 
   public boolean isKeyDownUnchecked() {
@@ -131,11 +131,11 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
   }
 
   public boolean isPressed() {
-    return getKeyBinding().isPressed();
+    return getKeyBinding().consumeClick();
   }
 
   public boolean isUnbound() {
-    return INPUT_INVALID.equals(getKeyBinding().getKey());
+    return UNKNOWN.equals(getKeyBinding().getKey());
   }
 
   public int getKeyPressedTime() {
@@ -148,7 +148,7 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
 
   @Override
   public KeyInput getValue() {
-    return KeyInput.getKeyInputByCode(getKeyBinding().getKey().getKeyCode());
+    return KeyInput.getKeyInputByCode(getKeyBinding().getKey().getValue());
   }
 
   @Override
@@ -163,7 +163,7 @@ public final class KeyBindingSetting extends AbstractCommand implements ISetting
 
   @Override
   public KeyInput getDefaultValue() {
-    return KeyInput.getKeyInputByCode(getKeyBinding().getKey().getKeyCode());
+    return KeyInput.getKeyInputByCode(getKeyBinding().getKey().getValue());
   }
 
   @Override

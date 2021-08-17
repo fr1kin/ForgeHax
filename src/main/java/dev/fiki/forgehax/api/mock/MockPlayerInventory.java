@@ -30,28 +30,28 @@ public class MockPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public ItemStack getCurrentItem() {
-    return mocking.getCurrentItem();
+  public ItemStack getSelected() {
+    return mocking.getSelected();
   }
 
   @Override
-  public int getFirstEmptyStack() {
-    return mocking.getFirstEmptyStack();
+  public int getFreeSlot() {
+    return mocking.getFreeSlot();
   }
 
   @Override
-  public void setPickedItemStack(ItemStack p_184434_1_) {
-    mocking.setPickedItemStack(p_184434_1_);
+  public void setPickedItem(ItemStack p_184434_1_) {
+    mocking.setPickedItem(p_184434_1_);
   }
 
   @Override
-  public void pickItem(int p_184430_1_) {
-    mocking.pickItem(p_184430_1_);
+  public void pickSlot(int p_184430_1_) {
+    mocking.pickSlot(p_184430_1_);
   }
 
   @Override
-  public int getSlotFor(ItemStack p_184429_1_) {
-    return mocking.getSlotFor(p_184429_1_);
+  public int findSlotMatchingItem(ItemStack p_184429_1_) {
+    return mocking.findSlotMatchingItem(p_184429_1_);
   }
 
   @Override
@@ -60,23 +60,23 @@ public class MockPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public int getBestHotbarSlot() {
-    return mocking.getBestHotbarSlot();
+  public int getSuitableHotbarSlot() {
+    return mocking.getSuitableHotbarSlot();
   }
 
   @Override
-  public void changeCurrentItem(double p_195409_1_) {
-    mocking.changeCurrentItem(p_195409_1_);
+  public void swapPaint(double p_195409_1_) {
+    mocking.swapPaint(p_195409_1_);
   }
 
   @Override
-  public int func_234564_a_(Predicate<ItemStack> p_234564_1_, int p_234564_2_, IInventory p_234564_3_) {
-    return mocking.func_234564_a_(p_234564_1_, p_234564_2_, p_234564_3_);
+  public int clearOrCountMatchingItems(Predicate<ItemStack> p_234564_1_, int p_234564_2_, IInventory p_234564_3_) {
+    return mocking.clearOrCountMatchingItems(p_234564_1_, p_234564_2_, p_234564_3_);
   }
 
   @Override
-  public int storeItemStack(ItemStack p_70432_1_) {
-    return mocking.storeItemStack(p_70432_1_);
+  public int getSlotWithRemainingSpace(ItemStack p_70432_1_) {
+    return mocking.getSlotWithRemainingSpace(p_70432_1_);
   }
 
   @Override
@@ -85,8 +85,8 @@ public class MockPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public boolean addItemStackToInventory(ItemStack p_70441_1_) {
-    return mocking.addItemStackToInventory(p_70441_1_);
+  public boolean add(ItemStack p_70441_1_) {
+    return mocking.add(p_70441_1_);
   }
 
   @Override
@@ -100,28 +100,23 @@ public class MockPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public ItemStack decrStackSize(int p_70298_1_, int p_70298_2_) {
-    return mocking.decrStackSize(p_70298_1_, p_70298_2_);
+  public ItemStack removeItem(int p_70298_1_, int p_70298_2_) {
+    return mocking.removeItem(p_70298_1_, p_70298_2_);
   }
 
   @Override
-  public void deleteStack(ItemStack p_184437_1_) {
-    mocking.deleteStack(p_184437_1_);
+  public void removeItem(ItemStack p_184437_1_) {
+    mocking.removeItem(p_184437_1_);
   }
 
   @Override
-  public ItemStack removeStackFromSlot(int p_70304_1_) {
-    return mocking.removeStackFromSlot(p_70304_1_);
+  public ItemStack removeItemNoUpdate(int p_70304_1_) {
+    return mocking.removeItemNoUpdate(p_70304_1_);
   }
 
   @Override
-  public void setInventorySlotContents(int p_70299_1_, ItemStack p_70299_2_) {
-    mocking.setInventorySlotContents(p_70299_1_, p_70299_2_);
-  }
-
-  @Override
-  public int getInventoryStackLimit() {
-    return mocking.getInventoryStackLimit();
+  public void setItem(int p_70299_1_, ItemStack p_70299_2_) {
+    mocking.setItem(p_70299_1_, p_70299_2_);
   }
 
   @Override
@@ -130,18 +125,18 @@ public class MockPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public ListNBT write(ListNBT p_70442_1_) {
-    return mocking.write(p_70442_1_);
+  public ListNBT save(ListNBT p_70442_1_) {
+    return mocking.save(p_70442_1_);
   }
 
   @Override
-  public void read(ListNBT p_70443_1_) {
-    mocking.read(p_70443_1_);
+  public void load(ListNBT p_70443_1_) {
+    mocking.load(p_70443_1_);
   }
 
   @Override
-  public int getSizeInventory() {
-    return mocking.getSizeInventory();
+  public int getContainerSize() {
+    return mocking.getContainerSize();
   }
 
   @Override
@@ -150,13 +145,108 @@ public class MockPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public ItemStack getStackInSlot(int p_70301_1_) {
-    return mocking.getStackInSlot(p_70301_1_);
+  public ItemStack getItem(int p_70301_1_) {
+    return mocking.getItem(p_70301_1_);
   }
 
   @Override
   public ITextComponent getName() {
     return mocking.getName();
+  }
+
+  @Override
+  public ItemStack getArmor(int p_70440_1_) {
+    return mocking.getArmor(p_70440_1_);
+  }
+
+  @Override
+  public void hurtArmor(DamageSource p_234563_1_, float p_234563_2_) {
+    mocking.hurtArmor(p_234563_1_, p_234563_2_);
+  }
+
+  @Override
+  public void dropAll() {
+    mocking.dropAll();
+  }
+
+  @Override
+  public void setChanged() {
+    mocking.setChanged();
+  }
+
+  @Override
+  public int getTimesChanged() {
+    return mocking.getTimesChanged();
+  }
+
+  @Override
+  public void setCarried(ItemStack p_70437_1_) {
+    mocking.setCarried(p_70437_1_);
+  }
+
+  @Override
+  public ItemStack getCarried() {
+    return mocking.getCarried();
+  }
+
+  @Override
+  public boolean stillValid(PlayerEntity p_70300_1_) {
+    return mocking.stillValid(p_70300_1_);
+  }
+
+  @Override
+  public boolean contains(ItemStack p_70431_1_) {
+    return mocking.contains(p_70431_1_);
+  }
+
+  @Override
+  public boolean contains(ITag<Item> p_199712_1_) {
+    return mocking.contains(p_199712_1_);
+  }
+
+  @Override
+  public void replaceWith(PlayerInventory p_70455_1_) {
+    mocking.replaceWith(p_70455_1_);
+  }
+
+  @Override
+  public void clearContent() {
+    mocking.clearContent();
+  }
+
+  @Override
+  public void fillStackedContents(RecipeItemHelper p_201571_1_) {
+    mocking.fillStackedContents(p_201571_1_);
+  }
+
+  @Override
+  public int getMaxStackSize() {
+    return mocking.getMaxStackSize();
+  }
+
+  @Override
+  public void startOpen(PlayerEntity p_174889_1_) {
+    mocking.startOpen(p_174889_1_);
+  }
+
+  @Override
+  public void stopOpen(PlayerEntity p_174886_1_) {
+    mocking.stopOpen(p_174886_1_);
+  }
+
+  @Override
+  public boolean canPlaceItem(int p_94041_1_, ItemStack p_94041_2_) {
+    return mocking.canPlaceItem(p_94041_1_, p_94041_2_);
+  }
+
+  @Override
+  public int countItem(Item p_213901_1_) {
+    return mocking.countItem(p_213901_1_);
+  }
+
+  @Override
+  public boolean hasAnyOf(Set<Item> p_213902_1_) {
+    return mocking.hasAnyOf(p_213902_1_);
   }
 
   @Override
@@ -173,95 +263,5 @@ public class MockPlayerInventory extends PlayerInventory {
   @Override
   public ITextComponent getCustomName() {
     return mocking.getCustomName();
-  }
-
-  @Override
-  public ItemStack armorItemInSlot(int p_70440_1_) {
-    return mocking.armorItemInSlot(p_70440_1_);
-  }
-
-  @Override
-  public void func_234563_a_(DamageSource p_234563_1_, float p_234563_2_) {
-    mocking.func_234563_a_(p_234563_1_, p_234563_2_);
-  }
-
-  @Override
-  public void dropAllItems() {
-    mocking.dropAllItems();
-  }
-
-  @Override
-  public void markDirty() {
-    mocking.markDirty();
-  }
-
-  @Override
-  public int getTimesChanged() {
-    return mocking.getTimesChanged();
-  }
-
-  @Override
-  public void setItemStack(ItemStack p_70437_1_) {
-    mocking.setItemStack(p_70437_1_);
-  }
-
-  @Override
-  public ItemStack getItemStack() {
-    return mocking.getItemStack();
-  }
-
-  @Override
-  public boolean isUsableByPlayer(PlayerEntity p_70300_1_) {
-    return mocking.isUsableByPlayer(p_70300_1_);
-  }
-
-  @Override
-  public void openInventory(PlayerEntity p_174889_1_) {
-    mocking.openInventory(p_174889_1_);
-  }
-
-  @Override
-  public void closeInventory(PlayerEntity p_174886_1_) {
-    mocking.closeInventory(p_174886_1_);
-  }
-
-  @Override
-  public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_) {
-    return mocking.isItemValidForSlot(p_94041_1_, p_94041_2_);
-  }
-
-  @Override
-  public int count(Item p_213901_1_) {
-    return mocking.count(p_213901_1_);
-  }
-
-  @Override
-  public boolean hasAny(Set<Item> p_213902_1_) {
-    return mocking.hasAny(p_213902_1_);
-  }
-
-  @Override
-  public boolean hasItemStack(ItemStack p_70431_1_) {
-    return mocking.hasItemStack(p_70431_1_);
-  }
-
-  @Override
-  public boolean hasTag(ITag<Item> itemTag) {
-    return mocking.hasTag(itemTag);
-  }
-
-  @Override
-  public void copyInventory(PlayerInventory p_70455_1_) {
-    mocking.copyInventory(p_70455_1_);
-  }
-
-  @Override
-  public void clear() {
-    mocking.clear();
-  }
-
-  @Override
-  public void accountStacks(RecipeItemHelper p_201571_1_) {
-    mocking.accountStacks(p_201571_1_);
   }
 }

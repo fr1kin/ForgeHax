@@ -16,8 +16,8 @@ import java.util.Objects;
 public class PlayerControllerPatch extends Patch {
 
   @Inject
-  @MapMethod("syncCurrentPlayItem")
-  public void syncCurrentPlayItem(MethodNode node,
+  @MapMethod("ensureHasSentCarriedItem")
+  public void ensureHasSentCarriedItem(MethodNode node,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onPlayerItemSync") ASMMethod hook) {
     InsnList list = new InsnList();
     list.add(new VarInsnNode(ALOAD, 0));
@@ -27,8 +27,8 @@ public class PlayerControllerPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("attackEntity")
-  public void attackEntity(MethodNode node,
+  @MapMethod("attack")
+  public void attack(MethodNode node,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onPlayerAttackEntity") ASMMethod hook) {
     InsnList list = new InsnList();
     list.add(new VarInsnNode(ALOAD, 0));
@@ -40,8 +40,8 @@ public class PlayerControllerPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("onPlayerDamageBlock")
-  public void onPlayerDamageBlock(MethodNode node,
+  @MapMethod("continueDestroyBlock")
+  public void continueDestroyBlock(MethodNode node,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onPlayerBreakingBlock") ASMMethod hook) {
     InsnList list = new InsnList();
     list.add(new VarInsnNode(ALOAD, 0));
@@ -53,8 +53,8 @@ public class PlayerControllerPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("onStoppedUsingItem")
-  public void transform(MethodNode node,
+  @MapMethod("releaseUsingItem")
+  public void releaseUsingItem(MethodNode node,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onPlayerStopUse") ASMMethod hook) {
     AbstractInsnNode last = ASMHelper.findPattern(node.instructions.getFirst(), new int[]{RETURN}, "x");
 

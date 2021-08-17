@@ -127,7 +127,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
 
       int entryLinesConsuming = Math.min(entry.getLineCount(), (maxLines - linesConsumed));
       for (int i = 0; i < entryLinesConsuming; ++i, ++linesConsumed) {
-        stack.push();
+        stack.pushPose();
         stack.translate(0.f, linesConsumed * -lineHeight, 0.f);
 
         String message = entry.getMessages().get(entryLinesConsuming - 1 - i);
@@ -137,10 +137,10 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
 
         stack.translate(getPadding(), getPadding(), 50.f);
 
-        SurfaceHelper.renderString(source, stack.getLast().getMatrix(),
+        SurfaceHelper.renderString(source, stack.last().pose(),
             message, 0, 0, Colors.WHITE.setAlpha(entry.getAlphaDecay(255)), true);
 
-        stack.pop();
+        stack.popPose();
       }
     }
 
@@ -148,7 +148,7 @@ public class ConsoleInterface implements IGuiEventListener, IConsole {
 
     RenderSystem.pushMatrix();
     RenderSystem.translatef(getMargin(), getMargin() - emptyVerticalSpace, 50.f);
-    buffers.getBufferSource().finish();
+    buffers.getBufferSource().endBatch();
     RenderSystem.popMatrix();
   }
 

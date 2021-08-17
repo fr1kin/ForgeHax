@@ -10,7 +10,7 @@ public class HeldSlot extends Slot {
   }
 
   @Override
-  public ItemStack getStack() {
-    return ((PlayerInventory) inventory).getItemStack();
+  public ItemStack getItem() {
+    return ((PlayerInventory) this.container).getCarried();
   }
 }

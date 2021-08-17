@@ -19,7 +19,7 @@ import org.objectweb.asm.tree.*;
 @MapClass(PlayerTabOverlayGui.class)
 public class PlayerTabOverlayPatch extends Patch {
   @Inject
-  @MapMethod("func_238523_a_")
+  @MapMethod("render")
   public void render(MethodNode main,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldIncreaseTabListSize") ASMMethod hook) {
     InsnPattern nodes = ASMPattern.builder()

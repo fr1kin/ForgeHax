@@ -12,13 +12,14 @@ import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.api.reflection.ReflectionTools;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
-import lombok.val;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.vector.Vector3d;
 
@@ -55,42 +56,42 @@ public class AutoBucketFallMod extends ToggleMod {
 
   @SubscribeListener
   public void onClientTick(LocalPlayerUpdateEvent event) {
-    val lp = getLocalPlayer();
+    ClientPlayerEntity lp = getLocalPlayer();
     if (lp == null
         || lp.fallDistance < settingFallHeight.getValue()
-        || !lp.inventory.hasItemStack(WATER_BUCKET)
+        || !lp.inventory.contains(WATER_BUCKET)
         || lp.isInWaterMotionState()
         || lp.isAboveWater()) {
       return;
     }
 
-    val playerPos = lp.getPositionVec();
-    val rayTraceBucket = new Vector3d(playerPos.x, playerPos.y - 5, playerPos.z);
+    Vector3d playerPos = lp.position();
+    Vector3d rayTraceBucket = new Vector3d(playerPos.x, playerPos.y - 5, playerPos.z);
     // find the ground before the player is ready to water bucket
-    val rayTracePre = new Vector3d(playerPos.x, playerPos.y - preHeight.getValue(), playerPos.z);
+    Vector3d rayTracePre = new Vector3d(playerPos.x, playerPos.y - preHeight.getValue(), playerPos.z);
 
     RayTraceContext ctx = new RayTraceContext(playerPos, rayTraceBucket,
         RayTraceContext.BlockMode.COLLIDER,
         RayTraceContext.FluidMode.NONE,
         lp);
 
-    val result = getWorld().rayTraceBlocks(ctx);
+    BlockRayTraceResult result = getWorld().clip(ctx);
 
     ctx = new RayTraceContext(playerPos, rayTracePre,
         RayTraceContext.BlockMode.COLLIDER,
         RayTraceContext.FluidMode.NONE,
         lp);
 
-    val resultPre = getWorld().rayTraceBlocks(ctx);
+    BlockRayTraceResult resultPre = getWorld().clip(ctx);
 
     if (Type.BLOCK.equals(resultPre.getType())
-        && !getWorld().getBlockState(resultPre.getPos()).getMaterial().isLiquid()) {
+        && !getWorld().getBlockState(resultPre.getBlockPos()).getMaterial().isLiquid()) {
       // set the pitch early to not get cucked by ncp
-      lp.prevRotationPitch = 90f;
-      lp.rotationPitch = 90f;
+      lp.yRot = 90f;
+      lp.xRot = 90f;
 
       lp.getPrimarySlots().stream()
-          .filter(slot -> Items.WATER_BUCKET.equals(slot.getStack().getItem()))
+          .filter(slot -> Items.WATER_BUCKET.equals(slot.getItem().getItem()))
           .min(Comparator.comparingInt(Slot::getSlotIndex))
           .ifPresent(slot -> {
             if (!slot.isInHotbar()) {
@@ -102,15 +103,15 @@ public class AutoBucketFallMod extends ToggleMod {
     }
 
     if (Type.BLOCK.equals(result.getType())
-        && !getWorld().getBlockState(result.getPos()).getMaterial().isLiquid()) {
+        && !getWorld().getBlockState(result.getBlockPos()).getMaterial().isLiquid()) {
       sendNetworkPacket(new CPlayerPacket.RotationPacket(
-          lp.rotationYaw,
+          lp.yRot,
           90,
           reflection.Entity_onGround.get(lp)));
 
       // probably unnecessary but doing it anyways
-      lp.prevRotationPitch = 90f;
-      lp.rotationPitch = 90f;
+      lp.yRot = 90f;
+      lp.xRot = 90f;
 
       // printMessage("Attempted to place water bucket");
       lp.rightClick(Hand.MAIN_HAND);

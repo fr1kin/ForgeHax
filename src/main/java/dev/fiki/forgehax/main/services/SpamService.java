@@ -93,7 +93,7 @@ public class SpamService extends ServiceMod {
           .findFirst()
           .ifPresent(
               msg -> {
-                Common.getLocalPlayer().sendChatMessage(msg.getMessage());
+                Common.getLocalPlayer().chat(msg.getMessage());
                 customDelays.computeIfAbsent(msg.getType(), t -> new AtomicLong(0L))
                     .set(System.currentTimeMillis() + msg.getDelay());
                 nextSendMs = System.currentTimeMillis() + delay.getValue();

@@ -66,8 +66,8 @@ public class MarkerDispatcher {
               log.error(ex, ex);
             }
 
-            delegatedTaskExecutor.enqueue(() -> {
-              buffer.reset();
+            delegatedTaskExecutor.tell(() -> {
+              buffer.discard();
 
               freeBuilders.add(buffer);
 
@@ -82,7 +82,7 @@ public class MarkerDispatcher {
   }
 
   public void schedule(MarkerJob job) {
-    delegatedTaskExecutor.enqueue(() -> {
+    delegatedTaskExecutor.tell(() -> {
       workers.offer(job);
       process();
     });

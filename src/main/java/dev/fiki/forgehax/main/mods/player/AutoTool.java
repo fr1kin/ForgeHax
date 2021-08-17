@@ -57,7 +57,7 @@ public class AutoTool extends ToggleMod {
 
   private boolean isInvincible(ItemStack stack) {
     // can't break nothing (hand)
-    return !stack.isEmpty() || !stack.isDamageable();
+    return !stack.isEmpty() || !stack.isDamageableItem();
   }
 
   private boolean isDurabilityGood(ItemStack stack) {
@@ -67,17 +67,17 @@ public class AutoTool extends ToggleMod {
   }
 
   private boolean isDurabilityGood(Slot slot) {
-    return isDurabilityGood(slot.getStack());
+    return isDurabilityGood(slot.getItem());
   }
 
   private Slot getBestTool(BlockPos pos) {
     val lp = getLocalPlayer();
     // we should be able to mine
-    if (!lp.canPlaceBlocksAt(pos) && !lp.getWorld().isAirBlock(pos)) {
+    if (!lp.canPlaceBlocksAt(pos) && !lp.getWorld().isEmptyBlock(pos)) {
       return lp.getHotbarSlots().stream()
           .filter(this::isDurabilityGood)
           // prefer the fastest digging tool
-          .max(Comparator.comparing(Slot::getStack,
+          .max(Comparator.comparing(Slot::getItem,
               Comparator.<ItemStack>comparingDouble(stack -> lp.getDiggingSpeedAt(stack, pos))
                   // if all the same speed, then choose a tool that will not lose durability
                   .thenComparing(this::isInvincible))
@@ -92,10 +92,10 @@ public class AutoTool extends ToggleMod {
     val lp = getLocalPlayer();
     return lp.getHotbarSlots().stream()
         .filter(this::isDurabilityGood)
-        .max(Comparator.comparing(Slot::getStack,
+        .max(Comparator.comparing(Slot::getItem,
             Comparator.<ItemStack>comparingDouble(stack -> stack.getAttackDamageInterval(target))
                 .thenComparingInt(stack -> stack.getEnchantmentLevel(Enchantments.FIRE_ASPECT))
-                .thenComparingInt(stack -> stack.getEnchantmentLevel(Enchantments.SWEEPING))
+                .thenComparingInt(stack -> stack.getEnchantmentLevel(Enchantments.SWEEPING_EDGE))
                 .thenComparing(this::isInvincible))
             .thenComparing(ItemEx::getDistanceFromSelected, Comparator.reverseOrder()))
         .orElse(lp.getSelectedSlot());
@@ -111,7 +111,7 @@ public class AutoTool extends ToggleMod {
     if (isEnabled() && weapons.getValue()) {
       val lp = getLocalPlayer();
       lp.setSelectedSlot(getBestWeapon(target), revertBack.isEnabled(),
-          ticks -> lp.getCooledAttackStrength(0.f) >= 1.f && ticks > 30);
+          ticks -> lp.getAttackStrengthScale(0.f) >= 1.f && ticks > 30);
     }
   }
 

@@ -36,12 +36,12 @@ public class Jesus extends ToggleMod {
     if (!freecam.isEnabled()) {
       if (getLocalPlayer().isInWaterMotionState() && !getLocalPlayer().isCrouching()) {
         double velY = 0.1;
-        if (getLocalPlayer().getRidingEntity() != null
-            && !(getLocalPlayer().getRidingEntity() instanceof BoatEntity)) {
+        if (getLocalPlayer().getVehicle() != null
+            && !(getLocalPlayer().getVehicle() instanceof BoatEntity)) {
           velY = 0.3;
         }
-        Vector3d vel = getLocalPlayer().getMotion();
-        getLocalPlayer().setMotion(vel.getX(), velY, vel.getZ());
+        Vector3d vel = getLocalPlayer().getDeltaMovement();
+        getLocalPlayer().setDeltaMovement(vel.x(), velY, vel.z());
       }
     }
   }
@@ -74,7 +74,7 @@ public class Jesus extends ToggleMod {
       if (getLocalPlayer().isAboveWater(true)
           && !getLocalPlayer().isInWaterMotionState()
           && !getLocalPlayer().isAboveLand()) {
-        int ticks = getLocalPlayer().ticksExisted % 2;
+        int ticks = getLocalPlayer().tickCount % 2;
         double y = common.CPacketPlayer_y.get(event.getPacket());
         if (ticks == 0) {
           common.CPacketPlayer_y.set(event.getPacket(), y + 0.02D);

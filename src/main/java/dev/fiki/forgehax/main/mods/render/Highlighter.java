@@ -38,18 +38,18 @@ public class Highlighter extends ToggleMod {
   private ListNBT getEnchantmentNBT(ItemStack stack) {
     return Items.ENCHANTED_BOOK.equals(stack.getItem())
         ? EnchantedBookItem.getEnchantments(stack)
-        : stack.getEnchantmentTagList();
+        : stack.getEnchantmentTags();
   }
 
   private boolean shouldHighlight(ItemStack stack, Predicate<String> matcher) {
     if (stack.isEmpty()) {
       return false;
-    } else if (matcher.test(stack.getDisplayName().getUnformattedComponentText())) {
+    } else if (matcher.test(stack.getDisplayName().getString())) {
       return true;
     } else if (isEnchanted(stack) &&
         EnchantmentUtils.getEnchantments(getEnchantmentNBT(stack)).stream()
-            .map(en -> en.getEnchantment().getDisplayName(en.getLevel()))
-            .map(ITextComponent::getUnformattedComponentText)
+            .map(en -> en.getEnchantment().getFullname(en.getLevel()))
+            .map(ITextComponent::getString)
             .anyMatch(matcher)) {
       return true;
     }
@@ -60,21 +60,21 @@ public class Highlighter extends ToggleMod {
   public void onGuiContainerDrawEvent(GuiContainerRenderEvent.Background event) {
     RenderSystem.enableDepthTest();
 
-    event.getStack().push();
+    event.getStack().pushPose();
     event.getStack().translate(event.getContainerScreen().getGuiLeft(), event.getContainerScreen().getGuiTop(), 0);
 
     final String matching = find.getValue().toLowerCase();
-    for (Slot slot : event.getContainerScreen().getContainer().inventorySlots) {
-      ItemStack stack = slot.getStack();
+    for (Slot slot : event.getContainerScreen().getMenu().slots) {
+      ItemStack stack = slot.getItem();
       if (shouldHighlight(stack, str -> str.toLowerCase().contains(matching))) {
-        GuiUtils.drawGradientRect(event.getStack().getLast().getMatrix(), 0,
-            slot.xPos, slot.yPos,
-            slot.xPos + 16, slot.yPos + 16,
+        GuiUtils.drawGradientRect(event.getStack().last().pose(), 0,
+            slot.x, slot.y,
+            slot.x + 16, slot.y + 16,
             Color.of(218, 165, 32, 200).toBuffer(),
             Color.of(189, 183, 107, 200).toBuffer());
       }
     }
 
-    event.getStack().pop();
+    event.getStack().popPose();
   }
 }

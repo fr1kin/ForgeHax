@@ -12,7 +12,7 @@ import java.util.Map;
 @Getter
 public class BufferProvider {
   private final IRenderTypeBuffer.Impl bufferSource;
-  private final BufferBuilder defaultBuffer = Tessellator.getInstance().getBuffer();
+  private final BufferBuilder defaultBuffer = Tessellator.getInstance().getBuilder();
 
   public BufferProvider() {
     BufferMap buffers = new BufferMap()
@@ -21,11 +21,11 @@ public class BufferProvider {
         .add(RenderTypeEx.glQuads())
         .add(RenderTypeEx.blockTranslucentCull())
         .add(RenderTypeEx.blockCutout())
-        .add(RenderType.getGlint())
-        .add(RenderType.getEntityGlint())
+        .add(RenderType.glint())
+        .add(RenderType.entityGlint())
         ;
 
-    this.bufferSource = IRenderTypeBuffer.getImpl(buffers.build(), defaultBuffer);
+    this.bufferSource = IRenderTypeBuffer.immediateWithBuffers(buffers.build(), defaultBuffer);
   }
 
   public BufferBuilder getBuffer(RenderType renderType) {
@@ -36,7 +36,7 @@ public class BufferProvider {
     Map<RenderType, BufferBuilder> buffers = new Object2ObjectLinkedOpenHashMap<>();
 
     public BufferMap add(RenderType type) {
-      buffers.put(type, new BufferBuilder(type.getBufferSize()));
+      buffers.put(type, new BufferBuilder(type.bufferSize()));
       return this;
     }
 

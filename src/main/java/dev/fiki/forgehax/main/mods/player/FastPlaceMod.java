@@ -19,6 +19,6 @@ public class FastPlaceMod extends ToggleMod {
 
   @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    reflection.Minecraft_rightClickDelayTimer.set(MC, 0);
+    reflection.Minecraft_rightClickDelay.set(MC, 0);
   }
 }

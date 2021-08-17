@@ -20,17 +20,17 @@ public class TextComponentBuilder {
   }
 
   public TextComponentBuilder color(TextFormatting color) {
-    style().setColor(Color.fromTextFormatting(color));
+    style().withColor(Color.fromLegacyFormat(color));
     return this;
   }
 
   public TextComponentBuilder bold(boolean bold) {
-    style().setBold(bold);
+    style().withBold(bold);
     return this;
   }
 
   public TextComponentBuilder italic(boolean italic) {
-    style().setItalic(italic);
+    style().withItalic(italic);
     return this;
   }
 

@@ -87,8 +87,8 @@ public class BoatEntityPatch extends Patch {
 //  }
 
   @Inject
-  @MapMethod("applyYawToEntity")
-  public void applyYawToEntity(MethodNode main,
+  @MapMethod("clampRotation")
+  public void clampRotation(MethodNode main,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldClampBoat") ASMMethod hook) {
     InsnPattern nodes = ASMPattern.builder()
         .codeOnly()

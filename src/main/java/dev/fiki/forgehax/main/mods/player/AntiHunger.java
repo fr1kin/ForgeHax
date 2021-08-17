@@ -26,7 +26,7 @@ public class AntiHunger extends ToggleMod {
 
   @SubscribeListener
   public void onPacketSending(PacketOutboundEvent event) {
-    if(getLocalPlayer() == null || getLocalPlayer().isElytraFlying()) {
+    if(getLocalPlayer() == null || getLocalPlayer().isFallFlying()) {
       // this will break elytra flying
       return;
     }
@@ -34,7 +34,7 @@ public class AntiHunger extends ToggleMod {
     if (event.getPacket() instanceof CPlayerPacket) {
       CPlayerPacket packet = (CPlayerPacket) event.getPacket();
       if ((getLocalPlayer().fallDistance <= 0.0F)
-          && !getPlayerController().getIsHittingBlock()) {
+          && !getPlayerController().isDestroying()) {
         CPacketPlayer_onGround.set(packet, false);
       } else {
         CPacketPlayer_onGround.set(packet, true);

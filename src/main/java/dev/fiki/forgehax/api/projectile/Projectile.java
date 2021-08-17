@@ -187,9 +187,9 @@ public enum Projectile implements IProjectile {
       
       if (trace != null) {
         hitEntity = trace.getEntity();
-        distanceTraveledSq += previous.squareDistanceTo(trace.getHitVec());
+        distanceTraveledSq += previous.distanceToSqr(trace.getLocation());
         // add final vector even if index % factor != 0
-        points.add(trace.getHitVec());
+        points.add(trace.getLocation());
         break;
       }
       // only add every nth entry
@@ -200,7 +200,7 @@ public enum Projectile implements IProjectile {
         n++;
       }
       
-      distanceTraveledSq += previous.squareDistanceTo(next);
+      distanceTraveledSq += previous.distanceToSqr(next);
       
       // in the void, stop
       if (next.y <= 0) {
@@ -351,8 +351,8 @@ public enum Projectile implements IProjectile {
 //    }
 //
 //    return trace;
-    return ProjectileHelper.rayTraceEntities(getWorld(), getLocalPlayer(), start, end,
-        bb.expand(motionX, motionY, motionZ).grow(1.D), ent -> true);
+    return ProjectileHelper.getEntityHitResult(getWorld(), getLocalPlayer(), start, end,
+        bb.inflate(motionX, motionY, motionZ).inflate(1.D), ent -> true);
   }
   
   private static Vector3d getEntityShootPos(Entity entity) {

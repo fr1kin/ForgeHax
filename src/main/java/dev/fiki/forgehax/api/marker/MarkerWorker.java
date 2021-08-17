@@ -42,20 +42,20 @@ public class MarkerWorker {
     if (x != this.position.getX() || y != this.position.getY() || z != this.position.getZ()) {
       stop();
 
-      this.position.setPos(x, y, z);
+      this.position.set(x, y, z);
       this.boundingBox = new AxisAlignedBB(x, y, z, x + 16, y + 16, z + 16);
 
       for (Direction direction : Direction.values()) {
-        this.mapEnumFacing[direction.ordinal()].setPos(this.position).move(direction, 16);
+        this.mapEnumFacing[direction.ordinal()].set(this.position).move(direction, 16);
       }
     }
   }
 
   protected double getDistanceSq() {
-    ActiveRenderInfo info = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
-    double d0 = this.boundingBox.minX + 8.0D - info.getProjectedView().x;
-    double d1 = this.boundingBox.minY + 8.0D - info.getProjectedView().y;
-    double d2 = this.boundingBox.minZ + 8.0D - info.getProjectedView().z;
+    ActiveRenderInfo info = Minecraft.getInstance().gameRenderer.getMainCamera();
+    double d0 = this.boundingBox.minX + 8.0D - info.getPosition().x;
+    double d1 = this.boundingBox.minY + 8.0D - info.getPosition().y;
+    double d2 = this.boundingBox.minZ + 8.0D - info.getPosition().z;
     return d0 * d0 + d1 * d1 + d2 * d2;
   }
 

@@ -38,8 +38,8 @@ import static dev.fiki.forgehax.main.Common.setDisplayScreen;
 public class AutoReconnectMod extends ToggleMod {
   @MapMethod(parentClass = Screen.class, value = "addButton")
   private final ReflectionMethod<Widget> Screen_addButton;
-  @MapField(parentClass = ConnectingScreen.class, value = "previousGuiScreen")
-  private final ReflectionField<Screen> ConnectingScreen_previousGuiScreen;
+  @MapField(parentClass = ConnectingScreen.class, value = "parent")
+  private final ReflectionField<Screen> ConnectingScreen_parent;
 
   public final LongSetting delay = newLongSetting()
       .name("delay")
@@ -103,9 +103,9 @@ public class AutoReconnectMod extends ToggleMod {
   public void onGuiOpened(GuiChangedEvent event) {
     if (event.getGui() instanceof ConnectingScreen) {
       // in the connecting screen constructor the server data is set
-      lastServer = MC.getCurrentServerData();
+      lastServer = MC.getCurrentServer();
       forceDisconnected = false;
-      previousScreen = ConnectingScreen_previousGuiScreen.get(event.getGui());
+      previousScreen = ConnectingScreen_parent.get(event.getGui());
     } else if (!forceDisconnected && event.getGui() instanceof DisconnectedScreen) {
       timer.start();
     } else {
@@ -117,7 +117,7 @@ public class AutoReconnectMod extends ToggleMod {
   @SubscribeListener
   public void onTick(PreGameTickEvent event) {
     if (lastServer == null) {
-      lastServer = MC.getCurrentServerData();
+      lastServer = MC.getCurrentServer();
     }
 
     if (timer.isStarted() && getDisplayScreen() instanceof DisconnectedScreen) {
@@ -126,7 +126,7 @@ public class AutoReconnectMod extends ToggleMod {
       } else {
         DisconnectedScreen screen = (DisconnectedScreen) getDisplayScreen();
 
-        int textHeight = IBidiRenderer.field_243257_a.func_241862_a() * 9;
+        int textHeight = IBidiRenderer.EMPTY.getLineCount() * 9;
         button = new Button(
             screen.width / 2 - 100,
             Math.min(screen.height / 2 + textHeight / 2 + 9, screen.height - 30) + 33,

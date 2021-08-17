@@ -24,11 +24,11 @@ public class ClipCommand extends CommandMod {
 
   // Entity::setPositionAndUpdate has a pozzed check
   private static void mcSetPositionAndUpdate(Entity ent, double x, double y, double z) {
-    ent.setLocationAndAngles(x, y, z, ent.rotationYaw, ent.rotationPitch);
+    ent.moveTo(x, y, z, ent.yRot, ent.xRot);
     // update passengers
     ent.getSelfAndPassengers().forEach(e -> {
       //p_226267_1_.isPositionDirty = true;
-      e.moveForced(x, y, z); // todo: 1.16 idk if this is correct
+      e.moveTo(x, y, z); // todo: 1.16 idk if this is correct
     });
   }
 
@@ -38,7 +38,7 @@ public class ClipCommand extends CommandMod {
 
     if (ent instanceof ClientPlayerEntity) {
       sendNetworkPacket(new CPlayerPacket.PositionPacket(
-          ent.getPosX(), ent.getPosY(), ent.getPosZ(), reflection.Entity_onGround.get(ent)));
+          ent.getX(), ent.getY(), ent.getZ(), reflection.Entity_onGround.get(ent)));
     } else {
       sendNetworkPacket(new CMoveVehiclePacket(ent));
     }
@@ -47,7 +47,7 @@ public class ClipCommand extends CommandMod {
   // teleport vertically by some offset
   private void offsetY(double yOffset) {
     Entity local = getMountedEntityOrPlayer();
-    setPosition(local, local.getPosX(), local.getPosY() + yOffset, local.getPosZ());
+    setPosition(local, local.getX(), local.getY() + yOffset, local.getZ());
   }
 
   {
@@ -78,7 +78,7 @@ public class ClipCommand extends CommandMod {
           double z = args.<Double>getThird().getValue();
 
           Entity local = getMountedEntityOrPlayer();
-          setPosition(local, local.getPosX() + x, local.getPosY() + y, local.getPosZ() + z);
+          setPosition(local, local.getX() + x, local.getY() + y, local.getZ() + z);
         })
         .build();
   }
@@ -119,11 +119,11 @@ public class ClipCommand extends CommandMod {
 
           double offset = args.<Double>getFirst().getValue();
 
-          Vector3d dir = getLocalPlayer().getLookVec().normalize();
+          Vector3d dir = getLocalPlayer().getForward().normalize();
           final Entity local = getLocalPlayer();
-          setPosition(local, local.getPosX() + (dir.x * offset),
-              local.getPosY(),
-              local.getPosZ() + (dir.z * offset));
+          setPosition(local, local.getX() + (dir.x * offset),
+              local.getY(),
+              local.getZ() + (dir.z * offset));
         })
         .build();
   }

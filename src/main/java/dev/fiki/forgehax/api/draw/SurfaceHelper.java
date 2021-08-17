@@ -51,16 +51,16 @@ public class SurfaceHelper {
   static void _rect(BufferBuilder builder,
       double x, double y, double w, double h,
       Color color) {
-    builder.pos(x, y, 0.0D)
+    builder.vertex(x, y, 0.0D)
         .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())
         .endVertex();
-    builder.pos(x, y + h, 0.0D)
+    builder.vertex(x, y + h, 0.0D)
         .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())
         .endVertex();
-    builder.pos(x + w, y + h, 0.0D)
+    builder.vertex(x + w, y + h, 0.0D)
         .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())
         .endVertex();
-    builder.pos(x + w, y, 0.0D)
+    builder.vertex(x + w, y, 0.0D)
         .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())
         .endVertex();
   }
@@ -70,7 +70,7 @@ public class SurfaceHelper {
       Color color) {
     builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
     _rect(builder, x, y, w, h, color);
-    builder.finishDrawing();
+    builder.end();
   }
 
   public static void outlinedRect(BufferBuilder builder,
@@ -78,7 +78,7 @@ public class SurfaceHelper {
       Color color) {
     builder.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION_COLOR);
     _rect(builder, x, y, w, h, color);
-    builder.finishDrawing();
+    builder.end();
   }
 
   public static void texturedRect(BufferBuilder builder,
@@ -87,32 +87,32 @@ public class SurfaceHelper {
       float width, float height,
       float depth) {
     builder.begin(7, DefaultVertexFormats.POSITION_TEX);
-    builder.pos(x, y + height, depth)
-        .tex(textureX + 0, textureY + height)
+    builder.vertex(x, y + height, depth)
+        .uv(textureX + 0, textureY + height)
         .endVertex();
-    builder.pos(x + width, y + height, depth)
-        .tex(textureX + width, textureY + height)
+    builder.vertex(x + width, y + height, depth)
+        .uv(textureX + width, textureY + height)
         .endVertex();
-    builder.pos(x + width, y + 0, depth)
-        .tex(textureX + width, textureY + 0)
+    builder.vertex(x + width, y + 0, depth)
+        .uv(textureX + width, textureY + 0)
         .endVertex();
-    builder.pos(x + 0, y + 0, depth)
-        .tex(textureX + 0, textureY + 0)
+    builder.vertex(x + 0, y + 0, depth)
+        .uv(textureX + 0, textureY + 0)
         .endVertex();
-    builder.finishDrawing();
+    builder.end();
   }
 
   public static void line(BufferBuilder builder,
       float startX, float startY, float endX, float endY,
       Color color) {
     builder.begin(GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-    builder.pos(startX, startY, 0.0D)
+    builder.vertex(startX, startY, 0.0D)
         .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())
         .endVertex();
-    builder.pos(endX, endY, 0.0D)
+    builder.vertex(endX, endY, 0.0D)
         .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())
         .endVertex();
-    builder.finishDrawing();
+    builder.end();
   }
 
   public static void renderString(@Nonnull IRenderTypeBuffer buffer,
@@ -121,7 +121,7 @@ public class SurfaceHelper {
       float x, float y,
       Color color,
       boolean shadow) {
-    getFontRenderer().renderString(text,
+    getFontRenderer().drawInBatch(text,
         Math.round(x), Math.round(y),
         color.toBuffer(), shadow,
         matrix4f, buffer,
@@ -142,7 +142,7 @@ public class SurfaceHelper {
       float x, float y,
       Color color,
       boolean shadow) {
-    IRenderTypeBuffer.Impl render = IRenderTypeBuffer.getImpl(builder);
+    IRenderTypeBuffer.Impl render = IRenderTypeBuffer.immediate(builder);
     renderString(render, matrix4f, text, x, y, color, shadow);
     return render;
   }
@@ -156,19 +156,19 @@ public class SurfaceHelper {
   }
 
   public static double getStringWidth(String text) {
-    return getFontRenderer().getStringWidth(text);
+    return getFontRenderer().width(text);
   }
 
   public static double getStringHeight() {
-    return getFontRenderer().FONT_HEIGHT;
+    return getFontRenderer().lineHeight;
   }
 
   public static void drawText(String msg, float x, float y, int color, boolean shadow) {
     Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder builder = tessellator.getBuffer();
+    BufferBuilder builder = tessellator.getBuilder();
     Matrix4f matrix4f = TransformationMatrix.identity().getMatrix();
 
-    renderString(builder, matrix4f, msg, x, y, Color.of(color), shadow).finish();
+    renderString(builder, matrix4f, msg, x, y, Color.of(color), shadow).endBatch();
   }
 
   public static void drawText(String msg, float x, float y, int color) {
@@ -270,15 +270,15 @@ public class SurfaceHelper {
   }
 
   public static void drawItem(ItemStack item, int x, int y) {
-    MC.getItemRenderer().renderItemAndEffectIntoGUI(item, x, y);
+    MC.getItemRenderer().renderGuiItem(item, x, y);
   }
 
   public static void drawItemOverlay(ItemStack stack, int x, int y) {
-    MC.getItemRenderer().renderItemOverlayIntoGUI(getFontRenderer(), stack, x, y, null);
+    MC.getItemRenderer().renderGuiItemDecorations(getFontRenderer(), stack, x, y, null);
   }
 
   public static void setItemRendererDepth(float depth) {
-    MC.getItemRenderer().zLevel = depth;
+    MC.getItemRenderer().blitOffset = depth;
   }
 
   private static void renderModel(IBakedModel modelIn, ItemStack stack,
@@ -289,12 +289,12 @@ public class SurfaceHelper {
 
     for (Direction direction : Direction.values()) {
       random.setSeed(42L);
-      MC.getItemRenderer().renderQuads(matrixStackIn, bufferIn,
+      MC.getItemRenderer().renderQuadList(matrixStackIn, bufferIn,
           modelIn.getQuads(null, direction, random), stack, combinedLightIn, combinedOverlayIn);
     }
 
     random.setSeed(42L);
-    MC.getItemRenderer().renderQuads(matrixStackIn, bufferIn,
+    MC.getItemRenderer().renderQuadList(matrixStackIn, bufferIn,
         modelIn.getQuads(null, null, random), stack, combinedLightIn, combinedOverlayIn);
   }
 
@@ -302,7 +302,7 @@ public class SurfaceHelper {
     Item item = itemStackIn.getItem();
     if (item instanceof BlockItem) {
       Block block = ((BlockItem) item).getBlock();
-      return RenderTypeLookup.canRenderInLayer(block.getDefaultState(), RenderType.getTranslucent())
+      return RenderTypeLookup.canRenderInLayer(block.defaultBlockState(), RenderType.translucent())
           ? RenderTypeEx.blockTranslucentCull()
           : RenderTypeEx.blockCutout();
     } else {
@@ -311,23 +311,23 @@ public class SurfaceHelper {
   }
 
   private static IVertexBuilder getBuffer(IRenderTypeBuffer bufferIn, RenderType renderTypeIn, boolean isItemIn, boolean glintIn) {
-    return glintIn ? VertexBuilderUtils.newDelegate(
+    return glintIn ? VertexBuilderUtils.create(
         bufferIn.getBuffer(isItemIn
-            ? RenderType.getGlint()
-            : RenderType.getEntityGlint()),
+            ? RenderType.glint()
+            : RenderType.entityGlint()),
         bufferIn.getBuffer(renderTypeIn))
         : bufferIn.getBuffer(renderTypeIn);
   }
 
   public static boolean renderItem(LivingEntity living, World world, ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
-    IBakedModel model = MC.getItemRenderer().getItemModelWithOverrides(itemStack, world, living);
-    MC.getItemRenderer().renderItem(itemStack, ItemCameraTransforms.TransformType.GUI,
+    IBakedModel model = MC.getItemRenderer().getModel(itemStack, world, living);
+    MC.getItemRenderer().render(itemStack, ItemCameraTransforms.TransformType.GUI,
         false, stack, buffer, 15728880, OverlayTexture.NO_OVERLAY, model);
-    return model.isSideLit();
+    return model.usesBlockLight();
   }
 
   public static boolean renderItem(LivingEntity living, ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
-    return renderItem(living, living.getEntityWorld(), itemStack, stack, buffer);
+    return renderItem(living, living.level, itemStack, stack, buffer);
   }
 
   public static boolean renderItem(ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
@@ -336,13 +336,13 @@ public class SurfaceHelper {
 
   public static boolean renderItemInGui(ItemStack itemStack, MatrixStack stack, IRenderTypeBuffer buffer) {
     try {
-      stack.push();
+      stack.pushPose();
       stack.translate(8, 8, 0);
       stack.scale(1, -1, 1);
       stack.scale(16, 16, 16);
       return renderItem(getLocalPlayer(), null, itemStack, stack, buffer);
     } finally {
-      stack.pop();
+      stack.popPose();
     }
   }
 
@@ -350,17 +350,17 @@ public class SurfaceHelper {
       @Nullable Consumer<RenderType> pre, @Nullable Consumer<RenderType> post) {
     final ReflectionTools reflections = ReflectionTools.getInstance();
 
-    BufferBuilder defaultBuilder = reflections.IRenderTypeBuffer$Impl_buffer.get(buffers);
+    BufferBuilder defaultBuilder = reflections.IRenderTypeBuffer$Impl_builder.get(buffers);
     BufferBuilder builder = reflections.IRenderTypeBuffer$Impl_fixedBuffers.get(buffers)
         .getOrDefault(renderType, defaultBuilder);
 
-    boolean lastRender = Objects.equals(reflections.IRenderTypeBuffer$Impl_lastRenderType.get(buffers),
-        renderType.getRenderType());
+    boolean lastRender = Objects.equals(reflections.IRenderTypeBuffer$Impl_lastState.get(buffers),
+        renderType.asOptional());
     if (lastRender || builder != defaultBuilder) {
       if (reflections.IRenderTypeBuffer$Impl_startedBuffers.get(buffers).remove(builder)) {
-        if (builder.isDrawing()) {
-          if (reflections.RenderType_needsSorting.get(renderType)) {
-            builder.sortVertexData(0.f, 0.f, 0.f);
+        if (builder.building()) {
+          if (reflections.RenderType_sortOnUpload.get(renderType)) {
+            builder.sortQuads(0.f, 0.f, 0.f);
           }
 
           if (pre != null) {
@@ -375,7 +375,7 @@ public class SurfaceHelper {
         }
 
         if (lastRender) {
-          reflections.IRenderTypeBuffer$Impl_lastRenderType.set(buffers, Optional.empty());
+          reflections.IRenderTypeBuffer$Impl_lastState.set(buffers, Optional.empty());
         }
       }
     }
@@ -385,9 +385,9 @@ public class SurfaceHelper {
       @Nullable final Consumer<RenderType> pre, @Nullable final Consumer<RenderType> post) {
     final ReflectionTools reflections = ReflectionTools.getInstance();
 
-    reflections.IRenderTypeBuffer$Impl_lastRenderType.get(buffers).ifPresent(renderType -> {
+    reflections.IRenderTypeBuffer$Impl_lastState.get(buffers).ifPresent(renderType -> {
       IVertexBuilder builder = buffers.getBuffer(renderType);
-      if (builder == reflections.IRenderTypeBuffer$Impl_buffer.get(buffers)) {
+      if (builder == reflections.IRenderTypeBuffer$Impl_builder.get(buffers)) {
         finish(buffers, renderType, pre, post);
       }
     });
@@ -404,12 +404,12 @@ public class SurfaceHelper {
     if (!stack.isEmpty()) {
       if (stack.getCount() != 1 || text != null) {
         String val = text == null ? String.valueOf(stack.getCount()) : text;
-        matrixStack.push();
-        matrixStack.translate((float)(x + 19 - 2 - fr.getStringWidth(val)), (float)(y + 6 + 3), 200.f);
+        matrixStack.pushPose();
+        matrixStack.translate((float)(x + 19 - 2 - fr.width(val)), (float)(y + 6 + 3), 200.f);
 
-        renderString(buffer, matrixStack.getLast().getMatrix(), val, 0, 0, Colors.WHITE, true).finish();
+        renderString(buffer, matrixStack.last().pose(), val, 0, 0, Colors.WHITE, true).endBatch();
 
-        matrixStack.pop();
+        matrixStack.popPose();
       }
 
       if (stack.getItem().showDurabilityBar(stack)) {
@@ -424,10 +424,10 @@ public class SurfaceHelper {
         buffer.begin(GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
         VertexBuilderEx.rect(buffer, GL_TRIANGLES,
             x + 2, y + 13, 13, 2,
-            Colors.BLACK, matrixStack.getLast().getMatrix());
+            Colors.BLACK, matrixStack.last().pose());
         VertexBuilderEx.rect(buffer, GL_TRIANGLES,
             x + 2, y + 13, i, 1,
-            Color.of(j >> 16 & 255, j >> 8 & 255, j & 255, 255), matrixStack.getLast().getMatrix());
+            Color.of(j >> 16 & 255, j >> 8 & 255, j & 255, 255), matrixStack.last().pose());
         VertexBuilderEx.draw(buffer);
 
         RenderSystem.enableBlend();
@@ -437,8 +437,8 @@ public class SurfaceHelper {
       }
 
       ClientPlayerEntity lp = getLocalPlayer();
-      float f3 = lp == null ? 0.0F : lp.getCooldownTracker()
-          .getCooldown(stack.getItem(), Minecraft.getInstance().getRenderPartialTicks());
+      float f3 = lp == null ? 0.0F : lp.getCooldowns()
+          .getCooldownPercent(stack.getItem(), Minecraft.getInstance().getDeltaFrameTime());
       if (f3 > 0.0F) {
         RenderSystem.disableDepthTest();
         RenderSystem.disableTexture();
@@ -449,7 +449,7 @@ public class SurfaceHelper {
         VertexBuilderEx.rect(buffer, GL_TRIANGLES,
             x, y + MathHelper.floor(16.0F * (1.0F - f3)),
             16, MathHelper.ceil(16.0F * f3),
-            Colors.WHITE.setAlpha(127), matrixStack.getLast().getMatrix());
+            Colors.WHITE.setAlpha(127), matrixStack.last().pose());
         VertexBuilderEx.draw(buffer);
 
         RenderSystem.enableTexture();
@@ -467,25 +467,25 @@ public class SurfaceHelper {
     float f = 1.0F / (float) tileWidth;
     float f1 = 1.0F / (float) tileHeight;
     Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder bufferbuilder = tessellator.getBuffer();
+    BufferBuilder bufferbuilder = tessellator.getBuilder();
     bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
     bufferbuilder
-        .pos(x, y + height, 0.0D)
-        .tex(u * f, (v + (float) vHeight) * f1)
+        .vertex(x, y + height, 0.0D)
+        .uv(u * f, (v + (float) vHeight) * f1)
         .endVertex();
     bufferbuilder
-        .pos(x + width, y + height, 0.0D)
-        .tex((u + (float) uWidth) * f, (v + (float) vHeight) * f1)
+        .vertex(x + width, y + height, 0.0D)
+        .uv((u + (float) uWidth) * f, (v + (float) vHeight) * f1)
         .endVertex();
     bufferbuilder
-        .pos(x + width, y, 0.0D)
-        .tex((u + (float) uWidth) * f, v * f1)
+        .vertex(x + width, y, 0.0D)
+        .uv((u + (float) uWidth) * f, v * f1)
         .endVertex();
     bufferbuilder
-        .pos(x, y, 0.0D)
-        .tex(u * f, v * f1)
+        .vertex(x, y, 0.0D)
+        .uv(u * f, v * f1)
         .endVertex();
-    tessellator.draw();
+    tessellator.end();
   }
 
   @Deprecated
@@ -501,17 +501,17 @@ public class SurfaceHelper {
     float f1 = (float) (color >> 8 & 255) / 255.0F;
     float f2 = (float) (color & 255) / 255.0F;
     Matrix4f matrix = TransformationMatrix.identity().getMatrix();
-    BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
+    BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
     RenderSystem.enableBlend();
     RenderSystem.disableTexture();
     RenderSystem.defaultBlendFunc();
     bufferbuilder.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION_COLOR);
-    bufferbuilder.pos(matrix, (float) x, (float) y, 0.0F).color(f, f1, f2, f3).endVertex();
-    bufferbuilder.pos(matrix, (float) x, (float) y + height, 0.0F).color(f, f1, f2, f3).endVertex();
-    bufferbuilder.pos(matrix, (float) x + width, (float) y + height, 0.0F).color(f, f1, f2, f3).endVertex();
-    bufferbuilder.pos(matrix, (float) x + width, (float) y, 0.0F).color(f, f1, f2, f3).endVertex();
-    bufferbuilder.finishDrawing();
-    WorldVertexBufferUploader.draw(bufferbuilder);
+    bufferbuilder.vertex(matrix, (float) x, (float) y, 0.0F).color(f, f1, f2, f3).endVertex();
+    bufferbuilder.vertex(matrix, (float) x, (float) y + height, 0.0F).color(f, f1, f2, f3).endVertex();
+    bufferbuilder.vertex(matrix, (float) x + width, (float) y + height, 0.0F).color(f, f1, f2, f3).endVertex();
+    bufferbuilder.vertex(matrix, (float) x + width, (float) y, 0.0F).color(f, f1, f2, f3).endVertex();
+    bufferbuilder.end();
+    WorldVertexBufferUploader.end(bufferbuilder);
     RenderSystem.enableTexture();
     RenderSystem.disableBlend();
   }
@@ -537,13 +537,13 @@ public class SurfaceHelper {
     RenderSystem.defaultBlendFunc();
     RenderSystem.shadeModel(7425);
     Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder bufferbuilder = tessellator.getBuffer();
+    BufferBuilder bufferbuilder = tessellator.getBuilder();
     bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-    bufferbuilder.pos((double) w, (double) y, 0).color(f1, f2, f3, f).endVertex();
-    bufferbuilder.pos((double) x, (double) y, 0).color(f1, f2, f3, f).endVertex();
-    bufferbuilder.pos((double) x, (double) h, 0).color(f5, f6, f7, f4).endVertex();
-    bufferbuilder.pos((double) w, (double) h, 0).color(f5, f6, f7, f4).endVertex();
-    tessellator.draw();
+    bufferbuilder.vertex((double) w, (double) y, 0).color(f1, f2, f3, f).endVertex();
+    bufferbuilder.vertex((double) x, (double) y, 0).color(f1, f2, f3, f).endVertex();
+    bufferbuilder.vertex((double) x, (double) h, 0).color(f5, f6, f7, f4).endVertex();
+    bufferbuilder.vertex((double) w, (double) h, 0).color(f5, f6, f7, f4).endVertex();
+    tessellator.end();
     RenderSystem.shadeModel(7424);
     RenderSystem.disableBlend();
     RenderSystem.enableAlphaTest();
@@ -553,15 +553,15 @@ public class SurfaceHelper {
   @Deprecated
   public static void drawTextureRect(double x, double y, double width, double height, float u, float v, float t, float s) {
     Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder renderer = tessellator.getBuffer();
+    BufferBuilder renderer = tessellator.getBuilder();
     renderer.begin(GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX);
-    renderer.pos(x + width, y, 0F).tex(t, v).endVertex();
-    renderer.pos(x, y, 0F).tex(u, v).endVertex();
-    renderer.pos(x, y + height, 0F).tex(u, s).endVertex();
-    renderer.pos(x, y + height, 0F).tex(u, s).endVertex();
-    renderer.pos(x + width, y + height, 0F).tex(t, s).endVertex();
-    renderer.pos(x + width, y, 0F).tex(t, v).endVertex();
-    tessellator.draw();
+    renderer.vertex(x + width, y, 0F).uv(t, v).endVertex();
+    renderer.vertex(x, y, 0F).uv(u, v).endVertex();
+    renderer.vertex(x, y + height, 0F).uv(u, s).endVertex();
+      renderer.vertex(x, y + height, 0F).uv(u, s).endVertex();
+    renderer.vertex(x + width, y + height, 0F).uv(t, s).endVertex();
+    renderer.vertex(x + width, y, 0F).uv(t, v).endVertex();
+    tessellator.end();
   }
 
   @Deprecated
@@ -571,11 +571,11 @@ public class SurfaceHelper {
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
     Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder buffer = tessellator.getBuffer();
+    BufferBuilder buffer = tessellator.getBuilder();
     buffer.begin(GL_LINES, DefaultVertexFormats.POSITION);
-    buffer.pos(x, y, 0F).endVertex();
-    buffer.pos(x1, y1, 0F).endVertex();
-    tessellator.draw();
-    GlStateManager.enableTexture();
+    buffer.vertex(x, y, 0F).endVertex();
+    buffer.vertex(x1, y1, 0F).endVertex();
+    tessellator.end();
+    GlStateManager._enableTexture();
   }
 }

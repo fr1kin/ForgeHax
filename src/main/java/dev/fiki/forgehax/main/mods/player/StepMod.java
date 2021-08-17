@@ -78,39 +78,39 @@ public class StepMod extends ToggleMod {
   public void onDisabled() {
     PlayerEntity player = getLocalPlayer();
     if (player != null) {
-      player.stepHeight = DEFAULT_STEP_HEIGHT;
+      player.maxUpStep = DEFAULT_STEP_HEIGHT;
     }
 
     if (getMountedEntity() != null) {
-      getMountedEntity().stepHeight = 1;
+      getMountedEntity().maxUpStep = 1;
     }
   }
 
   private void updateStepHeight(PlayerEntity player) {
-    player.stepHeight = reflection.Entity_onGround.get(player) ? stepHeight.getValue() : DEFAULT_STEP_HEIGHT;
+    player.maxUpStep = reflection.Entity_onGround.get(player) ? stepHeight.getValue() : DEFAULT_STEP_HEIGHT;
   }
 
   private boolean wasOnGround = false;
 
   private void unstep(PlayerEntity player) {
-    AxisAlignedBB range = player.getBoundingBox().expand(0, -stepHeight.getValue(), 0)
-        .contract(0, player.getHeight(), 0);
+    AxisAlignedBB range = player.getBoundingBox().inflate(0, -stepHeight.getValue(), 0)
+        .contract(0, player.getBbHeight(), 0);
 
-    if (!player.world.hasNoCollisions(range)) {
+    if (!player.level.noCollision(range)) {
       return;
     }
 
-    List<AxisAlignedBB> collisionBoxes = player.world.getCollisionShapes(player, range)
-        .map(VoxelShape::getBoundingBox)
+    List<AxisAlignedBB> collisionBoxes = player.level.getBlockCollisions(player, range)
+        .map(VoxelShape::bounds)
         .collect(Collectors.toList());
     AtomicReference<Double> newY = new AtomicReference<>(0D);
     collisionBoxes.forEach(box -> newY.set(Math.max(newY.get(), box.maxY)));
-    player.setPositionAndUpdate(player.getPosX(), newY.get(), player.getPosZ());
+    player.moveTo(player.getX(), newY.get(), player.getZ());
   }
 
   private void updateUnstep(PlayerEntity player) {
     try {
-      if (unstep.getValue() && wasOnGround && !reflection.Entity_onGround.get(player) && player.getMotion().getY() <= 0) {
+      if (unstep.getValue() && wasOnGround && !reflection.Entity_onGround.get(player) && player.getDeltaMovement().y() <= 0) {
         unstep(player);
       }
     } finally {
@@ -130,9 +130,9 @@ public class StepMod extends ToggleMod {
 
     if (getMountedEntity() != null) {
       if (entityStep.getValue()) {
-        getMountedEntity().stepHeight = 256;
+        getMountedEntity().maxUpStep = 256;
       } else {
-        getMountedEntity().stepHeight = 1;
+        getMountedEntity().maxUpStep = 1;
       }
     }
   }

@@ -16,8 +16,8 @@ import org.objectweb.asm.tree.*;
 @MapClass(GameRenderer.class)
 public class GameRendererPatch extends Patch {
   @Inject
-  @MapMethod("hurtCameraEffect")
-  public void hurtCameraEffect(MethodNode node,
+  @MapMethod("bobHurt")
+  public void bobHurt(MethodNode node,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldStopHurtcamEffect") ASMMethod callback) {
     AbstractInsnNode returnCall = ASMPattern.builder()
         .codeOnly()

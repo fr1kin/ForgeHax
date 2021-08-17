@@ -26,8 +26,8 @@ public class TimerMod extends ToggleMod {
   @MapField(parentClass = Minecraft.class, value = "timer")
   public final ReflectionField<Timer> Minecraft_timer;
 
-  @MapField(parentClass = Timer.class, value = "tickLength")
-  public final ReflectionField<Float> Timer_tickLength;
+  @MapField(parentClass = Timer.class, value = "tickDelta")
+  public final ReflectionField<Float> Timer_tickDelta;
 
   private final TickRateService tickRateService;
 
@@ -80,7 +80,7 @@ public class TimerMod extends ToggleMod {
 
   private void setSpeed(float value) {
     Timer timer = Minecraft_timer.get(Common.MC);
-    Timer_tickLength.set(timer, value);
+    Timer_tickDelta.set(timer, value);
   }
 
   @Override

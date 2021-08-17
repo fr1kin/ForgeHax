@@ -27,17 +27,17 @@ public class ChunkBorder extends ToggleMod {
   public void onRender(RenderSpaceEvent event) {
     val stack = event.getStack();
     val builder = event.getBuffer();
-    stack.push();
+    stack.pushPose();
 
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
-    BlockPos from = new BlockPos(getLocalPlayer().chunkCoordX * 16, 0, getLocalPlayer().chunkCoordZ * 16);
+    BlockPos from = new BlockPos(getLocalPlayer().xChunk * 16, 0, getLocalPlayer().zChunk * 16);
     BlockPos to = new BlockPos(from.getX() + 15, 256, from.getZ() + 15);
 
     builder.outlinedCube(from, to, GeometryMasks.Line.ALL, Colors.YELLOW, stack.getLastMatrix());
 
     builder.draw();
-    stack.pop();
+    stack.popPose();
   }
 }
 

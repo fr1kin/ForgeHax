@@ -26,17 +26,17 @@ public class BindEventService extends ServiceMod {
     final KeyBindingEx key = setting.getKeyBinding();
     switch (keyAction) {
       case GLFW.GLFW_PRESS:
-        key.setPressed(true);
+        key.setDown(true);
         setting.getListeners(IKeyPressedListener.class)
             .forEach(l -> l.onKeyPressed(key));
         break;
       case GLFW.GLFW_REPEAT:
-        key.setPressed(true);
+        key.setDown(true);
         setting.getListeners(IKeyDownListener.class)
             .forEach(l -> l.onKeyDown(key));
         break;
       case GLFW.GLFW_RELEASE:
-        key.setPressed(false);
+        key.setDown(false);
         setting.getListeners(IKeyReleasedListener.class)
             .forEach(l -> l.onKeyReleased(key));
         break;
@@ -50,7 +50,7 @@ public class BindEventService extends ServiceMod {
       if (input != null
           && input.getType() != null
           && InputMappings.Type.KEYSYM.equals(input.getType())
-          && setting.getKeyBinding().matchesKey(event.getKey(), event.getScanCode())
+          && setting.getKeyBinding().matches(event.getKey(), event.getScanCode())
           && setting.getKeyBinding().checkConflicts()) {
         updateBindings(setting, event.getAction());
       }

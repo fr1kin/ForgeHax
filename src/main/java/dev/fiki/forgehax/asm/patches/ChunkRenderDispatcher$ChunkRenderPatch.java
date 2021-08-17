@@ -17,8 +17,8 @@ import org.objectweb.asm.tree.VarInsnNode;
 public class ChunkRenderDispatcher$ChunkRenderPatch extends Patch {
 
   @Inject
-  @MapMethod("rebuildChunkLater")
-  public void rebuildChunkLater(MethodNode node,
+  @MapMethod("rebuildChunkAsync")
+  public void rebuildChunkAsync(MethodNode node,
       @MapMethod(parentClass = MarkerHooks.class, name = "onRebuildChunk") ASMMethod onRebuildChunk) {
     InsnList list = new InsnList();
     list.add(new VarInsnNode(ALOAD, 0));
@@ -29,8 +29,8 @@ public class ChunkRenderDispatcher$ChunkRenderPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("rebuildChunk")
-  public void rebuildChunk(MethodNode node,
+  @MapMethod("compileSync")
+  public void compileSync(MethodNode node,
       @MapMethod(parentClass = MarkerHooks.class, name = "onRebuildChunk") ASMMethod onRebuildChunk) {
     InsnList list = new InsnList();
     list.add(new VarInsnNode(ALOAD, 0));

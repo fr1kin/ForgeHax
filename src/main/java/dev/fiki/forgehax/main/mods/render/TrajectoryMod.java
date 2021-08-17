@@ -35,11 +35,11 @@ public class TrajectoryMod extends ToggleMod {
   @SubscribeListener
   public void onRender(RenderSpaceEvent event) {
     final ClientPlayerEntity lp = getLocalPlayer();
-    final Projectile projectile = Projectile.getProjectileByItemStack(lp.getHeldItemMainhand());
+    final Projectile projectile = Projectile.getProjectileByItemStack(lp.getMainHandItem());
     if (!projectile.isNull()) {
       final SimulationResult result = projectile.getSimulatedTrajectoryFromEntity(
           lp, lp.getViewAngles(),
-          projectile.getForce(lp.getHeldItemMainhand().getUseDuration() - lp.getItemInUseCount()),
+          projectile.getForce(lp.getMainHandItem().getUseDuration() - lp.getUseItemRemainingTicks()),
           0);
       if (result == null) {
         return;
@@ -51,8 +51,8 @@ public class TrajectoryMod extends ToggleMod {
 
         buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
-        final Vector3d pos = getGameRenderer().getActiveRenderInfo().getRenderViewEntity().getEyePosition(1.f);
-        stack.push();
+        final Vector3d pos = getGameRenderer().getMainCamera().getEntity().getEyePosition(1.f);
+        stack.pushPose();
         stack.translateVec(pos.scale(-1d));
 
         final Iterator<Vector3d> it = result.getPathTraveled().iterator();
@@ -68,7 +68,7 @@ public class TrajectoryMod extends ToggleMod {
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
         RenderSystem.lineWidth(1.0f);
         RenderSystem.disableDepthTest();
-        stack.pop();
+        stack.popPose();
       }
     }
   }

@@ -37,18 +37,18 @@ public class AutoSprintMod extends ToggleMod {
   private void startSprinting() {
     switch (mode.getValue()) {
       case ALWAYS:
-        if (!getLocalPlayer().collidedHorizontally && !getLocalPlayer().isSprinting()) {
+        if (!getLocalPlayer().horizontalCollision && !getLocalPlayer().isSprinting()) {
           getLocalPlayer().setSprinting(true);
         }
         break;
       default:
       case LEGIT:
         if (!isBound) {
-          BindingHelper.disableContextHandler(getGameSettings().keyBindSprint);
+          BindingHelper.disableContextHandler(getGameSettings().keySprint);
           isBound = true;
         }
-        if (!getGameSettings().keyBindSprint.isKeyDown()) {
-          getGameSettings().keyBindSprint.setPressed(true);
+        if (!getGameSettings().keySprint.isDown()) {
+          getGameSettings().keySprint.setDown(true);
         }
         break;
     }
@@ -56,8 +56,8 @@ public class AutoSprintMod extends ToggleMod {
 
   private void stopSprinting() {
     if (isBound) {
-      getGameSettings().keyBindSprint.setPressed(false);
-      BindingHelper.restoreContextHandler(getGameSettings().keyBindSprint);
+      getGameSettings().keySprint.setDown(false);
+      BindingHelper.restoreContextHandler(getGameSettings().keySprint);
       isBound = false;
     }
   }
@@ -75,8 +75,8 @@ public class AutoSprintMod extends ToggleMod {
    */
   @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    if (event.getPlayer().moveForward > 0
-        && !event.getPlayer().collidedHorizontally
+    if (event.getPlayer().moveDist > 0
+        && !event.getPlayer().horizontalCollision
         && !event.getPlayer().isCrouching()
         && !freecam.isEnabled()) {
       startSprinting();

@@ -20,12 +20,12 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 )
 @RequiredArgsConstructor
 public class BedModeMod extends ToggleMod {
-  @MapField(parentClass = PlayerEntity.class, value = "sleepTimer")
-  public final ReflectionField<Integer> PlayerEntity_sleepTimer;
+  @MapField(parentClass = PlayerEntity.class, value = "sleepCounter")
+  public final ReflectionField<Integer> PlayerEntity_sleepCounter;
 
   @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    PlayerEntity_sleepTimer.set(Common.getLocalPlayer(), 0);
+    PlayerEntity_sleepCounter.set(Common.getLocalPlayer(), 0);
   }
 
   @SubscribeListener

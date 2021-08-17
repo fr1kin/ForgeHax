@@ -24,14 +24,14 @@ public class NoclipMod extends ToggleMod {
   public void onDisabled() {
     Entity local = getMountedEntityOrPlayer();
     if (local != null) {
-      local.noClip = false;
+      local.noPhysics = false;
     }
   }
 
   @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     Entity local = getMountedEntityOrPlayer();
-    local.noClip = true;
+    local.noPhysics = true;
     local.fallDistance = 0;
     reflection.Entity_onGround.set(local, false);
   }

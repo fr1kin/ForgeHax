@@ -31,13 +31,13 @@ ext {
   forgehaxVersion = "${forgehaxTag}-${forgehaxCommit}"
 
   minecraftVersion = '1.16.5'
-  forgeVersion = '36.0.13'
+  forgeVersion = '36.2.2'
 
   fmlVersion = '2.0.0-milestone.1'
   lombokVersion = '1.18.16'
 
-  mcpVersion = '1.16.3'
-  mcpChannel = 'snapshot'
+  mcpVersion = '1.16.5'
+  mcpChannel = 'official'
   mcpMapping = '20201028'
 }
 

@@ -14,9 +14,9 @@ import org.objectweb.asm.tree.MethodNode;
 @MapClass(WorldRenderer.class)
 public class WorldRendererPatch extends Patch {
 
-  @MapMethod("loadRenderers")
-  public void loadRenderers(MethodNode node,
-      @MapField("viewFrustum") ASMField viewFrustum) {
+  @MapMethod("allChanged")
+  public void allChanged(MethodNode node,
+      @MapField("viewArea") ASMField viewFrustum) {
     AbstractInsnNode putViewFrustum = ASMPattern.builder()
         .codeOnly()
         .custom(an -> an.getOpcode() == PUTFIELD

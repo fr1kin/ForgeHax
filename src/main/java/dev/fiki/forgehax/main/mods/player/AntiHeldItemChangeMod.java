@@ -24,19 +24,19 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 public class AntiHeldItemChangeMod extends ToggleMod {
-  @MapMethod(parentClass = KeyBinding.class, value = "unpressKey")
-  private final ReflectionMethod<Void> KeyBinding_unpressKey;
+  @MapMethod(parentClass = KeyBinding.class, value = "release")
+  private final ReflectionMethod<Void> KeyBinding_release;
 
   @SubscribeListener
   public void onPacketReceived(PacketInboundEvent event) {
     if (event.getPacket() instanceof SSetSlotPacket && getLocalPlayer() != null) {
-      int currentSlot = getLocalPlayer().inventory.currentItem;
+      int currentSlot = getLocalPlayer().inventory.selected;
 
       if (((SSetSlotPacket) event.getPacket()).getSlot() != currentSlot) {
         sendNetworkPacket(new CHeldItemChangePacket(currentSlot)); // set server's slot back to our slot
 
         // likely will be eating so stop right clicking
-        KeyBinding_unpressKey.invoke(getGameSettings().keyBindUseItem);
+        KeyBinding_release.invoke(getGameSettings().keyUse);
 
         event.setCanceled(true);
       }

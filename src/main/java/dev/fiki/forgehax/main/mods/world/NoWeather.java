@@ -33,7 +33,7 @@ public class NoWeather extends ToggleMod {
 
   private void saveState(World world) {
     if (world != null) {
-      setState(world.getWorldInfo().isRaining(), world.rainingStrength, world.prevRainingStrength);
+      setState(world.getLevelData().isRaining(), world.rainLevel, world.oRainLevel);
     } else {
       setState(false, 1.f, 1.f);
     }
@@ -51,16 +51,16 @@ public class NoWeather extends ToggleMod {
 
   private void disableRain() {
     if (getWorld() != null) {
-      getWorld().getWorldInfo().setRaining(false);
-      getWorld().setRainStrength(0.f);
+      getWorld().getLevelData().setRaining(false);
+      getWorld().setRainLevel(0.f);
     }
   }
 
   public void resetState() {
     if (getWorld() != null) {
-      getWorld().getWorldInfo().setRaining(isRaining);
-      getWorld().rainingStrength = rainStrength;
-      getWorld().prevRainingStrength = previousRainStrength;
+      getWorld().getLevelData().setRaining(isRaining);
+      getWorld().rainLevel = rainStrength;
+      getWorld().oRainLevel = previousRainStrength;
     }
   }
 
@@ -87,17 +87,17 @@ public class NoWeather extends ToggleMod {
   @SubscribeListener
   public void onPacketIncoming(PacketInboundEvent event) {
     if (event.getPacket() instanceof SChangeGameStatePacket) {
-      SChangeGameStatePacket.State state = ((SChangeGameStatePacket) event.getPacket()).func_241776_b_();
-      float strength = ((SChangeGameStatePacket) event.getPacket()).getValue();
+      SChangeGameStatePacket.State state = ((SChangeGameStatePacket) event.getPacket()).getEvent();
+      float strength = ((SChangeGameStatePacket) event.getPacket()).getParam();
       boolean isRainState = false;
-      if (state == SChangeGameStatePacket.field_241765_b_) {
+      if (state == SChangeGameStatePacket.STOP_RAINING) {
         isRainState = false;
         setState(false, 0.f, 0.f);
-      } else if (state == SChangeGameStatePacket.field_241766_c_) {
+      } else if (state == SChangeGameStatePacket.START_RAINING) {
         // start rain
         isRainState = true;
         setState(true, 1.f, 1.f);
-      } else if (state == SChangeGameStatePacket.field_241771_h_) {
+      } else if (state == SChangeGameStatePacket.THUNDER_LEVEL_CHANGE) {
         // fade value: sky brightness
         isRainState = true; // needs to be cancelled to avoid flicker
       }
@@ -113,7 +113,7 @@ public class NoWeather extends ToggleMod {
     if (isRaining
         && showStatus.getValue()
         && isInWorld()) {
-      Biome biome = getWorld().getBiome(getLocalPlayer().getPosition());
+      Biome biome = getWorld().getBiome(getLocalPlayer().blockPosition());
       boolean canRain = Biome.RainType.RAIN.equals(biome.getPrecipitation());
       boolean canSnow = Biome.RainType.SNOW.equals(biome.getPrecipitation());
 

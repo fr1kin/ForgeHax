@@ -33,8 +33,8 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 public class AutoFishMod extends ToggleMod {
-  @MapMethod(parentClass = Minecraft.class, value = "rightClickMouse")
-  private final ReflectionMethod<Void> Minecraft_rightClickMouse;
+  @MapMethod(parentClass = Minecraft.class, value = "startUseItem")
+  private final ReflectionMethod<Void> Minecraft_startUseItem;
 
   private int ticksCastDelay = 0;
   private int ticksHookDeployed = 0;
@@ -66,17 +66,17 @@ public class AutoFishMod extends ToggleMod {
 
   private boolean isCorrectSplashPacket(SPlaySoundEffectPacket packet) {
     ClientPlayerEntity me = getLocalPlayer();
-    return packet.getSound().equals(SoundEvents.ENTITY_FISHING_BOBBER_SPLASH)
+    return packet.getSound().equals(SoundEvents.FISHING_BOBBER_SPLASH)
         && (me != null
-        && me.fishingBobber != null
+        && me.fishing != null
         && (maxSoundDistance.getValue() == 0 // disables this check
-        || (me.fishingBobber.getPositionVec()
+        || (me.fishing.position()
         .distanceTo(new Vector3d(packet.getX(), packet.getY(), packet.getZ())) <= maxSoundDistance.getValue())));
   }
 
   private void rightClick() {
     if (ticksCastDelay <= 0) { // to prevent the fishing rod from being spammed when in hand
-      Minecraft_rightClickMouse.invoke(MC);
+      Minecraft_startUseItem.invoke(MC);
       ticksCastDelay = castingDelay.getValue();
       ticksHookDeployed = 0;
     }
@@ -96,7 +96,7 @@ public class AutoFishMod extends ToggleMod {
   @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
     ClientPlayerEntity me = getLocalPlayer();
-    ItemStack heldStack = me.getHeldItemMainhand();
+    ItemStack heldStack = me.getMainHandItem();
 
     // update tick delay if hook is deployed
     if (ticksCastDelay > castingDelay.getValue()) {
@@ -110,19 +110,19 @@ public class AutoFishMod extends ToggleMod {
       if (!previouslyHadRodEquipped) {
         ticksCastDelay = castingDelay.getValue();
         previouslyHadRodEquipped = true;
-      } else if (me.fishingBobber == null) { // no hook is deployed
+      } else if (me.fishing == null) { // no hook is deployed
         // cast hook
         rightClick();
       } else { // hook is deployed and rod was not previously equipped
         // increment the number of ticks that the hook entity has existed
         ++ticksHookDeployed;
 
-        FishingBobberEntity bobber = me.fishingBobber;
+        FishingBobberEntity bobber = me.fishing;
         boolean notInWater = false;
 
         // check if the bobber is not moving at all
-        if (bobber.getMotion().subtract(0, bobber.getMotion().getY(), 0).lengthSquared() == 0) {
-          notInWater = !getWorld().getBlockState(bobber.getPosition()).getMaterial().isLiquid();
+        if (bobber.getDeltaMovement().subtract(0, bobber.getDeltaMovement().y(), 0).lengthSqr() == 0) {
+          notInWater = !getWorld().getBlockState(bobber.blockPosition()).getMaterial().isLiquid();
         }
 
         if (notInWater || (recastDelay.getValue() != 0 && (ticksHookDeployed > recastDelay.getValue()))) {
@@ -136,7 +136,7 @@ public class AutoFishMod extends ToggleMod {
 
   @SubscribeListener
   public void onMouseEvent(MouseInputEvent event) {
-    if (getGameSettings().keyBindUseItem.isKeyDown() && ticksHookDeployed > 0) {
+    if (getGameSettings().keyUse.isDown() && ticksHookDeployed > 0) {
       ticksCastDelay = castingDelay.getValue();
     }
   }

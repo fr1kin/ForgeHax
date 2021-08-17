@@ -17,8 +17,8 @@ import java.util.Objects;
 public class EntityPatch extends Patch {
 
   @Inject
-  @MapMethod("applyEntityCollision")
-  public void applyEntityCollision(MethodNode main,
+  @MapMethod(name = "push", argTypes = {Entity.class})
+  public void push(MethodNode main,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onApplyCollisionMotion") ASMMethod hook) {
     // @ this.addVelocity(-d0, 0.0D, -d1);
     AbstractInsnNode thisEntityPreNode =
@@ -75,8 +75,8 @@ public class EntityPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("doBlockCollisions")
-  public void transform(MethodNode main,
+  @MapMethod("checkInsideBlocks")
+  public void checkInsideBlocks(MethodNode main,
       @MapMethod(parentClass = ForgeHaxHooks.class, value = "shouldApplyBlockEntityCollisions") ASMMethod hook) {
     // >HERE<
     // blockstate.onEntityCollision(this.world, ...

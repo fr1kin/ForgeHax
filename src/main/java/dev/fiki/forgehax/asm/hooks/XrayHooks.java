@@ -73,7 +73,7 @@ public class XrayHooks {
     if (shouldXrayBlock.test(state)) {
       return RenderTypeLookup.canRenderInLayer(state, type);
     } else {
-      return type == RenderType.getTranslucent();
+      return type == RenderType.translucent();
     }
   }
 

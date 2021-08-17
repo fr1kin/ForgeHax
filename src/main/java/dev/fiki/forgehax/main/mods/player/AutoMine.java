@@ -26,19 +26,19 @@ public class AutoMine extends ToggleMod {
   private boolean pressed = false;
 
   private void setPressed(boolean state) {
-    getGameSettings().keyBindAttack.setPressed(state);
+    getGameSettings().keyAttack.setDown(state);
     pressed = state;
   }
 
   @Override
   protected void onEnabled() {
-    BindingHelper.disableContextHandler(getGameSettings().keyBindAttack);
+    BindingHelper.disableContextHandler(getGameSettings().keyAttack);
   }
 
   @Override
   protected void onDisabled() {
     setPressed(false);
-    BindingHelper.restoreContextHandler(getGameSettings().keyBindAttack);
+    BindingHelper.restoreContextHandler(getGameSettings().keyAttack);
   }
 
   @SubscribeListener

@@ -47,7 +47,7 @@ public class FPSLock extends ToggleMod {
 
   private int getFps() {
     if (no_focus_fps.getValue() > 0
-        && GLFW.glfwGetWindowAttrib(getMainWindow().getHandle(), GLFW.GLFW_FOCUSED) == GLFW.GLFW_FALSE) {
+        && GLFW.glfwGetWindowAttrib(getMainWindow().getWindow(), GLFW.GLFW_FOCUSED) == GLFW.GLFW_FALSE) {
       return no_focus_fps.getValue();
     } else if (getDisplayScreen() != null) {
       return menu_fps.getValue() > 0 ? menu_fps.getValue() : defaultFps.getValue();

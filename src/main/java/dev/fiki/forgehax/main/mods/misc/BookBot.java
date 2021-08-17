@@ -412,13 +412,13 @@ public class BookBot extends ToggleMod {
       }
 
       // set our client side book
-      stack.setTagInfo("pages", pages);
+      stack.addTagElement("pages", pages);
 
       // publish the book
       if (signBook) {
-        stack.setTagInfo("author",
+        stack.addTagElement("author",
             StringNBT.valueOf(getLocalPlayer().getGameProfile().getName()));
-        stack.setTagInfo("title", StringNBT.valueOf(parent.name.getValue()
+        stack.addTagElement("title", StringNBT.valueOf(parent.name.getValue()
             .replaceAll(NUMBER_TOKEN, "" + getBook())
             .trim()));
       }
@@ -447,7 +447,7 @@ public class BookBot extends ToggleMod {
           final ClientPlayerEntity lp = getLocalPlayer();
           final Slot selected = lp.getHotbarSlots().stream()
               .filter(s -> {
-                final ItemStack stack = s.getStack();
+                final ItemStack stack = s.getItem();
                 return !stack.isEmpty()
                     && Items.WRITABLE_BOOK.equals(stack.getItem())
                     // written but unsigned books
@@ -469,11 +469,11 @@ public class BookBot extends ToggleMod {
             sleep();
           }
 
-          final ItemStack item = selected.getStack();
+          final ItemStack item = selected.getItem();
 
           // open the book gui screen
           this.status = Status.OPENING_BOOK;
-          addScheduledTask(() -> getLocalPlayer().openBook(item, Hand.MAIN_HAND));
+          addScheduledTask(() -> getLocalPlayer().openItemGui(item, Hand.MAIN_HAND));
 
           // wait for gui to open
           while (!(getDisplayScreen() instanceof EditBookScreen)) {

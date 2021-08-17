@@ -61,11 +61,8 @@ public class HorseStats extends ToggleMod {
   private void applyStats(double newJump, double newSpeed) {
     LivingEntity living = (LivingEntity) getMountedEntity();
     if (living != null) {
-      living.getAttribute(Attributes.HORSE_JUMP_STRENGTH)
-          .setBaseValue(newJump);
-
-      living.getAttribute(Attributes.MOVEMENT_SPEED)
-          .setBaseValue(newSpeed);
+      living.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(newJump);
+      living.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(newSpeed);
     }
   }
 }

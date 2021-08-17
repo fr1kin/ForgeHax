@@ -23,7 +23,7 @@ public class VectorUtil implements Common {
     viewMatrix = view.copy();
 
     projectionViewMatrix = projectionMatrix.copy();
-    projectionViewMatrix.mul(viewMatrix);
+    projectionViewMatrix.multiply(viewMatrix);
 //    projectionViewMatrix.invert();
   }
 
@@ -37,27 +37,27 @@ public class VectorUtil implements Common {
     final double screenWidth = getScreenWidth();
     final double screenHeight = getScreenHeight();
 
-    Vector3d camera = getGameRenderer().getActiveRenderInfo().getProjectedView();
+    Vector3d camera = getGameRenderer().getMainCamera().getPosition();
     Vector3d dir = camera.subtract(x, y, z);
 
-    Vector4f pos = new Vector4f((float) dir.getX(), (float) dir.getY(), (float) dir.getZ(), 1.f);
+    Vector4f pos = new Vector4f((float) dir.x(), (float) dir.y(), (float) dir.z(), 1.f);
     pos.transform(projectionViewMatrix);
 
-    float w = pos.getW();
+    float w = pos.w();
     if (w < NEAR_PLANE && w != 0) {
       pos.perspectiveDivide();
     } else {
       // epic trick to get off screen coordinates to be in the correct orientation
       // then we scale the coordinate because we want it to be off screen
       float scale = (float) Math.max(screenWidth, screenHeight);
-      pos.setX(pos.getX() * -1 * scale);
-      pos.setY(pos.getY() * -1 * scale);
+      pos.setX(pos.x() * -1 * scale);
+      pos.setY(pos.y() * -1 * scale);
     }
 
     double hw = screenWidth / 2.d;
     double hh = screenHeight / 2.d;
-    double pointX = (hw * pos.getX()) + (pos.getX() + hw);
-    double pointY = -(hh * pos.getY()) + (pos.getY() + hh);
+    double pointX = (hw * pos.x()) + (pos.x() + hw);
+    double pointY = -(hh * pos.y()) + (pos.y() + hh);
 
     return new ScreenPos(pointX, pointY,
         pointX >= 0
@@ -67,7 +67,7 @@ public class VectorUtil implements Common {
   }
 
   public static ScreenPos toScreen(Vector3d vec) {
-    return toScreen(vec.getX(), vec.getY(), vec.getZ());
+    return toScreen(vec.x(), vec.y(), vec.z());
   }
 
   public static ScreenPos toScreen(Vector3i vec) {
@@ -83,7 +83,7 @@ public class VectorUtil implements Common {
   }
 
   public static double getCrosshairDistance(Vector3d eyes, Vector3d directionVec, Vector3d pos) {
-    return pos.subtract(eyes).normalize().subtract(directionVec).lengthSquared();
+    return pos.subtract(eyes).normalize().subtract(directionVec).lengthSqr();
   }
 
   public static Vector3d toFPIVector(Vector3i vec) {

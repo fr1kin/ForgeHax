@@ -26,10 +26,10 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 @RequiredArgsConstructor
 @ExtensionMethod({LocalPlayerEx.class})
 public class NoRotate extends ToggleMod {
-  @MapField(parentClass = SPlayerPositionLookPacket.class, value = "yaw")
+  @MapField(parentClass = SPlayerPositionLookPacket.class, value = "yRot")
   private final ReflectionField<Float> SPlayerPositionLookPacket_yaw;
 
-  @MapField(parentClass = SPlayerPositionLookPacket.class, value = "pitch")
+  @MapField(parentClass = SPlayerPositionLookPacket.class, value = "xRot")
   private final ReflectionField<Float> SPlayerPositionLookPacket_pitch;
 
   @SubscribeEvent
@@ -39,7 +39,7 @@ public class NoRotate extends ToggleMod {
       if (getLocalPlayer() != null) {
         Angle angle = getLocalPlayer().getViewAngles();
 
-        packet.getFlags().removeAll(Arrays.asList(Flags.X_ROT, Flags.Y_ROT));
+        packet.getRelativeArguments().removeAll(Arrays.asList(Flags.X_ROT, Flags.Y_ROT));
 
         SPlayerPositionLookPacket_yaw.set(packet, angle.getYaw());
         SPlayerPositionLookPacket_pitch.set(packet, angle.getPitch());

@@ -24,8 +24,8 @@ import static dev.fiki.forgehax.main.Common.getDisplayScreen;
 )
 @RequiredArgsConstructor
 public class InstantMessage extends ToggleMod {
-  @MapField(parentClass = ConnectingScreen.class, value = "networkManager")
-  private final ReflectionField<NetworkManager> ConnectingScreen_networkManager;
+  @MapField(parentClass = ConnectingScreen.class, value = "connection")
+  private final ReflectionField<NetworkManager> ConnectingScreen_connection;
 
   private final StringSetting message = newStringSetting()
       .name("message")
@@ -37,15 +37,15 @@ public class InstantMessage extends ToggleMod {
   public void onPacketIn(PacketInboundEvent event) {
     if (event.getPacket() instanceof SLoginSuccessPacket) {
       if (getDisplayScreen() instanceof ConnectingScreen) {
-        ServerData serverData = MC.getCurrentServerData();
-        String serverName = serverData != null ? serverData.serverName : "Unknown";
-        String serverIP = serverData != null ? serverData.serverIP : "";
+        ServerData serverData = MC.getCurrentServer();
+        String serverName = serverData != null ? serverData.name : "Unknown";
+        String serverIP = serverData != null ? serverData.ip : "";
 
-        ConnectingScreen_networkManager.get(getDisplayScreen()).sendPacket(new CChatMessagePacket(
+        ConnectingScreen_connection.get(getDisplayScreen()).send(new CChatMessagePacket(
             message.getValue()
                 .replace("{SRVNAME}", serverName)
                 .replace("{IP}", serverIP)
-                .replace("{NAME}", MC.getSession().getUsername())));
+                .replace("{NAME}", MC.getUser().getName())));
       } else {
         log.warn("Did not send message as current screen is not GuiConnecting");
       }

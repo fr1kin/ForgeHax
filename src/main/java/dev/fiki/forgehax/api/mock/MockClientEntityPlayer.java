@@ -17,9 +17,9 @@ public class MockClientEntityPlayer extends RemoteClientPlayerEntity {
   private GameType gameType = null;
 
   public MockClientEntityPlayer(ClientPlayerEntity player) {
-    super(player.worldClient, player.getGameProfile());
+    super(player.clientLevel, player.getGameProfile());
     this.mocking = player; //new GameProfile(UUID.randomUUID(), player.getGameProfile().getName())
-    this.gameType = MC.getConnection().getPlayerInfo(player.getGameProfile().getId()).getGameType();
+    this.gameType = MC.getConnection().getPlayerInfo(player.getGameProfile().getId()).getGameMode();
   }
   
   @SneakyThrows
@@ -33,34 +33,38 @@ public class MockClientEntityPlayer extends RemoteClientPlayerEntity {
   public void mockInventory() {
     // copy inventory from host into mocked player
     ListNBT nbt = new ListNBT();
-    mocking.inventory.write(nbt);
-    this.inventory.read(nbt);
-    this.inventory.currentItem = mocking.inventory.currentItem;
+    mocking.inventory.save(nbt);
+    this.inventory.load(nbt);
+    this.inventory.selected = mocking.inventory.selected;
 
     // copy inventory
-    this.container.setAll(mocking.container.getInventory());
+    this.inventoryMenu.setAll(mocking.inventoryMenu.getItems());
   }
 
   public void disableSwing() {
-    limbSwing = 0.f;
-    limbSwingAmount = 0.f;
+//    limbSwing = 0.f;
+//    limbSwingAmount = 0.f;
+    swingTime = 0;
   }
   
   public void disableInterpolation() {
-    prevCameraYaw = cameraYaw;
-    prevChasingPosX = chasingPosX;
-    prevChasingPosY = chasingPosY;
-    prevChasingPosZ = chasingPosZ;
-    prevDistanceWalkedModified = distanceWalkedModified;
-    prevLimbSwingAmount = limbSwingAmount;
-    prevPosX = getPosX();
-    prevPosY = getPosY();
-    prevPosZ = getPosZ();
-    prevRenderYawOffset = renderYawOffset;
-    prevRotationPitch = rotationPitch;
-    prevRotationYaw = rotationYaw;
-    prevRotationYawHead = rotationYawHead;
-    prevSwingProgress = swingProgress;
+    xOld = getX();
+    yOld = getY();
+    zOld = getZ();
+    xo = getX();
+    yOld = getY();
+    zOld = getZ();
+    oBob = bob;
+    xCloakO = xCloak;
+    yCloakO = yCloak;
+    zCloakO = zCloak;
+    walkDistO = walkDist;
+    xRotO = xRot;
+    yRotO = yRot;
+    yBodyRotO = yBodyRot;
+    yHeadRotO = yHeadRot;
+    animStepO = animStep;
+    oRun = run;
   }
 
   @Override

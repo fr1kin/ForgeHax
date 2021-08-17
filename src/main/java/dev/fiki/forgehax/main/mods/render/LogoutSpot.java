@@ -101,7 +101,7 @@ public class LogoutSpot extends ToggleMod {
       return;
     }
 
-    PlayerEntity player = getWorld().getPlayerByUuid(event.getPlayerInfo().getUuid());
+    PlayerEntity player = getWorld().getPlayerByUUID(event.getPlayerInfo().getUuid());
     if (player != null && getLocalPlayer() != null && !getLocalPlayer().equals(player)) {
       AxisAlignedBB bb = player.getBoundingBox();
       synchronized (spots) {
@@ -126,7 +126,7 @@ public class LogoutSpot extends ToggleMod {
         Vector3d top = spot.getTopVec();
         ScreenPos upper = VectorUtil.toScreen(top);
         if (upper.isVisible()) {
-          double distance = getLocalPlayer().getPositionVec().distanceTo(top);
+          double distance = getLocalPlayer().position().distanceTo(top);
           String name = String.format("%s (%.1f)", spot.getName(), distance);
           SurfaceHelper.drawTextShadow(
               name,
@@ -146,7 +146,7 @@ public class LogoutSpot extends ToggleMod {
 
     val stack = event.getStack();
     val builder = event.getBuffer();
-    stack.push();
+    stack.pushPose();
 
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
@@ -158,14 +158,14 @@ public class LogoutSpot extends ToggleMod {
     }
 
     builder.draw();
-    stack.pop();
+    stack.popPose();
   }
 
   @SubscribeListener
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     if (maxDistance.getValue() > 0) {
       synchronized (spots) {
-        spots.removeIf(pos -> getLocalPlayer().getPositionVec().distanceTo(pos.getTopVec())
+        spots.removeIf(pos -> getLocalPlayer().position().distanceTo(pos.getTopVec())
             > maxDistance.getValue());
       }
     }

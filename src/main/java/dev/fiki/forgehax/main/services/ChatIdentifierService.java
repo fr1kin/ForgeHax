@@ -57,7 +57,7 @@ public class ChatIdentifierService extends ServiceMod {
       return;
     } else if (event.getPacket() instanceof SChatPacket) {
       SChatPacket packet = (SChatPacket) event.getPacket();
-      String message = packet.getChatComponent().getUnformattedComponentText();
+      String message = packet.getMessage().getString();
       if (!Strings.isNullOrEmpty(message)) {
         // normal public messages
         if (extract(message, MESSAGE_PATTERNS,

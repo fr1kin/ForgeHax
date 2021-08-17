@@ -11,7 +11,6 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -24,45 +23,50 @@ public class EmptyPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public ItemStack getCurrentItem() {
+  public ItemStack getSelected() {
     return ItemStack.EMPTY;
   }
 
   @Override
-  public int getFirstEmptyStack() {
-    return 0;
+  public int getFreeSlot() {
+    return -1;
   }
 
   @Override
-  public void setPickedItemStack(ItemStack stack) {
+  public void setPickedItem(ItemStack p_184434_1_) {
   }
 
   @Override
-  public void pickItem(int index) {
+  public void pickSlot(int p_184430_1_) {
   }
 
   @Override
-  public int getSlotFor(ItemStack stack) {
-    return 0;
+  public int findSlotMatchingItem(ItemStack p_184429_1_) {
+    return -1;
   }
 
   @Override
   public int findSlotMatchingUnusedItem(ItemStack p_194014_1_) {
-    return 0;
+    return -1;
   }
 
   @Override
-  public int getBestHotbarSlot() {
-    return 0;
+  public int getSuitableHotbarSlot() {
+    return -1;
   }
 
   @Override
-  public void changeCurrentItem(double direction) {
+  public void swapPaint(double p_195409_1_) {
   }
 
   @Override
-  public int storeItemStack(ItemStack itemStackIn) {
-    return 0;
+  public int clearOrCountMatchingItems(Predicate<ItemStack> p_234564_1_, int p_234564_2_, IInventory p_234564_3_) {
+    return -1;
+  }
+
+  @Override
+  public int getSlotWithRemainingSpace(ItemStack p_70432_1_) {
+    return -1;
   }
 
   @Override
@@ -70,53 +74,53 @@ public class EmptyPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public boolean addItemStackToInventory(ItemStack itemStackIn) {
+  public boolean add(ItemStack p_70441_1_) {
     return false;
   }
 
   @Override
-  public boolean add(int slotIn, ItemStack stack) {
+  public boolean add(int p_191971_1_, ItemStack p_191971_2_) {
     return false;
   }
 
   @Override
-  public void placeItemBackInInventory(World worldIn, ItemStack stack) {
+  public void placeItemBackInInventory(World p_191975_1_, ItemStack p_191975_2_) {
   }
 
   @Override
-  public ItemStack decrStackSize(int index, int count) {
+  public ItemStack removeItem(int p_70298_1_, int p_70298_2_) {
     return ItemStack.EMPTY;
   }
 
   @Override
-  public void deleteStack(ItemStack stack) {
+  public void removeItem(ItemStack p_184437_1_) {
   }
 
   @Override
-  public ItemStack removeStackFromSlot(int index) {
+  public ItemStack removeItemNoUpdate(int p_70304_1_) {
     return ItemStack.EMPTY;
   }
 
   @Override
-  public void setInventorySlotContents(int index, ItemStack stack) {
+  public void setItem(int p_70299_1_, ItemStack p_70299_2_) {
   }
 
   @Override
-  public float getDestroySpeed(BlockState state) {
-    return 1.f;
+  public float getDestroySpeed(BlockState p_184438_1_) {
+    return 0.f;
   }
 
   @Override
-  public ListNBT write(ListNBT nbtTagListIn) {
-    return nbtTagListIn;
+  public ListNBT save(ListNBT p_70442_1_) {
+    return new ListNBT();
   }
 
   @Override
-  public void read(ListNBT nbtTagListIn) {
+  public void load(ListNBT p_70443_1_) {
   }
 
   @Override
-  public int getSizeInventory() {
+  public int getContainerSize() {
     return 0;
   }
 
@@ -126,26 +130,30 @@ public class EmptyPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public ItemStack getStackInSlot(int index) {
+  public ItemStack getItem(int p_70301_1_) {
     return ItemStack.EMPTY;
   }
 
   @Override
   public ITextComponent getName() {
-    return new StringTextComponent("FakeInventory");
+    return ItemStack.EMPTY.getDisplayName();
   }
 
   @Override
-  public ItemStack armorItemInSlot(int slotIn) {
+  public ItemStack getArmor(int p_70440_1_) {
     return ItemStack.EMPTY;
   }
 
   @Override
-  public void dropAllItems() {
+  public void hurtArmor(DamageSource p_234563_1_, float p_234563_2_) {
   }
 
   @Override
-  public void markDirty() {
+  public void dropAll() {
+  }
+
+  @Override
+  public void setChanged() {
   }
 
   @Override
@@ -154,61 +162,66 @@ public class EmptyPlayerInventory extends PlayerInventory {
   }
 
   @Override
-  public void setItemStack(ItemStack itemStackIn) {
+  public void setCarried(ItemStack p_70437_1_) {
   }
 
   @Override
-  public ItemStack getItemStack() {
+  public ItemStack getCarried() {
     return ItemStack.EMPTY;
   }
 
   @Override
-  public boolean isUsableByPlayer(PlayerEntity player) {
+  public boolean stillValid(PlayerEntity p_70300_1_) {
     return false;
   }
 
   @Override
-  public boolean hasItemStack(ItemStack itemStackIn) {
+  public boolean contains(ItemStack p_70431_1_) {
     return false;
   }
 
   @Override
-  public void copyInventory(PlayerInventory playerInventory) {
+  public boolean contains(ITag<Item> p_199712_1_) {
+    return false;
   }
 
   @Override
-  public void clear() {
+  public void replaceWith(PlayerInventory p_70455_1_) {
   }
 
   @Override
-  public void accountStacks(RecipeItemHelper p_201571_1_) {
+  public void clearContent() {
   }
 
   @Override
-  public int getInventoryStackLimit() {
+  public void fillStackedContents(RecipeItemHelper p_201571_1_) {
+  }
+
+  @Override
+  public int getMaxStackSize() {
     return 0;
   }
 
   @Override
-  public void openInventory(PlayerEntity player) {
+  public void startOpen(PlayerEntity p_174889_1_) {
   }
 
   @Override
-  public void closeInventory(PlayerEntity player) {
+  public void stopOpen(PlayerEntity p_174886_1_) {
   }
 
   @Override
-  public boolean isItemValidForSlot(int index, ItemStack stack) {
+  public boolean canPlaceItem(int p_94041_1_, ItemStack p_94041_2_) {
     return false;
   }
 
   @Override
-  public int count(Item itemIn) {
+  public int countItem(Item p_213901_1_) {
     return 0;
   }
 
   @Override
-  public boolean hasAny(Set<Item> set) {
+  public boolean hasAnyOf(Set<Item> p_213902_1_) {
     return false;
   }
 
@@ -219,26 +232,12 @@ public class EmptyPlayerInventory extends PlayerInventory {
 
   @Override
   public ITextComponent getDisplayName() {
-    return new StringTextComponent("FakeInventory");
+    return ItemStack.EMPTY.getDisplayName();
   }
 
   @Nullable
   @Override
   public ITextComponent getCustomName() {
-    return new StringTextComponent("FakeInventory");
-  }
-
-  @Override
-  public int func_234564_a_(Predicate<ItemStack> p_234564_1_, int p_234564_2_, IInventory p_234564_3_) {
-    return 0;
-  }
-
-  @Override
-  public void func_234563_a_(DamageSource p_234563_1_, float p_234563_2_) {
-  }
-
-  @Override
-  public boolean hasTag(ITag<Item> itemTag) {
-    return false;
+    return ItemStack.EMPTY.getDisplayName();
   }
 }

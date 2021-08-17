@@ -110,7 +110,7 @@ public class Tracers extends ToggleMod implements Colors {
     final double cx = event.getScreenWidth() / 2.f;
     final double cy = event.getScreenHeight() / 2.f;
 
-    StreamSupport.stream(Common.getWorld().getAllEntities().spliterator(), false)
+    StreamSupport.stream(Common.getWorld().entitiesForRendering().spliterator(), false)
         .filter(entity -> !Objects.equals(entity, Common.getLocalPlayer()))
         .filter(LivingEntity.class::isInstance)
         .map(EntityRelations::new)
@@ -121,7 +121,7 @@ public class Tracers extends ToggleMod implements Colors {
               Entity entity = er.getEntity();
               RelationState relationship = er.getRelationship();
 
-              Vector3d entityPos = entity.getInterpolatedEyePos(MC.getRenderPartialTicks());
+              Vector3d entityPos = entity.getInterpolatedEyePos(MC.getDeltaFrameTime());
               ScreenPos screenPos = VectorUtil.toScreen(entityPos);
 
               Color color = er.getColor().setAlpha(alpha.getValue());

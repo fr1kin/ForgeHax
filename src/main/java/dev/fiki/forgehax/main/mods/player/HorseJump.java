@@ -19,11 +19,11 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 )
 @RequiredArgsConstructor
 public class HorseJump extends ToggleMod {
-  @MapField(parentClass = ClientPlayerEntity.class, value = "horseJumpPower")
-  public final ReflectionField<Float> ClientPlayerEntity_horseJumpPower;
+  @MapField(parentClass = ClientPlayerEntity.class, value = "jumpRidingScale")
+  public final ReflectionField<Float> ClientPlayerEntity_jumpRidingScale;
 
   @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    ClientPlayerEntity_horseJumpPower.set(getLocalPlayer(), 1.F);
+    ClientPlayerEntity_jumpRidingScale.set(getLocalPlayer(), 1.F);
   }
 }

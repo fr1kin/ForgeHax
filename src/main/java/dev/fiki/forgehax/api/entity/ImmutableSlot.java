@@ -10,12 +10,12 @@ public class ImmutableSlot extends Slot {
   private final ItemStack stack;
 
   public ImmutableSlot(Slot slot) {
-    super(slot.inventory, slot.getSlotIndex(), slot.xPos, slot.yPos);
-    this.slotNumber = ItemEx.getSlotNumber(slot);
-    this.stack = slot.getStack().copy();
+    super(slot.container, slot.getSlotIndex(), slot.x, slot.y);
+    this.index = ItemEx.getSlotNumber(slot);
+    this.stack = slot.getItem().copy();
   }
 
   public ItemStack getStackFromInventory() {
-    return super.getStack();
+    return super.getItem();
   }
 }

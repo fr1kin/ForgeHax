@@ -19,11 +19,11 @@ import static dev.fiki.forgehax.main.Common.getLocalPlayer;
 )
 @RequiredArgsConstructor
 public class PortalGui extends ToggleMod {
-  @MapField(parentClass = Entity.class, value = "inPortal")
-  private final ReflectionField<Boolean> Entity_inPortal;
+  @MapField(parentClass = Entity.class, value = "isInsidePortal")
+  private final ReflectionField<Boolean> Entity_isInsidePortal;
 
   @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
-    Entity_inPortal.set(getLocalPlayer(), false);
+    Entity_isInsidePortal.set(getLocalPlayer(), false);
   }
 }

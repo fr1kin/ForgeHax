@@ -95,30 +95,30 @@ public class BindingHelper {
     } else {
       len = "key.".length();
     }
-    return input.getTranslationKey().substring(len);
+    return input.getName().substring(len);
   }
 
   public static InputMappings.Input getInputByName(String name) {
-    return ReflectionTools.getInstance().InputMappings_Input_REGISTRY.get(null)
+    return ReflectionTools.getInstance().InputMappings_Input_NAME_MAP.get(null)
         .values()
         .stream()
-        .filter(input -> input.getTranslationKey().equalsIgnoreCase(name)
+        .filter(input -> input.getName().equalsIgnoreCase(name)
             || trimInputKeyName(input).equalsIgnoreCase(name))
         .findFirst()
         .orElseThrow(() -> new Error("Unknown key: " + name));
   }
 
   public static InputMappings.Input getInputByKeyCode(int keyCode) {
-    return ReflectionTools.getInstance().InputMappings_Input_REGISTRY.get(null)
+    return ReflectionTools.getInstance().InputMappings_Input_NAME_MAP.get(null)
         .values()
         .stream()
-        .filter(input -> input.getKeyCode() == keyCode)
+        .filter(input -> input.getValue() == keyCode)
         .findFirst()
         .orElse(getInputUnknown());
   }
 
   public static InputMappings.Input getInputUnknown() {
-    return InputMappings.INPUT_INVALID;
+    return InputMappings.UNKNOWN;
   }
 
   public static boolean isInputUnknown(InputMappings.Input input) {
@@ -139,10 +139,10 @@ public class BindingHelper {
   public static boolean removeBinding(KeyBinding binding) {
     requiresMainThreadExecution();
 
-    int i = ArrayUtils.indexOf(getGameSettings().keyBindings, binding);
+    int i = ArrayUtils.indexOf(getGameSettings().keyMappings, binding);
 
     if (i != -1) {
-      getGameSettings().keyBindings = ArrayUtils.remove(getGameSettings().keyBindings, i);
+      getGameSettings().keyMappings = ArrayUtils.remove(getGameSettings().keyMappings, i);
       updateKeyBindings();
       return true;
     }
@@ -152,14 +152,14 @@ public class BindingHelper {
 
   public static void updateKeyBindings() {
     requiresMainThreadExecution();
-    KeyBinding.resetKeyBindingArrayAndHash();
+    KeyBinding.resetMapping();
   }
 
   public static void saveGameSettings() {
     if (getGameSettings() != null) {
       suppressingSettingsPacket = true;
       try {
-        getGameSettings().saveOptions();
+        getGameSettings().save();
       } finally {
         suppressingSettingsPacket = false;
       }
@@ -167,8 +167,8 @@ public class BindingHelper {
   }
 
   public static KeyBinding getKeyBindByDescription(String desc) {
-    for (KeyBinding kb : getGameSettings().keyBindings) {
-      if (kb.getKeyDescription().equalsIgnoreCase(desc)) {
+    for (KeyBinding kb : getGameSettings().keyMappings) {
+      if (kb.getName().equalsIgnoreCase(desc)) {
         return kb;
       }
     }

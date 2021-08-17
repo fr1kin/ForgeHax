@@ -55,7 +55,7 @@ public class PlayerInfo implements Common {
   }
 
   public UUID getOfflineId() {
-    return PlayerEntity.getOfflineUUID(username);
+    return PlayerEntity.createPlayerUUID(username);
   }
 
   /**

@@ -24,12 +24,12 @@ public class GuiMove extends ToggleMod {
   @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
     KeyBinding[] keys = {
-        getGameSettings().keyBindForward,
-        getGameSettings().keyBindBack,
-        getGameSettings().keyBindLeft,
-        getGameSettings().keyBindRight,
-        getGameSettings().keyBindJump,
-        getGameSettings().keyBindSprint
+        getGameSettings().keyUp,
+        getGameSettings().keyDown,
+        getGameSettings().keyLeft,
+        getGameSettings().keyRight,
+        getGameSettings().keyJump,
+        getGameSettings().keySprint
     };
     if (getDisplayScreen() instanceof OptionsScreen
         || getDisplayScreen() instanceof VideoSettingsScreen
@@ -37,13 +37,13 @@ public class GuiMove extends ToggleMod {
         || getDisplayScreen() instanceof ContainerScreen
         || getDisplayScreen() instanceof IngameMenuScreen) {
       for (KeyBinding bind : keys) {
-        KeyBinding.setKeyBindState(bind.getKey(),
-            InputMappings.isKeyDown(getMainWindow().getHandle(), bind.getKey().getKeyCode()));
+        KeyBinding.set(bind.getKey(),
+            InputMappings.isKeyDown(getMainWindow().getWindow(), bind.getKey().getValue()));
       }
     } else if (getDisplayScreen() == null) {
       for (KeyBinding bind : keys) {
-        if (InputMappings.isKeyDown(getMainWindow().getHandle(), bind.getKey().getKeyCode())) {
-          KeyBinding.setKeyBindState(bind.getKey(), false);
+        if (InputMappings.isKeyDown(getMainWindow().getWindow(), bind.getKey().getValue())) {
+          KeyBinding.set(bind.getKey(), false);
         }
       }
     }

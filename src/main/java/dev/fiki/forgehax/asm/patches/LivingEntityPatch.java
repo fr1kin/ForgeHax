@@ -45,12 +45,12 @@ public class LivingEntityPatch extends Patch {
   @MapMethod("travel")
   public void travel_Elytra(MethodNode node,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldApplyElytraMovement") ASMMethod hook,
-      @MapMethod("isElytraFlying") ASMMethod isElytraFlying) {
+      @MapMethod("isFallFlying") ASMMethod isFallFlying) {
     AbstractInsnNode flyingNode = ASMPattern.builder()
         .codeOnly()
         .custom(n -> {
           if (n instanceof MethodInsnNode) {
-            return isElytraFlying.anyNameEqual(((MethodInsnNode) n).name);
+            return isFallFlying.anyNameEqual(((MethodInsnNode) n).name);
           }
           return false;
         })
@@ -69,8 +69,8 @@ public class LivingEntityPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("livingTick")
-  public void transform(MethodNode node,
+  @MapMethod("aiStep")
+  public void aiStep(MethodNode node,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldClampMotion") ASMMethod hook,
       @MapField(parentClass = Vector3d.class, value = "z") ASMField vec3d_z) {
     // double d5 = Vector3d.z;

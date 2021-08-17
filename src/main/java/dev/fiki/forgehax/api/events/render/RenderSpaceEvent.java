@@ -16,7 +16,7 @@ public class RenderSpaceEvent extends Event {
   private final float partialTicks;
 
   public BufferBuilder getBuffer() {
-    return Tessellator.getInstance().getBuffer();
+    return Tessellator.getInstance().getBuilder();
   }
 
   public Vector3d getProjectedPos() {

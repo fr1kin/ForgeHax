@@ -117,7 +117,7 @@ public class ActiveModList extends HudMod {
       text.add(generateTickRateText());
     }
 
-    if (getDisplayScreen() instanceof ChatScreen || getGameSettings().showDebugInfo) {
+    if (getDisplayScreen() instanceof ChatScreen || getGameSettings().renderDebug) {
       long enabledMods = getModManager().getMods()
           .filter(AbstractMod::isEnabled)
           .filter(mod -> !mod.isHidden())

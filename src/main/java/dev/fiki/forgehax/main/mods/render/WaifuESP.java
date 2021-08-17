@@ -70,12 +70,12 @@ public class WaifuESP extends ToggleMod {
       return;
     }
 
-    for (Entity entity : getWorld().getAllEntities()) {
-      if (entity.isLiving() && shouldDraw((LivingEntity) entity)) {
+    for (Entity entity : getWorld().entitiesForRendering()) {
+      if (entity.showVehicleHealth() && shouldDraw((LivingEntity) entity)) {
         LivingEntity living = (LivingEntity) (entity);
         Vector3d bottomVec = living.getInterpolatedPos(event.getPartialTicks());
         Vector3d topVec =
-            bottomVec.add(new Vector3d(0, (entity.getRenderBoundingBox().maxY - entity.getPosY()), 0));
+            bottomVec.add(new Vector3d(0, (entity.getBoundingBox().maxY - entity.getY()), 0));
         ScreenPos top = VectorUtil.toScreen(topVec);
         ScreenPos bot = VectorUtil.toScreen(bottomVec);
         if (top.isVisible() || bot.isVisible()) {
@@ -87,7 +87,7 @@ public class WaifuESP extends ToggleMod {
           int y = top.getYAsInteger();
 
           // draw waifu
-          MC.getTextureManager().bindTexture(waifu);
+          MC.getTextureManager().bind(waifu);
 
           RenderSystem.color4f(1.f, 1.f, 1.f, 1.f);
           SurfaceHelper.drawScaledCustomSizeModalRect(
@@ -131,8 +131,8 @@ public class WaifuESP extends ToggleMod {
 
             // TODO: 1.15 BufferedImage -> NativeImage
             DynamicTexture dynamicTexture = new DynamicTexture(null);
-            dynamicTexture.loadTexture(MC.getResourceManager());
-            waifu = MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
+            dynamicTexture.load(MC.getResourceManager());
+            waifu = MC.getTextureManager().register("WAIFU", dynamicTexture);
           } catch (Exception e) {
             e.printStackTrace();
           }

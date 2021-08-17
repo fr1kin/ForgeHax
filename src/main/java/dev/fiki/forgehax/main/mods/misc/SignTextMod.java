@@ -26,8 +26,8 @@ import java.awt.datatransfer.StringSelection;
 )
 @RequiredArgsConstructor
 public class SignTextMod extends ToggleMod {
-  @MapField(parentClass = SignTileEntity.class, value = "signText")
-  private final ReflectionField<ITextComponent[]> SignTileEntity_signText;
+  @MapField(parentClass = SignTileEntity.class, value = "messages")
+  private final ReflectionField<ITextComponent[]> SignTileEntity_messages;
 
   @SubscribeListener
   public void onInput(MouseInputEvent event) {
@@ -35,16 +35,16 @@ public class SignTextMod extends ToggleMod {
     if (event.getButton() == 2 /*&& Mouse.getEventButtonState()*/) { // on middle click
       RayTraceResult result = Common.getLocalPlayer().pick(999, 0, false);
       if (RayTraceResult.Type.BLOCK.equals(result.getType())) {
-        TileEntity tileEntity = Common.getWorld().getTileEntity(new BlockPos(result.getHitVec()));
+        TileEntity tileEntity = Common.getWorld().getBlockEntity(new BlockPos(result.getLocation()));
 
         if (tileEntity instanceof SignTileEntity) {
           SignTileEntity sign = (SignTileEntity) tileEntity;
-          ITextComponent[] texts = SignTileEntity_signText.get(sign);
+          ITextComponent[] texts = SignTileEntity_messages.get(sign);
 
           int signTextLength = 0;
           // find the first line from the bottom that isn't empty
           for (int i = 3; i >= 0; i--) {
-            if (!texts[i].getUnformattedComponentText().isEmpty()) {
+            if (!texts[i].getString().isEmpty()) {
               signTextLength = i + 1;
               break;
             }

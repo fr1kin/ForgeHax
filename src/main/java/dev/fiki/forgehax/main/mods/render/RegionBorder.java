@@ -47,26 +47,26 @@ public class RegionBorder extends ToggleMod {
   public void onRender(RenderSpaceEvent event) {
     val stack = event.getStack();
     val builder = event.getBuffer();
-    stack.push();
+    stack.pushPose();
 
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
-    BlockPos from = new BlockPos((((int) getLocalPlayer().getPosX()) / 512) * 512,
-        0, (((int) getLocalPlayer().getPosZ()) / 512) * 512);
-    BlockPos to = from.add(511, 256, 511);
+    BlockPos from = new BlockPos((((int) getLocalPlayer().getX()) / 512) * 512,
+        0, (((int) getLocalPlayer().getZ()) / 512) * 512);
+    BlockPos to = from.offset(511, 256, 511);
 
     if (drawRegionBorder.getValue()) {
       builder.outlinedCube(from, to, GeometryMasks.Line.ALL, Colors.ORANGE, stack.getLastMatrix());
     }
 
     final int chunkDistanceSetting = chunkDistance.getValue() * 16;
-    from = from.add(chunkDistanceSetting, 0, chunkDistanceSetting);
-    to = to.add(-chunkDistanceSetting, 0, -chunkDistanceSetting);
+    from = from.offset(chunkDistanceSetting, 0, chunkDistanceSetting);
+    to = to.offset(-chunkDistanceSetting, 0, -chunkDistanceSetting);
 
     builder.outlinedCube(from, to, GeometryMasks.Line.ALL, Colors.YELLOW, stack.getLastMatrix());
 
     builder.draw();
-    stack.pop();
+    stack.popPose();
   }
 }
 

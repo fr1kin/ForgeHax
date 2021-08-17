@@ -70,7 +70,7 @@ public class MacroCommand extends CommandMod {
         
         if (data.hasOption("key")) {
           // remove by key
-          final int key = InputMappings.getInputByName(data.getOptionAsString("key")).getKeyCode();
+          final int key = InputMappings.getInputByName(data.getOptionAsString("key")).getValue();
           MACROS
             .stream()
             .filter(macro -> macro.getKey() == key)
@@ -229,7 +229,7 @@ public class MacroCommand extends CommandMod {
     }
     
     public int getKey() {
-      return Optional.ofNullable(bind).map(KeyBinding::getKeyCode).orElse(this.key);
+      return Optional.ofNullable(bind).map(KeyBinding::getValue).orElse(this.key);
     }
     
     public Optional<String> getName() {

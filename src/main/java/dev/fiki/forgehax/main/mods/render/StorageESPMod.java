@@ -105,8 +105,8 @@ public class StorageESPMod extends ToggleMod {
     } else if (e instanceof HopperMinecartEntity) {
       return hopperColor.getValue();
     } else if (e instanceof ItemFrameEntity
-        && ((ItemFrameEntity) e).getDisplayedItem().getItem() instanceof BlockItem
-        && ((BlockItem) ((ItemFrameEntity) e).getDisplayedItem().getItem()).getBlock() instanceof ShulkerBoxBlock) {
+        && ((ItemFrameEntity) e).getItem().getItem() instanceof BlockItem
+        && ((BlockItem) ((ItemFrameEntity) e).getItem().getItem()).getBlock() instanceof ShulkerBoxBlock) {
       return shulkerBoxColor.getValue();
     }
     return null;
@@ -116,29 +116,29 @@ public class StorageESPMod extends ToggleMod {
   public void onRender(RenderSpaceEvent event) {
     val stack = event.getStack();
     val buffer = event.getBuffer();
-    stack.push();
+    stack.pushPose();
     stack.translateVec(event.getProjectedPos().scale(-1));
 
     buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
-    for (TileEntity ent : getWorld().loadedTileEntityList) {
+    for (TileEntity ent : getWorld().tickableBlockEntities) {
       Color color = getTileEntityColor(ent);
       if (color != null && color.getAlpha() > 0) {
         BlockState state = ent.getBlockState();
-        VoxelShape voxel = state.getCollisionShape(getWorld(), ent.getPos());
+        VoxelShape voxel = state.getCollisionShape(getWorld(), ent.getBlockPos());
         if (!voxel.isEmpty()) {
-          buffer.outlinedCube(voxel.getBoundingBox().offset(ent.getPos()),
+          buffer.outlinedCube(voxel.bounds().move(ent.getBlockPos()),
               GeometryMasks.Line.ALL, color, stack.getLastMatrix());
         }
       }
     }
 
-    for (Entity ent : getWorld().getAllEntities()) {
+    for (Entity ent : getWorld().entitiesForRendering()) {
       Color color = getEntityColor(ent);
       if (color != null && color.getAlpha() > 0) {
         buffer.outlinedCube(ent.getBoundingBox()
-                .offset(ent.getPositionVec().scale(-1D))
-                .offset(ent.getInterpolatedPos(event.getPartialTicks())),
+                .expandTowards(ent.position().scale(-1D))
+                .expandTowards(ent.getInterpolatedPos(event.getPartialTicks())),
             GeometryMasks.Line.ALL, color, stack.getLastMatrix());
       }
     }
@@ -150,6 +150,6 @@ public class StorageESPMod extends ToggleMod {
 
     buffer.draw();
     GL11.glDisable(GL11.GL_LINE_SMOOTH);
-    stack.pop();
+    stack.popPose();
   }
 }

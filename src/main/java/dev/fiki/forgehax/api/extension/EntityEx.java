@@ -35,8 +35,8 @@ public final class EntityEx {
   public static boolean isMobAggressive(Entity entity) {
     // if the owner is the local player, then the entity is (probably) not aggressive towards him
     if (entity instanceof TameableEntity) {
-      final UUID owner = ((TameableEntity) entity).getOwnerId();
-      if (owner != null && getLocalPlayer() != null && owner.equals(getLocalPlayer().getUniqueID())) {
+      final UUID owner = ((TameableEntity) entity).getOwnerUUID();
+      if (owner != null && getLocalPlayer() != null && owner.equals(getLocalPlayer().getUUID())) {
         return false;
       }
     }
@@ -50,7 +50,7 @@ public final class EntityEx {
 
     // this is usually server side only, but it can be networked for some entities
     if (!aggressive && entity instanceof IAngerable) {
-      aggressive = ((IAngerable) entity).func_233678_J__();
+      aggressive = ((IAngerable) entity).isAngry();
     }
 
     return aggressive;
@@ -79,8 +79,8 @@ public final class EntityEx {
   }
 
   public static boolean isValidEntity(Entity entity) {
-    Entity riding = getLocalPlayer().getRidingEntity();
-    return entity.ticksExisted > 1
+    Entity riding = getLocalPlayer().getVehicle();
+    return entity.tickCount > 1
         && (riding == null || !riding.equals(entity));
   }
 
@@ -92,14 +92,14 @@ public final class EntityEx {
    * If the mob is friendly (not aggressive)
    */
   public static boolean isPeaceful(Entity entity) {
-    return entity.getClassification(false).getPeacefulCreature();
+    return entity.getClassification(false).isFriendly();
   }
 
   /**
    * If the mob is hostile
    */
   public static boolean isHostile(Entity entity) {
-    return !entity.getClassification(false).getPeacefulCreature();
+    return !entity.getClassification(false).isFriendly();
   }
 
   /**
@@ -107,9 +107,9 @@ public final class EntityEx {
    */
   public static Vector3d getInterpolatedAmount(Entity entity, double x, double y, double z) {
     return new Vector3d(
-        (entity.getPosX() - entity.lastTickPosX) * x,
-        (entity.getPosY() - entity.lastTickPosY) * y,
-        (entity.getPosZ() - entity.lastTickPosZ) * z);
+        (entity.getX() - entity.xOld) * x,
+        (entity.getY() - entity.yOld) * y,
+        (entity.getZ() - entity.zOld) * z);
   }
 
   public static Vector3d getInterpolatedAmount(Entity entity, Vector3d vec) {
@@ -124,16 +124,16 @@ public final class EntityEx {
    * Find the entities interpolated position
    */
   public static Vector3d getInterpolatedPos(Entity entity, double ticks) {
-    double x = MathHelper.lerp(ticks, entity.lastTickPosX, entity.getPosX());
-    double y = MathHelper.lerp(ticks, entity.lastTickPosY, entity.getPosY());
-    double z = MathHelper.lerp(ticks, entity.lastTickPosZ, entity.getPosZ());
+    double x = MathHelper.lerp(ticks, entity.xOld, entity.getX());
+    double y = MathHelper.lerp(ticks, entity.yOld, entity.getY());
+    double z = MathHelper.lerp(ticks, entity.zOld, entity.getZ());
     return new Vector3d(x, y, z);
   }
 
   public static Vector3d getInterpolatedPos(Entity entity, Vector3d start, double ticks) {
-    double x = MathHelper.lerp(ticks, entity.lastTickPosX, start.getX());
-    double y = MathHelper.lerp(ticks, entity.lastTickPosY, start.getY());
-    double z = MathHelper.lerp(ticks, entity.lastTickPosZ, start.getZ());
+    double x = MathHelper.lerp(ticks, entity.xOld, start.x);
+    double y = MathHelper.lerp(ticks, entity.yOld, start.y);
+    double z = MathHelper.lerp(ticks, entity.zOld, start.z);
     return new Vector3d(x, y, z);
   }
 
@@ -148,7 +148,7 @@ public final class EntityEx {
    * Get entities eye position
    */
   public static Vector3d getEyePos(Entity entity) {
-    return new Vector3d(entity.getPosX(), entity.getPosY() + entity.getEyeHeight(), entity.getPosZ());
+    return new Vector3d(entity.getX(), entity.getY() + entity.getEyeHeight(), entity.getZ());
   }
 
   /**
@@ -181,10 +181,10 @@ public final class EntityEx {
 
     // increasing this seems to flag more in NCP but needs to be increased
     // so the player lands on solid water
-    double y = entity.getPosY() - (packet ? 0.03 : (EntityEx.isPlayerType(entity) ? 0.2 : 0.5));
+    double y = entity.getY() - (packet ? 0.03 : (EntityEx.isPlayerType(entity) ? 0.2 : 0.5));
 
-    for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
-      for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
+    for (int x = MathHelper.floor(entity.getX()); x < MathHelper.ceil(entity.getX()); x++) {
+      for (int z = MathHelper.floor(entity.getZ()); z < MathHelper.ceil(entity.getZ()); z++) {
         BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
 
         if (getWorld().getBlockState(pos).getMaterial().isLiquid()) {
@@ -201,10 +201,10 @@ public final class EntityEx {
       return false;
     }
 
-    double y = entity.getPosY() + 0.01;
+    double y = entity.getY() + 0.01;
 
-    for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
-      for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
+    for (int x = MathHelper.floor(entity.getX()); x < MathHelper.ceil(entity.getX()); x++) {
+      for (int z = MathHelper.floor(entity.getZ()); z < MathHelper.ceil(entity.getZ()); z++) {
         BlockPos pos = new BlockPos(x, (int) y, z);
 
         if (getWorld().getBlockState(pos).getMaterial().isLiquid()) {
@@ -221,12 +221,12 @@ public final class EntityEx {
       return false;
     }
 
-    double y = entity.getPosY() - 0.01;
+    double y = entity.getY() - 0.01;
 
-    for (int x = MathHelper.floor(entity.getPosX()); x < MathHelper.ceil(entity.getPosX()); x++) {
-      for (int z = MathHelper.floor(entity.getPosZ()); z < MathHelper.ceil(entity.getPosZ()); z++) {
+    for (int x = MathHelper.floor(entity.getX()); x < MathHelper.ceil(entity.getX()); x++) {
+      for (int z = MathHelper.floor(entity.getZ()); z < MathHelper.ceil(entity.getZ()); z++) {
         BlockPos pos = new BlockPos(x, MathHelper.floor(y), z);
-        if (VoxelShapes.fullCube().equals(getWorld().getBlockState(pos).getCollisionShape(getWorld(), pos))) {
+        if (VoxelShapes.block().equals(getWorld().getBlockState(pos).getCollisionShape(getWorld(), pos))) {
           return true;
         }
       }

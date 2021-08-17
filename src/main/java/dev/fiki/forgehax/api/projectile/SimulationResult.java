@@ -53,7 +53,7 @@ public class SimulationResult {
     Vector3d start = getShootPos();
     Vector3d hit = getHitPos();
     if (start != null && hit != null) {
-      return start.squareDistanceTo(hit);
+      return start.distanceToSqr(hit);
     } else {
       return 0.D;
     }

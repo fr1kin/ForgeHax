@@ -53,7 +53,7 @@ public class CompassMod extends ToggleMod {
 
   private double getY(double rad) {
     final double epicPitch = MathHelper
-        .clamp(Common.getLocalPlayer().rotationPitch + 30f, -90f, 90f);
+        .clamp(Common.getLocalPlayer().xRot + 30f, -90f, 90f);
     final double pitchRadians = Math.toRadians(epicPitch); // player pitch
     return Math.cos(rad) * Math.sin(pitchRadians) * (scale.getValue() * 10);
   }
@@ -62,7 +62,7 @@ public class CompassMod extends ToggleMod {
   private static double getPosOnCompass(Direction dir) {
     double yaw =
         Math.toRadians(
-            MathHelper.wrapDegrees(Common.getLocalPlayer().rotationYaw)); // player yaw
+            MathHelper.wrapDegrees(Common.getLocalPlayer().yRot)); // player yaw
     int index = dir.ordinal();
     return yaw + (index * HALF_PI);
   }

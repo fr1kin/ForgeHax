@@ -33,7 +33,7 @@ public class AutoTotemMod extends ToggleMod {
   @Override
   public String getDisplayText() {
     final long totemCount = getLocalPlayer().getSlots().stream() // include offhand slot
-        .map(Slot::getStack)
+        .map(Slot::getItem)
         .map(ItemStack::getItem)
         .filter(Items.TOTEM_OF_UNDYING::equals)
         .count();
@@ -43,10 +43,10 @@ public class AutoTotemMod extends ToggleMod {
   @SubscribeListener
   public void onPlayerUpdate(LocalPlayerUpdateEvent event) {
     val lp = getLocalPlayer();
-    if (!lp.getOffhandSlot().getHasStack()
+    if (!lp.getOffhandSlot().hasItem()
         && (allowGui.isDisabled() || getDisplayScreen() == null)) {
       lp.getPrimarySlots().stream()
-          .filter(slot -> Items.TOTEM_OF_UNDYING.equals(slot.getStack().getItem()))
+          .filter(slot -> Items.TOTEM_OF_UNDYING.equals(slot.getItem().getItem()))
           .findAny()
           .ifPresent(slot -> lp.getOffhandSlot().swap(slot));
     }

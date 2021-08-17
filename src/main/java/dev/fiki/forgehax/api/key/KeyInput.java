@@ -90,8 +90,8 @@ public class KeyInput {
   }
 
   public InputMappings.Input getInputMapping() {
-    return isMouseCode() ? Type.MOUSE.getOrMakeInput(getCode())
-        : Type.KEYSYM.getOrMakeInput(getCode());
+    return isMouseCode() ? Type.MOUSE.getOrCreate(getCode())
+        : Type.KEYSYM.getOrCreate(getCode());
   }
 
   public Collection<String> getKeyNames() {

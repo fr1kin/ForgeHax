@@ -178,7 +178,7 @@ public class ForgeHaxHooks {
   public static float onEntityBlockSlipApply(float slipperiness,
       LivingEntity entityLivingBase, BlockPos blockPos) {
     EntityBlockSlipApplyEvent event = new EntityBlockSlipApplyEvent(entityLivingBase,
-        entityLivingBase.world.getBlockState(blockPos), slipperiness);
+        entityLivingBase.level.getBlockState(blockPos), slipperiness);
     EVENT_BUS.post(event);
     return event.getSlipperiness();
   }

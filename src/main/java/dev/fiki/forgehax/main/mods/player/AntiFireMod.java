@@ -39,11 +39,11 @@ public class AntiFireMod extends ToggleMod {
   // TODO: 1.15
 
   private boolean isAbovePlayer(BlockPos pos) {
-    return pos.getY() >= Common.getLocalPlayer().getPosY();
+    return pos.getY() >= Common.getLocalPlayer().getY();
   }
 
   @SubscribeListener
   public void onUpdate(LocalPlayerUpdateEvent event) {
-    event.getPlayer().extinguish();
+    event.getPlayer().clearFire();
   }
 }

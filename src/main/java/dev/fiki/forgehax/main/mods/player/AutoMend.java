@@ -32,7 +32,7 @@ public class AutoMend extends ToggleMod {
   }
 
   private boolean isMendableTool(Slot slot) {
-    return isMendableTool(slot.getStack());
+    return isMendableTool(slot.getItem());
   }
 
   @SubscribeListener
@@ -47,18 +47,18 @@ public class AutoMend extends ToggleMod {
     final Slot offhandSlot = lp.getOffhandSlot();
 
     // check that we are holding a tool that is no longer damaged and has mending
-    if (offhandSlot.getHasStack()
-        && !offhandSlot.getStack().isDamaged()
+    if (offhandSlot.hasItem()
+        && !offhandSlot.getItem().isDamaged()
         && isMendableTool(offhandSlot)) {
       if (isMendableTool(offhandSlot)) {
         lp.getPrimarySlots().stream()
             .filter(this::isMendableTool)
             // replacement item should be damaged
-            .filter(slot -> slot.getStack().isDamaged())
+            .filter(slot -> slot.getItem().isDamaged())
             // should not be the same slot as our main hand
             .filter(slot -> !currentSlot.isEqual(slot))
             // find the worst damaged item
-            .min(Comparator.comparing(Slot::getStack, Comparator.comparing(ItemEx::getDurability)))
+            .min(Comparator.comparing(Slot::getItem, Comparator.comparing(ItemEx::getDurability)))
             .ifPresent(slot -> {
               // pickup replacement item
               slot.click(ClickType.PICKUP, 0);

@@ -96,7 +96,7 @@ public class Scaffold extends ToggleMod {
         + "ticks = " + tickCount + ", "
         + "vel = " + (getLocalPlayer() == null
         ? "(0.00, 0.00)"
-        : String.format("(%.2f, %.2f)", getLocalPlayer().getMotion().getX(), getLocalPlayer().getMotion().getZ()))
+        : String.format("(%.2f, %.2f)", getLocalPlayer().getDeltaMovement().x(), getLocalPlayer().getDeltaMovement().z()))
         + ", "
         + "pos = " + (currentTarget == null
         ? "(0, 0, 0)"
@@ -110,29 +110,29 @@ public class Scaffold extends ToggleMod {
 
     val lp = getLocalPlayer();
     Vector3d directionVector = Vector3d.ZERO;
-    BlockPos below = lp.getPosition().down();
+    BlockPos below = lp.blockPosition().below();
     if (BlockHelper.isBlockReplaceable(below)) {
       currentTarget = below;
       predicted = true;
     } else if (motionPrediction.isEnabled()) {
       // try and get the block the player will be over
-      Vector3d motion = lp.getMotion();
+      Vector3d motion = lp.getDeltaMovement();
       // ignore y motion
-      Vector3d vel = new Vector3d(motion.getX(), 0.d, motion.getZ()).normalize();
+      Vector3d vel = new Vector3d(motion.x(), 0.d, motion.z()).normalize();
 
       // must be moving
-      if (vel.lengthSquared() > 0.d) {
+      if (vel.lengthSqr() > 0.d) {
         double modX, modZ;
-        if (Math.abs(vel.getX()) > Math.abs(vel.getZ())) {
-          modX = vel.getX() < 0.d ? -1.d : 1.d;
+        if (Math.abs(vel.x()) > Math.abs(vel.z())) {
+          modX = vel.x() < 0.d ? -1.d : 1.d;
           modZ = 0.d;
         } else {
           modX = 0.d;
-          modZ = vel.getZ() < 0.d ? -1.d : 1.d;
+          modZ = vel.z() < 0.d ? -1.d : 1.d;
         }
 
         directionVector = new Vector3d(modX, 0.d, modZ);
-        BlockPos forward = below.add(directionVector.getX(), directionVector.getY(), directionVector.getZ());
+        BlockPos forward = below.offset(directionVector.x(), directionVector.y(), directionVector.z());
         if (BlockHelper.isBlockReplaceable(forward)) {
           currentTarget = forward;
           predicted = true;
@@ -146,9 +146,9 @@ public class Scaffold extends ToggleMod {
     }
 
     final Slot items = lp.getHotbarSlots().stream()
-        .filter(Slot::getHasStack)
-        .filter(slot -> slot.getStack().getItem() instanceof BlockItem)
-        .filter(slot -> slot.getStack().getBlockForItem().getDefaultState().isOpaqueCube(getWorld(), BlockPos.ZERO))
+        .filter(Slot::hasItem)
+        .filter(slot -> slot.getItem().getItem() instanceof BlockItem)
+        .filter(slot -> slot.getItem().getBlockForItem().defaultBlockState().isCollisionShapeFullBlock(getWorld(), BlockPos.ZERO))
         .min(Comparator.comparingInt(ItemEx::getDistanceFromSelected))
         .orElse(null);
 
@@ -156,7 +156,7 @@ public class Scaffold extends ToggleMod {
       return;
     }
 
-    boolean isPredictedTarget = directionVector.lengthSquared() > 0.d;
+    boolean isPredictedTarget = directionVector.lengthSqr() > 0.d;
 
     final Vector3d realEyes = lp.getEyePos();
     final Vector3d eyes = isPredictedTarget
@@ -166,13 +166,13 @@ public class Scaffold extends ToggleMod {
 
     BlockTraceInfo trace =
         Optional.ofNullable(BlockHelper.getPlaceableBlockSideTrace(eyes, dir, currentTarget))
-            .filter(tr -> lp.canPlaceBlock(items.getStack().getBlockForItem(), tr.getPos()))
+            .filter(tr -> lp.canPlaceBlock(items.getItem().getBlockForItem(), tr.getPos()))
             .orElseGet(() -> horizontal.stream()
-                .map(currentTarget::offset)
+                .map(currentTarget::relative)
                 .filter(BlockHelper::isBlockReplaceable)
                 .map(bp -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, bp))
                 .filter(Objects::nonNull)
-                .filter(tr -> lp.canPlaceBlock(items.getStack().getBlockForItem(), tr.getPos()))
+                .filter(tr -> lp.canPlaceBlock(items.getItem().getBlockForItem(), tr.getPos()))
                 .max(Comparator.comparing(BlockTraceInfo::isSneakRequired))
                 .orElse(null));
 
@@ -192,7 +192,7 @@ public class Scaffold extends ToggleMod {
 
     // block is too far away or not visible
     if (placeDistance.doubleValue() > 0.d
-        ? lp.getPositionVec().distanceTo(trace.getCenterPos()) < placeDistance.doubleValue()
+        ? lp.position().distanceTo(trace.getCenterPos()) < placeDistance.doubleValue()
         : isPredictedTarget) {
       return;
     }
@@ -211,7 +211,7 @@ public class Scaffold extends ToggleMod {
       }
 
       val blockTr = new BlockRayTraceResult(tr.getHitVec(), tr.getOppositeSide(), tr.getPos(), false);
-      if (lp.placeBlock(Hand.MAIN_HAND, blockTr).isSuccessOrConsume()) {
+      if (lp.placeBlock(Hand.MAIN_HAND, blockTr).consumesAction()) {
         lp.swingHandSilently();
       }
 
@@ -224,7 +224,7 @@ public class Scaffold extends ToggleMod {
 
       resetSelected.run();
 
-      reflection.Minecraft_rightClickDelayTimer.set(MC, delay.getValue());
+      reflection.Minecraft_rightClickDelay.set(MC, delay.getValue());
       tickCount = 0;
     });
   }
@@ -235,19 +235,19 @@ public class Scaffold extends ToggleMod {
     if (debug.isEnabled() && current != null) {
       val buffer = event.getBuffer();
       val stack = event.getStack();
-      stack.push();
+      stack.pushPose();
 
       buffer.beginLines(DefaultVertexFormats.POSITION_COLOR);
       stack.translateVec(event.getProjectedPos().scale(-1));
 
-      buffer.outlinedCube(current, current.add(1.D, 1.D, 1.D), GeometryMasks.Line.ALL,
+      buffer.outlinedCube(current, current.offset(1.D, 1.D, 1.D), GeometryMasks.Line.ALL,
           predicted ? Colors.YELLOW : Colors.ORANGE, stack.getLastMatrix());
 
       GL11.glEnable(GL11.GL_LINE_SMOOTH);
       buffer.draw();
       GL11.glDisable(GL11.GL_LINE_SMOOTH);
 
-      stack.pop();
+      stack.popPose();
     }
   }
 }

@@ -34,7 +34,7 @@ public class ChatFilterMod extends ToggleMod {
   public void onChatMessage(PacketInboundEvent event) {
     if (event.getPacket() instanceof SChatPacket) {
       final SChatPacket packet = (SChatPacket) event.getPacket();
-      final String message = packet.getChatComponent().getUnformattedComponentText();
+      final String message = packet.getMessage().getString();
 
       final boolean shouldFilter = filterList.stream()
           .map(FilterEntry::getRegex)

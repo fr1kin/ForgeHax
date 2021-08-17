@@ -31,7 +31,7 @@ public class ManualDeleteMod extends ToggleMod {
 
       if (RayTraceResult.Type.ENTITY.equals(aim.getType()) && aim instanceof EntityRayTraceResult) {
         EntityRayTraceResult tr = (EntityRayTraceResult) aim;
-        getWorld().removeEntityFromWorld(tr.getEntity().getEntityId());
+        getWorld().removeEntity(tr.getEntity().getId());
       }
     }
   }

@@ -35,19 +35,19 @@ import static dev.fiki.forgehax.main.Common.*;
 )
 @RequiredArgsConstructor
 public class AntiKnockbackMod extends ToggleMod {
-  @MapField(parentClass = SEntityVelocityPacket.class, value = "motionX")
-  private final ReflectionField<Integer> SEntityVelocityPacket_motionX;
-  @MapField(parentClass = SEntityVelocityPacket.class, value = "motionY")
-  private final ReflectionField<Integer> SEntityVelocityPacket_motionY;
-  @MapField(parentClass = SEntityVelocityPacket.class, value = "motionZ")
-  private final ReflectionField<Integer> SEntityVelocityPacket_motionZ;
+  @MapField(parentClass = SEntityVelocityPacket.class, value = "xa")
+  private final ReflectionField<Integer> SEntityVelocityPacket_xa;
+  @MapField(parentClass = SEntityVelocityPacket.class, value = "ya")
+  private final ReflectionField<Integer> SEntityVelocityPacket_ya;
+  @MapField(parentClass = SEntityVelocityPacket.class, value = "za")
+  private final ReflectionField<Integer> SEntityVelocityPacket_za;
 
-  @MapField(parentClass = SExplosionPacket.class, value = "motionX")
-  private final ReflectionField<Float> SExplosionPacket_motionX;
-  @MapField(parentClass = SExplosionPacket.class, value = "motionY")
-  private final ReflectionField<Float> SExplosionPacket_motionY;
-  @MapField(parentClass = SExplosionPacket.class, value = "motionZ")
-  private final ReflectionField<Float> SExplosionPacket_motionZ;
+  @MapField(parentClass = SExplosionPacket.class, value = "knockbackX")
+  private final ReflectionField<Float> SExplosionPacket_knockbackX;
+  @MapField(parentClass = SExplosionPacket.class, value = "knockbackY")
+  private final ReflectionField<Float> SExplosionPacket_knockbackY;
+  @MapField(parentClass = SExplosionPacket.class, value = "knockbackZ")
+  private final ReflectionField<Float> SExplosionPacket_knockbackZ;
 
   private final DoubleSetting multiplier_x = newDoubleSetting()
       .name("x-multiplier")
@@ -116,14 +116,14 @@ public class AntiKnockbackMod extends ToggleMod {
   private Vector3d getPacketMotion(IPacket<?> packet) {
     if (packet instanceof SExplosionPacket) {
       return new Vector3d(
-          SExplosionPacket_motionX.get(packet),
-          SExplosionPacket_motionY.get(packet),
-          SExplosionPacket_motionZ.get(packet));
+          SExplosionPacket_knockbackX.get(packet),
+          SExplosionPacket_knockbackY.get(packet),
+          SExplosionPacket_knockbackZ.get(packet));
     } else if (packet instanceof SEntityVelocityPacket) {
       return new Vector3d(
-          SEntityVelocityPacket_motionX.get(packet),
-          SEntityVelocityPacket_motionY.get(packet),
-          SEntityVelocityPacket_motionZ.get(packet));
+          SEntityVelocityPacket_xa.get(packet),
+          SEntityVelocityPacket_ya.get(packet),
+          SEntityVelocityPacket_za.get(packet));
     } else {
       throw new IllegalArgumentException();
     }
@@ -131,20 +131,20 @@ public class AntiKnockbackMod extends ToggleMod {
 
   private void setPacketMotion(IPacket<?> packet, Vector3d in) {
     if (packet instanceof SExplosionPacket) {
-      SExplosionPacket_motionX.set(packet, (float) in.x);
-      SExplosionPacket_motionY.set(packet, (float) in.y);
-      SExplosionPacket_motionZ.set(packet, (float) in.z);
+      SExplosionPacket_knockbackX.set(packet, (float) in.x);
+      SExplosionPacket_knockbackY.set(packet, (float) in.y);
+      SExplosionPacket_knockbackZ.set(packet, (float) in.z);
     } else if (packet instanceof SEntityVelocityPacket) {
-      SEntityVelocityPacket_motionX.set(packet, (int) Math.round(in.x));
-      SEntityVelocityPacket_motionY.set(packet, (int) Math.round(in.y));
-      SEntityVelocityPacket_motionZ.set(packet, (int) Math.round(in.z));
+      SEntityVelocityPacket_xa.set(packet, (int) Math.round(in.x));
+      SEntityVelocityPacket_ya.set(packet, (int) Math.round(in.y));
+      SEntityVelocityPacket_za.set(packet, (int) Math.round(in.z));
     } else {
       throw new IllegalArgumentException();
     }
   }
 
   private void addEntityVelocity(Entity in, Vector3d velocity) {
-    in.setMotion(in.getMotion().add(velocity));
+    in.setDeltaMovement(in.getDeltaMovement().add(velocity));
   }
 
   /**
@@ -159,9 +159,9 @@ public class AntiKnockbackMod extends ToggleMod {
       Vector3d motion = getPacketMotion(event.getPacket());
       setPacketMotion(event.getPacket(), VectorUtil.multiplyBy(motion, multiplier));
     } else if (velocity.getValue() && event.getPacket() instanceof SEntityVelocityPacket) {
-      if (((SEntityVelocityPacket) event.getPacket()).getEntityID() == getLocalPlayer().getEntityId()) {
+      if (((SEntityVelocityPacket) event.getPacket()).getId() == getLocalPlayer().getId()) {
         Vector3d multiplier = getMultiplier();
-        if (multiplier.lengthSquared() > 0.D) {
+        if (multiplier.lengthSqr() > 0.D) {
           setPacketMotion(event.getPacket(),
               VectorUtil.multiplyBy(getPacketMotion(event.getPacket()), multiplier));
         } else {
@@ -172,12 +172,12 @@ public class AntiKnockbackMod extends ToggleMod {
       // CREDITS TO 0x22
       // fuck you popbob for making me need this
       SEntityStatusPacket packet = (SEntityStatusPacket) event.getPacket();
-      if (packet.getOpCode() == 31) {
+      if (packet.getEventId() == 31) {
         try {
           Entity offender = packet.getEntity(getWorld());
           if (offender instanceof FishingBobberEntity) {
             FishingBobberEntity hook = (FishingBobberEntity) offender;
-            if (getLocalPlayer().equals(hook.func_234607_k_())) {
+            if (getLocalPlayer().equals(hook.getPlayerOwner())) {
               event.setCanceled(true);
             }
           }
@@ -216,7 +216,7 @@ public class AntiKnockbackMod extends ToggleMod {
     if (slipping.getValue()
         && getLocalPlayer() != null
         && getLocalPlayer().equals(event.getLivingEntity())) {
-      event.setSlipperiness(Blocks.STONE.getDefaultState().getSlipperiness(null, null, null));
+      event.setSlipperiness(Blocks.STONE.defaultBlockState().getSlipperiness(null, null, null));
     }
   }
 

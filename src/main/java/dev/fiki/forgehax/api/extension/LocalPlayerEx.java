@@ -46,21 +46,21 @@ public class LocalPlayerEx {
   private static Angle serverAngles = null;
 
   public static ClientWorld getWorld(ClientPlayerEntity lp) {
-    return lp.worldClient;
+    return lp.clientLevel;
   }
 
   /**
    * Gets the players current view angles
    */
   public static Angle getViewAngles(ClientPlayerEntity lp) {
-    return lp == null ? Angle.ZERO : Angle.degrees(lp.rotationPitch, lp.rotationYaw);
+    return lp == null ? Angle.ZERO : Angle.degrees(lp.xRot, lp.yRot);
   }
 
   public static void setViewAngles(ClientPlayerEntity lp, Angle angles) {
     Angle original = getViewAngles(lp);
     Angle diff = angles.normalize().sub(original.normalize()).normalize();
-    lp.rotationPitch = GeneralEx.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
-    lp.rotationYaw = original.getYaw() + diff.getYaw();
+    lp.xRot = GeneralEx.clamp(original.getPitch() + diff.getPitch(), -90.f, 90.f);
+    lp.yRot = original.getYaw() + diff.getYaw();
   }
 
   public static void setViewAngles(ClientPlayerEntity lp, float pitch, float yaw) {
@@ -68,8 +68,8 @@ public class LocalPlayerEx {
   }
 
   public static void setViewAnglesRaw(ClientPlayerEntity lp, float pitch, float yaw) {
-    lp.rotationPitch = pitch;
-    lp.rotationYaw = yaw;
+    lp.xRot = pitch;
+    lp.yRot = yaw;
   }
 
   public static Angle getServerAngles(@Nullable ClientPlayerEntity lp) {
@@ -77,7 +77,7 @@ public class LocalPlayerEx {
   }
 
   public static Vector3d getVelocity(ClientPlayerEntity lp) {
-    return lp.getMotion();
+    return lp.getDeltaMovement();
   }
 
   public static boolean isCrouchSneaking(ClientPlayerEntity lp) {
@@ -86,9 +86,9 @@ public class LocalPlayerEx {
 
   public static boolean setCrouchSneaking(ClientPlayerEntity lp, boolean sneak) {
     boolean old = isCrouchSneaking(lp);
-    lp.setSneaking(sneak);
-    if (lp.movementInput != null) {
-      lp.movementInput.sneaking = sneak;
+    lp.setShiftKeyDown(sneak);
+    if (lp.input != null) {
+      lp.input.shiftKeyDown = sneak;
     }
     return old;
   }
@@ -102,35 +102,35 @@ public class LocalPlayerEx {
   }
 
   public static RayTraceResult getViewTrace(@Nullable ClientPlayerEntity lp) {
-    return MC.objectMouseOver;
+    return MC.hitResult;
   }
 
   public static BlockRayTraceResult getBlockViewTrace(ClientPlayerEntity lp) {
     Vector3d start = EntityEx.getEyePos(lp);
-    Vector3d end = start.add(lp.getLook(1.f).normalize().scale(getBlockReach(lp)));
+    Vector3d end = start.add(lp.getViewVector(1.f).normalize().scale(getBlockReach(lp)));
     RayTraceContext ctx = new RayTraceContext(start, end, RayTraceContext.BlockMode.OUTLINE,
         RayTraceContext.FluidMode.NONE, lp);
-    return getWorld(lp).rayTraceBlocks(ctx);
+    return getWorld(lp).clip(ctx);
   }
 
   public static double getBlockReach(@Nullable ClientPlayerEntity lp) {
-    return getPlayerController().getBlockReachDistance();
+    return getPlayerController().getPickRange();
   }
 
   public static boolean isInReach(@Nullable ClientPlayerEntity lp, Vector3d start, Vector3d end) {
-    return start.squareDistanceTo(end) < getBlockReach(lp) * getBlockReach(lp);
+    return start.distanceToSqr(end) < getBlockReach(lp) * getBlockReach(lp);
   }
 
   public static ActionResultType placeBlock(ClientPlayerEntity lp, Hand hand, BlockRayTraceResult tr) {
-    return getPlayerController().func_217292_a(lp, getWorld(lp), hand, tr);
+    return getPlayerController().useItemOn(lp, getWorld(lp), hand, tr);
   }
 
   public static ActionResultType rightClick(ClientPlayerEntity lp, Hand hand) {
-    return getPlayerController().processRightClick(lp, getWorld(lp), hand);
+    return getPlayerController().useItem(lp, getWorld(lp), hand);
   }
 
   public static void attackEntity(ClientPlayerEntity lp, Entity target) {
-    getPlayerController().attackEntity(lp, target);
+    getPlayerController().attack(lp, target);
   }
 
   public static void swingHandSilently(@Nullable ClientPlayerEntity lp) {
@@ -146,24 +146,24 @@ public class LocalPlayerEx {
   }
 
   public static PlayerContainer getContainer(ClientPlayerEntity lp) {
-    return lp.container;
+    return lp.inventoryMenu;
   }
 
   public static Container getOpenContainer(ClientPlayerEntity lp) {
-    return lp.openContainer;
+    return lp.containerMenu;
   }
 
   public static Container getCurrentContainer(ClientPlayerEntity lp) {
-    val oc = getOpenContainer(lp);
+    Container oc = getOpenContainer(lp);
     return oc != null ? oc : getContainer(lp);
   }
 
   public static int getHotbarSize(@Nullable ClientPlayerEntity lp) {
-    return PlayerInventory.getHotbarSize();
+    return PlayerInventory.getSelectionSize();
   }
 
   public static List<ItemStack> getMainInventory(ClientPlayerEntity lp) {
-    return getInventory(lp).mainInventory;
+    return getInventory(lp).items;
   }
 
   /**
@@ -172,7 +172,7 @@ public class LocalPlayerEx {
    * @return list of container slots
    */
   public static List<Slot> getSlots(ClientPlayerEntity lp) {
-    return getContainer(lp).inventorySlots;
+    return getContainer(lp).slots;
   }
 
   /**
@@ -223,7 +223,7 @@ public class LocalPlayerEx {
   }
 
   public static ItemStack getMouseHeldItem(ClientPlayerEntity lp) {
-    return getInventory(lp).getItemStack();
+    return getInventory(lp).getCarried();
   }
 
   public static Slot getMouseHeldSlot(ClientPlayerEntity lp) {
@@ -231,11 +231,11 @@ public class LocalPlayerEx {
   }
 
   public static int getSelectedIndex(ClientPlayerEntity lp) {
-    return getInventory(lp).currentItem;
+    return getInventory(lp).selected;
   }
 
   public static ItemStack getSelectedItem(ClientPlayerEntity lp) {
-    return getInventory(lp).getCurrentItem();
+    return getInventory(lp).getSelected();
   }
 
   public static Slot getSelectedSlot(ClientPlayerEntity lp) {
@@ -247,19 +247,19 @@ public class LocalPlayerEx {
       throw new IllegalArgumentException("index must be between 0 and " + (getHotbarSize(lp) - 1) + ", got " + index);
     }
 
-    val data = getSelectedItemData();
-    val inv = getInventory(lp);
-    val currentIndex = inv.currentItem;
+    SelectedItemData data = getSelectedItemData();
+    PlayerInventory inv = getInventory(lp);
+    int currentIndex = inv.selected;
 
     if (!reset) {
-      inv.currentItem = index;
+      inv.selected = index;
 
       if (data.originalIndex != -1) {
         data.originalIndex = index;
       }
 
       return () -> {
-        inv.currentItem = currentIndex;
+        inv.selected = currentIndex;
 
         if (data.originalIndex != -1) {
           data.originalIndex = currentIndex;
@@ -274,14 +274,14 @@ public class LocalPlayerEx {
         data.lastSetIndex = index;
         data.resetCondition = MoreObjects.firstNonNull(condition, ticks -> true);
 
-        inv.currentItem = index;
+        inv.selected = index;
       }
 
       data.ticks = 0;
 
       return () -> {
-        if (index == inv.currentItem && data.lastSetIndex == index) {
-          inv.currentItem = currentIndex;
+        if (index == inv.selected && data.lastSetIndex == index) {
+          inv.selected = currentIndex;
           data.reset();
         }
       };
@@ -302,7 +302,7 @@ public class LocalPlayerEx {
   }
 
   public static ItemStack getOffhandItem(ClientPlayerEntity lp) {
-    return lp.getHeldItemOffhand();
+    return lp.getOffhandItem();
   }
 
   public static Slot getOffhandSlot(ClientPlayerEntity lp) {
@@ -312,8 +312,8 @@ public class LocalPlayerEx {
   public static ItemStack sendWindowClick(ClientPlayerEntity lp,
       Container openedContainer, PlayerInventory playerInventory,
       int slotIndex, int mouseButton, ClickType clickType) {
-    short id = openedContainer.getNextTransactionID(playerInventory);
-    val stack = openedContainer.slotClick(slotIndex, mouseButton, clickType, lp);
+    short id = openedContainer.backup(playerInventory);
+    ItemStack stack = openedContainer.clicked(slotIndex, mouseButton, clickType, lp);
     GeneralEx.dispatchNetworkPacket(getNetworkManager(), new CClickWindowPacket(0, slotIndex,
         mouseButton, clickType, stack, id));
     return stack;
@@ -328,7 +328,7 @@ public class LocalPlayerEx {
   }
 
   public static boolean isActivelyEating(ClientPlayerEntity lp) {
-    return lp.isHandActive() && lp.getHeldItem(lp.getActiveHand()).getItem().isFood();
+    return lp.isHandsBusy() && lp.getItemInHand(lp.getUsedItemHand()).getItem().isEdible();
   }
 
   public static boolean canPlaceBlock(ClientPlayerEntity lp, Block block, BlockPos pos) {
@@ -356,8 +356,8 @@ public class LocalPlayerEx {
           return;
         }
 
-        getLocalPlayer().abilities.allowFlying = true;
-        getLocalPlayer().abilities.isFlying = true;
+        getLocalPlayer().abilities.mayfly = true;
+        getLocalPlayer().abilities.flying = true;
       });
     }
 
@@ -369,12 +369,12 @@ public class LocalPlayerEx {
         }
 
         PlayerAbilities gmCaps = new PlayerAbilities();
-        getPlayerController().getCurrentGameType().configurePlayerCapabilities(gmCaps);
+        getPlayerController().getPlayerMode().updatePlayerAbilities(gmCaps);
 
         PlayerAbilities capabilities = getLocalPlayer().abilities;
-        capabilities.allowFlying = gmCaps.allowFlying;
-        capabilities.isFlying &= gmCaps.allowFlying && capabilities.isFlying;
-        capabilities.setFlySpeed(gmCaps.getFlySpeed());
+        capabilities.mayfly = gmCaps.mayfly;
+        capabilities.flying = gmCaps.mayfly && capabilities.flying;
+        capabilities.setFlyingSpeed(gmCaps.getFlyingSpeed());
       });
     }
   };
@@ -404,8 +404,8 @@ public class LocalPlayerEx {
     }
 
     public void resetSelected(PlayerInventory inv) {
-      if (originalIndex != -1 && inv.currentItem == lastSetIndex) {
-        inv.currentItem = originalIndex;
+      if (originalIndex != -1 && inv.selected == lastSetIndex) {
+        inv.selected = originalIndex;
       }
       reset();
     }

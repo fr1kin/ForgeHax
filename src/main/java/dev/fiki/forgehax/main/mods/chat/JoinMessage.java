@@ -173,7 +173,7 @@ public class JoinMessage extends ToggleMod {
 
     if (use_offline.getValue()) {
       // use offline ID
-      setJoinMessage(PlayerEntity.getOfflineUUID(target), event.getSender().getUuid(), message);
+      setJoinMessage(PlayerEntity.createPlayerUUID(target), event.getSender().getUuid(), message);
       return; // join message set, stop here
     }
 

@@ -29,23 +29,58 @@ public final class WrappedBufferBuilder extends BufferBuilder {
   }
 
   @Override
-  protected void growBuffer() {
+  protected void ensureVertexCapacity() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void sortVertexData(float cameraX, float cameraY, float cameraZ) {
-    builder.sortVertexData(cameraX, cameraY, cameraZ);
+  public void sortQuads(float p_181674_1_, float p_181674_2_, float p_181674_3_) {
+    builder.sortQuads(p_181674_1_, p_181674_2_, p_181674_3_);
   }
 
   @Override
-  public State getVertexState() {
-    return builder.getVertexState();
+  public State getState() {
+    return builder.getState();
   }
 
   @Override
-  public void setVertexState(State state) {
-    builder.setVertexState(state);
+  public void restoreState(State p_178993_1_) {
+    builder.restoreState(p_178993_1_);
+  }
+
+  @Override
+  public void end() {
+    builder.end();
+  }
+
+  @Override
+  public void nextElement() {
+    builder.nextElement();
+  }
+
+  @Override
+  public void vertex(float p_225588_1_, float p_225588_2_, float p_225588_3_, float p_225588_4_, float p_225588_5_, float p_225588_6_, float p_225588_7_, float p_225588_8_, float p_225588_9_, int p_225588_10_, int p_225588_11_, float p_225588_12_, float p_225588_13_, float p_225588_14_) {
+    builder.vertex(p_225588_1_, p_225588_2_, p_225588_3_, p_225588_4_, p_225588_5_, p_225588_6_, p_225588_7_, p_225588_8_, p_225588_9_, p_225588_10_, p_225588_11_, p_225588_12_, p_225588_13_, p_225588_14_);
+  }
+
+  @Override
+  public Pair<DrawState, ByteBuffer> popNextBuffer() {
+    return builder.popNextBuffer();
+  }
+
+  @Override
+  public void clear() {
+    builder.clear();
+  }
+
+  @Override
+  public VertexFormatElement currentElement() {
+    return builder.currentElement();
+  }
+
+  @Override
+  public boolean building() {
+    return builder.building();
   }
 
   @Override
@@ -54,15 +89,6 @@ public final class WrappedBufferBuilder extends BufferBuilder {
 
     if (onBegin != null) {
       onBegin.accept(this);
-    }
-  }
-
-  @Override
-  public void finishDrawing() {
-    builder.finishDrawing();
-
-    if (onFinish != null) {
-      onFinish.accept(this);
     }
   }
 
@@ -87,43 +113,13 @@ public final class WrappedBufferBuilder extends BufferBuilder {
   }
 
   @Override
-  public void nextVertexFormatIndex() {
-    builder.nextVertexFormatIndex();
-  }
-
-  @Override
   public IVertexBuilder color(int red, int green, int blue, int alpha) {
     return builder.color(red, green, blue, alpha);
   }
 
   @Override
-  public void addVertex(float x, float y, float z, float red, float green, float blue, float alpha, float texU, float texV, int overlayUV, int lightmapUV, float normalX, float normalY, float normalZ) {
-    builder.addVertex(x, y, z, red, green, blue, alpha, texU, texV, overlayUV, lightmapUV, normalX, normalY, normalZ);
-  }
-
-  @Override
-  public Pair<DrawState, ByteBuffer> getNextBuffer() {
-    return builder.getNextBuffer();
-  }
-
-  @Override
-  public void reset() {
-    builder.reset();
-  }
-
-  @Override
   public void discard() {
     builder.discard();
-  }
-
-  @Override
-  public VertexFormatElement getCurrentElement() {
-    return builder.getCurrentElement();
-  }
-
-  @Override
-  public boolean isDrawing() {
-    return builder.isDrawing();
   }
 
   @Override
@@ -137,36 +133,6 @@ public final class WrappedBufferBuilder extends BufferBuilder {
   }
 
   @Override
-  public void setDefaultColor(int red, int green, int blue, int alpha) {
-    builder.setDefaultColor(red, green, blue, alpha);
-  }
-
-  @Override
-  public IVertexBuilder pos(double x, double y, double z) {
-    return builder.pos(x, y, z);
-  }
-
-  @Override
-  public IVertexBuilder tex(float u, float v) {
-    return builder.tex(u, v);
-  }
-
-  @Override
-  public IVertexBuilder overlay(int u, int v) {
-    return builder.overlay(u, v);
-  }
-
-  @Override
-  public IVertexBuilder lightmap(int u, int v) {
-    return builder.lightmap(u, v);
-  }
-
-  @Override
-  public IVertexBuilder texShort(short u, short v, int index) {
-    return builder.texShort(u, v, index);
-  }
-
-  @Override
   public IVertexBuilder normal(float x, float y, float z) {
     return builder.normal(x, y, z);
   }
@@ -174,31 +140,6 @@ public final class WrappedBufferBuilder extends BufferBuilder {
   @Override
   public IVertexBuilder color(float red, float green, float blue, float alpha) {
     return builder.color(red, green, blue, alpha);
-  }
-
-  @Override
-  public IVertexBuilder lightmap(int lightmapUV) {
-    return builder.lightmap(lightmapUV);
-  }
-
-  @Override
-  public IVertexBuilder overlay(int overlayUV) {
-    return builder.overlay(overlayUV);
-  }
-
-  @Override
-  public void addQuad(MatrixStack.Entry matrixEntryIn, BakedQuad quadIn, float redIn, float greenIn, float blueIn, int combinedLightIn, int combinedOverlayIn) {
-    builder.addQuad(matrixEntryIn, quadIn, redIn, greenIn, blueIn, combinedLightIn, combinedOverlayIn);
-  }
-
-  @Override
-  public void addQuad(MatrixStack.Entry matrixEntryIn, BakedQuad quadIn, float[] colorMuls, float redIn, float greenIn, float blueIn, int[] combinedLightsIn, int combinedOverlayIn, boolean mulColor) {
-    builder.addQuad(matrixEntryIn, quadIn, colorMuls, redIn, greenIn, blueIn, combinedLightsIn, combinedOverlayIn, mulColor);
-  }
-
-  @Override
-  public IVertexBuilder pos(Matrix4f matrixIn, float x, float y, float z) {
-    return builder.pos(matrixIn, x, y, z);
   }
 
   @Override
@@ -239,6 +180,61 @@ public final class WrappedBufferBuilder extends BufferBuilder {
   @Override
   public void applyBakedNormals(Vector3f generated, ByteBuffer data, Matrix3f normalTransform) {
     builder.applyBakedNormals(generated, data, normalTransform);
+  }
+
+  @Override
+  public void defaultColor(int p_225611_1_, int p_225611_2_, int p_225611_3_, int p_225611_4_) {
+    builder.defaultColor(p_225611_1_, p_225611_2_, p_225611_3_, p_225611_4_);
+  }
+
+  @Override
+  public IVertexBuilder vertex(double p_225582_1_, double p_225582_3_, double p_225582_5_) {
+    return builder.vertex(p_225582_1_, p_225582_3_, p_225582_5_);
+  }
+
+  @Override
+  public IVertexBuilder uv(float p_225583_1_, float p_225583_2_) {
+    return builder.uv(p_225583_1_, p_225583_2_);
+  }
+
+  @Override
+  public IVertexBuilder overlayCoords(int p_225585_1_, int p_225585_2_) {
+    return builder.overlayCoords(p_225585_1_, p_225585_2_);
+  }
+
+  @Override
+  public IVertexBuilder uv2(int p_225587_1_, int p_225587_2_) {
+    return builder.uv2(p_225587_1_, p_225587_2_);
+  }
+
+  @Override
+  public IVertexBuilder uvShort(short p_227847_1_, short p_227847_2_, int p_227847_3_) {
+    return builder.uvShort(p_227847_1_, p_227847_2_, p_227847_3_);
+  }
+
+  @Override
+  public IVertexBuilder uv2(int p_227886_1_) {
+    return builder.uv2(p_227886_1_);
+  }
+
+  @Override
+  public IVertexBuilder overlayCoords(int p_227891_1_) {
+    return builder.overlayCoords(p_227891_1_);
+  }
+
+  @Override
+  public void putBulkData(MatrixStack.Entry p_227889_1_, BakedQuad p_227889_2_, float p_227889_3_, float p_227889_4_, float p_227889_5_, int p_227889_6_, int p_227889_7_) {
+    builder.putBulkData(p_227889_1_, p_227889_2_, p_227889_3_, p_227889_4_, p_227889_5_, p_227889_6_, p_227889_7_);
+  }
+
+  @Override
+  public void putBulkData(MatrixStack.Entry p_227890_1_, BakedQuad p_227890_2_, float[] p_227890_3_, float p_227890_4_, float p_227890_5_, float p_227890_6_, int[] p_227890_7_, int p_227890_8_, boolean p_227890_9_) {
+    builder.putBulkData(p_227890_1_, p_227890_2_, p_227890_3_, p_227890_4_, p_227890_5_, p_227890_6_, p_227890_7_, p_227890_8_, p_227890_9_);
+  }
+
+  @Override
+  public IVertexBuilder vertex(Matrix4f p_227888_1_, float p_227888_2_, float p_227888_3_, float p_227888_4_) {
+    return builder.vertex(p_227888_1_, p_227888_2_, p_227888_3_, p_227888_4_);
   }
 
   @Override

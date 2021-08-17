@@ -40,41 +40,41 @@ public class ReflectionTools {
 
   //
 
-  @MapField(parentClass = Minecraft.class, value = "leftClickCounter")
-  public final ReflectionField<Integer> Minecraft_leftClickCounter;
-  @MapField(parentClass = Minecraft.class, value = "rightClickDelayTimer")
-  public final ReflectionField<Integer> Minecraft_rightClickDelayTimer;
+  @MapField(parentClass = Minecraft.class, value = "missTime")
+  public final ReflectionField<Integer> Minecraft_missTime;
+  @MapField(parentClass = Minecraft.class, value = "rightClickDelay")
+  public final ReflectionField<Integer> Minecraft_rightClickDelay;
 
   //
 
-  @MapField(parentClass = BufferBuilder.class, value = "drawMode")
-  public final ReflectionField<Integer> BufferBuilder_drawMode;
+  @MapField(parentClass = BufferBuilder.class, value = "mode")
+  public final ReflectionField<Integer> BufferBuilder_mode;
 
   //
 
-  @MapField(parentClass = KeyBinding.class, value = "pressTime")
-  public final ReflectionField<Integer> KeyBinding_pressTime;
-  @MapField(parentClass = KeyBinding.class, value = "pressed")
-  public final ReflectionField<Boolean> KeyBinding_pressed;
+  @MapField(parentClass = KeyBinding.class, value = "clickCount")
+  public final ReflectionField<Integer> KeyBinding_clickCount;
+  @MapField(parentClass = KeyBinding.class, value = "isDown")
+  public final ReflectionField<Boolean> KeyBinding_isDown;
 
   //
 
-  @MapField(parentClass = InputMappings.Input.class, value = "REGISTRY")
-  public final ReflectionField<Map<String, InputMappings.Input>> InputMappings_Input_REGISTRY;
+  @MapField(parentClass = InputMappings.Input.class, value = "NAME_MAP")
+  public final ReflectionField<Map<String, InputMappings.Input>> InputMappings_Input_NAME_MAP;
 
   //
 
-  @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "buffer")
-  public final ReflectionField<BufferBuilder> IRenderTypeBuffer$Impl_buffer;
+  @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "builder")
+  public final ReflectionField<BufferBuilder> IRenderTypeBuffer$Impl_builder;
   @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "fixedBuffers")
   public final ReflectionField<Map<RenderType, BufferBuilder>> IRenderTypeBuffer$Impl_fixedBuffers;
-  @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "lastRenderType")
-  public final ReflectionField<Optional<RenderType>> IRenderTypeBuffer$Impl_lastRenderType;
+  @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "lastState")
+  public final ReflectionField<Optional<RenderType>> IRenderTypeBuffer$Impl_lastState;
   @MapField(parentClass = IRenderTypeBuffer.Impl.class, value = "startedBuffers")
   public final ReflectionField<Set<BufferBuilder>> IRenderTypeBuffer$Impl_startedBuffers;
 
   //
 
-  @MapField(parentClass = RenderType.class, value = "needsSorting")
-  public final ReflectionField<Boolean> RenderType_needsSorting;
+  @MapField(parentClass = RenderType.class, value = "sortOnUpload")
+  public final ReflectionField<Boolean> RenderType_sortOnUpload;
 }

@@ -19,8 +19,8 @@ import org.objectweb.asm.tree.VarInsnNode;
 public class ViewFrustumPatch extends Patch {
 
   @Inject
-  @MapMethod("createRenderChunks")
-  public void createRenderChunks(MethodNode node,
+  @MapMethod("createChunks")
+  public void createChunks(MethodNode node,
       @MapMethod(parentClass = MarkerHooks.class, name = "onCreateRenderChunks") ASMMethod onCreateRenderChunks) {
     AbstractInsnNode ret = ASMHelper.findReturn(RETURN, node);
 
@@ -32,13 +32,13 @@ public class ViewFrustumPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("updateChunkPositions")
-  public void updateChunkPositions(MethodNode node,
-      @MapMethod(parentClass = ChunkRenderDispatcher.ChunkRender.class, name = "setPosition") ASMMethod setPosition,
+  @MapMethod("repositionCamera")
+  public void repositionCamera(MethodNode node,
+      @MapMethod(parentClass = ChunkRenderDispatcher.ChunkRender.class, name = "setOrigin") ASMMethod setOrigin,
       @MapMethod(parentClass = MarkerHooks.class, name = "onUpdateChunkPosition") ASMMethod onUpdateChunkPosition) {
     AbstractInsnNode call = ASMPattern.builder()
         .codeOnly()
-        .custom(an -> setPosition.matchesInvoke(INVOKEVIRTUAL, an))
+        .custom(an -> setOrigin.matchesInvoke(INVOKEVIRTUAL, an))
         .find(node)
         .getFirst("Could not find call to setPosition");
 

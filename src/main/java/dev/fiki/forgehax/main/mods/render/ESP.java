@@ -118,8 +118,8 @@ public class ESP extends ToggleMod {
 
     val selfEquipmentList = new EquipmentList(getLocalPlayer());
 
-    for (Entity ent : getWorld().getAllEntities()) {
-      if (ent.isLiving()
+    for (Entity ent : getWorld().entitiesForRendering()) {
+      if (ent.showVehicleHealth()
           && !ent.isLocalPlayer()
           && ent.isReallyAlive()
           && ent.isValidEntity()) {
@@ -133,7 +133,7 @@ public class ESP extends ToggleMod {
         }
 
         final Vector3d bottomPos = living.getInterpolatedPos(partialTicks);
-        final Vector3d topPos = bottomPos.add(0.D, living.getRenderBoundingBox().maxY - living.getPosY(), 0.D);
+        final Vector3d topPos = bottomPos.add(0.D, living.getBoundingBox().maxY - living.getY(), 0.D);
 
         final ScreenPos top = topPos.toScreen();
         final ScreenPos bot = bottomPos.toScreen();
@@ -163,7 +163,7 @@ public class ESP extends ToggleMod {
 
           switch (settings.getHealth().getValue()) {
             case TEXT: {
-              stack.push();
+              stack.pushPose();
               stack.translate(topX, topY - offsetY - 1, 0.f);
               String text = Math.round(hp * 100.f) + "%";
 
@@ -173,11 +173,11 @@ public class ESP extends ToggleMod {
               stack.scale(textScale, textScale, 0.f);
               stack.translate(-x, -y, 0.d);
 
-              SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+              SurfaceHelper.renderString(buffers, stack.last().pose(),
                   text, 0, 0, color, true);
 
               offsetY += SurfaceHelper.getStringHeight() + 1.f;
-              stack.pop();
+              stack.popPose();
               break;
             }
             case BAR: {
@@ -202,7 +202,7 @@ public class ESP extends ToggleMod {
         }
 
         if (settings.isNametagEnabled()) {
-          stack.push();
+          stack.pushPose();
           stack.translate(topX, topY - offsetY - 1, 0.f);
 
           String name = living.getName().getString();
@@ -216,17 +216,17 @@ public class ESP extends ToggleMod {
           stack.scale(textScale, textScale, 0.f);
           stack.translate(-x, -y, 0.d);
 
-          SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+          SurfaceHelper.renderString(buffers, stack.last().pose(),
               name, 0, 0, Colors.WHITE, true);
 
           offsetY += SurfaceHelper.getStringHeight() + 2.f;
-          stack.pop();
+          stack.popPose();
         }
 
         if (settings.isArmorEnabled()) {
           final int itemSize = 12;
 
-          stack.push();
+          stack.pushPose();
 
           EquipmentList equipmentList = new EquipmentList(living);
 
@@ -243,7 +243,7 @@ public class ESP extends ToggleMod {
 
             val itemStack = equipment.getItemStack();
 
-            stack.push();
+            stack.pushPose();
             stack.translate(equipment.getRenderOffset() * itemSize, 0.f, 0.f);
 
             List<ItemEnchantment> enchantments = equipment.getEnchantments();
@@ -253,7 +253,7 @@ public class ESP extends ToggleMod {
               // get the local players equivalent
               val selfEquipment = selfEquipmentList.getByType(equipment.getType());
 
-              stack.push();
+              stack.pushPose();
 
               stack.translate(0.f, -1.f, 0.f);
               stack.scale(enchantTextScale, enchantTextScale, 0.f);
@@ -262,11 +262,11 @@ public class ESP extends ToggleMod {
               enchantments.sort(null);
               int j = 0;
               for (ItemEnchantment enchantment : enchantments) {
-                stack.push();
+                stack.pushPose();
                 stack.translate(1f, j++ * SurfaceHelper.getStringHeight(), -50.f);
 
                 // render enchantment short name
-                SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+                SurfaceHelper.renderString(buffers, stack.last().pose(),
                     enchantment.getShortName(), 0, 0, Colors.WHITE, true);
 
                 if (enchantment.isMultiLevel()) {
@@ -288,33 +288,33 @@ public class ESP extends ToggleMod {
                     }
                   }
 
-                  SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+                  SurfaceHelper.renderString(buffers, stack.last().pose(),
                       level, 0, 0, color, true);
                 }
 
-                stack.pop();
+                stack.popPose();
               }
-              stack.pop();
+              stack.popPose();
             }
 
             if (itemStack.getItem().showDurabilityBar(itemStack)) {
-              stack.push();
-              float dur = (float) (itemStack.getMaxDamage() - itemStack.getDamage()) / (float) itemStack.getMaxDamage();
+              stack.pushPose();
+              float dur = (float) (itemStack.getMaxDamage() - itemStack.getDamageValue()) / (float) itemStack.getMaxDamage();
               String text = Math.round(dur * 100.f) + "%";
 
               stack.scale(0.5f, 0.5f, 150);
 
-              SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+              SurfaceHelper.renderString(buffers, stack.last().pose(),
                   text, 0, 0, getColorLevel(dur), true);
-              stack.pop();
+              stack.popPose();
             }
 
-            SurfaceHelper.renderItemInGui(itemStack, stack, MC.getRenderTypeBuffers().getBufferSource());
+            SurfaceHelper.renderItemInGui(itemStack, stack, MC.renderBuffers().bufferSource());
 
-            stack.pop();
+            stack.popPose();
           }
 
-          stack.pop();
+          stack.popPose();
         }
 
         if (settings.isBoxEnabled()) {
@@ -334,21 +334,20 @@ public class ESP extends ToggleMod {
 
     //
 
-    MC.getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
-    MC.getTextureManager().getTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE)
-        .setBlurMipmapDirect(false, false);
+    MC.getTextureManager().bind(PlayerContainer.BLOCK_ATLAS);
+    MC.getTextureManager().getTexture(PlayerContainer.BLOCK_ATLAS).setBlurMipmap(false, false);
 
-    RenderHelper.disableStandardItemLighting();
-    RenderHelper.setupGuiFlatDiffuseLighting();
+    RenderHelper.turnOff();
+    RenderHelper.setupForFlatItems();
 
-    buffers.finish(RenderTypeEx.blockTranslucentCull());
-    buffers.finish(RenderTypeEx.blockCutout());
-    buffers.finish(RenderType.getGlint());
-    buffers.finish(RenderType.getEntityGlint());
-    MC.getRenderTypeBuffers().getBufferSource().finish();
-    buffers.finish();
+    buffers.endBatch(RenderTypeEx.blockTranslucentCull());
+    buffers.endBatch(RenderTypeEx.blockCutout());
+    buffers.endBatch(RenderType.glint());
+    buffers.endBatch(RenderType.entityGlint());
+    MC.renderBuffers().bufferSource().endBatch();
+    buffers.endBatch();
 
-    RenderHelper.setupGui3DDiffuseLighting();
+    RenderHelper.setupFor3DItems();
 //    RenderHelper.enableStandardItemLighting();
   }
 
@@ -473,15 +472,15 @@ public class ESP extends ToggleMod {
 
     EquipmentList(LivingEntity living) {
       // main hand
-      add(EquipmentType.MAIN_HAND, living.getHeldItemMainhand());
+      add(EquipmentType.MAIN_HAND, living.getMainHandItem());
 
       // add armor
-      List<ItemStack> armors = Lists.newArrayList(living.getArmorInventoryList());
+      List<ItemStack> armors = Lists.newArrayList(living.getArmorSlots());
       Collections.reverse(armors);
       for (ItemStack stack : armors) {
         if (stack.getItem() instanceof ArmorItem) {
           ArmorItem armorItem = (ArmorItem) stack.getItem();
-          switch (armorItem.getEquipmentSlot()) {
+          switch (armorItem.getSlot()) {
             case HEAD:
               add(EquipmentType.HELMET, stack);
               break;
@@ -503,7 +502,7 @@ public class ESP extends ToggleMod {
       }
 
       // offhand
-      add(EquipmentType.OFF_HAND, living.getHeldItemOffhand());
+      add(EquipmentType.OFF_HAND, living.getOffhandItem());
     }
 
     private void add(EquipmentType type, ItemStack stack) {

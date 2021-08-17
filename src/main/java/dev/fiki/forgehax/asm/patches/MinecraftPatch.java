@@ -17,17 +17,17 @@ import org.objectweb.asm.tree.*;
 public class MinecraftPatch extends Patch {
 
   @Inject
-  @MapMethod("runTick")
-  public void runTick(MethodNode method,
+  @MapMethod("tick")
+  public void tick(MethodNode method,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onLeftClickCounterSet") ASMMethod hook,
-      @MapField("leftClickCounter") ASMField leftClickCounter) {
+      @MapField("missTime") ASMField missTime) {
     // this.leftClickCounter = 10000;
     AbstractInsnNode node = ASMPattern.builder()
         .opcodes(SIPUSH)
         .custom(n -> {
           if (n instanceof FieldInsnNode && n.getOpcode() == PUTFIELD) {
             FieldInsnNode fld = (FieldInsnNode) n;
-            return leftClickCounter.anyNameEquals(fld.name);
+            return missTime.anyNameEquals(fld.name);
           }
           return false;
         })
@@ -42,8 +42,8 @@ public class MinecraftPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("sendClickBlockToController")
-  public void sendClickBlockToController(MethodNode method,
+  @MapMethod("continueAttack")
+  public void continueAttack(MethodNode method,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "onSendClickBlockToController") ASMMethod hook) {
     InsnList list = new InsnList();
     list.add(new VarInsnNode(ALOAD, 0));

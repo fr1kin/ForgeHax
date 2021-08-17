@@ -20,19 +20,19 @@ public class IVertexBuilderPatch extends Patch {
   @Inject
   @ConditionalInject("!OptiFine")
   @MapMethod(
-      name = "addQuad",
+      name = "putBulkData",
       argTypes = {MatrixStack.Entry.class, BakedQuad.class, float[].class, float.class, float.class, float.class,
           int[].class, int.class, boolean.class},
       retType = void.class
   )
-  public void addQuad(MethodNode node,
-      @MapMethod("addVertex") ASMMethod addVertex,
+  public void putBulkData(MethodNode node,
+      @MapMethod(name = "vertex", argTypes = {float.class, float.class, float.class, float.class, float.class, float.class, float.class, float.class, float.class, int.class, int.class, float.class, float.class, float.class}) ASMMethod addVertex,
       @MapMethod(parentClass = XrayHooks.class, name = "isXrayBlocks") ASMMethod isXrayEnabled,
       @MapMethod(parentClass = XrayHooks.class, name = "changeBrightness") ASMMethod changeBrightness,
       @MapMethod(parentClass = XrayHooks.class, name = "getBlockAlphaOverride") ASMMethod getBlockAlphaOverride) {
-    LocalVariableNode lvLights = ASMHelper.getLocalVariable(node, "combinedLightsIn", Type.getType(int[].class))
+    LocalVariableNode lvLights = ASMHelper.getLocalVariable(node, "p_227890_7_", Type.getType(int[].class))
         .orElseThrow(() -> new Error("Could not find local variable combinedLightsIn"));
-    LocalVariableNode lvColors = ASMHelper.getLocalVariable(node, "colorMuls", Type.getType(float[].class))
+    LocalVariableNode lvColors = ASMHelper.getLocalVariable(node, "p_227890_3_", Type.getType(float[].class))
         .orElseThrow(() -> new Error("Could not find local variable colorMuls"));
 
     int alphaIndex = ASMHelper.addNewLocalVariable(node, "alphaValue", Type.FLOAT_TYPE.getDescriptor());

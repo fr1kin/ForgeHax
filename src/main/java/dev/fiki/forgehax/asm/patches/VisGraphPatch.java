@@ -16,8 +16,8 @@ import java.util.Objects;
 public class VisGraphPatch extends Patch {
 
   @Inject
-  @MapMethod("setOpaqueCube")
-  public void setOpaqueCube(MethodNode main,
+  @MapMethod("setOpaque")
+  public void setOpaque(MethodNode main,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldDisableCaveCulling") ASMMethod hook) {
     AbstractInsnNode top = main.instructions.getFirst();
     AbstractInsnNode bottom = ASMHelper.findPattern(main.instructions.getFirst(), new int[]{RETURN}, "x");
@@ -36,8 +36,8 @@ public class VisGraphPatch extends Patch {
   }
 
   @Inject
-  @MapMethod("computeVisibility")
-  public void computeVisibility(MethodNode main,
+  @MapMethod("resolve")
+  public void resolve(MethodNode main,
       @MapMethod(parentClass = ForgeHaxHooks.class, name = "shouldDisableCaveCulling") ASMMethod hook) {
     AbstractInsnNode node = ASMHelper.findPattern(main.instructions.getFirst(), new int[]{SIPUSH, IF_ICMPGE}, "xx");
 

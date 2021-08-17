@@ -176,14 +176,13 @@ public class AutoPlace extends ToggleMod {
 
   private boolean isClickable(UniqueBlock info) {
     return sides.stream()
-        .anyMatch(side -> BlockHelper.isBlockReplaceable(info.getPos().offset(side)));
+        .anyMatch(side -> BlockHelper.isBlockReplaceable(info.getPos().relative(side)));
   }
 
   private void showInfo(String filter) {
     addScheduledTask(() -> {
       if ("selected".startsWith(filter)) {
-        printInform("Selected item %s",
-            this.selectedItem.getDisplayName().getUnformattedComponentText());
+        printInform("Selected item %s", this.selectedItem.getDisplayName().getString());
       }
 
       if ("targets".startsWith(filter)) {
@@ -196,7 +195,7 @@ public class AutoPlace extends ToggleMod {
         printInform(
             "Sides: %s",
             this.sides.stream()
-                .map(Direction::getName2)
+                .map(Direction::getName)
                 .collect(Collectors.joining(", ")));
       }
 
@@ -217,41 +216,41 @@ public class AutoPlace extends ToggleMod {
 
   @SubscribeListener
   public void onRender(RenderSpaceEvent event) {
-    if (!render.getValue() || MC.getRenderViewEntity() == null) {
+    if (!render.getValue() || MC.getCameraEntity() == null) {
       return;
     }
 
     final MatrixStack stack = event.getStack();
     final BufferBuilder builder = event.getBuffer();
-    final Vector3d renderPos = getLocalPlayer().getInterpolatedPos(MC.getRenderPartialTicks());
+    final Vector3d renderPos = getLocalPlayer().getInterpolatedPos(MC.getDeltaFrameTime());
 
     builder.beginLines(DefaultVertexFormats.POSITION_COLOR);
 
     for (BlockPos pos : renderingBlocks) {
-      stack.push();
+      stack.pushPose();
 
       final BlockState state = getWorld().getBlockState(pos);
-      final AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).getBoundingBox();
+      final AxisAlignedBB bb = state.getCollisionShape(getWorld(), pos).bounds();
 
       stack.translateVec(pos.subtract(renderPos));
       builder.outlinedCube(bb, GeometryMasks.Line.ALL, Colors.GREEN.setAlpha(150), stack.getLastMatrix());
 
-      stack.pop();
+      stack.popPose();
     }
 
     // poz
     final BlockPos current = this.currentRenderingTarget;
 
     if (current != null) {
-      stack.push();
+      stack.pushPose();
 
       final BlockState state = getWorld().getBlockState(current);
-      final AxisAlignedBB bb = state.getCollisionShape(getWorld(), current).getBoundingBox();
+      final AxisAlignedBB bb = state.getCollisionShape(getWorld(), current).bounds();
 
       stack.translateVec(current.subtract(renderPos));
       builder.outlinedCube(bb, GeometryMasks.Line.ALL, Colors.RED.setAlpha(150), stack.getLastMatrix());
 
-      stack.pop();
+      stack.popPose();
     }
 
     builder.draw();
@@ -275,7 +274,7 @@ public class AutoPlace extends ToggleMod {
             return;
           }
 
-          UniqueBlock info = BlockHelper.newUniqueBlock(tr.getPos());
+          UniqueBlock info = BlockHelper.newUniqueBlock(tr.getBlockPos());
 
           if (info.isInvalid()) {
             printWarning("Invalid block %s", info.toString());
@@ -368,7 +367,7 @@ public class AutoPlace extends ToggleMod {
       currentRenderingTarget = null;
       return;
     }
-    if (cooldown.getValue() > 0 && reflection.Minecraft_rightClickDelayTimer.get(MC) > 0) {
+    if (cooldown.getValue() > 0 && reflection.Minecraft_rightClickDelay.get(MC) > 0) {
       return;
     }
 
@@ -379,9 +378,9 @@ public class AutoPlace extends ToggleMod {
 
     val lp = getLocalPlayer();
     final Slot placingBlocks = lp.getHotbarSlots().stream()
-        .filter(Slot::getHasStack)
-        .filter(slot -> slot.getStack().isItemEqual(selectedItem))
-        .filter(slot -> lp.canPlaceBlock(slot.getStack().getBlockForItem()))
+        .filter(Slot::hasItem)
+        .filter(slot -> slot.getItem().sameItem(selectedItem))
+        .filter(slot -> lp.canPlaceBlock(slot.getItem().getBlockForItem()))
         .findAny()
         .orElse(null);
 
@@ -395,8 +394,8 @@ public class AutoPlace extends ToggleMod {
         : lp.getServerDirectionVector();
 
     List<UniqueBlock> blocks =
-        BlockHelper.getBlocksInRadius(eyes, getPlayerController().getBlockReachDistance()).stream()
-            .filter(pos -> !getWorld().isAirBlock(pos))
+        BlockHelper.getBlocksInRadius(eyes, getPlayerController().getPickRange()).stream()
+            .filter(pos -> !getWorld().isEmptyBlock(pos))
             .map(BlockHelper::newUniqueBlock)
             .filter(this::isValidBlock)
             .filter(this::isClickable)
@@ -427,15 +426,15 @@ public class AutoPlace extends ToggleMod {
         trace = sides.stream()
             .map(side -> BlockHelper.getBlockSideTrace(eyes, at.getPos(), side))
             .filter(Objects::nonNull)
-            .filter(tr -> lp.canPlaceBlock(placingBlocks.getStack().getBlockForItem(), tr.getPos()))
+            .filter(tr -> lp.canPlaceBlock(placingBlocks.getItem().getBlockForItem(), tr.getPos()))
             .max(Comparator.comparing(BlockTraceInfo::isSneakRequired)
                 .thenComparing(i -> -VectorUtil.getCrosshairDistance(eyes, dir, i.getCenterPos())))
             .orElse(null);
       } else {
         trace = sides.stream()
-            .map(side -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().offset(side)))
+            .map(side -> BlockHelper.getPlaceableBlockSideTrace(eyes, dir, at.getPos().relative(side)))
             .filter(Objects::nonNull)
-            .filter(tr -> lp.canPlaceBlock(placingBlocks.getStack().getBlockForItem(), tr.getPos()))
+            .filter(tr -> lp.canPlaceBlock(placingBlocks.getItem().getBlockForItem(), tr.getPos()))
             .max(Comparator.comparing(BlockTraceInfo::isSneakRequired)
                 .thenComparing(i -> -VectorUtil.getCrosshairDistance(eyes, dir, i.getCenterPos())))
             .orElse(null);
@@ -470,7 +469,7 @@ public class AutoPlace extends ToggleMod {
       }
 
       val blockTr = new BlockRayTraceResult(tr.getHitVec(), tr.getOppositeSide(), tr.getPos(), false);
-      if (lp.placeBlock(Hand.MAIN_HAND, blockTr).isSuccessOrConsume()) {
+      if (lp.placeBlock(Hand.MAIN_HAND, blockTr).consumesAction()) {
         // stealth send swing packet
         lp.swingHandSilently();
       }
@@ -486,7 +485,7 @@ public class AutoPlace extends ToggleMod {
       resetSelected.run();
 
       // set the block place delay
-      reflection.Minecraft_rightClickDelayTimer.set(MC, cooldown.getValue());
+      reflection.Minecraft_rightClickDelay.set(MC, cooldown.getValue());
     });
   }
 }

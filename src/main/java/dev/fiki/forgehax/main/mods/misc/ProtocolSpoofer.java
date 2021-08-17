@@ -27,7 +27,7 @@ public class ProtocolSpoofer extends ToggleMod {
   private final IntegerSetting version = newIntegerSetting()
       .name("version")
       .description("Spoofed protocol version to use. https://minecraft.gamepedia.com/Protocol_version#Java_Edition")
-      .defaultTo(SharedConstants.getVersion().getProtocolVersion())
+      .defaultTo(SharedConstants.getCurrentVersion().getProtocolVersion())
       .build();
 
   @SubscribeListener

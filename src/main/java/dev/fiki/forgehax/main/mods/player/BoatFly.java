@@ -85,8 +85,8 @@ public class BoatFly extends ToggleMod {
   @SubscribeEvent
   public void onRenderBoat(RenderBoatEvent event) {
     if (EntityEx.isDrivenByPlayer(event.getBoat()) && setYaw.getValue()) {
-      float yaw = getLocalPlayer().rotationYaw;
-      event.getBoat().rotationYaw = yaw;
+      float yaw = getLocalPlayer().yRot;
+      event.getBoat().yRot = yaw;
       event.setYaw(yaw);
     }
   }
@@ -101,20 +101,20 @@ public class BoatFly extends ToggleMod {
 
       double velX, velY, velZ;
 
-      if (getGameSettings().keyBindJump.isKeyDown()) {
+      if (getGameSettings().keyJump.isDown()) {
         // trick the riding entity to think its onground
         reflection.Entity_onGround.set(getMountedEntity(), false);
 
         // teleport up
-        velY = getGameSettings().keyBindSprint.isKeyDown() ? 5.D : 1.5D;
+        velY = getGameSettings().keySprint.isDown() ? 5.D : 1.5D;
       } else {
-        velY = getGameSettings().keyBindSprint.isKeyDown() ? -1.0 : -speedY.getValue();
+        velY = getGameSettings().keySprint.isDown() ? -1.0 : -speedY.getValue();
       }
 
-      MovementInput movementInput = getLocalPlayer().movementInput;
-      double forward = movementInput.moveForward;
-      double strafe = movementInput.moveStrafe;
-      float yaw = getLocalPlayer().rotationYaw;
+      MovementInput movementInput = getLocalPlayer().input;
+      double forward = movementInput.forwardImpulse;
+      double strafe = movementInput.leftImpulse;
+      float yaw = getLocalPlayer().yRot;
 
       if ((forward == 0.0D) && (strafe == 0.0D)) {
         velX = velZ = 0.D;
@@ -142,7 +142,7 @@ public class BoatFly extends ToggleMod {
         velZ = (forward * speed.getValue() * sin - strafe * speed.getValue() * cos);
       }
 
-      getMountedEntity().setMotion(velX, velY, velZ);
+      getMountedEntity().setDeltaMovement(velX, velY, velZ);
     }
   }
 }

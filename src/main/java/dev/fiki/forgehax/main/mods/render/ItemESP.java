@@ -53,10 +53,10 @@ public class ItemESP extends ToggleMod {
     worldEntities()
         .filter(ItemEntity.class::isInstance)
         .map(ItemEntity.class::cast)
-        .filter(entity -> entity.ticksExisted > 1)
+        .filter(entity -> entity.tickCount > 1)
         .forEach(entity -> {
           Vector3d bottomPos = entity.getInterpolatedPos(event.getPartialTicks());
-          Vector3d topPos = bottomPos.add(0.D, entity.getRenderBoundingBox().maxY - entity.getPosY(), 0.D);
+          Vector3d topPos = bottomPos.add(0.D, entity.getBoundingBox().maxY - entity.getY(), 0.D);
 
           ScreenPos top = VectorUtil.toScreen(topPos);
           ScreenPos bot = VectorUtil.toScreen(bottomPos);
@@ -65,11 +65,11 @@ public class ItemESP extends ToggleMod {
             return;
           }
 
-          stack.push();
+          stack.pushPose();
           stack.translate(top.getX(), bot.getY(), 0.f);
 
           ItemStack itemStack = entity.getItem();
-          String text = itemStack.getTextComponent().getString()
+          String text = itemStack.getDisplayName().getString()
               + (itemStack.isStackable() ? (" x" + itemStack.getCount()) : "");
 
           stack.scale(scale, scale, 0.f);
@@ -78,12 +78,12 @@ public class ItemESP extends ToggleMod {
               -SurfaceHelper.getStringHeight() / 2.f,
               0.f);
 
-          SurfaceHelper.renderString(buffers, stack.getLast().getMatrix(),
+          SurfaceHelper.renderString(buffers, stack.last().pose(),
               text, 0, 0, color.getValue(), true);
 
-          stack.pop();
+          stack.popPose();
         });
 
-    buffers.finish();
+    buffers.endBatch();
   }
 }

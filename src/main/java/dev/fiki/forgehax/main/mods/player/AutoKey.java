@@ -45,7 +45,7 @@ public class AutoKey extends ToggleMod {
       .description("Current active keys")
       .keyArgument(Arguments.newArgument(KeyBinding.class)
           .label("key")
-          .converter(KeyBinding::getKeyDescription)
+          .converter(KeyBinding::getName)
           .parser(BindingHelper::getKeyBindByDescription)
           .build())
       .valueArgument(Arguments.newEnumArgument(ClickMode.class)
@@ -68,21 +68,21 @@ public class AutoKey extends ToggleMod {
         case TAP:
           if (lastClick < holdTime.getValue()) {
             incrementPressTime(key);
-            key.setPressed(true);
+            key.setDown(true);
           } else {
-            key.setPressed(false);
+            key.setDown(false);
           }
           break;
         case HOLD:
           incrementPressTime(key);
-          key.setPressed(true);
+          key.setDown(true);
           break;
       }
     });
   }
 
   private void incrementPressTime(KeyBinding binding) {
-    ReflectionField<Integer> field = reflection.KeyBinding_pressTime;
+    ReflectionField<Integer> field = reflection.KeyBinding_clickCount;
     int currTime = field.get(binding);
     field.set(binding, currTime + 1);
   }

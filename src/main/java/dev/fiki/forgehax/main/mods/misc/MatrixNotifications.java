@@ -181,13 +181,13 @@ public class MatrixNotifications extends ToggleMod {
   }
 
   private static String getServerName() {
-    return Optional.ofNullable(Common.MC.getCurrentServerData())
-        .map(data -> data.serverName)
+    return Optional.ofNullable(Common.MC.getCurrentServer())
+        .map(data -> data.name)
         .orElse("server");
   }
 
   private static String getUriUuid() {
-    return Optional.of(Common.MC.getSession().getProfile())
+    return Optional.of(Common.MC.getUser().getGameProfile())
         .map(GameProfile::getId)
         .map(UUID::toString)
         .map(id -> id.replaceAll("-", ""))
@@ -198,7 +198,7 @@ public class MatrixNotifications extends ToggleMod {
     JsonObject object = new JsonObject();
     object.addProperty("text", message);
     object.addProperty("format", "plain");
-    object.addProperty("displayName", Common.MC.getSession().getUsername());
+    object.addProperty("displayName", Common.MC.getUser().getName());
 
     String id = getUriUuid();
     if (!skin_server_url.getValue().isEmpty() && id != null) {
@@ -244,7 +244,7 @@ public class MatrixNotifications extends ToggleMod {
       once = true;
 
       if (on_connected.getValue()) {
-        BlockPos pos = Common.getLocalPlayer().getPosition();
+        BlockPos pos = Common.getLocalPlayer().blockPosition();
         if (pos.getX() != 0 && pos.getZ() != 0) {
           ping("Connected to %s", getServerName());
         } else {
@@ -259,7 +259,7 @@ public class MatrixNotifications extends ToggleMod {
     once = false;
     position = 0;
 
-    if (Common.MC.getCurrentServerData() != null) {
+    if (Common.MC.getCurrentServer() != null) {
       serverName = getServerName();
     }
   }
@@ -271,7 +271,7 @@ public class MatrixNotifications extends ToggleMod {
 
       if (on_disconnected.getValue()) {
         String reason = Optional.ofNullable(DisconnectedScreen_message.get(event.getGui()))
-            .map(ITextComponent::getUnformattedComponentText)
+            .map(ITextComponent::getString)
             .orElse("");
         if (reason.isEmpty()) {
           notify("Disconnected from %s", serverName);
@@ -287,12 +287,12 @@ public class MatrixNotifications extends ToggleMod {
     if (event.getPacket() instanceof SChatPacket) {
       SChatPacket packet = (SChatPacket) event.getPacket();
       if (packet.getType() == ChatType.SYSTEM) {
-        ITextComponent comp = packet.getChatComponent();
+        ITextComponent comp = packet.getMessage();
         if (comp.getSiblings().size() >= 2) {
-          String text = comp.getSiblings().get(0).getUnformattedComponentText();
+          String text = comp.getSiblings().get(0).getString();
           if ("Position in queue: ".equals(text)) {
             try {
-              int pos = Integer.parseInt(comp.getSiblings().get(1).getUnformattedComponentText());
+              int pos = Integer.parseInt(comp.getSiblings().get(1).getString());
               if (pos != position) {
                 position = pos;
                 if (on_queue_move.getValue() && position <= queue_notify_pos.getValue()) {

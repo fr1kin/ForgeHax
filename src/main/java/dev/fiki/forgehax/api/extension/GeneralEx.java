@@ -18,7 +18,7 @@ public class GeneralEx {
       if (silent) {
         PacketEvent.ignore(packet);
       }
-      nm.sendPacket(packet);
+      nm.send(packet);
     } else {
       log.warn("NetworkManager is null! Packet {} was not dispatched (possibly not connected to server?)", packet);
     }

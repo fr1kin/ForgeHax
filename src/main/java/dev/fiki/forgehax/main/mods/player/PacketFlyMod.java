@@ -28,7 +28,7 @@ public class PacketFlyMod extends ToggleMod {
   @Override
   public void onDisabled() {
     if (Objects.nonNull(getLocalPlayer())) {
-      getLocalPlayer().noClip = false;
+      getLocalPlayer().noPhysics = false;
     }
   }
 
@@ -38,58 +38,58 @@ public class PacketFlyMod extends ToggleMod {
     double xDir = dir[0];
     double zDir = dir[1];
 
-    if ((getGameSettings().keyBindForward.isKeyDown()
-        || getGameSettings().keyBindLeft.isKeyDown()
-        || getGameSettings().keyBindRight.isKeyDown()
-        || getGameSettings().keyBindBack.isKeyDown())
-        && !getGameSettings().keyBindJump.isKeyDown()) {
-      Vector3d vel = getLocalPlayer().getMotion();
-      getLocalPlayer().setMotion(xDir * 0.26, vel.getY(), zDir * 0.26);
+    if ((getGameSettings().keyUp.isDown()
+        || getGameSettings().keyLeft.isDown()
+        || getGameSettings().keyRight.isDown()
+        || getGameSettings().keyDown.isDown())
+        && !getGameSettings().keyJump.isDown()) {
+      Vector3d vel = getLocalPlayer().getDeltaMovement();
+      getLocalPlayer().setDeltaMovement(xDir * 0.26, vel.y(), zDir * 0.26);
     }
 
-    double posX = getLocalPlayer().getPosX() + getLocalPlayer().getMotion().getX();
+    double posX = getLocalPlayer().getX() + getLocalPlayer().getDeltaMovement().x();
     double posY =
-        getLocalPlayer().getPosY()
-            + (getGameSettings().keyBindJump.isKeyDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001)
-            - (getGameSettings().keyBindSneak.isKeyDown()
+        getLocalPlayer().getY()
+            + (getGameSettings().keyJump.isDown() ? (zoomies ? 0.0625 : 0.0624) : 0.00000001)
+            - (getGameSettings().keyShift.isDown()
             ? (zoomies ? 0.0625 : 0.0624)
             : 0.00000002);
-    double posZ = getLocalPlayer().getPosZ() + getLocalPlayer().getMotion().getZ();
+    double posZ = getLocalPlayer().getZ() + getLocalPlayer().getDeltaMovement().z();
     getNetworkManager()
-        .sendPacket(
+        .send(
             new CPlayerPacket.PositionRotationPacket(
-                getLocalPlayer().getPosX() + getLocalPlayer().getMotion().getX(),
-                getLocalPlayer().getPosY()
-                    + (getGameSettings().keyBindJump.isKeyDown()
+                getLocalPlayer().getX() + getLocalPlayer().getDeltaMovement().x(),
+                getLocalPlayer().getY()
+                    + (getGameSettings().keyJump.isDown()
                     ? (zoomies ? 0.0625 : 0.0624)
                     : 0.00000001)
-                    - (getGameSettings().keyBindSneak.isKeyDown()
+                    - (getGameSettings().keyShift.isDown()
                     ? (zoomies ? 0.0625 : 0.0624)
                     : 0.00000002),
-                getLocalPlayer().getPosZ() + getLocalPlayer().getMotion().getZ(),
-                getLocalPlayer().rotationYaw,
-                getLocalPlayer().rotationPitch,
+                getLocalPlayer().getZ() + getLocalPlayer().getDeltaMovement().z(),
+                getLocalPlayer().yRot,
+                getLocalPlayer().xRot,
                 false));
     getNetworkManager()
-        .sendPacket(
+        .send(
             new CPlayerPacket.PositionRotationPacket(
-                getLocalPlayer().getPosX() + getLocalPlayer().getMotion().getX(),
-                1337 + getLocalPlayer().getPosY(),
-                getLocalPlayer().getPosZ() + getLocalPlayer().getMotion().getZ(),
-                getLocalPlayer().rotationYaw,
-                getLocalPlayer().rotationPitch,
+                getLocalPlayer().getX() + getLocalPlayer().getDeltaMovement().x(),
+                1337 + getLocalPlayer().getY(),
+                getLocalPlayer().getZ() + getLocalPlayer().getDeltaMovement().z(),
+                getLocalPlayer().yRot,
+                getLocalPlayer().xRot,
                 true));
-    getNetworkManager().sendPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
-    getLocalPlayer().setPosition(posX, posY, posZ);
+    getNetworkManager().send(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
+    getLocalPlayer().moveTo(posX, posY, posZ);
 
     zoomies = !zoomies;
 
-    getLocalPlayer().setMotion(0.D, 0.D, 0.D);
-    getLocalPlayer().noClip = true;
+    getLocalPlayer().setDeltaMovement(0.D, 0.D, 0.D);
+    getLocalPlayer().noPhysics = true;
   }
 
   public double[] moveLooking(int ignored) {
-    return new double[]{getLocalPlayer().rotationYaw * 360 / 360 * 180 / 180, 0};
+    return new double[]{getLocalPlayer().yRot * 360 / 360 * 180 / 180, 0};
   }
 
   @SubscribeListener

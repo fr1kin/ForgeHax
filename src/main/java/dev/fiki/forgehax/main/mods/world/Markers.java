@@ -54,17 +54,17 @@ public class Markers extends ToggleMod implements Common {
   @Injected("threadpool")
   private final ExecutorService pool;
 
-  @MapField(parentClass = ViewFrustum.class, value = "countChunksX")
-  private final ReflectionField<Integer> ViewFrustum_countChunksX;
-  @MapField(parentClass = ViewFrustum.class, value = "countChunksY")
-  private final ReflectionField<Integer> ViewFrustum_countChunksY;
-  @MapField(parentClass = ViewFrustum.class, value = "countChunksZ")
-  private final ReflectionField<Integer> ViewFrustum_countChunksZ;
+  @MapField(parentClass = ViewFrustum.class, value = "chunkGridSizeX")
+  private final ReflectionField<Integer> ViewFrustum_chunkGridSizeX;
+  @MapField(parentClass = ViewFrustum.class, value = "chunkGridSizeY")
+  private final ReflectionField<Integer> ViewFrustum_chunkGridSizeY;
+  @MapField(parentClass = ViewFrustum.class, value = "chunkGridSizeZ")
+  private final ReflectionField<Integer> ViewFrustum_chunkGridSizeZ;
 
-  @MapField(parentClass = WorldRenderer.class, value = "world")
-  private final ReflectionField<ClientWorld> WorldRenderer_world;
-  @MapField(parentClass = WorldRenderer.class, value = "viewFrustum")
-  private final ReflectionField<ViewFrustum> WorldRenderer_viewFrustum;
+  @MapField(parentClass = WorldRenderer.class, value = "level")
+  private final ReflectionField<ClientWorld> WorldRenderer_level;
+  @MapField(parentClass = WorldRenderer.class, value = "viewArea")
+  private final ReflectionField<ViewFrustum> WorldRenderer_viewArea;
 
   private final SimpleSettingMap<Block, Color> blocks = newSettingMap(Block.class, Color.class)
       .name("blocks")
@@ -164,22 +164,22 @@ public class Markers extends ToggleMod implements Common {
     unloadMarkers();
 
     dispatcher = new MarkerDispatcher(pool);
-    dispatcher.setWorld(WorldRenderer_world.get(getWorldRenderer()));
+    dispatcher.setWorld(WorldRenderer_level.get(getWorldRenderer()));
     dispatcher.setBlockToColor(state -> blocks.get(state.getBlock()));
 
-    workers = new MarkerWorker[viewFrustum.renderChunks.length];
+    workers = new MarkerWorker[viewFrustum.chunks.length];
 
     for (int i = 0; i < workers.length; i++) {
-      ChunkRenderDispatcher.ChunkRender chunkRender = viewFrustum.renderChunks[i];
-      BlockPos pos = chunkRender.getPosition().toImmutable();
+      ChunkRenderDispatcher.ChunkRender chunkRender = viewFrustum.chunks[i];
+      BlockPos pos = chunkRender.getOrigin().immutable();
 
       MarkerWorker worker = workers[i] = new MarkerWorker(dispatcher);
       worker.setPosition(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    chunksX = ViewFrustum_countChunksX.get(viewFrustum);
-    chunksY = ViewFrustum_countChunksY.get(viewFrustum);
-    chunksZ = ViewFrustum_countChunksZ.get(viewFrustum);
+    chunksX = ViewFrustum_chunkGridSizeX.get(viewFrustum);
+    chunksY = ViewFrustum_chunkGridSizeY.get(viewFrustum);
+    chunksZ = ViewFrustum_chunkGridSizeZ.get(viewFrustum);
   }
 
   private void unloadMarkers() {
@@ -206,8 +206,8 @@ public class Markers extends ToggleMod implements Common {
     int yy = MathHelper.intFloorDiv(y, 16);
     int zz = MathHelper.intFloorDiv(z, 16);
     if (yy >= 0 && yy < chunksY) {
-      xx = MathHelper.normalizeAngle(xx, chunksX);
-      zz = MathHelper.normalizeAngle(zz, chunksZ);
+      xx = MathHelper.positiveModulo(xx, chunksX);
+      zz = MathHelper.positiveModulo(zz, chunksZ);
       return workers[getWorkerIndex(xx, yy, zz)];
     } else {
       return null;
@@ -215,7 +215,7 @@ public class Markers extends ToggleMod implements Common {
   }
 
   private ViewFrustum getViewFrustum() {
-    return WorldRenderer_viewFrustum.get(getWorldRenderer());
+    return WorldRenderer_viewArea.get(getWorldRenderer());
   }
 
   @Override
@@ -266,7 +266,7 @@ public class Markers extends ToggleMod implements Common {
       return;
     }
 
-    BlockPos pos = event.getChunk().getPosition().toImmutable();
+    BlockPos pos = event.getChunk().getOrigin().immutable();
     MarkerWorker worker = getWorker(pos.getX(), pos.getY(), pos.getZ());
 
     if (worker != null) {
@@ -290,21 +290,21 @@ public class Markers extends ToggleMod implements Common {
 
     for (MarkerWorker worker : workers) {
       if (!worker.isEmpty()) {
-        BlockPos pos = worker.getPosition().toImmutable();
-        stack.push();
-        stack.translate((double) pos.getX() - vec.getX(),
-            (double) pos.getY() - vec.getY(),
-            (double) pos.getZ() - vec.getZ());
+        BlockPos pos = worker.getPosition().immutable();
+        stack.pushPose();
+        stack.translate((double) pos.getX() - vec.x(),
+            (double) pos.getY() - vec.y(),
+            (double) pos.getZ() - vec.z());
 
-        worker.getVertexBuffer().bindBuffer();
+        worker.getVertexBuffer().bind();
         DefaultVertexFormats.POSITION_COLOR.setupBufferState(0L);
-        worker.getVertexBuffer().draw(stack.getLast().getMatrix(), GL11.GL_LINES);
+        worker.getVertexBuffer().draw(stack.last().pose(), GL11.GL_LINES);
 
-        stack.pop();
+        stack.popPose();
       }
     }
 
-    VertexBuffer.unbindBuffer();
+    VertexBuffer.unbind();
     RenderSystem.clearCurrentColor();
     DefaultVertexFormats.POSITION_COLOR.clearBufferState();
   }

@@ -54,7 +54,7 @@ public class ElytraFlight extends ToggleMod {
   protected void onEnabled() {
     if (flyOnEnable.getValue()) {
       Common.addScheduledTask(() -> {
-        if (getLocalPlayer() != null && !getLocalPlayer().isElytraFlying()) {
+        if (getLocalPlayer() != null && !getLocalPlayer().isFallFlying()) {
           Common.sendNetworkPacket(new CEntityActionPacket(getLocalPlayer(), CEntityActionPacket.Action.START_FALL_FLYING));
         }
       });
@@ -89,12 +89,12 @@ public class ElytraFlight extends ToggleMod {
   @SubscribeListener
   public void onLocalPlayerUpdate(LocalPlayerUpdateEvent event) {
     if(FlyMode.FLIGHT.equals(mode.getValue())) {
-      if (getLocalPlayer().isElytraFlying()) {
+      if (getLocalPlayer().isFallFlying()) {
         flying.enable();
       }
-      getLocalPlayer().abilities.setFlySpeed(speed.getValue());
+      getLocalPlayer().abilities.setFlyingSpeed(speed.getValue());
     } else {
-      if (!getLocalPlayer().isElytraFlying()) {
+      if (!getLocalPlayer().isFallFlying()) {
         return;
       }
 
@@ -104,9 +104,9 @@ public class ElytraFlight extends ToggleMod {
 
       final float speed = (float) (1.7F * 1.06);
 
-      double forward = getLocalPlayer().movementInput.moveForward;
-      double strafe = getLocalPlayer().movementInput.moveStrafe;
-      float yaw = getLocalPlayer().rotationYaw;
+      double forward = getLocalPlayer().input.forwardImpulse;
+      double strafe = getLocalPlayer().input.leftImpulse;
+      float yaw = getLocalPlayer().yRot;
 
       if ((forward == 0.0D) && (strafe == 0.0D)) {
         motionX = 0.0D;
@@ -132,11 +132,11 @@ public class ElytraFlight extends ToggleMod {
         motionZ = (forward * speed * sin - strafe * speed * cos);
 
       }
-      if (getGameSettings().keyBindSneak.isKeyDown()) {
+      if (getGameSettings().keyShift.isDown()) {
         motionY = -1.0D;
       }
 
-      getLocalPlayer().setMotion(motionX, motionY, motionZ);
+      getLocalPlayer().setDeltaMovement(motionX, motionY, motionZ);
     }
   }
 }

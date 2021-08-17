@@ -13,10 +13,10 @@ import dev.fiki.forgehax.api.modloader.RegisterMod;
 import dev.fiki.forgehax.asm.events.game.ItemStoppedUsedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
-import lombok.val;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.Food;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
@@ -78,41 +78,41 @@ public class AutoEatMod extends ToggleMod {
   }
 
   private boolean isGoodFood(Slot slot) {
-    val stack = slot.getStack();
-    return stack.getItem().isFood() &&
-        stack.getItem().getFood().getEffects().stream()
+    ItemStack stack = slot.getItem();
+    return stack.getItem().isEdible() &&
+        stack.getItem().getFoodProperties().getEffects().stream()
             .map(Pair::getFirst)
-            .map(EffectInstance::getPotion)
+            .map(EffectInstance::getEffect)
             .allMatch(Effect::isBeneficial);
   }
 
   private float getPreferenceValue(Slot slot) {
-    val stack = slot.getStack();
-    val food = stack.getItem().getFood();
+    ItemStack stack = slot.getItem();
+    Food food = stack.getItem().getFoodProperties();
     switch (sorting.getValue()) {
       case POINTS:
-        return food.getHealing();
+        return food.getNutrition();
       case SATURATION:
-        return food.getSaturation();
+        return food.getSaturationModifier();
       case RATIO:
       default:
-        return (food.getHealing() * food.getSaturation() * 2.f) / (float) food.getHealing();
+        return (food.getNutrition() * food.getSaturationModifier() * 2.f) / (float) food.getNutrition();
     }
   }
 
   private boolean shouldEat(ClientPlayerEntity lp, Slot slot) {
-    return lp.getFoodStats().getFoodLevel()
-        + slot.getStack().getItem().getFood().getHealing() < 20;
+    return lp.getFoodData().getFoodLevel()
+        + slot.getItem().getItem().getFoodProperties().getNutrition() < 20;
   }
 
   private int getLongestEatingTicks(ItemStack stack) {
-    return stack.getItem().getFood().isFastEating() ? 0 : stack.getUseDuration();
+    return stack.getItem().getFoodProperties().isFastFood() ? 0 : stack.getUseDuration();
   }
 
   private boolean isEatingTooLong() {
     return targetSlot != null
         && failSafeMultiplier.intValue() > 0
-        && eatingTicks > getLongestEatingTicks(targetSlot.getStack()) * failSafeMultiplier.intValue();
+        && eatingTicks > getLongestEatingTicks(targetSlot.getItem()) * failSafeMultiplier.intValue();
   }
 
   private boolean shouldRevertSelected(ClientPlayerEntity lp) {
@@ -135,7 +135,7 @@ public class AutoEatMod extends ToggleMod {
 
     if (targetSlot == null) {
       Slot foodSlot = lp.getPrimarySlots().stream()
-          .filter(Slot::getHasStack)
+          .filter(Slot::hasItem)
           .filter(this::isGoodFood)
           // prefer items in the hotbar
           .max(Comparator.comparing(ItemEx::isInHotbar)
@@ -150,8 +150,8 @@ public class AutoEatMod extends ToggleMod {
         // if the selected item is in our inventory we gotta swap items
         if (!foodSlot.isInHotbar()) {
           final Slot availableSlot = lp.getHotbarSlots().stream()
-              .min(Comparator.comparing(Slot::getHasStack)
-                  .thenComparing(Slot::getStack, Comparator.comparing(ItemEx::isFoodItem, Comparator.reverseOrder())))
+              .min(Comparator.comparing(Slot::hasItem)
+                  .thenComparing(Slot::getItem, Comparator.comparing(ItemEx::isFoodItem, Comparator.reverseOrder())))
               .orElseThrow(() -> new Error("You should not see this error"));
           // set current selected item
           resetSelected = lp.forceSelectedSlot(availableSlot);
@@ -177,7 +177,7 @@ public class AutoEatMod extends ToggleMod {
 
       if (selectedTicks > selectWait.intValue()) {
         if (!wasEating) {
-          getLog().debug("Started eating {}", targetSlot.getStack());
+          getLog().debug("Started eating {}", targetSlot.getItem());
         }
 
         lp.rightClick(Hand.MAIN_HAND);

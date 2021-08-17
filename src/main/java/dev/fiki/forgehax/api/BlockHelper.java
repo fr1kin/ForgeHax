@@ -78,7 +78,7 @@ public class BlockHelper {
   @Deprecated
   public static float getBlockHardness(BlockPos pos) {
     BlockState state = getWorld().getBlockState(pos);
-    return state.getBlockHardness(getWorld(), pos);
+    return state.getDestroySpeed(getWorld(), pos);
   }
 
   public static boolean isBlockReplaceable(BlockPos pos) {
@@ -89,8 +89,8 @@ public class BlockHelper {
     RayTraceContext ctx = new RayTraceContext(start, end,
         RayTraceContext.BlockMode.OUTLINE,
         RayTraceContext.FluidMode.NONE, getLocalPlayer());
-    BlockRayTraceResult tr = getWorld().rayTraceBlocks(ctx);
-    return tr.getPos().equals(target);
+    BlockRayTraceResult tr = getWorld().clip(ctx);
+    return tr.getBlockPos().equals(target);
   }
 
   public static boolean doesTraceHitBlockSide(Vector3d start, Vector3d end, BlockPos target, Direction direction) {
@@ -99,16 +99,16 @@ public class BlockHelper {
     RayTraceContext ctx = new RayTraceContext(start, end.add(dir.scale(2)),
         RayTraceContext.BlockMode.OUTLINE,
         RayTraceContext.FluidMode.NONE, getLocalPlayer());
-    BlockRayTraceResult tr = getWorld().rayTraceBlocks(ctx);
-    return tr.getPos().equals(target)
-        && tr.getFace().equals(direction);
+    BlockRayTraceResult tr = getWorld().clip(ctx);
+    return tr.getBlockPos().equals(target)
+        && tr.getDirection().equals(direction);
   }
 
   public static Vector3d getOBBCenter(BlockPos pos) {
     BlockState state = getWorld().getBlockState(pos);
     VoxelShape shape = state.getCollisionShape(getWorld(), pos);
     if (!shape.isEmpty()) {
-      AxisAlignedBB bb = shape.getBoundingBox();
+      AxisAlignedBB bb = shape.bounds();
       return new Vector3d(
           bb.minX + ((bb.maxX - bb.minX) / 2.D),
           bb.minY + ((bb.maxY - bb.minY) / 2.D),
@@ -125,7 +125,7 @@ public class BlockHelper {
   public static boolean isItemBlockPlaceable(Item item) {
     if (item instanceof BlockItem) {
       BlockItem blockItem = (BlockItem) item;
-      return blockItem.getBlock().getDefaultState().isOpaqueCube(getWorld(), BlockPos.ZERO);
+      return blockItem.getBlock().defaultBlockState().isCollisionShapeFullBlock(getWorld(), BlockPos.ZERO);
     }
     return false;
   }
@@ -133,7 +133,7 @@ public class BlockHelper {
   private static BlockTraceInfo getPlaceableBlockSideTrace(Vector3d eyes, Vector3d normal,
       Stream<Direction> stream, BlockPos pos) {
     return stream
-        .map(side -> new BlockTraceInfo(pos.offset(side), side))
+        .map(side -> new BlockTraceInfo(pos.relative(side), side))
         .filter(info -> isBlockPlaceable(info.getPos()))
         .filter(info -> LocalPlayerEx.isInReach(null, eyes, info.getHitVec()))
         .filter(info -> BlockHelper.doesTraceHitBlockSide(eyes, info.getHitVec(), info.getPos(), info.getOppositeSide()))
@@ -178,7 +178,7 @@ public class BlockHelper {
       this.side = side;
       Vector3d obb = BlockHelper.getOBBCenter(pos);
       this.centerPos = VectorUtil.toFPIVector(pos).add(obb);
-      this.hitVec = this.centerPos.add(obb.mul(VectorUtil.toFPIVector(getOppositeSide().getDirectionVec())));
+      this.hitVec = this.centerPos.add(obb.multiply(VectorUtil.toFPIVector(getOppositeSide().getNormal())));
     }
 
     public Direction getOppositeSide() {

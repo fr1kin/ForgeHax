@@ -36,8 +36,8 @@ public class AutoReply extends ToggleMod {
 
   @SubscribeListener
   public void onClientChat(ClientChatReceivedEvent event) {
-    String message = (event.getMessage().getUnformattedComponentText());
-    if (message.contains(search.getValue()) && !message.startsWith(MC.getSession().getUsername())) {
+    String message = (event.getMessage().getString());
+    if (message.contains(search.getValue()) && !message.startsWith(MC.getUser().getName())) {
       String append;
       switch (mode.getValue().toUpperCase()) {
         case "REPLY":
@@ -48,7 +48,7 @@ public class AutoReply extends ToggleMod {
           append = Strings.EMPTY;
           break;
       }
-      getLocalPlayer().sendChatMessage(append + reply.getValue());
+      getLocalPlayer().chat(append + reply.getValue());
     }
   }
 }

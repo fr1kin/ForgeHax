@@ -34,11 +34,11 @@ public class VertexBuilderEx {
     if (matrix != null) {
       val vec = new Vector4f((float) x, (float) y, (float) z, 1.f);
       vec.transform(matrix);
-      x = vec.getX();
-      y = vec.getY();
-      z = vec.getZ();
+      x = vec.x();
+      y = vec.y();
+      z = vec.z();
     }
-    return builder.pos(x, y, z);
+    return builder.vertex(x, y, z);
   }
 
   public static IVertexBuilder line(IVertexBuilder builder,
@@ -53,7 +53,7 @@ public class VertexBuilderEx {
   public static IVertexBuilder line(IVertexBuilder builder,
       Vector3d start, Vector3d end,
       @Nullable Color color, @Nullable Matrix4f matrix) {
-    return line(builder, start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ(), color, matrix);
+    return line(builder, start.x(), start.y(), start.z(), end.x(), end.y(), end.z(), color, matrix);
   }
 
   public static IVertexBuilder line(IVertexBuilder builder,
@@ -146,16 +146,16 @@ public class VertexBuilderEx {
       double depth,
       @Nullable Matrix4f matrix) {
     posD(builder, x, y + height, depth, matrix)
-        .tex(textureX + 0, textureY + height)
+        .uv(textureX + 0, textureY + height)
         .endVertex();
     posD(builder, x + width, y + height, depth, matrix)
-        .tex(textureX + width, textureY + height)
+        .uv(textureX + width, textureY + height)
         .endVertex();
     posD(builder, x + width, y + 0, depth, matrix)
-        .tex(textureX + width, textureY + 0)
+        .uv(textureX + width, textureY + 0)
         .endVertex();
     posD(builder, x + 0, y + 0, depth, matrix)
-        .tex(textureX + 0, textureY + 0)
+        .uv(textureX + 0, textureY + 0)
         .endVertex();
     return builder;
   }
@@ -170,16 +170,16 @@ public class VertexBuilderEx {
     final float vScale = 1f / 0x100;
 
     posD(builder, x, y + height, depth, matrix)
-        .tex(textureX * uScale, (textureY + height) * vScale)
+        .uv(textureX * uScale, (textureY + height) * vScale)
         .endVertex();
     posD(builder, x + width, y + height, depth, matrix)
-        .tex((textureX + width) * uScale, (textureY + height) * vScale)
+        .uv((textureX + width) * uScale, (textureY + height) * vScale)
         .endVertex();
     posD(builder, x + width, y + 0, depth, matrix)
-        .tex((textureX + width) * uScale, textureY * vScale)
+        .uv((textureX + width) * uScale, textureY * vScale)
         .endVertex();
     posD(builder, x + 0, y + 0, depth, matrix)
-        .tex(textureX * uScale, textureY * vScale)
+        .uv(textureX * uScale, textureY * vScale)
         .endVertex();
     return builder;
   }
@@ -249,8 +249,8 @@ public class VertexBuilderEx {
       Vector3d start, Vector3d finish,
       final int sides,
       @Nullable Color color, @Nullable Matrix4f matrix) {
-    return filledCube(builder, start.getX(), start.getY(), start.getZ(),
-        finish.getX(), finish.getY(), finish.getZ(), sides, color, matrix);
+    return filledCube(builder, start.x(), start.y(), start.z(),
+        finish.x(), finish.y(), finish.z(), sides, color, matrix);
   }
 
   public static IVertexBuilder filledCube(IVertexBuilder builder,
@@ -341,8 +341,8 @@ public class VertexBuilderEx {
       Vector3d start, Vector3d finish,
       final int sides,
       @Nullable Color color, @Nullable Matrix4f matrix) {
-    return outlinedCube(builder, start.getX(), start.getY(), start.getZ(),
-        finish.getX(), finish.getY(), finish.getZ(), sides, color, matrix);
+    return outlinedCube(builder, start.x(), start.y(), start.z(),
+        finish.x(), finish.y(), finish.z(), sides, color, matrix);
   }
 
   public static IVertexBuilder outlinedCube(IVertexBuilder builder,
@@ -374,12 +374,12 @@ public class VertexBuilderEx {
   }
 
   public static void draw(BufferBuilder builder) {
-    builder.finishDrawing();
-    WorldVertexBufferUploader.draw(builder);
+    builder.end();
+    WorldVertexBufferUploader.end(builder);
   }
 
   public static void translateVec(MatrixStack stack, Vector3d vec) {
-    stack.translate(vec.getX(), vec.getY(), vec.getZ());
+    stack.translate(vec.x(), vec.y(), vec.z());
   }
 
   public static void translateVec(MatrixStack stack, Vector3i vec) {
@@ -387,6 +387,6 @@ public class VertexBuilderEx {
   }
 
   public static Matrix4f getLastMatrix(MatrixStack stack) {
-    return stack.getLast().getMatrix();
+    return stack.last().pose();
   }
 }
