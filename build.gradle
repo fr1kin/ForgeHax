@@ -33,7 +33,7 @@ configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-final isCiBuilding = System.getenv().get('CI') == 'yes'
+final isCiBuilding = System.getenv().get('CI') == 'true'
 
 if (isCiBuilding) {
   logger.warn 'CI build. Certain modules will be omitted from this build'
