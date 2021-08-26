@@ -20,8 +20,8 @@ apply plugin: 'net.minecraftforge.gradle'
 final git = versionDetails()
 
 group 'dev.fiki.forgehax'
-version "${git.lastTag.substring(1)}r${git.commitDistance}-${git.gitHash}"
-archivesBaseName = "ForgeHax-${minecraftVersion}"
+version "${git.lastTag.substring(1)}.r${git.commitDistance}_${git.gitHash}"
+archivesBaseName = "ForgeHax_${minecraftVersion}"
 
 java {
   toolchain {
