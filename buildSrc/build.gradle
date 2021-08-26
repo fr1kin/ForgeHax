@@ -7,5 +7,5 @@ repositories {
 }
 
 dependencies {
-  compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.13', ext: 'pom'
+  implementation group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.13', ext: 'pom'
 }

@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ '**' ]
+    tags: [ 'v*' ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache .gradle/caches
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Run cibuild script
+        id: cibuild
+        run: ./scripts/cibuild
+
+      - name: Generate changelog from commit history
+        id: log
+        run: echo '::set-output name=changelog::$(git log $(git describe --tags --abbrev=0)..v1.5 --oneline)'
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.cibuild.outputs.version }}
+          path: build/libs/ForgeHax*.jar
+
+      - uses: ncipollo/release-action@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          artifacts: build/libs/${{ steps.cibuild.outputs.jar }}
+          name: ForgeHax ${{ steps.cibuild.outputs.version }} for Minecraft ${{ steps.cibuild.outputs.mcversion }}
+          body: ${{ steps.log.outputs.changelog }}
+          token: ${{ secrets.GITHUB_TOKEN }}

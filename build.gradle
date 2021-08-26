@@ -1,67 +1,39 @@
 buildscript {
   repositories {
+    maven { url = 'https://maven.minecraftforge.net' }
     mavenCentral()
-    maven { url "http://files.minecraftforge.net/maven" }
   }
+
   dependencies {
-    classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+    classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: "$forgeGradleVersion", changing: true
   }
 }
 
-ext {
-  forgehaxCommit = { ->
-    try {
-      def out = new ByteArrayOutputStream()
-      exec {
-        commandLine 'git', 'rev-parse', '--short', 'HEAD'
-        standardOutput out
-      }
-      return out.toString().trim()
-    } catch (Throwable t) {
-      String commit = System.getenv('GIT_COMMIT')
-      if (commit == null) {
-        logger.warn('Unable to obtain the latest git commit hash.')
-        return 'latest'
-      }
-      return commit
-    }
-  }.call()
-
-  forgehaxTag = '3.3.1'
-  forgehaxVersion = "${forgehaxTag}-${forgehaxCommit}"
-
-  minecraftVersion = '1.16.5'
-  forgeVersion = '36.2.2'
-
-  fmlVersion = '2.0.0-milestone.1'
-  lombokVersion = '1.18.16'
-
-  mcpVersion = '1.16.5'
-  mcpChannel = 'official'
-  mcpMapping = '20201028'
+plugins {
+  id 'java'
+  id 'dev.fiki.forgehax.mapper'
+  id 'com.palantir.git-version' version '0.12.3'
 }
 
-repositories {
-  mavenCentral()
-  maven { url "https://oss.sonatype.org/content/groups/public/" }
-}
-
-apply plugin: 'java'
-apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'dev.fiki.forgehax.mapper'
+
+final git = versionDetails()
 
 group 'dev.fiki.forgehax'
-version forgehaxVersion
-
+version "${git.lastTag.substring(1)}r${git.commitDistance}-${git.gitHash}"
 archivesBaseName = "ForgeHax-${minecraftVersion}"
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(8)
+  }
+}
 
 configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-final isCiBuilding = System.getenv().containsKey('CI')
+final isCiBuilding = System.getenv().get('CI') == 'yes'
 
 if (isCiBuilding) {
   logger.warn 'CI build. Certain modules will be omitted from this build'
@@ -83,7 +55,7 @@ sourceSets {
 }
 
 minecraft {
-  mappings channel: mcpChannel, version: mcpChannel == 'official' ? mcpVersion : "${mcpMapping}-${mcpVersion}"
+  mappings channel: 'official', version: minecraftVersion
 
   runs {
     client {
@@ -102,7 +74,12 @@ minecraft {
 }
 
 mapper {
-  include sourceSets.main, sourceSets.test
+  targets sourceSets.main, sourceSets.test
+}
+
+repositories {
+  mavenCentral()
+  maven { url "https://oss.sonatype.org/content/groups/public/" }
 }
 
 dependencies {
@@ -116,9 +93,9 @@ dependencies {
 
   testCompileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
   testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.0'
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.0'
-  testCompile group: 'org.assertj', name: 'assertj-core', version: '3.18.1'
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: jupiterVersion
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: jupiterVersion
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: assertjVersion
 }
 
 compileJava {
@@ -144,54 +121,32 @@ jar {
   }
 }
 
+def getContributors(String apiUrl) {
+  try {
+    final url = new URL(apiUrl)
+    final json = new groovy.json.JsonSlurper().parseText(url.text)
+    return String.join(', ', json.collect { it.login })
+  } catch (Throwable t) {
+    logger.warn("Failed to get contributors from GitHub API! Defaulting to hardcoded users...")
+    logger.debug(t.getMessage(), t)
+    return 'fr1kin, BabbaJ, 0x22'
+  }
+}
+
 processResources {
   from 'logo.png'
 
-  filesMatching('**/config.properties') {
-    //noinspection UnnecessaryQualifiedReference
-    it.filter org.apache.tools.ant.filters.ReplaceTokens, tokens: [
-        "forgehax.version"      : forgehaxVersion.toString(),
-        "forgehax.mc.version"   : minecraftVersion.toString(),
-        "forgehax.forge.version": forgeVersion.toString(),
-        "forgehax.mcp.version"  : mcpVersion.toString(),
-        "forgehax.mcp.channel"  : mcpChannel.toString(),
-        "forgehax.mcp.mapping"  : mcpMapping.toString()
-    ]
-  }
-
   filesMatching('**/mods.toml') {
-    final getMajorVersion = { version ->
-      final pattern = /^(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+)$/
-      final res = forgeVersion =~ pattern
-      if (res.find()) {
-        return "[${res.group('major')},)" as String
-      } else {
-        throw new Error("'$version' is not valid semantic versioning!")
-      }
-    }
-
-    final getContributors = { api ->
-      try {
-        final url = new URL(api)
-        final json = new groovy.json.JsonSlurper().parseText(url.text)
-        return String.join(', ', json.collect { it.login })
-      } catch (Throwable t) {
-        logger.warn("Failed to get contributors from GitHub API! Defaulting to hardcoded users...")
-        logger.debug(t.getMessage(), t)
-        return 'fr1kin, BabbaJ, 0x22'
-      }
-    }
-
     //noinspection UnnecessaryQualifiedReference
     it.filter org.apache.tools.ant.filters.ReplaceTokens, tokens: [
         'forgehax.version'      : project.version as String,
-        'forgehax.forge.version': getMajorVersion.call(forgeVersion),
+        'forgehax.forge.version': forgeVersion.substring(forgeVersion.indexOf('.')), // only extract major version
         'forgehax.issue.tracker': 'https://github.com/fr1kin/ForgeHax/issues',
         'forgehax.update.url'   : 'TODO',
         'forgehax.url'          : 'fiki.dev',
         'forgehax.logo.file'    : 'logo.png',
         'forgehax.credits'      : 'Rain#4705 for the logo',
-        'forgehax.authors'      : getContributors.call('https://api.github.com/repos/fr1kin/ForgeHax/contributors'),
+        'forgehax.authors'      : getContributors('https://api.github.com/repos/fr1kin/ForgeHax/contributors'),
         'forgehax.description'  : 'Hax 4 Forge'
     ]
   }
@@ -211,12 +166,13 @@ task setGameDir() {
 }
 
 task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
-  if (file(project.ext.gameDir).exists()) {
-    final files = { directory, filter, closure ->
-      new File(directory).eachFileMatch(filter, closure)
-    }
+  onlyIf { !isCiBuilding }
+  doFirst {
+    if (file(project.ext.gameDir).exists()) {
+      final files = { directory, filter, closure ->
+        new File(directory).eachFileMatch(filter, closure)
+      }
 
-    doLast {
       final mods = "${project.ext.gameDir}/mods"
 
       project.copy {
@@ -232,11 +188,15 @@ task copyJar(type: DefaultTask, dependsOn: [setGameDir]) {
   }
 }
 
-task setupActionsOutputs() {
-  println "::set-output name=mc-version::${minecraftVersion}"
-  println "::set-output name=forgehax-tag::${forgehaxTag}"
-  println "::set-output name=forgehax-version::${forgehaxVersion}"
-  println "::set-output name=forge-version::${forgeVersion}"
+task createGitHubActionsVars() {
+  onlyIf { isCiBuilding }
+  doFirst {
+    println "::set-output name=mcversion::${minecraftVersion}"
+    println "::set-output name=version::${project.version}"
+    println "::set-output name=jar::${jar.archiveFileName.get()}"
+  }
 }
 
-build.finalizedBy copyJar
+build {
+  finalizedBy copyJar, createGitHubActionsVars
+}

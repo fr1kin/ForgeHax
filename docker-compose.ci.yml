@@ -1,0 +1,16 @@
+version: '2.4'
+
+services:
+  cibuild:
+    image: adoptopenjdk/openjdk8:slim
+    environment:
+      - CI=${CI:-}
+    volumes:
+      - ~/.gradle/caches/modules-2:/root/.gradle/caches/modules-2:z
+      - ./:/opt/build:Z
+    working_dir: /opt/build
+    entrypoint: bash -c 'set -x
+      && chmod +x gradlew
+      && ./gradlew --stop
+      && ./gradlew --no-daemon -p buildSrc clean
+      && ./gradlew --no-daemon --no-build-cache clean build'

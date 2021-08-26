@@ -13,37 +13,11 @@ Build application for staging or a release.
 "
 }
 
-if [[ -n "${GIT_COMMIT}" ]]; then
-  GIT_COMMIT="${GIT_COMMIT:0:7}"
-else
-  GIT_COMMIT="$(git rev-parse --short HEAD)"
-fi
-
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   if [ "${1:-}" = "--help" ]; then
     usage
   else
-    mkdir -p ./build/libs
-    rm -f ./build/libs/*.jar
-
-    export USER=ci
-    export USER_ID=$(id -u)
-    export GROUP_ID=$(id -g)
-    export GIT_COMMIT="${GIT_COMMIT}"
-    export JENKINS_BUILDING="${JENKINS_BUILDING:-no}"
-
-    # rebuild the image if core image files are changed
-    IMAGE_ID=$(sha1sum Dockerfile docker-compose.yml scripts/cibuild scripts/init)
-
-    if [ ! -f ".imgid" ] || [ "${IMAGE_ID}" != "$(cat .imgid)" ]; then
-      echo 'Rebuilding docker image because a change has been detected or this is the first time running'
-      docker-compose build cibuild
-      echo "${IMAGE_ID}" >.imgid
-    fi
-
-    docker-compose -f docker-compose.yml \
-      run --rm \
-      --user "${USER_ID}:${GROUP_ID}" \
-      cibuild "$@"
+    CI="${CI:-}" docker-compose -f docker-compose.ci.yml \
+      run --rm cibuild
   fi
 fi
