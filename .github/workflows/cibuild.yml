@@ -25,24 +25,23 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Run cibuild script
-        id: cibuild
-        run: ./scripts/cibuild
-
-      - name: Generate changelog from commit history
-        id: log
-        run: echo '::set-output name=changelog::$(git log $(git describe --tags --abbrev=0)..HEAD --oneline)'
+        id: exec
+        run: |
+          ./scripts/cibuild
+          echo '::set-output name=changelog::$(git log $(git describe --tags --abbrev=0)..HEAD --oneline)'
 
       - name: Upload the built artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ steps.cibuild.outputs.jar }}
-          path: build/libs/${{ steps.cibuild.outputs.jar }}
+          name: ${{ steps.exec.outputs.jar }}
+          path: build/libs/${{ steps.exec.outputs.jar }}
+          if-no-files-found: error
 
       - name: Create release if this is a tagged workflow
         uses: ncipollo/release-action@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          artifacts: build/libs/${{ steps.cibuild.outputs.jar }}
-          name: ForgeHax ${{ steps.cibuild.outputs.version }} for Minecraft ${{ steps.cibuild.outputs.mcversion }}
-          body: ${{ steps.log.outputs.changelog }}
+          artifacts: build/libs/${{ steps.exec.outputs.jar }}
+          name: ForgeHax ${{ steps.exec.outputs.version }} for Minecraft ${{ steps.exec.outputs.mcversion }}
+          body: ${{ steps.exec.outputs.changelog }}
           token: ${{ secrets.GITHUB_TOKEN }}
