@@ -7,10 +7,11 @@ services:
       - CI=${CI:-}
     volumes:
       - ~/.gradle/caches/modules-2:/root/.gradle/caches/modules-2:z
+      - ~/.gradle/caches/forge_gradle:/root/.gradle/caches/forge_gradle:z
+      - ~/.gradle/wrapper/dists:/root/.gradle/wrapper/dists:z
       - ./:/opt/build:Z
     working_dir: /opt/build
     entrypoint: bash -c 'set -x
       && chmod +x gradlew
-      && ./gradlew --stop
       && ./gradlew --no-daemon -p buildSrc clean
       && ./gradlew --no-daemon --no-build-cache clean build'

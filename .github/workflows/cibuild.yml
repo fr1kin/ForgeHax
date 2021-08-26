@@ -12,10 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # since the project is built in a container, and the container only mounts the directories
+      # we want to cache, everything else will be discarded when the container is destroyed.
+      # so we do not have to worry about Actions caching files we do not want cached
       - name: Cache .gradle/caches
         uses: actions/cache@v2
         with:
-          path: ~/.gradle/caches
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: ${{ runner.os }}-gradle-
 
@@ -25,14 +30,16 @@ jobs:
 
       - name: Generate changelog from commit history
         id: log
-        run: echo '::set-output name=changelog::$(git log $(git describe --tags --abbrev=0)..v1.5 --oneline)'
+        run: echo '::set-output name=changelog::$(git log $(git describe --tags --abbrev=0)..HEAD --oneline)'
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload the built artifact
+        uses: actions/upload-artifact@v2
         with:
-          name: ${{ steps.cibuild.outputs.version }}
-          path: build/libs/ForgeHax*.jar
+          name: ${{ steps.cibuild.outputs.jar }}
+          path: build/libs/${{ steps.cibuild.outputs.jar }}
 
-      - uses: ncipollo/release-action@v1
+      - name: Create release if this is a tagged workflow
+        uses: ncipollo/release-action@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           artifacts: build/libs/${{ steps.cibuild.outputs.jar }}
