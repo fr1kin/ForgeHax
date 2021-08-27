@@ -29,13 +29,7 @@ jobs:
 
       - name: Run cibuild script
         id: exec
-        run: |
-          ./scripts/cibuild
-          COMMIT_LOGS="$(git log $(git describe --tags --abbrev=0)..HEAD --oneline)"
-          COMMIT_LOGS="${COMMIT_LOGS//'%'/'%25'}"
-          COMMIT_LOGS="${COMMIT_LOGS//$'\n'/'%0A'}"
-          COMMIT_LOGS="${COMMIT_LOGS//$'\r'/'%0D'}"
-          echo "::set-output name=changelog::${COMMIT_LOGS}"
+        run: ./scripts/cibuild
 
       - name: Upload the built artifact
         uses: actions/upload-artifact@v2
