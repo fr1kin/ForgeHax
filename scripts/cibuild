@@ -17,6 +17,11 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   if [ "${1:-}" = "--help" ]; then
     usage
   else
+    if command -v java &> /dev/null; then
+      echo "Killing any existing gradle daemons to prevent the container from hanging"
+      ./gradlew --stop
+    fi
+
     CI="${CI:-}" docker-compose -f docker-compose.ci.yml \
       run --rm cibuild
   fi

@@ -37,7 +37,6 @@ jobs:
           COMMIT_LOGS="${COMMIT_LOGS//$'\r'/'%0D'}"
           echo "::set-output name=changelog::${COMMIT_LOGS}"
 
-
       - name: Upload the built artifact
         uses: actions/upload-artifact@v2
         with:
