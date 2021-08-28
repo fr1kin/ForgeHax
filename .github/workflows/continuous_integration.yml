@@ -19,7 +19,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle', '**/libs.versions.toml') }}
 
       - name: Cache .gradle/wrapper
         uses: actions/cache@v2

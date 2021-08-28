@@ -1,21 +1,14 @@
-buildscript {
-  repositories {
-    maven { url = 'https://maven.minecraftforge.net' }
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: "$forgeGradleVersion", changing: true
-  }
-}
-
 plugins {
   id 'java'
   id 'dev.fiki.forgehax.mapper'
-  id 'com.palantir.git-version' version '0.12.3'
+  alias libs.plugins.forgeGradle
+  alias libs.plugins.gitVerzion
 }
 
-apply plugin: 'net.minecraftforge.gradle'
+ext {
+  minecraftVersion = libs.versions.minecraft.get()
+  forgeVersion = libs.versions.forge.get()
+}
 
 final git = versionDetails()
 
@@ -23,20 +16,22 @@ group 'dev.fiki.forgehax'
 version "${git.lastTag.substring(1)}.r${git.commitDistance}_${git.gitHash}"
 archivesBaseName = "ForgeHax_${minecraftVersion}"
 
+final isCiBuilding = System.getenv().get('CI') == 'true'
+
+if (isCiBuilding) {
+  logger.warn 'CI build. Certain modules will be omitted from this build'
+}
+
 java {
   toolchain {
     languageVersion = JavaLanguageVersion.of(8)
   }
 }
 
-configurations.all {
-  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
-
-final isCiBuilding = System.getenv().get('CI') == 'true'
-
-if (isCiBuilding) {
-  logger.warn 'CI build. Certain modules will be omitted from this build'
+configurations {
+  all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+  }
 }
 
 sourceSets {
@@ -77,22 +72,16 @@ mapper {
   targets sourceSets.main, sourceSets.test
 }
 
-repositories {
-  mavenCentral()
-  maven { url "https://oss.sonatype.org/content/groups/public/" }
-}
-
 dependencies {
-  compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+  minecraft libs.minecraftforge
 
-  minecraft "net.minecraftforge:forge:${minecraftVersion}-${forgeVersion}"
+  compileOnly libs.lombok
+  annotationProcessor libs.lombok
 
-  testCompileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-  testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: jupiterVersion
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: jupiterVersion
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: assertjVersion
+  testCompileOnly libs.lombok
+  testAnnotationProcessor libs.lombok
+  testImplementation libs.bundles.jupiter
+  testImplementation libs.assertj
 }
 
 compileJava {
@@ -118,6 +107,11 @@ jar {
   }
 }
 
+static def getForgeMajorVersion(String version) {
+  final dash = version.indexOf('-')
+  return version.substring(dash + 1, version.indexOf('.', dash))
+}
+
 def getContributors(String apiUrl) {
   try {
     final url = new URL(apiUrl)
@@ -137,7 +131,7 @@ processResources {
     //noinspection UnnecessaryQualifiedReference
     it.filter org.apache.tools.ant.filters.ReplaceTokens, tokens: [
         'forgehax.version'      : project.version as String,
-        'forgehax.forge.version': forgeVersion.substring(forgeVersion.indexOf('.')), // only extract major version
+        'forgehax.forge.version': getForgeMajorVersion(forgeVersion), // only extract major version
         'forgehax.issue.tracker': 'https://github.com/fr1kin/ForgeHax/issues',
         'forgehax.update.url'   : 'TODO',
         'forgehax.url'          : 'fiki.dev',

@@ -1,1 +1,32 @@
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    maven { url = 'https://maven.minecraftforge.net' }
+  }
+
+  resolutionStrategy {
+    eachPlugin {
+      // to support forges old buildscript dsl plugin
+      if (requested.id.namespace == 'net.minecraftforge') {
+        useModule group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: requested.version
+      }
+    }
+  }
+}
+
+enableFeaturePreview 'VERSION_CATALOGS'
+
+dependencyResolutionManagement {
+  repositories {
+    mavenCentral()
+    maven { url = 'https://oss.sonatype.org/content/groups/public/' }
+  }
+
+  versionCatalogs {
+    libs {
+      from files('libs.versions.toml')
+    }
+  }
+}
+
 rootProject.name = 'ForgeHax'
