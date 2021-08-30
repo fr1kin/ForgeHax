@@ -1,8 +1,8 @@
 plugins {
   id 'java'
   id 'dev.fiki.forgehax.mapper'
-  alias libs.plugins.forgeGradle
-  alias libs.plugins.gitVerzion
+  alias libs.plugins.forgegradle
+  alias libs.plugins.gitgradle
 }
 
 ext {

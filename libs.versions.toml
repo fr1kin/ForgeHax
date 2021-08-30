@@ -25,7 +25,5 @@ ow2asm = { group = "org.ow2.asm", name = "asm-debug-all", version.ref = "ow2-asm
 jupiter = ["jupiterapi", "jupiterparams", "jupiterengine"]
 
 [plugins]
-forgeGradle = { id = "net.minecraftforge.gradle", version = "5.1.+" }
-# this is not a typo. version categories do not allow
-# any occurance of the word 'version' in the name
-gitVerzion = { id = "com.palantir.git-version", version = "0.12.3" }
+forgegradle = { id = "net.minecraftforge.gradle", version = "5.1.+" }
+gitgradle = { id = "com.palantir.git-version", version = "0.12.3" }
