@@ -20,6 +20,8 @@ jobs:
             ~/.gradle/caches/forge_gradle
             ~/.gradle/wrapper/dists
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle', '**/libs.versions.toml', '**/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Run cibuild script
         id: exec
