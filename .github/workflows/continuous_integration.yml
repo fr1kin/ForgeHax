@@ -12,24 +12,25 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # since the project is built in a container, and the container only mounts the directories
-      # we want to cache, everything else will be discarded when the container is destroyed.
-      # so we do not have to worry about Actions caching files we do not want cached
       - name: Cache .gradle/caches
         uses: actions/cache@v2
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle', '**/libs.versions.toml') }}
-
-      - name: Cache .gradle/wrapper
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+          path: |
+            ~/.gradle/caches/modules-2
+            ~/.gradle/caches/forge_gradle
+            ~/.gradle/wrapper/dists
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle', '**/libs.versions.toml', '**/gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Run cibuild script
         id: exec
         run: ./scripts/cibuild
+
+      - name: Cleanup Gradle Cache
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
 
       - name: Upload the built artifact
         uses: actions/upload-artifact@v2
