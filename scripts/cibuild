@@ -26,7 +26,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     fi
 
     CI="${CI:-}" docker-compose -f docker-compose.ci.yml \
-      run --rm cibuild
+      run --rm gradle
 
     # if running from the github CI, we want to generate a list of the commits since
     # the last tag

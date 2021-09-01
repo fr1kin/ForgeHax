@@ -1,8 +1,8 @@
 version: '2.4'
 
 services:
-  cibuild:
-    image: adoptopenjdk/openjdk8:slim
+  gradle:
+    image: adoptopenjdk/openjdk8:jdk8u292-b10-slim
     environment:
       - CI=${CI:-}
     volumes:
