@@ -13,6 +13,29 @@ Build application for staging or a release.
 "
 }
 
+function git_changelog() {
+  # if running from the github CI, we want to generate a list of the commits since
+  # the last tag
+  if [[ -n "${CI}" ]]; then
+    # get the latest tag (if exists)
+    if LATEST_TAG="$(git describe --tags --abbrev=0)"; then
+      # get list of commits since the last tag (if any)
+      if COMMITS="$(git log "${LATEST_TAG}"..HEAD --oneline)" && [[ -n "${COMMITS}" ]]; then
+        COMMITS="${COMMITS//'%'/'%25'}"
+        COMMITS="${COMMITS//$'\n'/'%0A'}"
+        COMMITS="${COMMITS//$'\r'/'%0D'}"
+      else
+        echo "WARNING: git log operation failed or result is empty"
+        COMMITS=""
+      fi
+    else
+      echo "WARNING: git describe failed to find a tag"
+      COMMITS=""
+    fi
+    echo "::set-output name=changelog::${COMMITS}"
+  fi
+}
+
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   if [[ "${1:-}" == "--help" ]]; then
     usage
@@ -28,25 +51,6 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     CI="${CI:-}" docker-compose -f docker-compose.ci.yml \
       run --rm gradle
 
-    # if running from the github CI, we want to generate a list of the commits since
-    # the last tag
-    if [[ -n "${CI}" ]]; then
-      # get the latest tag (if exists)
-      if LATEST_TAG="$(git describe --tags --abbrev=0)"; then
-        # get list of commits since the last tag (if any)
-        if COMMITS="$(git log "${LATEST_TAG}"..HEAD --oneline)" && [[ -n "${COMMITS}" ]]; then
-          COMMITS="${COMMITS//'%'/'%25'}"
-          COMMITS="${COMMITS//$'\n'/'%0A'}"
-          COMMITS="${COMMITS//$'\r'/'%0D'}"
-        else
-          echo "WARNING: git log operation failed or is result is empty"
-          COMMITS=""
-        fi
-      else
-        echo "WARNING: git describe failed to find a tag"
-        COMMITS=""
-      fi
-      echo "::set-output name=changelog::${COMMITS}"
-    fi
+    git_changelog
   fi
 fi
