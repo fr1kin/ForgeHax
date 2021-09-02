@@ -48,6 +48,8 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
       ./gradlew --stop
     fi
 
+    chmod +x ./gradlew
+
     CI="${CI:-}" docker-compose -f docker-compose.ci.yml \
       run --rm gradle
 
