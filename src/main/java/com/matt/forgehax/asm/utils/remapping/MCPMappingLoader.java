@@ -14,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Credits to bspkrs
+ * SmallFurGaming Fixed the MCP Mapping Grabber. (this will break soon.)
  */
 public class MCPMappingLoader {
   
@@ -22,7 +23,7 @@ public class MCPMappingLoader {
   private final String baseSrgDir = "{mc_ver}";
   private final String baseMappingDir = "{mc_ver}/{channel}_{map_ver}";
   private final String baseMappingUrl =
-    "http://export.mcpbot.bspk.rs/mcp_{channel}/{map_ver}-{mc_ver}/mcp_{channel}-{map_ver}-{mc_ver}.zip";
+    "https://github.com/ModCoderPack/MCPMappingsArchive/raw/master/mcp_snapshot/20171003-1.12/mcp_snapshot-20171003-1.12.zip";
   private final String baseSrgUrl =
     "http://export.mcpbot.bspk.rs/mcp/{mc_ver}/mcp-{mc_ver}-srg.zip";
   
