@@ -25,7 +25,7 @@ public class MCPMappingLoader {
   private final String baseMappingUrl =
     "https://github.com/ModCoderPack/MCPMappingsArchive/raw/master/mcp_{channel}/{map_ver}-{mc_ver}/mcp_{channel}-{map_ver}-{mc_ver}.zip";
   private final String baseSrgUrl =
-    "http://export.mcpbot.bspk.rs/mcp/{mc_ver}/mcp-{mc_ver}-srg.zip";
+    "https://github.com/ModCoderPack/MCPMappingsArchive/raw/master/mcp/{mc_ver}/mcp-{mc_ver}-srg.zip";
   
   private final File srgDir;
   private final File mappingDir;
