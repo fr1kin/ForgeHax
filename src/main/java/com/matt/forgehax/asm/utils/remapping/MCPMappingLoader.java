@@ -14,7 +14,8 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Credits to bspkrs
- * SmallFurGaming Fixed the MCP Mapping Grabber. (this will break soon.)
+ * Intel-i80486-DX4 Fixed the MCP Mapping Grabber. (this will break soon.)
+ * mmvanheusden added the SRG Mappings.
  */
 public class MCPMappingLoader {
   
