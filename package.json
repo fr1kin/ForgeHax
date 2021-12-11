@@ -1,0 +1,25 @@
+{
+  "name": "forgehax",
+  "version": "2.9.0",
+  "description": "hax 4 forge",
+  "main": "index.js",
+  "scripts": {
+    "setup-decompilation-workspace": "scripts/update",
+    "compile-forgehax": "scripts/cibuild"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fr1kin/ForgeHax.git"
+  },
+  "keywords": [
+    "minecraft",
+    "cheat",
+    "java"
+  ],
+  "author": "Fr1kin Babbaj",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Fr1kin/ForgeHax/issues"
+  },
+  "homepage": "https://github.com/Fr1kin/ForgeHax#readme"
+}
