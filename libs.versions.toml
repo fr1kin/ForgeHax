@@ -1,0 +1,29 @@
+[versions]
+minecraft = "1.16.5"
+forge = "1.16.5-36.2.2"
+lombok = "1.18.16"
+jupiter = "5.7.0"
+assertj = "3.18.1"
+groovy = "2.5.13"
+commons-io = "2.8.0"
+google-testing-compile = "0.19"
+ow2-asm = "5.2"
+
+[libraries]
+minecraftforge = { group = "net.minecraftforge", name = "forge", version.ref = "forge" }
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+jupiterapi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "jupiter" }
+jupiterparams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "jupiter" }
+jupiterengine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "jupiter" }
+assertj = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
+groovy = { group = "org.codehaus.groovy", name = "groovy-all", version.ref = "groovy" }
+commonsio = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
+testingcompile = { group = "com.google.testing.compile", name = "compile-testing", version.ref = "google-testing-compile" }
+ow2asm = { group = "org.ow2.asm", name = "asm-debug-all", version.ref = "ow2-asm" }
+
+[bundles]
+jupiter = ["jupiterapi", "jupiterparams", "jupiterengine"]
+
+[plugins]
+forgegradle = { id = "net.minecraftforge.gradle", version = "5.1.+" }
+gitgradle = { id = "com.palantir.git-version", version = "0.12.3" }

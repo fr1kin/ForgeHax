@@ -4,7 +4,7 @@
 [![](https://img.shields.io/github/downloads/fr1kin/ForgeHax/total)](https://github.com/fr1kin/ForgeHax/releases)
 [![](https://img.shields.io/matrix/forgehax:nerdsin.space.svg?label=%23forgehax%3Anerdsin.space&logo=matrix)](https://matrix.to/#/#forgehax:nerdsin.space)
 
-![Build Status](https://github.com/fr1kin/ForgeHax/actions/workflows/fg3.yml/badge.svg?branch=1.16)
+![Build Status](https://github.com/fr1kin/ForgeHax/actions/workflows/continuous_integration.yml/badge.svg?branch=1.16)
 
 A Minecraft cheat that runs as a Forge mod.
 

@@ -1,0 +1,16 @@
+version: '2.4'
+
+services:
+  gradle:
+    image: adoptopenjdk/openjdk8:jdk8u292-b10-slim
+    environment:
+      - CI=${CI:-}
+    volumes:
+      - ~/.gradle/caches/modules-2:/root/.gradle/caches/modules-2:z
+      - ~/.gradle/caches/forge_gradle:/root/.gradle/caches/forge_gradle:z
+      - ~/.gradle/wrapper/dists:/root/.gradle/wrapper/dists:z
+      - ./:/opt/build:Z
+    working_dir: /opt/build
+    command: bash -c 'set -x
+      && ./gradlew --no-daemon -p buildSrc clean
+      && ./gradlew --no-daemon --no-build-cache clean build'

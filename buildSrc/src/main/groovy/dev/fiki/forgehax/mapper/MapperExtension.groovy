@@ -27,19 +27,19 @@ class MapperExtension {
     final annotationsJar = project.files('buildSrc/Annotations/build/libs/Annotations.jar')
     final pluginJar = project.files('buildSrc/JavacPlugin/build/libs/JavacPlugin.jar')
 
-    project.dependencies.add(sourceSet.compileConfigurationName, annotationsJar)
+    project.dependencies.add(sourceSet.implementationConfigurationName, annotationsJar)
     project.dependencies.add(sourceSet.annotationProcessorConfigurationName, annotationsJar)
     project.dependencies.add(sourceSet.compileOnlyConfigurationName, pluginJar)
     project.dependencies.add(sourceSet.annotationProcessorConfigurationName, pluginJar)
   }
 
-  void include(SourceSet... sourceSets) {
+  void targets(SourceSet... sourceSets) {
     sourceSets.each { SourceSet sourceSet ->
       // add the api dependency to the project
       dependencyOnly(sourceSet)
 
       project.tasks.find { it.getName() == sourceSet.getCompileJavaTaskName() }.with {
-        it.dependsOn importSourcesTask
+        Objects.requireNonNull(it, 'Could not find java compile task!').dependsOn importSourcesTask
       }
     }
   }

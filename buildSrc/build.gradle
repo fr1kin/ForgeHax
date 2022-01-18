@@ -2,10 +2,6 @@ plugins {
   id 'java'
 }
 
-repositories {
-  mavenCentral()
-}
-
 dependencies {
-  compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.13', ext: 'pom'
+  implementation platform(libs.groovy)
 }

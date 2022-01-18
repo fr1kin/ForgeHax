@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
@@ -13,37 +13,46 @@ Build application for staging or a release.
 "
 }
 
-if [[ -n "${GIT_COMMIT}" ]]; then
-  GIT_COMMIT="${GIT_COMMIT:0:7}"
-else
-  GIT_COMMIT="$(git rev-parse --short HEAD)"
-fi
+function git_changelog() {
+  # if running from the github CI, we want to generate a list of the commits since
+  # the last tag
+  if [[ -n "${CI}" ]]; then
+    # get the latest tag (if exists)
+    if LATEST_TAG="$(git describe --tags --abbrev=0)"; then
+      # get list of commits since the last tag (if any)
+      if COMMITS="$(git log "${LATEST_TAG}"..HEAD --oneline)" && [[ -n "${COMMITS}" ]]; then
+        COMMITS="${COMMITS//'%'/'%25'}"
+        COMMITS="${COMMITS//$'\n'/'%0A'}"
+        COMMITS="${COMMITS//$'\r'/'%0D'}"
+      else
+        echo "WARNING: git log operation failed or result is empty"
+        COMMITS=""
+      fi
+    else
+      echo "WARNING: git describe failed to find a tag"
+      COMMITS=""
+    fi
+    echo "::set-output name=changelog::${COMMITS}"
+  fi
+}
 
-if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
-  if [ "${1:-}" = "--help" ]; then
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  if [[ "${1:-}" == "--help" ]]; then
     usage
   else
-    mkdir -p ./build/libs
-    rm -f ./build/libs/*.jar
-
-    export USER=ci
-    export USER_ID=$(id -u)
-    export GROUP_ID=$(id -g)
-    export GIT_COMMIT="${GIT_COMMIT}"
-    export JENKINS_BUILDING="${JENKINS_BUILDING:-no}"
-
-    # rebuild the image if core image files are changed
-    IMAGE_ID=$(sha1sum Dockerfile docker-compose.yml scripts/cibuild scripts/init)
-
-    if [ ! -f ".imgid" ] || [ "${IMAGE_ID}" != "$(cat .imgid)" ]; then
-      echo 'Rebuilding docker image because a change has been detected or this is the first time running'
-      docker-compose build cibuild
-      echo "${IMAGE_ID}" >.imgid
+    # if mounting the hosts cache folder, gradle inside the container will try and
+    # acquire a file lock that the host machine may already be holding. this will
+    # result in the container hanging indefinitely. stopping any existing daemons
+    # on the host is the simplest way to 'solve' this issue
+    if command -v java &>/dev/null; then
+      ./gradlew --stop
     fi
 
-    docker-compose -f docker-compose.yml \
-      run --rm \
-      --user "${USER_ID}:${GROUP_ID}" \
-      cibuild "$@"
+    chmod +x ./gradlew
+
+    CI="${CI:-}" docker-compose -f docker-compose.ci.yml \
+      run --rm gradle
+
+    git_changelog
   fi
 fi

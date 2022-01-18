@@ -5,18 +5,22 @@ import dev.fiki.forgehax.mapper.extractor.StaticMethodsImporter
 import dev.fiki.forgehax.mapper.extractor.TSrgImporter
 import dev.fiki.forgehax.mapper.type.MappedFormat
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class ImportSourcesTask extends DefaultTask {
+  @Internal
   MapData data = new MapData()
+  @OutputFile
   File output = new File(project.buildDir, 'minecraft.map')
 
   @TaskAction
   void action() {
     def project = getProject()
-    data.importSource(new TSrgImporter(project.tasks.extractSrg.output as File, MappedFormat.OBFUSCATED, MappedFormat.SRG))
-    data.importSource(new TSrgImporter(project.tasks.createMcpToSrg.output as File, MappedFormat.MAPPED, MappedFormat.SRG))
-    data.importSource(StaticMethodsImporter.fromMcpConfigZip(project.tasks.downloadMcpConfig.output as File))
+    data.importSource(new TSrgImporter(project.tasks.extractSrg.output.getAsFile().get(), MappedFormat.OBFUSCATED, MappedFormat.SRG))
+    data.importSource(new TSrgImporter(project.tasks.createMcpToSrg.output.getAsFile().get(), MappedFormat.MAPPED, MappedFormat.SRG))
+    data.importSource(StaticMethodsImporter.fromMcpConfigZip(project.tasks.downloadMcpConfig.output.getAsFile().get()))
 
     def builder = new StringBuilder()
     data.classMap.values()
