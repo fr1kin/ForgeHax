@@ -65,6 +65,7 @@ public class EnchantmentUtils {
       SHORT_ENCHANT_NAMES.put(7, "th");
       SHORT_ENCHANT_NAMES.put(8, "ds");
       SHORT_ENCHANT_NAMES.put(9, "fw");
+      SHORT_ENCHANT_NAMES.PUT(10, "cob");
       SHORT_ENCHANT_NAMES.put(16, "sh");
       SHORT_ENCHANT_NAMES.put(17, "sm");
       SHORT_ENCHANT_NAMES.put(18, "boa");
@@ -82,6 +83,7 @@ public class EnchantmentUtils {
       SHORT_ENCHANT_NAMES.put(61, "los");
       SHORT_ENCHANT_NAMES.put(62, "lur");
       SHORT_ENCHANT_NAMES.put(70, "mend");
+      SHORT_ENCHANT_NAMES.put(71, "cov");
     }
     
     private final Enchantment enchantment;
