@@ -25,10 +25,10 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @RegisterMod
-public class WaifuESP extends ToggleMod {
+public class CarpinchoESP extends ToggleMod {
   
-  public WaifuESP() {
-    super(Category.RENDER, "WaifuESP", false, "overlay cute animes over players");
+  public CarpinchoESP() {
+    super(Category.RENDER, "CarpinchoESP", false, "overlay cute capybaras over players");
   }
   
   public final Setting<Boolean> noRenderPlayers =
@@ -40,13 +40,13 @@ public class WaifuESP extends ToggleMod {
           .defaultTo(false)
           .build();
   
-  // private final ResourceLocation waifu = new ResourceLocation("textures/forgehax/waifu1.png");
-  private ResourceLocation waifu;
+  // private final ResourceLocation carpincho = new ResourceLocation("textures/forgehax/carpincho.png");
+  private ResourceLocation carpincho;
   
-  private final String waifuUrl = "https://raw.githubusercontent.com/forgehax/assets/master/img/waifu_v01.png";
+  private final String carpinchoUrl = "https://raw.githubusercontent.com/forgehax/assets/master/img/carpincho.png";
   
-  private final File waifuCache =
-      Helper.getFileManager().getBaseResolve("cache/waifu.png").toFile();
+  private final File carpinchoCache =
+      Helper.getFileManager().getBaseResolve("cache/carpincho.png").toFile();
   
   private <T> BufferedImage getImage(T source, ThrowingFunction<T, BufferedImage> readFunction) {
     try {
@@ -66,7 +66,7 @@ public class WaifuESP extends ToggleMod {
   
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
-    if (waifu == null) {
+    if (carpincho == null) {
       return;
     }
     
@@ -87,8 +87,8 @@ public class WaifuESP extends ToggleMod {
               (int) (top.x - (width / 1.8)); // normally 2.0 but lowering it shifts it to the left
           int y = top.y;
           
-          // draw waifu
-          MC.renderEngine.bindTexture(waifu);
+          // draw carpincho
+          MC.renderEngine.bindTexture(carpincho);
           
           GlStateManager.color(255, 255, 255);
           Gui.drawScaledCustomSizeModalRect(
@@ -111,26 +111,26 @@ public class WaifuESP extends ToggleMod {
         () -> {
           try {
             BufferedImage image;
-            if (waifuCache.exists()) { // TODO: download async
-              image = getImage(waifuCache, ImageIO::read); // from cache
+            if (carpinchoCache.exists()) { // TODO: download async
+              image = getImage(carpinchoCache, ImageIO::read); // from cache
             } else {
-              image = getImage(new URL(waifuUrl), ImageIO::read); // from internet
+              image = getImage(new URL(carpinchoUrl), ImageIO::read); // from internet
               if (image != null) {
                 try {
-                  ImageIO.write(image, "png", waifuCache);
+                  ImageIO.write(image, "png", carpinchoCache);
                 } catch (IOException ex) {
                   ex.printStackTrace();
                 }
               }
             }
             if (image == null) {
-              LOGGER.warn("Failed to download waifu image");
+              LOGGER.warn("Failed to download carpincho image");
               return;
             }
             
             DynamicTexture dynamicTexture = new DynamicTexture(image);
             dynamicTexture.loadTexture(MC.getResourceManager());
-            waifu = MC.getTextureManager().getDynamicTextureLocation("WAIFU", dynamicTexture);
+            carpincho = MC.getTextureManager().getDynamicTextureLocation("CARPINCHO", dynamicTexture);
           } catch (Exception e) {
             e.printStackTrace();
           }
