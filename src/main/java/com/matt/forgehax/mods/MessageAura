@@ -14,8 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RegisterMod
-// TODO: rename this
-public class ThisModIsDedicatedToUfoCrossing extends ToggleMod {
+// TODO: rename this DONE, nolongerdedicatedtoufocrossing
+public class MessageAura extends ToggleMod {
 
   private final Setting<String> message =
       getCommandStub()
@@ -26,8 +26,8 @@ public class ThisModIsDedicatedToUfoCrossing extends ToggleMod {
           .defaultTo("hello uwu")
           .build();
 
-  public ThisModIsDedicatedToUfoCrossing() {
-    super(Category.MISC, "ThisModIsDedicatedToUfoCrossing", false, "Automatically send a message to whoever comes into render distance");
+  public MessageAura() {
+    super(Category.MISC, "MessageAura", false, "Automatically send a message to whoever comes into render distance");
   }
 
   @SubscribeEvent
