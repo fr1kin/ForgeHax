@@ -43,7 +43,7 @@ public class CarpinchoESP extends ToggleMod {
   // private final ResourceLocation carpincho = new ResourceLocation("textures/forgehax/carpincho.png");
   private ResourceLocation carpincho;
   
-  private final String carpinchoUrl = "https://raw.githubusercontent.com/forgehax/assets/master/img/carpincho.png";
+  private final String carpinchoUrl = "https://cdn.discordapp.com/attachments/932122296863322172/1050581091259531284/carpincho.png";
   
   private final File carpinchoCache =
       Helper.getFileManager().getBaseResolve("cache/carpincho.png").toFile();
